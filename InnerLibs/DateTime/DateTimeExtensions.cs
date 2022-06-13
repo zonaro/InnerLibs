@@ -45,31 +45,6 @@ namespace InnerLibs.TimeMachine
         }
 
         /// <summary>
-        /// Adds the given number of business days to the <see cref="DateTimeOffset"/>.
-        /// </summary>
-        /// <param name="current">The date to be changed.</param>
-        /// <param name="days">Number of business days to be added.</param>
-        /// <returns>A <see cref="DateTimeOffset"/> increased by a given number of business days.</returns>
-        public static DateTimeOffset AddBusinessDays(this DateTimeOffset current, int days, params DayOfWeek[] DaysOff)
-        {
-            DaysOff = DaysOff ?? new DayOfWeek[] { };
-
-            if (!DaysOff.Any()) { DaysOff = new DayOfWeek[] { DayOfWeek.Saturday, DayOfWeek.Sunday }; }
-
-            var sign = Math.Sign(days);
-            var unsignedDays = Math.Abs(days);
-            for (var i = 0; i < unsignedDays; i++)
-            {
-                do
-                {
-                    current = current.AddDays(sign);
-                } while (current.DayOfWeek.IsIn(DaysOff));
-            }
-
-            return current;
-        }
-
-        /// <summary>
         /// Returns a new <see cref="DateTime"/> that adds the value of the specified <see
         /// cref="DateRange"/> to the value of this instance.
         /// </summary>
@@ -80,12 +55,6 @@ namespace InnerLibs.TimeMachine
         /// resulting <see cref="TimeSpan"/>.
         /// </summary>
         public static TimeSpan AddDateRange(this TimeSpan timeSpan, DateRange DateRange) => timeSpan + DateRange.TimeSpan;
-
-        /// <summary>
-        /// Returns a new <see cref="DateTime"/> that adds the value of the specified <see
-        /// cref="DateRange"/> to the value of this instance.
-        /// </summary>
-        public static DateTimeOffset AddDateRange(this DateTimeOffset dateTimeOffset, DateRange timeSpan) => dateTimeOffset.Add(timeSpan);
 
         /// <summary>
         /// Adciona um intervalo a um <see cref="DateTime"/>
@@ -143,18 +112,6 @@ namespace InnerLibs.TimeMachine
         public static DateTime Ago(this DateRange from, DateTime originalValue) => from.Before(originalValue);
 
         /// <summary>
-        /// Subtracts given <see cref="TimeSpan"/> from <paramref name="originalValue"/><see
-        /// cref="DateTime"/> and returns resulting <see cref="DateTime"/> in the past.
-        /// </summary>
-        public static DateTimeOffset Ago(this TimeSpan from, DateTimeOffset originalValue) => from.Before(originalValue);
-
-        /// <summary>
-        /// Subtracts given <see cref="TimeSpan"/> from <paramref name="originalValue"/><see
-        /// cref="DateTime"/> and returns resulting <see cref="DateTime"/> in the past.
-        /// </summary>
-        public static DateTimeOffset Ago(this DateRange from, DateTimeOffset originalValue) => from.Before(originalValue);
-
-        /// <summary>
         /// Returns the given <see cref="DateTime"/> with hour and minutes set At given values.
         /// </summary>
         /// <param name="current">The current <see cref="DateTime"/> to be changed.</param>
@@ -184,42 +141,8 @@ namespace InnerLibs.TimeMachine
         /// <param name="milliseconds">The milliseconds to set time to.</param>
         /// <returns><see cref="DateTime"/> with hour and minutes and seconds set to given values.</returns>
         public static DateTime At(this DateTime current, int hour, int minute, int second, int milliseconds) => current.SetTime(hour, minute, second, milliseconds);
-
-        /// <summary>
-        /// Returns the given <see cref="DateTimeOffset"/> with hour and minutes set At given values.
-        /// </summary>
-        /// <param name="current">The current <see cref="DateTimeOffset"/> to be changed.</param>
-        /// <param name="hour">The hour to set time to.</param>
-        /// <param name="minute">The minute to set time to.</param>
-        /// <returns><see cref="DateTimeOffset"/> with hour and minute set to given values.</returns>
-        public static DateTimeOffset At(this DateTimeOffset current, int hour, int minute) => current.SetTime(hour, minute);
-
-        /// <summary>
-        /// Returns the given <see cref="DateTimeOffset"/> with hour and minutes and seconds set At
-        /// given values.
-        /// </summary>
-        /// <param name="current">The current <see cref="DateTimeOffset"/> to be changed.</param>
-        /// <param name="hour">The hour to set time to.</param>
-        /// <param name="minute">The minute to set time to.</param>
-        /// <param name="second">The second to set time to.</param>
-        /// <returns>
-        /// <see cref="DateTimeOffset"/> with hour and minutes and seconds set to given values.
-        /// </returns>
-        public static DateTimeOffset At(this DateTimeOffset current, int hour, int minute, int second) => current.SetTime(hour, minute, second);
-
-        /// <summary>
-        /// Returns the given <see cref="DateTimeOffset"/> with hour and minutes and seconds and
-        /// milliseconds set At given values.
-        /// </summary>
-        /// <param name="current">The current <see cref="DateTimeOffset"/> to be changed.</param>
-        /// <param name="hour">The hour to set time to.</param>
-        /// <param name="minute">The minute to set time to.</param>
-        /// <param name="second">The second to set time to.</param>
-        /// <param name="milliseconds">The milliseconds to set time to.</param>
-        /// <returns>
-        /// <see cref="DateTimeOffset"/> with hour and minutes and seconds set to given values.
-        /// </returns>
-        public static DateTimeOffset At(this DateTimeOffset current, int hour, int minute, int second, int milliseconds) => current.SetTime(hour, minute, second, milliseconds);
+        public static DateTime SetTime(this DateTime current, TimeSpan Time) => current.SetTime(Time.Hours, Time.Minutes, Time.Seconds, Time.Milliseconds);
+        public static DateTime At(this DateTime current, TimeSpan Time) => current.SetTime(Time);
 
         /// <summary>
         /// Subtracts given <see cref="TimeSpan"/> from <paramref name="originalValue"/><see
@@ -232,18 +155,6 @@ namespace InnerLibs.TimeMachine
         /// cref="DateTime"/> and returns resulting <see cref="DateTime"/> in the past.
         /// </summary>
         public static DateTime Before(this DateRange from, DateTime originalValue) => originalValue.Add(-from);
-
-        /// <summary>
-        /// Subtracts given <see cref="TimeSpan"/> from <paramref name="originalValue"/><see
-        /// cref="DateTime"/> and returns resulting <see cref="DateTime"/> in the past.
-        /// </summary>
-        public static DateTimeOffset Before(this TimeSpan from, DateTimeOffset originalValue) => originalValue - from;
-
-        /// <summary>
-        /// Subtracts given <see cref="TimeSpan"/> from <paramref name="originalValue"/><see
-        /// cref="DateTime"/> and returns resulting <see cref="DateTime"/> in the past.
-        /// </summary>
-        public static DateTimeOffset Before(this DateRange from, DateTimeOffset originalValue) => originalValue.Add(-from);
 
         /// <summary>
         /// Returns the Start day of the bimester changing the time to the very start of the day.
@@ -267,12 +178,6 @@ namespace InnerLibs.TimeMachine
         /// <see cref="DateTime"/>).
         /// </summary>
         public static DateTime BeginningOfDay(this DateTime date, int timezoneOffset) => new DateTime(date.Year, date.Month, date.Day, 0, 0, 0, 0, date.Kind).AddHours(timezoneOffset);
-
-        /// <summary>
-        /// Returns the Start of the given day (the first millisecond of the given <see cref="DateTimeOffset"/>).
-        /// </summary>
-        public static DateTimeOffset BeginningOfDay(this DateTimeOffset date)
-        => new DateTimeOffset(date.Year, date.Month, date.Day, 0, 0, 0, date.Offset);
 
         public static DateTime BeginningOfFortnight(this DateTime date) => date.FirstDayOfFortnight().Date;
 
@@ -479,11 +384,6 @@ namespace InnerLibs.TimeMachine
         public static DateTime DecreaseTime(this DateTime startDate, TimeSpan toSubtract) => startDate - toSubtract;
 
         /// <summary>
-        /// Decreases the <see cref="DateTimeOffset"/> object with given <see cref="TimeSpan"/> value.
-        /// </summary>
-        public static DateTimeOffset DecreaseTime(this DateTimeOffset startDate, TimeSpan toSubtract) => startDate - toSubtract;
-
-        /// <summary>
         /// Returns the last day of the bimester changing the time to the very end of the day. Eg,
         /// 2011-12-24T06:40:20.005 =&gt; 2011-12-31T23:59:59.999
         /// </summary>
@@ -506,12 +406,6 @@ namespace InnerLibs.TimeMachine
         /// last hour for the given <see cref="DateTime"/>).
         /// </summary>
         public static DateTime EndOfDay(this DateTime date, int timeZoneOffset) => new DateTime(date.Year, date.Month, date.Day, 23, 59, 59, 999, date.Kind).AddHours(timeZoneOffset);
-
-        /// <summary>
-        /// Returns the very end of the given day (the last millisecond of the last hour for the
-        /// given <see cref="DateTimeOffset"/>).
-        /// </summary>
-        public static DateTimeOffset EndOfDay(this DateTimeOffset date) => new DateTimeOffset(date.Year, date.Month, date.Day, 23, 59, 59, 999, date.Offset);
 
         public static DateTime EndOfFortnight(this DateTime date, int timeZoneOffset) => date.LastDayOfFortnight().EndOfDay(timeZoneOffset);
 
@@ -625,15 +519,6 @@ namespace InnerLibs.TimeMachine
         }
 
         /// <summary>
-        /// Sets the day of the <see cref="DateTimeOffset"/> to the first day in that month.
-        /// </summary>
-        /// <param name="current">The current <see cref="DateTimeOffset"/> to be changed.</param>
-        /// <returns>
-        /// given <see cref="DateTimeOffset"/> with the day part set to the first day in that month.
-        /// </returns>
-        public static DateTimeOffset FirstDayOfMonth(this DateTimeOffset current) => current.SetDay(1);
-
-        /// <summary>
         /// Sets the day of the <see cref="DateTime"/> to the first day in that calendar quarter.
         /// credit to http://www.devcurry.com/2009/05/find-first-and-last-day-of-current.html
         /// </summary>
@@ -650,25 +535,11 @@ namespace InnerLibs.TimeMachine
         }
 
         /// <summary>
-        /// Sets the day of the <see cref="DateTimeOffset"/> to the first day in that calendar
-        /// quarter. credit to http://www.devcurry.com/2009/05/find-first-and-last-day-of-current.html
-        /// </summary>
-        /// <param name="current"></param>
-        /// <returns>
-        /// given <see cref="DateTimeOffset"/> with the day part set to the first day in the quarter.
-        /// </returns>
-        public static DateTimeOffset FirstDayOfQuarter(this DateTimeOffset current)
-        {
-            var currentQuarter = (current.Month - 1) / 3 + 1;
-            return current.SetDate(current.Year, 3 * currentQuarter - 2, 1);
-        }
-
-        /// <summary>
         /// Retorna o primeiro dia de um semestre a partir da data
         /// </summary>
         /// <param name="[Date]"></param>
         /// <returns></returns>
-        public static DateTime FirstDayOfSemester(this DateTime Date) => Date.GetSemester() == 1 ? Date.FirstDayOfYear() : new DateTime(Date.Year, 7, 1).Date;
+        public static DateTime FirstDayOfSemester(this DateTime Date) => Date.GetSemesterOfYear() == 1 ? Date.FirstDayOfYear() : new DateTime(Date.Year, 7, 1).Date;
 
         /// <summary>
         /// Returns a DateTime adjusted to the beginning of the week.
@@ -700,36 +571,12 @@ namespace InnerLibs.TimeMachine
         }
 
         /// <summary>
-        /// Returns a DateTimeOffset adjusted to the beginning of the week.
-        /// </summary>
-        /// <param name="dateTime">The DateTimeOffset to adjust</param>
-        /// <returns>A DateTimeOffset instance adjusted to the beginning of the current week</returns>
-        /// <remarks>the beginning of the week is controlled by the current Culture</remarks>
-        public static DateTimeOffset FirstDayOfWeek(this DateTimeOffset dateTime)
-        {
-            var currentCulture = CultureInfo.CurrentCulture;
-            var firstDayOfWeek = currentCulture.DateTimeFormat.FirstDayOfWeek;
-            var offset = dateTime.DayOfWeek - firstDayOfWeek < 0 ? 7 : 0;
-            var numberOfDaysSinceBeginningOfTheWeek = dateTime.DayOfWeek + offset - firstDayOfWeek;
-
-            return dateTime.AddDays(-numberOfDaysSinceBeginningOfTheWeek);
-        }
-
-        /// <summary>
         /// Returns the first day of the year keeping the time component intact. Eg,
         /// 2011-02-04T06:40:20.005 =&gt; 2011-01-01T06:40:20.005
         /// </summary>
         /// <param name="current">The DateTime to adjust</param>
         /// <returns></returns>
         public static DateTime FirstDayOfYear(this DateTime current) => current.SetDate(current.Year, 1, 1);
-
-        /// <summary>
-        /// Returns the first day of the year keeping the time component intact. Eg,
-        /// 2011-02-04T06:40:20.005 =&gt; 2011-01-01T06:40:20.005
-        /// </summary>
-        /// <param name="current">The DateTimeOffset to adjust</param>
-        /// <returns></returns>
-        public static DateTimeOffset FirstDayOfYear(this DateTimeOffset current) => current.SetDate(current.Year, 1, 1);
 
         /// <summary>
         /// Adds given <see cref="TimeSpan"/> to supplied <paramref name="originalValue"/><see
@@ -744,28 +591,18 @@ namespace InnerLibs.TimeMachine
         public static DateTime From(this DateRange from, DateTime originalValue) => originalValue.Add(from);
 
         /// <summary>
-        /// Adds given <see cref="TimeSpan"/> to supplied <paramref name="originalValue"/><see
-        /// cref="DateTime"/> and returns resulting <see cref="DateTime"/> in the future.
-        /// </summary>
-        public static DateTimeOffset From(this TimeSpan from, DateTimeOffset originalValue) => originalValue + from;
-
-        /// <summary>
-        /// Adds given <see cref="TimeSpan"/> to supplied <paramref name="originalValue"/><see
-        /// cref="DateTime"/> and returns resulting <see cref="DateTime"/> in the future.
-        /// </summary>
-        public static DateTimeOffset From(this DateRange from, DateTimeOffset originalValue) => originalValue.Add(from);
-
-        /// <summary>
         /// Adds given <see cref="TimeSpan"/> to current <see cref="DateTime.Now"/> and returns
         /// resulting <see cref="DateTime"/> in the future.
         /// </summary>
         public static DateTime FromNow(this TimeSpan from) => from.From(DateTime.Now);
+        public static DateTime FromToday(this TimeSpan from) => from.From(DateTime.Today);
 
         /// <summary>
         /// Adds given <see cref="TimeSpan"/> to current <see cref="DateTime.Now"/> and returns
         /// resulting <see cref="DateTime"/> in the future.
         /// </summary>
         public static DateTime FromNow(this DateRange from) => from.From(DateTime.Now);
+        public static DateTime FromToday(this DateRange from) => from.From(DateTime.Today);
 
         /// <summary>
         /// Return the age at giving date
@@ -813,30 +650,32 @@ namespace InnerLibs.TimeMachine
         /// <returns></returns>
         public static int GetAge(this DateTime BirthDate, int Year) => GetAge(BirthDate, DateTime.Today.SetYear(Year));
 
+        public static int GetBimesterOfYear(this DateTime DateAndtime) => GetBimesterOfYear(DateAndtime.Month);
+
         /// <summary>
         /// Pega o numero do Bimesre a partir de uma data
         /// </summary>
         /// <param name="DateAndtime"></param>
         /// <returns></returns>
-        public static int GetBimesterOfYear(this DateTime DateAndtime)
+        public static int GetBimesterOfYear(this int Month)
         {
-            if (DateAndtime.Month <= 2)
+            if (Month <= 2)
             {
                 return 1;
             }
-            else if (DateAndtime.Month <= 4)
+            else if (Month <= 4)
             {
                 return 2;
             }
-            else if (DateAndtime.Month <= 6)
+            else if (Month <= 6)
             {
                 return 3;
             }
-            else if (DateAndtime.Month <= 8)
+            else if (Month <= 8)
             {
                 return 4;
             }
-            else if (DateAndtime.Month <= 10)
+            else if (Month <= 10)
             {
                 return 5;
             }
@@ -846,9 +685,11 @@ namespace InnerLibs.TimeMachine
             }
         }
 
-        public static DateRange GetBimesterRange(this DateTime Date) => new DateRange(Date.BeginningOfBimester(), Date.EndOfBimester());
+        public static DateRange GetBimesterRange(this DateTime Date) => DateRange.Bimester(Date);
 
-        public static DateRange GetDayRange(this DateTime Date) => new DateRange(Date.BeginningOfDay(), Date.EndOfDay());
+        public static DateTime GetDateFromDayOfYear(this int DayOfYear, int? year = null, int? hours = null, int? minutes = null, int? seconds = null, int? milliseconds = null) => new DateTime(year ?? DateTime.Now.Year, 1, 1, hours ?? DateTime.Now.Hour, minutes ?? DateTime.Now.Minute, seconds ?? DateTime.Now.Second, milliseconds ?? DateTime.Now.Millisecond).AddDays(DayOfYear - 1);
+
+        public static DateRange GetDayRange(this DateTime Date) => DateRange.Day(Date);
 
         /// <summary>
         /// Retorna as datas entre um periodo
@@ -877,22 +718,15 @@ namespace InnerLibs.TimeMachine
             return l.Distinct().Where(x => x.DayOfWeek.IsIn(DaysOfWeek));
         }
 
-        public static int GetFortnightNumber(this DateTime datetime) => (datetime.Day <= 15 ? 1 : 2);
+        public static int GetFortnightNumber(this DateTime datetime) => datetime.Day <= 15 ? 1 : 2;
 
-        public static DateRange GetFortnightRange(this DateTime Date) => new DateRange(Date.BeginningOfFortnight(), Date.EndOfFortnight());
+        public static DateRange GetFortnightRange(this DateTime Date) => DateRange.Fortnight(Date);
 
         public static Expression<Func<T, string>> GetGroupByPeriodExpression<T>(this IEnumerable<T> data, string Group, Expression<Func<T, DateTime>> prop, PeriodGroup formats = null)
         {
             data = data ?? Array.Empty<T>();
             return (formats ?? new PeriodGroup()).GroupByPeriodExpression(Group, prop);
         }
-
-        public static IEnumerable<IGrouping<string, T>> GroupByPeriod<T>(this IEnumerable<T> data, string Group, Expression<Func<T, DateTime>> prop, PeriodGroup formats = null)
-        {
-            data = data ?? Array.Empty<T>();
-            return data.GroupBy((formats ?? new PeriodGroup()).GroupByPeriodExpression(Group, prop).Compile());
-        }
-
 
         /// <summary>
         /// Retorna o nome do mês a partir da data
@@ -974,24 +808,26 @@ namespace InnerLibs.TimeMachine
             return MonthsRet;
         }
 
-        public static DateRange GetMonthRange(this DateTime Date) => new DateRange(Date.BeginningOfMonth(), Date.EndOfMonth());
+        public static DateRange GetMonthRange(this DateTime Date) => DateRange.Month(Date);
+
+        public static int GetQuarterOfYear(this DateTime DateAndTime) => GetQuarterOfYear(DateAndTime.Month);
 
         /// <summary>
         /// Pega o numero do trimestre a partir de uma data
         /// </summary>
         /// <param name="DateAndTime"></param>
         /// <returns></returns>
-        public static int GetQuarterOfYear(this DateTime DateAndTime)
+        public static int GetQuarterOfYear(this int Month)
         {
-            if (DateAndTime.Month <= 3)
+            if (Month <= 3)
             {
                 return 1;
             }
-            else if (DateAndTime.Month <= 6)
+            else if (Month <= 6)
             {
                 return 2;
             }
-            else if (DateAndTime.Month <= 9)
+            else if (Month <= 9)
             {
                 return 3;
             }
@@ -1001,16 +837,18 @@ namespace InnerLibs.TimeMachine
             }
         }
 
-        public static DateRange GetQuarterRange(this DateTime Date) => new DateRange(Date.BeginningOfQuarter(), Date.EndOfQuarter());
+        public static DateRange GetQuarterRange(this DateTime Date) => DateRange.Quarter(Date);
 
         /// <summary>
         /// Pega o numero do semestre a partir de uma data
         /// </summary>
         /// <param name="DateAndTime"></param>
         /// <returns></returns>
-        public static int GetSemester(this DateTime DateAndTime) => DateAndTime.Month <= 6 ? 1 : 2;
+        public static int GetSemesterOfYear(this DateTime DateAndTime) => GetSemesterOfYear(DateAndTime.Month);
 
-        public static DateRange GetSemesterRange(this DateTime Date) => new DateRange(Date.BeginningOfSemester(), Date.EndOfSemester());
+        public static int GetSemesterOfYear(this int Month) => Month <= 6 ? 1 : 2;
+
+        public static DateRange GetSemesterRange(this DateTime Date) => DateRange.Semester(Date);
 
         /// <summary>
         /// Retorna o nome do mês a partir da data
@@ -1049,14 +887,16 @@ namespace InnerLibs.TimeMachine
         /// </summary>
         /// <param name="DateAndTime"></param>
         /// <returns></returns>
-        public static WeekInfo GetWeekInfoOfMonth(this DateTime DateAndTime) => new WeekInfo(DateAndTime);
+        public static WeekInfo GetWeekInfo(this DateTime DateAndTime, CultureInfo culture = null, string stringFormat = null) => new WeekInfo(DateAndTime, culture, stringFormat);
 
         /// <summary>
         /// Pega o numero da semana do mês a partir de uma data
         /// </summary>
         /// <param name="DateAndTime"></param>
         /// <returns></returns>
-        public static int GetWeekNumberOfMonth(this DateTime DateAndTime) => DateAndTime.GetWeekInfoOfMonth().Week;
+        public static int GetWeekNumberOfMonth(this DateTime DateAndTime) => DateAndTime.GetWeekInfo().WeekOfMonth;
+
+        public static int GetWeekNumberOfYear(this DateTime DateAndTime) => DateAndTime.GetWeekInfo().WeekOfYear;
 
         /// <summary>
         /// Retorna o numero da semana relativa ao ano
@@ -1073,11 +913,17 @@ namespace InnerLibs.TimeMachine
         /// <param name="[Date]">Data</param>
         /// <param name="FirstDayOfWeek">Primeiro dia da semana (DEFAULT é domingo)</param>
         /// <returns></returns>
-        public static DateRange GetWeekRange(this DateTime Date, DayOfWeek FirstDayOfWeek) => new DateRange(Date.FirstDayOfWeek(FirstDayOfWeek), Date.LastDayOfWeek(FirstDayOfWeek));
+        public static DateRange GetWeekRange(this DateTime Date, DayOfWeek FirstDayOfWeek) => DateRange.Week(Date, FirstDayOfWeek);
 
-        public static DateRange GetWeekRange(this DateTime Date, CultureInfo culture = null) => new DateRange(Date.FirstDayOfWeek(culture), Date.LastDayOfWeek(culture));
+        public static DateRange GetWeekRange(this DateTime Date, CultureInfo culture = null) => DateRange.Week(Date, culture);
 
-        public static DateRange GetYearRange(this DateTime Date) => new DateRange(Date.BeginningOfYear(), Date.EndOfYear());
+        public static DateRange GetYearRange(this DateTime Date) => DateRange.Year(Date);
+
+        public static IEnumerable<IGrouping<string, T>> GroupByPeriod<T>(this IEnumerable<T> data, string Group, Expression<Func<T, DateTime>> prop, PeriodGroup formats = null)
+        {
+            data = data ?? Array.Empty<T>();
+            return data.GroupBy((formats ?? new PeriodGroup()).GroupByPeriodExpression(Group, prop).Compile());
+        }
 
         /// <summary>
         /// Returns <see cref="TimeSpan"/> for given number of Hours.
@@ -1095,27 +941,12 @@ namespace InnerLibs.TimeMachine
         public static DateTime IncreaseTime(this DateTime startDate, TimeSpan toAdd) => startDate + toAdd;
 
         /// <summary>
-        /// Increases the <see cref="DateTimeOffset"/> object with given <see cref="TimeSpan"/> value.
-        /// </summary>
-        public static DateTimeOffset IncreaseTime(this DateTimeOffset startDate, TimeSpan toAdd) => startDate + toAdd;
-
-        /// <summary>
         /// Determines whether the specified <see cref="DateTime"/> value is After then current value.
         /// </summary>
         /// <param name="current">The current value.</param>
         /// <param name="toCompareWith">Value to compare with.</param>
         /// <returns><c>true</c> if the specified current is after; otherwise, <c>false</c>.</returns>
         public static bool IsAfter(this DateTime current, DateTime toCompareWith) => current > toCompareWith;
-
-        /// <summary>
-        /// Determines whether the specified <see cref="DateTimeOffset"/> value is After then
-        /// current value.
-        /// </summary>
-        /// <param name="current">The current value.</param>
-        /// <param name="toCompareWith">Value to compare with.</param>
-        /// <returns><c>true</c> if the specified current is after; otherwise, <c>false</c>.</returns>
-        public static bool IsAfter(this DateTimeOffset current, DateTimeOffset toCompareWith)
-        => current > toCompareWith;
 
         /// <summary>
         /// Verifica se a Data de hoje é um aniversário
@@ -1137,12 +968,29 @@ namespace InnerLibs.TimeMachine
         public static bool IsBefore(this DateTime current, DateTime toCompareWith) => current < toCompareWith;
 
         /// <summary>
-        /// Determines whether the specified <see cref="DateTimeOffset"/> is before then current value.
+        /// Check if <see cref="DateTime.TimeOfDay"/> is between <paramref name="TimeBegin"/> and <paramref name="TimeEnd"/> (Uses <see cref="TimePart(TimeSpan)"/> on both parameters)
         /// </summary>
-        /// <param name="current">The current value.</param>
-        /// <param name="toCompareWith">Value to compare with.</param>
-        /// <returns><c>true</c> if the specified current is before; otherwise, <c>false</c>.</returns>
-        public static bool IsBefore(this DateTimeOffset current, DateTimeOffset toCompareWith) => current < toCompareWith;
+        /// <param name="Date"></param>
+        /// <param name="TimeBegin"></param>
+        /// <param name="TimeEnd"></param>
+        /// <remarks>     
+        /// <inheritdoc cref="Misc.IsBetween(IComparable, IComparable, IComparable)"/>
+        /// </remarks>
+        /// <returns></returns>
+        public static bool IsTimeBetween(this DateTime Date, TimeSpan TimeBegin, TimeSpan TimeEnd)
+        {
+            TimeBegin = TimeBegin.TimePart();
+            TimeEnd = TimeEnd.TimePart();
+            Misc.FixOrder(ref TimeBegin, ref TimeEnd);
+            return Date.TimeOfDay.IsBetween(TimeBegin, TimeEnd);
+        }
+
+        /// <summary>
+        /// Return a <see cref="TimeSpan"/> with the timepart of another <see cref="TimeSpan"/> (basically, exclude <see cref="TimeSpan.Days"/>)
+        /// </summary>
+        /// <param name="Time"></param>
+        /// <returns></returns>
+        public static TimeSpan TimePart(this TimeSpan Time) => new TimeSpan(Time.Hours, Time.Minutes, Time.Seconds);
 
         /// <summary>
         /// Determine if a <see cref="DateTime"/> is in the future.
@@ -1152,26 +1000,11 @@ namespace InnerLibs.TimeMachine
         public static bool IsInFuture(this DateTime dateTime) => dateTime > DateTime.Now;
 
         /// <summary>
-        /// Determine if a <see cref="DateTimeOffset"/> is in the future.
-        /// </summary>
-        /// <param name="dateTime">The date to be checked.</param>
-        /// <returns><c>true</c> if <paramref name="dateTime"/> is in the future; otherwise <c>false</c>.</returns>
-        public static bool IsInFuture(this DateTimeOffset dateTime)
-        => dateTime > DateTimeOffset.Now;
-
-        /// <summary>
         /// Determine if a <see cref="DateTime"/> is in the past.
         /// </summary>
         /// <param name="dateTime">The date to be checked.</param>
         /// <returns><c>true</c> if <paramref name="dateTime"/> is in the past; otherwise <c>false</c>.</returns>
         public static bool IsInPast(this DateTime dateTime) => dateTime < DateTime.Now;
-
-        /// <summary>
-        /// Determine if a <see cref="DateTimeOffset"/> is in the past.
-        /// </summary>
-        /// <param name="dateTime">The date to be checked.</param>
-        /// <returns><c>true</c> if <paramref name="dateTime"/> is in the past; otherwise <c>false</c>.</returns>
-        public static bool IsInPast(this DateTimeOffset dateTime) => dateTime < DateTimeOffset.Now;
 
         /// <summary>
         /// Determines whether the specified <see cref="DateTime"/> value is exactly the same day
@@ -1214,17 +1047,6 @@ namespace InnerLibs.TimeMachine
         /// <c>true</c> if the specified date is exactly the same date then current; otherwise, <c>false</c>.
         /// </returns>
         public static bool IsSameYear(this DateTime current, DateTime date) => current.Year == date.Year;
-
-        /// <summary>
-        /// Determines whether the specified <see cref="DateTimeOffset"/> value is exactly the same
-        /// year then current. Eg, 2015-12-01 and 2015-01-01 =&gt; True
-        /// </summary>
-        /// <param name="current">The current value</param>
-        /// <param name="date">Value to compare with</param>
-        /// <returns>
-        /// <c>true</c> if the specified date is exactly the same date then current; otherwise, <c>false</c>.
-        /// </returns>
-        public static bool IsSameYear(this DateTimeOffset current, DateTimeOffset date) => current.Year == date.Year;
 
         public static bool IsWeekend(this DateTime YourDate) => YourDate.DayOfWeek == DayOfWeek.Sunday | YourDate.DayOfWeek == DayOfWeek.Saturday;
 
@@ -1291,16 +1113,6 @@ namespace InnerLibs.TimeMachine
         }
 
         /// <summary>
-        /// Sets the day of the <see cref="DateTimeOffset"/> to the last day in that month.
-        /// </summary>
-        /// <param name="current">The current DateTimeOffset to be changed.</param>
-        /// <returns>
-        /// given <see cref="DateTimeOffset"/> with the day part set to the last day in that month.
-        /// </returns>
-        public static DateTimeOffset LastDayOfMonth(this DateTimeOffset current)
-        => current.SetDay(DateTime.DaysInMonth(current.Year, current.Month));
-
-        /// <summary>
         /// Sets the day of the <see cref="DateTime"/> to the last day in that calendar quarter.
         /// credit to http://www.devcurry.com/2009/05/find-first-and-last-day-of-current.html
         /// </summary>
@@ -1316,26 +1128,11 @@ namespace InnerLibs.TimeMachine
         }
 
         /// <summary>
-        /// Sets the day of the <see cref="DateTimeOffset"/> to the last day in that calendar
-        /// quarter. credit to http://www.devcurry.com/2009/05/find-first-and-last-day-of-current.html
-        /// </summary>
-        /// <param name="current"></param>
-        /// <returns>
-        /// given <see cref="DateTimeOffset"/> with the day part set to the last day in the quarter.
-        /// </returns>
-        public static DateTimeOffset LastDayOfQuarter(this DateTimeOffset current)
-        {
-            var currentQuarter = (current.Month - 1) / 3 + 1;
-            var firstDay = current.SetDate(current.Year, 3 * currentQuarter - 2, 1);
-            return firstDay.SetMonth(firstDay.Month + 2).LastDayOfMonth();
-        }
-
-        /// <summary>
         /// Retorna o ultimo dia de um semestre a partir da data
         /// </summary>
         /// <param name="[Date]"></param>
         /// <returns></returns>
-        public static DateTime LastDayOfSemester(this DateTime Date) => Date.GetSemester() == 1 ? new DateTime(Date.Year, 6, 1).LastDayOfMonth() : Date.LastDayOfYear();
+        public static DateTime LastDayOfSemester(this DateTime Date) => Date.GetSemesterOfYear() == 1 ? new DateTime(Date.Year, 6, 1).LastDayOfMonth() : Date.LastDayOfYear();
 
         /// <summary>
         /// Returns the last day of the week keeping the time component intact. Eg,
@@ -1356,28 +1153,12 @@ namespace InnerLibs.TimeMachine
         public static DateTime LastDayOfWeek(this DateTime Date, CultureInfo culture) => Date.FirstDayOfWeek(culture).AddDays(6d);
 
         /// <summary>
-        /// Returns the last day of the week keeping the time component intact. Eg,
-        /// 2011-12-24T06:40:20.005 =&gt; 2011-12-25T06:40:20.005
-        /// </summary>
-        /// <param name="current">The DateTimeOffset to adjust</param>
-        /// <returns></returns>
-        public static DateTimeOffset LastDayOfWeek(this DateTimeOffset current) => current.FirstDayOfWeek().AddDays(6);
-
-        /// <summary>
         /// Returns the last day of the year keeping the time component intact. Eg,
         /// 2011-12-24T06:40:20.005 =&gt; 2011-12-31T06:40:20.005
         /// </summary>
         /// <param name="current">The DateTime to adjust</param>
         /// <returns></returns>
         public static DateTime LastDayOfYear(this DateTime current) => current.SetDate(current.Year, 12, 31);
-
-        /// <summary>
-        /// Returns the last day of the year keeping the time component intact. Eg,
-        /// 2011-12-24T06:40:20.005 =&gt; 2011-12-31T06:40:20.005
-        /// </summary>
-        /// <param name="current">The DateTimeOffset to adjust</param>
-        /// <returns></returns>
-        public static DateTimeOffset LastDayOfYear(this DateTimeOffset current) => current.SetDate(current.Year, 12, 31);
 
         /// <summary>
         /// Return the last sunday
@@ -1390,12 +1171,6 @@ namespace InnerLibs.TimeMachine
         /// <see cref="BeginningOfDay(DateTime)"/> method).
         /// </summary>
         public static DateTime Midnight(this DateTime value) => value.BeginningOfDay();
-
-        /// <summary>
-        /// Returns original <see cref="DateTimeOffset"/> value with time part set to midnight
-        /// (alias for <see cref="BeginningOfDay"/> method).
-        /// </summary>
-        public static DateTimeOffset Midnight(this DateTimeOffset value) => value.BeginningOfDay();
 
         /// <summary>
         /// Returns <see cref="TimeSpan"/> for given number of Milliseconds.
@@ -1425,20 +1200,7 @@ namespace InnerLibs.TimeMachine
         /// <summary>
         /// Returns first next occurrence of specified <see cref="DayOfWeek"/>.
         /// </summary>
-        public static DateTime Next(this DateTime start, DayOfWeek day)
-        {
-            do
-            {
-                start = start.NextDay();
-            } while (start.DayOfWeek != day);
-
-            return start;
-        }
-
-        /// <summary>
-        /// Returns first next occurrence of specified <see cref="DayOfWeek"/>.
-        /// </summary>
-        public static DateTimeOffset Next(this DateTimeOffset start, DayOfWeek day)
+        public static DateTime NextDay(this DateTime start, DayOfWeek day)
         {
             do
             {
@@ -1459,7 +1221,7 @@ namespace InnerLibs.TimeMachine
         /// <param name="DayOfWeek"></param>
         /// <param name="FromDate"></param>
         /// <returns></returns>
-        public static DateTime NextDay(DayOfWeek DayOfWeek, DateTime? FromDate = default)
+        public static DateTime NextDay(this DayOfWeek DayOfWeek, DateTime? FromDate = default)
         {
             FromDate = FromDate ?? DateTime.Now;
             while (FromDate.Value.DayOfWeek != DayOfWeek)
@@ -1471,17 +1233,12 @@ namespace InnerLibs.TimeMachine
         }
 
         /// <summary>
-        /// Returns <see cref="DateTimeOffset"/> increased by 24 hours ie GetNextPart Day.
-        /// </summary>
-        public static DateTimeOffset NextDay(this DateTimeOffset start) => start + 1.Days();
-
-        /// <summary>
         /// Pula para a data inicial da proxima quinzena
         /// </summary>
         /// <param name="FromDate">Data de partida</param>
         /// <param name="Num">Numero de quinzenas para adiantar</param>
         /// <returns></returns>
-        public static DateTime NextFortnight(this DateTime FromDate, int Num = 1) => new FortnightGroup(FromDate, Num).Last().StartDate;
+        public static DateTime NextFortnight(this DateTime FromDate, int Num = 1) => new FortnightGroup(FromDate, Num.SetMinValue(1) + 1).Last().StartDate;
 
         /// <summary>
         /// Returns the next month keeping the time component intact. Eg, 2012-12-05T06:40:20.005
@@ -1491,28 +1248,6 @@ namespace InnerLibs.TimeMachine
         /// <param name="current">The DateTime to adjust</param>
         /// <returns></returns>
         public static DateTime NextMonth(this DateTime current)
-        {
-            var year = current.Month == 12 ? current.Year + 1 : current.Year;
-
-            var month = current.Month == 12 ? 1 : current.Month + 1;
-
-            var firstDayOfNextMonth = current.SetDate(year, month, 1);
-
-            var lastDayOfPreviousMonth = firstDayOfNextMonth.LastDayOfMonth().Day;
-
-            var day = current.Day > lastDayOfPreviousMonth ? lastDayOfPreviousMonth : current.Day;
-
-            return firstDayOfNextMonth.SetDay(day);
-        }
-
-        /// <summary>
-        /// Returns the next month keeping the time component intact. Eg, 2012-12-05T06:40:20.005
-        /// =&gt; 2013-01-05T06:40:20.005 If the next month doesn't have that many days the last day
-        /// of the next month is used. Eg, 2013-01-31T06:40:20.005 =&gt; 2013-02-28T06:40:20.005
-        /// </summary>
-        /// <param name="current">The DateTimeOffset to adjust</param>
-        /// <returns></returns>
-        public static DateTimeOffset NextMonth(this DateTimeOffset current)
         {
             var year = current.Month == 12 ? current.Year + 1 : current.Year;
 
@@ -1553,62 +1288,11 @@ namespace InnerLibs.TimeMachine
         }
 
         /// <summary>
-        /// Returns the same date (same Day, Month, Hour, Minute, Second etc) in the next calendar
-        /// year. If that day does not exist in next year in same month, number of missing days is
-        /// added to the last day in same month next year.
-        /// </summary>
-        public static DateTimeOffset NextYear(this DateTimeOffset start)
-        {
-            var nextYear = start.Year + 1;
-            var numberOfDaysInSameMonthNextYear = DateTime.DaysInMonth(nextYear, start.Month);
-
-            if (numberOfDaysInSameMonthNextYear < start.Day)
-            {
-                var differenceInDays = start.Day - numberOfDaysInSameMonthNextYear;
-                var dateTimeOffset = new DateTimeOffset(nextYear, start.Month, numberOfDaysInSameMonthNextYear, start.Hour, start.Minute, start.Second, start.Millisecond, start.Offset);
-                return dateTimeOffset + differenceInDays.Days();
-            }
-
-            return new DateTimeOffset(nextYear, start.Month, start.Day, start.Hour, start.Minute, start.Second, start.Millisecond, start.Offset);
-        }
-
-        /// <summary>
         /// Returns original <see cref="DateTime"/> value with time part set to Noon (12:00:00h).
         /// </summary>
         /// <param name="value">The <see cref="DateTime"/> find Noon for.</param>
         /// <returns>A <see cref="DateTime"/> value with time part set to Noon (12:00:00h).</returns>
         public static DateTime Noon(this DateTime value) => value.SetTime(12, 0, 0, 0);
-
-        /// <summary>
-        /// Returns original <see cref="DateTimeOffset"/> value with time part set to Noon (12:00:00h).
-        /// </summary>
-        /// <param name="value">The <see cref="DateTimeOffset"/> find Noon for.</param>
-        /// <returns>A <see cref="DateTimeOffset"/> value with time part set to Noon (12:00:00h).</returns>
-        public static DateTimeOffset Noon(this DateTimeOffset value) => value.SetTime(12, 0, 0, 0);
-
-        /// <summary>
-        /// Subtracts given <see cref="TimeSpan"/> from current date ( <see cref="DateTime.Now"/>)
-        /// and returns resulting <see cref="DateTime"/> in the past.
-        /// </summary>
-        public static DateTimeOffset OffsetAgo(this TimeSpan from) => from.Before(DateTimeOffset.Now);
-
-        /// <summary>
-        /// Subtracts given <see cref="DateRange"/> from current date ( <see
-        /// cref="DateTimeOffset.Now"/>) and returns resulting <see cref="DateTime"/> in the past.
-        /// </summary>
-        public static DateTimeOffset OffsetAgo(this DateRange from) => from.Before(DateTimeOffset.Now);
-
-        /// <summary>
-        /// Adds given <see cref="TimeSpan"/> to current <see cref="DateTime.Now"/> and returns
-        /// resulting <see cref="DateTime"/> in the future.
-        /// </summary>
-        public static DateTimeOffset OffsetFromNow(this TimeSpan from) => from.From(DateTimeOffset.Now);
-
-        /// <summary>
-        /// Adds given <see cref="TimeSpan"/> to current <see cref="DateTime.Now"/> and returns
-        /// resulting <see cref="DateTime"/> in the future.
-        /// </summary>
-        public static DateTimeOffset OffsetFromNow(this DateRange from) => from.From(DateTimeOffset.Now);
 
         /// <summary>
         /// Return the current value of <paramref name="Date"/> or <see cref="DateTime.Now"/> if
@@ -1723,27 +1407,9 @@ namespace InnerLibs.TimeMachine
         }
 
         /// <summary>
-        /// Returns first next occurrence of specified <see cref="DayOfWeek"/>.
-        /// </summary>
-        public static DateTimeOffset Previous(this DateTimeOffset start, DayOfWeek day)
-        {
-            do
-            {
-                start = start.PreviousDay();
-            } while (start.DayOfWeek != day);
-
-            return start;
-        }
-
-        /// <summary>
         /// Returns <see cref="DateTime"/> decreased by 24h period ie GetPreviousPart Day.
         /// </summary>
         public static DateTime PreviousDay(this DateTime start) => start - 1.Days();
-
-        /// <summary>
-        /// Returns <see cref="DateTimeOffset"/> decreased by 24h period ie GetPreviousPart Day.
-        /// </summary>
-        public static DateTimeOffset PreviousDay(this DateTimeOffset start) => start - 1.Days();
 
         /// <summary>
         /// Returns the previous month keeping the time component intact. Eg,
@@ -1754,29 +1420,6 @@ namespace InnerLibs.TimeMachine
         /// <param name="current">The DateTime to adjust</param>
         /// <returns></returns>
         public static DateTime PreviousMonth(this DateTime current)
-        {
-            var year = current.Month == 1 ? current.Year - 1 : current.Year;
-
-            var month = current.Month == 1 ? 12 : current.Month - 1;
-
-            var firstDayOfPreviousMonth = current.SetDate(year, month, 1);
-
-            var lastDayOfPreviousMonth = firstDayOfPreviousMonth.LastDayOfMonth().Day;
-
-            var day = current.Day > lastDayOfPreviousMonth ? lastDayOfPreviousMonth : current.Day;
-
-            return firstDayOfPreviousMonth.SetDay(day);
-        }
-
-        /// <summary>
-        /// Returns the previous month keeping the time component intact. Eg,
-        /// 2010-01-20T06:40:20.005 =&gt; 2009-12-20T06:40:20.005 If the previous month doesn't have
-        /// that many days the last day of the previous month is used. Eg, 2009-03-31T06:40:20.005
-        /// =&gt; 2009-02-28T06:40:20.005
-        /// </summary>
-        /// <param name="current">The DateTimeOffset to adjust</param>
-        /// <returns></returns>
-        public static DateTimeOffset PreviousMonth(this DateTimeOffset current)
         {
             var year = current.Month == 1 ? current.Year - 1 : current.Year;
 
@@ -1808,26 +1451,6 @@ namespace InnerLibs.TimeMachine
                 return dateTime + differenceInDays.Days();
             }
             return new DateTime(previousYear, start.Month, start.Day, start.Hour, start.Minute, start.Second, start.Millisecond, start.Kind);
-        }
-
-        /// <summary>
-        /// Returns the same date (same Day, Month, Hour, Minute, Second etc) in the previous
-        /// calendar year. If that day does not exist in previous year in same month, number of
-        /// missing days is added to the last day in same month previous year.
-        /// </summary>
-        public static DateTimeOffset PreviousYear(this DateTimeOffset start)
-        {
-            var previousYear = start.Year - 1;
-            var numberOfDaysInSameMonthPreviousYear = DateTime.DaysInMonth(previousYear, start.Month);
-
-            if (numberOfDaysInSameMonthPreviousYear < start.Day)
-            {
-                var differenceInDays = start.Day - numberOfDaysInSameMonthPreviousYear;
-                var dateTime = new DateTimeOffset(previousYear, start.Month, numberOfDaysInSameMonthPreviousYear, start.Hour, start.Minute, start.Second, start.Millisecond, start.Offset);
-                return dateTime + differenceInDays.Days();
-            }
-
-            return new DateTimeOffset(previousYear, start.Month, start.Day, start.Hour, start.Minute, start.Second, start.Millisecond, start.Offset);
         }
 
         /// <summary>
@@ -1954,91 +1577,6 @@ namespace InnerLibs.TimeMachine
         }
 
         /// <summary>
-        /// Rounds <paramref name="dateTime"/> to the nearest <see cref="RoundTo"/>.
-        /// </summary>
-        /// <returns>The rounded <see cref="DateTimeOffset"/>.</returns>
-        public static DateTimeOffset Round(this DateTimeOffset dateTime, RoundTo round = RoundTo.Second)
-        {
-            DateTimeOffset rounded;
-
-            switch (round)
-            {
-                case RoundTo.Second:
-                    {
-                        rounded = new DateTimeOffset(dateTime.Year, dateTime.Month, dateTime.Day, dateTime.Hour, dateTime.Minute, dateTime.Second, dateTime.Offset);
-                        if (dateTime.Millisecond >= 500)
-                        {
-                            rounded = rounded.AddSeconds(1);
-                        }
-
-                        break;
-                    }
-                case RoundTo.Minute:
-                    {
-                        rounded = new DateTimeOffset(dateTime.Year, dateTime.Month, dateTime.Day, dateTime.Hour, dateTime.Minute, 0, dateTime.Offset);
-                        if (dateTime.Second >= 30)
-                        {
-                            rounded = rounded.AddMinutes(1);
-                        }
-
-                        break;
-                    }
-                case RoundTo.Hour:
-                    {
-                        rounded = new DateTimeOffset(dateTime.Year, dateTime.Month, dateTime.Day, dateTime.Hour, 0, 0, dateTime.Offset);
-                        if (dateTime.Minute >= 30)
-                        {
-                            rounded = rounded.AddHours(1);
-                        }
-
-                        break;
-                    }
-                case RoundTo.Day:
-                    {
-                        rounded = new DateTimeOffset(dateTime.Year, dateTime.Month, dateTime.Day, 0, 0, 0, dateTime.Offset);
-                        if (dateTime.Hour >= 12)
-                        {
-                            rounded = rounded.AddDays(1);
-                        }
-
-                        break;
-                    }
-
-                case RoundTo.None:
-                default:
-                    {
-                        rounded = dateTime;
-                        break;
-                    }
-            }
-
-            return rounded;
-        }
-
-        /// <summary>
-        /// Determines whether the specified <see cref="DateTimeOffset"/> value is exactly the same
-        /// day (day + month + year) then current
-        /// </summary>
-        /// <param name="current">The current value</param>
-        /// <param name="date">Value to compare with</param>
-        /// <returns>
-        /// <c>true</c> if the specified date is exactly the same year then current; otherwise, <c>false</c>.
-        /// </returns>
-        public static bool SameDay(this DateTimeOffset current, DateTimeOffset date) => current.Date == date.Date;
-
-        /// <summary>
-        /// Determines whether the specified <see cref="DateTimeOffset"/> value is exactly the same
-        /// month (month + year) then current. Eg, 2015-12-01 and 2014-12-01 =&gt; False
-        /// </summary>
-        /// <param name="current">The current value</param>
-        /// <param name="date">Value to compare with</param>
-        /// <returns>
-        /// <c>true</c> if the specified date is exactly the same month and year then current;
-        /// otherwise, <c>false</c>.
-        /// </returns>
-        public static bool SameMonth(this DateTimeOffset current, DateTimeOffset date) => current.Month == date.Month && current.Year == date.Year;
-
-        /// <summary>
         /// Returns <see cref="TimeSpan"/> for given number of Seconds.
         /// </summary>
         public static TimeSpan Seconds(this int seconds) => TimeSpan.FromSeconds(seconds);
@@ -2064,29 +1602,9 @@ namespace InnerLibs.TimeMachine
         public static DateTime SetDate(this DateTime value, int year, int month, int day) => new DateTime(year, month, day, value.Hour, value.Minute, value.Second, value.Millisecond, value.Kind);
 
         /// <summary>
-        /// Returns <see cref="DateTimeOffset"/> with changed Year part.
-        /// </summary>
-        public static DateTimeOffset SetDate(this DateTimeOffset value, int year) => new DateTimeOffset(year, value.Month, value.Day, value.Hour, value.Minute, value.Second, value.Millisecond, value.Offset);
-
-        /// <summary>
-        /// Returns <see cref="DateTimeOffset"/> with changed Year and Month part.
-        /// </summary>
-        public static DateTimeOffset SetDate(this DateTimeOffset value, int year, int month) => new DateTimeOffset(year, month, value.Day, value.Hour, value.Minute, value.Second, value.Millisecond, value.Offset);
-
-        /// <summary>
-        /// Returns <see cref="DateTimeOffset"/> with changed Year, Month and Day part.
-        /// </summary>
-        public static DateTimeOffset SetDate(this DateTimeOffset value, int year, int month, int day) => new DateTimeOffset(year, month, day, value.Hour, value.Minute, value.Second, value.Millisecond, value.Offset);
-
-        /// <summary>
         /// Returns <see cref="DateTime"/> with changed Day part.
         /// </summary>
         public static DateTime SetDay(this DateTime value, int day) => new DateTime(value.Year, value.Month, day, value.Hour, value.Minute, value.Second, value.Millisecond, value.Kind);
-
-        /// <summary>
-        /// Returns <see cref="DateTimeOffset"/> with changed Day part.
-        /// </summary>
-        public static DateTimeOffset SetDay(this DateTimeOffset value, int day) => new DateTimeOffset(value.Year, value.Month, day, value.Hour, value.Minute, value.Second, value.Millisecond, value.Offset);
 
         /// <summary>
         /// Returns <see cref="DateTime"/> with changed Hour part.
@@ -2094,19 +1612,9 @@ namespace InnerLibs.TimeMachine
         public static DateTime SetHour(this DateTime originalDate, int hour) => new DateTime(originalDate.Year, originalDate.Month, originalDate.Day, hour, originalDate.Minute, originalDate.Second, originalDate.Millisecond, originalDate.Kind);
 
         /// <summary>
-        /// Returns <see cref="DateTimeOffset"/> with changed Hour part.
-        /// </summary>
-        public static DateTimeOffset SetHour(this DateTimeOffset originalDate, int hour) => new DateTimeOffset(originalDate.Year, originalDate.Month, originalDate.Day, hour, originalDate.Minute, originalDate.Second, originalDate.Millisecond, originalDate.Offset);
-
-        /// <summary>
         /// Returns <see cref="DateTime"/> with changed Millisecond part.
         /// </summary>
         public static DateTime SetMillisecond(this DateTime originalDate, int millisecond) => new DateTime(originalDate.Year, originalDate.Month, originalDate.Day, originalDate.Hour, originalDate.Minute, originalDate.Second, millisecond, originalDate.Kind);
-
-        /// <summary>
-        /// Returns <see cref="DateTimeOffset"/> with changed Millisecond part.
-        /// </summary>
-        public static DateTimeOffset SetMillisecond(this DateTimeOffset originalDate, int millisecond) => new DateTimeOffset(originalDate.Year, originalDate.Month, originalDate.Day, originalDate.Hour, originalDate.Minute, originalDate.Second, millisecond, originalDate.Offset);
 
         /// <summary>
         /// Returns <see cref="DateTime"/> with changed Minute part.
@@ -2114,29 +1622,14 @@ namespace InnerLibs.TimeMachine
         public static DateTime SetMinute(this DateTime originalDate, int minute) => new DateTime(originalDate.Year, originalDate.Month, originalDate.Day, originalDate.Hour, minute, originalDate.Second, originalDate.Millisecond, originalDate.Kind);
 
         /// <summary>
-        /// Returns <see cref="DateTimeOffset"/> with changed Minute part.
-        /// </summary>
-        public static DateTimeOffset SetMinute(this DateTimeOffset originalDate, int minute) => new DateTimeOffset(originalDate.Year, originalDate.Month, originalDate.Day, originalDate.Hour, minute, originalDate.Second, originalDate.Millisecond, originalDate.Offset);
-
-        /// <summary>
         /// Returns <see cref="DateTime"/> with changed Month part.
         /// </summary>
         public static DateTime SetMonth(this DateTime value, int month) => new DateTime(value.Year, month, value.Day, value.Hour, value.Minute, value.Second, value.Millisecond, value.Kind);
 
         /// <summary>
-        /// Returns <see cref="DateTimeOffset"/> with changed Month part.
-        /// </summary>
-        public static DateTimeOffset SetMonth(this DateTimeOffset value, int month) => new DateTimeOffset(value.Year, month, value.Day, value.Hour, value.Minute, value.Second, value.Millisecond, value.Offset);
-
-        /// <summary>
         /// Returns <see cref="DateTime"/> with changed Second part.
         /// </summary>
         public static DateTime SetSecond(this DateTime originalDate, int second) => new DateTime(originalDate.Year, originalDate.Month, originalDate.Day, originalDate.Hour, originalDate.Minute, second, originalDate.Millisecond, originalDate.Kind);
-
-        /// <summary>
-        /// Returns <see cref="DateTimeOffset"/> with changed Second part.
-        /// </summary>
-        public static DateTimeOffset SetSecond(this DateTimeOffset originalDate, int second) => new DateTimeOffset(originalDate.Year, originalDate.Month, originalDate.Day, originalDate.Hour, originalDate.Minute, second, originalDate.Millisecond, originalDate.Offset);
 
         /// <summary>
         /// Returns the original <see cref="DateTime"/> with Hour part changed to supplied hour parameter.
@@ -2162,38 +1655,9 @@ namespace InnerLibs.TimeMachine
         public static DateTime SetTime(this DateTime originalDate, int hour, int minute, int second, int millisecond) => new DateTime(originalDate.Year, originalDate.Month, originalDate.Day, hour, minute, second, millisecond, originalDate.Kind);
 
         /// <summary>
-        /// Returns the original <see cref="DateTimeOffset"/> with Hour part changed to supplied
-        /// hour parameter.
-        /// </summary>
-        public static DateTimeOffset SetTime(this DateTimeOffset originalDate, int hour) => new DateTimeOffset(originalDate.Year, originalDate.Month, originalDate.Day, hour, originalDate.Minute, originalDate.Second, originalDate.Millisecond, originalDate.Offset);
-
-        /// <summary>
-        /// Returns the original <see cref="DateTimeOffset"/> with Hour and Minute parts changed to
-        /// supplied hour and minute parameters.
-        /// </summary>
-        public static DateTimeOffset SetTime(this DateTimeOffset originalDate, int hour, int minute) => new DateTimeOffset(originalDate.Year, originalDate.Month, originalDate.Day, hour, minute, originalDate.Second, originalDate.Millisecond, originalDate.Offset);
-
-        /// <summary>
-        /// Returns the original <see cref="DateTimeOffset"/> with Hour, Minute and Second parts
-        /// changed to supplied hour, minute and second parameters.
-        /// </summary>
-        public static DateTimeOffset SetTime(this DateTimeOffset originalDate, int hour, int minute, int second) => new DateTimeOffset(originalDate.Year, originalDate.Month, originalDate.Day, hour, minute, second, originalDate.Millisecond, originalDate.Offset);
-
-        /// <summary>
-        /// Returns the original <see cref="DateTimeOffset"/> with Hour, Minute, Second and
-        /// Millisecond parts changed to supplied hour, minute, second and millisecond parameters.
-        /// </summary>
-        public static DateTimeOffset SetTime(this DateTimeOffset originalDate, int hour, int minute, int second, int millisecond) => new DateTimeOffset(originalDate.Year, originalDate.Month, originalDate.Day, hour, minute, second, millisecond, originalDate.Offset);
-
-        /// <summary>
         /// Returns <see cref="DateTime"/> with changed Year part.
         /// </summary>
         public static DateTime SetYear(this DateTime value, int year) => new DateTime(year, value.Month, value.Day, value.Hour, value.Minute, value.Second, value.Millisecond, value.Kind);
-
-        /// <summary>
-        /// Returns <see cref="DateTimeOffset"/> with changed Year part.
-        /// </summary>
-        public static DateTimeOffset SetYear(this DateTimeOffset value, int year) => new DateTimeOffset(year, value.Month, value.Day, value.Hour, value.Minute, value.Second, value.Millisecond, value.Offset);
 
         /// <summary>
         /// Adds given <see cref="TimeSpan"/> to supplied <paramref name="originalValue"/><see
@@ -2212,49 +1676,18 @@ namespace InnerLibs.TimeMachine
         public static DateTime Since(this DateRange from, DateTime originalValue) => From(from, originalValue);
 
         /// <summary>
-        /// Adds given <see cref="TimeSpan"/> to supplied <paramref name="originalValue"/><see
-        /// cref="DateTime"/> and returns resulting <see cref="DateTime"/> in the future.
-        /// </summary>
-        /// <seealso cref="From(TimeSpan, DateTimeOffset)"/>
-        /// <remarks>Synonym of <see cref="From(TimeSpan, DateTimeOffset)"/> method.</remarks>
-        public static DateTimeOffset Since(this TimeSpan from, DateTimeOffset originalValue) => From(from, originalValue);
-
-        /// <summary>
-        /// Adds given <see cref="TimeSpan"/> to supplied <paramref name="originalValue"/><see
-        /// cref="DateTime"/> and returns resulting <see cref="DateTime"/> in the future.
-        /// </summary>
-        /// <seealso cref="From(TimeSpan, DateTimeOffset)"/>
-        /// <remarks>Synonym of <see cref="From(TimeSpan, DateTimeOffset)"/> method.</remarks>
-        public static DateTimeOffset Since(this DateRange from, DateTimeOffset originalValue)
-        => From(from, originalValue);
-
-        /// <summary>
-        /// Subtracts the given number of business days to the <see cref="DateTimeOffset"/>.
-        /// </summary>
-        /// <param name="current">The date to be changed.</param>
-        /// <param name="days">Number of business days to be subtracted.</param>
-        /// <returns>A <see cref="DateTimeOffset"/> decreased by a given number of business days.</returns>
-        public static DateTimeOffset SubtractBusinessDays(this DateTimeOffset current, int days) => AddBusinessDays(current, -days);
-
-        /// <summary>
         /// Subtracts the given number of business days to the <see cref="DateTime"/>.
         /// </summary>
         /// <param name="current">The date to be changed.</param>
         /// <param name="days">Number of business days to be subtracted.</param>
         /// <returns>A <see cref="DateTime"/> increased by a given number of business days.</returns>
-        public static DateTime SubtractBusinessDays(this DateTime current, int days) => AddBusinessDays(current, -days);
+        public static DateTime SubtractBusinessDays(this DateTime current, int days, params DayOfWeek[] DaysOff) => AddBusinessDays(current, days.ForceNegative(), DaysOff);
 
         /// <summary>
         /// Returns a new <see cref="DateTime"/> that subtracts the value of the specified <see
         /// cref="DateRange"/> to the value of this instance.
         /// </summary>
-        public static DateTimeOffset SubtractDateRange(this DateTimeOffset dateTimeOffset, DateRange timeSpan) => dateTimeOffset.Subtract(timeSpan);
-
-        /// <summary>
-        /// Returns a new <see cref="DateTime"/> that subtracts the value of the specified <see
-        /// cref="DateRange"/> to the value of this instance.
-        /// </summary>
-        public static DateTime SubtractDateRange(this DateTime dateTime, DateRange timeSpan) => dateTime.AddTicks(-timeSpan.Ticks);
+        public static DateTime SubtractDateRange(this DateTime dateTime, DateRange timeSpan) => dateTime.AddTicks(timeSpan.Ticks);
 
         /// <summary>
         /// Subtracts the given <see cref="DateRange"/> from a <see cref="TimeSpan"/> and returns
@@ -2350,20 +1783,9 @@ namespace InnerLibs.TimeMachine
         public static DateTime ToTimeZoneUtc(this DateTime Date, TimeZoneInfo TimeZone) => TimeZoneInfo.ConvertTimeFromUtc(Date, TimeZone);
 
         /// <summary>
-        /// Increases supplied <see cref="DateTimeOffset"/> for 7 days ie returns the GetNextPart Week.
-        /// </summary>
-        public static DateTimeOffset WeekAfter(this DateTimeOffset start) => start + 1.Weeks();
-
-        /// <summary>
         /// Increases supplied <see cref="DateTime"/> for 7 days ie returns the GetNextPart Week.
         /// </summary>
         public static DateTime WeekAfter(this DateTime start) => start + 1.Weeks();
-
-        /// <summary>
-        /// Decreases supplied <see cref="DateTimeOffset"/> for 7 days ie returns the
-        /// GetPreviousPart Week.
-        /// </summary>
-        public static DateTimeOffset WeekEarlier(this DateTimeOffset start) => start - 1.Weeks();
 
         /// <summary>
         /// Decreases supplied <see cref="DateTime"/> for 7 days ie returns the GetPreviousPart Week.
@@ -2397,12 +1819,12 @@ namespace InnerLibs.TimeMachine
 
         public static string QuarterString(this DateTime datetime, string format = null) => format.IfBlank("{number}{ordinal} Q/{year}").Inject(new { number = datetime.GetQuarterOfYear(), ordinal = datetime.GetQuarterOfYear().GetOrdinal(), year = datetime.Year, shortyear = datetime.Year.ToString().GetLastChars(2) });
 
-        public static string SemesterString(this DateTime datetime, string format = null) => format.IfBlank("{number}{ordinal} S/{year}").Inject(new { number = datetime.GetSemester(), ordinal = datetime.GetSemester().GetOrdinal(), year = datetime.Year, shortyear = datetime.Year.ToString().GetLastChars(2) });
+        public static string SemesterString(this DateTime datetime, string format = null) => format.IfBlank("{number}{ordinal} S/{year}").Inject(new { number = datetime.GetSemesterOfYear(), ordinal = datetime.GetSemesterOfYear().GetOrdinal(), year = datetime.Year, shortyear = datetime.Year.ToString().GetLastChars(2) });
 
         public static string WeekString(this DateTime datetime, string format = null, CultureInfo culture = null)
         {
-            var info = datetime.GetWeekInfoOfMonth();
-            return format.IfBlank("{number}{ordinal} W/{monthname}/{year}").Inject(new { number = info.Week, ordinal = info.Week.GetOrdinal(), year = info.Year, month = info.Month, monthname = info.Month.ToLongMonthName(culture), shortmonthname = info.Month.ToShortMonthName(culture), shortyear = datetime.Year.ToString().GetLastChars(2) });
+            var info = datetime.GetWeekInfo(culture, format);
+            return info.WeekString;
         }
 
         public static string YearString(this DateTime datetime, string format = null) => format.IfBlank("{year}").Inject(new { year = datetime.Year, shortyear = datetime.Year.ToString().GetLastChars(2) });

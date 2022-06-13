@@ -1,4 +1,5 @@
-﻿using System;
+﻿using InnerLibs.LINQ;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -9,49 +10,63 @@ namespace InnerLibs.TimeMachine
     /// </summary>
     public class JourneyDay
     {
-        private DateTime lunch_hour;
+        private TimeSpan lunch_hour = default;
 
-        private DateTime start_hour;
+        private TimeSpan start_hour = new TimeSpan(12, 0, 0);
 
         /// <summary>
         /// Inicia uma instancia de dia letivo
         /// </summary>
-        public JourneyDay()
+        public JourneyDay(DayOfWeek Day) => DayOfWeek = Day;
+
+        public JourneyDay(DateTime? Day = null) : this(Day.OrNow().DayOfWeek)
         {
-            StartHour = DateTime.MinValue;
-            LunchHour = DateTime.MinValue.AddHours(12d);
         }
 
         /// <summary>
         /// Inicia uma instancia de dia letivo
         /// </summary>
-        /// <param name="StartHour">Hora Inicial</param>
+        /// <param name="StartDateTime">Hora Inicial</param>
         /// <param name="Journey">Jornada de trabalho</param>
-        public JourneyDay(DateTime StartHour, TimeSpan Journey, DateTime LunchHour = default, TimeSpan LunchTime = default) => SetJourney(StartHour, Journey, LunchHour, LunchTime);
+        public JourneyDay(DateTime StartDateTime, TimeSpan Journey, DateTime LunchHour = default, TimeSpan LunchTime = default) : this(StartDateTime) => SetJourney(StartDateTime, Journey, LunchHour, LunchTime);
+
+        public DayOfWeek DayOfWeek { get; private set; }
+        public bool IsJourney => JourneyTime.Milliseconds > 0;
 
         /// <summary>
         /// Hora que se encerra a jornada (inclui hora de almoço)
         /// </summary>
         /// <returns></returns>
-        public DateTime EndHour => StartHour.Add(TotalTime);
+        public TimeSpan JourneyEndHour => JourneyStartHour.Add(TotalTime);
 
-        public bool IsJourney => JourneyTime.Milliseconds > 0;
+        /// <summary>
+        /// Hora inicial da jornada
+        /// </summary>
+        /// <returns></returns>
+        public TimeSpan JourneyStartHour
+        {
+            get => start_hour;
+
+            set => start_hour = value.TimePart();
+        }
 
         /// <summary>
         /// Jornada de Trabalho/Produção
         /// </summary>
         /// <returns></returns>
-        public TimeSpan JourneyTime { get; set; } = new TimeSpan(0, 0, 0);
+        public TimeSpan JourneyTime { get; set; } = default;
+
+        public TimeSpan LunchEndHour => LunchStartHour.Add(LunchTime);
 
         /// <summary>
         /// Hora de almoco
         /// </summary>
         /// <returns></returns>
-        public DateTime LunchHour
+        public TimeSpan LunchStartHour
         {
             get => lunch_hour;
 
-            set => lunch_hour = DateTime.MinValue.Add(new TimeSpan(value.TimeOfDay.Ticks));
+            set => lunch_hour = value.TimePart();
         }
 
         /// <summary>
@@ -61,21 +76,22 @@ namespace InnerLibs.TimeMachine
         public TimeSpan LunchTime { get; set; } = new TimeSpan(0, 0, 0);
 
         /// <summary>
-        /// Hora inicial da jornada
-        /// </summary>
-        /// <returns></returns>
-        public DateTime StartHour
-        {
-            get => start_hour;
-
-            set => start_hour = DateTime.MinValue.Add(new TimeSpan(value.TimeOfDay.Ticks));
-        }
-
-        /// <summary>
         /// Jornada + hora de Almoço
         /// </summary>
         /// <returns></returns>
         public TimeSpan TotalTime => JourneyTime + LunchTime;
+
+        public DateTime? JourneyEndHourAt(DateTime Day)
+        {
+            if (Day.DayOfWeek == DayOfWeek)
+            {
+                return Day.Date.At(JourneyEndHour);
+            }
+            else
+            {
+                return null;
+            }
+        }
 
         /// <summary>
         /// Define a hora inicial e a jornada de trabalho deste dia
@@ -83,13 +99,45 @@ namespace InnerLibs.TimeMachine
         /// <param name="StartHour"></param>
         /// <param name="Journey"></param>
         /// <param name="LunchTime">Horas de Almoço</param>
-        public JourneyDay SetJourney(DateTime StartHour, TimeSpan Journey, DateTime LunchHour = default, TimeSpan LunchTime = default)
+        public JourneyDay SetJourney(DateTime StartHour, TimeSpan Journey, DateTime LunchHour = default, TimeSpan LunchTime = default) => SetJourney(StartHour.TimeOfDay, Journey, LunchHour.TimeOfDay, LunchTime);
+
+        /// <summary>
+        /// Define a hora inicial e a jornada de trabalho deste dia
+        /// </summary>
+        /// <param name="StartHour"></param>
+        /// <param name="Journey"></param>
+        /// <param name="LunchTime">Horas de Almoço</param>
+        public JourneyDay SetJourney(TimeSpan StartHour, TimeSpan Journey, TimeSpan LunchHour = default, TimeSpan LunchTime = default)
         {
-            this.StartHour = StartHour;
+            JourneyStartHour = StartHour;
             JourneyTime = Journey;
-            this.LunchHour = LunchHour == default ? DateTime.MinValue.Date.AddHours(12d) : LunchHour;
-            this.LunchTime = LunchTime == default ? new TimeSpan(0, 0, 0) : LunchTime;
+            LunchStartHour = LunchHour;
+            this.LunchTime = LunchTime;
             return this;
+        }
+
+        public DateTime? StartHourAt(DateTime Day)
+        {
+            if (Day.DayOfWeek == DayOfWeek)
+            {
+                return Day.Date.At(JourneyStartHour);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public DateTime? LunchStartHourAt(DateTime Day)
+        {
+            if (Day.DayOfWeek == DayOfWeek)
+            {
+                return Day.At(LunchStartHour);
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 
@@ -102,21 +150,8 @@ namespace InnerLibs.TimeMachine
 
         private DateTime? _EndDate = null;
 
-        private JourneyDay _friday = new JourneyDay();
-
-        private JourneyDay _monday = new JourneyDay();
-
+        private List<JourneyDay> _journeys = new List<JourneyDay>();
         private int _quantity = 1;
-
-        private JourneyDay _saturday = new JourneyDay();
-
-        private JourneyDay _sunday = new JourneyDay();
-
-        private JourneyDay _thursday = new JourneyDay();
-
-        private JourneyDay _tuesday = new JourneyDay();
-
-        private JourneyDay _wednesday = new JourneyDay();
 
         /// <summary>
         /// inicia uma nova demanda
@@ -190,18 +225,8 @@ namespace InnerLibs.TimeMachine
         /// Sexta-Feira
         /// </summary>
         /// <returns></returns>
-        public JourneyDay Friday
-        {
-            get
-            {
-                _friday = _friday ?? new JourneyDay();
-                return _friday;
-            }
-            set
-            {
-                _friday = value ?? new JourneyDay();
-            }
-        }
+        public JourneyDay Friday => GetJourneyDay(DayOfWeek.Friday);
+
 
         /// <summary>
         /// Feriados, pontos facultativos e/ou datas especificas consideradas não relevantes
@@ -232,18 +257,8 @@ namespace InnerLibs.TimeMachine
         /// Segunda-Feira
         /// </summary>
         /// <returns></returns>
-        public JourneyDay Monday
-        {
-            get
-            {
-                _monday = _monday ?? new JourneyDay();
-                return _monday;
-            }
-            set
-            {
-                _monday = value ?? new JourneyDay();
-            }
-        }
+        public JourneyDay Monday => GetJourneyDay(DayOfWeek.Monday);
+
 
         /// <summary>
         /// Dias não relevantes (nao letivos e feriados) entre as datas inicial e final
@@ -258,7 +273,7 @@ namespace InnerLibs.TimeMachine
         public IEnumerable<DayOfWeek> NonRelevantDaysOfWeek => new DayOfWeek[] { DayOfWeek.Sunday, DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday }.Where(x => x.IsNotIn(RelevantDaysOfWeek));
 
         /// <summary>
-        /// Tempo totald e produção de todos os itens
+        /// Tempo total de produção de todos os itens
         /// </summary>
         /// <returns></returns>
         public TimeSpan ProductionTime => new TimeSpan(ItemQuantity * ItemProductionTime.Ticks);
@@ -277,48 +292,14 @@ namespace InnerLibs.TimeMachine
         {
             get
             {
-                var dias = new List<DayOfWeek>();
-                if (Sunday.JourneyTime.TotalMilliseconds > 0d)
-                {
-                    dias.Add(DayOfWeek.Sunday);
-                }
-
-                if (Monday.JourneyTime.TotalMilliseconds > 0d)
-                {
-                    dias.Add(DayOfWeek.Monday);
-                }
-
-                if (Tuesday.JourneyTime.TotalMilliseconds > 0d)
-                {
-                    dias.Add(DayOfWeek.Tuesday);
-                }
-
-                if (Wednesday.JourneyTime.TotalMilliseconds > 0d)
-                {
-                    dias.Add(DayOfWeek.Wednesday);
-                }
-
-                if (Thursday.JourneyTime.TotalMilliseconds > 0d)
-                {
-                    dias.Add(DayOfWeek.Thursday);
-                }
-
-                if (Friday.JourneyTime.TotalMilliseconds > 0d)
-                {
-                    dias.Add(DayOfWeek.Friday);
-                }
-
-                if (Saturday.JourneyTime.TotalMilliseconds > 0d)
-                {
-                    dias.Add(DayOfWeek.Saturday);
-                }
+                var dias = _journeys.Where(x => x.IsJourney).Select(x => x.DayOfWeek).ToList();
 
                 if (dias.Count == 0)
                 {
                     dias.AddRange(new[] { 0, 1, 2, 3, 4, 5, 6 }.Select(x => (DayOfWeek)x));
                 }
 
-                return dias.ToArray();
+                return dias;
             }
         }
 
@@ -326,18 +307,8 @@ namespace InnerLibs.TimeMachine
         /// Sábado
         /// </summary>
         /// <returns></returns>
-        public JourneyDay Saturday
-        {
-            get
-            {
-                _saturday = _saturday ?? new JourneyDay();
-                return _saturday;
-            }
-            set
-            {
-                _saturday = value ?? new JourneyDay();
-            }
-        }
+        public JourneyDay Saturday => GetJourneyDay(DayOfWeek.Saturday);
+
 
         /// <summary>
         /// Data Inicial da produção
@@ -353,69 +324,25 @@ namespace InnerLibs.TimeMachine
         /// Domingo
         /// </summary>
         /// <returns></returns>
-        public JourneyDay Sunday
-        {
-            get
-            {
-                _sunday = _sunday ?? new JourneyDay();
-                return _sunday;
-            }
-            set
-            {
-                _sunday = value ?? new JourneyDay();
-            }
-        }
+        public JourneyDay Sunday => GetJourneyDay(DayOfWeek.Sunday);
 
         /// <summary>
         /// Quinta-Feira
         /// </summary>
         /// <returns></returns>
-        public JourneyDay Thursday
-        {
-            get
-            {
-                _thursday = _thursday ?? new JourneyDay();
-                return _thursday;
-            }
-            set
-            {
-                _thursday = value ?? new JourneyDay();
-            }
-        }
+        public JourneyDay Thursday => GetJourneyDay(DayOfWeek.Thursday);
 
         /// <summary>
         /// Terça-Feira
         /// </summary>
         /// <returns></returns>
-        public JourneyDay Tuesday
-        {
-            get
-            {
-                _tuesday = _tuesday ?? new JourneyDay();
-                return _tuesday;
-            }
-            set
-            {
-                _tuesday = value ?? new JourneyDay();
-            }
-        }
+        public JourneyDay Tuesday => GetJourneyDay(DayOfWeek.Tuesday);
 
         /// <summary>
         /// Quarta-Feira
         /// </summary>
         /// <returns></returns>
-        public JourneyDay Wednesday
-        {
-            get
-            {
-                _wednesday = _wednesday ?? new JourneyDay();
-                return _wednesday;
-            }
-            set
-            {
-                _wednesday = value ?? new JourneyDay();
-            }
-        }
+        public JourneyDay Wednesday => GetJourneyDay(DayOfWeek.Wednesday);
 
         /// <summary>
         /// Intervalo de horas trabalhadas entre as datas de inicio e fim desta demanda
@@ -436,19 +363,26 @@ namespace InnerLibs.TimeMachine
         /// <returns></returns>
         public TimeDemand CloneAndQueue(TimeSpan? DelayTime = null) => new TimeDemand(EndDate.Add(DelayTime ?? new TimeSpan(0L)), ItemProductionTime, ItemQuantity);
 
-        public JourneyDay GetJourneyDay(DayOfWeek DoW)
+        public JourneyDay GetJourneyDay(DayOfWeek DayOfWeek)
         {
-            switch (DoW)
+            _journeys = _journeys ?? new List<JourneyDay>();
+            //if (_journeys.IsNullOrEmpty())
+            //{
+            //    _journeys = _journeys ?? new List<JourneyDay>();
+            //    foreach (var x in PredefinedArrays.SundayToSaturday)
+            //    {
+            //        _journeys.Add(new JourneyDay(x));
+            //    }
+            //}
+
+            var jd = _journeys.FirstOr(x => x.DayOfWeek == DayOfWeek, new JourneyDay(DayOfWeek));
+
+            if (_journeys.Any(x => x.DayOfWeek == jd.DayOfWeek) == false)
             {
-                case DayOfWeek.Sunday: return Sunday;
-                case DayOfWeek.Monday: return Monday;
-                case DayOfWeek.Tuesday: return Tuesday;
-                case DayOfWeek.Wednesday: return Wednesday;
-                case DayOfWeek.Thursday: return Thursday;
-                case DayOfWeek.Friday: return Friday;
-                case DayOfWeek.Saturday: return Saturday;
-                default: return null;
+                _journeys.Add(jd);
             }
+
+            return jd;
         }
 
         public JourneyDay GetJourneyDay(DateTime Date) => GetJourneyDay(Date.DayOfWeek);
@@ -476,21 +410,21 @@ namespace InnerLibs.TimeMachine
         /// <returns></returns>
         public TimeSpan GetWorkTimeBetween(DateTime StartDate, DateTime EndDate) => new TimeSpan(RelevantDays.Where(x => x.DayOfWeek.IsIn(RelevantDaysOfWeek) && x.IsBetweenOrEqual(StartDate, EndDate)).Sum(x => GetJourneyDay(x).JourneyTime.Ticks));
 
-        public bool IsJourney(DateTime DateAndTime) => GetJourneyDay(DateAndTime).JourneyTime.TotalMilliseconds > 0;
+        public bool IsJourney(DateTime DateAndTime) => GetJourneyDay(DateAndTime).IsJourney;
 
         /// <summary>
         /// Retorna a hora final da jornada de uma data acordo com as configuracoes desta demanda
         /// </summary>
         /// <param name="[Date]"></param>
         /// <returns></returns>
-        public DateTime JourneyEndHour(DateTime Date) => GetJourneyDay(Date).EndHour;
+        public DateTime JourneyEndHour(DateTime Date) => GetJourneyDay(Date).JourneyEndHourAt(Date).Value;
 
         /// <summary>
         /// Retorna a hora inicial da jornada de uma data de acordo com as configuracoes desta demanda
         /// </summary>
         /// <param name="[Date]"></param>
         /// <returns></returns>
-        public DateTime JourneyStartHour(DateTime Date) => GetJourneyDay(Date).StartHour;
+        public DateTime JourneyStartHour(DateTime Date) => GetJourneyDay(Date).StartHourAt(Date).Value;
 
         /// <summary>
         /// Retorna o tempo da jornada de trabalho de uma data de acordo com as configuracoes desta demanda
@@ -511,7 +445,7 @@ namespace InnerLibs.TimeMachine
         /// </summary>
         /// <param name="[Date]"></param>
         /// <returns></returns>
-        public DateTime LunchStartHour(DateTime Date) => GetJourneyDay(Date).LunchHour;
+        public DateTime LunchStartHour(DateTime Date) => GetJourneyDay(Date).LunchStartHourAt(Date).Value;
 
         /// <summary>
         /// Retorna o tempo de almoço de uma data de acordo com as configuracoes desta demanda
@@ -522,6 +456,8 @@ namespace InnerLibs.TimeMachine
 
         public DateTime Proccess(DateTime StartDate)
         {
+
+
             StartDate = PushDateIntoJourney(StartDate);
             var FinalDate = StartDate.Add(ProductionTime);
             _dateRange = _dateRange ?? new DateRange(StartDate, FinalDate, RelevantDaysOfWeek.ToArray());
@@ -545,7 +481,7 @@ namespace InnerLibs.TimeMachine
                 }
             }
 
-            var nrd = HoliDays.Union(_dateRange.GetNonRelevantDays()).ClearTime().Distinct();
+            var nrd = (HoliDays ?? new List<DateTime>()).Union(_dateRange.GetNonRelevantDays()).ClearTime().Distinct();
 
             FinalDate = FinalDate.AddDays(nrd.Count());
             var lasthours = new TimeSpan();
@@ -567,7 +503,7 @@ namespace InnerLibs.TimeMachine
         /// <param name="[Date]">Data a ser Verificada</param>
         public DateTime PushDateIntoJourney(DateTime Date)
         {
-            while (Date.TimeOfDay > JourneyEndHour(Date).TimeOfDay || Date.TimeOfDay < JourneyStartHour(Date).TimeOfDay || !RelevantDaysOfWeek.Contains(Date.DayOfWeek) || Date.IsBetween(LunchStartHour(Date), LunchEndHour(Date)))
+            while (!Date.IsTimeBetween(JourneyEndHour(Date).TimeOfDay, JourneyStartHour(Date).TimeOfDay) || !RelevantDaysOfWeek.Contains(Date.DayOfWeek) || Date.IsBetween(LunchStartHour(Date), LunchEndHour(Date)))
             {
                 Date = Date.AddMilliseconds(1d);
             }
@@ -589,32 +525,26 @@ namespace InnerLibs.TimeMachine
             switch (DayOfWeek)
             {
                 case DayOfWeek.Sunday:
-                    Sunday = Sunday ?? new JourneyDay();
                     return Sunday.SetJourney(StartHour, Journey, LunchHour, LunchTime);
 
                 case DayOfWeek.Tuesday:
-                    Tuesday = Tuesday ?? new JourneyDay();
                     return Tuesday.SetJourney(StartHour, Journey, LunchHour, LunchTime);
 
                 case DayOfWeek.Wednesday:
-                    Wednesday = Wednesday ?? new JourneyDay();
                     return Wednesday.SetJourney(StartHour, Journey, LunchHour, LunchTime);
 
                 case DayOfWeek.Thursday:
-                    Thursday = Thursday ?? new JourneyDay();
                     return Thursday.SetJourney(StartHour, Journey, LunchHour, LunchTime);
 
                 case DayOfWeek.Friday:
-                    Friday = Friday ?? new JourneyDay();
                     return Friday.SetJourney(StartHour, Journey, LunchHour, LunchTime);
 
                 case DayOfWeek.Saturday:
-                    Saturday = Saturday ?? new JourneyDay();
+
                     return Saturday.SetJourney(StartHour, Journey, LunchHour, LunchTime);
 
                 case DayOfWeek.Monday:
                 default:
-                    Monday = Monday ?? new JourneyDay();
                     return Monday.SetJourney(StartHour, Journey, LunchHour, LunchTime);
             }
         }

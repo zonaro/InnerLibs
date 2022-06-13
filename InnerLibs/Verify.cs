@@ -736,7 +736,7 @@ namespace InnerLibs
         {
             if (Test != null)
             {
-                if (Test.Compile()(Value) == false)
+                if (Test.Compile().Invoke(Value) == false)
                 {
                     throw Exception ?? new Exception();
                 }

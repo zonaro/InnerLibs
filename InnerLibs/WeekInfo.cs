@@ -1,28 +1,39 @@
 using System;
+using System.Globalization;
 
 namespace InnerLibs.TimeMachine
 {
     public struct WeekInfo
     {
-        public WeekInfo(DateTime DateAndTime)
+        public WeekInfo(DateTime? DateAndTime, CultureInfo culture = null, string stringFormat = null)
         {
-            DateAndTime = DateAndTime.Date;
-            var firstMonthDay = DateAndTime.BeginningOfMonth();
-            var firstMonthMonday = firstMonthDay.AddDays(((int)DayOfWeek.Monday + 7 - (int)firstMonthDay.DayOfWeek) % 7);
-            if (firstMonthMonday > DateAndTime)
+            LastDayOfWeek = DateAndTime.OrNow();
+            culture = culture ?? CultureInfo.CurrentCulture;
+            stringFormat = stringFormat.IfBlank("{weekofmonth}{monthordinal}/{monthname} - {weekofyear}{yearordinal}/{year}");
+            DateTime beginningOfMonth = LastDayOfWeek.BeginningOfMonth();
+            Month = beginningOfMonth.Month;
+            Year = beginningOfMonth.Year;
+            while (LastDayOfWeek.Date.AddDays(1).DayOfWeek != culture.DateTimeFormat.FirstDayOfWeek)
             {
-                firstMonthDay = firstMonthDay.AddMonths(-1);
-                firstMonthMonday = firstMonthDay.AddDays(((int)DayOfWeek.Monday + 7 - (int)firstMonthDay.DayOfWeek) % 7);
+                LastDayOfWeek = LastDayOfWeek.AddDays(1);
             }
 
-            Week = (int)Math.Round((DateAndTime - firstMonthMonday).Days / 7d + 1d);
-            Month = firstMonthDay.Month;
-            Year = firstMonthDay.Year;
+            FirstDayOfWeek = LastDayOfWeek.FirstDayOfWeek(culture);
+
+            WeekOfMonth = (int)Math.Truncate((double)DateAndTime.Value.Subtract(beginningOfMonth).TotalDays / 7f) + 1;
+            WeekOfYear = culture.Calendar.GetWeekOfYear(LastDayOfWeek, culture.DateTimeFormat.CalendarWeekRule, culture.DateTimeFormat.FirstDayOfWeek);
+
+            WeekString = stringFormat.Inject(new { weekofyear = WeekOfYear, weekofmonth = WeekOfMonth, monthordinal = WeekOfMonth.GetOrdinal(), yearordinal = Year.GetOrdinal(), year = Year, month = FirstDayOfWeek.Month, monthname = FirstDayOfWeek.Month.ToLongMonthName(culture), shortmonthname = FirstDayOfWeek.Month.ToShortMonthName(culture), shortyear = FirstDayOfWeek.Year.ToString().GetLastChars(2) });
         }
 
+
         public int Month { get; private set; }
-        public int Week { get; private set; }
+        public int WeekOfMonth { get; private set; }
+        public int WeekOfYear { get; private set; }
         public int Year { get; private set; }
+        public string WeekString { get; private set; }
+        public DateTime FirstDayOfWeek { get; private set; }
+        public DateTime LastDayOfWeek { get; private set; }
 
         public int this[int Index]
         {
@@ -30,16 +41,19 @@ namespace InnerLibs.TimeMachine
             {
                 switch (Index)
                 {
-                    case 0: return this.Week;
-                    case 1: return this.Month;
-                    case 2: return this.Year;
+                    case 0: return WeekOfMonth;
+                    case 1: return Month;
+                    case 2: return Year;
+                    case 3: return WeekOfYear;
                     default: return -1;
                 }
             }
         }
 
-        public static implicit operator int[](WeekInfo Info) => new int[] { Info.Week, Info.Month, Info.Year };
+        public static implicit operator int[](WeekInfo Info) => new int[] { Info.WeekOfMonth, Info.Month, Info.Year, Info.WeekOfYear };
+        public static implicit operator string(WeekInfo Info) => Info.ToString();
 
-        public override string ToString() => $"{Week}-{Month}/{Year}";
+
+        public override string ToString() => WeekString;
     }
 }

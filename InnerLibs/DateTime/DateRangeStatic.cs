@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Globalization;
 
 namespace InnerLibs.TimeMachine
 {
     public partial class DateRange
     {
-        public static DateRange Bimester(DateTime? Date = null) => new DateRange(Date.OrNow().FirstDayOfBimester(), Date.OrNow().LastDayOfBimester());
+        public static DateRange Bimester(DateTime? Date = null) => new DateRange(Date.OrNow().BeginningOfBimester(), Date.OrNow().EndOfBimester());
+        public static DateRange Day(DateTime? Date = null) => new DateRange(Date.OrNow().BeginningOfDay(), Date.OrNow().EndOfDay());
 
         public static DateRange FromDate(DateTime? Date = null) => new DateRange(Date.OrNow());
 
@@ -32,16 +34,19 @@ namespace InnerLibs.TimeMachine
 
         public static DateRange FromTicks(DateTime StartDate, long Ticks) => new DateRange(StartDate, TimeSpan.FromTicks(Ticks));
 
-        public static DateRange Month(DateTime? Date = null) => new DateRange(Date.OrNow().FirstDayOfMonth(), Date.OrNow().LastDayOfMonth());
+        public static DateRange Month(DateTime? Date = null) => new DateRange(Date.OrNow().BeginningOfMonth(), Date.OrNow().EndOfMonth());
 
         public static DateRange Now() => new DateRange();
 
-        public static DateRange Quarter(DateTime? Date = null) => new DateRange(Date.OrNow().FirstDayOfQuarter(), Date.OrNow().LastDayOfQuarter());
+        public static DateRange Fortnight(DateTime? Date = null) => new DateRange(Date.OrNow().BeginningOfFortnight(), Date.OrNow().EndOfFortnight());
+        public static DateRange Quarter(DateTime? Date = null) => new DateRange(Date.OrNow().BeginningOfQuarter(), Date.OrNow().EndOfQuarter());
 
-        public static DateRange Semester(DateTime? Date = null) => new DateRange(Date.OrNow().FirstDayOfSemester(), Date.OrNow().LastDayOfSemester());
+        public static DateRange Semester(DateTime? Date = null) => new DateRange(Date.OrNow().BeginningOfSemester(), Date.OrNow().EndOfSemester());
 
-        public static DateRange Week(DateTime? Date = null, DayOfWeek FirstDayOfWeek = DayOfWeek.Sunday) => new DateRange(Date.OrNow().FirstDayOfWeek(FirstDayOfWeek), Date.OrNow().LastDayOfWeek(FirstDayOfWeek));
+        public static DateRange Week(DateTime? Date = null) => Week(Date, null);
+        public static DateRange Week(DateTime? Date, DayOfWeek FirstDayOfWeek) => new DateRange(Date.OrNow().FirstDayOfWeek(FirstDayOfWeek), Date.OrNow().LastDayOfWeek(FirstDayOfWeek));
+        public static DateRange Week(DateTime? Date, CultureInfo culture = null) => new DateRange(Date.OrNow().FirstDayOfWeek(culture), Date.OrNow().LastDayOfWeek(culture));
 
-        public static DateRange Year(DateTime? Date = null) => new DateRange(Date.OrNow().FirstDayOfYear(), Date.OrNow().LastDayOfYear());
+        public static DateRange Year(DateTime? Date = null) => new DateRange(Date.OrNow().BeginningOfYear(), Date.OrNow().EndOfYear());
     }
 }

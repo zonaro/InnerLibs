@@ -414,125 +414,32 @@ namespace InnerLibs
         /// <returns>Um numero inteiro (Integer ou Int)</returns>
         public static long FloorLong(this decimal Number) => Number.Floor().ToLong();
 
-        public static decimal ForceNegative(this decimal Value)
-        {
-            if (Value > 0m)
-            {
-                Value *= -1;
-            }
+        public static decimal ForceNegative(this decimal Value) => Value > 0m ? -Value : Value;
 
-            return Value;
-        }
+        public static int ForceNegative(this int Value) => Value > 0 ? -Value : Value;
 
-        public static int ForceNegative(this int Value)
-        {
-            if (Value > 0)
-            {
-                Value *= -1;
-            }
 
-            return Value;
-        }
+        public static long ForceNegative(this long Value) => Value > 0L ? -Value : Value;
 
-        public static long ForceNegative(this long Value)
-        {
-            if (Value > 0)
-            {
-                Value *= -1;
-            }
 
-            return Value;
-        }
+        public static double ForceNegative(this double Value) => Value > 0d ? -Value : Value;
 
-        public static double ForceNegative(this double Value)
-        {
-            if (Value > 0d)
-            {
-                Value *= -1;
-            }
+        public static float ForceNegative(this float Value) => Value > 0f ? -Value : Value;
 
-            return Value;
-        }
+        public static short ForceNegative(this short Value) => (short)(Value > 0 ? -Value : Value);
 
-        public static float ForceNegative(this float Value)
-        {
-            if (Value > 0f)
-            {
-                Value *= -1;
-            }
 
-            return Value;
-        }
+        public static decimal ForcePositive(this decimal Value) => Value < 0m ? -Value : Value;
 
-        public static short ForceNegative(this short Value)
-        {
-            if (Value > 0)
-            {
-                Value = ((short)(Value * -1));
-            }
+        public static int ForcePositive(this int Value) => Value < 0 ? -Value : Value;
 
-            return Value;
-        }
+        public static long ForcePositive(this long Value) => Value < 0L ? -Value : Value;
 
-        public static decimal ForcePositive(this decimal Value)
-        {
-            if (Value < 0m)
-            {
-                Value *= -1;
-            }
+        public static double ForcePositive(this double Value) => Value < 0d ? -Value : Value;
 
-            return Value;
-        }
+        public static float ForcePositive(this float Value) => Value < 0f ? -Value : Value;
 
-        public static int ForcePositive(this int Value)
-        {
-            if (Value < 0)
-            {
-                Value *= -1;
-            }
-
-            return Value;
-        }
-
-        public static long ForcePositive(this long Value)
-        {
-            if (Value < 0)
-            {
-                Value *= -1;
-            }
-
-            return Value;
-        }
-
-        public static double ForcePositive(this double Value)
-        {
-            if (Value < 0d)
-            {
-                Value *= -1;
-            }
-
-            return Value;
-        }
-
-        public static float ForcePositive(this float Value)
-        {
-            if (Value < 0f)
-            {
-                Value *= -1;
-            }
-
-            return Value;
-        }
-
-        public static short ForcePositive(this short Value)
-        {
-            if (Value < 0)
-            {
-                Value = ((short)(Value * -1));
-            }
-
-            return Value;
-        }
+        public static short ForcePositive(this short Value) => (short)(Value < 0 ? -Value : Value);
 
         /// <summary>
         /// Retorna uma Progressão Gemoétrica com N numeros

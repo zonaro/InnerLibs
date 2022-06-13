@@ -112,30 +112,29 @@ namespace InnerLibs.TimeMachine
         public string FormatName(string Format = null, CultureInfo Culture = null)
         {
             Culture = Culture ?? CultureInfo.CurrentCulture;
-            Format = Format.IfBlank(Fortnight.Format);
+            Format = Format.IfBlank(TimeMachine.Fortnight.Format);
 
             int dia_inicio = StartDate.Day;
+            int dia_fim = EndDate.Day;
             Format = Format.Replace("{s}", dia_inicio.ToString(Culture));
             Format = Format.Replace("{ss}", dia_inicio.ToString(Culture).PadLeft(2, '0'));
-            Format = Format.Replace("{e}", EndDate.Day.ToString(Culture));
-            Format = Format.Replace("{ee}", EndDate.Day.ToString(Culture).PadLeft(2, '0'));
-            Format = Format.Replace("{f}", Number.ToString(Culture));
-            Format = Format.Replace("{ff}", Number.ToString(Culture).PadLeft(2, '0'));
-            Format = Format.Replace("{q}", Number.ToString(Culture));
-            Format = Format.Replace("{qq}", Number.ToString(Culture).PadLeft(2, '0'));
+
+            Format = Format.ReplaceMany(dia_fim.ToString(Culture), "{e}", "{ee}");
+
+            Format = Format.ReplaceMany(Number.ToString(Culture), "{f}", "{q}");
+            Format = Format.ReplaceMany(Number.ToString(Culture).PadLeft(2, '0'), "{ff}", "{qq}");
+
             Format = Format.Replace("{m}", EndDate.Month.ToString(Culture));
-            Format = Format.Replace("{mm}", EndDate.Month.ToString(Culture).PadLeft(2, '0'));
+            Format = Format.Replace("{mm}", EndDate.Month.ToString(Culture).PadLeft(2, '0').GetLastChars(2));
             Format = Format.Replace("{mmm}", EndDate.Month.ToShortMonthName(Culture));
             Format = Format.Replace("{mmmm}", EndDate.Month.ToLongMonthName(Culture));
-            Format = Format.Replace("{y}", EndDate.Year.ToString(Culture).GetLastChars(2));
-            Format = Format.Replace("{yy}", EndDate.Year.ToString(Culture).GetLastChars(2).PadLeft(2, '0'));
-            Format = Format.Replace("{yyy}", EndDate.Year.ToString(Culture));
-            Format = Format.Replace("{yyyy}", EndDate.Year.ToString(Culture));
-            Format = Format.Replace("{a}", EndDate.Year.ToString(Culture));
-            Format = Format.Replace("{aa}", EndDate.Year.ToString(Culture).GetLastChars(2).PadLeft(2, '0'));
-            Format = Format.Replace("{aaa}", EndDate.Year.ToString(Culture).PadLeft(4, '0'));
-            Format = Format.Replace("{aaaa}", EndDate.Year.ToString(Culture).PadLeft(4, '0'));
+
+            Format = Format.ReplaceMany(EndDate.Year.ToString(Culture), "{y}", "{a}");
+            Format = Format.ReplaceMany(EndDate.Year.ToString(Culture).PadLeft(2, '0').GetLastChars(2), "{yy}", "{aa}");
+            Format = Format.ReplaceMany(EndDate.Year.ToString(Culture).PadLeft(4, '0').GetLastChars(4), "{yyy}", "{aaa}", "{yyyy}", "{aaaa}");
+
             Format = Format.Replace("{o}", Number.GetOrdinal());
+            Format = Format.ReplaceMany(Number.ToOrdinalNumber(), "{on}", "{oq}", "{of}");
             return Format;
         }
 
