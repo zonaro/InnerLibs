@@ -33,6 +33,8 @@ namespace InnerLibs.TimeMachine
             Done
         }
 
+
+
         private static DateRange AddInternal(DateRange left, TimeSpan right) => new DateRange(left.StartDate, right);
 
         private static DateRange AddInternal(DateRange left, DateRange right) => AddInternal(left, right.TimeSpan);
@@ -474,7 +476,7 @@ namespace InnerLibs.TimeMachine
         /// <returns>The result of the subtraction.</returns>
         public static DateRange operator -(DateRange left, DateRange right) => SubtractInternal(left, right);
 
-        public static DateRange operator -(TimeSpan left, DateRange right) => SubtractInternal(left, right);
+        public static DateRange operator -(TimeSpan left, DateRange right) => SubtractInternal(left, right.TimeSpan);
 
         public static DateRange operator -(DateRange left, TimeSpan right) => SubtractInternal(left, right);
 
@@ -491,7 +493,7 @@ namespace InnerLibs.TimeMachine
         /// </returns>
         public static bool operator !=(DateRange left, DateRange right) => !(left == right);
 
-        public static bool operator !=(TimeSpan left, DateRange right) => !(left == right);
+
 
         public static bool operator !=(DateRange left, TimeSpan right) => !(left == right);
 
@@ -505,7 +507,7 @@ namespace InnerLibs.TimeMachine
 
         public static DateRange operator +(DateRange left, TimeSpan right) => AddInternal(left, right);
 
-        public static DateRange operator +(TimeSpan left, DateRange right) => AddInternal(left, right);
+        public static DateRange operator +(TimeSpan left, DateRange right) => AddInternal(left, right.TimeSpan);
 
         public static bool operator <(DateRange left, DateRange right) => (TimeSpan)left < (TimeSpan)right;
 
@@ -527,9 +529,7 @@ namespace InnerLibs.TimeMachine
         /// <returns>
         /// <c>true</c> is <paramref name="left"/> is equal to <paramref name="right"/>; otherwise <c>false</c>.
         /// </returns>
-        public static bool operator ==(DateRange left, DateRange right) => left != null && left.Equals(right);
-
-        public static bool operator ==(TimeSpan left, DateRange right) => left != null && right.Equals(left);
+        public static bool operator ==(DateRange left, DateRange right) => (left is null && right is null) || left != null && left.Equals(right);
 
         public static bool operator ==(DateRange left, TimeSpan right) => left != null && left.Equals(right);
 
@@ -589,7 +589,8 @@ namespace InnerLibs.TimeMachine
             RelevantDaysOfWeek = RelevantDaysOfWeek,
             FilterBehavior = FilterBehavior,
             NoTime = NoTime,
-            ForceFirstAndLastMoments = ForceFirstAndLastMoments
+            ForceFirstAndLastMoments = ForceFirstAndLastMoments,
+
         };
 
         public int CompareTo(TimeSpan other) => TimeSpan.CompareTo(other);
@@ -632,8 +633,8 @@ namespace InnerLibs.TimeMachine
             {
                 switch (FilterBehavior)
                 {
-                    case DateRangeFilterBehavior.Between: return Day.IsBetweenExclusive(StartDate, EndDate);
-                    case DateRangeFilterBehavior.BetweenOrEqualExcludeEnd: return Day.IsBetween(StartDate, EndDate);
+                    case DateRangeFilterBehavior.BetweenExclusive: return Day.IsBetweenExclusive(StartDate, EndDate);
+                    case DateRangeFilterBehavior.Between: return Day.IsBetween(StartDate, EndDate);
                     case DateRangeFilterBehavior.BetweenOrEqual:
                     default: return Day.IsBetweenOrEqual(StartDate, EndDate);
                 }
@@ -855,7 +856,7 @@ namespace InnerLibs.TimeMachine
         /// Dias não relevantes entre as datas Inicial e Final
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<DateTime> GetNonRelevantDays() => GetDays(NonRelevantDaysOfWeek);
+        public IEnumerable<DateTime> GetNonRelevantDays() => NonRelevantDaysOfWeek.Any() ? GetDays(NonRelevantDaysOfWeek) : Array.Empty<DateTime>().AsEnumerable();
 
         /// <summary>
         /// Retorna o periodo em um total especificado por <see cref="DateRangeInterval"/>
@@ -1070,13 +1071,13 @@ namespace InnerLibs.TimeMachine
         {
             display = display ?? Display;
 
-            string ano = Text.QuantifyText(display.YearsWord, Years).Prepend($"{Years} ").NullIf(x => display.YearsWord.IsBlank());
-            string mes = Text.QuantifyText(display.MonthsWord, Months).Prepend($"{Months} ").NullIf(x => display.MonthsWord.IsBlank());
-            string dia = Text.QuantifyText(display.DaysWord, Days).Prepend($"{Days} ").NullIf(x => display.DaysWord.IsBlank());
-            string horas = Text.QuantifyText(display.HoursWord, Hours).Prepend($"{Hours} ").NullIf(x => display.HoursWord.IsBlank());
-            string minutos = Text.QuantifyText(display.MinutesWord, Minutes).Prepend($"{Minutes} ").NullIf(x => display.MinutesWord.IsBlank());
-            string segundos = Text.QuantifyText(display.SecondsWord, Seconds).Prepend($"{Seconds} ").NullIf(x => display.SecondsWord.IsBlank());
-            string milisegundos = Text.QuantifyText(display.MillisecondsWord, Milliseconds).Prepend($"{Milliseconds} ").NullIf(x => display.MillisecondsWord.IsBlank());
+            string ano = display.YearsWord[Years].Prepend($"{Years} ").NullIf(x => display.YearsWord.ToString().IsBlank());
+            string mes = display.MonthsWord[Months].Prepend($"{Months} ").NullIf(x => display.MonthsWord.ToString().IsBlank());
+            string dia = display.DaysWord[Days].Prepend($"{Days} ").NullIf(x => display.DaysWord.ToString().IsBlank());
+            string horas = display.HoursWord[Hours].Prepend($"{Hours} ").NullIf(x => display.HoursWord.ToString().IsBlank());
+            string minutos = display.MinutesWord[Minutes].Prepend($"{Minutes} ").NullIf(x => display.MinutesWord.ToString().IsBlank());
+            string segundos = display.SecondsWord[Seconds].Prepend($"{Seconds} ").NullIf(x => display.SecondsWord.ToString().IsBlank());
+            string milisegundos = display.MillisecondsWord[Milliseconds].Prepend($"{Milliseconds} ").NullIf(x => display.MillisecondsWord.ToString().IsBlank());
 
             var flagInt = (int)display.FormatRule;
             if (flagInt >= 1) //skip zero

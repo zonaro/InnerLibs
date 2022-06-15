@@ -1989,8 +1989,8 @@ namespace InnerLibs.LINQ
             var icomp = new IComparable[] { DateRange.StartDate, DateRange.EndDate };
             switch (FilterBehavior ?? DateRange.FilterBehavior)
             {
-                case DateRangeFilterBehavior.Between: return WhereExpression(Property, "between", icomp);
-                case DateRangeFilterBehavior.BetweenOrEqualExcludeEnd: return WhereExpression(Property, "between", icomp).Or(WhereExpression(Property, "equal", new IComparable[] { DateRange.StartDate }));
+                case DateRangeFilterBehavior.BetweenExclusive: return WhereExpression(Property, "between", icomp);
+                case DateRangeFilterBehavior.Between: return WhereExpression(Property, "between", icomp).Or(WhereExpression(Property, "equal", new IComparable[] { DateRange.StartDate }));
                 case DateRangeFilterBehavior.BetweenOrEqual:
                 default: return WhereExpression(Property, "betweenorequal", icomp);
             }
@@ -2006,8 +2006,8 @@ namespace InnerLibs.LINQ
             var icomp = new IComparable[] { (DateTime?)DateRange.StartDate, (DateTime?)DateRange.EndDate };
             switch (FilterBehavior ?? DateRange.FilterBehavior)
             {
-                case DateRangeFilterBehavior.Between: return WhereExpression(Property, "between", icomp);
-                case DateRangeFilterBehavior.BetweenOrEqualExcludeEnd: return WhereExpression(Property, "between", icomp).Or(IsEqual(Property, (DateTime?)DateRange.StartDate));
+                case DateRangeFilterBehavior.BetweenExclusive: return WhereExpression(Property, "between", icomp);
+                case DateRangeFilterBehavior.Between: return WhereExpression(Property, "between", icomp).Or(IsEqual(Property, (DateTime?)DateRange.StartDate));
                 case DateRangeFilterBehavior.BetweenOrEqual:
                 default: return WhereExpression(Property, "betweenorequal", icomp);
             }

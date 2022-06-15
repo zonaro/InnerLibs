@@ -1331,7 +1331,7 @@ namespace InnerLibs
                 return Dic;
             }
 
-            var novodic = Dic.Take(Top).ToDictionary();
+            var novodic = Dic.ToDictionary(x => x.Key, x => x.Value.Take(Top));
             if (GroupOthersLabel != null)
             {
                 novodic[GroupOthersLabel] = (IEnumerable<T>)Dic.Values.Skip(Top).SelectMany(x => x).Select(x => x.ChangeType<decimal>()).Sum().ChangeType<T>();

@@ -1471,11 +1471,6 @@ namespace InnerLibs
         {
             if (Text.Length < TotalLength)
             {
-                if (Text.IsNotBlank())
-                {
-                    Text = Text.Wrap(" ");
-                }
-
                 while (Text.Length < TotalLength)
                 {
                     Text = Text.Wrap(PaddingChar.ToString());
@@ -4205,17 +4200,19 @@ namespace InnerLibs
         public static string ToPercentString(this long Number) => $"{Number}%";
 
         /// <summary>
-        /// Concatena todos as strings em uma lista, utilizando a palavra <paramref name="And"/> na
+        /// Concatena todos as strings em uma lista, utilizando a palavra <paramref name="And"/> antes da
         /// ultima ocorrencia.
         /// </summary>
         /// <param name="Texts"></param>
         /// <param name="And"></param>
         /// <returns></returns>
-        public static string ToPhrase(this IEnumerable<string> Texts, string And = "and")
+        public static string ToPhrase(this IEnumerable<string> Texts, string And = "and", char Separator = ',')
         {
+            Separator = Separator.IfBlank(',');
+
             if (Texts != null && Texts.Count() > 1)
             {
-                return TrimBetween($"{Texts.SkipLast(1).JoinString(", ")} {And.IfBlank(",")} {Texts.Last()}");
+                return TrimBetween($"{Texts.SkipLast(1).JoinString($"{Separator} ")} {And.IfBlank(Separator)} {Texts.Last()}");
             }
             else
             {

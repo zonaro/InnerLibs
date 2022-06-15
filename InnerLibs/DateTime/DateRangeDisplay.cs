@@ -11,7 +11,15 @@ namespace InnerLibs.TimeMachine
         {
             foreach (var item in this.GetProperties().Where(x => x.Name.EndsWith("Word")))
             {
-                item.SetValue(this, item.Name.RemoveLastEqual("Word").ToLower());
+                var w = item.Name.RemoveLastEqual("Word").ToLower();
+                if (item.PropertyType == typeof(QuantityTextPair))
+                {
+                    item.SetValue(this, new QuantityTextPair(w));
+                }
+                else if (item.PropertyType == typeof(string))
+                {
+                    item.SetValue(this, w);
+                }
             }
         }
 
@@ -48,7 +56,7 @@ namespace InnerLibs.TimeMachine
         /// <summary>
         /// The 'Days' word (on plural).
         /// </summary>
-        public string DaysWord { get; set; }
+        public QuantityTextPair DaysWord { get; set; }
 
         /// <summary>
         /// Rules for returning the string
@@ -56,41 +64,41 @@ namespace InnerLibs.TimeMachine
         public DateRangeFormatRules FormatRule { get; set; } = DateRangeFormatRules.FullStringSkipZero;
 
         /// <summary>
-        /// The 'Hours' word (on plural).
+        /// The 'Hours' word.
         /// </summary>
-        public string HoursWord { get; set; }
+        public QuantityTextPair HoursWord { get; set; }
 
         /// <summary>
-        /// The 'Milliseconds' word (on plural).
+        /// The 'Milliseconds' word.
         /// </summary>
-        public string MillisecondsWord { get; set; }
+        public QuantityTextPair MillisecondsWord { get; set; }
 
         /// <summary>
-        /// The 'Minutes' word (on plural).
+        /// The 'Minutes' word.
         /// </summary>
-        public string MinutesWord { get; set; }
+        public QuantityTextPair MinutesWord { get; set; }
 
         /// <summary>
-        /// The 'Months' word (on plural).
+        /// The 'Months' word.
         /// </summary>
-        public string MonthsWord { get; set; }
+        public QuantityTextPair MonthsWord { get; set; }
 
         /// <summary>
-        /// The 'Seconds' word (on plural).
+        /// The 'Seconds' word.
         /// </summary>
-        public string SecondsWord { get; set; }
+        public QuantityTextPair SecondsWord { get; set; }
 
         /// <summary>
-        /// The 'Years' word (on plural).
+        /// The 'Years' word.
         /// </summary>
-        public string YearsWord { get; set; }
+        public QuantityTextPair YearsWord { get; set; }
 
         public static DateRangeDisplay Default() => new DateRangeDisplay();
 
-        public static DateRangeDisplay DefaultPtBr() => new DateRangeDisplay("e", "milisegundos", "segundos", "minutos", "horas", "dias", "meses", "anos");
+        public static DateRangeDisplay DefaultPtBr() => new DateRangeDisplay("e", "milisegundos", "segundos", "minutos", "horas", "dias", "meses;mes", "anos");
 
 
-        public override string ToString() => new string[] { YearsWord, MonthsWord, DaysWord, HoursWord, MinutesWord, SecondsWord, MillisecondsWord }.ToPhrase(AndWord);
+        public override string ToString() => new string[] { YearsWord.Plural, MonthsWord.Plural, DaysWord.Plural, HoursWord.Plural, MinutesWord.Plural, SecondsWord.Plural, MillisecondsWord.Plural }.ToPhrase(AndWord);
 
     }
 }

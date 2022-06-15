@@ -203,6 +203,10 @@ namespace InnerLibs.Console
         /// <returns></returns>
         public static string ConsoleWriteSeparator(this string Text, char Separator = '-', ConsoleColor? Color = null, int BreakLines = 1)
         {
+            if (Text.IsNotBlank())
+            {
+                Text = Text.Wrap(" ");
+            }
             Color = Color ?? System.Console.ForegroundColor;
             Text = Text.Pad(System.Console.BufferWidth, Separator);
             return ConsoleWriteLine(Text, Color.Value, BreakLines);

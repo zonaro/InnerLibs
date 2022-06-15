@@ -9,6 +9,18 @@ using System.Threading;
 
 namespace InnerLibs
 {
+
+
+    public enum PasswordLevel
+    {
+        VeryWeak = 2,
+        Weak = 3,
+        Medium = 4,
+        Strong = 5,
+        VeryStrong = 6
+
+    }
+
     /// <summary>
     /// Verifica determinados valores como Arquivos, Numeros e URLs
     /// </summary>
@@ -18,6 +30,39 @@ namespace InnerLibs
         private const int ERROR_LOCK_VIOLATION = 33;
 
         private const int ERROR_SHARING_VIOLATION = 32;
+
+        private static Expression<Func<string, bool>>[] passwordValidations = new Expression<Func<string, bool>>[]
+            {
+               x => x.ToLower().ToArray().Distinct().Count() >= 4,
+               x => x.ToLower().ToArray().Distinct().Count() >= 6,
+               x => x.Length >= 8,
+               x => x.ContainsAny(StringComparison.InvariantCulture, PredefinedArrays.PasswordSpecialChars.ToArray()),
+               x => x.ContainsAny(StringComparison.InvariantCulture, PredefinedArrays.NumberChars.ToArray()),
+               x => x.ContainsAny(StringComparison.InvariantCulture, PredefinedArrays.AlphaUpperChars.ToArray()),
+               x => x.ContainsAny(StringComparison.InvariantCulture, PredefinedArrays.AlphaLowerChars.ToArray())
+            };
+
+        public static PasswordLevel CheckPassword(this string Password)
+        {
+            var points = Password.ValidateCount(passwordValidations);
+            if (points < PasswordLevel.VeryWeak.ToInt())
+            {
+                return PasswordLevel.VeryWeak;
+            }
+            else if (points > PasswordLevel.VeryStrong.ToInt())
+            {
+                return PasswordLevel.VeryStrong;
+            }
+            else
+            {
+                return (PasswordLevel)points;
+            }
+        }
+
+        public static bool ValidatePassword(this string Password, PasswordLevel PasswordLevel = PasswordLevel.Strong) => Password.CheckPassword().ToInt() >= PasswordLevel.ToInt();
+
+
+
 
         /// <summary>
         /// Verifica se o valor é um numero ou pode ser convertido em numero
@@ -742,6 +787,26 @@ namespace InnerLibs
                 }
             }
             return Value;
+        }
+
+        public static bool Validate<T>(this T Value, int MinPoints, params Expression<Func<T, bool>>[] Tests)
+        {
+            Tests = Tests ?? Array.Empty<Expression<Func<T, bool>>>();
+            return ValidateCount(Value, Tests) >= MinPoints.LimitRange(1, Tests.Length);
+        }
+
+        public static int ValidateCount<T>(this T Value, params Expression<Func<T, bool>>[] Tests)
+        {
+            var count = 0;
+            Tests = Tests ?? Array.Empty<Expression<Func<T, bool>>>();
+            foreach (var item in Tests)
+            {
+                if (item.Compile().Invoke(Value))
+                {
+                    count++;
+                }
+            }
+            return count;
         }
 
         /// <summary>

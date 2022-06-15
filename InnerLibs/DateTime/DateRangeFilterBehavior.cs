@@ -11,7 +11,7 @@ namespace InnerLibs.TimeMachine
         /// Check if <see cref="DateTime"/> is between <see cref="DateRange.StartDate"/> and <see
         /// cref="DateRange.EndDate"/> but not equal them
         /// </summary>
-        Between,
+        BetweenExclusive,
 
         /// <summary>
         /// Check if <see cref="DateTime"/> is Between or equal <see cref="DateRange.StartDate"/>
@@ -23,6 +23,6 @@ namespace InnerLibs.TimeMachine
         /// Check if <see cref="DateTime"/> is greater than or equal <see
         /// cref="DateRange.StartDate"/> and less than <see cref="DateRange.EndDate"/>
         /// </summary>
-        BetweenOrEqualExcludeEnd,
+        Between,
     }
 }
