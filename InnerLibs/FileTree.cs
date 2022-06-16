@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -9,9 +10,11 @@ namespace InnerLibs
     {
         private List<FileTree> _children = new List<FileTree>();
 
+        private FileSystemInfo info;
+
         internal FileTree(DirectoryInfo Directory, FileTree parent, string[] FileSearchPatterns)
         {
-            Info = Directory;
+            info = Directory;
             Parent = parent;
             var f = new List<FileTree>();
             foreach (var d in Directory.GetDirectories())
@@ -26,7 +29,9 @@ namespace InnerLibs
             foreach (var pt in FileSearchPatterns)
             {
                 foreach (var d in Directory.GetFiles(pt, SearchOption.TopDirectoryOnly))
+                {
                     f.Add(new FileTree(d, this));
+                }
             }
 
             _children = new List<FileTree>(f);
@@ -34,20 +39,19 @@ namespace InnerLibs
 
         internal FileTree(FileInfo File, FileTree parent)
         {
-            Info = File;
+            info = File;
             Parent = parent;
             _children = new List<FileTree>(new List<FileTree>());
         }
 
-        public FileTree(string Directory, params string[] FileSearchPatterns) : this(new DirectoryInfo(Directory), FileSearchPatterns)
-        {
-        }
+        //TODO: construtor que permite aninhar arquivos relacionados
 
         public FileTree(DirectoryInfo Directory, params string[] FileSearchPatterns)
         {
-            Info = Directory;
+            info = Directory;
             Parent = null;
-            if (FileSearchPatterns is null || FileSearchPatterns.Count() == 0)
+            FileSearchPatterns = FileSearchPatterns ?? Array.Empty<string>();
+            if (!FileSearchPatterns.Any())
             {
                 FileSearchPatterns = new[] { "*" };
             }
@@ -55,87 +59,38 @@ namespace InnerLibs
             _children = new List<FileTree>(new[] { new FileTree(Directory, this, FileSearchPatterns) }.ToList());
         }
 
-        public IEnumerable<FileTree> Children
-        {
-            get
-            {
-                return _children.AsEnumerable();
-            }
-        }
+        public IEnumerable<FileTree> Children => _children.AsEnumerable();
 
-        public FileType FileType
-        {
-            get
-            {
-                if (Path.IsFilePath())
-                {
-                    return FileType.GetFileType(Path);
-                }
+        public DateTime CreationTime => info.CreationTime;
 
-                return null;
-            }
-        }
+        public string Extension => info.Extension;
+        public bool IsDirectory => info is DirectoryInfo;
 
-        public Bitmap Icon
-        {
-            get
-            {
-                return Info.GetIcon().ToBitmap();
-            }
-        }
+        public bool IsFile => info is FileInfo;
 
-        public FileSystemInfo Info { get; private set; }
+        public DateTime LastAccessTime => info.LastAccessTime;
 
-        public bool IsDirectory
-        {
-            get
-            {
-                return Path.IsDirectoryPath();
-            }
-        }
+        public DateTime LastWriteTime => info.LastWriteTime;
 
-        public bool IsFile
-        {
-            get
-            {
-                return Path.IsFilePath();
-            }
-        }
-
-        public string Name
-        {
-            get
-            {
-                return Info != null ? Info.Name : "";
-            }
-        }
-
+        public string Name => info.Name;
         public FileTree Parent { get; private set; }
+        public string Path => info.FullName;
+        public string Title => info.FileNameAsTitle();
 
-        public string Path
+        public string TypeDescription => IsDirectory ? "Directory" : (GetFileType()?.Description) ?? "File";
+
+        public FileType GetFileType()
         {
-            get
+            if (Path.IsFilePath())
             {
-                return Info != null ? Info.FullName : "";
+                return FileType.GetFileType(Path);
             }
+
+            return null;
         }
 
-        public string TypeDescription
-        {
-            get
-            {
-                if (IsDirectory)
-                {
-                    return "Directory";
-                }
+        public Bitmap GetIcon() => info.GetIcon().ToBitmap();
 
-                return FileType?.Description;
-            }
-        }
-
-        public override string ToString()
-        {
-            return Info.Name;
-        }
+        public override string ToString() => info.Name;
     }
 }
