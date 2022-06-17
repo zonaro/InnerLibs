@@ -251,7 +251,9 @@ namespace InnerLibs.LINQ
                 if (exp != null)
                 {
                     while (exp.CanReduce)
+                    {
                         exp = (Expression<Func<ClassType, bool>>)exp.Reduce();
+                    }
                 }
 
                 return exp;
@@ -343,7 +345,10 @@ namespace InnerLibs.LINQ
 
                 var arr = new List<int>();
                 for (int index = frange, loopTo = lrange; index <= loopTo; index++)
+                {
                     arr.Add(index);
+                }
+
                 return arr.ToArray();
             }
         }
@@ -485,7 +490,11 @@ namespace InnerLibs.LINQ
         /// <returns></returns>
         public PaginationFilter<ClassType, RemapType> Config(Action<PaginationFilter<ClassType, RemapType>> options)
         {
-            if (options != null) options(this);
+            if (options != null)
+            {
+                options(this);
+            }
+
             return this;
         }
 
@@ -510,7 +519,10 @@ namespace InnerLibs.LINQ
         /// <returns></returns>
         public IEnumerable<string> CreatePaginationButtons(string Trailling = "...")
         {
-            if (Trailling.IsNumber()) throw new ArgumentException($"Trailling cannot be a number! => {Trailling}");
+            if (Trailling.IsNumber())
+            {
+                throw new ArgumentException($"Trailling cannot be a number! => {Trailling}");
+            }
 
             var l = new List<string>();
             if (IsPaginationNecessary)
@@ -565,7 +577,10 @@ namespace InnerLibs.LINQ
             PropertyNames = (PropertyNames ?? Array.Empty<Expression<Func<ClassType, T>>>()).Where(x => x != null).ToArray();
             PropertyValues = PropertyValues ?? Array.Empty<IComparable>();
             foreach (var sel in PropertyNames)
+            {
                 SetMember(sel, FilterConditional.Or).Contains(PropertyValues);
+            }
+
             return this;
         }
 
@@ -577,7 +592,10 @@ namespace InnerLibs.LINQ
             PropertyNames = (PropertyNames ?? Array.Empty<string>()).Where(x => x.IsNotBlank()).ToArray();
             PropertyValues = PropertyValues ?? Array.Empty<IComparable>();
             foreach (var sel in PropertyNames)
+            {
                 SetMember(sel, FilterConditional.Or).Contains(PropertyValues);
+            }
+
             return this;
         }
 
@@ -700,11 +718,20 @@ namespace InnerLibs.LINQ
             {
                 var l = new List<string>();
                 if (PageNumber > 1)
+                {
                     l.Add($"{PageNumberQueryParameter}={PageNumber}");
+                }
+
                 if (IncludePageSize)
+                {
                     l.Add($"{PageSizeQueryParameter}={PageSize}");
+                }
+
                 if (IncludePaginationOffset)
+                {
                     l.Add($"{PaginationOffsetQueryParameter}={PaginationOffset}");
+                }
+
                 return l.JoinString("&");
             }
 
@@ -778,7 +805,10 @@ namespace InnerLibs.LINQ
         {
             foreach (var Selector in Selectors ?? Array.Empty<Expression<Func<ClassType, T>>>())
             {
-                if (Selector != null) OrderBy(Selector);
+                if (Selector != null)
+                {
+                    OrderBy(Selector);
+                }
             }
 
             return this;
@@ -810,19 +840,7 @@ namespace InnerLibs.LINQ
                     return this;
                 }
 
-                if (Data is IQueryable<ClassType>)
-                {
-                    if (Ascending)
-                    {
-                        Data = ((IQueryable<ClassType>)Data).OrderBy(Selector);
-                    }
-                    else
-                    {
-                        Data = ((IQueryable<ClassType>)Data).OrderByDescending(Selector);
-                    }
 
-                    return this;
-                }
 
                 if (Data is IOrderedEnumerable<ClassType>)
                 {
@@ -891,7 +909,11 @@ namespace InnerLibs.LINQ
 
         public PaginationFilter<ClassType, RemapType> OrderByDescending<T>(Expression<Func<ClassType, T>> Selector)
         {
-            if (Selector != null) OrderBy(Selector, true);
+            if (Selector != null)
+            {
+                OrderBy(Selector, true);
+            }
+
             return this;
         }
 
@@ -1171,7 +1193,11 @@ namespace InnerLibs.LINQ
         /// <returns></returns>
         public PaginationFilter<ClassType, RemapType> WhereIf(bool Test, Expression<Func<ClassType, bool>> predicate)
         {
-            if (Test) Where(predicate);
+            if (Test)
+            {
+                Where(predicate);
+            }
+
             return this;
         }
     }
@@ -1185,11 +1211,15 @@ namespace InnerLibs.LINQ
         /// <summary>
         /// Cria uma nova instancia e seta a exclusividade de filtro
         /// </summary>
-        public PaginationFilter(Action<PaginationFilter<ClassType>> Options) : base() => this.Config(Options);
+        public PaginationFilter(Action<PaginationFilter<ClassType>> Options) : base() => Config(Options);
 
         public PaginationFilter<ClassType> Config(Action<PaginationFilter<ClassType>> options)
         {
-            if (options != null) options(this);
+            if (options != null)
+            {
+                options(this);
+            }
+
             return this;
         }
     }

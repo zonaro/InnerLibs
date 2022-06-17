@@ -337,16 +337,16 @@ namespace InnerLibs
         /// </remarks>
         public static (T, T) FixOrder<T>(ref T FirstValue, ref T SecondValue) where T : IComparable
         {
-            var tp = (FirstValue, SecondValue);
+
             if (FirstValue != null && SecondValue != null)
             {
                 if (FirstValue.IsGreaterThan(SecondValue))
                 {
-                    tp = Swap(ref FirstValue, ref SecondValue);
+                    return Swap(ref FirstValue, ref SecondValue);
                 }
             }
 
-            return tp;
+            return (FirstValue, SecondValue);
         }
 
         public static TValue GetAttributeValue<TAttribute, TValue>(this MemberInfo prop, Expression<Func<TAttribute, TValue>> ValueSelector) where TAttribute : Attribute
@@ -1251,7 +1251,6 @@ namespace InnerLibs
                 prop.SetValue(MyObject, Converter.ChangeType(Value, prop.PropertyType));
             }
 
-
             return MyObject;
         }
 
@@ -1300,11 +1299,11 @@ namespace InnerLibs
         /// <param name="Top"></param>
         /// <param name="GroupOthersLabel"></param>
         /// <returns></returns>
-        public static Dictionary<K, T> TakeTop<K, T>(this Dictionary<K, T> Dic, int Top, K GroupOthersLabel) where T : IConvertible
+        public static Dictionary<K, T> TakeTop<K, T>(this Dictionary<K, T> Dic, int Top, K GroupOthersLabel)
         {
             if (Top < 1)
             {
-                return Dic;
+                return Dic.ToDictionary();
             }
 
             var novodic = Dic.Take(Top).ToDictionary();
@@ -1324,21 +1323,51 @@ namespace InnerLibs
         /// <param name="Top"></param>
         /// <param name="GroupOthersLabel"></param>
         /// <returns></returns>
-        public static Dictionary<K, IEnumerable<T>> TakeTop<K, T>(this Dictionary<K, IEnumerable<T>> Dic, int Top, K GroupOthersLabel)
+        public static Dictionary<K, IEnumerable<T>> TakeTop<K, T>(this Dictionary<K, IEnumerable<T>> Dic, int Top, Expression<Func<T, dynamic>> ValueSelector) where T : class
         {
-            if (Top < 1)
+            Dictionary<K, IEnumerable<T>> novodic = Dic.ToDictionary();
+
+            if (ValueSelector != null)
             {
-                return Dic;
+                novodic = Dic.ToDictionary(x => x.Key, x => x.Value.OrderByDescending(ValueSelector.Compile()).AsEnumerable());
             }
 
-            var novodic = Dic.ToDictionary(x => x.Key, x => x.Value.Take(Top));
-            if (GroupOthersLabel != null)
+            if (Top > 0)
             {
-                novodic[GroupOthersLabel] = (IEnumerable<T>)Dic.Values.Skip(Top).SelectMany(x => x).Select(x => x.ChangeType<decimal>()).Sum().ChangeType<T>();
+                novodic = Dic.ToDictionary(x => x.Key, x => x.Value.TakeTop(Top, ValueSelector));
             }
 
             return novodic;
         }
+
+        public static IEnumerable<T> TakeTop<T>(this IEnumerable<T> List, int Top, params Expression<Func<T, dynamic>>[] ValueSelector) where T : class => TakeTop<T, object>(List, Top, null, null, ValueSelector?.ToArray());
+
+        public static IEnumerable<T> TakeTop<T, L>(this IEnumerable<T> List, int Top, Expression<Func<T, L>> LabelSelector, L GroupOthersLabel, params Expression<Func<T, dynamic>>[] ValueSelector) where T : class
+        {
+            ValueSelector = ValueSelector ?? Array.Empty<Expression<Func<T, dynamic>>>();
+
+            if (ValueSelector.WhereNotNull().IsNullOrEmpty())
+            {
+                throw new ArgumentException("You need at least one value selector");
+            }
+
+            var newlist = List.OrderByManyDescending(ValueSelector).Take(Top).ToList();
+
+            if (LabelSelector != null && GroupOthersLabel != null)
+            {
+                var others = Activator.CreateInstance<T>();
+                LabelSelector.GetPropertyInfo().SetValue(others, GroupOthersLabel);
+                foreach (var v in ValueSelector)
+                {
+                    var values = List.Skip(Top).Select(x => (v.Compile().Invoke(x) as object).ChangeType<decimal>()).Sum();
+                    v.GetPropertyInfo().SetValue(others, values);
+
+                }
+                newlist.Add(others);
+            }
+            return newlist.AsEnumerable();
+        }
+
 
         /// <summary>
         /// Concatena todas as <see cref="Exception.InnerException"/> em uma única string

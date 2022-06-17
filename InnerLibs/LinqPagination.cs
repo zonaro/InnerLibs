@@ -1013,16 +1013,10 @@ namespace InnerLibs.LINQ
             return body;
         }
 
+
         public static PropertyInfo GetPropertyInfo<TSource, TProperty>(this Expression<Func<TSource, TProperty>> propertyLambda)
         {
-            var type = typeof(TSource);
-            MemberExpression member = propertyLambda.Body as MemberExpression;
-            if (member is null)
-            {
-                throw new ArgumentException(string.Format("Expression '{0}' refers to a method, not a property.", propertyLambda.ToString()));
-            }
-
-            PropertyInfo propInfo = member.Member as PropertyInfo;
+            var propInfo = GetMemberInfo(propertyLambda) as PropertyInfo;
             if (propInfo is null)
             {
                 throw new ArgumentException(string.Format("Expression '{0}' refers to a field, not a property.", propertyLambda.ToString()));
@@ -1030,6 +1024,137 @@ namespace InnerLibs.LINQ
 
             return propInfo;
         }
+        public static FieldInfo GetFieldInfo<TSource, TProperty>(this Expression<Func<TSource, TProperty>> propertyLambda)
+        {
+            var propInfo = GetMemberInfo(propertyLambda) as FieldInfo;
+            if (propInfo is null)
+            {
+                throw new ArgumentException(string.Format("Expression '{0}' refers to a property, not a field.", propertyLambda.ToString()));
+            }
+
+            return propInfo;
+        }
+
+
+        public static MemberInfo GetMemberInfo<TSource, TProperty>(this Expression<Func<TSource, TProperty>> propertyLambda)
+        {
+            var type = typeof(TSource);
+            MemberExpression member;
+            if (propertyLambda.Body is UnaryExpression)
+            {
+                UnaryExpression unaryExpression = (UnaryExpression)(propertyLambda.Body);
+                member = (MemberExpression)(unaryExpression.Operand);
+            }
+            else
+            {
+                member = propertyLambda.Body as MemberExpression;
+            }
+            if (member is null)
+            {
+                throw new ArgumentException(string.Format("Expression '{0}' refers to a method, not a property.", propertyLambda.ToString()));
+            }
+
+            return member.Member;
+        }
+
+
+        public static IOrderedEnumerable<T> OrderByMany<T>(this IEnumerable<T> Data, params Expression<Func<T, object>>[] Selectors) => Data.OrderByMany(true, Selectors);
+        public static IOrderedEnumerable<T> OrderByManyDescending<T>(this IEnumerable<T> Data, params Expression<Func<T, object>>[] Selectors) => Data.OrderByMany(false, Selectors);
+        public static IOrderedEnumerable<T> OrderByMany<T>(this IEnumerable<T> Data, bool Ascending, params Expression<Func<T, object>>[] Selectors)
+        {
+            Selectors = Selectors ?? Array.Empty<Expression<Func<T, object>>>();
+            if (Selectors.IsNullOrEmpty())
+            {
+                Expression<Func<T, object>> dd = x => true;
+                Selectors = new[] { dd };
+            }
+            foreach (var Selector in Selectors)
+            {
+                if (Selector != null)
+                {
+                    if (Data is IOrderedEnumerable<T>)
+                    {
+                        if (Ascending)
+                        {
+                            Data = ((IOrderedEnumerable<T>)Data).ThenBy(Selector.Compile());
+                        }
+                        else
+                        {
+                            Data = ((IOrderedEnumerable<T>)Data).ThenByDescending(Selector.Compile());
+                        }
+
+
+                    }
+                    else if (Data is IEnumerable<T>)
+                    {
+                        if (Ascending)
+                        {
+                            Data = Data.OrderBy(Selector.Compile());
+                        }
+                        else
+                        {
+                            Data = Data.OrderByDescending(Selector.Compile());
+                        }
+                    }
+                }
+            }
+
+            return (IOrderedEnumerable<T>)Data;
+        }
+
+
+
+
+
+
+
+        public static IOrderedQueryable<T> OrderByMany<T>(this IQueryable<T> Data, params Expression<Func<T, object>>[] Selectors) => Data.OrderByMany(true, Selectors);
+        public static IOrderedQueryable<T> OrderByManyDescending<T>(this IQueryable<T> Data, params Expression<Func<T, object>>[] Selectors) => Data.OrderByMany(false, Selectors);
+        public static IOrderedQueryable<T> OrderByMany<T>(this IQueryable<T> Data, bool Ascending, params Expression<Func<T, object>>[] Selectors)
+        {
+            Selectors = Selectors ?? Array.Empty<Expression<Func<T, object>>>();
+            if (Selectors.IsNullOrEmpty())
+            {
+                Expression<Func<T, object>> dd = x => true;
+                Selectors = new[] { dd };
+            }
+            foreach (var Selector in Selectors)
+            {
+                if (Selector != null)
+                {
+                    if (Data is IOrderedQueryable<T>)
+                    {
+                        if (Ascending)
+                        {
+                            Data = ((IOrderedQueryable<T>)Data).ThenBy(Selector);
+                        }
+                        else
+                        {
+                            Data = ((IOrderedQueryable<T>)Data).ThenByDescending(Selector);
+                        }
+
+
+                    }
+                    else if (Data is IQueryable<T>)
+                    {
+                        if (Ascending)
+                        {
+                            Data = Data.OrderBy(Selector);
+                        }
+                        else
+                        {
+                            Data = Data.OrderByDescending(Selector);
+                        }
+                    }
+                }
+            }
+
+            return (IOrderedQueryable<T>)Data;
+        }
+
+
+
+
 
         /// <summary>
         /// Retorna as informacoes de uma propriedade a partir de um seletor
