@@ -1370,7 +1370,7 @@ namespace InnerLibs.MicroORM
         /// </summary>
         /// <param name="Obj"></param>
         /// <returns></returns>
-        public static string ToSQLString<T>(this T Obj, bool Parenthesis = true) => ToSQLString($"{Obj}", Parenthesis);
+        public static string ToSQLString<T>(this T Obj, bool Parenthesis = true) => ToSQLString("{0}".ToFormattableString(Obj), Parenthesis);
 
         /// <summary>
         /// Converte uma <see cref="FormattableString"/> para uma string SQL, tratando seus

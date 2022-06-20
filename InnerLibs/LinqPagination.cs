@@ -31,6 +31,32 @@ namespace InnerLibs.LINQ
 
     public static class LINQExtensions
     {
+
+        public static List<T> RemoveWhere<T>(this List<T> list, Expression<Func<T, bool>> predicate)
+        {
+            if (list != null)
+            {
+                if (predicate != null)
+                {
+                    while (true)
+                    {
+                        var obj = list.FirstOrDefault(predicate.Compile());
+                        if (obj != null)
+                        {
+                            list.Remove(obj);
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+
+
+                }
+            }
+
+            return list;
+        }
         private static MethodInfo containsMethod = typeof(string).GetMethod("Contains", new[] { typeof(string) });
 
         private static MethodInfo endsWithMethod = typeof(string).GetMethod("EndsWith", new[] { typeof(string) });

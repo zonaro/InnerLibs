@@ -211,7 +211,7 @@ namespace InnerLibs.MicroORM
 
         public Condition AndAll(params FormattableString[] Conditions) => And(AndMany(Conditions));
 
-        public Condition AndAny(params FormattableString[] Conditions) => And(OrMany(Conditions));
+        public Condition AndAny(params FormattableString[] Conditions) => And(OrAny(Conditions));
 
         /// <summary>
         /// Appends the given condition with OR in this condition.
@@ -504,16 +504,16 @@ namespace InnerLibs.MicroORM
             return this;
         }
 
-        public Select<T> AndSearch(string Value, params string[] Columns) => AndAny((Columns ?? Array.Empty<string>()).Select(x => (x + " LIKE {0}").ToFormattableString(Value.ToString().Wrap("%"))).ToArray());
+        public Select<T> AndSearch(string Value, params string[] Columns) => AndSearch(new[] { Value }, Columns);
 
-        public Select<T> AndSearch(IEnumerable<string> Value, params string[] Columns)
+        public Select<T> AndSearch(IEnumerable<string> Values, params string[] Columns) => And(CreateSearch(Values, Columns));
+
+        public static FormattableString CreateSearch(IEnumerable<string> Values, params string[] Columns)
         {
-            foreach (var item in (Value ?? Array.Empty<string>()).Where(x => x.IsNotBlank()))
-            {
-                AndSearch(item, Columns);
-            }
-
-            return this;
+            Values = (Values ?? Array.Empty<string>()).WhereNotBlank().ToArray();
+            Columns = Columns ?? Array.Empty<string>();
+            return Columns.SelectMany(col => Values.Select(valor => $"{col} LIKE {valor.Wrap("%").ToSQLString(false)}"))
+              .SelectJoinString(" OR ").ToFormattableString();
         }
 
         public Select<T> ColumnQuote(char QuoteChar)
@@ -533,7 +533,7 @@ namespace InnerLibs.MicroORM
         public DbCommand CreateDbCommand(DbConnection Connection, DbTransaction Transaction = null) => CreateDbCommand(Connection, null, Transaction);
 
         /// <summary>
-        /// Sets a CROSS JOIN clause in the SELECT being built.
+        /// Sets a CROSS APPLY clause in the SELECT being built.
         /// </summary>
         /// <param name="table">Table to be join</param>
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
@@ -854,17 +854,9 @@ namespace InnerLibs.MicroORM
             return this;
         }
 
-        public Select<T> OrSearch(string Value, params string[] Columns) => OrAny((Columns ?? Array.Empty<string>()).Select(x => (x + " LIKE {0}").ToFormattableString(Value.ToString().Wrap("%"))).ToArray());
+        public Select<T> OrSearch(string Value, params string[] Columns) => OrSearch(new[] { Value }, Columns);
 
-        public Select<T> OrSearch(IEnumerable<string> Value, params string[] Columns)
-        {
-            foreach (var item in (Value ?? Array.Empty<string>()).Where(x => x.IsNotBlank()))
-            {
-                OrSearch(item, Columns);
-            }
-
-            return this;
-        }
+        public Select<T> OrSearch(IEnumerable<string> Values, params string[] Columns) => Or(CreateSearch(Values, Columns));
 
         public Select<T> RemoveColumns(params string[] Columns)
         {

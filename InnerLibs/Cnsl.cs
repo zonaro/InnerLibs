@@ -208,7 +208,14 @@ namespace InnerLibs.Console
                 Text = Text.Wrap(" ");
             }
             Color = Color ?? System.Console.ForegroundColor;
-            Text = Text.Pad(System.Console.BufferWidth, Separator);
+            try
+            {
+                Text = Text.Pad(System.Console.BufferWidth, Separator);
+
+            }
+            catch
+            {
+            }
             return ConsoleWriteLine(Text, Color.Value, BreakLines);
         }
 
