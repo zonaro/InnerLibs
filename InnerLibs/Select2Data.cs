@@ -76,11 +76,7 @@ namespace InnerLibs.Select2
                 var Optionitem = Activator.CreateInstance<OptionType>();
                 Optionitem.ID = IdSelector(item);
                 Optionitem.Text = TextSelector(item);
-                if (OtherSelectors != null)
-                {
-                    OtherSelectors(item, Optionitem);
-                }
-
+                OtherSelectors?.Invoke(item, Optionitem);
                 return Optionitem;
             }
         }
@@ -102,23 +98,23 @@ namespace InnerLibs.Select2
 
         public Select2Data(IEnumerable<ISelect2Option> Options)
         {
-            Results = Options ?? Array.Empty<ISelect2Option>();
+            Results = (Options ?? Array.Empty<ISelect2Option>()).WhereNotNull();
         }
 
         public Select2Data(IEnumerable<ISelect2Option> Options, bool PaginationMore)
         {
-            Results = Options ?? Array.Empty<ISelect2Option>();
+            Results = (Options ?? Array.Empty<ISelect2Option>()).WhereNotNull();
             Pagination.More = PaginationMore;
         }
 
         public Select2Data(IEnumerable<Select2Group> Groups)
         {
-            Results = Groups ?? Array.Empty<Select2Group>();
+            Results = (Groups ?? Array.Empty<Select2Group>()).WhereNotNull();
         }
 
         public Select2Data(IEnumerable<Select2Group> Groups, bool PaginationMore)
         {
-            Results = Groups ?? Array.Empty<Select2Group>();
+            Results = (Groups ?? Array.Empty<Select2Group>()).WhereNotNull();
             Pagination.More = PaginationMore;
         }
 
@@ -136,7 +132,7 @@ namespace InnerLibs.Select2
         public Select2Group(string Text, IEnumerable<ISelect2Option> Children)
         {
             this.Text = Text;
-            this.Children = Children ?? Array.Empty<ISelect2Option>();
+            this.Children = (Children ?? Array.Empty<ISelect2Option>()).WhereNotNull();
         }
 
         public Select2Group()
@@ -164,9 +160,6 @@ namespace InnerLibs.Select2
         public bool Selected { get; set; }
         public string Text { get; set; }
 
-        public override string ToString()
-        {
-            return $"<option value='{ID}'{Disabled.AsIf(" disabled")}{Selected.AsIf(" selected")}>{Text}</option>";
-        }
+        public override string ToString() => $"<option value='{ID}'{Disabled.AsIf(" disabled")}{Selected.AsIf(" selected")}>{Text}</option>";
     }
 }
