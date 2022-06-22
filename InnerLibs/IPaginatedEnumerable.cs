@@ -361,10 +361,7 @@ namespace InnerLibs.LINQ
 
         public string PageSizeQueryParameter
         {
-            get
-            {
-                return psp.IfBlank(nameof(PageSize));
-            }
+            get => psp.IfBlank(nameof(PageSize));
 
             set => psp = value;
         }
@@ -488,15 +485,7 @@ namespace InnerLibs.LINQ
         /// </summary>
         /// <param name="options"></param>
         /// <returns></returns>
-        public PaginationFilter<ClassType, RemapType> Config(Action<PaginationFilter<ClassType, RemapType>> options)
-        {
-            if (options != null)
-            {
-                options(this);
-            }
-
-            return this;
-        }
+        public PaginationFilter<ClassType, RemapType> Config(Action<PaginationFilter<ClassType, RemapType>> options) => this.With(options);
 
         /// <summary>
         /// Verifica se o <see cref="PageRange"/> contém algumas páginas especificas
@@ -883,9 +872,9 @@ namespace InnerLibs.LINQ
             bool Ascending = !Descending;
             if ((Selector ?? Array.Empty<string>()).Any())
             {
-                if (Data is IQueryable<ClassType>)
+                if (Data is IQueryable<ClassType> q)
                 {
-                    Data = ((IQueryable<ClassType>)Data).ThenByProperty(Selector, Ascending);
+                    Data = q.ThenByProperty(Selector, Ascending);
                     return this;
                 }
 
@@ -1150,8 +1139,13 @@ namespace InnerLibs.LINQ
             return this;
         }
 
-        /// <summary> Configura este Filtro para utilizar uma querystring com operadores
-        /// (&membro=operador:valor) </summary> <param name="QueryExpression"></param> <returns></returns>
+        /// <summary>
+        /// Configura este Filtro para utilizar uma querystring com operadores (&membro=operador:valor)
+        /// </summary>
+        /// <param name="QueryExpression"></param>
+        /// <param name="Separator"></param>
+        /// <param name="Conditional"></param>
+        /// <returns></returns>
         public PaginationFilter<ClassType, RemapType> UseQueryStringExpression(string QueryExpression, string Separator = ":", FilterConditional Conditional = FilterConditional.And)
         {
             var Collection = QueryExpression.ParseQueryString();
@@ -1213,15 +1207,7 @@ namespace InnerLibs.LINQ
         /// </summary>
         public PaginationFilter(Action<PaginationFilter<ClassType>> Options) : base() => Config(Options);
 
-        public PaginationFilter<ClassType> Config(Action<PaginationFilter<ClassType>> options)
-        {
-            if (options != null)
-            {
-                options(this);
-            }
-
-            return this;
-        }
+        public PaginationFilter<ClassType> Config(Action<PaginationFilter<ClassType>> options) => this.With(options);
     }
     public class PropertyFilter<ClassType, RemapType> where ClassType : class
     {

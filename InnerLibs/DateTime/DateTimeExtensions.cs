@@ -1796,11 +1796,17 @@ namespace InnerLibs.TimeMachine
         /// Returns <see cref="TimeSpan"/> for given number of Weeks (number of days * 7).
         /// </summary>
         public static TimeSpan Weeks(this int weeks) => TimeSpan.FromDays(weeks * 7);
+        public static TimeSpan Weeks(this short weeks) => weeks.ToInt().Weeks();
 
         /// <summary>
         /// Returns <see cref="TimeSpan"/> for given number of Weeks (number of days * 7).
         /// </summary>
         public static TimeSpan Weeks(this double weeks) => TimeSpan.FromDays(weeks * 7);
+
+        /// <summary>
+        /// Returns <see cref="TimeSpan"/> for given number of Weeks (number of days * 7).
+        /// </summary>
+        public static TimeSpan Weeks(this decimal weeks) => weeks.ToDouble().Weeks();
 
         /// <summary>
         /// Generates <see cref="TimeSpan"/> value for given number of Years.
@@ -1821,15 +1827,56 @@ namespace InnerLibs.TimeMachine
 
         public static string SemesterString(this DateTime datetime, string format = null) => format.IfBlank("{number}{ordinal} S/{year}").Inject(new { number = datetime.GetSemesterOfYear(), ordinal = datetime.GetSemesterOfYear().GetOrdinal(), year = datetime.Year, shortyear = datetime.Year.ToString().GetLastChars(2) });
 
-        public static string WeekString(this DateTime datetime, string format = null, CultureInfo culture = null)
-        {
-            var info = datetime.GetWeekInfo(culture, format);
-            return info.WeekString;
-        }
+        public static string WeekString(this DateTime datetime, string format = null, CultureInfo culture = null) => datetime.GetWeekInfo(culture, format).WeekString;
 
         public static string YearString(this DateTime datetime, string format = null) => format.IfBlank("{year}").Inject(new { year = datetime.Year, shortyear = datetime.Year.ToString().GetLastChars(2) });
 
         #endregion DateStrings
+
+
+        public static DateRange GetGroupRange(this DateTime DateAndTime, string Group)
+        {
+            switch (Group.ToLower().QuantifyText(1).RemoveAccents())
+            {
+                case "month":
+                case "mensal":
+                case "mes":
+                    return DateAndTime.GetMonthRange();
+                case "semanal":
+                case "week":
+                case "semana":
+                    return DateAndTime.GetWeekRange();
+                case "quinzenal":
+                case "fortnight":
+                case "quinzena":
+                    return DateAndTime.GetFortnightRange();
+                case "bimestral":
+                case "bimester":
+                case "bimestre":
+                    return DateAndTime.GetBimesterRange();
+                case "trimestral":
+                case "quarter":
+                case "trimestre":
+                    return DateAndTime.GetQuarterRange();
+                case "semestral":
+                case "halfyear":
+                case "semester":
+                case "semestre":
+                    return DateAndTime.GetSemesterRange();
+                case "anual":
+                case "year":
+                case "ano":
+                    return DateAndTime.GetYearRange();
+                case "diario":
+                case "day":
+                case "dia":
+                default:
+                    return DateAndTime.GetDayRange();
+
+            }
+
+        }
+
     }
 
     public class PeriodGroup
@@ -1844,6 +1891,9 @@ namespace InnerLibs.TimeMachine
         public string WeekFormat { get; set; }
         public string YearFormat { get; set; }
 
+
+
+
         public Expression<Func<T, string>> GroupByPeriodExpression<T>(string Group, Expression<Func<T, DateTime>> prop)
         {
             var param = prop.Parameters.First();
@@ -1851,7 +1901,7 @@ namespace InnerLibs.TimeMachine
             MethodInfo method = typeof(DateTime).GetMethod(nameof(DateTime.ToString), new Type[] { });
             MethodCallExpression exp = Expression.Call(prop.Body, method);
             Expression c = Expression.Constant(Culture ?? CultureInfo.CurrentCulture);
-            switch (Group.ToLower().QuantifyText(1))
+            switch (Group.ToLower().QuantifyText(1).RemoveAccents())
             {
                 case "month":
                 case "mensal":
@@ -1906,12 +1956,12 @@ namespace InnerLibs.TimeMachine
                 case "diario":
                 case "day":
                 case "dia":
+                default:
                     method = typeof(DateTimeExtensions).GetMethod(nameof(DateTimeExtensions.DayString), new[] { typeof(DateTime), typeof(string), typeof(CultureInfo) });
                     exp = Expression.Call(null, method, prop.Body, Expression.Constant(DayFormat), c);
                     break;
 
-                default:
-                    break;
+
             }
 
             return Expression.Lambda<Func<T, string>>(exp, param);

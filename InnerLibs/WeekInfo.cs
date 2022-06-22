@@ -5,23 +5,33 @@ namespace InnerLibs.TimeMachine
 {
     public struct WeekInfo
     {
+        public WeekInfo(int WeekOfMonth, int Month, int Year, CultureInfo culture = null, string stringFormat = null) : this(new DateTime(Year, Month, 1) + WeekOfMonth.Weeks(), culture, stringFormat)
+        {
+
+        }
         public WeekInfo(DateTime? DateAndTime, CultureInfo culture = null, string stringFormat = null)
         {
-            LastDayOfWeek = DateAndTime.OrNow();
+            DateAndTime = DateAndTime.OrNow();
             culture = culture ?? CultureInfo.CurrentCulture;
             stringFormat = stringFormat.IfBlank("{weekofmonth}{monthordinal}/{monthname} - {weekofyear}{yearordinal}/{year}");
-            DateTime beginningOfMonth = LastDayOfWeek.BeginningOfMonth();
-            Month = beginningOfMonth.Month;
-            Year = beginningOfMonth.Year;
-            while (LastDayOfWeek.Date.AddDays(1).DayOfWeek != culture.DateTimeFormat.FirstDayOfWeek)
+            DateTime firstMonthDay = DateAndTime.Value.BeginningOfMonth();
+
+
+
+            DateTime firstDayOfWeekOfMonth = firstMonthDay.AddDays((culture.DateTimeFormat.FirstDayOfWeek + 7 - firstMonthDay.DayOfWeek) % 7);
+            if (firstDayOfWeekOfMonth > DateAndTime.Value)
             {
-                LastDayOfWeek = LastDayOfWeek.AddDays(1);
+                firstMonthDay = firstMonthDay.AddMonths(-1);
+                firstDayOfWeekOfMonth = firstMonthDay.AddDays((culture.DateTimeFormat.FirstDayOfWeek + 7 - firstMonthDay.DayOfWeek) % 7);
             }
+            WeekOfMonth = (DateAndTime.Value - firstDayOfWeekOfMonth).Days / 7 + 1;
+            Month = firstMonthDay.Month;
+            Year = firstMonthDay.Year;
 
-            FirstDayOfWeek = LastDayOfWeek.FirstDayOfWeek(culture);
+            FirstDayOfWeek = DateAndTime.Value.FirstDayOfWeek(culture);
+            LastDayOfWeek = DateAndTime.Value.LastDayOfWeek(culture);
 
-            WeekOfMonth = (int)Math.Truncate((double)DateAndTime.Value.Subtract(beginningOfMonth).TotalDays / 7f) + 1;
-            WeekOfYear = culture.Calendar.GetWeekOfYear(LastDayOfWeek, culture.DateTimeFormat.CalendarWeekRule, culture.DateTimeFormat.FirstDayOfWeek);
+            WeekOfYear = culture.Calendar.GetWeekOfYear(DateAndTime.Value, culture.DateTimeFormat.CalendarWeekRule, culture.DateTimeFormat.FirstDayOfWeek);
 
             WeekString = stringFormat.Inject(new { weekofyear = WeekOfYear, weekofmonth = WeekOfMonth, monthordinal = WeekOfMonth.GetOrdinal(), yearordinal = Year.GetOrdinal(), year = Year, month = FirstDayOfWeek.Month, monthname = FirstDayOfWeek.Month.ToLongMonthName(culture), shortmonthname = FirstDayOfWeek.Month.ToShortMonthName(culture), shortyear = FirstDayOfWeek.Year.ToString().GetLastChars(2) });
         }

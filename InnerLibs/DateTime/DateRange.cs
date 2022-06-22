@@ -111,7 +111,8 @@ namespace InnerLibs.TimeMachine
 
                     case Phase.Days:
                         {
-                            if (CurDate.AddDays(days + 1) > _endDate)
+                            if (CurDate.AddDays(days) > _endDate)
+                            //if (CurDate.AddDays(days + 1) > _endDate)
                             {
                                 CurDate = CurDate.AddDays(days);
 
