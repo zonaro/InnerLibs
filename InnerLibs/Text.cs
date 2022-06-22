@@ -4209,15 +4209,19 @@ namespace InnerLibs
         public static string ToPhrase(this IEnumerable<string> Texts, string And = "and", char Separator = ',')
         {
             Separator = Separator.IfBlank(',');
-
-            if (Texts != null && Texts.Count() > 1)
+            Texts = Texts ?? Array.Empty<string>();
+            if (Texts.Any())
             {
-                return TrimBetween($"{Texts.SkipLast(1).JoinString($"{Separator} ")} {And.IfBlank(Separator)} {Texts.Last()}");
+                if (Texts.Count() > 1)
+                {
+                    return TrimBetween($"{Texts.SkipLast(1).JoinString($"{Separator} ")} {And.IfBlank(Separator)} {Texts.Last()}");
+                }
+                else
+                {
+                    return TrimBetween(Texts?.FirstOrDefault());
+                }
             }
-            else
-            {
-                return TrimBetween(Texts?.FirstOrDefault());
-            }
+            return "";
         }
 
         /// <summary>

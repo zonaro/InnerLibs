@@ -1119,7 +1119,7 @@ namespace InnerLibs.TimeMachine
                 milisegundos = milisegundos.NullIf(x => Years >= 1);
             }
 
-            string current = new[] { ano, mes, dia, horas, minutos, segundos, milisegundos }.Where(x => x.IsNotBlank()).ToPhrase(display.AndWord);
+            string current = new[] { ano, mes, dia, horas, minutos, segundos, milisegundos }.WhereNotBlank().ToPhrase(display.AndWord);
 
             return current.FixText();
         }
