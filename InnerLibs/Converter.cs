@@ -264,6 +264,14 @@ namespace InnerLibs
         /// <returns></returns>
         public static OutputType[] ForceArray<OutputType>(this object Obj) => ForceArray(Obj, typeof(OutputType)).Cast<OutputType>().ToArray();
 
+        /// <summary>
+        /// Mescla varios dicionarios em um unico dicionario. Quando uma key existir em mais de um
+        /// dicionario os valores sao agrupados em arrays
+        /// </summary>
+        /// <typeparam name="Tkey">Tipo da Key, Deve ser igual para todos os dicionarios</typeparam>
+        /// <param name="FirstDictionary">Dicionario Principal</param>
+        /// <param name="Dictionaries">Outros dicionarios</param>
+        /// <returns></returns>
         public static Dictionary<Tkey, object> Merge<Tkey>(this Dictionary<Tkey, object> FirstDictionary, params Dictionary<Tkey, object>[] Dictionaries)
         {
             // dicionario que está sendo gerado a partir dos outros
@@ -469,14 +477,7 @@ namespace InnerLibs
         /// <returns>Valor convertido em novo tipo</returns>
         public static decimal ToDecimal<FromType>(this FromType Value) => Value.ChangeType<decimal>();
 
-        /// <summary>
-        /// Mescla varios dicionarios em um unico dicionario. Quando uma key existir em mais de um
-        /// dicionario os valores sao agrupados em arrays
-        /// </summary>
-        /// <typeparam name="Tkey">Tipo da Key, Deve ser igual para todos os dicionarios</typeparam>
-        /// <param name="FirstDictionary">Dicionario Principal</param>
-        /// <param name="Dictionaries">Outros dicionarios</param>
-        /// <returns></returns>
+
         /// <summary>
         /// Returna um <see cref=" Dictionary"/> a partir de um <see cref="IGrouping(Of TKey, TElement)"/>
         /// </summary>

@@ -530,7 +530,7 @@ namespace InnerLibs.TimeMachine
         /// <returns>
         /// <c>true</c> is <paramref name="left"/> is equal to <paramref name="right"/>; otherwise <c>false</c>.
         /// </returns>
-        public static bool operator ==(DateRange left, DateRange right) => (left is null && right is null) || left != null && left.Equals(right);
+        public static bool operator ==(DateRange left, DateRange right) => (left is null && right is null) || left.Equals(right);
 
         public static bool operator ==(DateRange left, TimeSpan right) => left != null && left.Equals(right);
 

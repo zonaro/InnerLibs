@@ -20,6 +20,20 @@ namespace InnerLibs
     /// <remarks></remarks>
     public static class Text
     {
+        public static IEnumerable<string> ReduceToDifference(this IEnumerable<string> Texts, bool FromStart = false) => ReduceToDifference(Texts, out _);
+
+        public static IEnumerable<string> ReduceToDifference(this IEnumerable<string> Texts, out string Difference, bool FromStart = false)
+        {
+            Texts = Texts ?? Array.Empty<string>();
+            var arr = Texts.ToArray();
+            while (arr.Distinct().Count() > 1 && arr.All(x => x.EndsWith(FromStart ? arr.FirstOrDefault().GetFirstChars() : arr.FirstOrDefault().GetLastChars())))
+            {
+                arr = arr.WhereNotBlank().Select(x => FromStart ? x.RemoveFirstChars() : x.RemoveLastChars()).ToArray();
+            }
+            Difference = Texts.FirstOrDefault().RemoveFirstAny(arr.FirstOrDefault());
+            return arr;
+        }
+
         public static IEnumerable<string> TrimBetween(this IEnumerable<string> Texts) => Texts.TrimBetween();
 
         /// <summary>

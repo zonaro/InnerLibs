@@ -141,7 +141,7 @@ namespace InnerLibs.TimeMachine
         /// <param name="milliseconds">The milliseconds to set time to.</param>
         /// <returns><see cref="DateTime"/> with hour and minutes and seconds set to given values.</returns>
         public static DateTime At(this DateTime current, int hour, int minute, int second, int milliseconds) => current.SetTime(hour, minute, second, milliseconds);
-        public static DateTime SetTime(this DateTime current, TimeSpan Time) => current.SetTime(Time.Hours, Time.Minutes, Time.Seconds, Time.Milliseconds);
+
         public static DateTime At(this DateTime current, TimeSpan Time) => current.SetTime(Time);
 
         /// <summary>
@@ -595,13 +595,15 @@ namespace InnerLibs.TimeMachine
         /// resulting <see cref="DateTime"/> in the future.
         /// </summary>
         public static DateTime FromNow(this TimeSpan from) => from.From(DateTime.Now);
-        public static DateTime FromToday(this TimeSpan from) => from.From(DateTime.Today);
 
         /// <summary>
         /// Adds given <see cref="TimeSpan"/> to current <see cref="DateTime.Now"/> and returns
         /// resulting <see cref="DateTime"/> in the future.
         /// </summary>
         public static DateTime FromNow(this DateRange from) => from.From(DateTime.Now);
+
+        public static DateTime FromToday(this TimeSpan from) => from.From(DateTime.Today);
+
         public static DateTime FromToday(this DateRange from) => from.From(DateTime.Today);
 
         /// <summary>
@@ -968,31 +970,6 @@ namespace InnerLibs.TimeMachine
         public static bool IsBefore(this DateTime current, DateTime toCompareWith) => current < toCompareWith;
 
         /// <summary>
-        /// Check if <see cref="DateTime.TimeOfDay"/> is between <paramref name="TimeBegin"/> and <paramref name="TimeEnd"/> (Uses <see cref="TimePart(TimeSpan)"/> on both parameters)
-        /// </summary>
-        /// <param name="Date"></param>
-        /// <param name="TimeBegin"></param>
-        /// <param name="TimeEnd"></param>
-        /// <remarks>     
-        /// <inheritdoc cref="Misc.IsBetween(IComparable, IComparable, IComparable)"/>
-        /// </remarks>
-        /// <returns></returns>
-        public static bool IsTimeBetween(this DateTime Date, TimeSpan TimeBegin, TimeSpan TimeEnd)
-        {
-            TimeBegin = TimeBegin.TimePart();
-            TimeEnd = TimeEnd.TimePart();
-            Misc.FixOrder(ref TimeBegin, ref TimeEnd);
-            return Date.TimeOfDay.IsBetween(TimeBegin, TimeEnd);
-        }
-
-        /// <summary>
-        /// Return a <see cref="TimeSpan"/> with the timepart of another <see cref="TimeSpan"/> (basically, exclude <see cref="TimeSpan.Days"/>)
-        /// </summary>
-        /// <param name="Time"></param>
-        /// <returns></returns>
-        public static TimeSpan TimePart(this TimeSpan Time) => new TimeSpan(Time.Hours, Time.Minutes, Time.Seconds);
-
-        /// <summary>
         /// Determine if a <see cref="DateTime"/> is in the future.
         /// </summary>
         /// <param name="dateTime">The date to be checked.</param>
@@ -1047,6 +1024,23 @@ namespace InnerLibs.TimeMachine
         /// <c>true</c> if the specified date is exactly the same date then current; otherwise, <c>false</c>.
         /// </returns>
         public static bool IsSameYear(this DateTime current, DateTime date) => current.Year == date.Year;
+
+        /// <summary>
+        /// Check if <see cref="DateTime.TimeOfDay"/> is between <paramref name="TimeBegin"/> and
+        /// <paramref name="TimeEnd"/> (Uses <see cref="TimePart(TimeSpan)"/> on both parameters)
+        /// </summary>
+        /// <param name="Date"></param>
+        /// <param name="TimeBegin"></param>
+        /// <param name="TimeEnd"></param>
+        /// <remarks><inheritdoc cref="Misc.IsBetween(IComparable, IComparable, IComparable)"/></remarks>
+        /// <returns></returns>
+        public static bool IsTimeBetween(this DateTime Date, TimeSpan TimeBegin, TimeSpan TimeEnd)
+        {
+            TimeBegin = TimeBegin.TimePart();
+            TimeEnd = TimeEnd.TimePart();
+            Misc.FixOrder(ref TimeBegin, ref TimeEnd);
+            return Date.TimeOfDay.IsBetween(TimeBegin, TimeEnd);
+        }
 
         public static bool IsWeekend(this DateTime YourDate) => YourDate.DayOfWeek == DayOfWeek.Sunday | YourDate.DayOfWeek == DayOfWeek.Saturday;
 
@@ -1310,87 +1304,100 @@ namespace InnerLibs.TimeMachine
         /// <returns></returns>
         public static DateTime OrToday(this DateTime? Date) => Date ?? DateTime.Today;
 
+
+        public static DateRange PeriodRange(this DateTime date, string Group, CultureInfo culture) => PeriodRange(date, date, Group, (culture ?? CultureInfo.CurrentCulture).DateTimeFormat.FirstDayOfWeek);
+
+
+        public static DateRange PeriodRange(this DateRange Dates, string Group, CultureInfo culture) => PeriodRange(Dates, Group, (culture ?? CultureInfo.CurrentCulture).DateTimeFormat.FirstDayOfWeek);
+
+
+        public static DateRange PeriodRange(this DateTime date, string Group) => PeriodRange(date, Group, CultureInfo.CurrentCulture);
+
+
+        public static DateRange PeriodRange(this DateRange dates, string Group) => PeriodRange(dates, Group, CultureInfo.CurrentCulture);
+
+
+        public static DateRange PeriodRange(this DateRange dates, string Group, DayOfWeek FirstDayOfWeek) => PeriodRange(dates.StartDate, dates.EndDate, Group, FirstDayOfWeek);
+
+        public static DateRange PeriodRange(this DateTime StartDate, DateTime? EndDate, string Group, CultureInfo culture) => PeriodRange(StartDate, EndDate, Group, (culture ?? CultureInfo.CurrentCulture).DateTimeFormat.FirstDayOfWeek);
+        public static DateRange PeriodRange(this DateTime StartDate, DateTime? EndDate, string Group) => PeriodRange(StartDate, EndDate, Group, CultureInfo.CurrentCulture);
+
+
         /// <summary>
         /// Returns a group-defined period from a date. The dates will be adjusted for the beginning
         /// and end of this period
         /// </summary>
-        /// <param name="date"></param>
+        /// <param name="StartDate"></param>
+        /// <param name="EndDate"></param>
         /// <param name="Group"></param>
-        /// <param name="culture"></param>
+        /// <param name="FirstDayOfWeek"></param>
         /// <returns></returns>
-        public static DateRange PeriodRange(this DateTime date, string Group, CultureInfo culture)
+        public static DateRange PeriodRange(this DateTime StartDate, DateTime? EndDate, string Group, DayOfWeek FirstDayOfWeek)
         {
-            culture = culture ?? CultureInfo.CurrentCulture;
-            return PeriodRange(date, Group, culture.DateTimeFormat.FirstDayOfWeek);
-        }
-
-        ///<inheritdoc cref="PeriodRange(DateTime, string, CultureInfo)"/>
-        public static DateRange PeriodRange(this DateTime date, string Group) => PeriodRange(date, Group, CultureInfo.CurrentCulture);
-
-        ///<inheritdoc cref="PeriodRange(DateTime, string, CultureInfo)"/>
-        public static DateRange PeriodRange(this DateTime date, string Group, DayOfWeek FirstDayOfWeek)
-        {
-            switch (Group.ToLower().QuantifyText(1))
+            var end = EndDate ?? StartDate;
+            (StartDate, EndDate) = Misc.FixOrder(ref StartDate, ref end);
+            switch (Group.ToLower().RemoveAccents())
             {
                 case "month":
                 case "mensal":
                 case "mes":
-                    return date.GetMonthRange();
+                    StartDate = StartDate.BeginningOfMonth();
+                    EndDate = EndDate.Value.EndOfMonth();
+                    break;
 
                 case "semanal":
                 case "week":
                 case "semana":
-                    return date.GetWeekRange(FirstDayOfWeek);
+                    StartDate = StartDate.BeginningOfWeek(FirstDayOfWeek);
+                    EndDate = EndDate.Value.EndOfWeek(FirstDayOfWeek);
+                    break;
 
                 case "quinzenal":
                 case "fortnight":
                 case "quinzena":
-                    return date.GetFortnightRange();
+                    StartDate = StartDate.BeginningOfFortnight();
+                    EndDate = EndDate.Value.EndOfFortnight();
+                    break;
 
                 case "bimestral":
                 case "bimester":
                 case "bimestre":
-                    return date.GetBimesterRange();
+                    StartDate = StartDate.BeginningOfBimester();
+                    EndDate = EndDate.Value.EndOfBimester();
+                    break;
 
                 case "trimestral":
                 case "quarter":
                 case "trimestre":
-                    return date.GetQuarterRange();
+                    StartDate = StartDate.BeginningOfQuarter();
+                    EndDate = EndDate.Value.EndOfQuarter();
+                    break;
 
                 case "semestral":
                 case "halfyear":
                 case "semester":
                 case "semestre":
-                    return date.GetSemesterRange();
+                    StartDate = StartDate.BeginningOfSemester();
+                    EndDate = EndDate.Value.EndOfSemester();
+                    break;
 
                 case "anual":
                 case "year":
                 case "ano":
-                    return date.GetYearRange();
+                    StartDate = StartDate.BeginningOfYear();
+                    EndDate = EndDate.Value.EndOfYear();
+                    break;
 
                 case "diario":
                 case "day":
                 case "dia":
-                    return date.GetDayRange();
-
+                    StartDate = StartDate.BeginningOfDay();
+                    EndDate = EndDate.Value.EndOfDay();
+                    break;
                 default:
-                    throw new ArgumentException("Group is not valid");
+                    break;
             }
-        }
-
-        ///<inheritdoc cref="PeriodRange(DateTime, string, CultureInfo)"/>
-        public static DateRange PeriodRange(this DateRange dates, string Group) => PeriodRange(dates, Group, CultureInfo.CurrentCulture);
-
-        ///<inheritdoc cref="PeriodRange(DateTime, string, CultureInfo)"/>
-        public static DateRange PeriodRange(this DateRange dates, string Group, DayOfWeek FirstDayOfWeek)
-        {
-            return new DateRange(dates.StartDate.PeriodRange(Group, FirstDayOfWeek).StartDate, dates.EndDate.PeriodRange(Group, FirstDayOfWeek).EndDate);
-        }
-
-        ///<inheritdoc cref="PeriodRange(DateTime, string, CultureInfo)"/>
-        public static DateRange PeriodRange(this DateRange Dates, string Group, CultureInfo culture)
-        {
-            return new DateRange(Dates.StartDate.PeriodRange(Group, culture).StartDate, Dates.EndDate.PeriodRange(Group, culture).EndDate);
+            return new DateRange(StartDate, EndDate.Value);
         }
 
         /// <summary>
@@ -1631,6 +1638,8 @@ namespace InnerLibs.TimeMachine
         /// </summary>
         public static DateTime SetSecond(this DateTime originalDate, int second) => new DateTime(originalDate.Year, originalDate.Month, originalDate.Day, originalDate.Hour, originalDate.Minute, second, originalDate.Millisecond, originalDate.Kind);
 
+        public static DateTime SetTime(this DateTime current, TimeSpan Time) => current.SetTime(Time.Hours, Time.Minutes, Time.Seconds, Time.Milliseconds);
+
         /// <summary>
         /// Returns the original <see cref="DateTime"/> with Hour part changed to supplied hour parameter.
         /// </summary>
@@ -1706,6 +1715,14 @@ namespace InnerLibs.TimeMachine
         public static TimeSpan Ticks(this long ticks) => TimeSpan.FromTicks(ticks);
 
         /// <summary>
+        /// Return a <see cref="TimeSpan"/> with the timepart of another <see cref="TimeSpan"/>
+        /// (basically, exclude <see cref="TimeSpan.Days"/>)
+        /// </summary>
+        /// <param name="Time"></param>
+        /// <returns></returns>
+        public static TimeSpan TimePart(this TimeSpan Time) => new TimeSpan(Time.Hours, Time.Minutes, Time.Seconds);
+
+        /// <summary>
         /// Returns a <see cref="DateRange"/> from <paramref name="InitialDate"/> to <paramref name="SecondDate"/>
         /// </summary>
         /// <param name="InitialDate"></param>
@@ -1755,7 +1772,7 @@ namespace InnerLibs.TimeMachine
         /// </summary>
         /// <param name="[Date]">Data</param>
         /// <returns></returns>
-        public static string ToSQLDateString(this DateTime Date) => $"{Date.Year}-{Date.Month}-{Date.Day} {Date.Hour}:{Date.Minute}:{Date.Second}.{Date.Millisecond}";
+        public static string ToSQLDateString(this DateTime Date) => Date.ToString("yyyy-MM-dd HH:mm:ss.fffffff");
 
         /// <summary>
         /// Converte uma string dd/mm/aaaa hh:mm:ss.llll para o formato de string do SQL server ou Mysql
@@ -1764,7 +1781,7 @@ namespace InnerLibs.TimeMachine
         /// <returns></returns>
         public static string ToSQLDateString(this string Date, string FromCulture = "pt-BR") => Date.ToSQLDateString(new CultureInfo(FromCulture, false));
 
-        public static string ToSQLDateString(this string Date, CultureInfo FromCulture) => Convert.ToDateTime(Date, (FromCulture ?? CultureInfo.CurrentCulture).DateTimeFormat).ToSQLDateString();
+        public static string ToSQLDateString(this string Date, CultureInfo FromCulture) => Date.IsNotBlank() ? Convert.ToDateTime(Date, (FromCulture ?? CultureInfo.CurrentCulture).DateTimeFormat).ToSQLDateString() : Date;
 
         /// <summary>
         /// Converte um <see cref="Date"/> para um timezone Especifico
@@ -1796,6 +1813,7 @@ namespace InnerLibs.TimeMachine
         /// Returns <see cref="TimeSpan"/> for given number of Weeks (number of days * 7).
         /// </summary>
         public static TimeSpan Weeks(this int weeks) => TimeSpan.FromDays(weeks * 7);
+
         public static TimeSpan Weeks(this short weeks) => weeks.ToInt().Weeks();
 
         /// <summary>
@@ -1832,51 +1850,6 @@ namespace InnerLibs.TimeMachine
         public static string YearString(this DateTime datetime, string format = null) => format.IfBlank("{year}").Inject(new { year = datetime.Year, shortyear = datetime.Year.ToString().GetLastChars(2) });
 
         #endregion DateStrings
-
-
-        public static DateRange GetGroupRange(this DateTime DateAndTime, string Group)
-        {
-            switch (Group.ToLower().QuantifyText(1).RemoveAccents())
-            {
-                case "month":
-                case "mensal":
-                case "mes":
-                    return DateAndTime.GetMonthRange();
-                case "semanal":
-                case "week":
-                case "semana":
-                    return DateAndTime.GetWeekRange();
-                case "quinzenal":
-                case "fortnight":
-                case "quinzena":
-                    return DateAndTime.GetFortnightRange();
-                case "bimestral":
-                case "bimester":
-                case "bimestre":
-                    return DateAndTime.GetBimesterRange();
-                case "trimestral":
-                case "quarter":
-                case "trimestre":
-                    return DateAndTime.GetQuarterRange();
-                case "semestral":
-                case "halfyear":
-                case "semester":
-                case "semestre":
-                    return DateAndTime.GetSemesterRange();
-                case "anual":
-                case "year":
-                case "ano":
-                    return DateAndTime.GetYearRange();
-                case "diario":
-                case "day":
-                case "dia":
-                default:
-                    return DateAndTime.GetDayRange();
-
-            }
-
-        }
-
     }
 
     public class PeriodGroup
@@ -1893,15 +1866,124 @@ namespace InnerLibs.TimeMachine
 
 
 
+        public string Format(DateRange Date, string Group, string format, bool simplify = false) => Format(Date.StartDate, Date.EndDate, Group, format, simplify);
+        public string Format(DateTime StartDate, DateTime EndDate, string Group, string format, bool simplify = false)
+        {
+            Misc.FixOrder(ref StartDate, ref EndDate);
+            var labels = new string[] { Format(StartDate, Group), Format(EndDate, Group) };
+            if (simplify) { labels = labels.ReduceToDifference().DefaultIfEmpty(Group).ToArray(); }
+            var oo = new { start = labels.FirstOrDefault(), end = labels.LastOrDefault() };
+            return oo.start == oo.end ? oo.start : format.IfBlank("from {start} to {end}").Inject(oo);
+        }
+
+        public string Format(DateTime Date, string Group)
+        {
+            switch (Group?.ToLower().RemoveAccents())
+            {
+                case "month":
+                case "mensal":
+                case "mes":
+                    return Date.MonthString(MonthFormat);
+
+
+                case "semanal":
+                case "week":
+                case "semana":
+                    return Date.WeekString(WeekFormat, Culture);
+
+                case "quinzenal":
+                case "fortnight":
+                case "quinzena":
+                    return Date.FortnightString(FortnightFormat);
+
+                case "bimestral":
+                case "bimester":
+                case "bimestre":
+                    return Date.BimesterString(BimesterFormat);
+
+                case "trimestral":
+                case "quarter":
+                case "trimestre":
+                    return Date.QuarterString(QuarterFormat);
+
+                case "semestral":
+                case "halfyear":
+                case "semester":
+                case "semestre":
+                    return Date.SemesterString(SemesterFormat);
+
+                case "anual":
+                case "year":
+                case "ano":
+                    return Date.YearString(YearFormat);
+
+                case "diario":
+                case "day":
+                case "dia":
+                default:
+                    return Date.DayString(DayFormat, Culture);
+            }
+
+        }
+
+        public string Get(string Group)
+        {
+            switch (Group?.ToLower().RemoveAccents())
+            {
+                case "month":
+                case "mensal":
+                case "mes":
+                    return MonthFormat;
+
+
+                case "semanal":
+                case "week":
+                case "semana":
+                    return WeekFormat;
+
+                case "quinzenal":
+                case "fortnight":
+                case "quinzena":
+                    return FortnightFormat;
+
+                case "bimestral":
+                case "bimester":
+                case "bimestre":
+                    return BimesterFormat;
+
+                case "trimestral":
+                case "quarter":
+                case "trimestre":
+                    return QuarterFormat;
+
+                case "semestral":
+                case "halfyear":
+                case "semester":
+                case "semestre":
+                    return SemesterFormat;
+
+                case "anual":
+                case "year":
+                case "ano":
+                    return YearFormat;
+
+                case "diario":
+                case "day":
+                case "dia":
+                default:
+                    return DayFormat;
+            }
+
+        }
 
         public Expression<Func<T, string>> GroupByPeriodExpression<T>(string Group, Expression<Func<T, DateTime>> prop)
         {
             var param = prop.Parameters.First();
-
+            Group = Group.IfBlank(prop.Name);
             MethodInfo method = typeof(DateTime).GetMethod(nameof(DateTime.ToString), new Type[] { });
             MethodCallExpression exp = Expression.Call(prop.Body, method);
             Expression c = Expression.Constant(Culture ?? CultureInfo.CurrentCulture);
-            switch (Group.ToLower().QuantifyText(1).RemoveAccents())
+            switch (Group.ToLower().RemoveAccents())
             {
                 case "month":
                 case "mensal":
@@ -1956,11 +2038,11 @@ namespace InnerLibs.TimeMachine
                 case "diario":
                 case "day":
                 case "dia":
-                default:
                     method = typeof(DateTimeExtensions).GetMethod(nameof(DateTimeExtensions.DayString), new[] { typeof(DateTime), typeof(string), typeof(CultureInfo) });
                     exp = Expression.Call(null, method, prop.Body, Expression.Constant(DayFormat), c);
                     break;
-
+                default:
+                    return Expression.Lambda<Func<T, string>>(Expression.Constant(Group), param);
 
             }
 
