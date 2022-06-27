@@ -332,6 +332,7 @@ namespace InnerLibs
         /// <param name="Values">Lista de valores</param>
         /// <param name="ComparisonType">Tipo de comparacao</param>
         /// <returns>True se conter algum valor, false se não</returns>
+        /// <remarks>Caso <paramref name="Values"/> for nulo ou vazio, retorna <b>true</b> se <paramref name="Text"/> não estiver em branco,caso contrário, <b>false</b> </remarks>
         public static bool ContainsAny(this string Text, StringComparison ComparisonType, params string[] Values)
         {
             Values = Values ?? Array.Empty<string>();
@@ -523,7 +524,7 @@ namespace InnerLibs
         /// <summary>
         /// Procura CEPs em uma string
         /// </summary>
-        /// <param name="TExt"></param>
+        /// <param name="Text"></param>
         /// <returns></returns>
         public static string[] FindCEP(this string Text) => Text.FindByRegex(@"\d{5}-\d{3}").Union(Text.FindNumbers().Where(x => x.Length == 8)).ToArray();
 
@@ -914,39 +915,9 @@ namespace InnerLibs
         /// <returns>nome do dominio</returns>
         public static string GetDomainAndProtocol(this string URL) => $"{new Uri(URL).GetLeftPart(UriPartial.Authority)}";
 
-        public static string GetFirstChars(this string Text, int Number = 1)
-        {
-            if (Text.IsNotBlank())
-            {
-                if (Text.Length < Number | Number < 1)
-                {
-                    return Text;
-                }
-                else
-                {
-                    return Text.Substring(0, Number);
-                }
-            }
+        public static string GetFirstChars(this string Text, int Number = 1) => Text.IsNotBlank() ? Text.Length < Number | Number < 1 ? Text : Text.Substring(0, Number) : "";
 
-            return "";
-        }
-
-        public static string GetLastChars(this string Text, int Number = 1)
-        {
-            if (Text.IsNotBlank())
-            {
-                if (Text.Length < Number | Number < 1)
-                {
-                    return Text;
-                }
-                else
-                {
-                    return Text.Substring(Text.Length - Number);
-                }
-            }
-
-            return "";
-        }
+        public static string GetLastChars(this string Text, int Number = 1) => Text.IsNotBlank() ? Text.Length < Number | Number < 1 ? Text : Text.Substring(Text.Length - Number) : "";
 
         /// <summary>
         /// Retorna N caracteres de uma string a partir do caractere encontrado no centro
@@ -1221,7 +1192,7 @@ namespace InnerLibs
         /// <param name="Text">string principal</param>
         /// <param name="Texts">strings para comparar</param>
         /// <returns>TRUE se alguma das strings for igual a principal</returns>
-        public static bool IsAny(this string Text, params string[] Texts) => Text.IsAny(StringComparison.CurrentCultureIgnoreCase, Texts);
+        public static bool IsAny(this string Text, params string[] Texts) => Text.IsAny(default, Texts);
 
         /// <summary>
         /// Compara se uma string é igual a outras strings
@@ -2544,7 +2515,7 @@ namespace InnerLibs
             for (int index = 0, loopTo = phrase.Count() - 1; index <= loopTo; index++)
             {
                 string endchar = phrase[index].GetLastChars();
-                if (endchar.IsAny(PredefinedArrays.WordSplitters.ToArray()))
+                if (endchar.IsAny(StringComparison.CurrentCultureIgnoreCase, PredefinedArrays.WordSplitters.ToArray()))
                 {
                     phrase[index] = phrase[index].RemoveLastEqual(endchar);
                 }
@@ -2639,7 +2610,7 @@ namespace InnerLibs
                         // ja esta no singular
                 }
 
-                if (endchar.IsAny(PredefinedArrays.WordSplitters.ToArray()))
+                if (endchar.IsAny(StringComparison.CurrentCultureIgnoreCase, PredefinedArrays.WordSplitters.ToArray()))
                 {
                     phrase[index] = phrase[index] + endchar;
                 }
@@ -4447,30 +4418,14 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text">Texto</param>
         /// <returns></returns>
-        public static string UrlDecode(this string Text)
-        {
-            if (Text.IsNotBlank())
-            {
-                return System.Net.WebUtility.UrlDecode(Text);
-            }
-
-            return "";
-        }
+        public static string UrlDecode(this string Text) => Text.IsNotBlank() ? System.Net.WebUtility.UrlDecode(Text) : "";
 
         /// <summary>
         /// Encoda uma string para transmissão por URL
         /// </summary>
         /// <param name="Text">Texto</param>
         /// <returns></returns>
-        public static string UrlEncode(this string Text)
-        {
-            if (Text.IsNotBlank())
-            {
-                return System.Net.WebUtility.UrlEncode(Text);
-            }
-
-            return "";
-        }
+        public static string UrlEncode(this string Text) => Text.IsNotBlank() ? System.Net.WebUtility.UrlEncode(Text) : "";
 
         /// <summary>
         /// Encapsula um tento entre 2 textos

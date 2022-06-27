@@ -369,8 +369,8 @@ namespace InnerLibs
                     }
                 }
             }
+            return Dics.Select(x => x.OrderBy(y => y.Key).ToDictionary());
 
-            return Dics;
         }
 
         public static T SetValuesIn<T>(this Dictionary<string, object> Dic) => (T)Dic.CreateOrSetObject(null, typeof(T));
@@ -479,7 +479,7 @@ namespace InnerLibs
 
 
         /// <summary>
-        /// Returna um <see cref=" Dictionary"/> a partir de um <see cref="IGrouping(Of TKey, TElement)"/>
+        /// Retorna um <see cref="Dictionary"/> a partir de um <see cref="IGrouping(Of TKey, TElement)"/>
         /// </summary>
         /// <typeparam name="TKey"></typeparam>
         /// <typeparam name="TValue"></typeparam>

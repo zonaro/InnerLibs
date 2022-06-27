@@ -35,7 +35,10 @@ namespace InnerLibs
             }
 
             foreach (var v in Values ?? Array.Empty<string>())
+            {
                 query.Add(Key, v);
+            }
+
             UriBuilder.Query = query.ToString();
             Url = new Uri(UriBuilder.ToString());
             return Url;
@@ -78,29 +81,18 @@ namespace InnerLibs
         /// </summary>
         /// <param name="URL">URL do Facebook</param>
         /// <returns></returns>
-        public static string GetFacebookUsername(this string URL)
-        {
-            if (URL.IsURL() && URL.GetDomain().ToLower().IsAny("facebook.com", "fb.com"))
-            {
-                return Regex.Match(URL, @"(?:(?:http|https):\/\/)?(?:www.)?facebook.com\/(?:(?:\w)*#!\/)?(?:pages\/)?(?:[?\w\-]*\/)?(?:profile.php\?id=(?=\d.*))?([\w\-]*)?").Groups[1].Value;
-            }
-            else
-            {
-                throw new Exception("Invalid Facebook URL");
-            }
-        }
+        public static string GetFacebookUsername(this string URL) => URL.IsURL() && URL.GetDomain().ToLower().IsAny("facebook.com", "fb.com")
+                ? Regex.Match(URL, @"(?:(?:http|https):\/\/)?(?:www.)?facebook.com\/(?:(?:\w)*#!\/)?(?:pages\/)?(?:[?\w\-]*\/)?(?:profile.php\?id=(?=\d.*))?([\w\-]*)?").Groups[1].Value
+                : throw new Exception("Invalid Facebook URL");
 
         /// <summary>
         /// Captura o Username ou UserID de uma URL do Facebook
         /// </summary>
         /// <param name="URL">URL do Facebook</param>
         /// <returns></returns>
-        public static string GetFacebookUsername(this Uri URL)
-        {
-            return URL.AbsoluteUri.GetFacebookUsername();
-        }
+        public static string GetFacebookUsername(this Uri URL) => URL.AbsoluteUri.GetFacebookUsername();
 
-        public static byte[] GetFile(string URL)
+        public static byte[] DownloadFile(string URL)
         {
             byte[] s;
             using (var c = new WebClient())
@@ -111,10 +103,7 @@ namespace InnerLibs
             return s;
         }
 
-        public static System.Drawing.Image GetImage(string URL)
-        {
-            return GetFile(URL).ToImage();
-        }
+        public static System.Drawing.Image DownloadImage(string URL) => DownloadFile(URL).ToImage();
 
         public static IEnumerable<string> GetLocalIP()
         {
@@ -128,7 +117,7 @@ namespace InnerLibs
             }
         }
 
-        public static string GetString(string URL)
+        public static string DownloadString(string URL)
         {
             string s = "";
             using (var c = new WebClient())
@@ -142,19 +131,22 @@ namespace InnerLibs
         /// <summary>
         /// Retorna os segmentos de uma url
         /// </summary>
-        /// <param name="Url"></param>
+        /// <param name="URL"></param>
         /// <returns></returns>
-        public static IEnumerable<string> GetUrlSegments(this string Url)
+        public static IEnumerable<string> GetURLSegments(this string URL)
         {
             var l = new List<string>();
             var p = new Regex(@"(?<!\?.+)(?<=\/)[\w-.]+(?=[/\r\n?]|$)", (RegexOptions)((int)RegexOptions.Singleline + (int)RegexOptions.IgnoreCase));
-            var gs = p.Matches(Url);
+            var gs = p.Matches(URL);
             foreach (Match g in gs)
+            {
                 l.Add(g.Value);
+            }
+
             return l;
         }
 
-        public static string GetVideoId(string URL)
+        public static string GetVideoID(string URL)
         {
             if (URL.IsURL())
             {
@@ -181,30 +173,21 @@ namespace InnerLibs
         /// </summary>
         /// <param name="URL">URL do video</param>
         /// <returns>ID do video do youtube</returns>
-        public static string GetVideoId(this Uri URL)
-        {
-            return GetVideoId(URL.AbsoluteUri);
-        }
+        public static string GetVideoId(this Uri URL) => GetVideoID(URL.AbsoluteUri);
 
         /// <summary>
         /// Captura a Thumbnail de um video do youtube
         /// </summary>
         /// <param name="URL">Url do Youtube</param>
         /// <returns></returns>
-        public static byte[] GetYoutubeThumbnail(string URL)
-        {
-            return GetFile("http://img.youtube.com/vi/" + GetVideoId(URL) + "/hqdefault.jpg");
-        }
+        public static byte[] GetYoutubeThumbnail(string URL) => DownloadFile("http://img.youtube.com/vi/" + GetVideoID(URL) + "/hqdefault.jpg");
 
         /// <summary>
         /// Captura a Thumbnail de um video do youtube
         /// </summary>
         /// <param name="URL">Url do Youtube</param>
         /// <returns></returns>
-        public static byte[] GetYoutubeThumbnail(Uri URL)
-        {
-            return GetYoutubeThumbnail(URL.AbsoluteUri);
-        }
+        public static byte[] GetYoutubeThumbnail(Uri URL) => GetYoutubeThumbnail(URL.AbsoluteUri);
 
         /// <summary>
         /// Verifica se o computador está conectado com a internet
@@ -245,7 +228,9 @@ namespace InnerLibs
                 CSS = Regex.Replace(CSS, @"([\s:]0)(px|pt|%|em)", "$1");
                 // Remove comments from CSS
                 if (PreserveComments == false)
+                {
                     CSS = Regex.Replace(CSS, @"/\*[\d\D]*?\*/", string.Empty);
+                }
             }
 
             return CSS;
@@ -297,7 +282,10 @@ namespace InnerLibs
         {
             UrlPattern = Regex.Replace(UrlPattern, @"{([^:]+)\s*:\s*(.+?)(?<!\\)}", "{$1}");
             if (obj != null)
+            {
                 UrlPattern = UrlPattern.Inject(obj);
+            }
+
             return UrlPattern.RemoveLastEqual("/");
         }
     }

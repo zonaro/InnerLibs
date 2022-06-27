@@ -163,7 +163,7 @@ namespace InnerLibs
 
         public static string ToBase64(this Uri ImageURL)
         {
-            var imagem = Web.GetImage(ImageURL.AbsoluteUri);
+            var imagem = Web.DownloadImage(ImageURL.AbsoluteUri);
             using (var m = new MemoryStream())
             {
                 imagem.Save(m, imagem.RawFormat);
