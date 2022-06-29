@@ -9,8 +9,6 @@ using System.Threading;
 
 namespace InnerLibs
 {
-
-
     public enum PasswordLevel
     {
         VeryWeak = 2,
@@ -18,7 +16,6 @@ namespace InnerLibs
         Medium = 4,
         Strong = 5,
         VeryStrong = 6
-
     }
 
     /// <summary>
@@ -42,28 +39,6 @@ namespace InnerLibs
                x => x.ContainsAny(StringComparison.InvariantCulture, PredefinedArrays.AlphaLowerChars.ToArray())
             };
 
-        public static PasswordLevel CheckPassword(this string Password)
-        {
-            var points = Password.ValidateCount(passwordValidations);
-            if (points < PasswordLevel.VeryWeak.ToInt())
-            {
-                return PasswordLevel.VeryWeak;
-            }
-            else if (points > PasswordLevel.VeryStrong.ToInt())
-            {
-                return PasswordLevel.VeryStrong;
-            }
-            else
-            {
-                return (PasswordLevel)points;
-            }
-        }
-
-        public static bool ValidatePassword(this string Password, PasswordLevel PasswordLevel = PasswordLevel.Strong) => Password.CheckPassword().ToInt() >= PasswordLevel.ToInt();
-
-
-
-
         /// <summary>
         /// Verifica se o valor é um numero ou pode ser convertido em numero
         /// </summary>
@@ -79,6 +54,23 @@ namespace InnerLibs
             catch
             {
                 return false;
+            }
+        }
+
+        public static PasswordLevel CheckPassword(this string Password)
+        {
+            var points = Password.ValidateCount(passwordValidations);
+            if (points < PasswordLevel.VeryWeak.ToInt())
+            {
+                return PasswordLevel.VeryWeak;
+            }
+            else if (points > PasswordLevel.VeryStrong.ToInt())
+            {
+                return PasswordLevel.VeryStrong;
+            }
+            else
+            {
+                return (PasswordLevel)points;
             }
         }
 
@@ -424,8 +416,6 @@ namespace InnerLibs
         /// <returns>FALSE se estivar vazia ou em branco, caso contrario TRUE</returns>
         public static bool IsNotBlank(this string Text) => !IsBlank(Text);
 
-
-
         /// <summary>
         /// Verifica se uma String não está em branco
         /// </summary>
@@ -768,27 +758,6 @@ namespace InnerLibs
             return Value;
         }
 
-        /// <summary>
-        /// Lança uma <see cref="Exception"/> do tipo <typeparamref name="E"/> se um teste falhar
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <typeparam name="E"></typeparam>
-        /// <param name="Value"></param>
-        /// <param name="Test"></param>
-        /// <param name="Message"></param>
-        /// <returns></returns>
-        public static T ValidateOr<T, E>(this T Value, Expression<Func<T, bool>> Test, E Exception = null) where E : Exception
-        {
-            if (Test != null)
-            {
-                if (Test.Compile().Invoke(Value) == false)
-                {
-                    throw Exception ?? new Exception();
-                }
-            }
-            return Value;
-        }
-
         public static bool Validate<T>(this T Value, int MinPoints, params Expression<Func<T, bool>>[] Tests)
         {
             Tests = Tests ?? Array.Empty<Expression<Func<T, bool>>>();
@@ -810,6 +779,47 @@ namespace InnerLibs
         }
 
         /// <summary>
+        /// Lança uma <see cref="Exception"/> do tipo <typeparamref name="E"/> se um teste falhar
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="E"></typeparam>
+        /// <param name="Value"></param>
+        /// <param name="Test"></param>
+        /// <param name="Message"></param>
+        /// <returns></returns>
+        public static T ValidateOr<T, E>(this T Value, Expression<Func<T, bool>> Test, E Exception) where E : Exception
+        {
+            if (Test != null)
+            {
+                if (Test.Compile().Invoke(Value) == false)
+                {
+                    Value = default;
+                    if (Exception != null)
+                    {
+                        throw Exception;
+                    }
+                }
+            }
+            return Value;
+        }
+
+        public static T ValidateOr<T>(this T Value, Expression<Func<T, bool>> Test) => ValidateOr(Value, Test, default);
+
+        public static T ValidateOr<T>(this T Value, Expression<Func<T, bool>> Test, T defaultValue)
+        {
+            try
+            {
+                return ValidateOr(Value, Test, new Exception("Validation fail"));
+            }
+            catch
+            {
+                return defaultValue;
+            }
+        }
+
+        public static bool ValidatePassword(this string Password, PasswordLevel PasswordLevel = PasswordLevel.Strong) => Password.CheckPassword().ToInt() >= PasswordLevel.ToInt();
+
+        /// <summary>
         /// Bloqueia a Thread atual enquanto um arquivo estiver em uso
         /// </summary>
         /// <param name="File">Arquivo</param>
@@ -817,9 +827,9 @@ namespace InnerLibs
         /// <param name="MaxFailCount">
         /// Numero maximo de tentativas falhas,quando negativo, verifica infinitamente
         /// </param>
-        /// <param name="FailAction">ação a ser executado em caso de falha</param>
+        /// <param name="OnAttemptFail">ação a ser executado em caso de falha</param>
         /// <returns>TRUE se o arquivo puder ser utilizado</returns>
-        public static bool WaifForFile(this FileInfo File, int Seconds = 1, int? MaxFailCount = null, Action<int> FailAction = null)
+        public static bool WaifForFile(this FileInfo File, int Seconds = 1, int? MaxFailCount = null, Action<int> OnAttemptFail = null)
         {
             while (IsInUse(File))
             {
@@ -840,9 +850,36 @@ namespace InnerLibs
                     return false;
                 }
 
-                FailAction?.Invoke(MaxFailCount ?? -1);
+                OnAttemptFail?.Invoke(MaxFailCount ?? -1);
             }
             return true;
+        }
+
+        /// <summary>
+        /// Executa uma função com um determinado arquivo caso seja possível sua leitura
+        /// </summary>
+        /// <param name="File">Arquivo</param>
+        /// <param name="OnSuccess">Função a ser executada ao abrir o arquivo</param>
+        /// <param name="OnFail">Função a ser executada após um numero determinado ed</param>
+        /// <param name="OnAttemptFail"></param>
+        /// <param name="Seconds"></param>
+        /// <param name="MaxFailCount"></param>
+        public static bool WithFile(this FileInfo File, Action<FileInfo> OnSuccess, Action<FileInfo> OnFail, Action<int> OnAttemptFail = null, int Seconds = 1, int? MaxFailCount = null)
+        {
+            if (File != null)
+            {
+                if (WaifForFile(File, Seconds, MaxFailCount, OnAttemptFail))
+                {
+                    OnSuccess?.Invoke(File);
+                    return true;
+                }
+                else
+                {
+                    OnFail?.Invoke(File);
+
+                }
+            }
+            return false;
         }
     }
 }
