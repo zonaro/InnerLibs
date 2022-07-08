@@ -724,10 +724,10 @@ namespace InnerLibs.TimeMachine
 
         public static DateRange GetFortnightRange(this DateTime Date) => DateRange.Fortnight(Date);
 
-        public static Expression<Func<T, string>> GetGroupByPeriodExpression<T>(this IEnumerable<T> data, string Group, Expression<Func<T, DateTime>> prop, PeriodGroup formats = null)
+        public static Expression<Func<T, string>> GetGroupByPeriodExpression<T>(this IEnumerable<T> data, string Group, Expression<Func<T, DateTime>> prop, PeriodFormat formats = null)
         {
             data = data ?? Array.Empty<T>();
-            return (formats ?? new PeriodGroup()).GroupByPeriodExpression(Group, prop);
+            return (formats ?? new PeriodFormat()).GroupByPeriodExpression(Group, prop);
         }
 
         /// <summary>
@@ -921,10 +921,10 @@ namespace InnerLibs.TimeMachine
 
         public static DateRange GetYearRange(this DateTime Date) => DateRange.Year(Date);
 
-        public static IEnumerable<IGrouping<string, T>> GroupByPeriod<T>(this IEnumerable<T> data, string Group, Expression<Func<T, DateTime>> prop, PeriodGroup formats = null)
+        public static IEnumerable<IGrouping<string, T>> GroupByPeriod<T>(this IEnumerable<T> data, string Group, Expression<Func<T, DateTime>> prop, PeriodFormat formats = null)
         {
             data = data ?? Array.Empty<T>();
-            return data.GroupBy((formats ?? new PeriodGroup()).GroupByPeriodExpression(Group, prop).Compile());
+            return data.GroupBy((formats ?? new PeriodFormat()).GroupByPeriodExpression(Group, prop).Compile());
         }
 
         /// <summary>
@@ -1852,7 +1852,7 @@ namespace InnerLibs.TimeMachine
         #endregion DateStrings
     }
 
-    public class PeriodGroup
+    public class PeriodFormat
     {
         public string BimesterFormat { get; set; }
         public CultureInfo Culture { get; set; } = CultureInfo.CurrentCulture;

@@ -371,7 +371,7 @@ namespace InnerLibs.LINQ
             bool comparewith = !Operator.StartsWithAny("!");
             if (comparewith == false)
             {
-                Operator = Operator.RemoveFirstAny(false, "!");
+                Operator = Operator.TrimFirstAny(false, "!");
             }
 
             BinaryExpression body = null;

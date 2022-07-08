@@ -20,59 +20,6 @@ namespace InnerLibs
     /// <remarks></remarks>
     public static class Text
     {
-        public static IEnumerable<string> ReduceToDifference(this IEnumerable<string> Texts, bool FromStart = false) => ReduceToDifference(Texts, out _);
-
-        public static IEnumerable<string> ReduceToDifference(this IEnumerable<string> Texts, out string Difference, bool FromStart = false)
-        {
-            Texts = Texts ?? Array.Empty<string>();
-            var arr = Texts.ToArray();
-            while (arr.Distinct().Count() > 1 && arr.All(x => x.EndsWith(FromStart ? arr.FirstOrDefault().GetFirstChars() : arr.FirstOrDefault().GetLastChars())))
-            {
-                arr = arr.WhereNotBlank().Select(x => FromStart ? x.RemoveFirstChars() : x.RemoveLastChars()).ToArray();
-            }
-            Difference = Texts.FirstOrDefault().RemoveFirstAny(arr.FirstOrDefault());
-            return arr;
-        }
-
-        public static IEnumerable<string> TrimBetween(this IEnumerable<string> Texts) => Texts.TrimBetween();
-
-        /// <summary>
-        /// Arruma a ortografia do texto captalizando corretamente, adcionando pontuação ao final de
-        /// frase caso nescessário e removendo espaços excessivos ou incorretos
-        /// </summary>
-        /// <param name="Text">Texto</param>
-        /// <returns></returns>
-        public static string FixText(this string Text, int Ident = 0, int BreakLinesBetweenParagraph = 0)
-        {
-            var removedot = !Text.Trim().EndsWith(".");
-            var addComma = Text.Trim().EndsWith(",");
-            Text = new TextStructure(Text) { Ident = Ident, BreakLinesBetweenParagraph = BreakLinesBetweenParagraph }.ToString();
-            if (removedot)
-            {
-                Text = Text.TrimEnd().RemoveLastAny(".");
-            }
-            if (addComma)
-            {
-                Text = Text.TrimEnd().RemoveLastAny(".").Append(",");
-            }
-            return Text.Trim();
-        }
-
-        public static string TrimBetween(this string Text)
-        {
-            Text = Text.IfBlank("");
-            if (Text.IsNotBlank())
-            {
-                var arr = Text.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-                Text = arr.JoinString(Environment.NewLine);
-                arr = Text.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
-                Text = arr.JoinString(" ");
-            }
-
-            return Text.TrimAny(" ", Environment.NewLine);
-        }
-
-
         /// <summary>
         /// Retorna uma string em ordem afabética baseada em uma outra string
         /// </summary>
@@ -80,7 +27,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string Alphabetize(this string Text)
         {
-            var a = Text.ToCharArray();
+            var a = Text.IfBlank("").ToCharArray();
             Array.Sort(a);
             return a.JoinString("");
         }
@@ -128,12 +75,16 @@ namespace InnerLibs
 
         public static string AppendUrlParameter(this string Url, string Key, params string[] Value)
         {
-            foreach (var v in Value ?? Array.Empty<string>())
+            if (Url.IsURL())
             {
-                Url += string.Format("&{0}={1}", Key, v.UrlEncode().IfBlank(""));
+                Url.ParseQueryString();
+                foreach (var v in Value ?? Array.Empty<string>())
+                {
+                    Url += string.Format("&{0}={1}", Key, v.UrlEncode().IfBlank(""));
+                }
+                return Url;
             }
-
-            return Url;
+            throw new ArgumentException("string is not a valid URL");
         }
 
         /// <summary>
@@ -332,7 +283,10 @@ namespace InnerLibs
         /// <param name="Values">Lista de valores</param>
         /// <param name="ComparisonType">Tipo de comparacao</param>
         /// <returns>True se conter algum valor, false se não</returns>
-        /// <remarks>Caso <paramref name="Values"/> for nulo ou vazio, retorna <b>true</b> se <paramref name="Text"/> não estiver em branco,caso contrário, <b>false</b> </remarks>
+        /// <remarks>
+        /// Caso <paramref name="Values"/> for nulo ou vazio, retorna <b>true</b> se <paramref
+        /// name="Text"/> não estiver em branco,caso contrário, <b>false</b>
+        /// </remarks>
         public static bool ContainsAny(this string Text, StringComparison ComparisonType, params string[] Values)
         {
             Values = Values ?? Array.Empty<string>();
@@ -634,11 +588,11 @@ namespace InnerLibs
         /// <returns>Frase corretamente pontuada</returns>
         public static string FixPunctuation(this string Text, string Punctuation = ".", bool ForceSpecificPunctuation = false)
         {
-            Text = Text.RemoveLastAny(true, ",", " ");
+            Text = Text.TrimLastAny(true, ",", " ");
             var pts = new[] { ".", "!", "?", ":", ";" };
             if (ForceSpecificPunctuation)
             {
-                Text = Text.RemoveLastAny(true, pts).Trim() + Punctuation;
+                Text = Text.TrimLastAny(true, pts).Trim() + Punctuation;
             }
             else if (!Text.EndsWithAny(pts))
             {
@@ -648,7 +602,27 @@ namespace InnerLibs
             return Text;
         }
 
-
+        /// <summary>
+        /// Arruma a ortografia do texto captalizando corretamente, adcionando pontuação ao final de
+        /// frase caso nescessário e removendo espaços excessivos ou incorretos
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <returns></returns>
+        public static string FixText(this string Text, int Ident = 0, int BreakLinesBetweenParagraph = 0)
+        {
+            var removedot = !Text.Trim().EndsWith(".");
+            var addComma = Text.Trim().EndsWith(",");
+            Text = new TextStructure(Text) { Ident = Ident, BreakLinesBetweenParagraph = BreakLinesBetweenParagraph }.ToString();
+            if (removedot)
+            {
+                Text = Text.TrimEnd().RemoveLastAny(".");
+            }
+            if (addComma)
+            {
+                Text = Text.TrimEnd().RemoveLastAny(".").Append(",");
+            }
+            return Text.Trim();
+        }
 
         /// <summary>
         /// Executa uma ação para cada linha de um texto
@@ -1533,28 +1507,35 @@ namespace InnerLibs
         /// <returns></returns>
         public static NameValueCollection ParseQueryString(this string QueryString, params string[] Keys)
         {
-            Keys = Keys ?? Array.Empty<string>();
-            var queryParameters = new NameValueCollection();
-            var querySegments = QueryString.Split('&');
-            foreach (string segment in querySegments)
+            if (QueryString.IsURL())
             {
-                var parts = segment.Split('=');
-                if (parts.Any())
+                return ParseQueryString(new Uri(QueryString).Query, Keys);
+            }
+            else
+            {
+                Keys = Keys ?? Array.Empty<string>();
+                var queryParameters = new NameValueCollection();
+                var querySegments = QueryString.Split('&');
+                foreach (string segment in querySegments)
                 {
-                    string key = parts.First().RemoveFirstAny(" ", "?");
-                    string val = "";
-                    if (parts.Skip(1).Any())
+                    var parts = segment.Split('=');
+                    if (parts.Any())
                     {
-                        val = parts[1].Trim().UrlDecode();
-                    }
-                    if (Keys.Contains(key) || Keys.Any() == false)
-                    {
-                        queryParameters.Add(key, val);
+                        string key = parts.First().RemoveFirstAny(" ", "?");
+                        string val = "";
+                        if (parts.Skip(1).Any())
+                        {
+                            val = parts[1].Trim().UrlDecode();
+                        }
+                        if (Keys.Contains(key) || Keys.Any() == false)
+                        {
+                            queryParameters.Add(key, val);
+                        }
                     }
                 }
-            }
 
-            return queryParameters;
+                return queryParameters;
+            }
         }
 
         /// <summary>
@@ -1928,6 +1909,20 @@ namespace InnerLibs
         /// <returns>Um valor do tipo especificado</returns>
         public static Type RandomItem<Type>(params Type[] Array) => Array.GetRandomItem();
 
+        public static IEnumerable<string> ReduceToDifference(this IEnumerable<string> Texts, bool FromStart = false) => ReduceToDifference(Texts, out _, FromStart);
+
+        public static IEnumerable<string> ReduceToDifference(this IEnumerable<string> Texts, out string Difference, bool FromStart = false)
+        {
+            Texts = Texts ?? Array.Empty<string>();
+            var arr = Texts.ToArray();
+            while (arr.Distinct().Count() > 1 && arr.All(x => x.EndsWith(FromStart ? arr.FirstOrDefault().GetFirstChars() : arr.FirstOrDefault().GetLastChars())))
+            {
+                arr = arr.WhereNotBlank().Select(x => FromStart ? x.RemoveFirstChars() : x.RemoveLastChars()).ToArray();
+            }
+            Difference = Texts.FirstOrDefault().RemoveFirstAny(arr.FirstOrDefault());
+            return arr;
+        }
+
         /// <summary>
         /// Escapa caracteres exclusivos de uma regex
         /// </summary>
@@ -2046,7 +2041,7 @@ namespace InnerLibs
         /// <param name="Text">Texto</param>
         /// <param name="StartStringTest">Conjunto de textos que serão comparados</param>
         /// <returns></returns>
-        public static string RemoveFirstAny(this string Text, bool ContinuouslyRemove, params string[] StartStringTest) => Text.RemoveFirstAny(ContinuouslyRemove, default, StartStringTest);
+        public static string TrimFirstAny(this string Text, bool ContinuouslyRemove, params string[] StartStringTest) => Text.RemoveFirstAny(ContinuouslyRemove, default, StartStringTest);
 
         /// <summary>
         /// Remove os X primeiros caracteres
@@ -2137,7 +2132,7 @@ namespace InnerLibs
         /// <param name="EndStringTest">Conjunto de textos que serão comparados</param>
         /// <param name="ContinuouslyRemove">Remove continuamente as strings</param>
         /// <returns></returns>
-        public static string RemoveLastAny(this string Text, bool ContinuouslyRemove, params string[] EndStringTest) => Text.RemoveLastAny(ContinuouslyRemove, default, EndStringTest);
+        public static string TrimLastAny(this string Text, bool ContinuouslyRemove, params string[] EndStringTest) => Text.RemoveLastAny(ContinuouslyRemove, default, EndStringTest);
 
         /// <summary>
         /// Remove continuamente o final de uma string se ela for igual a qualquer um dos valores correspondentes
@@ -4142,7 +4137,7 @@ namespace InnerLibs
         {
             if (Decimals > -1)
             {
-                Number = decimal.Round(Number, Decimals);
+                Number = Number.RoundDecimal(Decimals);
             }
 
             return $"{Number}%";
@@ -4185,8 +4180,8 @@ namespace InnerLibs
         public static string ToPercentString(this long Number) => $"{Number}%";
 
         /// <summary>
-        /// Concatena todos as strings em uma lista, utilizando a palavra <paramref name="And"/> antes da
-        /// ultima ocorrencia.
+        /// Concatena todos as strings em uma lista, utilizando a palavra <paramref name="And"/>
+        /// antes da ultima ocorrencia.
         /// </summary>
         /// <param name="Texts"></param>
         /// <param name="And"></param>
@@ -4195,18 +4190,11 @@ namespace InnerLibs
         {
             Separator = Separator.IfBlank(',');
             Texts = Texts ?? Array.Empty<string>();
-            if (Texts.Any())
-            {
-                if (Texts.Count() > 1)
-                {
-                    return TrimBetween($"{Texts.SkipLast(1).JoinString($"{Separator} ")} {And.IfBlank(Separator)} {Texts.Last()}");
-                }
-                else
-                {
-                    return TrimBetween(Texts?.FirstOrDefault());
-                }
-            }
-            return "";
+            return Texts.Any()
+                ? Texts.Count() > 1
+                    ? TrimBetween($"{Texts.SkipLast(1).JoinString($"{Separator} ")} {And.IfBlank(Separator)} {Texts.Last()}")
+                    : TrimBetween(Texts?.FirstOrDefault())
+                : "";
         }
 
         /// <summary>
@@ -4361,8 +4349,8 @@ namespace InnerLibs
         {
             if (Text.IsNotBlank())
             {
-                Text = Text.RemoveFirstAny(ContinuouslyRemove, StringTest);
-                Text = Text.RemoveLastAny(ContinuouslyRemove, StringTest);
+                Text = Text.TrimFirstAny(ContinuouslyRemove, StringTest);
+                Text = Text.TrimLastAny(ContinuouslyRemove, StringTest);
             }
 
             return Text;
@@ -4375,6 +4363,22 @@ namespace InnerLibs
         /// <param name="StringTest">Conjunto de textos que serão comparados</param>
         /// <returns></returns>
         public static string TrimAny(this string Text, params string[] StringTest) => Text.TrimAny(true, StringTest);
+
+        public static IEnumerable<string> TrimBetween(this IEnumerable<string> Texts) => Texts.Select(x => x.TrimBetween());
+
+        public static string TrimBetween(this string Text)
+        {
+            Text = Text.IfBlank("");
+            if (Text.IsNotBlank())
+            {
+                var arr = Text.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+                Text = arr.JoinString(Environment.NewLine);
+                arr = Text.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
+                Text = arr.JoinString(" ");
+            }
+
+            return Text.TrimAny(" ", Environment.NewLine);
+        }
 
         /// <summary>
         /// Remove continuamente caracteres em branco do começo e fim de uma string incluindo breaklines

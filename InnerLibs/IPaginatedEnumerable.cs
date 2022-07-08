@@ -1563,7 +1563,7 @@ namespace InnerLibs.LINQ
         {
             if (CompareWith == false)
             {
-                Operator = Operator.RemoveFirstAny(false, "!");
+                Operator = Operator.TrimFirstAny(false, "!");
             }
             else
             {
