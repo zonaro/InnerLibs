@@ -8,7 +8,7 @@ namespace Tests
         [TestMethod]
         public void AdjustBlankSpace()
         {
-            Assert.AreEqual("  jubileu  ".AdjustBlankSpaces(), "jubileu");
+            Assert.AreEqual("  jubileu  ".TrimBetween(), "jubileu");
         }
     }
 }

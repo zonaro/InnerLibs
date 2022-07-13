@@ -51,30 +51,21 @@ namespace InnerLibs
         /// <param name="Key">Nome do parâmetro</param>
         /// <param name="Values">Valor do Parâmetro</param>
         /// <returns></returns>
-        public static Uri AddParameter(this Uri Url, string Key, params string[] Values)
-        {
-            return Url.AddParameter(Key, true, Values);
-        }
+        public static Uri AddParameter(this Uri Url, string Key, params string[] Values) => Url.AddParameter(Key, true, Values);
 
         /// <summary>
         /// Retorna o Titulo do arquivo a partir do nome do arquivo
         /// </summary>
         /// <param name="Info">Arquivo ou Diretório</param>
         /// <returns></returns>
-        public static string FileNameAsTitle(this FileSystemInfo Info)
-        {
-            return Path.GetFileNameWithoutExtension(Info.Name).ToNormalCase().ToTitle();
-        }
+        public static string FileNameAsTitle(this FileSystemInfo Info) => Path.GetFileNameWithoutExtension(Info.Name).ToNormalCase().ToTitle();
 
         /// <summary>
         /// Retorna o Titulo do arquivo a partir do nome do arquivo
         /// </summary>
         /// <param name="FileName">Arquivo ou Diretório</param>
         /// <returns></returns>
-        public static string FileNameAsTitle(this string FileName)
-        {
-            return Path.GetFileNameWithoutExtension(FileName).ToNormalCase().ToTitle();
-        }
+        public static string FileNameAsTitle(this string FileName) => Path.GetFileNameWithoutExtension(FileName).ToNormalCase().ToTitle();
 
         /// <summary>
         /// Captura o Username ou UserID de uma URL do Facebook
@@ -92,7 +83,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string GetFacebookUsername(this Uri URL) => URL.AbsoluteUri.GetFacebookUsername();
 
-        public static byte[] DownloadFile(string URL)
+        public static byte[] DownloadFile(this string URL)
         {
             byte[] s;
             using (var c = new WebClient())
@@ -103,7 +94,7 @@ namespace InnerLibs
             return s;
         }
 
-        public static System.Drawing.Image DownloadImage(string URL) => DownloadFile(URL).ToImage();
+        public static System.Drawing.Image DownloadImage(this string URL) => DownloadFile(URL).ToImage();
 
         public static IEnumerable<string> GetLocalIP()
         {
@@ -117,7 +108,7 @@ namespace InnerLibs
             }
         }
 
-        public static string DownloadString(string URL)
+        public static string DownloadString(this string URL)
         {
             string s = "";
             using (var c = new WebClient())
@@ -146,7 +137,7 @@ namespace InnerLibs
             return l;
         }
 
-        public static string GetVideoID(string URL)
+        public static string GetVideoID(this string URL)
         {
             if (URL.IsURL())
             {
@@ -187,7 +178,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="URL">Url do Youtube</param>
         /// <returns></returns>
-        public static byte[] GetYoutubeThumbnail(Uri URL) => GetYoutubeThumbnail(URL.AbsoluteUri);
+        public static byte[] GetYoutubeThumbnail(this Uri URL) => GetYoutubeThumbnail(URL.AbsoluteUri);
 
         /// <summary>
         /// Verifica se o computador está conectado com a internet
@@ -268,7 +259,7 @@ namespace InnerLibs
         public static string RemoveUrlParameters(this string UrlPattern)
         {
             UrlPattern = Regex.Replace(UrlPattern, @"{([^:]+)\s*:\s*(.+?)(?<!\\)}", "");
-            return UrlPattern.RemoveLastEqual("/");
+            return UrlPattern.TrimLastEqual("/");
         }
 
         /// <summary>
@@ -286,7 +277,7 @@ namespace InnerLibs
                 UrlPattern = UrlPattern.Inject(obj);
             }
 
-            return UrlPattern.RemoveLastEqual("/");
+            return UrlPattern.TrimLastEqual("/");
         }
     }
 }

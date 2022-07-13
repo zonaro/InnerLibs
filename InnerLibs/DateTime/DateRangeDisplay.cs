@@ -11,7 +11,7 @@ namespace InnerLibs.TimeMachine
         {
             foreach (var item in this.GetProperties().Where(x => x.Name.EndsWith("Word")))
             {
-                var w = item.Name.RemoveLastEqual("Word").ToLower();
+                var w = item.Name.TrimLastEqual("Word").ToLower();
                 if (item.PropertyType == typeof(QuantityTextPair))
                 {
                     item.SetValue(this, new QuantityTextPair(w));

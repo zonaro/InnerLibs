@@ -830,10 +830,10 @@ namespace InnerLibs.Locations
             string Complement = "";
             string Number = "";
             string Country = "";
-            Address = Address.FixText().RemoveLastAny("."); // arruma os espacos do endereco
+            Address = Address.FixText().TrimLastAny("."); // arruma os espacos do endereco
             var ceps = Address.FindCEP(); // procura ceps no endereco
             Address = Address.RemoveAny(ceps); // remove ceps
-            Address = Address.FixText().RemoveLastAny("."); // arruma os espacos do endereco
+            Address = Address.FixText().TrimLastAny("."); // arruma os espacos do endereco
             if (ceps.Any())
             {
                 PostalCode = FormatPostalCode(ceps.First());

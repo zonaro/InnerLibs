@@ -4,6 +4,9 @@ using System.Text;
 
 namespace InnerLibs
 {
+
+
+
     /// <summary>
     /// Classe para encodar IDs numéricos em hashs curtas
     /// </summary>

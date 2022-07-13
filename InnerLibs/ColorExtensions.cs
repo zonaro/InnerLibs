@@ -102,7 +102,7 @@ namespace InnerLibs
 
         public static bool IsHexaDecimalColor(this string Text)
         {
-            Text = Text.RemoveFirstEqual("#");
+            Text = Text.TrimFirstEqual("#");
             var myRegex = new Regex("^[a-fA-F0-9]+$");
             return Text.IsNotBlank() && myRegex.IsMatch(Text);
         }
@@ -248,7 +248,7 @@ namespace InnerLibs
 
             if (Text.IsNumber()) return Color.FromArgb(Text.ToInt());
 
-            if (Text.IsHexaDecimalColor()) return ColorTranslator.FromHtml("#" + Text.RemoveFirstEqual("#"));
+            if (Text.IsHexaDecimalColor()) return ColorTranslator.FromHtml("#" + Text.TrimFirstEqual("#"));
 
             var maybecolor = FindColor(Text);
             if (maybecolor != null)
