@@ -1911,8 +1911,9 @@ namespace InnerLibs
 
         public static IEnumerable<string> ReduceToDifference(this IEnumerable<string> Texts, bool FromStart = false, string BreakAt = null) => ReduceToDifference(Texts, out _, FromStart, BreakAt);
 
-        public static IEnumerable<string> ReduceToDifference(this IEnumerable<string> Texts, out string Difference, bool FromStart = false, string BreakAt = null)
+        public static IEnumerable<string> ReduceToDifference(this IEnumerable<string> Texts, out string RemovedPart, bool FromStart = false, string BreakAt = null)
         {
+            RemovedPart = "";
             Texts = Texts ?? Array.Empty<string>();
             var arr = Texts.WhereNotBlank().ToArray();
             while (arr.Distinct().Count() > 1 && !arr.Any(x => BreakAt.IsNotBlank() && (FromStart ? x.StartsWith(BreakAt) : x.EndsWith(BreakAt))) && arr.All(x => FromStart ? x.StartsWith(arr.FirstOrDefault().GetFirstChars()) : x.EndsWith(arr.FirstOrDefault().GetLastChars())))
@@ -1920,13 +1921,13 @@ namespace InnerLibs
                 arr = arr.Select(x => FromStart ? x.RemoveFirstChars() : x.RemoveLastChars()).ToArray();
             }
 
-            Difference = "";
             if (BreakAt.IsNotBlank())
             {
                 arr = arr.Select(x => FromStart ? x.TrimFirstAny(false, BreakAt) : x.TrimLastAny(false, BreakAt)).ToArray();
-                Difference = FromStart ? Difference.Prepend(BreakAt) : Difference.Append(BreakAt);
+                //Difference = FromStart ? Difference.Prepend(BreakAt) : Difference.Append(BreakAt);
             }
-            Difference = FromStart ? Difference.Prepend(Texts.FirstOrDefault().TrimLastAny(arr.FirstOrDefault())) : Difference.Append(Texts.FirstOrDefault().TrimFirstAny(arr.FirstOrDefault()));
+
+            RemovedPart = FromStart ? RemovedPart.Prepend(Texts.FirstOrDefault().TrimLastAny(arr.FirstOrDefault())) : RemovedPart.Append(Texts.FirstOrDefault().TrimFirstAny(arr.FirstOrDefault()));
 
             return arr;
         }
