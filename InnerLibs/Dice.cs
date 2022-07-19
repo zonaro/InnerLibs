@@ -126,18 +126,7 @@ namespace InnerLibs.RolePlayingGame
         /// <summary>
         /// Ultima vez que este dado foi rolado
         /// </summary>
-        public DateTime? LastRoll
-        {
-            get
-            {
-                if (History.Any())
-                {
-                    return History.FirstOrDefault().TimeStamp;
-                }
-
-                return default;
-            }
-        }
+        public DateTime? LastRoll => History.Any() ? History.FirstOrDefault().TimeStamp : (DateTime?)default;
 
         /// <summary>
         /// Se TRUE, Impede este dado de ser rolado
@@ -174,18 +163,7 @@ namespace InnerLibs.RolePlayingGame
         /// Valor atual deste dado
         /// </summary>
         /// <returns></returns>
-        public int? Value
-        {
-            get
-            {
-                if (History.Any())
-                {
-                    return History.FirstOrDefault().Value;
-                }
-
-                return default;
-            }
-        }
+        public int? Value => History.Any() ? History.FirstOrDefault().Value : (int?)default;
 
         /// <summary>
         /// Peso do dado
@@ -226,15 +204,7 @@ namespace InnerLibs.RolePlayingGame
         /// moeda qua saiu, caso seja um dado com mais de 2 lados retorna sempre true
         /// </summary>
         /// <returns></returns>
-        public bool Flip(int Times = 1)
-        {
-            if (Faces.Count == 2)
-            {
-                return (Roll(Times).Number - 1).ToBool();
-            }
-
-            return true;
-        }
+        public bool Flip(int Times = 1) => Faces.Count != 2 || (Roll(Times).Number - 1).ToBool();
 
         /// <summary>
         /// Retorna a porcentagem de chance de uma Face ser sorteada

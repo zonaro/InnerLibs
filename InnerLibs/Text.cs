@@ -1820,12 +1820,8 @@ namespace InnerLibs
                     }
             }
 
-            if (OutQuantity.Floor() == 1m || OutQuantity.Floor() == -1)
-            {
-                return PluralText.Singularize();
-            }
+            return OutQuantity.Floor() == 1m || OutQuantity.Floor() == -1 ? PluralText.Singularize() : PluralText;
 
-            return PluralText;
         }
 
         /// <summary>
