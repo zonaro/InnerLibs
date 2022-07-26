@@ -11,13 +11,13 @@ namespace InnerLibs.Locations
     /// </summary>
     public sealed class Brasil
     {
-        private static List<State> l = new List<State>();
+        private static List<AddressInfo> l = new List<AddressInfo>();
 
         /// <summary>
         /// Retorna todas as Cidades dos estados brasileiros
         /// </summary>
         /// <returns></returns>
-        public static IEnumerable<string> Cities => States.SelectMany(x => x.Cities);
+        public static IEnumerable<AddressInfo> Cities => l;
 
         /// <summary>
         /// Retorna as Regiões dos estados brasileiros
@@ -33,6 +33,7 @@ namespace InnerLibs.Locations
         {
             get
             {
+                l = l ?? new List<AddressInfo>();
                 if (!l.Any())
                 {
                     string s = Assembly.GetExecutingAssembly().GetResourceFileText("InnerLibs.brasil.xml");
@@ -40,21 +41,35 @@ namespace InnerLibs.Locations
                     doc.LoadXml(s);
                     foreach (XmlNode node in doc["brasil"].ChildNodes)
                     {
-                        var estado = new State
-                        {
-                            StateCode = node["StateCode"].InnerText,
-                            Name = node["Name"].InnerText,
-                            Region = node["Region"].InnerText
-                        };
 
-                        var lc = new List<string>();
-                        foreach (XmlNode subnode in node["Cities"].ChildNodes) lc.Add(subnode.InnerText);
-                        estado.Cities = lc.AsEnumerable();
-                        l.Add(estado);
+                        foreach (XmlNode subnode in node["Cities"].ChildNodes)
+                        {
+                            var c = new AddressInfo()
+                            {
+                                City = subnode.InnerText,
+                                StateCode = node["StateCode"].InnerText,
+                                State = node["Name"].InnerText,
+                                Region = node["Region"].InnerText,
+                                Country = "Brasil"
+                            };
+                            try
+                            {
+
+                                c["IBGE"] = subnode.Attributes["ibge"].InnerText;
+                            }
+                            catch (Exception)
+                            {
+
+                                c["IBGE"] = null;
+                            }
+
+                            l.Add(c);
+                        }
+
                     }
                 }
 
-                return l;
+                return l.GroupBy(x => new { x.StateCode, x.State, x.Region }).Select(x => new State() { StateCode = x.Key.StateCode, Name = x.Key.State, Cities = x.ToArray(), Region = x.Key.Region }).ToArray();
             }
         }
 
@@ -88,6 +103,7 @@ namespace InnerLibs.Locations
                 ends.State = s.Name;
                 ends.StateCode = s.StateCode;
                 ends.Region = s.Region;
+                ends.Country = "Brasil";
                 return ends;
             }
 
@@ -100,14 +116,16 @@ namespace InnerLibs.Locations
         /// </summary>
         /// <param name="CityName"></param>
         /// <returns></returns>
-        public static IEnumerable<State> FindStateByCity(string CityName) => States.Where(x => x.Cities.Any(c => (c.ToSlugCase() ?? "") == (CityName.ToSlugCase() ?? "")));
+        public static IEnumerable<State> FindStateByCity(string CityName) => States.Where(x => x.Cities.Any(c => (c.Name.ToSlugCase() ?? "") == (CityName.ToSlugCase() ?? "")));
+
+        public static IEnumerable<AddressInfo> GetCities() => States.SelectMany(x => x.Cities);
 
         /// <summary>
         /// Retorna as cidades de um estado a partir do nome ou sigla do estado
         /// </summary>
         /// <param name="NameOrStateCode">Nome ou sigla do estado</param>
         /// <returns></returns>
-        public static IEnumerable<string> GetCitiesOf(string NameOrStateCode) => (GetState(NameOrStateCode)?.Cities ?? new List<string>()).AsEnumerable();
+        public static IEnumerable<AddressInfo> GetCitiesOf(string NameOrStateCode) => (GetState(NameOrStateCode)?.Cities ?? new List<AddressInfo>()).AsEnumerable();
 
         /// <summary>
         /// Retorna o nome da cidade mais parecido com o especificado em <paramref name="CityName"/>
@@ -115,7 +133,7 @@ namespace InnerLibs.Locations
         /// <param name="NameOrStateCode">Nome ou sigla do estado</param>
         /// <param name="CityName">Nome da cidade</param>
         /// <returns></returns>
-        public static string GetClosestCity(string NameOrStateCode, string CityName) => (GetState(NameOrStateCode)?.Cities ?? new List<string>()).AsEnumerable().OrderBy(x => x.LevenshteinDistance(CityName)).Where(x => CityName.IsNotBlank()).FirstOrDefault().IfBlank(CityName);
+        public static string GetClosestCity(string NameOrStateCode, string CityName) => (GetState(NameOrStateCode)?.Cities ?? new List<AddressInfo>()).AsEnumerable().OrderBy(x => x.Name.LevenshteinDistance(CityName)).Where(x => CityName.IsNotBlank()).FirstOrDefault().IfBlank(CityName);
 
         /// <summary>
         /// Retorna o nome do estado a partir da sigla
@@ -155,7 +173,11 @@ namespace InnerLibs.Locations
         /// <param name="Region"></param>
         /// <returns></returns>
         public static IEnumerable<State> GetStatesOf(string Region) => States.Where(x => (x.Region.ToSlugCase() ?? "") == (Region.ToSlugCase().TrimBetween() ?? "") || Region.IsBlank());
+
+        public void Reload() => l = new List<AddressInfo>();
     }
+
+
 
     /// <summary>
     /// Objeto que representa um estado do Brasil e seus respectivos detalhes
@@ -168,9 +190,9 @@ namespace InnerLibs.Locations
         /// <returns></returns>
         public State(string stateCode, string name, string region)
         {
-            this.StateCode = stateCode;
-            this.Name = name;
-            this.Region = region;
+            StateCode = stateCode;
+            Name = name;
+            Region = region;
         }
 
         /// <summary>
@@ -196,7 +218,7 @@ namespace InnerLibs.Locations
         /// Lista de cidades do estado
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<string> Cities { get; set; }
+        public IEnumerable<AddressInfo> Cities { get; set; }
 
         /// <summary>
         /// Nome do estado
