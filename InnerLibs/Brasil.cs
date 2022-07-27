@@ -78,14 +78,17 @@ namespace InnerLibs.Locations
             var s = GetState(NameOrStateCodeOrIBGE);
             if (s != null)
             {
-                City = GetClosestCityName(s.StateCode, City);
+                var c = Brasil.GetClosestCity(s.StateCode, City);
                 var ends = Activator.CreateInstance<T>();
-                ends.City = City;
+                ends.City = c?.Name ?? City;
                 ends.State = s.Name;
                 ends.StateCode = s.StateCode;
                 ends.Region = s.Region;
                 ends.Country = "Brasil";
                 ends.CountryCode = "BR";
+                ends["StateIBGE"] = s.IBGE.ToString();
+                ends["IBGE"] = c?.IBGE.ToString();
+                ends["DDD"] = c?.DDD.ToString();
                 return ends;
             }
 
@@ -117,7 +120,8 @@ namespace InnerLibs.Locations
         /// <param name="NameOrStateCodeOrIBGE">Nome ou sigla do estado</param>
         /// <param name="CityName">Nome da cidade</param>
         /// <returns></returns>
-        public static string GetClosestCityName(string NameOrStateCodeOrIBGE, string CityName) => (GetState(NameOrStateCodeOrIBGE)?.Cities ?? new List<City>()).AsEnumerable().OrderBy(x => x.Name.LevenshteinDistance(CityName)).Where(x => CityName.IsNotBlank()).FirstOrDefault().IfBlank(CityName);
+        public static string GetClosestCityName(string NameOrStateCodeOrIBGE, string CityName) => (GetClosestCity(NameOrStateCodeOrIBGE, CityName)?.Name ?? "").IfBlank(CityName);
+        public static City GetClosestCity(string NameOrStateCodeOrIBGE, string CityName) => (GetState(NameOrStateCodeOrIBGE)?.Cities ?? new List<City>()).AsEnumerable().OrderBy(x => x.Name.LevenshteinDistance(CityName)).Where(x => CityName.IsNotBlank()).FirstOrDefault();
 
         public static int? GetIBGEOf(string NameOrStateCodeOrIBGE) => GetState(NameOrStateCodeOrIBGE)?.IBGE;
 
