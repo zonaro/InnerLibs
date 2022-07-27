@@ -340,7 +340,7 @@ namespace InnerLibs.Locations
         /// </summary>
         /// <value></value>
         /// <returns></returns>
-        public string Name => Street.TrimAny(AddressTypes.GetAddressTypeList(Street)).TrimAny(" ");
+        public virtual string Name => Street.TrimAny(AddressTypes.GetAddressTypeList(Street)).TrimAny(" ");
 
         public string Neighborhood
         {
