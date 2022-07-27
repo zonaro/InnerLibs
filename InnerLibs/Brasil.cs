@@ -11,9 +11,9 @@ namespace InnerLibs.Locations
     /// </summary>
     public sealed class Brasil
     {
-        private static List<City> l = new List<City>();
+        private static List<State> l = new List<State>();
 
-
+        public static IEnumerable<City> Cities => States.SelectMany(x => x.Cities).ToArray();
 
         /// <summary>
         /// Retorna as Regiões dos estados brasileiros
@@ -21,41 +21,33 @@ namespace InnerLibs.Locations
         /// <returns></returns>
         public static IEnumerable<string> Regions => States.Select(x => x.Region).Distinct();
 
-
-        public static IEnumerable<State> States => Cities.GroupBy(x => new { x.StateCode, x.State, x.Region, x.Country, x.CountryCode }).Select(x => new State() { Country = x.Key.Country, CountryCode = x.Key.CountryCode, StateCode = x.Key.StateCode, State = x.Key.State, Cities = x.ToArray(), Region = x.Key.Region }).ToArray();
-
-
         /// <summary>
         /// Retorna uma lista com todos os estados do Brasil e seus respectivos detalhes
         /// </summary>
         /// <returns></returns>
-        public static IEnumerable<City> Cities
+        public static IEnumerable<State> States
         {
             get
             {
-                l = l ?? new List<City>();
+                l = l ?? new List<State>();
                 if (!l.Any())
                 {
                     string s = Assembly.GetExecutingAssembly().GetResourceFileText("InnerLibs.brasil.xml");
                     var doc = new XmlDocument();
                     doc.LoadXml(s);
-                    foreach (XmlNode node in doc["brasil"].ChildNodes)
+
+                    foreach (XmlNode estado in doc.SelectNodes("brasil/state"))
                     {
+                        var e = new State(estado["StateCode"].InnerText, estado["Name"].InnerText, estado["Region"].InnerText, estado["IBGE"].InnerText.ToInt(), "Brasil", "BR");
+                        var cities = new List<City>();
 
-                        var c = new City()
+                        foreach (XmlNode node in doc.SelectNodes($"brasil/city[StateCode = '{e.StateCode}']"))
                         {
-                            IBGE = node["IBGE"].InnerText,
-                            City = node["Name"].InnerText,
-                            StateCode = node["StateCode"].InnerText,
-                            State = node["State"].InnerText,
-                            Region = node["Region"].InnerText,
-                            Country = "Brasil",
-                            CountryCode = "BR"
-                        };
+                            cities.Add(new City(node["Name"].InnerText, node["IBGE"].InnerText.ToInt(), node["DDD"].InnerText.ToInt(), e));
+                        }
 
-                        l.Add(c);
-
-
+                        e.Cities = cities;
+                        l.Add(e);
                     }
                 }
                 return l;
@@ -73,20 +65,20 @@ namespace InnerLibs.Locations
         /// <summary>
         /// Retorna um <see cref="AddressInfo"/> da cidade e estado correspondentes
         /// </summary>
-        /// <param name="NameOrStateCode"></param>
+        /// <param name="NameOrStateCodeOrIBGE"></param>
         /// <param name="City"></param>
         /// <returns></returns>
-        public static T CreateAddressInfo<T>(string NameOrStateCode, string City) where T : AddressInfo
+        public static T CreateAddressInfo<T>(string NameOrStateCodeOrIBGE, string City) where T : AddressInfo
         {
-            if (NameOrStateCode.IsBlank() && City.IsNotBlank())
+            if (NameOrStateCodeOrIBGE.IsBlank() && City.IsNotBlank())
             {
-                NameOrStateCode = FindStateByCity(City).FirstOrDefault().IfBlank(NameOrStateCode);
+                NameOrStateCodeOrIBGE = FindStateByCityName(City).FirstOrDefault().IfBlank(NameOrStateCodeOrIBGE);
             }
 
-            var s = GetState(NameOrStateCode);
+            var s = GetState(NameOrStateCodeOrIBGE);
             if (s != null)
             {
-                City = GetClosestCity(s.StateCode, City);
+                City = GetClosestCityName(s.StateCode, City);
                 var ends = Activator.CreateInstance<T>();
                 ends.City = City;
                 ends.State = s.Name;
@@ -100,30 +92,34 @@ namespace InnerLibs.Locations
             return null;
         }
 
+        public static City FindCityByIBGE(int IBGE) => Cities.FirstOrDefault(x => x.IBGE == IBGE);
+
         /// <summary>
         /// Retorna o estado de uma cidade especifa. Pode trazer mais de um estado caso o nome da
         /// cidade seja igual em 2 ou mais estados
         /// </summary>
         /// <param name="CityName"></param>
         /// <returns></returns>
-        public static IEnumerable<State> FindStateByCity(string CityName) => States.Where(x => x.Cities.Any(c => (c.Name.ToSlugCase() ?? "") == (CityName.ToSlugCase() ?? "")));
+        public static IEnumerable<State> FindStateByCityName(string CityName) => States.Where(x => x.Cities.Any(c => (c.Name.ToSlugCase() ?? "") == (CityName.ToSlugCase() ?? "") || (c.IBGE.ToString() ?? "") == (CityName.ToSlugCase() ?? "")));
 
-
+        public static State FindStateByIBGE(int IBGE) => States.FirstOrDefault(x => x.IBGE == IBGE) ?? FindCityByIBGE(IBGE)?.State;
 
         /// <summary>
         /// Retorna as cidades de um estado a partir do nome ou sigla do estado
         /// </summary>
-        /// <param name="NameOrStateCode">Nome ou sigla do estado</param>
+        /// <param name="NameOrStateCodeOrIBGE">Nome ou sigla do estado</param>
         /// <returns></returns>
-        public static IEnumerable<City> GetCitiesOf(string NameOrStateCode) => (GetState(NameOrStateCode)?.Cities ?? new List<City>()).AsEnumerable();
+        public static IEnumerable<City> GetCitiesOf(string NameOrStateCodeOrIBGE) => (GetState(NameOrStateCodeOrIBGE)?.Cities ?? new List<City>()).AsEnumerable();
 
         /// <summary>
         /// Retorna o nome da cidade mais parecido com o especificado em <paramref name="CityName"/>
         /// </summary>
-        /// <param name="NameOrStateCode">Nome ou sigla do estado</param>
+        /// <param name="NameOrStateCodeOrIBGE">Nome ou sigla do estado</param>
         /// <param name="CityName">Nome da cidade</param>
         /// <returns></returns>
-        public static string GetClosestCity(string NameOrStateCode, string CityName) => (GetState(NameOrStateCode)?.Cities ?? new List<City>()).AsEnumerable().OrderBy(x => x.Name.LevenshteinDistance(CityName)).Where(x => CityName.IsNotBlank()).FirstOrDefault().IfBlank(CityName);
+        public static string GetClosestCityName(string NameOrStateCodeOrIBGE, string CityName) => (GetState(NameOrStateCodeOrIBGE)?.Cities ?? new List<City>()).AsEnumerable().OrderBy(x => x.Name.LevenshteinDistance(CityName)).Where(x => CityName.IsNotBlank()).FirstOrDefault().IfBlank(CityName);
+
+        public static int? GetIBGEOf(string NameOrStateCodeOrIBGE) => GetState(NameOrStateCodeOrIBGE)?.IBGE;
 
         /// <summary>
         /// Retorna o nome do estado a partir da sigla
@@ -135,27 +131,27 @@ namespace InnerLibs.Locations
         /// <summary>
         /// Retorna a região a partir de um nome de estado
         /// </summary>
-        /// <param name="NameOrStateCode"></param>
+        /// <param name="NameOrStateCodeOrIBGE"></param>
         /// <returns></returns>
-        public static string GetRegionOf(string NameOrStateCode) => GetState(NameOrStateCode)?.Region;
+        public static string GetRegionOf(string NameOrStateCodeOrIBGE) => GetState(NameOrStateCodeOrIBGE)?.Region;
 
         /// <summary>
         /// Retorna a as informações do estado a partir de um nome de estado ou sua sigla
         /// </summary>
-        /// <param name="NameOrStateCode">Nome ou UF</param>
+        /// <param name="NameOrStateCodeOrIBGE">Nome ou UF</param>
         /// <returns></returns>
-        public static State GetState(string NameOrStateCode)
+        public static State GetState(string NameOrStateCodeOrIBGE)
         {
-            NameOrStateCode = NameOrStateCode.TrimBetween().ToSlugCase();
-            return States.FirstOrDefault(x => (x.Name.ToSlugCase() ?? "") == (NameOrStateCode ?? "") || (x.StateCode.ToSlugCase() ?? "") == (NameOrStateCode ?? ""));
+            NameOrStateCodeOrIBGE = NameOrStateCodeOrIBGE.TrimBetween().ToSlugCase();
+            return States.FirstOrDefault(x => (x.Name.ToSlugCase() ?? "") == (NameOrStateCodeOrIBGE ?? "") || (x.StateCode.ToSlugCase() ?? "") == (NameOrStateCodeOrIBGE ?? "") || (x.IBGE.ToString()) == (NameOrStateCodeOrIBGE ?? ""));
         }
 
         /// <summary>
         /// Retorna a Sigla a partir de um nome de estado
         /// </summary>
-        /// <param name="NameOrStateCode"></param>
+        /// <param name="NameOrStateCodeOrIBGE"></param>
         /// <returns></returns>
-        public static string GetStateCodeOf(string NameOrStateCode) => GetState(NameOrStateCode)?.StateCode;
+        public static string GetStateCodeOf(string NameOrStateCodeOrIBGE) => GetState(NameOrStateCodeOrIBGE)?.StateCode;
 
         /// <summary>
         /// Retorna os estados de uma região
@@ -164,25 +160,46 @@ namespace InnerLibs.Locations
         /// <returns></returns>
         public static IEnumerable<State> GetStatesOf(string Region) => States.Where(x => (x.Region.ToSlugCase() ?? "") == (Region.ToSlugCase().TrimBetween() ?? "") || Region.IsBlank());
 
-        public void Reload() => l = new List<City>();
+        public void Reload() => l = new List<State>();
     }
 
+    public class City
+    {
 
+
+        public City(string Name, int IBGE, int DDD, State state) : base()
+        {
+            this.Name = Name;
+            this.IBGE = IBGE;
+            this.DDD = DDD;
+            State = state;
+        }
+
+        public int DDD { get; }
+        public int IBGE { get; }
+        public string Name { get; }
+        public State State { get; } = new State(null);
+
+        public override string ToString() => Name;
+    }
 
     /// <summary>
     /// Objeto que representa um estado do Brasil e seus respectivos detalhes
     /// </summary>
-    public class State : AddressInfo
+    public class State
     {
         /// <summary>
         /// Sigla do estado
         /// </summary>
         /// <returns></returns>
-        public State(string StateCode, string Name, string Region)
+        public State(string StateCode, string Name, string Region, int IBGE, string Country, string CountryCode)
         {
-            base.StateCode = StateCode;
-            State = Name;
-            base.Region = Region;
+            this.StateCode = StateCode;
+            this.Name = Name;
+            this.Region = Region;
+            this.IBGE = IBGE;
+            this.Country = Country;
+            this.CountryCode = CountryCode;
         }
 
         /// <summary>
@@ -193,28 +210,36 @@ namespace InnerLibs.Locations
         {
             if (NameOrStateCode.IsNotBlank())
             {
-                State = Brasil.GetNameOf(NameOrStateCode);
+                Name = Brasil.GetNameOf(NameOrStateCode);
                 StateCode = Brasil.GetStateCodeOf(NameOrStateCode);
                 Cities = Brasil.GetCitiesOf(NameOrStateCode);
                 Region = Brasil.GetRegionOf(NameOrStateCode);
             }
         }
 
-        public State() : this(null)
-        {
-        }
+
 
         /// <summary>
         /// Lista de cidades do estado
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<City> Cities { get; set; }
+        public IEnumerable<City> Cities { get; internal set; }
+
+        public string Country { get; }
+
+        public string CountryCode { get; }
+
+        public int IBGE { get; }
 
         /// <summary>
         /// Nome do estado
         /// </summary>
         /// <returns></returns>
-        public override string Name { get => State; }
+        public string Name { get; }
+
+        public string Region { get; }
+        public string RegionCode { get => Region.SplitAny(" ", "-").Select(x => x.GetFirstChars().ToUpper()).JoinString(""); }
+        public string StateCode { get; }
 
         /// <summary>
         /// Retorna a String correspondente ao estado
@@ -222,21 +247,4 @@ namespace InnerLibs.Locations
         /// <returns></returns>
         public override string ToString() => StateCode;
     }
-
-    public class City : AddressInfo
-    {
-        public City() : base() { }
-
-        public City(string Name, string IBGE) : base()
-        {
-            City = Name;
-            this.IBGE = IBGE;
-        }
-
-        public override string Name { get => City; }
-        public string IBGE { get => this[nameof(IBGE)]; set => this[nameof(IBGE)] = value; }
-        public override string ToString() => City;
-
-    }
-
 }

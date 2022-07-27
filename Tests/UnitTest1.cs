@@ -1,4 +1,4 @@
-using InnerLibs;
+using InnerLibs.Locations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Tests
 {
@@ -6,9 +6,9 @@ namespace Tests
     public class UnitTest1
     {
         [TestMethod]
-        public void AdjustBlankSpace()
+        public void teste()
         {
-            Assert.AreEqual("  jubileu  ".TrimBetween(), "jubileu");
+            var c = Brasil.States;
         }
     }
 }
