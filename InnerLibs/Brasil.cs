@@ -38,12 +38,21 @@ namespace InnerLibs.Locations
 
                     foreach (XmlNode estado in doc.SelectNodes("brasil/state"))
                     {
-                        var e = new State(estado["StateCode"].InnerText, estado["Name"].InnerText, estado["Region"].InnerText, estado["IBGE"].InnerText.ToInt(), "Brasil", "BR");
+                        var e = new State(estado["StateCode"].InnerText, estado["Name"].InnerText, estado["Region"].InnerText, estado["IBGE"].InnerText.ToInt(), "Brasil", "BR", estado["Longitude"].InnerText.ToDecimal(), estado["Latitude"].InnerText.ToDecimal());
                         var cities = new List<City>();
 
                         foreach (XmlNode node in doc.SelectNodes($"brasil/city[StateCode = '{e.StateCode}']"))
                         {
-                            cities.Add(new City(node["Name"].InnerText, node["IBGE"].InnerText.ToInt(), node["DDD"].InnerText.ToInt(), e));
+                            cities.Add(new City(
+                                node["Name"].InnerText,
+                                node["IBGE"].InnerText.ToInt(),
+                                node["DDD"].InnerText.ToInt(),
+                                e,
+                                node["SIAFI"].InnerText,
+                                node["TimeZone"].InnerText,
+                                node["Latitude"].InnerText.ToDecimal(),
+                                node["Longitude"].InnerText.ToDecimal(),
+                                node["Capital"].InnerText.AsBool()));
                         }
 
                         e.Cities = cities;
@@ -78,7 +87,7 @@ namespace InnerLibs.Locations
             var s = GetState(NameOrStateCodeOrIBGE);
             if (s != null)
             {
-                var c = Brasil.GetClosestCity(s.StateCode, City);
+                var c = GetClosestCity(s.StateCode, City);
                 var ends = Activator.CreateInstance<T>();
                 ends.City = c?.Name ?? City;
                 ends.State = s.Name;
@@ -89,6 +98,11 @@ namespace InnerLibs.Locations
                 ends["StateIBGE"] = s.IBGE.ToString();
                 ends["IBGE"] = c?.IBGE.ToString();
                 ends["DDD"] = c?.DDD.ToString();
+                ends["SIAFI"] = c?.SIAFI.ToString();
+                ends["Capital"] = c?.Capital.ToString();
+                ends["TimeZone"] = c?.TimeZone.ToString();
+                ends.Latitude = c?.Latitude;
+                ends.Longitude = c?.Longitude;
                 return ends;
             }
 
@@ -122,15 +136,16 @@ namespace InnerLibs.Locations
         /// <returns></returns>
         public static string GetClosestCityName(string NameOrStateCodeOrIBGE, string CityName) => (GetClosestCity(NameOrStateCodeOrIBGE, CityName)?.Name ?? "").IfBlank(CityName);
         public static City GetClosestCity(string NameOrStateCodeOrIBGE, string CityName) => (GetState(NameOrStateCodeOrIBGE)?.Cities ?? new List<City>()).AsEnumerable().OrderBy(x => x.Name.LevenshteinDistance(CityName)).Where(x => CityName.IsNotBlank()).FirstOrDefault();
+        public static City GetCapital(string NameOrStateCodeOrIBGE) => (GetState(NameOrStateCodeOrIBGE)?.Cities ?? new List<City>()).FirstOrDefault(x => x.Capital);
 
         public static int? GetIBGEOf(string NameOrStateCodeOrIBGE) => GetState(NameOrStateCodeOrIBGE)?.IBGE;
 
         /// <summary>
         /// Retorna o nome do estado a partir da sigla
         /// </summary>
-        /// <param name="NameOrStateCode"></param>
+        /// <param name="NameOrStateCodeOrIBGE"></param>
         /// <returns></returns>
-        public static string GetNameOf(string NameOrStateCode) => GetState(NameOrStateCode)?.Name;
+        public static string GetNameOf(string NameOrStateCodeOrIBGE) => GetState(NameOrStateCodeOrIBGE)?.Name;
 
         /// <summary>
         /// Retorna a região a partir de um nome de estado
@@ -171,18 +186,30 @@ namespace InnerLibs.Locations
     {
 
 
-        public City(string Name, int IBGE, int DDD, State state) : base()
+        public City(string Name, int IBGE, int DDD, State State, string SIAFI, string TimeZone, decimal Latitude, decimal Longitude, bool Capital) : base()
         {
             this.Name = Name;
             this.IBGE = IBGE;
             this.DDD = DDD;
-            State = state;
+            this.State = State;
+            this.SIAFI = SIAFI;
+            this.TimeZone = TimeZone;
+            this.Latitude = Latitude;
+            this.Longitude = Longitude;
+            this.Capital = Capital;
         }
 
         public int DDD { get; }
         public int IBGE { get; }
         public string Name { get; }
         public State State { get; } = new State(null);
+
+        public string SIAFI { get; }
+        public string TimeZone { get; }
+
+        public decimal Latitude { get; }
+        public decimal Longitude { get; }
+        public bool Capital { get; }
 
         public override string ToString() => Name;
     }
@@ -196,7 +223,7 @@ namespace InnerLibs.Locations
         /// Sigla do estado
         /// </summary>
         /// <returns></returns>
-        public State(string StateCode, string Name, string Region, int IBGE, string Country, string CountryCode)
+        public State(string StateCode, string Name, string Region, int IBGE, string Country, string CountryCode, decimal Longitude, decimal Latitude)
         {
             this.StateCode = StateCode;
             this.Name = Name;
@@ -204,6 +231,8 @@ namespace InnerLibs.Locations
             this.IBGE = IBGE;
             this.Country = Country;
             this.CountryCode = CountryCode;
+            this.Longitude = Longitude;
+            this.Latitude = Latitude;
         }
 
         /// <summary>
@@ -242,7 +271,8 @@ namespace InnerLibs.Locations
         public string Name { get; }
 
         public string Region { get; }
-        public string RegionCode { get => Region.SplitAny(" ", "-").Select(x => x.GetFirstChars().ToUpper()).JoinString(""); }
+        public decimal Latitude { get; }
+        public decimal Longitude { get; }
         public string StateCode { get; }
 
         /// <summary>
