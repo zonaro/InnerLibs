@@ -61,7 +61,7 @@ namespace InnerLibs
 
         public object SyncRoot => SyncRoot;
 
-        public bool IsSynchronized => throw new NotImplementedException();
+        public bool IsSynchronized => true;
 
         public object this[object key] { get => this[((KeyType)key)]; set => this[((KeyType)key)] = (ClassType)value; }
 
@@ -101,7 +101,10 @@ namespace InnerLibs
         {
             Values = (Values ?? Array.Empty<ClassType>()).Where(x => x != null).AsEnumerable();
             foreach (var value in Values)
+            {
                 Add(value);
+            }
+
             return Values.Select(x => keyselector(x));
         }
 
@@ -117,12 +120,25 @@ namespace InnerLibs
 
         public bool Remove(KeyType key)
         {
-            var toremove = new List<ClassType>();
-            foreach (var ii in collection.Where(x => keyselector(x).Equals(key)))
-                toremove.Add(ii);
-            foreach (var i in toremove)
-                collection.Remove(i);
-            return ContainsKey(key);
+            if (ContainsKey(key))
+            {
+
+                var success = Misc.TryExecute(() =>
+                  {
+                      var ii = collection.FirstOrDefault(x => keyselector(x).Equals(key));
+
+                      if (ii != null)
+                      {
+                          collection.Remove(ii);
+                      }
+                  }) == null;
+
+                return success;
+
+            }
+
+            return false;
+
         }
 
         public bool Remove(ClassType Value) => Remove(keyselector(Value));
@@ -131,10 +147,11 @@ namespace InnerLibs
 
         public bool TryGetValue(KeyType key, out ClassType value)
         {
+
             try
             {
-                value = collection.Where(x => keyselector(x).Equals(key)).Single();
-                return true;
+                value = collection.SingleOrDefault(x => keyselector(x).Equals(key));
+                return value != null;
             }
             catch
             {
@@ -149,14 +166,14 @@ namespace InnerLibs
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public bool Contains(object key)
-        {
-            throw new NotImplementedException();
-        }
+        public bool Contains(object key) => key != null && key is KeyType ckey && ContainsKey(ckey);
 
         public void Add(object key, object value)
         {
-            throw new NotImplementedException();
+            if (key is KeyType && value is ClassType cvalue)
+            {
+                collection.Add(cvalue);
+            }
         }
 
         IDictionaryEnumerator IDictionary.GetEnumerator()
@@ -166,12 +183,24 @@ namespace InnerLibs
 
         public void Remove(object key)
         {
-            throw new NotImplementedException();
+            if (key is KeyType ckey)
+            {
+                collection.Remove(this[ckey]);
+            }
         }
 
         public void CopyTo(Array array, int index)
         {
-            throw new NotImplementedException();
+            if (array == null)
+            {
+                throw new ArgumentNullException("array");
+            }
+
+            ClassType[] ppArray = array as ClassType[];
+            if (ppArray == null)
+            {
+                throw new ArgumentException();
+            } ((ICollection<ClassType>)this).CopyTo(ppArray, index);
         }
     }
 }

@@ -421,15 +421,21 @@ namespace InnerLibs.Locations
         {
             get
             {
+
                 if (details is null)
                 {
                     details = new Dictionary<string, string>();
                 }
 
+                if (key.IsBlank())
+                {
+                    return "";
+                }
+
                 key = key.ToLower();
                 if (!details.ContainsKey(key))
                 {
-                    switch (key ?? "")
+                    switch (key)
                     {
                         case "geolocation":
                             {
@@ -467,13 +473,16 @@ namespace InnerLibs.Locations
 
             set
             {
-                if (value.IsNotBlank())
+                if (key.IsNotBlank())
                 {
-                    details[key.ToLower()] = value.TrimAny(" ");
-                }
-                else if (ContainsKey(key))
-                {
-                    Remove(key);
+                    if (value.IsNotBlank())
+                    {
+                        details[key.ToLower()] = value.TrimAny(" ");
+                    }
+                    else if (ContainsKey(key))
+                    {
+                        Remove(key);
+                    }
                 }
             }
         }

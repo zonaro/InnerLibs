@@ -36,7 +36,7 @@ namespace InnerLibs
                 string ss = "";
                 while (ss.Length < AlphaLowerLenght)
                 {
-                    ss = ss.Append(PredefinedArrays.AlphaLowerChars.RandomItemOr());
+                    ss = ss.Append(PredefinedArrays.AlphaLowerChars.RandomItem());
                 }
 
                 pass = pass.Append(ss);
