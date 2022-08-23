@@ -651,7 +651,7 @@ namespace InnerLibs
         {
             if (PIS.IsValidPIS())
             {
-                PIS = PIS.FindNumbers().OrderByDescending(x => x.Length).FirstOrDefault() ?? "";
+                PIS = PIS.RemoveAny(".", "-");
                 PIS = PIS.PadLeft(11, '0');
                 PIS = PIS.ToLong().ToString(@"000\.00000\.00-0");
                 return PIS;
@@ -685,7 +685,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string FormatCEP(this string CEP)
         {
-            CEP = CEP.FindNumbers().OrderByDescending(x => x.Length).FirstOrDefault() ?? "";
+            CEP = CEP.RemoveAny(".", "-").GetBefore(",") ?? "";
             CEP = CEP.PadLeft(8, '0');
             CEP = CEP.Insert(5, "-");
             if (CEP.IsValidCEP())
