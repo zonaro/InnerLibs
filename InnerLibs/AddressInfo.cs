@@ -574,15 +574,10 @@ namespace InnerLibs.Locations
             CEP = CEP.IfBlank("").Trim();
             if (CEP.IsValidCEP())
             {
-                if (CEP.IsNumber())
-                {
-                    CEP = CEP.Insert(5, "-");
-                }
-
-                return CEP;
+                CEP = CEP.FormatCEP();
             }
 
-            return null;
+            return CEP;
         }
 
         /// <summary>

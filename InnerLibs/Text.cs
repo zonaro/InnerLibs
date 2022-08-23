@@ -644,15 +644,32 @@ namespace InnerLibs
         /// <summary>
         /// Formata o PIS no padrão ###.#####.##-#
         /// </summary>
-        /// <param name="pis">PIS a ser formatado</param>
+        /// <param name="PIS">PIS a ser formatado</param>
         /// <param name="returnOnlyNumbers">Se verdadeiro, retorna apenas os números sem formatação</param>
         /// <returns>PIS formatado</returns>
-        public static string FormatPIS(string pis)
+        public static string FormatPIS(this string PIS)
         {
-            pis = pis.FindNumbers().OrderByDescending(x => x.Length).FirstOrDefault() ?? "";
-            pis = pis.PadLeft(11, '0');
-            return String.Format(pis, @"000\.00000.00-0");
+            if (PIS.IsValidPIS())
+            {
+                PIS = PIS.FindNumbers().OrderByDescending(x => x.Length).FirstOrDefault() ?? "";
+                PIS = PIS.PadLeft(11, '0');
+                PIS = PIS.ToLong().ToString(@"000\.00000\.00-0");
+                return PIS;
+            }
+            else
+            {
+                throw new FormatException("String is not a valid PIS");
+            }
         }
+
+        /// <summary>
+        /// Formata o PIS no padrão ###.#####.##-#
+        /// </summary>
+        /// <param name="PIS">PIS a ser formatado</param>
+        /// <param name="returnOnlyNumbers">Se verdadeiro, retorna apenas os números sem formatação</param>
+        /// <returns>PIS formatado</returns>
+        public static string FormatPIS(this long PIS) => FormatPIS(PIS.ToString());
+
 
         /// <summary>
         /// Formata um numero para CEP
@@ -669,10 +686,8 @@ namespace InnerLibs
         public static string FormatCEP(this string CEP)
         {
             CEP = CEP.FindNumbers().OrderByDescending(x => x.Length).FirstOrDefault() ?? "";
-            CEP = CEP.PadRight(8, '0');
-
-            CEP = CEP.Substring(0, 5) + "-" + CEP.Substring(5, 3);
-
+            CEP = CEP.PadLeft(8, '0');
+            CEP = CEP.Insert(5, "-");
             if (CEP.IsValidCEP())
             {
                 return CEP;
