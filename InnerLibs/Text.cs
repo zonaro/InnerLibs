@@ -671,8 +671,7 @@ namespace InnerLibs
         public static string FormatPIS(this long PIS) => FormatPIS(PIS.ToString());
 
 
-        /// <inheritdoc cref="FormatCEP(string)"/>
-        public static string FormatCEP(this long CEP) => FormatCEP(CEP.ToString());
+
 
         /// <inheritdoc cref="FormatCEP(string)"/>
         public static string FormatCEP(this int CEP) => FormatCEP(CEP.ToString());

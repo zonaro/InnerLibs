@@ -421,7 +421,6 @@ namespace InnerLibs.Locations
         {
             get
             {
-
                 if (details is null)
                 {
                     details = new Dictionary<string, string>();
@@ -711,7 +710,8 @@ namespace InnerLibs.Locations
         /// </summary>
         /// <param name="PostalCode"></param>
         /// <param name="Number">Numero da casa</param>
-        public static AddressInfo FromViaCEP(long PostalCode, string Number = null, string Complement = null) => FromViaCEP<AddressInfo>(PostalCode, Number, Complement);
+        public static AddressInfo FromViaCEP(int PostalCode, string Number = null, string Complement = null) => FromViaCEP<AddressInfo>(PostalCode, Number, Complement);
+
 
         /// <summary>
         /// Cria um objeto de localização e imadiatamente pesquisa as informações de um local
@@ -727,7 +727,7 @@ namespace InnerLibs.Locations
         /// </summary>
         /// <param name="PostalCode"></param>
         /// <param name="Number">Numero da casa</param>
-        public static T FromViaCEP<T>(long PostalCode, string Number = null, string Complement = null) where T : AddressInfo => FromViaCEP<T>(PostalCode.ToString().PadLeft(8, '0'), Number, Complement);
+        public static T FromViaCEP<T>(int PostalCode, string Number = null, string Complement = null) where T : AddressInfo => FromViaCEP<T>(PostalCode.ToString().PadLeft(8, '0'), Number, Complement);
 
         /// <summary>
         /// Cria um objeto de localização e imadiatamente pesquisa as informações de um local
