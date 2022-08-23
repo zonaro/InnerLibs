@@ -504,6 +504,56 @@ namespace InnerLibs
         /// <returns>TRUE se for uma URL, FALSE se não for uma URL válida</returns>
         public static bool IsURL(this string Text) => Text.IsNotBlank() && Uri.TryCreate(Text.Trim(), UriKind.Absolute, out _) && !Text.Trim().Contains(" ");
 
+
+        /// <summary>
+        /// Verifica se uma string é um PIS válido
+        /// </summary>
+        /// <param name="CEP"></param>
+        /// <returns></returns> 
+        public static bool IsValidPIS(this string PIS)
+        {
+            if (PIS.IsBlank())
+            {
+                return false;
+            }
+
+            PIS = Regex.Replace(PIS, "[^0-9]", "").ToString();
+
+            if (PIS.Length != 11)
+            {
+                return false;
+            }
+
+            var count = PIS[0];
+            if (PIS.Count(w => w == count) == PIS.Length)
+            {
+                return false;
+            }
+
+            var multiplicador = new int[10] { 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
+            int soma;
+            int resto;
+
+            soma = 0;
+
+            for (var i = 0; i < 10; i++)
+            {
+                soma += int.Parse(PIS[i].ToString()) * multiplicador[i];
+            }
+
+            resto = soma % 11;
+
+            resto = resto < 2 ? 0 : 11 - resto;
+
+            if (PIS.EndsWith(resto.ToString()))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+
         /// <summary>
         /// Verifica se uma string é um cep válido
         /// </summary>
@@ -516,11 +566,11 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text">CNH</param>
         /// <returns></returns>
-        public static bool IsValidCNH(this string cnh)
+        public static bool IsValidCNH(this string CNH)
         {
             bool isValid = false;
             // char firstChar = cnh[0];
-            if (cnh.Length == 11 && (cnh ?? "") != (new string('1', 11) ?? ""))
+            if (CNH.Length == 11 && (CNH ?? "") != (new string('1', 11) ?? ""))
             {
                 int dsc = 0;
                 int v = 0;
@@ -528,7 +578,7 @@ namespace InnerLibs
                 int j = 9;
                 while (i < 9)
                 {
-                    v += Convert.ToInt32(cnh[i].ToString()) * j;
+                    v += Convert.ToInt32(CNH[i].ToString()) * j;
                     i += 1;
                     j -= 1;
                 }
@@ -545,14 +595,14 @@ namespace InnerLibs
                 j = 1;
                 while (i < 9)
                 {
-                    v += Convert.ToInt32(cnh[i].ToString()) * j;
+                    v += Convert.ToInt32(CNH[i].ToString()) * j;
                     i += 1;
                     j += 1;
                 }
 
                 int x = v % 11;
                 int vl2 = x >= 10 ? 0 : x - dsc;
-                isValid = (vl1.ToString() + vl2.ToString() ?? "") == (cnh.Substring(cnh.Length - 2, 2) ?? "");
+                isValid = ((vl1.ToString() ?? "") + (vl2.ToString() ?? "") ?? "") == (CNH.Substring(CNH.Length - 2, 2) ?? "");
             }
 
             return isValid;

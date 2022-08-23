@@ -640,6 +640,49 @@ namespace InnerLibs
             return Text;
         }
 
+
+        /// <summary>
+        /// Formata o PIS no padrão ###.#####.##-#
+        /// </summary>
+        /// <param name="pis">PIS a ser formatado</param>
+        /// <param name="returnOnlyNumbers">Se verdadeiro, retorna apenas os números sem formatação</param>
+        /// <returns>PIS formatado</returns>
+        public static string FormatPIS(string pis)
+        {
+            pis = pis.FindNumbers().OrderByDescending(x => x.Length).FirstOrDefault() ?? "";
+            pis = pis.PadLeft(11, '0');
+            return String.Format(pis, @"000\.00000.00-0");
+        }
+
+        /// <summary>
+        /// Formata um numero para CEP
+        /// </summary>
+        /// <param name="CEP"></param>
+        /// <returns></returns>
+        public static string FormatCEP(this long CEP) => FormatCEP(CEP.ToString());
+
+        /// <summary>
+        /// Formata um numero para CEP
+        /// </summary>
+        /// <param name="CEP"></param>
+        /// <returns></returns>
+        public static string FormatCEP(this string CEP)
+        {
+            CEP = CEP.FindNumbers().OrderByDescending(x => x.Length).FirstOrDefault() ?? "";
+            CEP = CEP.PadRight(8, '0');
+
+            CEP = CEP.Substring(0, 5) + "-" + CEP.Substring(5, 3);
+
+            if (CEP.IsValidCEP())
+            {
+                return CEP;
+            }
+            else
+            {
+                throw new FormatException("String is not a valid CEP");
+            }
+        }
+
         /// <summary>
         /// Formata um numero para CNPJ
         /// </summary>
@@ -1821,7 +1864,6 @@ namespace InnerLibs
             }
 
             return OutQuantity.Floor() == 1m || OutQuantity.Floor() == -1 ? PluralText.Singularize() : PluralText;
-
         }
 
         /// <summary>
@@ -1993,82 +2035,12 @@ namespace InnerLibs
         public static string RemoveDiacritics(this string Text) => Text.RemoveAccents();
 
         /// <summary>
-        /// Remove o final de uma string se ela for igual a qualquer um dos valores correspondentes
-        /// </summary>
-        /// <param name="Text">Texto</param>
-        /// <param name="ContinuouslyRemove">
-        /// Parametro que indica se a string deve continuar sendo testada até que todas as
-        /// ocorrencias sejam removidas
-        /// </param>
-        /// <param name="StartStringTest">Conjunto de textos que serão comparados</param>
-        /// <returns></returns>
-        public static string TrimFirstAny(this string Text, bool ContinuouslyRemove, StringComparison comparison, params string[] StartStringTest)
-        {
-            while (Text.StartsWithAny(comparison, StartStringTest))
-            {
-                foreach (var item in StartStringTest)
-                {
-                    if (Text.StartsWith(item, comparison))
-                    {
-                        Text = Text.TrimFirstEqual(item, comparison);
-                        if (!ContinuouslyRemove)
-                        {
-                            return Text;
-                        }
-                    }
-                }
-            }
-
-            return Text;
-        }
-
-        /// <summary>
-        /// Remove continuamente o começo de uma string se ela for igual a qualquer um dos valores correspondentes
-        /// </summary>
-        /// <param name="Text">Texto</param>
-        /// <param name="StartStringTest">Conjunto de textos que serão comparados</param>
-        /// <param name="comparison"></param>
-        /// <returns></returns>
-        public static string TrimFirstAny(this string Text, StringComparison comparison, params string[] StartStringTest) => Text.TrimFirstAny(true, comparison, StartStringTest);
-
-        /// <summary>
-        /// Remove continuamente o começo de uma string se ela for igual a qualquer um dos valores correspondentes
-        /// </summary>
-        /// <param name="Text">Texto</param>
-        /// <param name="StartStringTest">Conjunto de textos que serão comparados</param>
-        /// <returns></returns>
-        public static string TrimFirstAny(this string Text, params string[] StartStringTest) => Text.TrimFirstAny(true, default, StartStringTest);
-
-        /// <summary>
-        /// Remove continuamente o começo de uma string se ela for igual a qualquer um dos valores correspondentes
-        /// </summary>
-        /// <param name="Text">Texto</param>
-        /// <param name="StartStringTest">Conjunto de textos que serão comparados</param>
-        /// <returns></returns>
-        public static string TrimFirstAny(this string Text, bool ContinuouslyRemove, params string[] StartStringTest) => Text.TrimFirstAny(ContinuouslyRemove, default, StartStringTest);
-
-        /// <summary>
         /// Remove os X primeiros caracteres
         /// </summary>
         /// <param name="Text">Texto</param>
         /// <param name="Quantity">Quantidade de Caracteres</param>
         /// <returns></returns>
         public static string RemoveFirstChars(this string Text, int Quantity = 1) => Text.IsNotBlank() && Text.Length > Quantity && Quantity > 0 ? Text.Remove(0, Quantity) : "";
-
-        /// <summary>
-        /// Remove um texto do inicio de uma string se ele for um outro texto especificado
-        /// </summary>
-        /// <param name="Text">Texto</param>
-        /// <param name="StartStringTest">Texto inicial que será comparado</param>
-        public static string TrimFirstEqual(this string Text, string StartStringTest, StringComparison comparison = default)
-        {
-            if (Text.StartsWith(StartStringTest, comparison))
-            {
-                Text = Text.RemoveFirstChars(StartStringTest.Length);
-            }
-
-            return Text;
-        }
 
         public static string RemoveHTML(this string Text)
         {
@@ -2081,82 +2053,12 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Remove o final de uma string se ela for igual a qualquer um dos valores correspondentes
-        /// </summary>
-        /// <param name="Text">Texto</param>
-        /// <param name="ContinuouslyRemove">
-        /// Parametro que indica se a string deve continuar sendo testada até que todas as
-        /// ocorrencias sejam removidas
-        /// </param>
-        /// <param name="EndStringTest">Conjunto de textos que serão comparados</param>
-        /// <returns></returns>
-        public static string TrimLastAny(this string Text, bool ContinuouslyRemove, StringComparison comparison, params string[] EndStringTest)
-        {
-            while (Text.EndsWithAny(comparison, EndStringTest))
-            {
-                foreach (var item in EndStringTest)
-                {
-                    if (Text.EndsWith(item, comparison))
-                    {
-                        Text = Text.TrimLastEqual(item, comparison);
-                        if (!ContinuouslyRemove)
-                        {
-                            return Text;
-                        }
-                    }
-                }
-            }
-
-            return Text;
-        }
-
-        /// <summary>
-        /// Remove continuamente o final de uma string se ela for igual a qualquer um dos valores correspondentes
-        /// </summary>
-        /// <param name="Text">Texto</param>
-        /// <param name="EndStringTest">Conjunto de textos que serão comparados</param>
-        /// <returns></returns>
-        public static string TrimLastAny(this string Text, params string[] EndStringTest) => Text.TrimLastAny(true, default, EndStringTest);
-
-        /// <summary>
-        /// Remove continuamente o final de uma string se ela for igual a qualquer um dos valores correspondentes
-        /// </summary>
-        /// <param name="Text">Texto</param>
-        /// <param name="EndStringTest">Conjunto de textos que serão comparados</param>
-        /// <param name="ContinuouslyRemove">Remove continuamente as strings</param>
-        /// <returns></returns>
-        public static string TrimLastAny(this string Text, bool ContinuouslyRemove, params string[] EndStringTest) => Text.TrimLastAny(ContinuouslyRemove, default, EndStringTest);
-
-        /// <summary>
-        /// Remove continuamente o final de uma string se ela for igual a qualquer um dos valores correspondentes
-        /// </summary>
-        /// <param name="Text">Texto</param>
-        /// <param name="EndStringTest">Conjunto de textos que serão comparados</param>
-        /// <returns></returns>
-        public static string TrimLastAny(this string Text, StringComparison comparison, params string[] EndStringTest) => Text.TrimLastAny(true, comparison, EndStringTest);
-
-        /// <summary>
         /// Remove os X ultimos caracteres
         /// </summary>
         /// <param name="Text">Texto</param>
         /// <param name="Quantity">Quantidade de Caracteres</param>
         /// <returns></returns>
         public static string RemoveLastChars(this string Text, int Quantity = 1) => Text.IsNotBlank() && Text.Length > Quantity && Quantity > 0 ? Text.Substring(0, Text.Length - Quantity) : "";
-
-        /// <summary>
-        /// Remove um texto do final de uma string se ele for um outro texto
-        /// </summary>
-        /// <param name="Text">Texto</param>
-        /// <param name="EndStringTest">Texto final que será comparado</param>
-        public static string TrimLastEqual(this string Text, string EndStringTest, StringComparison comparison = default)
-        {
-            if (Text.EndsWith(EndStringTest, comparison))
-            {
-                Text = Text.RemoveLastChars(EndStringTest.Length);
-            }
-
-            return Text;
-        }
 
         /// <summary>
         /// Remove caracteres não prantáveis de uma string
@@ -4369,6 +4271,146 @@ namespace InnerLibs
         /// <param name="Text"></param>
         /// <returns></returns>
         public static string TrimCarriage(this string Text) => Text.TrimAny(PredefinedArrays.InvisibleChars.ToArray());
+
+        /// <summary>
+        /// Remove o final de uma string se ela for igual a qualquer um dos valores correspondentes
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <param name="ContinuouslyRemove">
+        /// Parametro que indica se a string deve continuar sendo testada até que todas as
+        /// ocorrencias sejam removidas
+        /// </param>
+        /// <param name="StartStringTest">Conjunto de textos que serão comparados</param>
+        /// <returns></returns>
+        public static string TrimFirstAny(this string Text, bool ContinuouslyRemove, StringComparison comparison, params string[] StartStringTest)
+        {
+            while (Text.StartsWithAny(comparison, StartStringTest))
+            {
+                foreach (var item in StartStringTest)
+                {
+                    if (Text.StartsWith(item, comparison))
+                    {
+                        Text = Text.TrimFirstEqual(item, comparison);
+                        if (!ContinuouslyRemove)
+                        {
+                            return Text;
+                        }
+                    }
+                }
+            }
+
+            return Text;
+        }
+
+        /// <summary>
+        /// Remove continuamente o começo de uma string se ela for igual a qualquer um dos valores correspondentes
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <param name="StartStringTest">Conjunto de textos que serão comparados</param>
+        /// <param name="comparison"></param>
+        /// <returns></returns>
+        public static string TrimFirstAny(this string Text, StringComparison comparison, params string[] StartStringTest) => Text.TrimFirstAny(true, comparison, StartStringTest);
+
+        /// <summary>
+        /// Remove continuamente o começo de uma string se ela for igual a qualquer um dos valores correspondentes
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <param name="StartStringTest">Conjunto de textos que serão comparados</param>
+        /// <returns></returns>
+        public static string TrimFirstAny(this string Text, params string[] StartStringTest) => Text.TrimFirstAny(true, default, StartStringTest);
+
+        /// <summary>
+        /// Remove continuamente o começo de uma string se ela for igual a qualquer um dos valores correspondentes
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <param name="StartStringTest">Conjunto de textos que serão comparados</param>
+        /// <returns></returns>
+        public static string TrimFirstAny(this string Text, bool ContinuouslyRemove, params string[] StartStringTest) => Text.TrimFirstAny(ContinuouslyRemove, default, StartStringTest);
+
+        /// <summary>
+        /// Remove um texto do inicio de uma string se ele for um outro texto especificado
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <param name="StartStringTest">Texto inicial que será comparado</param>
+        public static string TrimFirstEqual(this string Text, string StartStringTest, StringComparison comparison = default)
+        {
+            if (Text.StartsWith(StartStringTest, comparison))
+            {
+                Text = Text.RemoveFirstChars(StartStringTest.Length);
+            }
+
+            return Text;
+        }
+
+        /// <summary>
+        /// Remove o final de uma string se ela for igual a qualquer um dos valores correspondentes
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <param name="ContinuouslyRemove">
+        /// Parametro que indica se a string deve continuar sendo testada até que todas as
+        /// ocorrencias sejam removidas
+        /// </param>
+        /// <param name="EndStringTest">Conjunto de textos que serão comparados</param>
+        /// <returns></returns>
+        public static string TrimLastAny(this string Text, bool ContinuouslyRemove, StringComparison comparison, params string[] EndStringTest)
+        {
+            while (Text.EndsWithAny(comparison, EndStringTest))
+            {
+                foreach (var item in EndStringTest)
+                {
+                    if (Text.EndsWith(item, comparison))
+                    {
+                        Text = Text.TrimLastEqual(item, comparison);
+                        if (!ContinuouslyRemove)
+                        {
+                            return Text;
+                        }
+                    }
+                }
+            }
+
+            return Text;
+        }
+
+        /// <summary>
+        /// Remove continuamente o final de uma string se ela for igual a qualquer um dos valores correspondentes
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <param name="EndStringTest">Conjunto de textos que serão comparados</param>
+        /// <returns></returns>
+        public static string TrimLastAny(this string Text, params string[] EndStringTest) => Text.TrimLastAny(true, default, EndStringTest);
+
+        /// <summary>
+        /// Remove continuamente o final de uma string se ela for igual a qualquer um dos valores correspondentes
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <param name="EndStringTest">Conjunto de textos que serão comparados</param>
+        /// <param name="ContinuouslyRemove">Remove continuamente as strings</param>
+        /// <returns></returns>
+        public static string TrimLastAny(this string Text, bool ContinuouslyRemove, params string[] EndStringTest) => Text.TrimLastAny(ContinuouslyRemove, default, EndStringTest);
+
+        /// <summary>
+        /// Remove continuamente o final de uma string se ela for igual a qualquer um dos valores correspondentes
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <param name="EndStringTest">Conjunto de textos que serão comparados</param>
+        /// <returns></returns>
+        public static string TrimLastAny(this string Text, StringComparison comparison, params string[] EndStringTest) => Text.TrimLastAny(true, comparison, EndStringTest);
+
+        /// <summary>
+        /// Remove um texto do final de uma string se ele for um outro texto
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <param name="EndStringTest">Texto final que será comparado</param>
+        public static string TrimLastEqual(this string Text, string EndStringTest, StringComparison comparison = default)
+        {
+            if (Text.EndsWith(EndStringTest, comparison))
+            {
+                Text = Text.RemoveLastChars(EndStringTest.Length);
+            }
+
+            return Text;
+        }
 
         public static string UnBrackfy(this string Text) => Text.UnBrackfy(char.MinValue, true);
 

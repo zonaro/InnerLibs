@@ -47,15 +47,28 @@ namespace InnerLibs
         FullBlue = NoRed | NoGreen,
     }
 
+
+
+
+
+
     /// <summary>
     /// Representa uma cor no formato HSV e RGBA com metodos para manipulação de valores
     /// </summary>
     public class HSVColor : IComparable<int>, IComparable<HSVColor>, IComparable<Color>, IComparable, ICloneable
     {
-        private static List<HSVColor> l = new List<HSVColor>();
+        private static List<HSVColor> staticNamedColors = new List<HSVColor>();
         private double _h, _s, _v;
         private string _name;
         private Color _scolor;
+
+        /// <summary>
+        /// Retorna uma lista de cores criadas a partir de strings
+        /// </summary>
+        /// <param name="Colors"></param>
+        /// <returns></returns>
+        public static IEnumerable<HSVColor> CreateColors(params string[] Colors) => Colors.IfNullOrEmpty(RandomColor().Hexadecimal).Select(x => new HSVColor(x));
+
 
         private void _loadColor(Color Color)
         {
@@ -112,7 +125,10 @@ namespace InnerLibs
             if (S > 0d)
             {
                 if (H >= 1d)
+                {
                     H = 0d;
+                }
+
                 H = 6d * H;
                 int hueFloor = (int)Math.Round(Math.Floor(H));
                 byte a = (byte)Math.Round(Math.Round(MAX * V * (1.0d - S)));
@@ -230,17 +246,17 @@ namespace InnerLibs
         {
             get
             {
-                if (!l.Any())
+                if (!staticNamedColors.Any())
                 {
                     string s = Assembly.GetExecutingAssembly().GetResourceFileText("InnerLibs.Colors.xml");
                     var doc = new XmlDocument();
                     doc.LoadXml(s);
                     foreach (XmlNode node in doc["colors"].ChildNodes)
                     {
-                        l.Add(new HSVColor(ColorTranslator.FromHtml(node["hexadecimal"].InnerText), node["name"].InnerText));
+                        staticNamedColors.Add(new HSVColor(ColorTranslator.FromHtml(node["hexadecimal"].InnerText), node["name"].InnerText));
                     }
                 }
-                return l.AsEnumerable();
+                return staticNamedColors.AsEnumerable();
             }
         }
 
@@ -311,9 +327,13 @@ namespace InnerLibs
             get
             {
                 if (Alpha == 255)
+                {
                     return _scolor.ToCssRGB();
+                }
                 else
+                {
                     return _scolor.ToCssRGBA();
+                }
             }
         }
 
@@ -367,9 +387,15 @@ namespace InnerLibs
                 {
                     _h = value;
                     while (_h < 0d)
+                    {
                         _h += 360d;
+                    }
+
                     while (_h > 360d)
+                    {
                         _h -= 360d;
+                    }
+
                     SetColor();
                 }
             }
@@ -680,7 +706,9 @@ namespace InnerLibs
             {
                 HSVColor c;
                 do
+                {
                     c = RandomColor();
+                }
                 while (!c.Mood.HasFlag(Mood));
                 if (!l.Any(x => x.ARGB == c.ARGB))
                 {
@@ -704,7 +732,9 @@ namespace InnerLibs
             {
                 HSVColor c = null;
                 do
+                {
                     c = new[] { RandomColor() }.FirstOrDefault(predicate.Compile());
+                }
                 while (c == null);
                 if (!l.Any(x => x.ARGB == c.ARGB))
                 {
@@ -762,10 +792,7 @@ namespace InnerLibs
             return CreateCopy();
         }
 
-        public HSVColor BluePart()
-        {
-            return new HSVColor(Color.FromArgb(0, 0, Blue));
-        }
+        public HSVColor BluePart() => new HSVColor(Color.FromArgb(0, 0, Blue));
 
         /// <summary>
         /// Retorna uma cópia desta cor
@@ -887,34 +914,33 @@ namespace InnerLibs
             {
                 return RedPart();
             }
-
+            else
             if (Mood.HasFlag(ColorMood.MostGreen))
             {
                 return GreenPart();
             }
-
+            else
             if (Mood.HasFlag(ColorMood.MostBlue))
             {
                 return BluePart();
             }
-
-            return this;
+            else
+            {
+                return this;
+            }
         }
 
         public double GetEuclideanDistance(HSVColor Color)
         {
-            double r_dist_sqrd = Math.Pow((double)Color.Red - (double)this.Red, 2d);
-            double g_dist_sqrd = Math.Pow((double)Color.Green - (double)this.Green, 2d);
-            double b_dist_sqrd = Math.Pow((double)Color.Blue - (double)this.Blue, 2d);
+            double r_dist_sqrd = Math.Pow(Color.Red - (double)Red, 2d);
+            double g_dist_sqrd = Math.Pow(Color.Green - (double)Green, 2d);
+            double b_dist_sqrd = Math.Pow(Color.Blue - (double)Blue, 2d);
             return Math.Sqrt(r_dist_sqrd + g_dist_sqrd + b_dist_sqrd);
         }
 
-        public override int GetHashCode() => this.ARGB;
+        public override int GetHashCode() => ARGB;
 
-        public HSVColor GreenPart()
-        {
-            return new HSVColor(Color.FromArgb(0, Green, 0));
-        }
+        public HSVColor GreenPart() => new HSVColor(Color.FromArgb(0, Green, 0));
 
         /// <summary>
         /// Extrai o cinza desta cor
@@ -995,23 +1021,21 @@ namespace InnerLibs
         public HSVColor MakeLighter(float Percent = 50f) => new HSVColor(_scolor.MakeLighter(Percent));
 
         /// <summary>
-        /// Retorna novas HSVColor a partir da cor atual, movendo ela N graus na roda de cores
+        /// Retorna novas <see cref="HSVColor"/> a partir da cor atual, movendo ela N graus na roda de cores
         /// </summary>
         /// <param name="excludeMe">Inclui esta cor no array</param>
         /// <param name="Degrees">Lista contendo os graus que serão movidos na roda de cores.</param>
         /// <returns></returns>
         public HSVColor[] ModColor(bool ExcludeMe, params int[] Degrees)
         {
-            if (!ExcludeMe)
-            {
-                return new[] { this }.ToArray().Union(ModColor(Degrees ?? Array.Empty<int>()).ToArray()).ToArray();
-            }
-
-            return ModColor(Degrees ?? Array.Empty<int>()).ToArray();
+            var arr = ModColor(Degrees ?? Array.Empty<int>()).ToArray();
+            return !ExcludeMe
+                ? new[] { this }.ToArray().Union(arr).ToArray()
+                : arr;
         }
 
         /// <summary>
-        /// Retorna novas HSVColor a partir da cor atual, movendo ela N graus na roda de cores
+        /// Retorna novas <see cref="HSVColor"/> a partir da cor atual, movendo ela N graus na roda de cores
         /// </summary>
         /// <param name="Degrees">Lista contendo os graus que serão movidos na roda de cores.</param>
         /// <returns></returns>
@@ -1046,17 +1070,11 @@ namespace InnerLibs
         /// Extrai a cor negativa desta cor
         /// </summary>
         /// <returns></returns>
-        public HSVColor Negative()
-        {
-            return new HSVColor(_scolor.GetNegativeColor());
-        }
+        public HSVColor Negative() => new HSVColor(_scolor.GetNegativeColor());
 
         public bool NotHasMood(params ColorMood[] Mood) => Mood?.All(x => this.Mood.HasFlag(x) == false) == true;
 
-        public HSVColor RedPart()
-        {
-            return new HSVColor(Color.FromArgb(Red, 0, 0));
-        }
+        public HSVColor RedPart() => new HSVColor(Color.FromArgb(Red, 0, 0));
 
         /// <summary>
         /// Extrai os tons marrons de uma cor (filtro sépia)

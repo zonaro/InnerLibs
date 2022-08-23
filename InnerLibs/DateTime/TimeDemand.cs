@@ -454,6 +454,9 @@ namespace InnerLibs.TimeMachine
             return Date;
         }
 
+
+        public TimeSpan WeekJourneyHours => GetWorkTimeBetween(StartDate.BeginningOfWeek(), EndDate.EndOfWeek());
+
         /// <summary>
         /// Ajusta a jornada de trabalho de um dia da semana
         /// </summary>
