@@ -15,11 +15,14 @@ namespace InnerLibs
     {
         private static Random init_rnd = new Random();
 
-        /// <inheritdoc cref="BarcodeCheckDigit(string)"/>
-        public static string BarcodeCheckDigit(long Code) => BarcodeCheckDigit(Code.ToString());
 
-        /// <inheritdoc cref="BarcodeCheckDigit(string)"/>
-        public static string BarcodeCheckDigit(int Code) => BarcodeCheckDigit(Code.ToString());
+
+
+        /// <inheritdoc cref="BarcodeCheckSum(string)"/>
+        public static string BarcodeCheckSum(long Code) => BarcodeCheckSum(Code.ToString());
+
+        /// <inheritdoc cref="BarcodeCheckSum(string)"/>
+        public static string BarcodeCheckSum(int Code) => BarcodeCheckSum(Code.ToString());
 
         /// <summary>
         /// Gera um digito verificador usando Mod10 em um numero
@@ -27,7 +30,7 @@ namespace InnerLibs
         /// <param name="Code"></param>
         /// <returns></returns>
         /// <exception cref="FormatException"></exception>
-        public static string BarcodeCheckDigit(string Code)
+        public static string BarcodeCheckSum(string Code)
         {
             if (Code.IsNotNumber())
             {
@@ -70,10 +73,13 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Numbers"></param>
         /// <returns></returns>
-        public static string EANFromNumbers(params string[] Numbers) => Numbers.Where(x => x.IsNumber()).JoinString("").AppendBarcodeCheckDigit();
+        public static string EANFromNumbers(params string[] Numbers) => Numbers.Where(x => x.IsNumber()).JoinString("").AppendBarcodeCheckSum();
 
         /// <inheritdoc cref="EANFromNumbers(string[])"/>
         public static string EANFromNumbers(params int[] Numbers) => EANFromNumbers(Numbers.Select(x => x.ToString()).ToArray());
+
+
+        public static string EAN(int ContryCode, int ManufacturerCode, int ProductCode) => EANFromNumbers(ContryCode, ManufacturerCode, ProductCode);
 
         /// <summary>
         /// Generate a password with specific lenght for each char type
@@ -219,7 +225,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Len"></param>
         /// <returns></returns>
-        public static string RandomEAN(int Len) => RandomFixLenghtNumber(Len.SetMinValue(2) - 1).ToString().AppendBarcodeCheckDigit();
+        public static string RandomEAN(int Len) => RandomFixLenghtNumber(Len.SetMinValue(2) - 1).ToString().AppendBarcodeCheckSum();
 
         /// <summary>
         /// Gera um numero aleatório de comprimento fixo

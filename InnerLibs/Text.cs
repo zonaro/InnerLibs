@@ -932,7 +932,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Code"></param>
         /// <returns></returns>
-        public static string AppendBarcodeCheckDigit(this string Code) => Code.Append(Generate.BarcodeCheckDigit(Code));
+        public static string AppendBarcodeCheckSum(this string Code) => Code.Append(Generate.BarcodeCheckSum(Code));
 
         /// <summary>
         /// Pega o dominio principal de uma URL ou email
@@ -1208,7 +1208,7 @@ namespace InnerLibs
             {
                 foreach (var item in s)
                 {
-                    ns += item.AsEnumerable().IfNoIndex(i, ' ');
+                    ns += item.AsEnumerable().IfNoIndex(i, " ".FirstOrDefault());
                 }
             }
 

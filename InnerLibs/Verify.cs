@@ -515,7 +515,7 @@ namespace InnerLibs
 
             var bar = Code.RemoveLastChars();
             var ver = Code.GetLastChars();
-            return Generate.BarcodeCheckDigit(bar) == ver;
+            return Generate.BarcodeCheckSum(bar) == ver;
         }
 
         /// <summary>
