@@ -503,7 +503,20 @@ namespace InnerLibs
         /// <param name="Text">Texto a ser verificado</param>
         /// <returns>TRUE se for uma URL, FALSE se não for uma URL válida</returns>
         public static bool IsURL(this string Text) => Text.IsNotBlank() && Uri.TryCreate(Text.Trim(), UriKind.Absolute, out _) && !Text.Trim().Contains(" ");
+        public static bool IsDomain(this string Text) => Text.IsNotBlank() && $"http://{Text}".IsURL();
 
+
+        public static bool IsValidEAN(this string Code)
+        {
+            if (Code.IsNotNumber())
+            {
+                throw new FormatException("Code is not number");
+            }
+
+            var bar = Code.RemoveLastChars();
+            var ver = Code.GetLastChars();
+            return Generate.BarcodeCheckDigit(bar) == ver;
+        }
 
         /// <summary>
         /// Verifica se uma string é um PIS válido

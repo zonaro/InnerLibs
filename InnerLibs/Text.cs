@@ -662,6 +662,11 @@ namespace InnerLibs
             }
         }
 
+
+
+
+
+
         /// <summary>
         /// Formata o PIS no padrão ###.#####.##-#
         /// </summary>
@@ -894,6 +899,7 @@ namespace InnerLibs
                 return "";
             }
 
+
             int beforeStartIndex = Text.IndexOf(Before);
             int startIndex = beforeStartIndex + Before.Length;
             int afterStartIndex = Text.IndexOf(After, startIndex);
@@ -912,16 +918,21 @@ namespace InnerLibs
         /// <returns>nome do dominio</returns>
         public static string GetDomain(this Uri URL, bool RemoveFirstSubdomain = false)
         {
-            string d = URL.GetLeftPart(UriPartial.Authority).RemoveAny("http://", "https://", "www.");
+            string d = URL.Authority;
             if (RemoveFirstSubdomain)
             {
-                var parts = d.Split(".").ToList();
-                parts.Remove(parts[0]);
-                d = parts.JoinString(".");
+                d = d.Split(".").Skip(1).JoinString(".");
             }
 
             return d;
         }
+
+        /// <summary>
+        /// Adiciona um digito verificador calulado com Mod10 ao <paramref name="Code"/>
+        /// </summary>
+        /// <param name="Code"></param>
+        /// <returns></returns>
+        public static string AppendBarcodeCheckDigit(this string Code) => Code.Append(Generate.BarcodeCheckDigit(Code));
 
         /// <summary>
         /// Pega o dominio principal de uma URL ou email
@@ -935,6 +946,11 @@ namespace InnerLibs
                 URL = $"http://{URL.GetAfter("@")}";
             }
 
+            if (!URL.IsURL())
+            {
+                URL.Prepend("http://");
+            }
+
             return new Uri(URL).GetDomain(RemoveFirstSubdomain);
         }
 
@@ -945,9 +961,9 @@ namespace InnerLibs
         /// <returns>nome do dominio</returns>
         public static string GetDomainAndProtocol(this string URL) => $"{new Uri(URL).GetLeftPart(UriPartial.Authority)}";
 
-        public static string GetFirstChars(this string Text, int Number = 1) => Text.IsNotBlank() ? Text.Length < Number | Number < 1 ? Text : Text.Substring(0, Number) : "";
+        public static string GetFirstChars(this string Text, int Number = 1) => Text.IsNotBlank() ? Text.Length < Number || Number < 1 ? Text : Text.Substring(0, Number) : "";
 
-        public static string GetLastChars(this string Text, int Number = 1) => Text.IsNotBlank() ? Text.Length < Number | Number < 1 ? Text : Text.Substring(Text.Length - Number) : "";
+        public static string GetLastChars(this string Text, int Number = 1) => Text.IsNotBlank() ? Text.Length < Number || Number < 1 ? Text : Text.Substring(Text.Length - Number) : "";
 
         /// <summary>
         /// Retorna N caracteres de uma string a partir do caractere encontrado no centro

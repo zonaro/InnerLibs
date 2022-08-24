@@ -15,6 +15,66 @@ namespace InnerLibs
     {
         private static Random init_rnd = new Random();
 
+        /// <inheritdoc cref="BarcodeCheckDigit(string)"/>
+        public static string BarcodeCheckDigit(long Code) => BarcodeCheckDigit(Code.ToString());
+
+        /// <inheritdoc cref="BarcodeCheckDigit(string)"/>
+        public static string BarcodeCheckDigit(int Code) => BarcodeCheckDigit(Code.ToString());
+
+        /// <summary>
+        /// Gera um digito verificador usando Mod10 em um numero
+        /// </summary>
+        /// <param name="Code"></param>
+        /// <returns></returns>
+        /// <exception cref="FormatException"></exception>
+        public static string BarcodeCheckDigit(string Code)
+        {
+            if (Code.IsNotNumber())
+            {
+                throw new FormatException("Code is not number");
+            }
+
+            int i = 0;
+            int j;
+            int p = 0;
+            int T;
+            T = Code.Length;
+            for (j = 1; j <= T; j++)
+            {
+                if ((j & ~-2) == 0)
+                {
+                    p += Code.Substring(j - 1, 1).ToInt();
+                }
+                else
+                {
+                    i += Code.Substring(j - 1, 1).ToInt();
+                }
+            }
+            if ((T == 7 | T == 11))
+            {
+                i = i * 3 + p;
+                p = Converter.ToInt((i + 9) / 10) * 10;
+                T = p - i;
+            }
+            else
+            {
+                p = p * 3 + i;
+                i = Converter.ToInt((p + 9) / 10) * 10;
+                T = i - p;
+            }
+            return T.ToString();
+        }
+
+        /// <summary>
+        /// Gera um numero de EAN válido a aprtir da combinação de vários numeros
+        /// </summary>
+        /// <param name="Numbers"></param>
+        /// <returns></returns>
+        public static string EANFromNumbers(params string[] Numbers) => Numbers.Where(x => x.IsNumber()).JoinString("").AppendBarcodeCheckDigit();
+
+        /// <inheritdoc cref="EANFromNumbers(string[])"/>
+        public static string EANFromNumbers(params int[] Numbers) => EANFromNumbers(Numbers.Select(x => x.ToString()).ToArray());
+
         /// <summary>
         /// Generate a password with specific lenght for each char type
         /// </summary>
@@ -152,6 +212,28 @@ namespace InnerLibs
             }
 
             return l;
+        }
+
+        /// <summary>
+        /// Gera um EAN aleatório com digito verificador válido
+        /// </summary>
+        /// <param name="Len"></param>
+        /// <returns></returns>
+        public static string RandomEAN(int Len) => RandomFixLenghtNumber(Len.SetMinValue(2) - 1).ToString().AppendBarcodeCheckDigit();
+
+        /// <summary>
+        /// Gera um numero aleatório de comprimento fixo
+        /// </summary>
+        /// <param name="Len"></param>
+        /// <returns></returns>
+        public static string RandomFixLenghtNumber(int Len = 8)
+        {
+            var n = "";
+            for (int i = 0; i < Len; i++)
+            {
+                n += PredefinedArrays.NumberChars.RandomItem();
+            }
+            return n;
         }
 
         /// <summary>
