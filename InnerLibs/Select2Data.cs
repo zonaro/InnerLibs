@@ -19,6 +19,8 @@ namespace InnerLibs.Select2
 
     public static class Select2Extensions
     {
+        public static Select2Data CreateSelect2Data(this IEnumerable<Select2Option> List) => CreateSelect2Data<Select2Option, Select2Option>(List, x => x.Text, x => x.ID);
+
         public static Select2Data CreateSelect2Data<OptionType, T>(this IEnumerable<T> List, Func<T, string> TextSelector, Func<T, string> IdSelector, Action<T, OptionType> OtherSelectors = null, Func<T, string> GroupSelector = null) where OptionType : ISelect2Option
         {
             if (GroupSelector != null)
@@ -129,9 +131,8 @@ namespace InnerLibs.Select2
             this.Text = Text;
         }
 
-        public Select2Group(string Text, IEnumerable<ISelect2Option> Children)
+        public Select2Group(string Text, IEnumerable<ISelect2Option> Children) : this(Text)
         {
-            this.Text = Text;
             this.Children = (Children ?? Array.Empty<ISelect2Option>()).WhereNotNull();
         }
 
@@ -152,7 +153,7 @@ namespace InnerLibs.Select2
         public Select2Option(string Text, string Value)
         {
             ID = Value.IfBlank(Text);
-            this.Text = Text;
+            this.Text = Text.IfBlank(ID);
         }
 
         public bool Disabled { get; set; }

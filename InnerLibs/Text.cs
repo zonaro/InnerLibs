@@ -817,24 +817,11 @@ namespace InnerLibs
         /// <returns>Uma string com o valor posterior ao valor especificado.</returns>
         public static string GetAfter(this string Text, string Value, bool WhiteIfNotFound = false)
         {
-            if (string.IsNullOrEmpty(Value))
-            {
-                Value = "";
-            }
+            Value = Value.IfBlank("");
 
-            if (string.IsNullOrEmpty(Text) || Text.IndexOf(Value) == -1)
-            {
-                if (WhiteIfNotFound)
-                {
-                    return "";
-                }
-                else
-                {
-                    return $"{Text}";
-                }
-            }
-
-            return Text.Substring(Text.IndexOf(Value) + Value.Length);
+            return Text.IsBlank() || Text.IndexOf(Value) == -1
+                ? WhiteIfNotFound ? "" : $"{Text}"
+                : Text.Substring(Text.IndexOf(Value) + Value.Length);
         }
 
         /// <summary>
@@ -865,24 +852,8 @@ namespace InnerLibs
         /// <returns>Uma string com o valor anterior ao valor especificado.</returns>
         public static string GetBefore(this string Text, string Value, bool WhiteIfNotFound = false)
         {
-            if (Value == null)
-            {
-                Value = "";
-            }
-
-            if (Text == null || Text.IndexOf(Value) == -1)
-            {
-                if (WhiteIfNotFound)
-                {
-                    return "";
-                }
-                else
-                {
-                    return "" + Text;
-                }
-            }
-
-            return Text.Substring(0, Text.IndexOf(Value));
+            Value = Value.IfBlank("");
+            return Text.IsBlank() || Text.IndexOf(Value) == -1 ? WhiteIfNotFound ? "" : $"{Text}" : Text.Substring(0, Text.IndexOf(Value));
         }
 
         /// <summary>
@@ -894,21 +865,14 @@ namespace InnerLibs
         /// <returns>Uma String com o texto entre o texto anterior e posterior</returns>
         public static string GetBetween(this string Text, string Before, string After)
         {
-            if (Text.IsBlank())
+            if (Text.IsNotBlank())
             {
-                return "";
+                int beforeStartIndex = Text.IndexOf(Before);
+                int startIndex = beforeStartIndex + Before.Length;
+                int afterStartIndex = Text.IndexOf(After, startIndex);
+                return beforeStartIndex < 0 || afterStartIndex < 0 ? Text : Text.Substring(startIndex, afterStartIndex - startIndex);
             }
-
-
-            int beforeStartIndex = Text.IndexOf(Before);
-            int startIndex = beforeStartIndex + Before.Length;
-            int afterStartIndex = Text.IndexOf(After, startIndex);
-            if (beforeStartIndex < 0 || afterStartIndex < 0)
-            {
-                return Text;
-            }
-
-            return Text.Substring(startIndex, afterStartIndex - startIndex);
+            return "";
         }
 
         /// <summary>
@@ -959,11 +923,11 @@ namespace InnerLibs
         /// </summary>
         /// <param name="URL">URL</param>
         /// <returns>nome do dominio</returns>
-        public static string GetDomainAndProtocol(this string URL) => $"{new Uri(URL).GetLeftPart(UriPartial.Authority)}";
+        public static string GetDomainAndProtocol(this string URL) => $"{new Uri(URL.PrependIf("http://", x => x.IsURL() == false)).GetLeftPart(UriPartial.Authority)}";
 
-        public static string GetFirstChars(this string Text, int Number = 1) => Text.IsNotBlank() ? Text.Length < Number || Number < 1 ? Text : Text.Substring(0, Number) : "";
+        public static string GetFirstChars(this string Text, int Number = 1) => Text.IsNotBlank() ? Text.Length < Number || Number < 0 ? Text : Text.Substring(0, Number) : "";
 
-        public static string GetLastChars(this string Text, int Number = 1) => Text.IsNotBlank() ? Text.Length < Number || Number < 1 ? Text : Text.Substring(Text.Length - Number) : "";
+        public static string GetLastChars(this string Text, int Number = 1) => Text.IsNotBlank() ? Text.Length < Number || Number < 0 ? Text : Text.Substring(Text.Length - Number) : "";
 
         /// <summary>
         /// Retorna N caracteres de uma string a partir do caractere encontrado no centro
