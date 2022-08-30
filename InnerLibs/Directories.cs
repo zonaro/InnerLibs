@@ -186,7 +186,7 @@ namespace InnerLibs
         /// Indica se apenas o diretorio atual ou todos os subdiretorios devem ser percorridos pela busca
         /// </param>
         /// <returns></returns>
-        public static IEnumerable<FindType> Find<FindType>(this DirectoryInfo Directory, Func<FindType, bool> predicate, SearchOption SearchOption = SearchOption.AllDirectories) where FindType : FileSystemInfo
+        public static IEnumerable<FindType> Where<FindType>(this DirectoryInfo Directory, Func<FindType, bool> predicate, SearchOption SearchOption = SearchOption.AllDirectories) where FindType : FileSystemInfo
         {
             switch (typeof(FindType))
             {
@@ -356,6 +356,8 @@ namespace InnerLibs
             return Directory.SearchFiles(SearchOption, Searches).Where(file => file.LastWriteTime.IsBetween(FirstDate, SecondDate)).OrderByDescending(f => f.LastWriteTime.Year <= 1601 ? f.CreationTime : f.LastWriteTime).ToList();
         }
 
+        public static T ToggleVisibility<T>(this T dir) where T : FileSystemInfo => dir.IsVisible() ? dir.Hide() : dir.Show();
+
         public static T Show<T>(this T dir) where T : FileSystemInfo
         {
             if (dir != null && dir.Exists)
@@ -367,5 +369,7 @@ namespace InnerLibs
             }
             return dir;
         }
+        public static bool IsVisible<T>(this T dir) where T : FileSystemInfo => dir != null && dir.Exists && dir.Attributes.HasFlag(FileAttributes.Hidden) == false
+
     }
 }
