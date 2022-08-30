@@ -93,15 +93,7 @@ namespace InnerLibs
             return new DirectoryInfo(DirectoryName + Path.DirectorySeparatorChar);
         }
 
-        public static DirectoryInfo CreateDirectoryIfNotExists(this DirectoryInfo DirectoryName)
-        {
-            if (DirectoryName != null)
-            {
-                DirectoryName.FullName.CreateDirectoryIfNotExists();
-            }
-
-            return DirectoryName;
-        }
+        public static DirectoryInfo CreateDirectoryIfNotExists(this DirectoryInfo DirectoryName) => DirectoryName?.FullName.CreateDirectoryIfNotExists();
 
         public static DirectoryInfo CreateDirectoryIfNotExists(this FileInfo FileName) => FileName.FullName.CreateDirectoryIfNotExists();
 
@@ -126,7 +118,7 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Deleta um arquivo ou diretório se o mesmo existir e retorna TURE se o arquivo puder ser
+        /// Deleta um arquivo ou diretório se o mesmo existir e retorna true se o arquivo puder ser
         /// criado novamente
         /// </summary>
         /// <param name="Path">Camingo</param>
@@ -215,7 +207,6 @@ namespace InnerLibs
             }
         }
 
-
         /// <summary>
         /// Verifica se um diretório possui subdiretórios
         /// </summary>
@@ -229,6 +220,18 @@ namespace InnerLibs
         /// <param name="Directory">Diretório</param>
         /// <returns></returns>
         public static bool HasFiles(this DirectoryInfo Directory) => Directory.GetFiles().Any();
+
+        public static T Hide<T>(this T dir) where T : FileSystemInfo
+        {
+            if (dir != null && dir.Exists)
+            {
+                if (!dir.Attributes.HasFlag(FileAttributes.Hidden))
+                {
+                    dir.Attributes |= FileAttributes.Hidden;
+                }
+            }
+            return dir;
+        }
 
         /// <summary>
         /// Verifica se um diretório está vazio
@@ -351,6 +354,18 @@ namespace InnerLibs
         {
             Misc.FixOrder(ref FirstDate, ref SecondDate);
             return Directory.SearchFiles(SearchOption, Searches).Where(file => file.LastWriteTime.IsBetween(FirstDate, SecondDate)).OrderByDescending(f => f.LastWriteTime.Year <= 1601 ? f.CreationTime : f.LastWriteTime).ToList();
+        }
+
+        public static T Show<T>(this T dir) where T : FileSystemInfo
+        {
+            if (dir != null && dir.Exists)
+            {
+                if (dir.Attributes.HasFlag(FileAttributes.Hidden))
+                {
+                    dir.Attributes &= ~FileAttributes.Hidden;
+                }
+            }
+            return dir;
         }
     }
 }
