@@ -19,6 +19,7 @@ namespace InnerLibs.Select2
 
     public static class Select2Extensions
     {
+        public static Select2Data CreateSelect2Data<T>(this IEnumerable<T> List) where T : ISelect2Option => CreateSelect2Data<T, T>(List, x => x.Text, x => x.ID);
         public static Select2Data CreateSelect2Data(this IEnumerable<Select2Option> List) => CreateSelect2Data<Select2Option, Select2Option>(List, x => x.Text, x => x.ID);
 
         public static Select2Data CreateSelect2Data<OptionType, T>(this IEnumerable<T> List, Func<T, string> TextSelector, Func<T, string> IdSelector, Action<T, OptionType> OtherSelectors = null, Func<T, string> GroupSelector = null) where OptionType : ISelect2Option
@@ -126,15 +127,9 @@ namespace InnerLibs.Select2
 
     public class Select2Group : ISelect2Result
     {
-        public Select2Group(string Text)
-        {
-            this.Text = Text;
-        }
+        public Select2Group(string Text) => this.Text = Text;
 
-        public Select2Group(string Text, IEnumerable<ISelect2Option> Children) : this(Text)
-        {
-            this.Children = (Children ?? Array.Empty<ISelect2Option>()).WhereNotNull();
-        }
+        public Select2Group(string Text, IEnumerable<ISelect2Option> Children) : this(Text) => this.Children = (Children ?? Array.Empty<ISelect2Option>()).WhereNotNull();
 
         public Select2Group()
         {
