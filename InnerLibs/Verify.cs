@@ -505,12 +505,17 @@ namespace InnerLibs
         public static bool IsURL(this string Text) => Text.IsNotBlank() && Uri.TryCreate(Text.Trim(), UriKind.Absolute, out _) && !Text.Trim().Contains(" ");
         public static bool IsDomain(this string Text) => Text.IsNotBlank() && $"http://{Text}".IsURL();
 
-
+        /// <summary>
+        /// Verifica se um numero é um EAN válido
+        /// </summary>
+        /// <param name="Code"></param>
+        /// <returns></returns>
+        /// <exception cref="FormatException"></exception>
         public static bool IsValidEAN(this string Code)
         {
-            if (Code.IsNotNumber())
+            if (Code.IsNotNumber() || Code.Length < 3)
             {
-                throw new FormatException("Code is not number");
+                return false;
             }
 
             var bar = Code.RemoveLastChars();
