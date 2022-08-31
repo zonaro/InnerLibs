@@ -14,7 +14,7 @@ namespace InnerLibs
 
         public sealed class DebugOutStream : Stream
         {
-            private static InvalidOperationException bad_op => new InvalidOperationException("Operation not supported");
+            private static InvalidOperationException Bad_op => new InvalidOperationException("Operation not supported");
 
             public override bool CanRead => false;
 
@@ -22,27 +22,24 @@ namespace InnerLibs
 
             public override bool CanWrite => true;
 
-            public override long Length => throw bad_op;
+            public override long Length => throw Bad_op;
 
             public override long Position
             {
-                get => throw bad_op;
+                get => throw Bad_op;
 
-                set => throw bad_op;
+                set => throw Bad_op;
             }
 
             public override void Flush() => Debug.Flush();
 
-            public override int Read(byte[] buffer, int offset, int count) => throw bad_op;
+            public override int Read(byte[] buffer, int offset, int count) => throw Bad_op;
 
-            public override long Seek(long offset, SeekOrigin origin) => throw bad_op;
+            public override long Seek(long offset, SeekOrigin origin) => throw Bad_op;
 
-            public override void SetLength(long value) => throw bad_op;
+            public override void SetLength(long value) => throw Bad_op;
 
-            public override void Write(byte[] buffer, int offset, int count)
-            {
-                Debug.Write(Encoding.Unicode.GetString(buffer, offset, count));
-            }
+            public override void Write(byte[] buffer, int offset, int count) => Debug.Write(Encoding.Unicode.GetString(buffer, offset, count));
         }
     }
 }
