@@ -62,9 +62,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string GetColorName(this Color Color)
         {
-            foreach (var namedColor in HSVColor.NamedColors)
-                if (namedColor.ARGB == Color.ToArgb())
-                    return namedColor.Name;
+            foreach (var namedColor in HSVColor.NamedColors) if (namedColor.ARGB == Color.ToArgb()) return namedColor.Name;
             return Color.Name;
         }
 
