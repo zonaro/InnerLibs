@@ -75,7 +75,7 @@ namespace InnerLibs.MenuBuilder
         }
 
         /// <summary>
-        /// Icone correspondente a este menu
+        /// Ícone correspondente a este menu
         /// </summary>
         /// <returns></returns>
         public string Icon { get; set; }
