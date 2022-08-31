@@ -139,7 +139,7 @@ namespace InnerLibs.Select2
         public string Text { get; set; }
     }
 
-    public sealed class Select2Option : ISelect2Option
+    public sealed class Select2Option : ISelect2Option, IComparable<Select2Option>, IComparable
     {
         public Select2Option()
         {
@@ -155,6 +155,10 @@ namespace InnerLibs.Select2
         public string ID { get; set; }
         public bool Selected { get; set; }
         public string Text { get; set; }
+
+        public int CompareTo(object obj) => ID.CompareTo(obj?.ToString());
+
+        public int CompareTo(Select2Option other) => ID.CompareTo(other.ID);
 
         public override string ToString() => $"<option value='{ID}'{Disabled.AsIf(" disabled")}{Selected.AsIf(" selected")}>{Text}</option>";
     }

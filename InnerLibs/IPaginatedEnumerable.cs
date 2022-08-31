@@ -82,13 +82,11 @@ namespace InnerLibs.LINQ
                     {
                         FilteredData = ((IOrderedEnumerable<ClassType>)FilteredData).Skip((PageNumber - 1) * PageSize).Take(PageSize);
                     }
-
                     else if (Data is IEnumerable<ClassType>)
                     {
                         FilteredData = FilteredData.Skip((PageNumber - 1) * PageSize).Take(PageSize);
                     }
                 }
-
             }
 
             return FilteredData ?? Data;
@@ -678,15 +676,20 @@ namespace InnerLibs.LINQ
             if (Data != null)
             {
                 var filtereddata = GetQueryablePage(PageNumber);
+
                 if (RemapExpression is null || typeof(ClassType) == typeof(RemapType))
                 {
                     return filtereddata.Cast<RemapType>().ToArray();
                 }
-
-                return filtereddata.Select(RemapExpression).ToArray();
+                else
+                {
+                    return filtereddata.Select(RemapExpression).ToArray();
+                }
             }
-
-            return Array.Empty<RemapType>();
+            else
+            {
+                return Array.Empty<RemapType>();
+            }
         }
 
         /// <summary>
@@ -772,9 +775,7 @@ namespace InnerLibs.LINQ
                     PageNumber--;
                     Quantity++;
                 }
-                else
-
-                if (Quantity > 0)
+                else if (Quantity > 0)
                 {
                     PageNumber++;
                     Quantity--;
@@ -815,31 +816,43 @@ namespace InnerLibs.LINQ
             bool Ascending = !Descending;
             if (Selector != null)
             {
-                if (Data is IOrderedQueryable<ClassType>)
+                if (Data is IOrderedQueryable<ClassType> ordered_queryable)
                 {
                     if (Ascending)
                     {
-                        Data = ((IOrderedQueryable<ClassType>)Data).ThenBy(Selector);
+                        Data = ordered_queryable.ThenBy(Selector);
                     }
                     else
                     {
-                        Data = ((IOrderedQueryable<ClassType>)Data).ThenByDescending(Selector);
+                        Data = ordered_queryable.ThenByDescending(Selector);
                     }
 
                     return this;
                 }
 
-
-
-                if (Data is IOrderedEnumerable<ClassType>)
+                if (Data is IQueryable<ClassType> queryable)
                 {
                     if (Ascending)
                     {
-                        Data = ((IOrderedEnumerable<ClassType>)Data).ThenBy(Selector.Compile());
+                        Data = queryable.OrderBy(Selector);
                     }
                     else
                     {
-                        Data = ((IOrderedEnumerable<ClassType>)Data).ThenByDescending(Selector.Compile());
+                        Data = queryable.OrderByDescending(Selector);
+                    }
+
+                    return this;
+                }
+
+                if (Data is IOrderedEnumerable<ClassType> ordered_enumerable)
+                {
+                    if (Ascending)
+                    {
+                        Data = ordered_enumerable.ThenBy(Selector.Compile());
+                    }
+                    else
+                    {
+                        Data = ordered_enumerable.ThenByDescending(Selector.Compile());
                     }
 
                     return this;
@@ -946,7 +959,6 @@ namespace InnerLibs.LINQ
             Data = List.AsEnumerable();
             return this;
         }
-
 
         /// <summary>
         /// Seta a lista com os dados a serem filtrados nesse filtro
@@ -1139,13 +1151,9 @@ namespace InnerLibs.LINQ
             return this;
         }
 
-        /// <summary>
-        /// Configura este Filtro para utilizar uma querystring com operadores (&membro=operador:valor)
-        /// </summary>
-        /// <param name="QueryExpression"></param>
-        /// <param name="Separator"></param>
-        /// <param name="Conditional"></param>
-        /// <returns></returns>
+        /// <summary> Configura este Filtro para utilizar uma querystring com operadores
+        /// (&membro=operador:valor) </summary> <param name="QueryExpression"></param> <param
+        /// name="Separator"></param> <param name="Conditional"></param> <returns></returns>
         public PaginationFilter<ClassType, RemapType> UseQueryStringExpression(string QueryExpression, string Separator = ":", FilterConditional Conditional = FilterConditional.And)
         {
             var Collection = QueryExpression.ParseQueryString();
@@ -1209,6 +1217,7 @@ namespace InnerLibs.LINQ
 
         public PaginationFilter<ClassType> Config(Action<PaginationFilter<ClassType>> options) => this.With(options);
     }
+
     public class PropertyFilter<ClassType, RemapType> where ClassType : class
     {
         public PropertyFilter(PaginationFilter<ClassType, RemapType> LB) => PaginationFilter = LB;
@@ -1222,7 +1231,6 @@ namespace InnerLibs.LINQ
         public bool CompareWith => !Operator.StartsWithAny("!");
 
         public FilterConditional Conditional { get; set; } = FilterConditional.Or;
-
 
         /// <summary>
         /// Indica se este filtro está ativo
