@@ -4037,7 +4037,7 @@ namespace InnerLibs
         /// <param name="Separator">caractere correspondente a virgula</param>
         /// <param name="EmptyValue">Valor que será apresentado caso <paramref name="Texts"/> esteja vazio ou nulo. Quando <see cref="null"/>, omite o <paramref name="PhraseStart"/> da string final</param>
         /// <returns></returns>
-        public static string ToPhrase<TSource>(this IEnumerable<TSource> Texts, string PhraseStart = "", string And = "and", string EmptyValue = "", char Separator = ',')
+        public static string ToPhrase<TSource>(this IEnumerable<TSource> Texts, string PhraseStart = "", string And = "and", string EmptyValue = null, char Separator = ',')
         {
             Separator = Separator.IfBlank(',');
             PhraseStart = PhraseStart.IfBlank("");
