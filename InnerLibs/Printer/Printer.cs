@@ -1093,7 +1093,7 @@ namespace InnerLibs.Printer
             values = (values ?? Array.Empty<string>()).Where(x => x.IsNotBlank()).ToArray();
             if (values.Any())
             {
-                WriteLine(values.JoinString(Environment.NewLine));
+                WriteLine(values.SelectJoinString(Environment.NewLine));
             }
 
             return this;

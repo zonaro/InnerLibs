@@ -549,7 +549,7 @@ namespace InnerLibs.LINQ
             var l = new List<string>();
             l.Add(GetFilterQueryString(ForceEnabled));
             l.Add(GetPaginationQueryString(PageNumber ?? this.PageNumber, IncludePageSize, IncludePaginationOffset));
-            return l.Where(x => x.IsNotBlank()).JoinString("&");
+            return LINQExtensions.SelectJoinString(l.Where(x => x.IsNotBlank()), "&");
         }
 
         /// <summary>
@@ -602,7 +602,7 @@ namespace InnerLibs.LINQ
             {
                 var u = new Uri(Url);
                 Url = u.GetLeftPart(UriPartial.Path);
-                qs = new[] { u.Query, qs }.JoinString("&");
+                qs = LINQExtensions.SelectJoinString(new[] { u.Query, qs }, "&");
             }
 
             return Url + "?" + qs;
@@ -633,7 +633,7 @@ namespace InnerLibs.LINQ
 
                     if (v.Any())
                     {
-                        querystring = new[] { querystring, v.SelectJoinString(x => q.Key + "=" + x.IfBlank("").ToString().UrlDecode(), "&") }.Where(x => x.IsNotBlank()).JoinString("&");
+                        querystring = new[] { querystring, v.SelectJoinString(x => q.Key + "=" + x.IfBlank("").ToString().UrlDecode(), "&") }.Where(x => x.IsNotBlank()).SelectJoinString("&");
                     }
                 }
             }
@@ -664,7 +664,7 @@ namespace InnerLibs.LINQ
         /// Cria uma querystring com os filtros ativos
         /// </summary>
         /// <returns></returns>
-        public string GetFilterQueryString(bool ForceEnabled = false) => Filters.Select(x => x.CreateQueryParameter(ForceEnabled)).Where(x => x.IsNotBlank()).JoinString("&");
+        public string GetFilterQueryString(bool ForceEnabled = false) => LINQExtensions.SelectJoinString(Filters.Select(x => x.CreateQueryParameter(ForceEnabled)).Where(x => x.IsNotBlank()), "&");
 
         /// <summary>
         /// Executa o Filtro e retorna os dados paginados
@@ -724,7 +724,7 @@ namespace InnerLibs.LINQ
                     l.Add($"{PaginationOffsetQueryParameter}={PaginationOffset}");
                 }
 
-                return l.JoinString("&");
+                return LINQExtensions.SelectJoinString(l, "&");
             }
 
             return "";
@@ -926,7 +926,7 @@ namespace InnerLibs.LINQ
         /// <param name="TraillingTemplate">emplate de botoes de reticencias</param>
         /// <param name="Trailling">botao de reticencias</param>
         /// <returns></returns>
-        public string PageButtonsFromTemplate(string Template, string TraillingTemplate, string SeparatorTemplate = "", string Trailling = "...") => Template.IsNotBlank() ? TraillingTemplate.IsBlank() || Trailling.IsBlank() ? PageButtonsFromTemplate(Template, SeparatorTemplate) : CreatePaginationButtons(Trailling).Select(x =>
+        public string PageButtonsFromTemplate(string Template, string TraillingTemplate, string SeparatorTemplate = "", string Trailling = "...") => Template.IsNotBlank() ? TraillingTemplate.IsBlank() || Trailling.IsBlank() ? PageButtonsFromTemplate(Template, SeparatorTemplate) : LINQExtensions.SelectJoinString(CreatePaginationButtons(Trailling).Select(x =>
         {
             if (x.IsNumber())
             {
@@ -940,14 +940,14 @@ namespace InnerLibs.LINQ
             {
                 return "";
             }
-        }).JoinString(SeparatorTemplate.IfBlank("")) : "";
+        }), SeparatorTemplate.IfBlank("")) : "";
 
         /// <summary>
         /// Aplica a paginação a um template
         /// </summary>
         /// <param name="Template">Template de pagina</param>
         /// <returns></returns>
-        public string PageButtonsFromTemplate(string Template, string SeparatorTemplate = "") => Template.IsNotBlank() ? CreatePaginationButtons("").Select(x => Template.Inject(new { Page = x })).JoinString(SeparatorTemplate.IfBlank("")) : "";
+        public string PageButtonsFromTemplate(string Template, string SeparatorTemplate = "") => Template.IsNotBlank() ? LINQExtensions.SelectJoinString(CreatePaginationButtons("").Select(x => Template.Inject(new { Page = x })), SeparatorTemplate.IfBlank("")) : "";
 
         /// <summary>
         /// Seta a lista com os dados a serem filtrados nesse filtro
@@ -1620,7 +1620,7 @@ namespace InnerLibs.LINQ
         /// </summary>
         /// <param name="PropertySelector"></param>
         /// <returns></returns>
-        public PropertyFilter<ClassType, RemapType> SetMember<T>(Expression<Func<ClassType, T>> PropertySelector, FilterConditional Conditional = FilterConditional.Or) => SetMember(PropertySelector.Body.ToString().Split(".").Skip(1).JoinString("."), Conditional);
+        public PropertyFilter<ClassType, RemapType> SetMember<T>(Expression<Func<ClassType, T>> PropertySelector, FilterConditional Conditional = FilterConditional.Or) => SetMember(LINQExtensions.SelectJoinString(PropertySelector.Body.ToString().Split(".").Skip(1), "."), Conditional);
 
         /// <summary>
         /// Sete um membro para ser utilizado neste filtro. É ignorado quando seus Values estão

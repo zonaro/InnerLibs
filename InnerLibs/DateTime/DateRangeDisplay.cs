@@ -98,7 +98,7 @@ namespace InnerLibs.TimeMachine
         public static DateRangeDisplay DefaultPtBr() => new DateRangeDisplay("e", "milisegundos", "segundos", "minutos", "horas", "dias", "meses;mes", "anos");
 
 
-        public override string ToString() => new string[] { YearsWord.Plural, MonthsWord.Plural, DaysWord.Plural, HoursWord.Plural, MinutesWord.Plural, SecondsWord.Plural, MillisecondsWord.Plural }.ToPhrase(AndWord);
+        public override string ToString() => new string[] { YearsWord.Plural, MonthsWord.Plural, DaysWord.Plural, HoursWord.Plural, MinutesWord.Plural, SecondsWord.Plural, MillisecondsWord.Plural }.ToPhrase("", AndWord);
 
     }
 }

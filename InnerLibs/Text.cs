@@ -29,7 +29,7 @@ namespace InnerLibs
         {
             var a = Text.IfBlank("").ToCharArray();
             Array.Sort(a);
-            return a.JoinString("");
+            return a.SelectJoinString("");
         }
 
         /// <summary>
@@ -44,6 +44,13 @@ namespace InnerLibs
             Text += AppendText;
             return Text;
         }
+
+        /// <summary>
+        /// Adiciona um digito verificador calulado com Mod10 ao <paramref name="Code"/>
+        /// </summary>
+        /// <param name="Code"></param>
+        /// <returns></returns>
+        public static string AppendBarcodeCheckSum(this string Code) => Code.Append(Generate.BarcodeCheckSum(Code));
 
         /// <summary>
         /// Adiciona texto ao final de uma string se um criterio for cumprido
@@ -153,7 +160,7 @@ namespace InnerLibs
             linha_longa = linha_longa.Trim();
             Lines.Insert(0, linha_longa);
             Lines.Add(linha_longa);
-            string box = Lines.JoinString(Environment.NewLine);
+            string box = Lines.SelectJoinString(Environment.NewLine);
             return box;
         }
 
@@ -208,7 +215,7 @@ namespace InnerLibs
                     }
                 }
 
-                Text = words.JoinString(" ");
+                Text = words.SelectJoinString(" ");
             }
             return (Text, IsCensored);
         }
@@ -418,7 +425,7 @@ namespace InnerLibs
                 parts.RemoveAt(LineIndex);
             }
 
-            return parts.JoinString(Environment.NewLine);
+            return parts.SelectJoinString(Environment.NewLine);
         }
 
         /// <summary>
@@ -522,7 +529,7 @@ namespace InnerLibs
                     sentences[index] = "" + sentences[index].Trim().GetFirstChars(1).ToUpper() + sentences[index].RemoveFirstChars(1);
                 }
 
-                Text = sentences.JoinString(dot);
+                Text = sentences.SelectJoinString(dot);
             }
 
             sentences = Text.Split(" ").ToList();
@@ -575,7 +582,7 @@ namespace InnerLibs
                 }
 
                 return x.ToFriendlyPathName();
-            }).JoinString(AlternativeChar.AsIf(Path.AltDirectorySeparatorChar.ToString(), Path.DirectorySeparatorChar.ToString())).TrimLastAny(Path.DirectorySeparatorChar.ToString(), Path.AltDirectorySeparatorChar.ToString());
+            }).SelectJoinString(AlternativeChar.AsIf(Path.AltDirectorySeparatorChar.ToString(), Path.DirectorySeparatorChar.ToString())).TrimLastAny(Path.DirectorySeparatorChar.ToString(), Path.AltDirectorySeparatorChar.ToString());
         }
 
         /// <summary>
@@ -634,49 +641,11 @@ namespace InnerLibs
         {
             if (Text.IsNotBlank() && Action != null)
             {
-                Text = Text.SplitAny(PredefinedArrays.BreakLineChars.ToArray()).Select(x => Action.Compile().Invoke(x)).JoinString(Environment.NewLine);
+                Text = Text.SplitAny(PredefinedArrays.BreakLineChars.ToArray()).Select(x => Action.Compile().Invoke(x)).SelectJoinString(Environment.NewLine);
             }
 
             return Text;
         }
-
-
-        /// <summary>
-        /// Formata o PIS no padrão ###.#####.##-#
-        /// </summary>
-        /// <param name="PIS">PIS a ser formatado</param>
-        /// <param name="returnOnlyNumbers">Se verdadeiro, retorna apenas os números sem formatação</param>
-        /// <returns>PIS formatado</returns>
-        public static string FormatPIS(this string PIS)
-        {
-            if (PIS.IsValidPIS())
-            {
-                PIS = PIS.RemoveAny(".", "-");
-                PIS = PIS.PadLeft(11, '0');
-                PIS = PIS.ToLong().ToString(@"000\.00000\.00-0");
-                return PIS;
-            }
-            else
-            {
-                throw new FormatException("String is not a valid PIS");
-            }
-        }
-
-
-
-
-
-
-        /// <summary>
-        /// Formata o PIS no padrão ###.#####.##-#
-        /// </summary>
-        /// <param name="PIS">PIS a ser formatado</param>
-        /// <param name="returnOnlyNumbers">Se verdadeiro, retorna apenas os números sem formatação</param>
-        /// <returns>PIS formatado</returns>
-        public static string FormatPIS(this long PIS) => FormatPIS(PIS.ToString());
-
-
-
 
         /// <inheritdoc cref="FormatCEP(string)"/>
         public static string FormatCEP(this int CEP) => FormatCEP(CEP.ToString());
@@ -802,6 +771,35 @@ namespace InnerLibs
         }
 
         /// <summary>
+        /// Formata o PIS no padrão ###.#####.##-#
+        /// </summary>
+        /// <param name="PIS">PIS a ser formatado</param>
+        /// <param name="returnOnlyNumbers">Se verdadeiro, retorna apenas os números sem formatação</param>
+        /// <returns>PIS formatado</returns>
+        public static string FormatPIS(this string PIS)
+        {
+            if (PIS.IsValidPIS())
+            {
+                PIS = PIS.RemoveAny(".", "-");
+                PIS = PIS.PadLeft(11, '0');
+                PIS = PIS.ToLong().ToString(@"000\.00000\.00-0");
+                return PIS;
+            }
+            else
+            {
+                throw new FormatException("String is not a valid PIS");
+            }
+        }
+
+        /// <summary>
+        /// Formata o PIS no padrão ###.#####.##-#
+        /// </summary>
+        /// <param name="PIS">PIS a ser formatado</param>
+        /// <param name="returnOnlyNumbers">Se verdadeiro, retorna apenas os números sem formatação</param>
+        /// <returns>PIS formatado</returns>
+        public static string FormatPIS(this long PIS) => FormatPIS(PIS.ToString());
+
+        /// <summary>
         /// Extension Method para <see cref="String.Format(String,Object())"/>
         /// </summary>
         /// <param name="Text">Texto</param>
@@ -885,18 +883,11 @@ namespace InnerLibs
             string d = URL.Authority;
             if (RemoveFirstSubdomain)
             {
-                d = d.Split(".").Skip(1).JoinString(".");
+                d = d.Split(".").Skip(1).SelectJoinString(".");
             }
 
             return d;
         }
-
-        /// <summary>
-        /// Adiciona um digito verificador calulado com Mod10 ao <paramref name="Code"/>
-        /// </summary>
-        /// <param name="Code"></param>
-        /// <returns></returns>
-        public static string AppendBarcodeCheckSum(this string Code) => Code.Append(Generate.BarcodeCheckSum(Code));
 
         /// <summary>
         /// Pega o dominio principal de uma URL ou email
@@ -1273,44 +1264,8 @@ namespace InnerLibs
                 Text = Text.RemoveAny(" ");
             }
 
-            return Text == Text.ToCharArray().Reverse().JoinString();
+            return Text == Text.ToCharArray().Reverse().SelectJoinString();
         }
-
-        /// <summary>
-        /// Une todos os valores de um objeto em uma unica string
-        /// </summary>
-        /// <param name="Items">Objeto com os valores</param>
-        /// <param name="Separator">Separador entre as strings</param>
-        /// <returns>string</returns>
-        public static string JoinString<Type>(this IEnumerable<Type> Items, string Separator = "")
-        {
-            Items = Items ?? Array.Empty<Type>().AsEnumerable();
-            return string.Join(Separator, Items.Select(x => $"{x}").ToArray());
-        }
-
-        /// <summary>
-        /// Une todos os valores de um objeto em uma unica string
-        /// </summary>
-        /// <param name="Array">Objeto com os valores</param>
-        /// <param name="Separator">Separador entre as strings</param>
-        /// <returns>string</returns>
-        public static string JoinString<Type>(this Type[] Array, string Separator = "") => JoinString(Array.AsEnumerable(), Separator);
-
-        /// <summary>
-        /// Une todos os valores de um objeto em uma unica string
-        /// </summary>
-        /// <param name="Array">Objeto com os valores</param>
-        /// <param name="Separator">Separador entre as strings</param>
-        /// <returns>string</returns>
-        public static string JoinString<Type>(string Separator, params Type[] Array) => JoinString(Array, Separator);
-
-        /// <summary>
-        /// Une todos os valores de um objeto em uma unica string
-        /// </summary>
-        /// <param name="List">Objeto com os valores</param>
-        /// <param name="Separator">Separador entre as strings</param>
-        /// <returns>string</returns>
-        public static string JoinString<Type>(this List<Type> List, string Separator = "") => List.ToArray().JoinString(Separator);
 
         /// <summary>
         /// Computa a distancia de Levenshtein entre 2 strings. Distancia Levenshtein representa um
@@ -1493,7 +1448,7 @@ namespace InnerLibs
                 l.Add(Regex.Replace(item, "[^A-Za-z0-9]", ""));
             }
 
-            return l.JoinString(" ");
+            return l.SelectJoinString(" ");
         }
 
         /// <summary>
@@ -1636,7 +1591,7 @@ namespace InnerLibs
                     l = l.ToInt() - 1;
                 }
 
-                p.Add(Text.GetFirstChars((int)Math.Round(l)).Trim() + Text.GetFirstChars((int)Math.Round(l)).Reverse().ToList().JoinString().ToLower().Trim() + Text.RemoveFirstChars((int)Math.Round(l)).TrimFirstAny(PredefinedArrays.LowerConsonants.ToArray()));
+                p.Add(Text.GetFirstChars((int)Math.Round(l)).Trim() + Text.GetFirstChars((int)Math.Round(l)).Reverse().ToList().SelectJoinString().ToLower().Trim() + Text.RemoveFirstChars((int)Math.Round(l)).TrimFirstAny(PredefinedArrays.LowerConsonants.ToArray()));
             }
 
             return p.ToArray();
@@ -1647,7 +1602,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static string Poopfy(this string Text) => Poopfy(Text.Split(" ")).JoinString(" ");
+        public static string Poopfy(this string Text) => Poopfy(Text.Split(" ")).SelectJoinString(" ");
 
         /// <summary>
         /// Return a Idented XML string
@@ -2310,6 +2265,22 @@ namespace InnerLibs
         /// <returns>String corrigida</returns>
         public static string ReplaceNone(this string Text, string OldValue) => Text.Replace(OldValue, string.Empty);
 
+        /// <summary>
+        /// Une todos os valores de um objeto em uma unica string
+        /// </summary>
+        /// <param name="Array">Objeto com os valores</param>
+        /// <param name="Separator">Separador entre as strings</param>
+        /// <returns>string</returns>
+        public static string SelectJoinString<Type>(string Separator, params Type[] Array) => Array.SelectJoinString(Separator);
+
+        /// <summary>
+        /// Une todos os valores de um objeto em uma unica string
+        /// </summary>
+        /// <param name="List">Objeto com os valores</param>
+        /// <param name="Separator">Separador entre as strings</param>
+        /// <returns>string</returns>
+        public static string SelectJoinString<Type>(this List<Type> List, string Separator = "") => List.ToArray().SelectJoinString(Separator);
+
         public static IEnumerable<String> SelectLike(this IEnumerable<String> source, String Pattern) => source.Where(x => x.Like(Pattern));
 
         /// <summary>
@@ -2375,7 +2346,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text">Texto</param>
         /// <returns></returns>
-        public static string Shuffle(this string Text) => Text.OrderByRandom().JoinString();
+        public static string Shuffle(this string Text) => Text.OrderByRandom().SelectJoinString();
 
         /// <summary>
         /// Retorna a frase ou termo especificado em sua forma singular
@@ -2489,7 +2460,7 @@ namespace InnerLibs
                 }
             }
 
-            return phrase.JoinString(" ").TrimBetween();
+            return phrase.SelectJoinString(" ").TrimBetween();
         }
 
         /// <summary>
@@ -2564,7 +2535,7 @@ namespace InnerLibs
             var ch = Text.ToArray();
             for (int index = 0, loopTo = ch.Length - 1; index <= loopTo; index++)
             {
-                char antec = ch.IfNoIndex(index - 1, Convert.ToChar(""));
+                char antec = ch.IfNoIndex(index - 1, '\0');
                 if (antec.ToString().IsBlank() || char.IsLower(antec) || antec.ToString() == null)
                 {
                     ch[index] = char.ToUpper(ch[index]);
@@ -4058,31 +4029,53 @@ namespace InnerLibs
         public static string ToPercentString(this long Number) => $"{Number}%";
 
         /// <summary>
-        /// Concatena todos as strings em uma lista, utilizando a palavra <paramref name="And"/>
+        /// Concatena todos os itens de uma lista, utilizando a palavra <paramref name="And"/>
         /// antes da ultima ocorrencia.
         /// </summary>
-        /// <param name="Texts"></param>
-        /// <param name="And"></param>
+        /// <param name="Texts">Lista com itens que serão convertidos em <see cref="string"/> e concatenados</param>
+        /// <param name="And">palavra correspondente ao "e", utilizada para concatena ro ultimo elemento da lista. Quando null ou branco, <paramref name="Separator"/> é utilizado em seu lugar.</param>
+        /// <param name="Separator">caractere correspondente a virgula</param>
+        /// <param name="EmptyValue">Valor que será apresentado caso <paramref name="Texts"/> esteja vazio ou nulo. Quando <see cref="null"/>, omite o <paramref name="PhraseStart"/> da string final</param>
         /// <returns></returns>
-        public static string ToPhrase(this IEnumerable<string> Texts, string And = "and", char Separator = ',')
+        public static string ToPhrase<TSource>(this IEnumerable<TSource> Texts, string PhraseStart = "", string And = "and", string EmptyValue = "", char Separator = ',')
         {
             Separator = Separator.IfBlank(',');
-            Texts = Texts ?? Array.Empty<string>();
-            return Texts.Any()
-                ? Texts.Count() > 1
-                    ? TrimBetween($"{Texts.SkipLast(1).JoinString($"{Separator} ")} {And.IfBlank(Separator)} {Texts.Last()}")
-                    : TrimBetween(Texts?.FirstOrDefault())
-                : "";
+            PhraseStart = PhraseStart.IfBlank("");
+
+            Texts = (Texts ?? Array.Empty<TSource>()).WhereNotBlank();
+
+            if (PhraseStart.IsNotBlank() && !PhraseStart.EndsWith(" "))
+            {
+                PhraseStart += " ";
+            }
+
+            switch (Texts.Count())
+            {
+                case 0:
+                    if (EmptyValue != null)
+                    {
+                        PhraseStart += EmptyValue;
+                    }
+                    else
+                    {
+                        PhraseStart = "";
+                    }
+                    break;
+                case 1:
+                    PhraseStart += $"{Texts.FirstOrDefault()}";
+                    break;
+                default:
+                    PhraseStart += Texts.SkipLast().SelectJoinString($"{Separator} ");
+                    PhraseStart += $" {And.IfBlank($"{Separator}")}";
+                    PhraseStart += $" {Texts.Last()}";
+                    break;
+            }
+
+            return PhraseStart;
         }
 
-        /// <summary>
-        /// Concatena todos as strings em uma lista, utilizando a palavra <paramref name="And"/> na
-        /// ultima ocorrencia.
-        /// </summary>
-        /// <param name="Texts"></param>
-        /// <param name="And"></param>
-        /// <returns></returns>
-        public static string ToPhrase(string And, params string[] Texts) => (Texts ?? Array.Empty<string>()).ToPhrase(And);
+        ///<inheritdoc cref="ToPhrase{TSource}(IEnumerable{TSource}, string, string, string, char)"/>
+        public static string ToPhrase(string And, params string[] Texts) => (Texts ?? Array.Empty<string>()).ToPhrase("", And);
 
         /// <summary>
         /// Coloca o texto em TitleCase
@@ -4105,7 +4098,7 @@ namespace InnerLibs
             for (int index = 0, loopTo = l.Count - 1; index <= loopTo; index++)
             {
                 string pal = l[index];
-                bool artigo = index > 0 && Misc.IsIn(pal, "o", "a", "os", "as", "um", "uma", "uns", "umas", "de", "do", "dos", "das", "e");
+                bool artigo = index > 0 && Misc.IsIn(pal, "o", "a", "os", "as", "um", "uma", "uns", "umas", "de", "do", "dos", "das", "e", "ou");
                 if (pal.IsNotBlank())
                 {
                     if (ForceCase || artigo == false)
@@ -4149,8 +4142,6 @@ namespace InnerLibs
 
             return new string(ch);
         }
-
-        public static string ToSentence(this IEnumerable<string> Texts, string And = "and") => ToPhrase(Texts, And);
 
         /// <summary>
         /// Prepara uma string para se tornar uma URL amigavel (remove caracteres nao permitidos e
@@ -4250,9 +4241,9 @@ namespace InnerLibs
             if (Text.IsNotBlank())
             {
                 var arr = Text.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-                Text = arr.JoinString(Environment.NewLine);
+                Text = arr.SelectJoinString(Environment.NewLine);
                 arr = Text.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
-                Text = arr.JoinString(" ");
+                Text = arr.SelectJoinString(" ");
             }
 
             return Text.TrimAny(" ", Environment.NewLine);

@@ -919,7 +919,7 @@ namespace InnerLibs.Locations
                 var parts = Address.GetAfter(",").SplitAny(" ", ".", ",").ToList();
                 Number = parts.FirstOrDefault(x => x == "s/n" || x == "sn" || x == "s" || x == "sem" || x.IsNumber());
                 parts.Remove(Number);
-                Complement = parts.JoinString(" ");
+                Complement = parts.SelectJoinString(" ");
                 Address = Address.GetBefore(",");
             }
             else
@@ -928,9 +928,9 @@ namespace InnerLibs.Locations
                 if (adparts.Any())
                 {
                     string maybe_number = adparts.FirstOrDefault(x => x == "s/n" || x == "sn" || x.IsNumber()).IfBlank("").TrimAny(" ", ",");
-                    Complement = adparts.JoinString(" ").GetAfter(maybe_number).TrimAny(" ", ",");
+                    Complement = adparts.SelectJoinString(" ").GetAfter(maybe_number).TrimAny(" ", ",");
                     Number = maybe_number;
-                    Address = adparts.JoinString(" ").GetBefore(maybe_number).TrimAny(" ", ",");
+                    Address = adparts.SelectJoinString(" ").GetBefore(maybe_number).TrimAny(" ", ",");
                 }
             }
 

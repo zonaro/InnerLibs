@@ -1,4 +1,5 @@
-﻿using System;
+﻿using InnerLibs.Console;
+using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
@@ -103,17 +104,26 @@ namespace InnerLibs
             {
                 if (ip.AddressFamily == AddressFamily.InterNetwork)
                 {
-                    yield return ip.ToString();
+                    yield return ip.ToString().Trim();
                 }
             }
         }
+
+        public static string GetPublicIP()
+        {
+            var IP = "";
+            Misc.TryExecute(() => IP = DownloadString("https://ipv4.icanhazip.com/")).ConsoleWriteError();
+            return IP.Trim();
+        }
+
+        public static IEnumerable<string> GetIPs() => GetLocalIP().Union(new[] { GetPublicIP() });
 
         public static string DownloadString(this string URL)
         {
             string s = "";
             using (var c = new WebClient())
             {
-                s = c.DownloadString(URL);
+                s = $"{c.DownloadString(URL)}";
             }
 
             return s;

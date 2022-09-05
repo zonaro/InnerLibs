@@ -54,7 +54,7 @@ namespace InnerLibs
         {
             get => Class.Split(" ");
 
-            set => Class = (value ?? Array.Empty<string>()).JoinString(" ");
+            set => Class = (value ?? Array.Empty<string>()).SelectJoinString(" ");
         }
 
         public HtmlTag AddClass(string ClassName)

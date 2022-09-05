@@ -31,32 +31,6 @@ namespace InnerLibs.LINQ
 
     public static class LINQExtensions
     {
-
-        public static List<T> RemoveWhere<T>(this List<T> list, Expression<Func<T, bool>> predicate)
-        {
-            if (list != null)
-            {
-                if (predicate != null)
-                {
-                    while (true)
-                    {
-                        var obj = list.FirstOrDefault(predicate.Compile());
-                        if (obj != null)
-                        {
-                            list.Remove(obj);
-                        }
-                        else
-                        {
-                            break;
-                        }
-                    }
-
-
-                }
-            }
-
-            return list;
-        }
         private static MethodInfo containsMethod = typeof(string).GetMethod("Contains", new[] { typeof(string) });
 
         private static MethodInfo endsWithMethod = typeof(string).GetMethod("EndsWith", new[] { typeof(string) });
@@ -355,6 +329,38 @@ namespace InnerLibs.LINQ
             }
 
             return "p";
+        }
+
+        public static FieldInfo GetFieldInfo<TSource, TProperty>(this Expression<Func<TSource, TProperty>> propertyLambda)
+        {
+            var propInfo = GetMemberInfo(propertyLambda) as FieldInfo;
+            if (propInfo is null)
+            {
+                throw new ArgumentException(string.Format("Expression '{0}' refers to a property, not a field.", propertyLambda.ToString()));
+            }
+
+            return propInfo;
+        }
+
+        public static MemberInfo GetMemberInfo<TSource, TProperty>(this Expression<Func<TSource, TProperty>> propertyLambda)
+        {
+            var type = typeof(TSource);
+            MemberExpression member;
+            if (propertyLambda.Body is UnaryExpression)
+            {
+                UnaryExpression unaryExpression = (UnaryExpression)(propertyLambda.Body);
+                member = (MemberExpression)(unaryExpression.Operand);
+            }
+            else
+            {
+                member = propertyLambda.Body as MemberExpression;
+            }
+            if (member is null)
+            {
+                throw new ArgumentException(string.Format("Expression '{0}' refers to a method, not a property.", propertyLambda.ToString()));
+            }
+
+            return member.Member;
         }
 
         /// <summary>
@@ -1039,7 +1045,6 @@ namespace InnerLibs.LINQ
             return body;
         }
 
-
         public static PropertyInfo GetPropertyInfo<TSource, TProperty>(this Expression<Func<TSource, TProperty>> propertyLambda)
         {
             var propInfo = GetMemberInfo(propertyLambda) as PropertyInfo;
@@ -1050,137 +1055,6 @@ namespace InnerLibs.LINQ
 
             return propInfo;
         }
-        public static FieldInfo GetFieldInfo<TSource, TProperty>(this Expression<Func<TSource, TProperty>> propertyLambda)
-        {
-            var propInfo = GetMemberInfo(propertyLambda) as FieldInfo;
-            if (propInfo is null)
-            {
-                throw new ArgumentException(string.Format("Expression '{0}' refers to a property, not a field.", propertyLambda.ToString()));
-            }
-
-            return propInfo;
-        }
-
-
-        public static MemberInfo GetMemberInfo<TSource, TProperty>(this Expression<Func<TSource, TProperty>> propertyLambda)
-        {
-            var type = typeof(TSource);
-            MemberExpression member;
-            if (propertyLambda.Body is UnaryExpression)
-            {
-                UnaryExpression unaryExpression = (UnaryExpression)(propertyLambda.Body);
-                member = (MemberExpression)(unaryExpression.Operand);
-            }
-            else
-            {
-                member = propertyLambda.Body as MemberExpression;
-            }
-            if (member is null)
-            {
-                throw new ArgumentException(string.Format("Expression '{0}' refers to a method, not a property.", propertyLambda.ToString()));
-            }
-
-            return member.Member;
-        }
-
-
-        public static IOrderedEnumerable<T> OrderByMany<T>(this IEnumerable<T> Data, params Expression<Func<T, object>>[] Selectors) => Data.OrderByMany(true, Selectors);
-        public static IOrderedEnumerable<T> OrderByManyDescending<T>(this IEnumerable<T> Data, params Expression<Func<T, object>>[] Selectors) => Data.OrderByMany(false, Selectors);
-        public static IOrderedEnumerable<T> OrderByMany<T>(this IEnumerable<T> Data, bool Ascending, params Expression<Func<T, object>>[] Selectors)
-        {
-            Selectors = Selectors ?? Array.Empty<Expression<Func<T, object>>>();
-            if (Selectors.IsNullOrEmpty())
-            {
-                Expression<Func<T, object>> dd = x => true;
-                Selectors = new[] { dd };
-            }
-            foreach (var Selector in Selectors)
-            {
-                if (Selector != null)
-                {
-                    if (Data is IOrderedEnumerable<T>)
-                    {
-                        if (Ascending)
-                        {
-                            Data = ((IOrderedEnumerable<T>)Data).ThenBy(Selector.Compile());
-                        }
-                        else
-                        {
-                            Data = ((IOrderedEnumerable<T>)Data).ThenByDescending(Selector.Compile());
-                        }
-
-
-                    }
-                    else if (Data is IEnumerable<T>)
-                    {
-                        if (Ascending)
-                        {
-                            Data = Data.OrderBy(Selector.Compile());
-                        }
-                        else
-                        {
-                            Data = Data.OrderByDescending(Selector.Compile());
-                        }
-                    }
-                }
-            }
-
-            return (IOrderedEnumerable<T>)Data;
-        }
-
-
-
-
-
-
-
-        public static IOrderedQueryable<T> OrderByMany<T>(this IQueryable<T> Data, params Expression<Func<T, object>>[] Selectors) => Data.OrderByMany(true, Selectors);
-        public static IOrderedQueryable<T> OrderByManyDescending<T>(this IQueryable<T> Data, params Expression<Func<T, object>>[] Selectors) => Data.OrderByMany(false, Selectors);
-        public static IOrderedQueryable<T> OrderByMany<T>(this IQueryable<T> Data, bool Ascending, params Expression<Func<T, object>>[] Selectors)
-        {
-            Selectors = Selectors ?? Array.Empty<Expression<Func<T, object>>>();
-            if (Selectors.IsNullOrEmpty())
-            {
-                Expression<Func<T, object>> dd = x => true;
-                Selectors = new[] { dd };
-            }
-            foreach (var Selector in Selectors)
-            {
-                if (Selector != null)
-                {
-                    if (Data is IOrderedQueryable<T>)
-                    {
-                        if (Ascending)
-                        {
-                            Data = ((IOrderedQueryable<T>)Data).ThenBy(Selector);
-                        }
-                        else
-                        {
-                            Data = ((IOrderedQueryable<T>)Data).ThenByDescending(Selector);
-                        }
-
-
-                    }
-                    else if (Data is IQueryable<T>)
-                    {
-                        if (Ascending)
-                        {
-                            Data = Data.OrderBy(Selector);
-                        }
-                        else
-                        {
-                            Data = Data.OrderByDescending(Selector);
-                        }
-                    }
-                }
-            }
-
-            return (IOrderedQueryable<T>)Data;
-        }
-
-
-
-
 
         /// <summary>
         /// Retorna as informacoes de uma propriedade a partir de um seletor
@@ -1393,6 +1267,94 @@ namespace InnerLibs.LINQ
         /// <returns></returns>
         public static IOrderedEnumerable<T> OrderByLike<T>(this IEnumerable<T> items, Func<T, string> PropertySelector, bool Ascending, params string[] Searches) where T : class => items.ThenByLike(PropertySelector, Ascending, Searches);
 
+        public static IOrderedEnumerable<T> OrderByMany<T>(this IEnumerable<T> Data, params Expression<Func<T, object>>[] Selectors) => Data.OrderByMany(true, Selectors);
+
+        public static IOrderedEnumerable<T> OrderByMany<T>(this IEnumerable<T> Data, bool Ascending, params Expression<Func<T, object>>[] Selectors)
+        {
+            Selectors = Selectors ?? Array.Empty<Expression<Func<T, object>>>();
+            if (Selectors.IsNullOrEmpty())
+            {
+                Expression<Func<T, object>> dd = x => true;
+                Selectors = new[] { dd };
+            }
+            foreach (var Selector in Selectors)
+            {
+                if (Selector != null)
+                {
+                    if (Data is IOrderedEnumerable<T>)
+                    {
+                        if (Ascending)
+                        {
+                            Data = ((IOrderedEnumerable<T>)Data).ThenBy(Selector.Compile());
+                        }
+                        else
+                        {
+                            Data = ((IOrderedEnumerable<T>)Data).ThenByDescending(Selector.Compile());
+                        }
+                    }
+                    else if (Data is IEnumerable<T>)
+                    {
+                        if (Ascending)
+                        {
+                            Data = Data.OrderBy(Selector.Compile());
+                        }
+                        else
+                        {
+                            Data = Data.OrderByDescending(Selector.Compile());
+                        }
+                    }
+                }
+            }
+
+            return (IOrderedEnumerable<T>)Data;
+        }
+
+        public static IOrderedQueryable<T> OrderByMany<T>(this IQueryable<T> Data, params Expression<Func<T, object>>[] Selectors) => Data.OrderByMany(true, Selectors);
+
+        public static IOrderedQueryable<T> OrderByMany<T>(this IQueryable<T> Data, bool Ascending, params Expression<Func<T, object>>[] Selectors)
+        {
+            Selectors = Selectors ?? Array.Empty<Expression<Func<T, object>>>();
+            if (Selectors.IsNullOrEmpty())
+            {
+                Expression<Func<T, object>> dd = x => true;
+                Selectors = new[] { dd };
+            }
+            foreach (var Selector in Selectors)
+            {
+                if (Selector != null)
+                {
+                    if (Data is IOrderedQueryable<T>)
+                    {
+                        if (Ascending)
+                        {
+                            Data = ((IOrderedQueryable<T>)Data).ThenBy(Selector);
+                        }
+                        else
+                        {
+                            Data = ((IOrderedQueryable<T>)Data).ThenByDescending(Selector);
+                        }
+                    }
+                    else if (Data is IQueryable<T>)
+                    {
+                        if (Ascending)
+                        {
+                            Data = Data.OrderBy(Selector);
+                        }
+                        else
+                        {
+                            Data = Data.OrderByDescending(Selector);
+                        }
+                    }
+                }
+            }
+
+            return (IOrderedQueryable<T>)Data;
+        }
+
+        public static IOrderedEnumerable<T> OrderByManyDescending<T>(this IEnumerable<T> Data, params Expression<Func<T, object>>[] Selectors) => Data.OrderByMany(false, Selectors);
+
+        public static IOrderedQueryable<T> OrderByManyDescending<T>(this IQueryable<T> Data, params Expression<Func<T, object>>[] Selectors) => Data.OrderByMany(false, Selectors);
+
         /// <summary>
         /// Randomiza a ordem de um <see cref="IEnumerable"/>
         /// </summary>
@@ -1484,6 +1446,30 @@ namespace InnerLibs.LINQ
         public static T RandomItemOr<T>(this IEnumerable<T> l, params T[] Alternate) => l.TakeRandom().FirstOr(Alternate);
 
         public static T RandomItemOr<T>(this IEnumerable<T> l, Func<T, bool> predicade, params T[] Alternate) => l.TakeRandom(predicade).FirstOr(Alternate);
+
+        public static List<T> RemoveWhere<T>(this List<T> list, Expression<Func<T, bool>> predicate)
+        {
+            if (list != null)
+            {
+                if (predicate != null)
+                {
+                    while (true)
+                    {
+                        var obj = list.FirstOrDefault(predicate.Compile());
+                        if (obj != null)
+                        {
+                            list.Remove(obj);
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return list;
+        }
 
         /// <summary>
         /// Retorna um <see cref="IQueryable(Of ClassType)"/> procurando em varios campos diferentes
@@ -1585,21 +1571,12 @@ namespace InnerLibs.LINQ
         /// <param name="Selector"></param>
         /// <param name="Separator"></param>
         /// <returns></returns>
-        public static string SelectJoinString<TSource>(this IEnumerable<TSource> Source, Func<TSource, string> Selector = null, string Separator = "")
+        public static string SelectJoinString<TSource>(this IEnumerable<TSource> Source, Func<TSource, string> Selector, string Separator = "")
         {
-            Selector = Selector ?? (x => x.ToString());
-            return Source.Select(Selector).JoinString(Separator);
+            Selector = Selector ?? (x => $"{x}");
+            Source = Source ?? Array.Empty<TSource>();
+            return Source.Any() ? String.Join(Separator, Source.Select(Selector).ToArray()) : "";
         }
-
-        /// <summary>
-        /// Seleciona e une em uma unica string varios elementos
-        /// </summary>
-        /// <typeparam name="TSource"></typeparam>
-        /// <param name="Source"></param>
-        /// <param name="Selector"></param>
-        /// <param name="Separator"></param>
-        /// <returns></returns>
-        public static string SelectJoinString<TSource>(this IQueryable<TSource> Source, Func<TSource, string> Selector = null, string Separator = "") => Source.AsEnumerable().SelectJoinString(Selector, Separator);
 
         /// <summary>
         /// Seleciona e une em uma unica string varios elementos enumeraveis
@@ -1609,7 +1586,7 @@ namespace InnerLibs.LINQ
         /// <param name="Selector"></param>
         /// <param name="Separator"></param>
         /// <returns></returns>
-        public static string SelectManyJoinString<TSource>(this IEnumerable<TSource> Source, Func<TSource, IEnumerable<string>> Selector = null, string Separator = "") => Source.SelectMany(Selector ?? (x => new[] { x.ToString() })).JoinString(Separator);
+        public static string SelectManyJoinString<TSource>(this IEnumerable<TSource> Source, Func<TSource, IEnumerable<string>> Selector = null, string Separator = "") => SelectJoinString(Source.SelectMany(Selector ?? (x => (new[] { x.ToString() }))), Separator);
 
         /// <summary>
         /// Seleciona e une em uma unica string varios elementos enumeraveis
@@ -1998,7 +1975,7 @@ namespace InnerLibs.LINQ
         public static Expression<Func<Type, bool>> WhereExpression<Type, V>(Expression<Func<Type, V>> PropertySelector, string Operator, IEnumerable<IComparable> PropertyValue, bool Is = true, FilterConditional Conditional = FilterConditional.Or)
         {
             var parameter = GenerateParameterExpression<Type>();
-            string member = PropertySelector.Body.ToString().Split(".").Skip(1).JoinString(".");
+            string member = String.Join(".", PropertySelector.Body.ToString().Split(".").Skip(1));
             var prop = parameter.PropertyExpression(member);
             Expression body = GetOperatorExpression(prop, Operator, PropertyValue, Conditional);
             body = Expression.Equal(body, Expression.Constant(Is));
@@ -2024,7 +2001,7 @@ namespace InnerLibs.LINQ
         /// <returns></returns>
         public static IQueryable<T> WhereExpression<T>(this IQueryable<T> List, string PropertyName, string Operator, IEnumerable<IComparable> PropertyValue, bool Is = true, bool Exclusive = true) => List.Where(WhereExpression<T>(PropertyName, Operator, PropertyValue, Is));
 
-        public static IEnumerable<T> WhereNotBlank<T>(this IEnumerable<T> List) => List.Where(x => x != null && x.ToString().IsNotBlank());
+        public static IEnumerable<T> WhereNotBlank<T>(this IEnumerable<T> List) => List.Where(x => x != null && $"{x}".IsNotBlank());
 
         public static IQueryable<T> WhereNotNull<T>(this IQueryable<T> List) => List.Where(x => x != null);
 

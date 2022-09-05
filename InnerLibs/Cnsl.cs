@@ -193,6 +193,10 @@ namespace InnerLibs.Console
         /// <param name="Text">Texto</param>
         public static string ConsoleWriteLine(this string Text, int BreakLines = 1) => Text.ConsoleWriteLine(System.Console.ForegroundColor, BreakLines);
 
+
+        public static string ConsoleWriteSeparator(char Separator = '-', ConsoleColor? Color = null, int BreakLines = 1) => ConsoleWriteSeparator("", Separator, Color, BreakLines);
+
+
         /// <summary>
         /// Escreve um separador no console. Este separador pode conter um texto
         /// </summary>
@@ -220,6 +224,13 @@ namespace InnerLibs.Console
         }
 
         public static string ConsoleWriteTitle(this string Text, ConsoleColor? Color = null, int BreakLines = 1) => ConsoleWriteSeparator(Text, ' ', Color, BreakLines);
+        public static string ConsoleWriteTitleBar(this string Text, ConsoleColor? Color = null, int BreakLines = 1, char BarChar = '-')
+        {
+            ConsoleWriteSeparator(BarChar, Color);
+            var str = ConsoleWriteTitle(Text, Color);
+            ConsoleWriteSeparator(BarChar, Color, BreakLines);
+            return str;
+        }
 
         /// <summary>
         /// Retorna o valor de um argumento de uma linha de comando

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using InnerLibs.LINQ;
+using System;
 using System.Linq;
 using System.Text;
 
@@ -29,7 +30,7 @@ namespace InnerLibs
             {
                 for (int index = 1, loopTo = Seed.Length; index <= loopTo; index++)
                 {
-                    Token = PredefinedArrays.AlphaNumericChars.OrderBy(x => Encoding.ASCII.GetBytes(x.ToString()).FirstOrDefault() ^ Encoding.ASCII.GetBytes(Seed[index - 1].ToString()).FirstOrDefault()).JoinString();
+                    Token = PredefinedArrays.AlphaNumericChars.OrderBy(x => Encoding.ASCII.GetBytes(x.ToString()).FirstOrDefault() ^ Encoding.ASCII.GetBytes(Seed[index - 1].ToString()).FirstOrDefault()).SelectJoinString();
                 }
 
                 this.Seed = Seed;
@@ -37,7 +38,7 @@ namespace InnerLibs
             else
             {
                 this.Seed = null;
-                Token = PredefinedArrays.AlphaNumericChars.JoinString();
+                Token = PredefinedArrays.AlphaNumericChars.SelectJoinString();
             }
 
             if (Seed.IsURL() && UrlPattern.IsBlank())

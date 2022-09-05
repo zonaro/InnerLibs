@@ -307,7 +307,7 @@ namespace InnerLibs.MicroORM
                             param_names.Add("@" + param.ParameterName);
                         }
 
-                        cmd.CommandText = cmd.CommandText.Replace("{" + index + "}", param_names.JoinString(",").IfBlank("NULL").UnQuote('(', true).Quote('('));
+                        cmd.CommandText = cmd.CommandText.Replace("{" + index + "}", param_names.SelectJoinString(",").IfBlank("NULL").UnQuote('(', true).Quote('('));
                     }
                 }
                 else
@@ -352,7 +352,7 @@ namespace InnerLibs.MicroORM
                 dic = obj.CreateDictionary();
 
                 var cmd = Connection.CreateCommand();
-                cmd.CommandText = string.Format($"INSERT INTO " + TableName.IfBlank(d.Name) + " ({0}) values ({1})", dic.Keys.JoinString(","), dic.Keys.SelectJoinString(x => $"@__{x}", ","));
+                cmd.CommandText = string.Format($"INSERT INTO " + TableName.IfBlank(d.Name) + " ({0}) values ({1})", dic.Keys.SelectJoinString(","), dic.Keys.SelectJoinString(x => $"@__{x}", ","));
                 foreach (var k in dic.Keys)
                 {
                     var param = cmd.CreateParameter();
@@ -1422,7 +1422,7 @@ namespace InnerLibs.MicroORM
                                 return x.ToString().EscapeQuotesToQuery(true);
                             }
                         }).ToList();
-                        CommandText = CommandText.Replace("{" + index + "}", pv.JoinString(",").IfBlank("NULL").UnQuote('(', true).QuoteIf(Parenthesis, '('));
+                        CommandText = CommandText.Replace("{" + index + "}", pv.SelectJoinString(",").IfBlank("NULL").UnQuote('(', true).QuoteIf(Parenthesis, '('));
                     }
 
                     return CommandText;

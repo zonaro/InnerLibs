@@ -1,11 +1,12 @@
-﻿using System;
+﻿using InnerLibs.LINQ;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
 namespace InnerLibs.DOTLanguage
 {
-    internal enum GraphType
+    public enum GraphType
     {
         /// <summary>
         /// Gráficos não orientados
@@ -36,9 +37,15 @@ namespace InnerLibs.DOTLanguage
             {
                 string val = prop.Value.ToString().QuoteIf(prop.Value.ToString().Contains(" ") | prop.Value.ToString().IsBlank() | prop.Value.ToString().IsURL());
                 if (Misc.IsIn(val, new[] { "True", "False" }))
+                {
                     val = val.ToLower();
+                }
+
                 if (val.IsNumber())
+                {
                     val = val.ChangeType<decimal>().ToString("00,00");
+                }
+
                 dotstring += prop.Key + "=" + val + " ";
             }
 
@@ -147,7 +154,7 @@ namespace InnerLibs.DOTLanguage
         /// </summary>
         /// <returns></returns>
 
-        public string GraphType { get; set; } = "graph";
+        public GraphType GraphType { get; set; } = GraphType.Graph;
 
         /// <summary>
         /// Nome do Gráfico
@@ -163,14 +170,15 @@ namespace InnerLibs.DOTLanguage
         /// <returns></returns>
         public override string ToString()
         {
-            string s = this.Select(n => n.ToString() + Environment.NewLine).ToArray().JoinString("");
-            s = s.Split(Environment.NewLine).Distinct().JoinString(Environment.NewLine) + Environment.NewLine;
-            if (GraphType.ToLower().Equals("graph"))
+            var gg = $"{GraphType}".ToLower();
+            string s = this.Select(n => n.ToString() + Environment.NewLine).ToArray().SelectJoinString();
+            s = s.Split(Environment.NewLine).Distinct().SelectJoinString(Environment.NewLine) + Environment.NewLine;
+            if (gg.Equals("graph"))
             {
                 s = s.Replace("->", "--").Replace("<-", "--");
             }
 
-            return GraphType + " " + ID.ToSlugCase(true) + " " + s.Quote('{');
+            return gg + " " + ID.ToSlugCase(true) + " " + s.Quote('{');
         }
     }
 }
