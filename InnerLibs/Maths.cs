@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 
 namespace InnerLibs
 {
@@ -62,16 +63,15 @@ namespace InnerLibs
         /// <returns></returns>
         public static IEnumerable<int> ArithmeticProgression(this int FirstNumber, int Constant, int Length)
         {
-            var PA = new List<int>
+            Length--;
+            yield return FirstNumber;
+            do
             {
-                FirstNumber
-            };
-            for (int index = 1, loopTo = Length - 1; index <= loopTo; index++)
-            {
-                PA.Add(PA.Last() + Constant);
-            }
+                FirstNumber += Constant;
+                yield return FirstNumber;
+                Length--;
+            } while (Length > 0);
 
-            return PA;
         }
 
         /// <summary>
@@ -491,19 +491,23 @@ namespace InnerLibs
         /// <returns></returns>
         public static IEnumerable<int> GeometricProgression(this int FirstNumber, int Constant, int Length)
         {
-            var PG = new List<int>
+            Length--;
+            yield return FirstNumber;
+            do
             {
-                FirstNumber
-            };
-            for (int index = 1, loopTo = Length - 1; index <= loopTo; index++)
-            {
-                PG.Add(PG.Last() * Constant);
-            }
+                FirstNumber *= Constant;
+                yield return FirstNumber;
+                Length--;
+            } while (Length > 0);
 
-            return PG;
         }
-
-        public static long GetDecimalPlaces(this decimal Value, int DecimalPlaces = 0)
+/// <summary>
+/// Get the Decimal Part of <see cref="decimal" /> as long
+/// </summary>
+/// <param name="Value"></param>
+/// <param name="Length"></param>
+/// <returns></returns>
+        public static long GetDecimalPart(this decimal Value, int Length = 0)
         {
             Value = Value.ForcePositive();
             Value -= Value.Floor();
@@ -512,9 +516,9 @@ namespace InnerLibs
                 Value *= 10m;
             }
 
-            if (DecimalPlaces > 0)
+            if (Length > 0)
             {
-                Value.ToString().GetFirstChars(DecimalPlaces).ToLong();
+                Value.ToString().GetFirstChars(Length).ToLong();
             }
 
             return Value.ToLong();

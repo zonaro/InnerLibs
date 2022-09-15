@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Linq;
 
 namespace InnerLibs
@@ -472,6 +473,9 @@ namespace InnerLibs
                         }
                 }
             }
+
+            DecimalSeparator = CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator;
+
         }
 
         /// <summary>
@@ -774,7 +778,7 @@ namespace InnerLibs
 
         public virtual string ToString(decimal Number, int DecimalPlaces = 2)
         {
-            long dec = Number.GetDecimalPlaces(DecimalPlaces.LimitRange(0, 3));
+            long dec = Number.GetDecimalPart(DecimalPlaces.LimitRange(0, 3));
             long num = (long)Math.Round(Number.Floor());
             return (InExtensive(num) + (dec == 0L | DecimalPlaces == 0 ? "" : DecimalSeparator.Wrap(" ") + InExtensive(dec))).ToLower().TrimBetween();
         }

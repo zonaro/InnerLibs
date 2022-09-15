@@ -26,7 +26,7 @@ namespace InnerLibs
         /// <returns></returns>
         public override string ToString(decimal Number, int DecimalPlaces = 2)
         {
-            long dec = Number.GetDecimalPlaces(DecimalPlaces.LimitRange(0, 3));
+            long dec = Number.GetDecimalPart(DecimalPlaces.LimitRange(0, 3));
             long num = (long)Math.Round(Number.Floor());
             return (InExtensive(num) + CurrencyCentsName[num].Wrap(" ") + (dec == 0L | DecimalPlaces == 0 ? "" : And.Wrap(" ") + InExtensive(dec) + CurrencyCentsName[dec].Wrap(" "))).ToLower().TrimBetween();
         }
