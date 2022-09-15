@@ -28,7 +28,7 @@ namespace InnerLibs
 
         private const int ERROR_SHARING_VIOLATION = 32;
 
-        private static Expression<Func<string, bool>>[] passwordValidations = new Expression<Func<string, bool>>[]
+        private static readonly Expression<Func<string, bool>>[] passwordValidations = new Expression<Func<string, bool>>[]
             {
                x => x.ToLower().ToArray().Distinct().Count() >= 4,
                x => x.ToLower().ToArray().Distinct().Count() >= 6,

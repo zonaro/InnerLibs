@@ -184,16 +184,13 @@ namespace InnerLibs.Printer
         // false on failure.
         public static bool SendBytesToPrinter(string szPrinterName, IntPtr pBytes, int dwCount)
         {
-            int dwError = 0;
-            int dwWritten = 0;
-            var hPrinter = new IntPtr(0);
             var di = new DOCINFOA();
             bool bSuccess = false; // Assume failure unless you specifically succeed.
             di.pDocName = "RAW Printer Document";
             di.pDataType = "RAW";
 
             // Open the printer.
-            if (OpenPrinter(szPrinterName.Normalize(), out hPrinter, IntPtr.Zero))
+            if (OpenPrinter(szPrinterName.Normalize(), out IntPtr hPrinter, IntPtr.Zero))
             {
                 // Start a document.
                 if (StartDocPrinter(hPrinter, 1, di))
@@ -202,7 +199,7 @@ namespace InnerLibs.Printer
                     if (StartPagePrinter(hPrinter))
                     {
                         // Write your bytes.
-                        bSuccess = WritePrinter(hPrinter, pBytes, dwCount, out dwWritten);
+                        bSuccess = WritePrinter(hPrinter, pBytes, dwCount, out _);
                         EndPagePrinter(hPrinter);
                     }
 
@@ -213,7 +210,7 @@ namespace InnerLibs.Printer
             }
             // If you did not succeed, GetLastError may give more information about why not.
             if (bSuccess == false)
-                dwError = Marshal.GetLastWin32Error();
+                _ = Marshal.GetLastWin32Error();
             return bSuccess;
         }
 
@@ -230,26 +227,17 @@ namespace InnerLibs.Printer
         {
             // Open the file.
             var fs = new FileStream(szFileName, FileMode.Open);
-
             // Create a BinaryReader on the file.
             var br = new BinaryReader(fs);
-
-            // Dim an array of bytes big enough to hold the file's contents.
-            var bytes = new byte[(int)(fs.Length - 1L + 1)];
-            bool bSuccess = false;
-
-            // Your unmanaged pointer.
-            var pUnmanagedBytes = new IntPtr(0);
             int nLength = Convert.ToInt32(fs.Length);
-
             // Read the contents of the file into the array.
-            bytes = br.ReadBytes(nLength);
+            var bytes = br.ReadBytes(nLength);
             // Allocate some unmanaged memory for those bytes.
-            pUnmanagedBytes = Marshal.AllocCoTaskMem(nLength);
+            var pUnmanagedBytes = Marshal.AllocCoTaskMem(nLength);
             // Copy the managed byte array into the unmanaged array.
             Marshal.Copy(bytes, 0, pUnmanagedBytes, nLength);
             // Send the unmanaged bytes to the printer.
-            bSuccess = SendBytesToPrinter(szPrinterName, pUnmanagedBytes, nLength);
+            var bSuccess = SendBytesToPrinter(szPrinterName, pUnmanagedBytes, nLength);
             // Free the unmanaged memory that you allocated earlier.
             Marshal.FreeCoTaskMem(pUnmanagedBytes);
             return bSuccess;
