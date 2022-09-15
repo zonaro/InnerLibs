@@ -6,12 +6,53 @@ using System.Linq.Expressions;
 
 namespace InnerLibs
 {
+
+
+
+
     /// <summary>
     /// Módulo para calculos
     /// </summary>
     /// <remarks></remarks>
     public static class MathExt
     {
+
+
+        /// <summary>
+        /// The Collatz conjecture is one of the most famous unsolved problems in mathematics. The conjecture asks whether repeating two simple arithmetic operations will eventually transform every positive integer into 1
+        /// </summary>
+        /// <param name="n">Natural number greater than zero</param>
+        /// <returns>an <see cref="IEnumerable{decimal}" /> with all steps until 1  </returns>
+        /// <exception cref="ArgumentException"></exception>
+        public static IEnumerable<decimal> CollatzConjecture(this int n)
+        {
+            if (n < 1)
+            {
+                throw new ArgumentException("n must be a natural number greater than zero.");
+            }
+
+            yield return n;
+
+            decimal _n = n; //n precisa ser decimal
+
+            while (_n > 1)
+            {
+                if (_n.IsEven())
+                {
+                    _n /= 2;
+                }
+                else
+                {
+                    _n = _n * 3 + 1;
+                }
+
+                yield return _n;
+
+            }
+
+        }
+
+
         /// <summary>
         /// Retorna uma progressão Aritmética com N numeros
         /// </summary>
