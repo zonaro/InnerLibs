@@ -744,19 +744,21 @@ namespace InnerLibs
             System.Net.IPHostEntry ObjHost;
             if (DomainOrEmail.IsEmail() == true)
             {
-                DomainOrEmail = "Http://" + DomainOrEmail.GetAfter("@");
+                DomainOrEmail = "http://" + DomainOrEmail.GetAfter("@");
             }
-
-            try
+            if (DomainOrEmail.IsURL())
             {
-                string HostName = new Uri(DomainOrEmail).Host;
-                ObjHost = System.Net.Dns.GetHostEntry(HostName);
-                return (ObjHost.HostName ?? "") == (HostName ?? "");
+                try
+                {
+                    string HostName = new Uri(DomainOrEmail).Host;
+                    ObjHost = System.Net.Dns.GetHostEntry(HostName);
+                    return (ObjHost.HostName ?? "") == (HostName ?? "");
+                }
+                catch
+                {
+                }
             }
-            catch
-            {
-                return false;
-            }
+            return false;
         }
 
         /// <summary>
@@ -820,18 +822,43 @@ namespace InnerLibs
         {
             if (Value == null || Value.Equals(TestValue, ComparisonType))
             {
-                return null;
+                Value = null;
             }
 
             return Value;
         }
-
+        /// <summary>
+        /// Returns true if all logical operations return true
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Value"></param>
+        /// <param name="Tests"></param>
+        /// <returns></returns>
+        public static bool Validate<T>(this T Value, params Expression<Func<T, bool>>[] Tests) => Validate(Value, 0, Tests);
+        /// <summary>
+        /// Returns true if a certain minimum number of logical operations return true
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Value"></param>
+        /// <param name="Tests"></param>
+        /// <returns></returns>
         public static bool Validate<T>(this T Value, int MinPoints, params Expression<Func<T, bool>>[] Tests)
         {
             Tests = Tests ?? Array.Empty<Expression<Func<T, bool>>>();
+            if (MinPoints < 1)
+            {
+                MinPoints = Tests.Length;
+            }
             return ValidateCount(Value, Tests) >= MinPoints.LimitRange(1, Tests.Length);
         }
 
+        /// <summary>
+        /// Returns the count of true logical operations on a given value
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Value"></param>
+        /// <param name="Tests"></param>
+        /// <returns></returns>
         public static int ValidateCount<T>(this T Value, params Expression<Func<T, bool>>[] Tests)
         {
             var count = 0;
@@ -928,7 +955,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="File">Arquivo</param>
         /// <param name="OnSuccess">Função a ser executada ao abrir o arquivo</param>
-        /// <param name="OnFail">Função a ser executada após um numero determinado ed</param>
+        /// <param name="OnFail">Função a ser executada após um numero determinado de tentativas</param>
         /// <param name="OnAttemptFail"></param>
         /// <param name="Seconds"></param>
         /// <param name="MaxFailCount"></param>
