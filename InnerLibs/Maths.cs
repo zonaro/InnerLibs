@@ -106,11 +106,10 @@ namespace InnerLibs
         /// Retorna uma sequencia de bytes de N entradas
         /// </summary>
         /// <param name="Length">Quantidade de numeros da sequencia</param>
-        /// <returns>Lista com a sequencia Fibonacci</returns>
+        /// <returns>Lista com a sequencia de bytes</returns>
         public static IEnumerable<int> ByteSequence(this int Length)
         {
             var lista = Enumerable.Range(1, Length.SetMinValue(2)).ToList();
-
             for (int i = 1; i < lista.Count; i++)
             {
                 lista[i] = lista[i - 1] * 2;
@@ -125,7 +124,11 @@ namespace InnerLibs
         /// <param name="Rate">Taxa</param>
         /// <param name="Time">Tempo</param>
         /// <returns></returns>
-        public static object CalculateCompoundInterest(this decimal Capital, decimal Rate, decimal Time) => (double)Capital * Math.Pow((double)(1m + Rate), (double)Time);
+        public static double CalculateCompoundInterest(this double Capital, double Rate, double Time) => Capital * Math.Pow(1 + Rate, Time);
+
+
+        /// <inheritdoc cref="CalculateCompoundInterest(double,double,double)" />
+        public static decimal CalculateCompoundInterest(this decimal Capital, decimal Rate, decimal Time) => CalculateCompoundInterest((double)Capital, (double)Rate, (double)Time).ToDecimal();
 
         /// <summary>
         /// Calcula a distancia entre 2 locais
@@ -139,7 +142,7 @@ namespace InnerLibs
             // Earth's circumference at the equator in km, considering the earth is a globe, not flat
 
             double distance = 0.0d;
-            if (FirstLocation.Latitude == SecondLocation.Latitude == true && FirstLocation.Longitude == SecondLocation.Longitude)
+            if (FirstLocation.Latitude == SecondLocation.Latitude && FirstLocation.Longitude == SecondLocation.Longitude)
             {
                 return distance;
             }
@@ -248,7 +251,7 @@ namespace InnerLibs
         /// <param name="Rate">Taxa</param>
         /// <param name="Time">Tempo</param>
         /// <returns></returns>
-        public static object CalculateSimpleInterest(this decimal Capital, decimal Rate, decimal Time) => Capital * Rate * Time;
+        public static decimal CalculateSimpleInterest(this decimal Capital, decimal Rate, decimal Time) => Capital * Rate * Time;
 
         public static decimal CalculateValueFromPercent(this string Percent, decimal Total) => Convert.ToDecimal(Convert.ToDecimal(Percent.Replace("%", "")) * Total / 100m);
 
@@ -345,25 +348,28 @@ namespace InnerLibs
         /// <summary>
         /// Calcula o fatorial de um numero
         /// </summary>
-        /// <param name="Number">Numero inteiro positivo maior que zero</param>
+        /// <param name="Number">Numero inteiro maior que zero</param>
         /// <returns>fatorial do numero inteiro</returns>
         public static int Factorial(this int Number)
         {
             Number = Number.ForcePositive();
             if (Number == 0)
             {
-                return 0;
+                return Number;
             }
-
-            int fact = Number;
-            int counter = Number - 1;
-            while (counter > 0)
+            else
             {
-                fact = fact * counter;
-                counter = counter - 1;
-            }
 
-            return fact;
+                int fact = Number;
+                int counter = Number - 1;
+                while (counter > 0)
+                {
+                    fact *= counter;
+                    counter--;
+                }
+
+                return fact;
+            }
         }
 
         /// <summary>
@@ -501,12 +507,12 @@ namespace InnerLibs
             } while (Length > 0);
 
         }
-/// <summary>
-/// Get the Decimal Part of <see cref="decimal" /> as long
-/// </summary>
-/// <param name="Value"></param>
-/// <param name="Length"></param>
-/// <returns></returns>
+        /// <summary>
+        /// Get the Decimal Part of <see cref="decimal" /> as long
+        /// </summary>
+        /// <param name="Value"></param>
+        /// <param name="Length"></param>
+        /// <returns></returns>
         public static long GetDecimalPart(this decimal Value, int Length = 0)
         {
             Value = Value.ForcePositive();
