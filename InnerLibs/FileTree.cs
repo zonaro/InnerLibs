@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -46,7 +47,25 @@ namespace InnerLibs
 
         //TODO: construtor que permite aninhar arquivos relacionados
 
-        public FileTree(DirectoryInfo Directory, params string[] FileSearchPatterns)
+        public FileTree(string Path, params string[] FileSearchPatterns)
+        {
+            if (Path.IsDirectoryPath())
+            {
+                Construct(new DirectoryInfo(Path), FileSearchPatterns);
+            }
+            else if (Path.IsFilePath())
+            {
+                Construct(new FileInfo(Path).Directory, FileSearchPatterns);
+
+            }
+            else
+            {
+                throw new ArgumentException("Path is not valid");
+            }
+        }
+        public FileTree(DirectoryInfo Directory, params string[] FileSearchPatterns) => Construct(Directory, FileSearchPatterns);
+
+        internal void Construct(DirectoryInfo Directory, params string[] FileSearchPatterns)
         {
             info = Directory;
             Parent = null;
@@ -55,10 +74,12 @@ namespace InnerLibs
             {
                 FileSearchPatterns = new[] { "*" };
             }
+            if (Directory.Exists)
+            {
+                _children = new List<FileTree>(new[] { new FileTree(Directory, this, FileSearchPatterns) }.ToList());
+            }
 
-            _children = new List<FileTree>(new[] { new FileTree(Directory, this, FileSearchPatterns) }.ToList());
         }
-
         public IEnumerable<FileTree> Children => _children.AsEnumerable();
 
         public DateTime CreationTime => info.CreationTime;
@@ -81,7 +102,7 @@ namespace InnerLibs
 
         public FileType GetFileType()
         {
-            if (Path.IsFilePath())
+            if (IsFile)
             {
                 return FileType.GetFileType(Path);
             }
@@ -92,5 +113,8 @@ namespace InnerLibs
         public Bitmap GetIcon() => info.GetIcon().ToBitmap();
 
         public override string ToString() => info.Name;
+
+        public static implicit operator DirectoryInfo(FileTree Ft) => Ft.IsDirectory ? new DirectoryInfo(Ft.Path) : new FileInfo(Ft.Path).Directory;
+        public static implicit operator FileInfo(FileTree Ft) => Ft.IsFile ? new FileInfo(Ft.Path) : null;
     }
 }
