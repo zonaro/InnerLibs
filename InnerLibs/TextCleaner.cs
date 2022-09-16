@@ -114,7 +114,6 @@ namespace InnerLibs
                 if (palavra.IsNotBlank())
                 {
                     listabase.Add(palavra);
-                    palavra = "";
                 }
 
                 if (listabase.Count > 0)

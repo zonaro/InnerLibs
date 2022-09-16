@@ -10,7 +10,7 @@ namespace InnerLibs
     /// </summary>
     public class UnitConverter
     {
-        private Dictionary<decimal, string> Units = new Dictionary<decimal, string>();
+        private readonly Dictionary<decimal, string> Units = new Dictionary<decimal, string>();
         private CultureInfo culture = CultureInfo.InvariantCulture;
 
         /// <summary>
@@ -79,11 +79,13 @@ namespace InnerLibs
         public UnitConverter(decimal Base, decimal StartAt, params string[] Units)
         {
             Units = Units ?? Array.Empty<string>();
-            this.Units = new Dictionary<decimal, string>();
-            this.Units.Add(StartAt, Units.First());
+            this.Units = new Dictionary<decimal, string>
+            {
+                { StartAt, Units.First() }
+            };
             for (int index = 1, loopTo = Units.Length - 1; index <= loopTo; index++)
             {
-                StartAt = StartAt * Base;
+                StartAt *= Base;
                 this.Units.Add(StartAt, Units[index]);
             }
         }

@@ -61,9 +61,9 @@ namespace InnerLibs.RolePlayingGame
     /// </summary>
     public class Dice
     {
-        private static Dice _coin = new Dice(DiceType.Coin);
+        private static readonly Dice _coin = new Dice(DiceType.Coin);
 
-        private static Dice _d6 = new Dice(DiceType.D6);
+        private static readonly Dice _d6 = new Dice(DiceType.D6);
 
         private int _rolledtimes = 0;
 
@@ -109,7 +109,7 @@ namespace InnerLibs.RolePlayingGame
         /// Historico de valores rolados para este dado
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<(int Value, DateTime TimeStamp)> History => Faces.SelectMany(x => x.History.Select(y => (x.Number, y))).OrderByDescending(x => x.Item2).AsEnumerable();
+        public IEnumerable<(int Value, DateTime TimeStamp)> History => Faces.SelectMany(x => x.History.Select(y => (x.Number, y))).OrderByDescending(x => x.y).AsEnumerable();
 
         /// <summary>
         /// Indica se o dado é um dado com faces customizadas
@@ -266,7 +266,7 @@ namespace InnerLibs.RolePlayingGame
                 Times--;
                 if (!Locked)
                 {
-                    _rolledtimes = _rolledtimes + 1;
+                    _rolledtimes++;
                     var numfaces = new List<DiceFace>();
                     foreach (var f in Faces)
                     {
@@ -328,10 +328,13 @@ namespace InnerLibs.RolePlayingGame
                     {
                         if (dice.Type == DiceType.Coin)
                         {
-                            return (Number == 1 ? "heads" : "tails").ToTitle();
+                            _name = (Number == 1 ? "heads" : "tails").ToTitle();
+                        }
+                        else
+                        {
+                            _name = new FullNumberWriter().ToString(Number, 0).ToTitle();
                         }
 
-                        return new FullNumberWriter().ToString(Number, 0).ToTitle();
                     }
 
                     return _name;
@@ -453,7 +456,7 @@ namespace InnerLibs.RolePlayingGame
         /// Retorna a soma de todos os valores dos dados
         /// </summary>
         /// <returns>Integer</returns>
-        public int Value => (int)this.Sum(x => x.Value);
+        public int Value => this.Sum(x => x.Value).ToInt();
 
         /// <summary>
         /// Combina um dado com DiceRoller
@@ -463,8 +466,10 @@ namespace InnerLibs.RolePlayingGame
         /// <returns></returns>
         public static DiceRoller operator +(DiceRoller Combo, Dice Dice)
         {
-            var s = new DiceRoller(Combo.ToArray());
-            s.Add(Dice);
+            var s = new DiceRoller(Combo.ToArray())
+            {
+                Dice
+            };
             return s;
         }
 
