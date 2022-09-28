@@ -258,15 +258,23 @@ namespace InnerLibs
         /// <param name="Min">Numero minimo, Padrão 0</param>
         /// <param name="Max">Numero Maximo, Padrão <see cref="int.MaxValue"/></param>
         /// <returns>Um numero Inteiro</returns>
-        public static IEnumerable<int> RandomNumberList(int Count, int Min = 0, int Max = int.MaxValue)
+        public static IEnumerable<int> RandomNumberList(int Count, int Min = 0, int Max = int.MaxValue, bool UniqueNumbers = true)
         {
-            var l = new List<int>();
-            while (l.Count < Count)
+            if (UniqueNumbers)
             {
-                var i = RandomNumber(Min, Max);
-                if (i.IsNotIn(l)) l.Add(i);
+                var l = Enumerable.Range(Min, Max).OrderByRandom().ToList();
+
+                while (l.Count > Count)
+                {
+                    l.RemoveAt(0);
+                }
+
+                return l;
             }
-            return l.AsEnumerable();
+            else
+            {
+                return Enumerable.Range(1, Count).Select(e => RandomNumber(Min, Max));
+            }
         }
 
         /// <summary>
