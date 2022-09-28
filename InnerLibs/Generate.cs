@@ -263,7 +263,8 @@ namespace InnerLibs
             var l = new List<int>();
             while (l.Count < Count)
             {
-                l.Add(RandomNumber(Min, Max));
+                var i = RandomNumber(Min, Max);
+                if (i.IsNotIn(l)) l.Add(i);
             }
             return l.AsEnumerable();
         }
