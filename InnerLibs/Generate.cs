@@ -253,6 +253,22 @@ namespace InnerLibs
         public static TextStructure RandomIpsum(int ParagraphCount = 5, int SentenceCount = 3, int MinWordCount = 10, int MaxWordCount = 50, int IdentSize = 0, int BreakLinesBetweenParagraph = 0) => new TextStructure(Enumerable.Range(1, ParagraphCount.SetMinValue(1)).SelectJoinString(pp => Enumerable.Range(1, SentenceCount.SetMinValue(1)).SelectJoinString(s => Enumerable.Range(1, RandomNumber(MinWordCount.SetMinValue(1), MaxWordCount.SetMinValue(1))).SelectJoinString(p => RandomBool(20).AsIf(RandomWord(RandomNumber(2, 6)).ToUpper(), RandomWord()) + RandomBool(30).AsIf(","), " "), PredefinedArrays.EndOfSentencePunctuation.TakeRandom() + " "), Environment.NewLine)) { Ident = IdentSize, BreakLinesBetweenParagraph = BreakLinesBetweenParagraph };
 
         /// <summary>
+        /// Gera uma Lista com numeros Aleatórios entre 2 números
+        /// </summary>
+        /// <param name="Min">Numero minimo, Padrão 0</param>
+        /// <param name="Max">Numero Maximo, Padrão <see cref="int.MaxValue"/></param>
+        /// <returns>Um numero Inteiro</returns>
+        public static IEnumerable<int> RandomNumberList(int Count, int Min = 0, int Max = int.MaxValue)
+        {
+            var l = new List<int>();
+            while (l.Count < Count)
+            {
+                l.Add(RandomNumber(Min, Max));
+            }
+            return l.AsEnumerable();
+        }
+
+        /// <summary>
         /// Gera um numero Aleatório entre 2 números
         /// </summary>
         /// <param name="Min">Numero minimo, Padrão 0</param>
