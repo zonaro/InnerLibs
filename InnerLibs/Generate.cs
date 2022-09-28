@@ -265,6 +265,7 @@ namespace InnerLibs
                 if (Max == Min) return new int[] { Min };
                 if (UniqueNumbers)
                 {
+                    if (Max < int.MaxValue) Max++;
                     Misc.FixOrder(ref Min, ref Max);
                     var l = Enumerable.Range(Min, Max - Min).OrderByRandom().ToList();
                     while (l.Count > Count) l.RemoveAt(0);
