@@ -260,21 +260,22 @@ namespace InnerLibs
         /// <returns>Um numero Inteiro</returns>
         public static IEnumerable<int> RandomNumberList(int Count, int Min = 0, int Max = int.MaxValue, bool UniqueNumbers = true)
         {
-            if (UniqueNumbers)
+            if (Count > 0)
             {
-                var l = Enumerable.Range(Min, Max).OrderByRandom().ToList();
-
-                while (l.Count > Count)
+                if (Max == Min) return new int[] { Min };
+                if (UniqueNumbers)
                 {
-                    l.RemoveAt(0);
+                    Misc.FixOrder(ref Min, ref Max);
+                    var l = Enumerable.Range(Min, Max - Min).OrderByRandom().ToList();
+                    while (l.Count > Count) l.RemoveAt(0);
+                    return l;
                 }
-
-                return l;
+                else
+                {
+                    return Enumerable.Range(1, Count).Select(e => Generate.RandomNumber(Min, Max));
+                }
             }
-            else
-            {
-                return Enumerable.Range(1, Count).Select(e => RandomNumber(Min, Max));
-            }
+            return Array.Empty<int>();
         }
 
         /// <summary>
@@ -283,7 +284,12 @@ namespace InnerLibs
         /// <param name="Min">Numero minimo, Padrão 0</param>
         /// <param name="Max">Numero Maximo, Padrão <see cref="int.MaxValue"/></param>
         /// <returns>Um numero Inteiro</returns>
-        public static int RandomNumber(int Min = 0, int Max = int.MaxValue) => init_rnd.Next(Min, Max == int.MaxValue ? int.MaxValue : Max + 1);
+        public static int RandomNumber(int Min = 0, int Max = int.MaxValue)
+        {
+            Misc.FixOrder(ref Min, ref Max);
+            if (Min == Max) return Min;
+            else return init_rnd.Next(Min, Max == int.MaxValue ? int.MaxValue : Max + 1);
+        }
 
         /// <summary>
         /// Gera uma palavra aleatória com o numero de caracteres entre <paramref name="MinLength"/>
