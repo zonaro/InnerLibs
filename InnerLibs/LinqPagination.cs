@@ -2153,6 +2153,31 @@ namespace InnerLibs.LINQ
         /// <param name="Property"></param>
         /// <param name="Order"></param>
         /// <returns></returns>
-        public static IEnumerable<T> OrderByPredefinedOrder<T, TOrder>(this IEnumerable<T> Items, Expression<Func<T, TOrder>> Property, params TOrder[] Order) => Items?.OrderBy(d => { var index = Array.IndexOf(Order ?? Array.Empty<TOrder>(), Property.Compile().Invoke(d)); if (index < 0) index = Items.Count(); return index; });
+        public static IEnumerable<T> OrderByPredefinedOrder<T, TOrder>(this IEnumerable<T> Source, Expression<Func<T, TOrder>> PropertySelector, params TOrder[] order)
+        {
+            Source = Source ?? Array.Empty<T>();
+            if (PropertySelector == null) throw new ArgumentException("Property is null");
+            var p = PropertySelector.Compile();
+            var lookup = Source.ToLookup(p, t => t);
+            if (order.IsNotNullOrEmpty())
+            {
+                foreach (var id in order)
+                {
+                    foreach (var t in lookup[id])
+                    {
+                        yield return t;
+                    }
+                }
+            }
+            else
+            {
+                foreach (var item in Source)
+                {
+                    yield return item;
+
+                }
+            }
+        }
+
     }
 }
