@@ -2142,5 +2142,12 @@ namespace InnerLibs.LINQ
         }
 
         #endregion IsBetweenOrEqual
+
+
+
+        public static IEnumerable<T> OrderByPredefinedOrder<T, TOrder>(this IEnumerable<T> Items, Expression<Func<T, TOrder>> Property, params TOrder[] Order)
+        {          
+            return Items?.OrderBy(d => Array.IndexOf(Order ?? Array.Empty<TOrder>(), Property.Compile().Invoke(d)));
+        }
     }
 }

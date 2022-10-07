@@ -2501,11 +2501,7 @@ namespace InnerLibs
         /// <param name="Text"></param>
         /// <param name="SplitText"></param>
         /// <returns></returns>
-        public static string[] SplitAny(this string Text, params string[] SplitText)
-        {
-            SplitText = SplitText ?? Array.Empty<string>();
-            return Text?.Split(SplitText, StringSplitOptions.RemoveEmptyEntries);
-        }
+        public static string[] SplitAny(this string Text, params string[] SplitText) => Text?.SplitAny(StringSplitOptions.RemoveEmptyEntries, SplitText);
 
         /// <summary>
         /// Separa uma string em varias partes a partir de varias strings removendo as entradas em branco
@@ -2513,7 +2509,23 @@ namespace InnerLibs
         /// <param name="Text"></param>
         /// <param name="SplitText"></param>
         /// <returns></returns>
-        public static string[] SplitAny(this string Text, IEnumerable<string> SplitText) => Text.SplitAny(SplitText.ToArray());
+        public static string[] SplitAny(this string Text, StringSplitOptions SplitOptions, params string[] SplitText) => Text?.Split(SplitText ?? Array.Empty<string>(), SplitOptions);
+
+        /// <summary>
+        /// Separa uma string em varias partes a partir de varias strings removendo as entradas em branco
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <param name="SplitText"></param>
+        /// <returns></returns>
+        public static string[] SplitAny(this string Text, IEnumerable<string> SplitText) => Text?.SplitAny(SplitText.ToArray());
+
+        /// <summary>
+        /// Separa uma string em varias partes a partir de varias strings removendo as entradas em branco
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <param name="SplitText"></param>
+        /// <returns></returns>
+        public static string[] SplitAny(this string Text, StringSplitOptions SplitOptions, IEnumerable<string> SplitText) => Text?.SplitAny(SplitOptions, SplitText.ToArray());
 
         /// <summary>
         /// Verifica se uma string começa com alguma outra string de um array
@@ -4029,13 +4041,21 @@ namespace InnerLibs
         public static string ToPercentString(this long Number) => $"{Number}%";
 
         /// <summary>
-        /// Concatena todos os itens de uma lista, utilizando a palavra <paramref name="And"/>
-        /// antes da ultima ocorrencia.
+        /// Concatena todos os itens de uma lista, utilizando a palavra <paramref name="And"/> antes
+        /// da ultima ocorrencia.
         /// </summary>
-        /// <param name="Texts">Lista com itens que serão convertidos em <see cref="string"/> e concatenados</param>
-        /// <param name="And">palavra correspondente ao "e", utilizada para concatena ro ultimo elemento da lista. Quando null ou branco, <paramref name="Separator"/> é utilizado em seu lugar.</param>
+        /// <param name="Texts">
+        /// Lista com itens que serão convertidos em <see cref="string"/> e concatenados
+        /// </param>
+        /// <param name="And">
+        /// palavra correspondente ao "e", utilizada para concatena ro ultimo elemento da lista.
+        /// Quando null ou branco, <paramref name="Separator"/> é utilizado em seu lugar.
+        /// </param>
         /// <param name="Separator">caractere correspondente a virgula</param>
-        /// <param name="EmptyValue">Valor que será apresentado caso <paramref name="Texts"/> esteja vazio ou nulo. Quando <see cref="null"/>, omite o <paramref name="PhraseStart"/> da string final</param>
+        /// <param name="EmptyValue">
+        /// Valor que será apresentado caso <paramref name="Texts"/> esteja vazio ou nulo. Quando
+        /// <see cref="null"/>, omite o <paramref name="PhraseStart"/> da string final
+        /// </param>
         /// <returns></returns>
         public static string ToPhrase<TSource>(this IEnumerable<TSource> Texts, string PhraseStart = "", string And = "and", string EmptyValue = null, char Separator = ',')
         {
@@ -4061,9 +4081,11 @@ namespace InnerLibs
                         PhraseStart = "";
                     }
                     break;
+
                 case 1:
                     PhraseStart += $"{Texts.FirstOrDefault()}";
                     break;
+
                 default:
                     PhraseStart += Texts.SkipLast().SelectJoinString($"{Separator} ");
                     PhraseStart += $" {And.IfBlank($"{Separator}")}";

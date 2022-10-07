@@ -5,6 +5,19 @@
     <TargetFramework>net472</TargetFramework>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Platforms>AnyCPU;x86</Platforms>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Title>InnerLibs</Title>
+    <Description>Uma biblioteca de classes e métodos para .NET. Opções flexiveis e fáceis de usar para simplificar e manter seu código limpo.</Description>
+    <Copyright></Copyright>
+    <PackageProjectUrl>https://github.com/Innercodetech/InnerLibs</PackageProjectUrl>
+    <PackageIcon>innerlibs.png</PackageIcon>
+    <PackageReadmeFile>readme.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/Innercodetech/InnerLibs</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <AssemblyVersion>$(VersionPrefix)</AssemblyVersion>
+    <FileVersion>$(VersionPrefix)</FileVersion>
+    <Version>2.0.4</Version>
+    <AnalysisLevel>6.0-all</AnalysisLevel>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="MicroORM\Parser\**" />
@@ -37,6 +50,16 @@
     <EmbeddedResource Include="Colors.xml" />
     <EmbeddedResource Include="mimes.xml" />
     <EmbeddedResource Include="Printer\Printer.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\innerlibs.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\readme.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
   
 </Project>
