@@ -357,7 +357,7 @@ namespace InnerLibs.Locations
         public string PostalCode
         {
             get => this[nameof(PostalCode)];
-            set => this[nameof(PostalCode)] = FormatPostalCode(value);
+            set => this[nameof(PostalCode)] = FormatPostalCode(value.IfBlank("").TrimAny(true, " ", ".", " ", ",", " ", "-", " ").NullIf(x => x.IsBlank()));
         }
 
         public string Region
@@ -414,7 +414,7 @@ namespace InnerLibs.Locations
         {
             get => PostalCode;
 
-            set => PostalCode = value.IfBlank("").TrimAny(true, " ", ".", " ", ",", " ", "-", " ").NullIf(x => x.IsBlank());
+            set => PostalCode = value;
         }
 
         public string this[string key]

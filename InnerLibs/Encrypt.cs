@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -29,7 +30,7 @@ namespace InnerLibs
                 var sb = new StringBuilder();
                 for (int i = 0, loopTo = hash.Length - 1; i <= loopTo; i++)
                 {
-                    sb.Append(hash[i].ToString("X2"));
+                    sb.Append(hash[i].ToString("X2", CultureInfo.InvariantCulture));
                 }
 
                 return sb.ToString();
@@ -52,24 +53,45 @@ namespace InnerLibs
             var cspp = new CspParameters() { KeyContainerName = Key };
             var rsa = new RSACryptoServiceProvider(cspp) { PersistKeyInCsp = true };
             var bytes = rsa.Encrypt(new UTF8Encoding(false).GetBytes(Text), true);
+            rsa.Dispose();
             return BitConverter.ToString(bytes);
         }
 
 
         /// <summary>
-        /// Descriptografa uma string encriptada em RSA
+        /// Criptografa um array de bytes em RSA
         /// </summary>
-        /// <param name="Text"></param>
+        /// <param name="bytes"></param>
         /// <param name="Key"></param>
         /// <returns></returns>
-        public static string DecryptRSA(this string Text, string Key)
+        public static byte[] EncryptRSA(this byte[] bytes, string Key)
+        {
+            var cspp = new CspParameters() { KeyContainerName = Key };
+            using (var rsa = new RSACryptoServiceProvider(cspp) { PersistKeyInCsp = true })
+            {
+                return rsa.Encrypt(bytes, true);
+            }
+
+
+        }
+
+        public static FileInfo EncryptRSA(this FileInfo File, string Key) => File?.ToBytes().EncryptRSA(Key).WriteToFile(File.FullName);
+        public static FileInfo DecryptRSA(this FileInfo File, string Key) => File?.ToBytes().DecryptRSA(Key).WriteToFile(File.FullName);
+
+
+        /// <summary>
+        /// Descriptografa um array de bytes encriptada em RSA
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <param name="Key"></param>
+        /// <returns></returns>
+        public static byte[] DecryptRSA(this byte[] bytes, string Key)
         {
             var cspp = new CspParameters() { KeyContainerName = Key };
             var rsa = new RSACryptoServiceProvider(cspp) { PersistKeyInCsp = true };
-            var decryptArray = Text.Split(new[] { "-" }, StringSplitOptions.None);
-            var decryptByteArray = Array.ConvertAll(decryptArray, s => Convert.ToByte(byte.Parse(s, NumberStyles.HexNumber)));
-            var bytes = rsa.Decrypt(decryptByteArray, true);
-            return new UTF8Encoding(false).GetString(bytes);
+            bytes = rsa.Decrypt(bytes, true);
+            rsa.Dispose();
+            return bytes;
         }
 
 
@@ -104,7 +126,8 @@ namespace InnerLibs
                     TDESAlgorithm.Clear();
                     HashProvider.Clear();
                 }
-
+                TDESAlgorithm.Dispose();
+                HashProvider.Dispose();
                 return Convert.ToBase64String(Results);
             }
 
@@ -141,7 +164,8 @@ namespace InnerLibs
                     TDESAlgorithm.Clear();
                     HashProvider.Clear();
                 }
-
+                TDESAlgorithm.Dispose();
+                HashProvider.Dispose();
                 return UTF8.GetString(Results);
             }
 
