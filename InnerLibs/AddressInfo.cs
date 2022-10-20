@@ -566,7 +566,7 @@ namespace InnerLibs.Locations
         /// <param name="Country"></param>
         /// <param name="PostalCode"></param>
         /// <returns></returns>
-        public static string FormatAddress(string Address, string Number = "", string Complement = "", string Neighborhood = "", string City = "", string State = "", string Country = "", string PostalCode = "") => CreateLocation(Address, Number, Complement, Neighborhood, City, State, Country, PostalCode).FullAddress;
+        public static string FormatAddress(string Address, string Number = "", string Complement = "", string Neighborhood = "", string City = "", string State = "", string Country = "", string PostalCode = "", AddressPart Parts = AddressPart.Default) => CreateLocation(Address, Number, Complement, Neighborhood, City, State, Country, PostalCode).ToString(Parts);
 
         public static string FormatPostalCode(string CEP)
         {

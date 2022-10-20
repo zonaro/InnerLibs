@@ -45,6 +45,15 @@ namespace InnerLibs
         /// <returns></returns>
         public static T AsIf<T>(this bool? Bool, T TrueValue, T FalseValue = default) => (Bool.HasValue && Bool.Value).AsIf(TrueValue, FalseValue);
 
+        /// <inheritdoc cref="AsIf{T}(bool?, T, T)"/>
+        public static T AsIf<T>(this bool? Bool, T TrueValue, T FalseValue, T NullValue)
+        {
+            if (Bool.HasValue)
+                return Bool.Value.AsIf(TrueValue, FalseValue);
+            else
+                return NullValue;
+        }
+
         /// <summary>
         /// Verifica se dois ou mais string estão nulas ou em branco e retorna o primeiro elemento
         /// que possuir um valor
@@ -337,7 +346,6 @@ namespace InnerLibs
         /// </remarks>
         public static (T, T) FixOrder<T>(ref T FirstValue, ref T SecondValue) where T : IComparable
         {
-
             if (FirstValue != null && SecondValue != null)
             {
                 if (FirstValue.IsGreaterThan(SecondValue))
@@ -1361,13 +1369,11 @@ namespace InnerLibs
                 {
                     var values = List.Skip(Top).Select(x => (v.Compile().Invoke(x) as object).ChangeType<decimal>()).Sum();
                     v.GetPropertyInfo().SetValue(others, values);
-
                 }
                 newlist.Add(others);
             }
             return newlist.AsEnumerable();
         }
-
 
         /// <summary>
         /// Concatena todas as <see cref="Exception.InnerException"/> em uma única string
