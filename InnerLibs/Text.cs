@@ -4208,7 +4208,7 @@ namespace InnerLibs
         /// demais como LOWERCASE
         /// </param>
         /// <returns>Uma String com o texto em nome próprio</returns>
-        public static string ToTitle(this string Text, bool ForceCase = false) => Text.ToProperCase(ForceCase);
+        public static string ToTitle(this string Text, bool ForceCase = false) => Text?.ToProperCase(ForceCase);
 
         /// <summary>
         /// Transforma um XML Document em string

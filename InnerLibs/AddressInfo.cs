@@ -214,32 +214,35 @@ namespace InnerLibs.Locations
             }
         }
 
+        private static string PropCleaner(string value) => value.IfBlank("").TrimAny(true, " ", ".", " ", ",", " ", "-", " ").ToTitle().NullIf(x => x.IsBlank());
+
+
         public string City
         {
             get => this[nameof(City)];
-            set => this[nameof(City)] = value.IfBlank("").ToLower().ToTitle().TrimAny(true, " ", ".", " ", ",", " ", "-", " ").NullIf(x => x.IsBlank());
+            set => this[nameof(City)] = PropCleaner(value);
         }
 
         public string Complement
         {
             get => this[nameof(Complement)];
-            set => this[nameof(Complement)] = value.IfBlank("").TrimAny(true, " ", ".", " ", ",", " ", "-", " ").NullIf(x => x.IsBlank());
+            set => this[nameof(Complement)] = PropCleaner(value);
         }
 
         public string Country
         {
             get => this[nameof(Country)];
-            set => this[nameof(Country)] = value.IfBlank("").ToLower().ToTitle().TrimAny(true, " ", ".", " ", ",", " ", "-", " ").NullIf(x => x.IsBlank());
+            set => this[nameof(Country)] = PropCleaner(value);
         }
 
         public string CountryCode
         {
             get => this[nameof(CountryCode)];
-            set => this[nameof(CountryCode)] = value.IfBlank("").ToUpper().TrimAny(true, " ", ".", " ", ",", " ", "-", " ").NullIf(x => x.IsBlank());
+            set => this[nameof(CountryCode)] = PropCleaner(value)?.ToUpper();
         }
 
         /// <summary>
-        /// Formato desta instancia de <see cref="AddressInfo"/> quando chamada pelo <see cref="AddressInfo.ToString()"/>
+        /// Formato desta instancia de <see cref="AddressInfo"/> quando chamada pelo <see cref="ToString()"/>
         /// </summary>
         /// <returns></returns>
         public AddressPart Format
@@ -345,7 +348,7 @@ namespace InnerLibs.Locations
         public string Neighborhood
         {
             get => this[nameof(Neighborhood)];
-            set => this[nameof(Neighborhood)] = value.IfBlank("").ToLower().ToTitle().TrimAny(true, " ", ".", " ", ",", " ", "-", " ").NullIf(x => x.IsBlank());
+            set => this[nameof(Neighborhood)] = PropCleaner(value);
         }
 
         public string Number
@@ -357,25 +360,25 @@ namespace InnerLibs.Locations
         public string PostalCode
         {
             get => this[nameof(PostalCode)];
-            set => this[nameof(PostalCode)] = FormatPostalCode(value.IfBlank("").TrimAny(true, " ", ".", " ", ",", " ", "-", " ").NullIf(x => x.IsBlank()));
+            set => this[nameof(PostalCode)] = FormatPostalCode(PropCleaner(value));
         }
 
         public string Region
         {
             get => this[nameof(Region)];
-            set => this[nameof(Region)] = value.IfBlank("").ToLower().ToTitle().TrimAny(true, " ", ".", " ", ",", " ", "-", " ").NullIf(x => x.IsBlank());
+            set => this[nameof(Region)] = PropCleaner(value);
         }
 
         public string State
         {
             get => this[nameof(State)];
-            set => this[nameof(State)] = value.IfBlank("").ToLower().ToTitle().TrimAny(true, " ", ".", " ", ",", " ", "-", " ").NullIf(x => x.IsBlank());
+            set => this[nameof(State)] = PropCleaner(value);
         }
 
         public string StateCode
         {
             get => this[nameof(StateCode)];
-            set => this[nameof(StateCode)] = value.IfBlank("").ToUpper().TrimAny(true, " ", ".", " ", ",", " ", "-", " ").NullIf(x => x.IsBlank());
+            set => this[nameof(StateCode)] = PropCleaner(value)?.ToUpper();
         }
 
         /// <summary>
@@ -390,7 +393,7 @@ namespace InnerLibs.Locations
             {
                 if (value.IsNotBlank())
                 {
-                    this[nameof(Street)] = $"{AddressTypes.GetAddressType(value)} {value.TrimAny(true, AddressTypes.GetAddressTypeList(value))}".TrimBetween().ToLower().ToTitle().TrimAny(true, " ", ".", " ", ",", " ", "-", " ").NullIf(x => x.IsBlank());
+                    this[nameof(Street)] = PropCleaner($"{AddressTypes.GetAddressType(value)} {value.TrimAny(true, AddressTypes.GetAddressTypeList(value))}").TrimBetween();
                 }
                 else
                 {
@@ -566,7 +569,7 @@ namespace InnerLibs.Locations
         /// <param name="Country"></param>
         /// <param name="PostalCode"></param>
         /// <returns></returns>
-        public static string FormatAddress(string Address, string Number = "", string Complement = "", string Neighborhood = "", string City = "", string State = "", string Country = "", string PostalCode = "", AddressPart Parts = AddressPart.Default) => CreateLocation(Address, Number, Complement, Neighborhood, City, State, Country, PostalCode).ToString(Parts);
+        public static string FormatAddress(string Address, string Number = "", string Complement = "", string Neighborhood = "", string City = "", string State = "", string Country = "", string PostalCode = "", params AddressPart[] Parts) => CreateLocation(Address, Number, Complement, Neighborhood, City, State, Country, PostalCode).ToString(Parts);
 
         public static string FormatPostalCode(string CEP)
         {
@@ -765,37 +768,11 @@ namespace InnerLibs.Locations
                     d.State = Brasil.GetNameOf(d.StateCode);
                     d.Region = Brasil.GetRegionOf(d.StateCode);
                     d.Street = cep["logradouro"]?.InnerText;
-                    try
-                    {
-                        d["DDD"] = cep["ddd"]?.InnerText;
-                    }
-                    catch
-                    {
-                    }
 
-                    try
-                    {
-                        d["IBGE"] = cep["ibge"]?.InnerText;
-                    }
-                    catch
-                    {
-                    }
-
-                    try
-                    {
-                        d["GIA"] = cep["gia"]?.InnerText;
-                    }
-                    catch
-                    {
-                    }
-
-                    try
-                    {
-                        d["SIAFI"] = cep["SIAFI"]?.InnerText;
-                    }
-                    catch
-                    {
-                    }
+                    Misc.TryExecute(() => d["DDD"] = cep["ddd"]?.InnerText);
+                    Misc.TryExecute(() => d["IBGE"] = cep["ibge"]?.InnerText);
+                    Misc.TryExecute(() => d["GIA"] = cep["gia"]?.InnerText);
+                    Misc.TryExecute(() => d["SIAFI"] = cep["SIAFI"]?.InnerText);
 
                     d.Country = "Brasil";
                     d.CountryCode = "BR";
@@ -987,61 +964,65 @@ namespace InnerLibs.Locations
         /// </summary>
         /// <param name="Parts"></param>
         /// <returns></returns>
-        public string ToString(IEnumerable<AddressPart> Parts)
-        {
-            Parts = Parts ?? Array.Empty<AddressPart>();
-            if (Parts.Any())
-            {
-                var d = Parts.First();
-                foreach (var p in Parts.Skip(1))
-                {
-                    d |= p;
-                }
-
-                return ToString(d);
-            }
-
-            return ToString();
-        }
+        public string ToString(IEnumerable<AddressPart> Parts) => ToString(Parts.ToArray());
 
         /// <summary>
         /// Retorna uma string com as partes dos endereço especificas
         /// </summary>
         /// <param name="Parts"></param>
         /// <returns></returns>
-        public string ToString(AddressPart Parts)
+        public string ToString(params AddressPart[] Parts)
         {
             string retorno = "";
-            if ((int)Parts <= 0)
+
+            Parts = Parts ?? new[] { Format };
+            AddressPart p = Parts.IfNoIndex(0, Format);
+            Parts = Parts.Skip(1).ToArray();
+            for (int i = 0; i < Parts.Length; i++)
             {
-                Parts = Format;
+                if (Parts[i] < 0)
+                {
+                    p &= Parts[i];
+                }
+                if (Parts[i] > 0)
+                {
+                    p |= Parts[i];
+                }
             }
 
-            retorno = retorno.AppendIf(Type, Type.IsNotBlank() && Parts.HasFlag(AddressPart.StreetType));
-            retorno = retorno.AppendIf($" {Name}", Name.IsNotBlank() && Parts.HasFlag(AddressPart.StreetName));
-            retorno = retorno.AppendIf($", {Number}", Number.IsNotBlank() && Parts.HasFlag(AddressPart.Number));
-            retorno = retorno.AppendIf($", {Complement}", Complement.IsNotBlank() && Parts.HasFlag(AddressPart.Complement));
-            retorno = retorno.AppendIf($" - {Neighborhood}", Neighborhood.IsNotBlank() && Parts.HasFlag(AddressPart.Neighborhood));
-            retorno = retorno.AppendIf($" - {City}", City.IsNotBlank() && Parts.HasFlag(AddressPart.City));
+            if (p == 0) p = Format;
 
-            if (Parts.HasFlag(AddressPart.State) && State.IsNotBlank())
+            if (p < 0)
             {
-                retorno = retorno.AppendIf($" - {State}", State.IsNotBlank() && Parts.HasFlag(AddressPart.State));
+                p = Format & p;
+            }
+
+            retorno = retorno
+            .AppendIf(Type, Type.IsNotBlank() && p.HasFlag(AddressPart.StreetType))
+            .AppendIf($" {Name}", Name.IsNotBlank() && p.HasFlag(AddressPart.StreetName))
+            .AppendIf($", {Number}", Number.IsNotBlank() && p.HasFlag(AddressPart.Number))
+            .AppendIf($", {Complement}", Complement.IsNotBlank() && p.HasFlag(AddressPart.Complement))
+            .AppendIf($" - {Neighborhood}", Neighborhood.IsNotBlank() && p.HasFlag(AddressPart.Neighborhood))
+            .AppendIf($" - {City}", City.IsNotBlank() && p.HasFlag(AddressPart.City));
+
+            if (p.HasFlag(AddressPart.State) && State.IsNotBlank())
+            {
+                retorno = retorno.AppendIf($" - {State}", State.IsNotBlank() && p.HasFlag(AddressPart.State));
             }
             else
             {
-                retorno = retorno.AppendIf($" - {StateCode}", StateCode.IsNotBlank() && Parts.HasFlag(AddressPart.StateCode));
+                retorno = retorno.AppendIf($" - {StateCode}", StateCode.IsNotBlank() && p.HasFlag(AddressPart.StateCode));
             }
 
-            retorno = retorno.AppendIf($" - {PostalCode}", PostalCode.IsNotBlank() && Parts.HasFlag(AddressPart.PostalCode));
+            retorno = retorno.AppendIf($" - {PostalCode}", PostalCode.IsNotBlank() && p.HasFlag(AddressPart.PostalCode));
 
-            if (Parts.HasFlag(AddressPart.Country) && Country.IsNotBlank())
+            if (p.HasFlag(AddressPart.Country) && Country.IsNotBlank())
             {
-                retorno = retorno.AppendIf($" - {Country}", Country.IsNotBlank() && Parts.HasFlag(AddressPart.Country));
+                retorno = retorno.AppendIf($" - {Country}", Country.IsNotBlank() && p.HasFlag(AddressPart.Country));
             }
             else
             {
-                retorno = retorno.AppendIf($" - {CountryCode}", CountryCode.IsNotBlank() && Parts.HasFlag(AddressPart.CountryCode));
+                retorno = retorno.AppendIf($" - {CountryCode}", CountryCode.IsNotBlank() && p.HasFlag(AddressPart.CountryCode));
             }
 
             return retorno.TrimBetween().TrimAny(".", " ", ",", " ", "-");
