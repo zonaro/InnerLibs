@@ -1,5 +1,6 @@
 ﻿using InnerLibs.LINQ;
 using InnerLibs.Locations;
+using InnerLibs.TimeMachine;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -281,6 +282,47 @@ namespace InnerLibs
         }
 
         /// <summary>
+        /// Gera uma data aleatória a partir de componentes nulos de data
+        /// </summary>
+        /// <param name="Min">Numero minimo, Padrão 0</param>
+        /// <param name="Max">Numero Maximo, Padrão <see cref="int.MaxValue"/></param>
+        /// <returns>Um numero Inteiro</returns>
+        public static DateTime RandomDateTime(int? Year = null, int? Month = null, int? Day = null, int? Hour = null, int? Minute = null, int? Second = null)
+        {
+            Year = (Year ?? RandomNumber(DateTime.MinValue.Year, DateTime.MaxValue.Year)).ForcePositive().LimitRange(DateTime.MinValue.Year, DateTime.MaxValue.Year);
+            Month = (Month ?? RandomNumber(DateTime.MinValue.Month, DateTime.MaxValue.Month)).ForcePositive().LimitRange(1, 12);
+            Day = (Day ?? RandomNumber(DateTime.MinValue.Day, DateTime.MaxValue.Day)).ForcePositive().LimitRange(1, 31);
+            Hour = (Hour ?? RandomNumber(DateTime.MinValue.Hour, DateTime.MaxValue.Hour)).ForcePositive().LimitRange(1, 31);
+            Minute = (Minute ?? RandomNumber(DateTime.MinValue.Minute, DateTime.MaxValue.Minute)).ForcePositive().LimitRange(0, 59);
+            Second = (Second ?? RandomNumber(DateTime.MinValue.Second, DateTime.MaxValue.Second)).ForcePositive().LimitRange(0, 59);
+
+            DateTime randomCreated = DateTime.Now;
+            while (Misc.TryExecute(() => randomCreated = new DateTime(Year.Value, Month.Value, Day.Value, Hour.Value, Minute.Value, Second.Value)) != null)
+            {
+                Day--;
+            }
+
+            return randomCreated;
+
+        }
+
+        /// <summary>
+        /// Gera uma data aleatória entre 2 datas
+        /// </summary>
+        /// <param name="Min">Data Minima</param>
+        /// <param name="Max">Data Maxima </param>
+        /// <returns>Um numero Inteiro</returns>
+        public static DateTime RandomDateTime(DateTime? MinDate, DateTime? MaxDate = null)
+        {
+            var Min = (MinDate ?? RandomDateTime()).Ticks;
+            var Max = (MaxDate ?? RandomDateTime()).Ticks;
+            Misc.FixOrder(ref Min, ref Max);
+            return new DateTime(RandomNumber(Min, Max));
+        }
+
+
+
+        /// <summary>
         /// Gera um numero Aleatório entre 2 números
         /// </summary>
         /// <param name="Min">Numero minimo, Padrão 0</param>
@@ -291,6 +333,30 @@ namespace InnerLibs
             Misc.FixOrder(ref Min, ref Max);
             return Min == Max ? Min : init_rnd.Next(Min, Max == int.MaxValue ? int.MaxValue : Max + 1);
         }
+        /// <summary>
+        /// Gera um numero Aleatório entre 2 números
+        /// </summary>
+        /// <param name="Min">Numero minimo, Padrão 0</param>
+        /// <param name="Max">Numero Maximo, Padrão <see cref="long.MaxValue"/></param>
+        /// <returns>Um numero Inteiro</returns>
+        public static long RandomNumber(long Min, long Max = long.MaxValue)
+        {
+            Misc.FixOrder(ref Min, ref Max);
+            if (Min == Max)
+            {
+                return Min;
+            }
+            else
+            {
+                Max = Max == long.MaxValue ? long.MaxValue : Max + 1;
+                byte[] buf = new byte[8];
+                init_rnd.NextBytes(buf);
+                long longRand = BitConverter.ToInt64(buf, 0);
+                return Math.Abs(longRand % (Max - Min)) + Min;
+            }
+
+        }
+
         private static Random init_rnd = new Random();
 
         /// <summary>
