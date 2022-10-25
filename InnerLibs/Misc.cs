@@ -357,6 +357,34 @@ namespace InnerLibs
             return (FirstValue, SecondValue);
         }
 
+        /// <summary>
+        /// Troca valor de <paramref name="FirstValue"/> pelo de <paramref name="SecondValue"/> se
+        /// <paramref name="FirstValue"/> for maior que <paramref name="SecondValue"/> fazendo com
+        /// que <paramref name="FirstValue"/> seja sempre menor que <paramref name="SecondValue"/>.
+        /// Util para tratar ranges. Se qualquer um dos 2 valores for null, copia o valor da outra variavel não <b>null</b>. Se ambas forem <b>null</b> nada acontece.
+        /// </summary> 
+        public static (T, T) FixOrderNotNull<T>(ref T FirstValue, ref T SecondValue) where T : IComparable
+        {
+            if (FirstValue == null && SecondValue != null)
+            {
+                FirstValue = SecondValue;
+            }
+
+            if (SecondValue == null && FirstValue != null)
+            {
+                SecondValue = FirstValue;
+            }
+
+            if (SecondValue == null && FirstValue == null)
+            {
+                FirstValue = default;
+                SecondValue = default;
+            }
+
+            return Misc.FixOrder(ref FirstValue, ref SecondValue);
+
+        }
+
         public static TValue GetAttributeValue<TAttribute, TValue>(this MemberInfo prop, Expression<Func<TAttribute, TValue>> ValueSelector) where TAttribute : Attribute
         {
             if (prop.GetCustomAttributes(typeof(TAttribute), true).FirstOrDefault() is TAttribute att && att != null)
@@ -500,21 +528,21 @@ namespace InnerLibs
         /// </summary>
         /// <param name="MyObject">Objeto</param>
         /// <returns></returns>
-        public static IEnumerable<PropertyInfo> GetProperties<O>(this O MyObject, BindingFlags BindAttr) => MyObject.GetTypeOf().GetProperties(BindAttr).ToList();
+        public static IEnumerable<PropertyInfo> GetProperties<T>(this T MyObject, BindingFlags BindAttr) => MyObject.GetTypeOf().GetProperties(BindAttr).ToList();
 
         /// <summary>
         /// Traz uma Lista com todas as propriedades de um objeto
         /// </summary>
         /// <param name="MyObject">Objeto</param>
         /// <returns></returns>
-        public static IEnumerable<PropertyInfo> GetProperties<O>(this O MyObject) => MyObject.GetTypeOf().GetProperties().ToList();
+        public static IEnumerable<PropertyInfo> GetProperties<T>(this T MyObject) => MyObject.GetTypeOf().GetProperties().ToList();
 
         /// <summary>
         /// Traz uma propriedade de um objeto
         /// </summary>
         /// <param name="MyObject">Objeto</param>
         /// <returns></returns>
-        public static PropertyInfo GetProperty<O>(this O MyObject, string Name) => MyObject.GetTypeOf().GetProperties().SingleOrDefault(x => (x.Name ?? "") == (Name ?? ""));
+        public static PropertyInfo GetProperty<T>(this T MyObject, string Name) => MyObject.GetTypeOf().GetProperties().SingleOrDefault(x => (x.Name ?? "") == (Name ?? ""));
 
         /// <summary>
         /// Retorna uma HashTable das propriedades de um objeto

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Security.Cryptography;
 
 namespace InnerLibs
 {
@@ -13,7 +14,7 @@ namespace InnerLibs
     /// <remarks></remarks>
     public static class Generate
     {
-        private static Random init_rnd = new Random();
+
 
 
 
@@ -288,9 +289,9 @@ namespace InnerLibs
         public static int RandomNumber(int Min = 0, int Max = int.MaxValue)
         {
             Misc.FixOrder(ref Min, ref Max);
-            if (Min == Max) return Min;
-            else return init_rnd.Next(Min, Max == int.MaxValue ? int.MaxValue : Max + 1);
+            return Min == Max ? Min : init_rnd.Next(Min, Max == int.MaxValue ? int.MaxValue : Max + 1);
         }
+        private static Random init_rnd = new Random();
 
         /// <summary>
         /// Gera uma palavra aleatória com o numero de caracteres entre <paramref name="MinLength"/>
