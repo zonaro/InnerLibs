@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
@@ -522,6 +523,8 @@ namespace InnerLibs
             var ver = Code.GetLastChars();
             return Generate.BarcodeCheckSum(bar) == ver;
         }
+        public static bool IsValidEAN(this int Code) => Code.ToString(CultureInfo.InvariantCulture).PadLeft(12, '0').ToString().IsValidEAN();
+
 
         /// <summary>
         /// Verifica se uma string é um PIS válido
