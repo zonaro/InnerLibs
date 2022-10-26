@@ -309,6 +309,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static T FirstAny<T>(this IEnumerable<T> source, params Expression<Func<T, bool>>[] predicate)
         {
+            predicate = predicate ?? Array.Empty<Expression<Func<T, bool>>>();
             for (int index = 0, loopTo = predicate.Length - 1; index <= loopTo; index++)
             {
                 var v = source.FirstOrDefault(predicate[index].Compile());
@@ -430,28 +431,14 @@ namespace InnerLibs
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static T GetEnumValue<T>(string Name)
+        public static T GetEnumValue<T>(this string Name)
         {
-            if (!typeof(T).IsEnum)
-            {
-                throw new Exception("T must be an Enumeration type.");
-            }
-
-            var val = ((T[])Enum.GetValues(typeof(T)))[0];
-            if (Name.IsNotBlank())
-            {
-                foreach (T enumValue in (T[])Enum.GetValues(typeof(T)))
-                {
-                    if (enumValue.ToString().Equals(Name, StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        val = enumValue;
-                        break;
-                    }
-                }
-            }
-
-            return val;
+            if (!typeof(T).IsEnum) throw new ArgumentException("T must be an Enumeration type.");
+            return Name.IsNotBlank() ? ((T[])Enum.GetValues(typeof(T))).FirstOrDefault(x => x.ToString().Equals(Name, StringComparison.InvariantCultureIgnoreCase) || (Name.IsNumber() && Name.ToInt() == x.ToInt())) : default;
         }
+
+        public static T GetEnumValue<T>(this int Name) => GetEnumValue<T>(Name.ToString());
+
 
         /// <summary>
         /// Traz o valor de uma enumeração a partir de uma string
@@ -460,11 +447,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string GetEnumValueAsString<T>(this T Value)
         {
-            if (!typeof(T).IsEnum)
-            {
-                throw new Exception("T must be an Enumeration type.");
-            }
-
+            if (!typeof(T).IsEnum) throw new Exception("T must be an Enumeration type.");
             return Enum.GetName(typeof(T), Value);
         }
 
@@ -473,14 +456,10 @@ namespace InnerLibs
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static List<T> GetEnumValues<T>()
+        public static IEnumerable<T> GetEnumValues<T>()
         {
-            if (!typeof(T).IsEnum)
-            {
-                throw new Exception("T must be an Enumeration type.");
-            }
-
-            return Enum.GetValues(typeof(T)).Cast<T>().ToList();
+            if (!typeof(T).IsEnum) throw new Exception("T must be an Enumeration type.");
+            return Enum.GetValues(typeof(T)).Cast<T>().AsEnumerable();
         }
 
         /// <summary>
@@ -488,16 +467,16 @@ namespace InnerLibs
         /// </summary>
         /// <param name="MyObject">Objeto</param>
         /// <returns></returns>
-        public static FieldInfo GetField<O>(this O MyObject, string Name) => MyObject.GetTypeOf().GetFields().SingleOrDefault(x => (x.Name ?? "") == (Name ?? ""));
+        public static FieldInfo GetField<T>(this T MyObject, string Name) => MyObject.GetTypeOf().GetFields().SingleOrDefault(x => (x.Name ?? "") == (Name ?? ""));
 
-        public static IEnumerable<FieldInfo> GetFields<O>(this O MyObject, BindingFlags BindAttr) => MyObject.GetTypeOf().GetFields(BindAttr).ToList();
+        public static IEnumerable<FieldInfo> GetFields<T>(this T MyObject, BindingFlags BindAttr) => MyObject.GetTypeOf().GetFields(BindAttr).ToList();
 
         /// <summary>
         /// Traz uma Lista com todas as propriedades de um objeto
         /// </summary>
         /// <param name="MyObject">Objeto</param>
         /// <returns></returns>
-        public static IEnumerable<FieldInfo> GetFields<O>(this O MyObject) => MyObject.GetTypeOf().GetFields().ToList();
+        public static IEnumerable<FieldInfo> GetFields<T>(this T MyObject) => MyObject.GetTypeOf().GetFields().ToList();
 
         public static IEnumerable<Type> GetInheritedClasses<T>() where T : class => GetInheritedClasses(typeof(T));
 
