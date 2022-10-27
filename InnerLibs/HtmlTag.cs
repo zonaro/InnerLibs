@@ -149,7 +149,6 @@ namespace InnerLibs
         }
 
 
-        //public static HtmlTag CreateTable<TPoco>(List<TPoco> items, TPoco header, Expression<Func<TPoco,string>> IDExpression, params Expression<Func<TPoco, string>>[] properties ) where TPoco : class
         public static HtmlTag CreateTable<TPoco>(IEnumerable<TPoco> Rows) where TPoco : class => CreateTable(Rows, false, null, null);
         public static HtmlTag CreateTable<TPoco>(IEnumerable<TPoco> Rows, TPoco header, string IDProperty, params string[] properties) where TPoco : class
         {
