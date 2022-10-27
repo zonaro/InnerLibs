@@ -315,7 +315,7 @@ namespace InnerLibs.MicroORM
         }
 
         /// <summary>
-        /// Nome da tabela, gera automaticamente uma query padão para esta classe
+        /// Nome da tabela, gera automaticamente uma query padrão para esta classe
         /// </summary>
         public string TableName { get; set; }
     }
@@ -390,9 +390,9 @@ namespace InnerLibs.MicroORM
         /// </summary>
         public static implicit operator string(Select<T> select) => select?.ToString();
 
-        public Select<T> AddColumns<O>(O Obj = null) where O : class
+        public Select<T> AddColumns<TO>(TO Obj = null) where TO : class
         {
-            var eltipo = typeof(O).GetNullableTypeOf();
+            var eltipo = typeof(TO).GetNullableTypeOf();
             if (eltipo == typeof(Dictionary<string, object>))
             {
                 if (Obj != null)
@@ -563,17 +563,31 @@ namespace InnerLibs.MicroORM
         }
 
         /// <summary>
+        /// Get the table name or subquery alias used in this select
+        /// </summary>
+        /// <returns></returns>
+        public string GetTableOrSubQuery() => _fromsubname.IfBlank(_from);
+
+        /// <summary>
+        ///  Return the full name of <paramref name="ColumnName"/>  using current table or alias
+        /// </summary>
+        /// <param name="ColumnName"></param>
+        /// <param name="QuoteChar"></param>
+        /// <returns></returns>
+        public string FormatColumnName(string ColumnName,char QuoteChar = '[') => DbExtensions.FormatSQLColumn(QuoteChar, GetTableOrSubQuery(), ColumnName);
+
+        /// <summary>
         /// Sets the FROM clause in the SELECT being built.
         /// </summary>
         /// <param name="SubQuery">Subquery to be selected from</param>
         /// <returns></returns>
-        public Select<T> From<O>(Select<O> SubQuery, string SubQueryAlias = null) where O : class
+        public Select<T> From<TO>(Select<TO> SubQuery, string SubQueryAlias = null) where TO : class
         {
             if (SubQuery != null && SubQuery.ToString(true).IsNotBlank() && !ReferenceEquals(SubQuery, this))
             {
                 _from = null;
                 _fromsub = SubQuery;
-                _fromsubname = SubQueryAlias.IfBlank(typeof(O).Name + "_" + DateTime.Now.Ticks.ToString());
+                _fromsubname = SubQueryAlias.IfBlank(typeof(TO).Name + "_" + DateTime.Now.Ticks.ToString());
             }
 
             return this;
@@ -707,7 +721,7 @@ namespace InnerLibs.MicroORM
 
         public Select<T> Join(JoinType JoinType, string Table, Condition on)
         {
-            if (Table.IsNotBlank() && !(on == null) && on.ToString().IsNotBlank())
+            if (Table.IsNotBlank() && (JoinType == JoinType.CrossApply || (!(on == null) && on.ToString().IsNotBlank())))
             {
                 _joins = _joins ?? new List<Join>();
                 _joins.Add(new Join()
@@ -739,7 +753,7 @@ namespace InnerLibs.MicroORM
 
         public Select<T> OffSet(int Page, int PageSize)
         {
-            if (Page < 0)
+            if (Page < 0 || PageSize < 0)
             {
                 _offset = null;
             }

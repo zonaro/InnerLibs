@@ -1,6 +1,7 @@
 ﻿using InnerLibs.LINQ;
 using InnerLibs.TimeMachine;
 using System;
+using System.CodeDom;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -98,9 +99,22 @@ namespace InnerLibs.MicroORM
         /// <returns></returns>
         public static TextWriter LogWriter { get; set; } = new DebugTextWriter();
 
+
+        /// <summary>
+        /// Formata o nome de uma coluna SQL adicionando <paramref name="QuoteChar"/> as <paramref name="ColumnNameParts"/> e as unindo com <b>.</b>
+        /// </summary>
+        /// <param name="QuoteChar"></param>
+        /// <param name="ColumnNameParts"></param>
+        /// <returns></returns>
+        public static string FormatSQLColumn(char QuoteChar, params string[] ColumnNameParts) => ColumnNameParts.SelectJoinString(x => x.UnQuote(QuoteChar).Quote(QuoteChar), ".");
+       
+        /// Formata o nome de uma coluna SQL adicionando '[' as <paramref name="ColumnNameParts"/> e as unindo com <b>.</b>
+       
+        public static string FormatSQLColumn(params string[] ColumnNameParts) => FormatSQLColumn('[', ColumnNameParts);
+
         public static string AsSQLColumns(this IDictionary<string, object> obj, char Quote = '[') => obj.Select(x => x.Key.ToString().Quote(Quote)).SelectJoinString(",");
 
-        public static string AsSQLColumns<T>(this T obj, char Quote = '[') where T : class => obj.GetNullableTypeOf().GetProperties().Select(x => x.Name.Quote(Quote)).SelectJoinString(",");
+        public static string AsSQLColumns<T>(this T obj, char Quote = '[') where T : class => obj.GetNullableTypeOf().GetProperties().SelectJoinString(x => x.Name.Quote(Quote), ",");
 
         public static string AsSQLColumns(this NameValueCollection obj, char Quote = '[', params string[] Keys) => obj.ToDictionary(Keys).AsSQLColumns(Quote);
 
