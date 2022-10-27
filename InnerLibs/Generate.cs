@@ -55,7 +55,7 @@ namespace InnerLibs
                     i += Code.Substring(j - 1, 1).ToInt();
                 }
             }
-            if ((T == 7 | T == 11))
+            if (T == 7 | T == 11)
             {
                 i = i * 3 + p;
                 p = Converter.ToInt((i + 9) / 10) * 10;
@@ -206,7 +206,7 @@ namespace InnerLibs
                 var r = ColorExtensions.RandomColor(Red, Green, Blue);
                 if (l.Any(x => (x.ToHexadecimal() ?? "") == (r.ToHexadecimal() ?? "")))
                 {
-                    errorcount = errorcount + 1;
+                    errorcount++;
                     if (errorcount == Quantity)
                     {
                         return l;
@@ -357,7 +357,7 @@ namespace InnerLibs
 
         }
 
-        private static Random init_rnd = new Random();
+        private static readonly Random init_rnd = new Random();
 
         /// <summary>
         /// Gera uma palavra aleatória com o numero de caracteres entre <paramref name="MinLength"/>
