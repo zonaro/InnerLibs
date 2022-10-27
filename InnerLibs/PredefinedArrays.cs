@@ -17,6 +17,7 @@ namespace InnerLibs
         public static IEnumerable<string> IdentChars => new[] { "\t" }.AsEnumerable();
         public static IEnumerable<string> CloseWrappers => new[] { "\"", "'", ")", "}", "]", ">", "`" }.AsEnumerable();
         public static IEnumerable<string> Consonants => UpperConsonants.Union(LowerConsonants).AsEnumerable();
+        public static IEnumerable<string> Punctuation => EndOfSentencePunctuation.Union(MidSentencePunctuation).AsEnumerable();
         public static IEnumerable<string> EndOfSentencePunctuation => new[] { ".", "?", "!" }.AsEnumerable();
         public static IEnumerable<string> InvisibleChars => WhiteSpaceChars.Union(BreakLineChars).Union(IdentChars).AsEnumerable();
         public static IEnumerable<string> LowerConsonants => new[] { "b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n", "p", "q", "r", "s", "t", "v", "w", "x", "z" }.AsEnumerable();
