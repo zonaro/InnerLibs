@@ -9,9 +9,10 @@ Properties
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `Int32` | ColsCondensed |  | 
-| `Int32` | ColsExpanded |  | 
-| `Int32` | ColsNomal |  | 
+| `Boolean` | AutoPrint |  | 
+| `Int32` | ColumnsCondensed |  | 
+| `Int32` | ColumnsExpanded |  | 
+| `Int32` | ColumnsNormal |  | 
 | `IPrintCommand` | Command |  | 
 | `Boolean` | Diacritics |  | 
 | `Byte[]` | DocumentBuffer |  | 
@@ -19,16 +20,18 @@ Properties
 | `Boolean` | IsBold |  | 
 | `Boolean` | IsCenterAligned |  | 
 | `Boolean` | IsCondensed |  | 
-| `Boolean` | IsDoubleWidth2 |  | 
-| `Boolean` | IsDoubleWidth3 |  | 
 | `Boolean` | IsExpanded |  | 
 | `Boolean` | IsItalic |  | 
+| `Boolean` | IsLarge |  | 
 | `Boolean` | IsLeftAligned |  | 
+| `Boolean` | IsMedium |  | 
 | `Boolean` | IsNormal |  | 
 | `Boolean` | IsRightAligned |  | 
 | `Boolean` | IsUnderline |  | 
+| `Boolean` | OnOff |  | 
 | `String` | PrinterName |  | 
 | `Func<String, String>` | RewriteFunction |  | 
+| `TextWriter` | TextWriter |  | 
 
 
 Methods
@@ -44,20 +47,23 @@ Methods
 | `Printer` | Code128(`String` code) |  | 
 | `Printer` | Code39(`String` code) |  | 
 | `Printer` | Condensed(`Boolean` state = True) |  | 
-| `Printer` | DontUseDiacritics() | Remove todos os acentod das chamadas `InnerLibs.Printer.Printer.Write(System.String,System.Boolean)` posteriores | 
-| `Printer` | DoubleWidth2() |  | 
-| `Printer` | DoubleWidth3() |  | 
+| `Printer` | DontUseDiacritics() |  | 
 | `Printer` | Ean13(`String` code) |  | 
 | `Printer` | Expanded(`Boolean` state = True) |  | 
 | `Printer` | FullPaperCut() |  | 
-| `Printer` | Image(`String` Path, `Boolean` highDensity = True) |  | 
-| `Printer` | Image(`Stream` stream, `Boolean` HighDensity = True) |  | 
-| `Printer` | Image(`Byte[]` bytes, `Boolean` HighDensity = True) |  | 
-| `Printer` | Image(`Image` pImage, `Boolean` highDensity = True) |  | 
-| `Printer` | InitializePrint() |  | 
+| `Int32` | GetCurrentColumns() |  | 
+| `Printer` | Image(`String` Path, `Boolean` HighDensity = True) |  | 
+| `Printer` | Image(`Stream` Stream, `Boolean` HighDensity = True) |  | 
+| `Printer` | Image(`Byte[]` Bytes, `Boolean` HighDensity = True) |  | 
+| `Printer` | Image(`Image` Img, `Boolean` HighDensity = True) |  | 
+| `Printer` | Initialize() |  | 
 | `Printer` | Italic(`Boolean` state = True) |  | 
-| `Printer` | NewLine(`Int32` Lines = 1) | Adciona um numero `` de quebras de linha | 
-| `Printer` | NormalWidth() |  | 
+| `Printer` | LargeFontSize() |  | 
+| `Printer` | MediumFontSize() |  | 
+| `Printer` | NewLine(`Int32` Lines = 1) |  | 
+| `Printer` | NormalFontSize() |  | 
+| `Printer` | NormalFontStretch() |  | 
+| `Printer` | NormalFontStyle() |  | 
 | `Printer` | NotBold() |  | 
 | `Printer` | NotCondensed() |  | 
 | `Printer` | NotExpanded() |  | 
@@ -65,41 +71,52 @@ Methods
 | `Printer` | NotUnderline() |  | 
 | `Printer` | OpenDrawer() |  | 
 | `Printer` | PartialPaperCut() |  | 
-| `Printer` | PrintDocument(`Int32` Copies = 1) | Imprime o conteudo do `InnerLibs.Printer.Printer.DocumentBuffer` atual e limpa o buffer | 
-| `Printer` | PrintDocument(`String` FileOrDirectoryPath, `Int32` Copies = 1) | Imprime o conteudo do `InnerLibs.Printer.Printer.DocumentBuffer` atual e limpa o buffer | 
-| `Printer` | PrintDocument(`Byte[]` Bytes, `Int32` Copies = 1) | Imprime o conteudo do `InnerLibs.Printer.Printer.DocumentBuffer` atual e limpa o buffer | 
+| `Printer` | PrintDocument(`Int32` Copies = 1, `Boolean` Clear = True) |  | 
+| `Printer` | PrintDocument(`String` FileOrDirectoryPath, `Int32` Copies = 1) |  | 
+| `Printer` | PrintDocument(`Byte[]` Bytes, `Int32` Copies = 1) |  | 
 | `Printer` | QrCode(`String` qrData) |  | 
 | `Printer` | QrCode(`String` qrData, `QrCodeSize` qrCodeSize) |  | 
-| `Printer` | RemoveRewriteFunction() | Remove a função de reescrita de valor definida pela `InnerLibs.Printer.Printer.UseRewriteFunction(System.Func{System.String,System.String})` | 
-| `Printer` | SaveFile(`String` FileOrDirectoryPath, `Boolean` IncludeHtmlDoc = True) | Escreve um Arquivo com os dados binarios desta impressao | 
-| `Printer` | Separator(`Char` Character = -) |  | 
-| `Printer` | Space(`Int32` Spaces = 1) | Adciona um numero `` de espaços em branco | 
+| `Printer` | RemoveRewriteFunction() |  | 
+| `Printer` | ResetFont() |  | 
+| `Printer` | SaveFile(`String` FileOrDirectoryPath, `Boolean` IncludeHtmlDoc = False) |  | 
+| `Printer` | Separator(`Char` Character = -, `Nullable<Int32>` Columns = null) |  | 
+| `Printer` | Space(`Int32` Spaces = 1) |  | 
 | `Printer` | TestDiacritics() |  | 
 | `Printer` | UnderLine(`Boolean` state = True) |  | 
-| `Printer` | UseDiacritics(`Boolean` OnOff = True) | Permite a ultilização de acentos nas chamadas `InnerLibs.Printer.Printer.Write(System.String,System.Boolean)` posteriores | 
-| `Printer` | UseRewriteFunction(`Func<String, String>` StringAction) | Funcao que reescreveo valor antes de chamar o `InnerLibs.Printer.Printer.Write(System.String,System.Boolean)` | 
-| `Printer` | Write(`String` value, `Boolean` Test = True) | Escreve os bytes contidos em `` no `InnerLibs.Printer.Printer.DocumentBuffer` | 
-| `Printer` | Write(`Byte[]` value) | Escreve os bytes contidos em `` no `InnerLibs.Printer.Printer.DocumentBuffer` | 
-| `Printer` | WriteClass(`T[]` objs) |  | 
-| `Printer` | WriteClass(`Boolean` PartialCutOnEach, `T[]` objs) |  | 
+| `Printer` | UseDiacritics(`Boolean` OnOff = True) |  | 
+| `Printer` | UseRewriteFunction(`Func<String, String>` StringAction) |  | 
+| `Printer` | Write(`Byte[]` value) |  | 
+| `Printer` | Write(`String` value, `Boolean` Test = True) |  | 
+| `Printer` | Write(`String` value, `Expression<Func<String, Boolean>>` Test) |  | 
+| `Printer` | WriteClass(`T[]` Objects) |  | 
+| `Printer` | WriteClass(`Boolean` PartialCutOnEach, `T[]` Objects) |  | 
 | `Printer` | WriteClass(`IEnumerable<T>` obj, `Boolean` PartialCutOnEach = False) |  | 
-| `Object` | WriteDate(`DateTime` DateAndTime, `String` Format = null) |  | 
-| `Object` | WriteDate(`String` Format = null) |  | 
-| `Printer` | WriteDictionary(`IDictionary`2[]` dics) |  | 
-| `Printer` | WriteDictionary(`Boolean` PartialCutOnEach, `IDictionary`2[]` dics) |  | 
-| `Printer` | WriteDictionary(`IEnumerable<IDictionary<T1, T2>>` dics, `Boolean` PartialCutOnEach = False) |  | 
-| `Printer` | WriteLine(`String` value, `Boolean` Test = True) | Escreve o `` se `` for TRUE | 
-| `Printer` | WriteList(`IEnumerable<Object>` Items, `String` ListOrdenator = null) |  | 
+| `Printer` | WriteDate(`DateTime` DateAndTime, `String` Format = null) |  | 
+| `Printer` | WriteDate(`DateTime` DateAndTime, `CultureInfo` Format = null) |  | 
+| `Printer` | WriteDate(`String` Format = null) |  | 
+| `Printer` | WriteDate(`CultureInfo` Format = null) |  | 
+| `Printer` | WriteDictionary(`IEnumerable<IDictionary<T1, T2>>` Dictionaries, `Boolean` PartialCutOnEach = False) |  | 
+| `Printer` | WriteDictionary(`IDictionary<T1, T2>` dic, `Boolean` PartialCutOnEach = False) |  | 
+| `Printer` | WriteDictionary(`IDictionary`2[]` Dictionaries) |  | 
+| `Printer` | WriteDictionary(`Boolean` PartialCutOnEach, `IDictionary`2[]` Dictionaries) |  | 
+| `Printer` | WriteLine(`String` value, `Expression<Func<String, Boolean>>` Test) |  | 
+| `Printer` | WriteLine(`String` value, `Boolean` Test) |  | 
+| `Printer` | WriteLine(`String` value) |  | 
+| `Printer` | WriteLine(`String[]` values) |  | 
+| `Printer` | WriteList(`IEnumerable<Object>` Items, `Int32` ListOrdenator = 1) |  | 
+| `Printer` | WriteList(`IEnumerable<Object>` Items, `String` ListOrdenator) |  | 
 | `Printer` | WriteList(`Object[]` Items) |  | 
-| `Printer` | WritePair(`Object` Key, `Object` Value) |  | 
-| `Printer` | WritePriceLine(`String` Description, `Decimal` Price, `CultureInfo` Culture = null, `Nullable<Int32>` Columns = null) |  | 
-| `Printer` | WritePriceList(`IEnumerable<Tuple<String, Decimal>>` List, `CultureInfo` Culture = null, `Nullable<Int32>` Columns = null) |  | 
-| `Printer` | WritePriceList(`IEnumerable<T>` List, `Expression<Func<T, String>>` Description, `Expression<Func<T, Decimal>>` Price, `CultureInfo` Culture = null, `Nullable<Int32>` Columns = null) |  | 
+| `Printer` | WritePair(`Object` Key, `Object` Value, `Nullable<Int32>` Columns = null, `Char` CharLine =  ) |  | 
+| `Printer` | WritePriceLine(`String` Description, `Decimal` Price, `CultureInfo` Culture = null, `Nullable<Int32>` Columns = null, `Char` CharLine = .) |  | 
+| `Printer` | WritePriceList(`IEnumerable<Tuple<String, Decimal>>` List, `CultureInfo` Culture = null, `Nullable<Int32>` Columns = null, `Char` CharLine = .) |  | 
+| `Printer` | WritePriceList(`IEnumerable<T>` List, `Expression<Func<T, String>>` Description, `Expression<Func<T, Decimal>>` Price, `CultureInfo` Culture = null, `Nullable<Int32>` Columns = null, `Char` CharLine = .) |  | 
+| `Printer` | WriteScriptLine(`Nullable<Int32>` Columns = null, `String` Name = ) |  | 
 | `Printer` | WriteTable(`IEnumerable<T>` Items) |  | 
 | `Printer` | WriteTable(`T[]` Items) |  | 
-| `Printer` | WriteTemplate(`String` TemplateString, `Boolean` PartialCutOnEach, `T[]` obj) |  | 
+| `Printer` | WriteTemplate(`String` TemplateString, `Boolean` PartialCutOnEach, `T[]` Objects) |  | 
 | `Printer` | WriteTemplate(`String` TemplateString, `T[]` obj) |  | 
-| `Printer` | WriteTemplate(`String` TemplateString, `IEnumerable<T>` obj, `Boolean` PartiaCutOnEach = False) |  | 
+| `Printer` | WriteTemplate(`String` TemplateString, `IEnumerable<T>` obj, `Boolean` PartialCutOnEach = False) |  | 
+| `Printer` | WriteTemplate(`String` TemplateString, `T` obj, `Boolean` PartialCutOnEach = False) |  | 
 | `Printer` | WriteTest() |  | 
 
 
@@ -110,13 +127,12 @@ Static Methods
 | `Printer` | CreatePrinter(`String` PrinterName, `Int32` ColsNormal = 0, `Int32` ColsCondensed = 0, `Int32` ColsExpanded = 0, `Encoding` Encoding = null) |  | 
 | `Printer` | CreatePrinter(`Type` CommandType, `String` PrinterName, `Int32` ColsNormal = 0, `Int32` ColsCondensed = 0, `Int32` ColsExpanded = 0, `Encoding` Encoding = null) |  | 
 | `Printer` | CreatePrinter(`IPrintCommand` CommandType, `String` PrinterName, `Int32` ColsNormal = 0, `Int32` ColsCondensed = 0, `Int32` ColsExpanded = 0, `Encoding` Encoding = null) |  | 
-| `String` | FixAccents(`String` Lin) |  | 
 
 
 ## `PrinterExtension`
 
 ```csharp
-public class InnerLibs.Printer.PrinterExtension
+public static class InnerLibs.Printer.PrinterExtension
 
 ```
 

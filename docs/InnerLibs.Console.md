@@ -1,37 +1,41 @@
-## `ConsoleExtensions`
+## `Cnsl`
 
-Métodos para manipulação de aplicações baseadas em Console (System.Console)
 ```csharp
-public class InnerLibs.Console.ConsoleExtensions
+public static class InnerLibs.Console.Cnsl
 
 ```
-
-Static Properties
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `String` | Title | Titulo da janela do console | 
-
 
 Static Methods
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `void` | Beep(`Int32` Times = 1) | Toca um Beep | 
-| `void` | Beep(`Int32` Frequency, `Int32` Duration, `Int32` Times = 1) | Toca um Beep | 
-| `void` | ConsoleBreakLine(`Int32` Lines = 1) | Pula uma ou mais linhas no console | 
-| `String` | ConsoleBreakLine(this `String` Text, `Int32` Lines = 1) | Pula uma ou mais linhas no console | 
-| `String` | ConsoleWrite(this `String` Text, `Dictionary<String, ConsoleColor>` CustomColoredWords, `Int32` Lines = 0) | Escreve no console colorindo palavras especificas | 
-| `String` | ConsoleWrite(this `String` Text, `Dictionary<String, ConsoleColor>` CustomColoredWords, `StringComparison` Comparison, `Int32` BreakLines = 0) | Escreve no console colorindo palavras especificas | 
-| `String` | ConsoleWrite(this `String` Text, `Int32` BreakLines = 0) | Escreve no console colorindo palavras especificas | 
-| `String` | ConsoleWrite(this `String` Text, `ConsoleColor` Color, `Int32` BreakLines = 0) | Escreve no console colorindo palavras especificas | 
-| `T` | ConsoleWriteError(this `T` Exception, `String` Message, `ConsoleColor` Color = Red, `Int32` Lines = 1) | Escreve o texto de uma exception no console | 
-| `T` | ConsoleWriteError(this `T` Exception, `ConsoleColor` Color = Red, `Int32` Lines = 1) | Escreve o texto de uma exception no console | 
-| `String` | ConsoleWriteLine(this `String` Text, `Dictionary<String, ConsoleColor>` CustomColoredWords, `Int32` Lines = 1) | Escreve uma linha no console colorindo palavras especificas | 
-| `String` | ConsoleWriteLine(this `String` Text, `ConsoleColor` Color, `Int32` Lines = 1) | Escreve uma linha no console colorindo palavras especificas | 
-| `String` | ConsoleWriteLine(this `String` Text, `Int32` Lines = 1) | Escreve uma linha no console colorindo palavras especificas | 
-| `Char` | ReadChar() | Le o proximo caractere inserido no console pelo usuário | 
-| `ConsoleKey` | ReadKey() | Le a proxima tecla pressionada pelo usuário | 
-| `String` | ReadLine() | Le a proxima linha inserida no console pelo usuário | 
+| `String` | Beep(this `String` Text, `Int32` Times = 1) |  | 
+| `String` | Beep(this `String` Text, `Int32` Frequency, `Int32` Duration, `Int32` Times = 1) |  | 
+| `String` | ConsoleBreakLine(this `String` Text, `Int32` BreakLines = 1) |  | 
+| `String` | ConsoleBreakLine(this `Int32` BreakLines) |  | 
+| `String` | ConsoleBreakLine() |  | 
+| `String` | ConsoleLog(this `String` Text, `Nullable<DateTime>` LogDateTime = null, `Nullable<ConsoleColor>` DateColor = null, `Nullable<ConsoleColor>` MessageColor = null, `String` DateFormat = null, `Int32` BreakLines = 1) |  | 
+| `String` | ConsoleLog(this `DateTime` LogDateTime, `String` Text, `Nullable<ConsoleColor>` DateColor = null, `Nullable<ConsoleColor>` MessageColor = null, `String` DateFormat = null, `Int32` BreakLines = 1) |  | 
+| `String` | ConsoleWrite(this `String` Text, `Dictionary<String, ConsoleColor>` CustomColoredWords, `Int32` BreakLines = 0) |  | 
+| `String` | ConsoleWrite(this `String` Text, `Dictionary<String, ConsoleColor>` CustomColoredWords, `StringComparison` Comparison, `Int32` BreakLines = 0) |  | 
+| `String` | ConsoleWrite(this `String` Text, `Int32` BreakLines = 0) |  | 
+| `String` | ConsoleWrite(this `String` Text, `ConsoleColor` Color, `Int32` BreakLines = 0) |  | 
+| `T` | ConsoleWriteError(this `T` Exception, `String` Message, `String` Separator, `ConsoleColor` Color = Red, `Int32` BreakLines = 1) |  | 
+| `T` | ConsoleWriteError(this `T` Exception, `String` Separator, `ConsoleColor` Color = Red, `Int32` BreakLines = 1) |  | 
+| `T` | ConsoleWriteError(this `T` Exception, `String` Message) |  | 
+| `T` | ConsoleWriteError(this `T` Exception) |  | 
+| `T` | ConsoleWriteError(this `T` Exception, `ConsoleColor` Color, `Int32` BreakLines = 1) |  | 
+| `T` | ConsoleWriteError(this `T` Exception, `Int32` BreakLines) |  | 
+| `String` | ConsoleWriteLine(this `String` Text, `Dictionary<String, ConsoleColor>` CustomColoredWords, `Int32` BreakLines = 1) |  | 
+| `String` | ConsoleWriteLine(this `String` Text, `ConsoleColor` Color, `Int32` BreakLines = 1) |  | 
+| `String` | ConsoleWriteLine(this `String` Text, `Int32` BreakLines = 1) |  | 
+| `String` | ConsoleWriteSeparator(`Char` Separator = -, `Nullable<ConsoleColor>` Color = null, `Int32` BreakLines = 1) |  | 
+| `String` | ConsoleWriteSeparator(this `String` Text, `Char` Separator = -, `Nullable<ConsoleColor>` Color = null, `Int32` BreakLines = 1) |  | 
+| `String` | ConsoleWriteTitle(this `String` Text, `Nullable<ConsoleColor>` Color = null, `Int32` BreakLines = 1) |  | 
+| `String` | ConsoleWriteTitleBar(this `String` Text, `Nullable<ConsoleColor>` Color = null, `Int32` BreakLines = 1, `Char` BarChar = -) |  | 
+| `String` | GetArgumentValue(this `String[]` args, `String` ArgName, `String` ValueIfNull = null) |  | 
+| `T` | GetArgumentValue(this `String[]` args, `String` ArgName, `T` ValueIfNull = null) |  | 
+| `Char` | ReadChar(this `Char&` Char) |  | 
+| `ConsoleKey` | ReadConsoleKey(this `ConsoleKey&` Key) |  | 
 
 

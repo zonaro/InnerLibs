@@ -61,7 +61,7 @@ Properties
 ## `Select2Extensions`
 
 ```csharp
-public class InnerLibs.Select2.Select2Extensions
+public static class InnerLibs.Select2.Select2Extensions
 
 ```
 
@@ -69,6 +69,8 @@ Static Methods
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
+| `Select2Data` | CreateSelect2Data(this `IEnumerable<T>` List) |  | 
+| `Select2Data` | CreateSelect2Data(this `IEnumerable<Select2Option>` List) |  | 
 | `Select2Data` | CreateSelect2Data(this `IEnumerable<T>` List, `Func<T, String>` TextSelector, `Func<T, String>` IdSelector, `Action<T, OptionType>` OtherSelectors = null, `Func<T, String>` GroupSelector = null) |  | 
 | `Select2Data` | CreateSelect2Data(this `PaginationFilter<T1, T2>` Filter, `Func<T2, String>` TextSelector, `Func<T2, String>` IdSelector, `Func<T2, String>` GroupSelector = null, `Action<T2, OptionsType>` OtherSelectors = null) |  | 
 | `Select2Data` | CreateSelect2Data(this `PaginationFilter<T1, T2>` Filter, `Func<T2, String>` TextSelector, `Func<T2, String>` IdSelector, `Action<T2, OptionsType>` OtherSelectors) |  | 
@@ -97,7 +99,7 @@ Properties
 
 ```csharp
 public class InnerLibs.Select2.Select2Option
-    : ISelect2Option, ISelect2Result
+    : ISelect2Option, ISelect2Result, IComparable<Select2Option>, IComparable
 
 ```
 
@@ -115,6 +117,8 @@ Methods
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
+| `Int32` | CompareTo(`Object` obj) |  | 
+| `Int32` | CompareTo(`Select2Option` other) |  | 
 | `String` | ToString() |  | 
 
 

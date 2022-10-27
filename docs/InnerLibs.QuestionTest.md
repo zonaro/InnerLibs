@@ -1,6 +1,5 @@
 ## `Alternative`
 
-Objeto que representa uma alternativa de uma pergunta de alternativas
 ```csharp
 public class InnerLibs.QuestionTest.Alternative
 
@@ -10,13 +9,13 @@ Properties
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `Boolean` | Checked | Valor que indica se esta alternativa foi assinalada | 
-| `Boolean` | Correct | Valor que indica se a alternativa está correta ou verdadeira | 
-| `String` | ID | ID da alternativa | 
-| `Boolean` | IsCorrect | Verifica se a resposta do usuário é correta para esta alternativa | 
-| `Int32` | Number | O numero da alternativa | 
+| `Boolean` | Checked |  | 
+| `Boolean` | Correct |  | 
+| `String` | ID |  | 
+| `Boolean` | IsCorrect |  | 
+| `Int32` | Number |  | 
 | `AlternativeQuestion` | Question |  | 
-| `String` | Text | Texto da alternativa | 
+| `String` | Text |  | 
 
 
 Methods
@@ -28,7 +27,6 @@ Methods
 
 ## `AlternativeList`
 
-Lista de Alternativas de uma questão de alternativas
 ```csharp
 public class InnerLibs.QuestionTest.AlternativeList
     : ObservableCollection<Alternative>, IList<Alternative>, ICollection<Alternative>, IEnumerable<Alternative>, IEnumerable, IList, ICollection, IReadOnlyList<Alternative>, IReadOnlyCollection<Alternative>, INotifyCollectionChanged, INotifyPropertyChanged
@@ -46,14 +44,13 @@ Methods
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `void` | Add(`String` Text, `Boolean` Correct) | Adiciona uma alternativa a questão. A alternativa é ignorada se já existir na lista | 
+| `void` | Add(`String` Text, `Boolean` Correct) |  | 
 | `void` | AddRange(`IEnumerable<Alternative>` Alternatives) |  | 
 | `String` | ToString() |  | 
 
 
 ## `AlternativeQuestion`
 
-Classe base para questões de 'alternativa' ou de 'verdadeiro ou falso'
 ```csharp
 public abstract class InnerLibs.QuestionTest.AlternativeQuestion
     : Question
@@ -64,15 +61,14 @@ Properties
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `Boolean` | AllowMultiple | Verifica se esta pergunta permite multiplas alternativas | 
-| `AlternativeList` | Alternatives | Lista de alternativas da questão | 
-| `IEnumerable<Alternative>` | Answer | Retorna as alternativas marcadas pelo usuário | 
-| `Boolean` | RenderAsSelect | Indica se esta alternativa deve ser renderizada no HTML como um <see cref="!:HtmlSelectElement" />. Caso Contrario, serão renderizadas como listas de Check Box ou Radio Button | 
+| `Boolean` | AllowMultiple |  | 
+| `AlternativeList` | Alternatives |  | 
+| `IEnumerable<Alternative>` | Answer |  | 
+| `Boolean` | RenderAsSelect |  | 
 
 
 ## `DissertativeQuestion`
 
-Questão Dissertativa. Deve ser corrigida manualmente
 ```csharp
 public class InnerLibs.QuestionTest.DissertativeQuestion
     : Question
@@ -83,17 +79,16 @@ Properties
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `String` | Answer | Resposta dissertativa da pergunta | 
-| `Decimal` | Assertiveness | Assertividade da questão, uma valor entre 0 e o peso da questão que representa o quanto esta questão está correta | 
-| `Boolean` | Correct | Valor que indica se a questão está de alguma forma correta | 
-| `Decimal` | Hits | Representa quantos pontos essa questão vale de acordo com a assertividade | 
-| `Boolean` | IsCorrect | Verifica se a pergunta está preenchida | 
-| `Int32` | Lines | Numero de linhas que devem ser impressas para esta questão | 
+| `String` | Answer |  | 
+| `Decimal` | Assertiveness |  | 
+| `Boolean` | Correct |  | 
+| `Decimal` | Hits |  | 
+| `Boolean` | IsCorrect |  | 
+| `Int32` | Lines |  | 
 
 
 ## `MultipleAlternativeQuestion`
 
-Pergunta de Verdadeiro ou Falso. O Usuário deverá assinalar as questões verdadeiras ou falsas correspondente ao enunciado da pergunta.
 ```csharp
 public class InnerLibs.QuestionTest.MultipleAlternativeQuestion
     : AlternativeQuestion
@@ -104,13 +99,12 @@ Properties
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `Decimal` | Hits | Retorna um numero que representa o quanto o usuario acertou essa pergunta | 
-| `Boolean` | IsCorrect | Verifica se a pergunta está corretamente assinalada | 
+| `Decimal` | Hits |  | 
+| `Boolean` | IsCorrect |  | 
 
 
 ## `NumericQuestion`
 
-Questões em que a resposta é numerica e implica diretamente no peso da questão (normalmente utilizada em pesquisas)
 ```csharp
 public class InnerLibs.QuestionTest.NumericQuestion
     : Question
@@ -121,16 +115,15 @@ Properties
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `Decimal` | Answer | Pontos que o usuario atribuiu a esta questão | 
-| `Decimal` | Hits | Pontos multiplicados pelo peso da questão | 
-| `Boolean` | IsCorrect | Perguntas numericas sempre estão corretas. Neste caso, o que vale é a resposta multiplicada pelo peso que implica diretamente no peso da avaliação | 
-| `Decimal` | MaxValue | Maior valor permitido pela questão | 
-| `Decimal` | MinValue | Menor valor permitido pela questão | 
+| `Decimal` | Answer |  | 
+| `Decimal` | Hits |  | 
+| `Boolean` | IsCorrect |  | 
+| `Decimal` | MaxValue |  | 
+| `Decimal` | MinValue |  | 
 
 
 ## `Question`
 
-Classe Base para as questões de uma avaliação
 ```csharp
 public abstract class InnerLibs.QuestionTest.Question
 
@@ -140,27 +133,26 @@ Properties
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `Decimal` | Hits | Retorna um numero que representa o quanto o usuario acertou essa pergunta | 
-| `String` | ID | O codigo de identificação desta questão | 
-| `Boolean` | IsCorrect | Verifica se a pergunta está corretamente assinalada | 
-| `Int32` | Number | Numero da questão | 
-| `String` | QuestionType | Tipo da QUestão | 
-| `Boolean` | Reviewed | Indica se esta questão foi revisada pelo professor | 
-| `QuestionStatement` | Statement | Enunciado da questão (texto da pergunta) | 
-| `QuestionTest` | Test | Teste a qual esta questão pertence | 
-| `Decimal` | Weight | Peso da Pergunta | 
+| `Decimal` | Hits |  | 
+| `String` | ID |  | 
+| `Boolean` | IsCorrect |  | 
+| `Int32` | Number |  | 
+| `String` | QuestionType |  | 
+| `Boolean` | Reviewed |  | 
+| `QuestionStatement` | Statement |  | 
+| `QuestionTest` | Test |  | 
+| `Decimal` | Weight |  | 
 
 
 Methods
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `String` | ToString() | Return the statment text for this question | 
+| `String` | ToString() |  | 
 
 
 ## `QuestionStatement`
 
-Enunciado de uma pergunta
 ```csharp
 public class InnerLibs.QuestionTest.QuestionStatement
 
@@ -170,9 +162,9 @@ Properties
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `StatementImages` | Images | Imagens adicionadas ao enunciado (com legenda) | 
+| `StatementImages` | Images |  | 
 | `Question` | Question |  | 
-| `String` | Text | Texto do enunciado | 
+| `String` | Text |  | 
 
 
 Methods
@@ -184,7 +176,6 @@ Methods
 
 ## `QuestionTest`
 
-Classe que representa uma Avaliação de Perguntas e respostas, podendo elas serem Dissertativas, Multipla Escolha ou de Atribuição de Pontos
 ```csharp
 public class InnerLibs.QuestionTest.QuestionTest
     : ObservableCollection<Question>, IList<Question>, ICollection<Question>, IEnumerable<Question>, IEnumerable, IList, ICollection, IReadOnlyList<Question>, IReadOnlyCollection<Question>, INotifyCollectionChanged, INotifyPropertyChanged
@@ -195,40 +186,39 @@ Properties
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `Decimal` | Average | Média da Avaliação | 
-| `Decimal` | Bonus | Pontos de bonificação que serão somados a média final da avaliação | 
-| `Int32` | FailPercent | Porcentagem de Erros do Usuário | 
-| `Int32` | Fails | Numero de questões que o usuário errou | 
-| `Decimal` | FinalNote | Nota final da avaliação (Bonus + Média) | 
-| `String` | Footer | Rodapé da prova. Texto adicional que ficará após as questões | 
-| `String` | Header | Cabeçalho da prova. Texto adicional que ficará antes das questões e apoós o título | 
-| `Int32` | HitPercent | Porcentagem de Acertos do Usuário | 
-| `Int32` | Hits | Numero de questões que o usuário acertou | 
-| `String` | ID | Informações adicionais, normalmente nome do usuario e outras informações unicas | 
-| `Boolean` | IsApproved | Retorna TRUE se a nota final (média da avaliação + os bonus) é maior ou igual ao minimo permitido, caso contrário, FALSE | 
-| `Boolean` | IsValid | Verifica se o peso da prova equivale a soma dos pesos das questões | 
-| `Decimal` | MinimumWeightAllowed | Valor Minimo da nota para aprovação (Normalmente 6) | 
-| `Dictionary<String, Object>` | PersonalInfo | Informações adicionais, normalmente nome do usuario e outras informações unicas | 
-| `QuestionTest` | Questions | Retorna as questões desta avaliação | 
-| `String` | Title | Titulo da Avaliação | 
-| `Decimal` | Weight | Peso da Avaliação (Normalmente 10) | 
+| `Decimal` | Average |  | 
+| `Decimal` | Bonus |  | 
+| `Decimal` | FailPercent |  | 
+| `Int32` | Fails |  | 
+| `Decimal` | FinalNote |  | 
+| `String` | Footer |  | 
+| `String` | Header |  | 
+| `Decimal` | HitPercent |  | 
+| `Int32` | Hits |  | 
+| `String` | ID |  | 
+| `Boolean` | IsApproved |  | 
+| `Boolean` | IsValid |  | 
+| `Decimal` | MinimumWeightAllowed |  | 
+| `Dictionary<String, Object>` | PersonalInfo |  | 
+| `QuestionTest` | Questions |  | 
+| `String` | Title |  | 
+| `Decimal` | Weight |  | 
 
 
 Methods
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `QuestionType` | CreateQuestion() | Adiciona uma nova questão a avaliação. | 
-| `Alternative` | GetAlternative(`String` ID) | Pega uma Alternativa de uma Questão pelo ID | 
-| `T` | GetQuestion(`String` ID) | Pega uma questão por ID | 
-| `void` | SetMinimumAllowedAsHalf(`Decimal` Weight = 0) | Configura o valor minimo permitido para aprovação como metade do peso da avaliação | 
-| `void` | SetMinimumAllowedAsPercent(`String` Percent, `Decimal` Weight = 0) | Configura o valor minimo permitido para aprovação como n% do peso da avaliação | 
+| `QuestionType` | CreateQuestion() |  | 
+| `Alternative` | GetAlternative(`String` ID) |  | 
+| `T` | GetQuestion(`String` ID) |  | 
+| `void` | SetMinimumAllowedAsHalf(`Decimal` Weight = 0) |  | 
+| `void` | SetMinimumAllowedAsPercent(`String` Percent, `Decimal` Weight = 0) |  | 
 | `String` | ToString() |  | 
 
 
 ## `SingleAlternativeQuestion`
 
-Pergunta de alternativa. o Usuário deverá assinalar a UNICA alternativa correta entre varias alternativas
 ```csharp
 public class InnerLibs.QuestionTest.SingleAlternativeQuestion
     : AlternativeQuestion
@@ -239,14 +229,13 @@ Properties
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `Decimal` | Hits | Retorna um numero que representa o quanto o usuario acertou essa pergunta | 
-| `Boolean` | IsCorrect | Verifica se a pergunta está corretamente assinalada. Anula a questão automaticamente se estiver mal formada (com mais de uma alternativa correta ou nenhuma alternativa correta) | 
-| `Boolean` | IsValidQuestion | Verifica se as existe apenas uma unica alternativa correta na questão | 
+| `Decimal` | Hits |  | 
+| `Boolean` | IsCorrect |  | 
+| `Boolean` | IsValidQuestion |  | 
 
 
 ## `StatementImage`
 
-Imagem com legenda de um enunciado
 ```csharp
 public class InnerLibs.QuestionTest.StatementImage
 
@@ -257,14 +246,13 @@ Properties
 | Type | Name | Summary | 
 | --- | --- | --- | 
 | `String` | HTML |  | 
-| `Image` | Image | Imagem do enunciado | 
+| `Image` | Image |  | 
 | `StatementImages` | StatementImages |  | 
-| `String` | Subtitle | Legenda da Imagem | 
+| `String` | Subtitle |  | 
 
 
 ## `StatementImages`
 
-Imagens adicionada a um enuncidado
 ```csharp
 public class InnerLibs.QuestionTest.StatementImages
     : List<StatementImage>, IList<StatementImage>, ICollection<StatementImage>, IEnumerable<StatementImage>, IEnumerable, IList, ICollection, IReadOnlyList<StatementImage>, IReadOnlyCollection<StatementImage>

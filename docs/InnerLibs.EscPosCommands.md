@@ -12,7 +12,7 @@ Properties
 | --- | --- | --- | 
 | `Int32` | ColsCondensed |  | 
 | `Int32` | ColsExpanded |  | 
-| `Int32` | ColsNomal |  | 
+| `Int32` | ColsNormal |  | 
 | `Encoding` | Encoding |  | 
 
 
@@ -26,15 +26,15 @@ Methods
 | `Byte[]` | Code128(`String` code) |  | 
 | `Byte[]` | Code39(`String` code) |  | 
 | `Byte[]` | Condensed(`Boolean` state) |  | 
-| `Byte[]` | DoubleWidth2() |  | 
-| `Byte[]` | DoubleWidth3() |  | 
 | `Byte[]` | Ean13(`String` code) |  | 
 | `Byte[]` | Expanded(`Boolean` state) |  | 
 | `Byte[]` | FullCut() |  | 
 | `Byte[]` | Initialize() |  | 
 | `Byte[]` | Italic(`Boolean` state) |  | 
+| `Byte[]` | LargeFont() |  | 
+| `Byte[]` | LargerFont() |  | 
 | `Byte[]` | Left() |  | 
-| `Byte[]` | NormalWidth() |  | 
+| `Byte[]` | NormalFont() |  | 
 | `Byte[]` | OpenDrawer() |  | 
 | `Byte[]` | PartialCut() |  | 
 | `Byte[]` | PrintImage(`Image` image, `Boolean` highDensity) |  | 

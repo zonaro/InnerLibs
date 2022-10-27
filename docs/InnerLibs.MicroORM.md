@@ -1,6 +1,20 @@
+## `ColumnName`
+
+```csharp
+public class InnerLibs.MicroORM.ColumnName
+    : Attribute, _Attribute
+
+```
+
+Properties
+
+| Type | Name | Summary | 
+| --- | --- | --- | 
+| `String[]` | Names |  | 
+
+
 ## `Condition`
 
-A condition with optional AND and OR clauses that can be used in WHERE or JOIN ON statements.
 ```csharp
 public class InnerLibs.MicroORM.Condition
 
@@ -10,16 +24,16 @@ Methods
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `Condition` | And(`FormattableString` condition) | Appends the given condition with AND in this condition. | 
-| `Condition` | And(`Condition` condition) | Appends the given condition with AND in this condition. | 
+| `Condition` | And(`FormattableString` condition) |  | 
+| `Condition` | And(`Condition` condition) |  | 
 | `Condition` | AndAll(`FormattableString[]` Conditions) |  | 
 | `Condition` | AndAny(`FormattableString[]` Conditions) |  | 
-| `Condition` | Or(`FormattableString` condition) | Appends the given condition with OR in this condition. | 
-| `Condition` | Or(`Condition` condition) | Appends the given condition with OR in this condition. | 
+| `Condition` | Or(`FormattableString` condition) |  | 
+| `Condition` | Or(`Condition` condition) |  | 
 | `Condition` | OrAll(`FormattableString[]` Conditions) |  | 
 | `Condition` | OrAny(`FormattableString[]` Conditions) |  | 
-| `String` | ParenthesisToString() | Returns the condition statement as a SQL query in parenthesis. | 
-| `String` | ToString() | Returns the condition statement as a SQL query. | 
+| `String` | ParenthesisToString() |  | 
+| `String` | ToString() |  | 
 
 
 Static Methods
@@ -30,10 +44,35 @@ Static Methods
 | `Condition` | OrMany(`FormattableString[]` conditions) |  | 
 
 
+## `DataSetType`
+
+```csharp
+public static class InnerLibs.MicroORM.DataSetType
+
+```
+
+Static Fields
+
+| Type | Name | Summary | 
+| --- | --- | --- | 
+| `String` | Many |  | 
+| `String` | Pair |  | 
+| `String` | Row |  | 
+| `String` | Value |  | 
+| `String` | Values |  | 
+
+
+Static Methods
+
+| Type | Name | Summary | 
+| --- | --- | --- | 
+| `IEnumerable<String>` | ToList() |  | 
+
+
 ## `DbExtensions`
 
 ```csharp
-public class InnerLibs.MicroORM.DbExtensions
+public static class InnerLibs.MicroORM.DbExtensions
 
 ```
 
@@ -42,53 +81,118 @@ Static Properties
 | Type | Name | Summary | 
 | --- | --- | --- | 
 | `Dictionary<Type, DbType>` | DbTypes |  | 
+| `TextWriter` | LogWriter |  | 
 
 
 Static Methods
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `DbCommand` | CreateCommand(this `DbConnection` Connection, `String` SQL, `NameValueCollection` Parameters) |  | 
-| `DbCommand` | CreateCommand(this `DbConnection` Connection, `String` SQL, `Dictionary<String, Object>` Parameters) |  | 
-| `DbCommand` | CreateCommand(this `DbConnection` Connection, `FormattableString` SQL) |  | 
-| `IEnumerable<DbCommand>` | CreateINSERTCommand(this `DbConnection` Connection, `IEnumerable<T>` obj, `String` TableName = null) |  | 
-| `DbCommand` | CreateINSERTCommand(this `DbConnection` Connection, `T` obj, `String` TableName = null) |  | 
-| `DbType` | GetDbType(this `T` obj, `DbType` Def = Object) |  | 
-| `Type` | GetTypeFromDb(this `DbType` Type, `Type` Def = null) |  | 
-| `List<T>` | Map(this `DbDataReader` Reader, `Object[]` args) | Mapeia os objetos de um datareader para uma classe | 
+| `String` | AsSQLColumns(this `IDictionary<String, Object>` obj, `Char` Quote = [) |  | 
+| `String` | AsSQLColumns(this `T` obj, `Char` Quote = [) |  | 
+| `String` | AsSQLColumns(this `NameValueCollection` obj, `Char` Quote = [, `String[]` Keys) |  | 
+| `DbCommand` | BeforeRun(`DbConnection&` Connection, `DbCommand&` Command, `TextWriter` LogWriter = null) |  | 
+| `IEnumerable<String>` | ColumnsFromClass() |  | 
+| `DbCommand` | CreateCommand(this `DbConnection` Connection, `FileInfo` SQLFile, `T` obj, `DbTransaction` Transaction = null) |  | 
+| `DbCommand` | CreateCommand(`DbConnection` connection, `String` SQL, `T` obj, `DbTransaction` transaction = null) |  | 
+| `DbCommand` | CreateCommand(this `DbConnection` Connection, `FileInfo` SQLFile, `Dictionary<String, Object>` Parameters, `DbTransaction` Transaction = null) |  | 
+| `DbCommand` | CreateCommand(this `DbConnection` Connection, `FileInfo` SQLFile, `NameValueCollection` Parameters, `DbTransaction` Transaction = null) |  | 
+| `DbCommand` | CreateCommand(this `DbConnection` Connection, `String` SQL, `NameValueCollection` Parameters, `DbTransaction` Transaction = null) |  | 
+| `DbCommand` | CreateCommand(this `DbConnection` Connection, `String` SQL, `Dictionary<String, Object>` Parameters, `DbTransaction` Transaction = null) |  | 
+| `DbCommand` | CreateCommand(this `DbConnection` Connection, `String` SQL, `String[]` Args) |  | 
+| `DbCommand` | CreateCommand(this `DbConnection` Connection, `String` SQL, `DbTransaction` Transaction, `String[]` Args) |  | 
+| `DbCommand` | CreateCommand(this `DbConnection` Connection, `FileInfo` SQLFile, `String[]` Args) |  | 
+| `DbCommand` | CreateCommand(this `DbConnection` Connection, `FileInfo` SQLFile, `DbTransaction` Transaction, `String[]` Args) |  | 
+| `DbCommand` | CreateCommand(this `DbConnection` Connection, `FormattableString` SQL, `DbTransaction` Transaction = null) |  | 
+| `IEnumerable<DbCommand>` | CreateINSERTCommand(this `DbConnection` Connection, `IEnumerable<T>` obj, `String` TableName = null, `DbTransaction` Transaction = null) |  | 
+| `DbCommand` | CreateINSERTCommand(this `DbConnection` Connection, `T` obj, `String` TableName = null, `DbTransaction` Transaction = null) |  | 
+| `SQLResponse<Object>` | CreateSQLQuickResponse(this `DbConnection` Connection, `FormattableString` Command, `String` DataSetType, `Boolean` IncludeCommandText = False) |  | 
+| `SQLResponse<Object>` | CreateSQLQuickResponse(this `DbCommand` Command, `String` DataSetType, `Boolean` IncludeCommandText = False) |  | 
+| `DbCommand` | CreateUPDATECommand(this `DbConnection` Connection, `T` obj, `FormattableString` WhereClausule, `String` TableName = null, `DbTransaction` Transaction = null) |  | 
+| `String` | FormatSQLColumn(`Char` QuoteChar, `String[]` ColumnNameParts) |  | 
+| `String` | FormatSQLColumn(`String[]` ColumnNameParts) |  | 
+| `DbType` | GetDbType(this `T` obj, `DbType` DefaultType = Object) |  | 
+| `Type` | GetTypeFromDb(this `DbType` Type, `Type` DefaultType = null) |  | 
+| `Boolean` | IsBroken(this `DbConnection` Connection) |  | 
+| `Boolean` | IsClosed(this `DbConnection` Connection) |  | 
+| `Boolean` | IsConnecting(this `DbConnection` Connection) |  | 
+| `Boolean` | IsExecuting(this `DbConnection` Connection) |  | 
+| `Boolean` | IsOpen(this `DbConnection` Connection) |  | 
+| `DbCommand` | LogCommand(this `DbCommand` Command, `TextWriter` LogWriter = null) |  | 
+| `IEnumerable<T>` | Map(this `DbDataReader` Reader, `Object[]` args) |  | 
 | `T` | MapFirst(this `DbDataReader` Reader, `Object[]` args) |  | 
 | `IEnumerable<IEnumerable<Dictionary<String, Object>>>` | MapMany(this `DbDataReader` Reader) |  | 
-| `IEnumerable<Object>` | RunSQLArray(this `DbConnection` Connection, `DbCommand` SQL) |  | 
-| `IEnumerable<Object>` | RunSQLArray(this `DbConnection` Connection, `FormattableString` SQL) |  | 
-| `IEnumerable<T>` | RunSQLArray(this `DbConnection` Connection, `DbCommand` SQL) |  | 
-| `IEnumerable<IEnumerable<Dictionary<String, Object>>>` | RunSQLMany(this `DbConnection` Connection, `FormattableString` SQL) | Executa uma query SQL parametrizada e retorna os resultados mapeados em listas de `System.Collections.Generic.Dictionary`2` | 
-| `IEnumerable<IEnumerable<Dictionary<String, Object>>>` | RunSQLMany(this `DbConnection` Connection, `DbCommand` Command) | Executa uma query SQL parametrizada e retorna os resultados mapeados em listas de `System.Collections.Generic.Dictionary`2` | 
-| `Int32` | RunSQLNone(this `DbConnection` Connection, `FormattableString` SQL) |  | 
+| `Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>, IEnumerable<T5>>` | MapMany(this `DbDataReader` Reader) |  | 
+| `Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>>` | MapMany(this `DbDataReader` Reader) |  | 
+| `Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>>` | MapMany(this `DbDataReader` Reader) |  | 
+| `Tuple<IEnumerable<T1>, IEnumerable<T2>>` | MapMany(this `DbDataReader` Reader) |  | 
+| `ConnectionType` | OpenConnection(this `ConnectionStringParser` connection) |  | 
+| `T` | ProccessSubQuery(this `DbConnection` Connection, `T` d, `String` PropertyName, `Boolean` Recursive = False) |  | 
+| `T` | ProccessSubQuery(this `DbConnection` Connection, `T` d, `Boolean` Recursive = False) |  | 
+| `String` | QueryForClass(`Object` InjectionObject = null) |  | 
+| `IEnumerable<T>` | RunSQLArray(this `DbConnection` Connection, `DbCommand` Command) |  | 
+| `IEnumerable<T>` | RunSQLArray(this `DbConnection` Connection, `FormattableString` SQL, `DbTransaction` Transaction = null) |  | 
+| `IEnumerable<Object>` | RunSQLArray(this `DbConnection` Connection, `DbCommand` Command) |  | 
+| `IEnumerable<Object>` | RunSQLArray(this `DbConnection` Connection, `FormattableString` SQL, `DbTransaction` Transaction = null) |  | 
+| `IEnumerable<IEnumerable<Dictionary<String, Object>>>` | RunSQLMany(this `DbConnection` Connection, `FormattableString` SQL, `DbTransaction` Transaction = null) |  | 
+| `IEnumerable<IEnumerable<Dictionary<String, Object>>>` | RunSQLMany(this `DbConnection` Connection, `DbCommand` Command) |  | 
+| `Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>, IEnumerable<T5>>` | RunSQLMany(this `DbConnection` Connection, `FormattableString` SQL, `DbTransaction` Transaction = null) |  | 
+| `Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>, IEnumerable<T5>>` | RunSQLMany(this `DbConnection` Connection, `DbCommand` Command) |  | 
+| `Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>>` | RunSQLMany(this `DbConnection` Connection, `FormattableString` SQL, `DbTransaction` Transaction = null) |  | 
+| `Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>>` | RunSQLMany(this `DbConnection` Connection, `DbCommand` Command) |  | 
+| `Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>>` | RunSQLMany(this `DbConnection` Connection, `FormattableString` SQL, `DbTransaction` Transaction = null) |  | 
+| `Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>>` | RunSQLMany(this `DbConnection` Connection, `DbCommand` Command) |  | 
+| `Tuple<IEnumerable<T1>, IEnumerable<T2>>` | RunSQLMany(this `DbConnection` Connection, `FormattableString` SQL, `DbTransaction` Transaction = null) |  | 
+| `Tuple<IEnumerable<T1>, IEnumerable<T2>>` | RunSQLMany(this `DbConnection` Connection, `DbCommand` Command) |  | 
+| `Int32` | RunSQLNone(this `DbConnection` Connection, `FormattableString` SQL, `DbTransaction` Transaction = null) |  | 
 | `Int32` | RunSQLNone(this `DbConnection` Connection, `DbCommand` Command) |  | 
 | `Dictionary<Object, Object>` | RunSQLPairs(this `DbConnection` Connection, `DbCommand` SQL) |  | 
-| `Dictionary<Object, Object>` | RunSQLPairs(this `DbConnection` Connection, `FormattableString` SQL) |  | 
+| `Dictionary<Object, Object>` | RunSQLPairs(this `DbConnection` Connection, `FormattableString` SQL, `DbTransaction` Transaction = null) |  | 
 | `Dictionary<K, V>` | RunSQLPairs(this `DbConnection` Connection, `DbCommand` SQL) |  | 
-| `Dictionary<K, V>` | RunSQLPairs(this `DbConnection` Connection, `FormattableString` SQL) |  | 
-| `Dictionary<String, Object>` | RunSQLRow(this `DbConnection` Connection, `FormattableString` SQL) | Executa uma query SQL parametrizada e retorna o resultado da primeira linha mapeada para uma classe POCO do tipo <see cref="!:T" /> | 
-| `Dictionary<String, Object>` | RunSQLRow(this `DbConnection` Connection, `DbCommand` SQL) | Executa uma query SQL parametrizada e retorna o resultado da primeira linha mapeada para uma classe POCO do tipo <see cref="!:T" /> | 
-| `T` | RunSQLRow(this `DbConnection` Connection, `DbCommand` SQL) | Executa uma query SQL parametrizada e retorna o resultado da primeira linha mapeada para uma classe POCO do tipo <see cref="!:T" /> | 
-| `T` | RunSQLRow(this `DbConnection` Connection, `FormattableString` SQL) | Executa uma query SQL parametrizada e retorna o resultado da primeira linha mapeada para uma classe POCO do tipo <see cref="!:T" /> | 
-| `IEnumerable<Dictionary<String, Object>>` | RunSQLSet(this `DbConnection` Connection, `FormattableString` SQL) | Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset mapeados para uma lista de classe POCO do tipo <see cref="!:T" /> | 
-| `IEnumerable<Dictionary<String, Object>>` | RunSQLSet(this `DbConnection` Connection, `DbCommand` SQL) | Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset mapeados para uma lista de classe POCO do tipo <see cref="!:T" /> | 
-| `IEnumerable<T>` | RunSQLSet(this `DbConnection` Connection, `FormattableString` SQL) | Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset mapeados para uma lista de classe POCO do tipo <see cref="!:T" /> | 
-| `IEnumerable<T>` | RunSQLSet(this `DbConnection` Connection, `DbCommand` SQL) | Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset mapeados para uma lista de classe POCO do tipo <see cref="!:T" /> | 
+| `Dictionary<K, V>` | RunSQLPairs(this `DbConnection` Connection, `FormattableString` SQL, `DbTransaction` Transaction = null) |  | 
+| `DbDataReader` | RunSQLReader(this `DbConnection` Connection, `FormattableString` SQL, `DbTransaction` Transaction = null) |  | 
+| `DbDataReader` | RunSQLReader(this `DbConnection` Connection, `DbCommand` Command) |  | 
+| `T` | RunSQLRow(this `DbConnection` Connection, `Select<T>` Select, `Boolean` WithSubQueries = False, `DbTransaction` Transaction = null) |  | 
+| `Dictionary<String, Object>` | RunSQLRow(this `DbConnection` Connection, `FormattableString` SQL, `DbTransaction` Transaction = null) |  | 
+| `Dictionary<String, Object>` | RunSQLRow(this `DbConnection` Connection, `DbCommand` SQL) |  | 
+| `T` | RunSQLRow(this `DbConnection` Connection, `DbCommand` SQL, `Boolean` WithSubQueries = False) |  | 
+| `T` | RunSQLRow(this `DbConnection` Connection, `FormattableString` SQL, `Boolean` WithSubQueries = False, `DbTransaction` Transaction = null) |  | 
+| `T` | RunSQLRow(this `DbConnection` Connection, `Boolean` WithSubQueries = False, `DbTransaction` Transaction = null, `Object` InjectionObject = null) |  | 
+| `IEnumerable<T>` | RunSQLSet(this `DbConnection` Connection, `Select<T>` Select, `Boolean` WithSubQueries = False, `DbTransaction` Transaction = null) |  | 
+| `IEnumerable<T>` | RunSQLSet(this `DbConnection` Connection, `Boolean` WithSubQueries = False, `DbTransaction` Transaction = null, `Object` InjectionObject = null) |  | 
+| `IEnumerable<Dictionary<String, Object>>` | RunSQLSet(this `DbConnection` Connection, `FormattableString` SQL, `DbTransaction` Transaction = null) |  | 
+| `IEnumerable<Dictionary<String, Object>>` | RunSQLSet(this `DbConnection` Connection, `DbCommand` SQL) |  | 
+| `IEnumerable<T>` | RunSQLSet(this `DbConnection` Connection, `FormattableString` SQL, `Boolean` WithSubQueries = False, `DbTransaction` Transaction = null) |  | 
+| `IEnumerable<T>` | RunSQLSet(this `DbConnection` Connection, `DbCommand` SQL, `Boolean` WithSubQueries = False) |  | 
 | `Object` | RunSQLValue(this `DbConnection` Connection, `DbCommand` Command) |  | 
-| `Object` | RunSQLValue(this `DbConnection` Connection, `FormattableString` SQL) |  | 
-| `Nullable<V>` | RunSQLValue(this `DbConnection` Connection, `DbCommand` Command) |  | 
-| `Nullable<V>` | RunSQLValue(this `DbConnection` Connection, `FormattableString` SQL) |  | 
-| `DbCommand` | ToProcedure(this `DbConnection` Connection, `String` ProcedureName, `NameValueCollection` NVC, `String[]` Keys) | Monta um Comando SQL para executar uma procedure especifica e trata valores espicificos de  um NameValueCollection como parametros da procedure | 
-| `DbCommand` | ToProcedure(this `DbConnection` Connection, `String` ProcedureName, `T` Obj, `String[]` Keys) | Monta um Comando SQL para executar uma procedure especifica e trata valores espicificos de  um NameValueCollection como parametros da procedure | 
-| `DbCommand` | ToProcedure(this `DbConnection` Connection, `String` ProcedureName, `Dictionary<String, Object>` Dic, `String[]` Keys) | Monta um Comando SQL para executar uma procedure especifica e trata valores espicificos de  um NameValueCollection como parametros da procedure | 
-| `Select` | ToSQLFilter(this `Dictionary<String, Object>` Dic, `String` TableName, `String` CommaSeparatedColumns, `LogicConcatenationOperator` LogicConcatenation, `String[]` FilterKeys) | Monta um Comando SQL para executar um SELECT com filtros a partir de um `System.Collections.Generic.Dictionary`2` | 
-| `String` | ToSQLFilter(this `NameValueCollection` NVC, `String` TableName, `String` CommaSeparatedColumns, `LogicConcatenationOperator` LogicConcatenation, `String[]` FilterKeys) | Monta um Comando SQL para executar um SELECT com filtros a partir de um `System.Collections.Generic.Dictionary`2` | 
-| `String` | ToSQLString(`Object` Obj) |  | 
-| `String` | ToSQLString(this `FormattableString` SQL) |  | 
-| `String` | ToUPDATE(this `NameValueCollection` NVC, `String` TableName, `String` WhereClausule, `String[]` Keys) | Monta um Comando SQL para executar um INSERT e trata parametros espicificos de  uma URL como as colunas da tabela de destino | 
+| `Object` | RunSQLValue(this `DbConnection` Connection, `FormattableString` SQL, `DbTransaction` Transaction = null) |  | 
+| `V` | RunSQLValue(this `DbConnection` Connection, `DbCommand` Command) |  | 
+| `V` | RunSQLValue(this `DbConnection` Connection, `FormattableString` SQL, `DbTransaction` Transaction = null) |  | 
+| `IEnumerable<DbCommand>` | ToBatchProcedure(this `DbConnection` Connection, `String` ProcedureName, `IEnumerable<T>` Items, `DbTransaction` Transaction = null, `String[]` Keys) |  | 
+| `DbCommand` | ToProcedure(this `DbConnection` Connection, `String` ProcedureName, `NameValueCollection` NVC, `DbTransaction` Transaction = null, `String[]` Keys) |  | 
+| `DbCommand` | ToProcedure(this `DbConnection` Connection, `String` ProcedureName, `T` Obj, `DbTransaction` Transaction = null, `String[]` Keys) |  | 
+| `DbCommand` | ToProcedure(this `DbConnection` Connection, `String` ProcedureName, `Dictionary<String, Object>` Dic, `DbTransaction` Transaction = null, `String[]` Keys) |  | 
+| `Select` | ToSQLFilter(this `NameValueCollection` NVC, `String` TableName, `String` CommaSeparatedColumns, `String[]` FilterKeys) |  | 
+| `Select` | ToSQLFilter(this `Dictionary<String, Object>` Dic, `String` TableName, `String` CommaSeparatedColumns, `LogicConcatenationOperator` LogicConcatenation, `String[]` FilterKeys) |  | 
+| `String` | ToSQLString(this `T` Obj, `Boolean` Parenthesis = True) |  | 
+| `String` | ToSQLString(this `FormattableString` SQL, `Boolean` Parenthesis = True) |  | 
+
+
+## `FromSQL`
+
+```csharp
+public class InnerLibs.MicroORM.FromSQL
+    : Attribute, _Attribute
+
+```
+
+Properties
+
+| Type | Name | Summary | 
+| --- | --- | --- | 
+| `String` | File |  | 
+| `String` | SQL |  | 
+| `String` | TableName |  | 
 
 
 ## `ISelect`
@@ -104,6 +208,27 @@ Methods
 | --- | --- | --- | 
 | `String` | ToString() |  | 
 | `String` | ToString(`Boolean` SubQuery) |  | 
+
+
+## `JoinType`
+
+```csharp
+public enum InnerLibs.MicroORM.JoinType
+    : Enum, IComparable, IFormattable, IConvertible
+
+```
+
+Enum
+
+| Value | Name | Summary | 
+| --- | --- | --- | 
+| `0` | Join |  | 
+| `1` | Inner |  | 
+| `2` | LeftOuterJoin |  | 
+| `3` | RightOuterJoin |  | 
+| `4` | FullOuterJoin |  | 
+| `5` | CrossJoin |  | 
+| `6` | CrossApply |  | 
 
 
 ## `Select`
@@ -126,56 +251,85 @@ Methods
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `Select<T>` | AddColumns(`O` Obj = null) |  | 
+| `Select<T>` | AddColumns(`TO` Obj = null) |  | 
 | `Select<T>` | AddColumns(`String[]` Columns) |  | 
-| `Select<T>` | And(`FormattableString[]` conditions) | Sets the WHERE clause in the SELECT being built.  If WHERE is already set, appends the condition with an AND clause. | 
-| `Select<T>` | And(`Condition[]` conditions) | Sets the WHERE clause in the SELECT being built.  If WHERE is already set, appends the condition with an AND clause. | 
-| `Select<T>` | AndAll(`FormattableString[]` conditions) | Sets the WHERE clause in the SELECT being built.  If WHERE is already set, appends the condition with an AND clause. | 
-| `Select<T>` | AndAny(`FormattableString[]` conditions) | Sets the WHERE clause in the SELECT being built.  If WHERE is already set, appends the condition with an AND clause. | 
+| `Select<T>` | And(`FormattableString[]` conditions) |  | 
+| `Select<T>` | And(`Condition[]` conditions) |  | 
+| `Select<T>` | AndAll(`FormattableString[]` conditions) |  | 
+| `Select<T>` | AndAny(`FormattableString[]` conditions) |  | 
 | `Select<T>` | AndSearch(`String` Value, `String[]` Columns) |  | 
-| `Select<T>` | AndSearch(`IEnumerable<String>` Value, `String[]` Columns) |  | 
+| `Select<T>` | AndSearch(`IEnumerable<String>` Values, `String[]` Columns) |  | 
 | `Select<T>` | ColumnQuote(`Char` QuoteChar) |  | 
-| `DbCommand` | CreateDbCommand(`DbConnection` Connection, `Dictionary<String, Object>` dic) |  | 
-| `DbCommand` | CreateDbCommand(`DbConnection` Connection) |  | 
-| `Select<T>` | CrossApply(`String` table) | Sets a CROSS JOIN clause in the SELECT being built. | 
-| `Select<T>` | CrossJoin(`String` table) | Sets a CROSS JOIN clause in the SELECT being built. | 
-| `Select<T>` | From(`String` TableOrSubQuery) | Sets the FROM clause in the SELECT being built. | 
-| `Select<T>` | From(`Select<O>` SubQuery, `String` SubQueryAlias = null) | Sets the FROM clause in the SELECT being built. | 
-| `Select<T>` | From(`Action<Select<O>>` SubQuery, `String` SubQueryAlias = null) | Sets the FROM clause in the SELECT being built. | 
-| `Select<T>` | From(`Action<Select>` SubQuery) | Sets the FROM clause in the SELECT being built. | 
-| `Select<T>` | From() | Sets the FROM clause in the SELECT being built. | 
-| `Select<T>` | FullOuterJoin(`String` table, `FormattableString` on) | Sets a FULL OUTER JOIN clause in the SELECT being built. | 
-| `Select<T>` | FullOuterJoin(`String` table, `Condition` on) | Sets a FULL OUTER JOIN clause in the SELECT being built. | 
-| `Select<T>` | GroupBy(`String[]` columns) | Sets the GROUP BY clause in the SELECT being built. | 
-| `Select<T>` | Having(`String` condition) | Sets or overwrite the HAVING clause in the SELECT being built. | 
-| `Select<T>` | InnerJoin(`String` table, `FormattableString` on) | Sets a INNER JOIN clause in the SELECT being built. | 
-| `Select<T>` | InnerJoin(`String` table, `Condition` on) | Sets a INNER JOIN clause in the SELECT being built. | 
-| `Select<T>` | Join(`String` table, `FormattableString` on) | Sets a JOIN clause in the SELECT being built. | 
-| `Select<T>` | Join(`String` table, `Condition` on) | Sets a JOIN clause in the SELECT being built. | 
-| `Select<T>` | LeftOuterJoin(`String` table, `FormattableString` on) | Sets a LEFT OUTER JOIN clause in the SELECT being built. | 
-| `Select<T>` | LeftOuterJoin(`String` table, `Condition` on) | Sets a LEFT OUTER JOIN clause in the SELECT being built. | 
+| `DbCommand` | CreateDbCommand(`DbConnection` Connection, `Dictionary<String, Object>` dic, `DbTransaction` Transaction = null) |  | 
+| `DbCommand` | CreateDbCommand(`DbConnection` Connection, `DbTransaction` Transaction = null) |  | 
+| `Select<T>` | CrossApply(`String` table) |  | 
+| `Select<T>` | CrossJoin(`String` table) |  | 
+| `String` | FormatColumnName(`String` ColumnName, `Char` QuoteChar = [) |  | 
+| `Select<T>` | From(`String` TableOrSubQuery) |  | 
+| `Select<T>` | From(`Select<TO>` SubQuery, `String` SubQueryAlias = null) |  | 
+| `Select<T>` | From(`Action<Select<O>>` SubQuery, `String` SubQueryAlias = null) |  | 
+| `Select<T>` | From(`Action<Select>` SubQuery) |  | 
+| `Select<T>` | From() |  | 
+| `Select<T>` | FullOuterJoin(`String` table, `FormattableString` on) |  | 
+| `Select<T>` | FullOuterJoin(`String` table, `Condition` on) |  | 
+| `String` | GetTableOrSubQuery() |  | 
+| `Select<T>` | GroupBy(`String[]` columns) |  | 
+| `Select<T>` | Having(`String` condition) |  | 
+| `Select<T>` | InnerJoin(`String` table, `FormattableString` on) |  | 
+| `Select<T>` | InnerJoin(`String` table, `Condition` on) |  | 
+| `Select<T>` | Join(`String` table, `FormattableString` on) |  | 
+| `Select<T>` | Join(`String` table, `Condition` on) |  | 
+| `Select<T>` | Join(`JoinType` JoinType, `String` Table, `Condition` on) |  | 
+| `Select<T>` | LeftOuterJoin(`String` table, `FormattableString` on) |  | 
+| `Select<T>` | LeftOuterJoin(`String` table, `Condition` on) |  | 
 | `Select<T>` | OffSet(`Int32` Page, `Int32` PageSize) |  | 
-| `Select<T>` | Or(`FormattableString[]` conditions) | Sets the WHERE clause in the SELECT being built.  If WHERE is already set, appends the condition with an OR clause. | 
-| `Select<T>` | Or(`Condition[]` conditions) | Sets the WHERE clause in the SELECT being built.  If WHERE is already set, appends the condition with an OR clause. | 
-| `Select<T>` | OrAll(`FormattableString[]` conditions) | Sets the WHERE clause in the SELECT being built.  If WHERE is already set, appends the condition with an AND clause. | 
-| `Select<T>` | OrAny(`FormattableString[]` conditions) | Sets the WHERE clause in the SELECT being built.  If WHERE is already set, appends the condition with an AND clause. | 
-| `Select<T>` | OrderBy(`String[]` columns) | Sets the ORDER BY clause in the SELECT being built. | 
+| `Select<T>` | Or(`FormattableString[]` conditions) |  | 
+| `Select<T>` | Or(`Condition[]` conditions) |  | 
+| `Select<T>` | OrAll(`FormattableString[]` conditions) |  | 
+| `Select<T>` | OrAny(`FormattableString[]` conditions) |  | 
+| `Select<T>` | OrderBy(`String[]` columns) |  | 
 | `Select<T>` | OrSearch(`String` Value, `String[]` Columns) |  | 
-| `Select<T>` | OrSearch(`IEnumerable<String>` Value, `String[]` Columns) |  | 
+| `Select<T>` | OrSearch(`IEnumerable<String>` Values, `String[]` Columns) |  | 
 | `Select<T>` | RemoveColumns(`String[]` Columns) |  | 
-| `Select<T>` | RightOuterJoin(`String` table, `FormattableString` on) | Sets a RIGHT OUTER JOIN clause in the SELECT being built. | 
-| `Select<T>` | RightOuterJoin(`String` table, `Condition` on) | Sets a RIGHT OUTER JOIN clause in the SELECT being built. | 
+| `Select<T>` | RightOuterJoin(`String` table, `FormattableString` on) |  | 
+| `Select<T>` | RightOuterJoin(`String` table, `Condition` on) |  | 
 | `Select<T>` | SetColumns(`String[]` Columns) |  | 
 | `Select<T>` | SetColumns(`O` Obj = null) |  | 
-| `String` | ToString() | Returns the SELECT statement as a SQL query. | 
-| `String` | ToString(`Boolean` AsSubquery) | Returns the SELECT statement as a SQL query. | 
-| `Select<T>` | Where(`FormattableString` condition) | Sets the WHERE clause in the SELECT being built. | 
-| `Select<T>` | Where(`String` LogicOperator, `IEnumerable<FormattableString>` conditions) | Sets the WHERE clause in the SELECT being built. | 
-| `Select<T>` | Where(`String` LogicOperator, `IEnumerable<Condition>` conditions) | Sets the WHERE clause in the SELECT being built. | 
-| `Select<T>` | Where(`Expression<Func<T, Boolean>>` predicate) | Sets the WHERE clause in the SELECT being built. | 
-| `Select<T>` | Where(`Condition` condition) | Sets the WHERE clause in the SELECT being built. | 
-| `Select<T>` | Where(`Condition[]` condition) | Sets the WHERE clause in the SELECT being built. | 
+| `String` | ToString() |  | 
+| `String` | ToString(`Boolean` AsSubquery) |  | 
+| `Select<T>` | Where(`FormattableString` condition) |  | 
+| `Select<T>` | Where(`String` LogicOperator, `IEnumerable<FormattableString>` conditions) |  | 
+| `Select<T>` | Where(`String` LogicOperator, `IEnumerable<Condition>` conditions) |  | 
+| `Select<T>` | Where(`Expression<Func<T, Boolean>>` predicate) |  | 
+| `Select<T>` | Where(`Condition` condition) |  | 
+| `Select<T>` | Where(`Condition[]` conditions) |  | 
+| `Object` | Where(`Dictionary<String, Object>` Dic, `LogicConcatenationOperator` LogicConcatenation, `String[]` FilterKeys) |  | 
+| `Select<T>` | Where(`NameValueCollection` NVC, `String[]` FilterKeys) |  | 
 | `Select<T>` | WhereObject(`O` Obj) |  | 
 | `Select<T>` | WhereObject(`O` Obj, `String` LogicOperator = AND) |  | 
+
+
+Static Methods
+
+| Type | Name | Summary | 
+| --- | --- | --- | 
+| `FormattableString` | CreateSearch(`IEnumerable<String>` Values, `String[]` Columns) |  | 
+
+
+## `SQLResponse<T>`
+
+```csharp
+public class InnerLibs.MicroORM.SQLResponse<T>
+
+```
+
+Properties
+
+| Type | Name | Summary | 
+| --- | --- | --- | 
+| `T` | Data |  | 
+| `String` | Message |  | 
+| `String` | SQL |  | 
+| `String` | Status |  | 
 
 

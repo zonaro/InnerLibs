@@ -30,7 +30,6 @@ Methods
 
 ## `DotEdge`
 
-Representa uma ligação entre nós de um grafico em DOT Language
 ```csharp
 public class InnerLibs.DOTLanguage.DotEdge
     : DotObject
@@ -43,7 +42,7 @@ Properties
 | --- | --- | --- | 
 | `DotNode` | ChildNode |  | 
 | `String` | ID |  | 
-| `Boolean` | Oriented | Indica se esta ligação é orientada ou não | 
+| `Boolean` | Oriented |  | 
 | `DotNode` | ParentNode |  | 
 
 
@@ -51,12 +50,11 @@ Methods
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `String` | ToString() | Escreve a DOT String desta ligaçao | 
+| `String` | ToString() |  | 
 
 
 ## `DotNode`
 
-Representa um nó de um grafico em DOT Language
 ```csharp
 public class InnerLibs.DOTLanguage.DotNode
     : DotObject
@@ -67,14 +65,14 @@ Properties
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `String` | ID | ID deste nó | 
+| `String` | ID |  | 
 
 
 Methods
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `String` | ToString() | Escreve a DOT string deste nó e seus respectivos nós filhos | 
+| `String` | ToString() |  | 
 
 
 ## `DotObject`
@@ -94,7 +92,6 @@ Properties
 
 ## `Graph`
 
-Wrapper para criaçao de gráficos em DOT Language
 ```csharp
 public class InnerLibs.DOTLanguage.Graph
     : List<DotObject>, IList<DotObject>, ICollection<DotObject>, IEnumerable<DotObject>, IEnumerable, IList, ICollection, IReadOnlyList<DotObject>, IReadOnlyCollection<DotObject>
@@ -106,8 +103,8 @@ Properties
 | Type | Name | Summary | 
 | --- | --- | --- | 
 | `List<Cluster>` | Clusters |  | 
-| `String` | GraphType | Tipo do Grafico (graph, digraph) | 
-| `String` | ID | Nome do Gráfico | 
+| `GraphType` | GraphType |  | 
+| `String` | ID |  | 
 | `Boolean` | Strict |  | 
 
 
@@ -115,6 +112,22 @@ Methods
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `String` | ToString() | Escreve a DOT string correspondente a este gráfico | 
+| `String` | ToString() |  | 
+
+
+## `GraphType`
+
+```csharp
+public enum InnerLibs.DOTLanguage.GraphType
+    : Enum, IComparable, IFormattable, IConvertible
+
+```
+
+Enum
+
+| Value | Name | Summary | 
+| --- | --- | --- | 
+| `0` | Graph |  | 
+| `1` | Digraph |  | 
 
 
