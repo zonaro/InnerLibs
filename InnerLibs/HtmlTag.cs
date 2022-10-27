@@ -212,6 +212,17 @@ namespace InnerLibs
             return this;
         }
 
+        public HtmlTag SetInnerHtml(string Html)
+        {
+            this.InnerHtml = Html;
+            return this;
+        }
+
+        public HtmlTag SetInnerText(string Text)
+        {
+            this.InnerText = Text;
+            return this;
+        }
         public HtmlTag SetAttr(string AttrName, string Value, bool RemoveIfBlank = false)
         {
             Attributes.SetOrRemove(AttrName, Value, RemoveIfBlank);
