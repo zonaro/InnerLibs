@@ -1948,6 +1948,11 @@ namespace InnerLibs
         /// <returns>String sem os acentos</returns>
         public static string RemoveAccents(this string Text)
         {
+            if (Text == null)
+            {
+                return Text;
+            }
+
             string s = Text.Normalize(NormalizationForm.FormD);
             var sb = new StringBuilder();
             int k = 0;

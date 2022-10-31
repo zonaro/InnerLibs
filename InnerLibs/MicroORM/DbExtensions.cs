@@ -1,7 +1,6 @@
 ﻿using InnerLibs.LINQ;
 using InnerLibs.TimeMachine;
 using System;
-using System.CodeDom;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -9,6 +8,7 @@ using System.Data;
 using System.Data.Common;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace InnerLibs.MicroORM
@@ -98,19 +98,6 @@ namespace InnerLibs.MicroORM
         /// </summary>
         /// <returns></returns>
         public static TextWriter LogWriter { get; set; } = new DebugTextWriter();
-
-
-        /// <summary>
-        /// Formata o nome de uma coluna SQL adicionando <paramref name="QuoteChar"/> as <paramref name="ColumnNameParts"/> e as unindo com <b>.</b>
-        /// </summary>
-        /// <param name="QuoteChar"></param>
-        /// <param name="ColumnNameParts"></param>
-        /// <returns></returns>
-        public static string FormatSQLColumn(char QuoteChar, params string[] ColumnNameParts) => ColumnNameParts.SelectJoinString(x => x.UnQuote(QuoteChar).Quote(QuoteChar), ".");
-       
-        /// Formata o nome de uma coluna SQL adicionando '[' as <paramref name="ColumnNameParts"/> e as unindo com <b>.</b>
-       
-        public static string FormatSQLColumn(params string[] ColumnNameParts) => FormatSQLColumn('[', ColumnNameParts);
 
         public static string AsSQLColumns(this IDictionary<string, object> obj, char Quote = '[') => obj.Select(x => x.Key.ToString().Quote(Quote)).SelectJoinString(",");
 
@@ -402,7 +389,13 @@ namespace InnerLibs.MicroORM
             try
             {
                 DataSetType = DataSetType.IfBlank("default").ToLower();
-                var Connection = Command.Connection;
+                var Connection = Command?.Connection;
+                if (Connection == null)
+                {
+                    resp.Status = "ERROR";
+                    resp.Message = "Command or Connection is null";
+                    return resp;
+                }
                 resp.SQL = IncludeCommandText.AsIf(Command.CommandText);
                 if (DataSetType.IsAny("value", "single", "id", "key"))
                 {
@@ -512,6 +505,18 @@ namespace InnerLibs.MicroORM
         }
 
         /// <summary>
+        /// Formata o nome de uma coluna SQL adicionando <paramref name="QuoteChar"/> as <paramref
+        /// name="ColumnNameParts"/> e as unindo com <b>.</b>
+        /// </summary>
+        /// <param name="QuoteChar"></param>
+        /// <param name="ColumnNameParts"></param>
+        /// <returns></returns>
+        public static string FormatSQLColumn(char QuoteChar, params string[] ColumnNameParts) => ColumnNameParts.WhereNotBlank().SelectJoinString(x => x.UnQuote(QuoteChar).Quote(QuoteChar), ".");
+
+        /// <inheritdoc cref="FormatSQLColumn(char, string[])"/>
+        public static string FormatSQLColumn(params string[] ColumnNameParts) => FormatSQLColumn('[', ColumnNameParts);
+
+        /// <summary>
         /// Retorna um <see cref="DbType"/> a partir do <see cref="Type"/> do <paramref name="obj"/>
         /// </summary>
         public static DbType GetDbType<T>(this T obj, DbType DefaultType = DbType.Object) => DbTypes.GetValueOr(Misc.GetNullableTypeOf(obj), DefaultType);
@@ -524,6 +529,92 @@ namespace InnerLibs.MicroORM
         /// <param name="DefaultType"></param>
         /// <returns></returns>
         public static Type GetTypeFromDb(this DbType Type, Type DefaultType = null) => DbTypes.Where(x => x.Value == Type).Select(x => x.Key).FirstOrDefault() ?? DefaultType ?? typeof(object);
+
+        /// <inheritdoc cref="GetValue{T}(DataRow, string, Expression{Func{object, object}})"/>
+        public static string GetValue(this DataRow row, string Name = null, Expression<Func<object, object>> valueParser = null) => GetValue<string>(row, Name, valueParser);
+
+        /// <summary>
+        /// Retorna o valor da coluna <paramref name="Name"/> de uma <see cref="DataRow"/> convertido para <typeparamref name="T"/> e previamente tratado pela função <paramref name="valueParser"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="row"></param>
+        /// <param name="Name"></param>
+        /// <param name="valueParser"></param>
+        /// <returns></returns>
+        public static T GetValue<T>(this DataRow row, string Name = null, Expression<Func<object, object>> valueParser = null)
+        {
+            try
+            {
+                if (row == null)
+                {
+                    throw new Exception("Row is null");
+                }
+
+                object v = null;
+
+                if (Name.IsNotBlank() && Name.IsNotNumber())
+                {
+                    v = row[Name];
+                }
+                else
+                {
+                    v = row[Name.IfBlank(0)];
+                }
+
+                if (v == null || v == DBNull.Value)
+                {
+                    throw new Exception("Value is null");
+
+                }
+
+                if (valueParser != null)
+                {
+                    v = valueParser.Compile().Invoke(v);
+                }
+
+                if (typeof(T).IsEnum)
+                {
+                    return v.ToString().GetEnumValue<T>();
+                }
+                else
+                {
+                    return v.ChangeType<T>();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.WriteLine(ex.ToFullExceptionString());
+                return default;
+            }
+        }
+
+        public static T GetValue<T>(this DataSet Data, string Name, Expression<Func<object, object>> valueParser = null)
+        {
+            var r = Data.GetFirstRow();
+            return r == null ? default : r.GetValue<T>(Name, valueParser);
+        }
+
+        public static T GetValue<T>(this DataTable Table, string Name, Expression<Func<object, object>> valueParser = null)
+        {
+            var r = Table.GetFirstRow();
+            return r == null ? default : r.GetValue<T>(Name, valueParser);
+        }
+
+        public static DataTable GetFirstTable(this DataSet Data)
+        {
+            if (Data != null && Data.Tables.Count > 0)
+                return Data.Tables[0];
+            else
+                return null;
+        }
+        public static DataRow GetFirstRow(this DataSet Data) => Data.GetFirstTable()?.GetFirstRow();
+        public static DataRow GetFirstRow(this DataTable Table)
+        {
+            if (Table != null && Table.Rows.Count > 0)
+                return Table.Rows[0];
+            else
+                return null;
+        }
 
         public static bool IsBroken(this DbConnection Connection) => Connection != null && (Connection.State == ConnectionState.Broken);
 

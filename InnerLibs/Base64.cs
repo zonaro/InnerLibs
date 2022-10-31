@@ -13,6 +13,40 @@ namespace InnerLibs
     /// <remarks></remarks>
     public static class Base64
     {
+
+
+        /// <summary>
+        /// Retorna verdadeiro se identificar que a string é base64
+        /// </summary>
+        /// <param name="base64String"></param>
+        /// <returns></returns>
+        public static bool IsBase64(this string base64String)
+        {
+            // Credit: oybek https://stackoverflow.com/users/794764/oybek
+            if(string.IsNullOrWhiteSpace(base64String) ||
+               base64String.Length % 4 != 0 ||
+               base64String.Contains(" ") ||
+               base64String.Contains("\t") ||
+               base64String.Contains("\r") ||
+               base64String.Contains("\n"))
+            {
+                return false;
+            }
+
+            try
+            {
+                Convert.FromBase64String(base64String);
+                return true;
+            }
+            catch
+            {
+                //ignore
+            }
+
+            return false;
+        }
+
+
         /// <summary>
         /// Decoda uma string em Base64
         /// </summary>

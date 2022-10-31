@@ -113,7 +113,7 @@ namespace InnerLibs.MicroORM
             {
                 if (condition != null && condition.ToString().IsNotBlank())
                 {
-                    if (Misc.IsIn(LogicOperator, "Or", "OR"))
+                    if (LogicOperator.ToLower() == "or")
                     {
                         Or(condition);
                     }
@@ -131,7 +131,7 @@ namespace InnerLibs.MicroORM
             {
                 if (condition != null && condition.ToString().IsNotBlank())
                 {
-                    if (Misc.IsIn(LogicOperator, "Or", "OR"))
+                    if (LogicOperator.ToLower() == "or")
                     {
                         Or(condition);
                     }
@@ -357,6 +357,10 @@ namespace InnerLibs.MicroORM
 
         internal Condition _where;
 
+        public char QuoteChar { get; set; } = '[';
+
+
+
         public Select()
         {
             SetColumns<T>();
@@ -511,17 +515,23 @@ namespace InnerLibs.MicroORM
         public static FormattableString CreateSearch(IEnumerable<string> Values, params string[] Columns)
         {
             Values = (Values ?? Array.Empty<string>()).WhereNotBlank().ToArray();
-            Columns = Columns ?? Array.Empty<string>();
+            Columns = (Columns ?? Array.Empty<string>()).WhereNotBlank().ToArray();
             return Columns.SelectMany(col => Values.Select(valor => $"{col} LIKE {valor.Wrap("%").ToSQLString(false)}"))
               .SelectJoinString(" OR ").ToFormattableString();
         }
 
-        public Select<T> ColumnQuote(char QuoteChar)
+        /// <summary>
+        /// Sets the <see cref="QuoteChar"/> and apply it to all columns
+        /// </summary>
+        /// <param name="QuoteChar"></param>
+        /// <returns></returns>
+        public Select<T> ColumnQuote(char? QuoteChar = null, bool WithTableName = false)
         {
             var _nova = new List<string>();
+            this.QuoteChar = QuoteChar ?? this.QuoteChar;
             foreach (var item in _columns ?? new List<string>())
             {
-                _nova.Add(item.UnQuote().Split(".", StringSplitOptions.RemoveEmptyEntries).SelectJoinString(x => x.UnQuote().Quote(QuoteChar), "."));
+                _nova.Add(item.UnQuote().Split(".", StringSplitOptions.RemoveEmptyEntries).SelectJoinString(x => DbExtensions.FormatSQLColumn(this.QuoteChar, WithTableName.AsIf(this.GetTableOrSubQuery()), x.UnQuote())));
             }
 
             SetColumns(_nova.ToArray());
@@ -574,7 +584,7 @@ namespace InnerLibs.MicroORM
         /// <param name="ColumnName"></param>
         /// <param name="QuoteChar"></param>
         /// <returns></returns>
-        public string FormatColumnName(string ColumnName,char QuoteChar = '[') => DbExtensions.FormatSQLColumn(QuoteChar, GetTableOrSubQuery(), ColumnName);
+        public string FormatColumnName(string ColumnName, char? QuoteChar = null) => DbExtensions.FormatSQLColumn(QuoteChar ?? this.QuoteChar, GetTableOrSubQuery(), ColumnName);
 
         /// <summary>
         /// Sets the FROM clause in the SELECT being built.
@@ -693,7 +703,8 @@ namespace InnerLibs.MicroORM
         /// <param name="table">Table to be join</param>
         /// <param name="on">Condition of the join (ON clause)</param>
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
-        public Select<T> InnerJoin(string table, FormattableString on) => Join(JoinType.Inner, table, new Condition(on));
+        public Select<T> InnerJoin(string table, FormattableString on) => InnerJoin(table, new Condition(on));
+
 
         /// <summary>
         /// Sets a INNER JOIN clause in the SELECT being built.
@@ -709,7 +720,7 @@ namespace InnerLibs.MicroORM
         /// <param name="table">Table to be join</param>
         /// <param name="on">Condition of the join (ON clause)</param>
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
-        public Select<T> Join(string table, FormattableString on) => Join(JoinType.Join, table, new Condition(on));
+        public Select<T> Join(string table, FormattableString on) => Join(table, new Condition(on));
 
         /// <summary>
         /// Sets a JOIN clause in the SELECT being built.
@@ -741,7 +752,7 @@ namespace InnerLibs.MicroORM
         /// <param name="table">Table to be join</param>
         /// <param name="on">Condition of the join (ON clause)</param>
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
-        public Select<T> LeftOuterJoin(string table, FormattableString on) => Join(JoinType.LeftOuterJoin, table, new Condition(on));
+        public Select<T> LeftOuterJoin(string table, FormattableString on) => LeftOuterJoin(table, new Condition(on));
 
         /// <summary>
         /// Sets a LEFT OUTER JOIN clause in the SELECT being built.
@@ -888,7 +899,7 @@ namespace InnerLibs.MicroORM
         /// <param name="table">Table to be join</param>
         /// <param name="on">Condition of the join (ON clause)</param>
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
-        public Select<T> RightOuterJoin(string table, FormattableString on) => Join(JoinType.RightOuterJoin, table, new Condition(on));
+        public Select<T> RightOuterJoin(string table, FormattableString on) => RightOuterJoin(table, new Condition(on));
 
         /// <summary>
         /// Sets a RIGHT OUTER JOIN clause in the SELECT being built.
@@ -1008,7 +1019,7 @@ namespace InnerLibs.MicroORM
             {
                 if (condition != null && condition.ToString().IsNotBlank())
                 {
-                    if (Misc.IsIn(LogicOperator, "OR", "or"))
+                    if (LogicOperator.ToLower() == "or")
                     {
                         Or(condition);
                     }
@@ -1033,7 +1044,7 @@ namespace InnerLibs.MicroORM
             {
                 if (condition != null)
                 {
-                    if (Misc.IsIn(LogicOperator, "OR", "or"))
+                    if (LogicOperator.ToLower() == "or")
                     {
                         Or(condition);
                     }
@@ -1116,8 +1127,8 @@ namespace InnerLibs.MicroORM
         public Select<T> Where(params Condition[] conditions) => And(conditions);
 
         /// <summary>
-        /// Sets the WHERE clause in the SELECT being built using a <see cref="Dictionary(Of String,
-        /// Object)"/> as column/value
+        /// Sets the WHERE clause in the SELECT being built using a <see cref="Dictionary{string,
+        /// object}"/> as column/value
         /// </summary>
         /// <param name="Dic"></param>
         /// <param name="FilterKeys"></param>
@@ -1163,6 +1174,7 @@ namespace InnerLibs.MicroORM
         public Select<T> Where(NameValueCollection NVC, params string[] FilterKeys)
         {
             FilterKeys = FilterKeys ?? Array.Empty<string>();
+            NVC = NVC ?? new NameValueCollection();
             foreach (var k in NVC.AllKeys)
             {
                 if (k.IsNotBlank())
@@ -1176,7 +1188,7 @@ namespace InnerLibs.MicroORM
                             string logic = col.GetBefore(":", true).IfBlank("AND");
                             string op = v.GetBefore(":", true).IfBlank("=");
                             col = col.GetAfter(":");
-                            col = col.Contains(" ").AsIf(col.UnQuote('[', true).Quote('['), col);
+                            col = col.Contains(" ").AsIf(col.UnQuote(QuoteChar, true).Quote(QuoteChar), col);
                             string valor = v.GetAfter(":").NullIf("null", StringComparison.InvariantCultureIgnoreCase);
                             if (valor is null)
                             {
@@ -1198,9 +1210,9 @@ namespace InnerLibs.MicroORM
             return this;
         }
 
-        public Select<T> WhereObject<O>(O Obj) where O : class => WhereObject(Obj, "AND");
+        public Select<T> WhereObject<TO>(TO Obj) where TO : class => WhereObject(Obj, "AND");
 
-        public Select<T> WhereObject<O>(O Obj, string LogicOperator = "AND") where O : class
+        public Select<T> WhereObject<TO>(TO Obj, string LogicOperator = "AND") where TO : class
         {
             if (Obj != null)
             {
