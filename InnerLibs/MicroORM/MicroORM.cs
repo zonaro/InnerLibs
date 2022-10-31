@@ -707,6 +707,7 @@ namespace InnerLibs.MicroORM
         /// <param name="on">Condition of the join (ON clause)</param>
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
         public Select<T> InnerJoin(string table, FormattableString on) => InnerJoin(table, new Condition(on));
+        public Select<T> InnerJoin(string table, string ThisColumn, string ForeignColumn) => InnerJoin(table, Text.ToFormattableString(DbExtensions.FormatSQLColumn(QuoteChar, GetTableOrSubQuery(), ThisColumn) + " = " + DbExtensions.FormatSQLColumn(QuoteChar, table, ForeignColumn)));
 
         /// <summary>
         /// Sets a INNER JOIN clause in the SELECT being built.
@@ -755,6 +756,9 @@ namespace InnerLibs.MicroORM
         /// <param name="on">Condition of the join (ON clause)</param>
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
         public Select<T> LeftOuterJoin(string table, FormattableString on) => LeftOuterJoin(table, new Condition(on));
+
+        public Select<T> LeftOuterJoin(string table, string ThisColumn, string ForeignColumn) => LeftOuterJoin(table, Text.ToFormattableString(DbExtensions.FormatSQLColumn(QuoteChar, GetTableOrSubQuery(), ThisColumn) + " = " + DbExtensions.FormatSQLColumn(QuoteChar, table, ForeignColumn)));
+
 
         /// <summary>
         /// Sets a LEFT OUTER JOIN clause in the SELECT being built.
@@ -910,6 +914,8 @@ namespace InnerLibs.MicroORM
         /// <param name="on">Condition of the join (ON clause)</param>
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
         public Select<T> RightOuterJoin(string table, Condition on) => Join(JoinType.RightOuterJoin, table, on);
+
+        public Select<T> RightOuterJoin(string table, string ThisColumn, string ForeignColumn) => RightOuterJoin(table, Text.ToFormattableString(DbExtensions.FormatSQLColumn(QuoteChar, GetTableOrSubQuery(), ThisColumn) + " = " + DbExtensions.FormatSQLColumn(QuoteChar, table, ForeignColumn)));
 
         public Select<T> SetColumns(params string[] Columns)
         {
