@@ -81,7 +81,6 @@ namespace InnerLibs.MicroORM
         string ToString(bool SubQuery);
     }
 
-
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = true, Inherited = true)]
     public class ColumnName : Attribute
     {
@@ -357,10 +356,6 @@ namespace InnerLibs.MicroORM
 
         internal Condition _where;
 
-        public char QuoteChar { get; set; } = '[';
-
-
-
         public Select()
         {
             SetColumns<T>();
@@ -382,6 +377,16 @@ namespace InnerLibs.MicroORM
         {
             SetColumns(columns);
             From<T>();
+        }
+
+        public char QuoteChar { get; set; } = '[';
+
+        public static FormattableString CreateSearch(IEnumerable<string> Values, params string[] Columns)
+        {
+            Values = (Values ?? Array.Empty<string>()).WhereNotBlank().ToArray();
+            Columns = (Columns ?? Array.Empty<string>()).WhereNotBlank().ToArray();
+            return Columns.SelectMany(col => Values.Select(valor => $"{col} LIKE {valor.Wrap("%").ToSQLString(false)}"))
+                .SelectJoinString(" OR ").ToFormattableString();
         }
 
         /// <summary>
@@ -512,14 +517,6 @@ namespace InnerLibs.MicroORM
 
         public Select<T> AndSearch(IEnumerable<string> Values, params string[] Columns) => And(CreateSearch(Values, Columns));
 
-        public static FormattableString CreateSearch(IEnumerable<string> Values, params string[] Columns)
-        {
-            Values = (Values ?? Array.Empty<string>()).WhereNotBlank().ToArray();
-            Columns = (Columns ?? Array.Empty<string>()).WhereNotBlank().ToArray();
-            return Columns.SelectMany(col => Values.Select(valor => $"{col} LIKE {valor.Wrap("%").ToSQLString(false)}"))
-              .SelectJoinString(" OR ").ToFormattableString();
-        }
-
         /// <summary>
         /// Sets the <see cref="QuoteChar"/> and apply it to all columns
         /// </summary>
@@ -529,9 +526,15 @@ namespace InnerLibs.MicroORM
         {
             var _nova = new List<string>();
             this.QuoteChar = QuoteChar ?? this.QuoteChar;
+
             foreach (var item in _columns ?? new List<string>())
             {
-                _nova.Add(item.UnQuote().Split(".", StringSplitOptions.RemoveEmptyEntries).SelectJoinString(x => DbExtensions.FormatSQLColumn(this.QuoteChar, WithTableName.AsIf(this.GetTableOrSubQuery()), x.UnQuote())));
+                var c = item;
+                if (item != "*")
+                {
+                    c = item.UnQuote().Split(".", StringSplitOptions.RemoveEmptyEntries).SelectJoinString(x => DbExtensions.FormatSQLColumn(this.QuoteChar, WithTableName.AsIf(this.GetTableOrSubQuery()), x.UnQuote()));
+                }
+                _nova.Add(c);
             }
 
             SetColumns(_nova.ToArray());
@@ -557,6 +560,14 @@ namespace InnerLibs.MicroORM
         public Select<T> CrossJoin(string table) => Join(JoinType.CrossJoin, table, null);
 
         /// <summary>
+        /// Return the full name of <paramref name="ColumnName"/> using current table or alias
+        /// </summary>
+        /// <param name="ColumnName"></param>
+        /// <param name="QuoteChar"></param>
+        /// <returns></returns>
+        public string FormatColumnName(string ColumnName, char? QuoteChar = null) => DbExtensions.FormatSQLColumn(QuoteChar ?? this.QuoteChar, GetTableOrSubQuery(), ColumnName);
+
+        /// <summary>
         /// Sets the FROM clause in the SELECT being built.
         /// </summary>
         /// <param name="TableOrSubQuery">Table to be selected from</param>
@@ -571,20 +582,6 @@ namespace InnerLibs.MicroORM
 
             return this;
         }
-
-        /// <summary>
-        /// Get the table name or subquery alias used in this select
-        /// </summary>
-        /// <returns></returns>
-        public string GetTableOrSubQuery() => _fromsubname.IfBlank(_from);
-
-        /// <summary>
-        ///  Return the full name of <paramref name="ColumnName"/>  using current table or alias
-        /// </summary>
-        /// <param name="ColumnName"></param>
-        /// <param name="QuoteChar"></param>
-        /// <returns></returns>
-        public string FormatColumnName(string ColumnName, char? QuoteChar = null) => DbExtensions.FormatSQLColumn(QuoteChar ?? this.QuoteChar, GetTableOrSubQuery(), ColumnName);
 
         /// <summary>
         /// Sets the FROM clause in the SELECT being built.
@@ -663,6 +660,12 @@ namespace InnerLibs.MicroORM
         public Select<T> FullOuterJoin(string table, Condition on) => Join(JoinType.FullOuterJoin, table, on);
 
         /// <summary>
+        /// Get the table name or subquery alias used in this select
+        /// </summary>
+        /// <returns></returns>
+        public string GetTableOrSubQuery() => _fromsubname.IfBlank(_from);
+
+        /// <summary>
         /// Sets the GROUP BY clause in the SELECT being built.
         /// </summary>
         /// <param name="columns">Columns to be grouped by</param>
@@ -704,7 +707,6 @@ namespace InnerLibs.MicroORM
         /// <param name="on">Condition of the join (ON clause)</param>
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
         public Select<T> InnerJoin(string table, FormattableString on) => InnerJoin(table, new Condition(on));
-
 
         /// <summary>
         /// Sets a INNER JOIN clause in the SELECT being built.

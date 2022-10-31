@@ -521,6 +521,24 @@ namespace InnerLibs.MicroORM
         /// </summary>
         public static DbType GetDbType<T>(this T obj, DbType DefaultType = DbType.Object) => DbTypes.GetValueOr(Misc.GetNullableTypeOf(obj), DefaultType);
 
+        public static DataRow GetFirstRow(this DataSet Data) => Data.GetFirstTable()?.GetFirstRow();
+
+        public static DataRow GetFirstRow(this DataTable Table)
+        {
+            if (Table != null && Table.Rows.Count > 0)
+                return Table.Rows[0];
+            else
+                return null;
+        }
+
+        public static DataTable GetFirstTable(this DataSet Data)
+        {
+            if (Data != null && Data.Tables.Count > 0)
+                return Data.Tables[0];
+            else
+                return null;
+        }
+
         /// <summary>
         /// Retorna um <see cref="Type"/> de um <see cref="DbType"/>
         /// </summary>
@@ -534,7 +552,8 @@ namespace InnerLibs.MicroORM
         public static string GetValue(this DataRow row, string Name = null, Expression<Func<object, object>> valueParser = null) => GetValue<string>(row, Name, valueParser);
 
         /// <summary>
-        /// Retorna o valor da coluna <paramref name="Name"/> de uma <see cref="DataRow"/> convertido para <typeparamref name="T"/> e previamente tratado pela função <paramref name="valueParser"/>
+        /// Retorna o valor da coluna <paramref name="Name"/> de uma <see cref="DataRow"/>
+        /// convertido para <typeparamref name="T"/> e previamente tratado pela função <paramref name="valueParser"/>
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="row"></param>
@@ -564,7 +583,6 @@ namespace InnerLibs.MicroORM
                 if (v == null || v == DBNull.Value)
                 {
                     throw new Exception("Value is null");
-
                 }
 
                 if (valueParser != null)
@@ -588,6 +606,10 @@ namespace InnerLibs.MicroORM
             }
         }
 
+        public static string GetValue(this DataTable Table, string Name, Expression<Func<object, object>> valueParser = null) => GetValue<string>(Table, Name, valueParser);
+
+        public static string GetValue(this DataSet Data, string Name, Expression<Func<object, object>> valueParser = null) => GetValue<string>(Data, Name, valueParser);
+
         public static T GetValue<T>(this DataSet Data, string Name, Expression<Func<object, object>> valueParser = null)
         {
             var r = Data.GetFirstRow();
@@ -598,22 +620,6 @@ namespace InnerLibs.MicroORM
         {
             var r = Table.GetFirstRow();
             return r == null ? default : r.GetValue<T>(Name, valueParser);
-        }
-
-        public static DataTable GetFirstTable(this DataSet Data)
-        {
-            if (Data != null && Data.Tables.Count > 0)
-                return Data.Tables[0];
-            else
-                return null;
-        }
-        public static DataRow GetFirstRow(this DataSet Data) => Data.GetFirstTable()?.GetFirstRow();
-        public static DataRow GetFirstRow(this DataTable Table)
-        {
-            if (Table != null && Table.Rows.Count > 0)
-                return Table.Rows[0];
-            else
-                return null;
         }
 
         public static bool IsBroken(this DbConnection Connection) => Connection != null && (Connection.State == ConnectionState.Broken);
