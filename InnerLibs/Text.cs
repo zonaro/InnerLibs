@@ -4273,7 +4273,7 @@ namespace InnerLibs
                 Text = arr.SelectJoinString(" ");
             }
 
-            return Text.TrimAny(" ", Environment.NewLine);
+            return Text.TrimAny(" ", Environment.NewLine).Trim();
         }
 
         /// <summary>
