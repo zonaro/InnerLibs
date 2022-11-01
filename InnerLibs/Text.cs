@@ -4271,9 +4271,10 @@ namespace InnerLibs
                 Text = arr.SelectJoinString(Environment.NewLine);
                 arr = Text.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
                 Text = arr.SelectJoinString(" ");
+                Text = Text.TrimAny(" ", Environment.NewLine).Trim();
             }
 
-            return Text.TrimAny(" ", Environment.NewLine).Trim();
+            return Text;
         }
 
         /// <summary>

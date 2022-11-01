@@ -173,6 +173,23 @@ namespace InnerLibs.MicroORM
         {
             if (Column.IsNotBlank())
             {
+                if (Value == null)
+                {
+                    switch (Operator)
+                    {
+                        case "=":
+                            _tokens.Add($"{Column} IS NULL");
+                            return;
+                        case "!=":
+                        case "<>":
+                            _tokens.Add($"{Column} IS NOT NULL");
+                            return;
+                        default:
+                            Value = default;
+                            break;
+                    }
+                }
+
                 _tokens.Add($"{Column} {Operator.IfBlank("=")} {DbExtensions.ToSQLString(Value)}");
             }
         }
@@ -349,17 +366,22 @@ namespace InnerLibs.MicroORM
         internal string _having;
 
         internal List<Join> _joins;
-
         internal string _offset;
-
         internal List<string> _orderBy;
-
+        internal string _top;
         internal Condition _where;
 
         public Select()
         {
-            SetColumns<T>();
-            From<T>();
+            try
+            {
+                SetColumns<T>();
+                From<T>();
+            }
+            catch
+            {
+                SetColumns("*");
+            }
         }
 
         public Select(T obj)
@@ -380,6 +402,9 @@ namespace InnerLibs.MicroORM
         }
 
         public char QuoteChar { get; set; } = '[';
+
+
+        public string Query => ToString();
 
         public static FormattableString CreateSearch(IEnumerable<string> Values, params string[] Columns)
         {
@@ -636,9 +661,9 @@ namespace InnerLibs.MicroORM
         /// Sets the FROM clause in the SELECT being built.
         /// </summary>
         /// <returns></returns>
-        public Select<T> From<O>()
+        public Select<T> From<TO>()
         {
-            From(typeof(O).GetNullableTypeOf().Name);
+            From(typeof(TO).GetNullableTypeOf().Name);
 
             return this;
         }
@@ -707,6 +732,7 @@ namespace InnerLibs.MicroORM
         /// <param name="on">Condition of the join (ON clause)</param>
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
         public Select<T> InnerJoin(string table, FormattableString on) => InnerJoin(table, new Condition(on));
+
         public Select<T> InnerJoin(string table, string ThisColumn, string ForeignColumn) => InnerJoin(table, Text.ToFormattableString(DbExtensions.FormatSQLColumn(QuoteChar, GetTableOrSubQuery(), ThisColumn) + " = " + DbExtensions.FormatSQLColumn(QuoteChar, table, ForeignColumn.IfBlank(ThisColumn))));
 
         /// <summary>
@@ -758,7 +784,6 @@ namespace InnerLibs.MicroORM
         public Select<T> LeftOuterJoin(string table, FormattableString on) => LeftOuterJoin(table, new Condition(on));
 
         public Select<T> LeftOuterJoin(string table, string ThisColumn, string ForeignColumn) => LeftOuterJoin(table, Text.ToFormattableString(DbExtensions.FormatSQLColumn(QuoteChar, GetTableOrSubQuery(), ThisColumn) + " = " + DbExtensions.FormatSQLColumn(QuoteChar, table, ForeignColumn.IfBlank(ThisColumn))));
-
 
         /// <summary>
         /// Sets a LEFT OUTER JOIN clause in the SELECT being built.
@@ -924,10 +949,29 @@ namespace InnerLibs.MicroORM
             return this;
         }
 
-        public Select<T> SetColumns<O>(O Obj = null) where O : class
+        public Select<T> SetColumns<TO>(TO Obj = null) where TO : class
         {
             _columns = null;
             AddColumns(Obj);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a TOP clausule to this SELECT
+        /// </summary>
+        /// <param name="Top"></param>
+        /// <param name="Percent"></param>
+        /// <returns></returns>
+        public Select<T> Top(int? Top, bool Percent = false)
+        {
+            if (Top.HasValue)
+            {
+                _top = $"TOP({Top}) {Percent.AsIf("PERCENT")}";
+            }
+            else
+            {
+                _top = null;
+            }
             return this;
         }
 
@@ -945,13 +989,19 @@ namespace InnerLibs.MicroORM
         public string ToString(bool AsSubquery)
         {
             var sql = new StringBuilder("SELECT ");
-            sql.Append(string.Join(", ", _columns.Distinct().ToArray()).IfBlank(" * "));
+
+            if (_top?.IsNotBlank() ?? false)
+            {
+                sql.Append($"{_top}");
+            }
+            var cols = (_columns?.Distinct().SelectJoinString(",") ?? "").IfBlank(" * ");
+            sql.Append(cols);
             if (_fromsub != null && _fromsub.ToString().IsNotBlank())
             {
                 _from = _fromsub.ToString(true).Quote('(') + " as " + _fromsubname;
             }
 
-            if (_from.IsNotBlank())
+            if (_from?.IsNotBlank() ?? false)
             {
                 sql.Append(" FROM ");
                 sql.Append(_from);
@@ -986,7 +1036,7 @@ namespace InnerLibs.MicroORM
                 sql.Append(string.Join(", ", _orderBy));
             }
 
-            if (_offset.IsNotBlank() && AsSubquery == false)
+            if (_offset?.IsNotBlank() ?? false && AsSubquery == false)
             {
                 sql.Append($" {_offset} ");
             }
@@ -1103,6 +1153,11 @@ namespace InnerLibs.MicroORM
 
             return this;
         }
+
+        /// <summary>
+        /// Sets the WHERE clause in the SELECT being built.
+        /// </summary>
+        public Select<T> Where(string Column, object Value, string Operator = "=") => Where(new Condition(Column, Value, Operator));
 
         /// <summary>
         /// Sets the WHERE clause in the SELECT being built.
