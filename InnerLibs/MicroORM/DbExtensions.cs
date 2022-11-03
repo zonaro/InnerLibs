@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace InnerLibs.MicroORM
 {
@@ -680,6 +681,71 @@ namespace InnerLibs.MicroORM
         }
 
 
+        public static T MapFirst<T>(this DataTable Data, params object[] args) where T : class => Data.Map<T>(args).FirstOrDefault();
+        public static T Map<T>(this DataRow Row, params object[] args) where T : class
+        {
+
+            T d;
+            if (args.Any())
+            {
+                d = (T)Activator.CreateInstance(typeof(T), args);
+            }
+            else
+            {
+                d = Activator.CreateInstance<T>();
+            }
+
+            if (Row?.Table?.Columns != null)
+                for (int ii = 0; ii < Row.Table.Columns.Count; ii++)
+                {
+                    var col = Row.Table.Columns[ii];
+                    string name = col.ColumnName;
+                    var value = Row.GetValue(name);
+                    if (d is Dictionary<string, object> dic)
+                    {
+                        dic.Set(name, value);
+                    }
+                    else if (d is NameValueCollection nvc)
+                    {
+                        nvc.Add(name, $"{value}");
+                    }
+                    else
+                    {
+                        var propnames = name.PropertyNamesFor().ToList();
+                        var PropInfos = Misc.GetTypeOf(d).GetProperties().Where(x => x.GetCustomAttributes<ColumnName>().SelectMany(n => n.Names).Contains(x.Name) || x.Name.IsIn(propnames, StringComparer.InvariantCultureIgnoreCase));
+                        var FieldInfos = Misc.GetTypeOf(d).GetFields().Where(x => x.GetCustomAttributes<ColumnName>().SelectMany(n => n.Names).Contains(x.Name) || x.Name.IsIn(propnames, StringComparer.InvariantCultureIgnoreCase)).Where(x => x.Name.IsNotIn(PropInfos.Select(y => y.Name)));
+                        foreach (var info in PropInfos)
+                        {
+                            if (info.CanWrite)
+                            {
+                                if (value == null || ReferenceEquals(value.GetType(), typeof(DBNull)))
+                                {
+                                    info.SetValue(d, null);
+                                }
+                                else
+                                {
+                                    info.SetValue(d, Converter.ChangeType(value, info.PropertyType));
+                                }
+                            }
+                        }
+
+                        foreach (var info in FieldInfos)
+                        {
+                            if (ReferenceEquals(value.GetType(), typeof(DBNull)))
+                            {
+                                info.SetValue(d, null);
+                            }
+                            else
+                            {
+                                info.SetValue(d, Converter.ChangeType(value, info.FieldType));
+                            }
+                        }
+                    }
+                }
+            return d;
+
+        }
+
 
         public static IEnumerable<T> Map<T>(this DataTable Data, params object[] args) where T : class
         {
@@ -687,69 +753,7 @@ namespace InnerLibs.MicroORM
             var l = new List<T>();
             args = args ?? Array.Empty<object>();
             if (Data != null)
-                for (int i = 0; i < Data.Rows.Count; i++)
-                {
-                    var row = Data.Rows[i];
-
-                    T d;
-                    if (args.Any())
-                    {
-                        d = (T)Activator.CreateInstance(typeof(T), args);
-                    }
-                    else
-                    {
-                        d = Activator.CreateInstance<T>();
-                    }
-
-                    for (int ii = 0; ii < Data.Columns.Count; ii++)
-                    {
-                        var col = Data.Columns[ii];
-                        string name = col.ColumnName;
-                        var value = row.GetValue(name);
-                        if (d is Dictionary<string, object> dic)
-                        {
-                            dic.Set(name, value);
-                        }
-                        else if (d is NameValueCollection nvc)
-                        {
-                            nvc.Add(name, $"{value}");
-                        }
-                        else
-                        {
-                            var propnames = name.PropertyNamesFor().ToList();
-                            var PropInfos = Misc.GetTypeOf(d).GetProperties().Where(x => x.GetCustomAttributes<ColumnName>().SelectMany(n => n.Names).Contains(x.Name) || x.Name.IsIn(propnames, StringComparer.InvariantCultureIgnoreCase));
-                            var FieldInfos = Misc.GetTypeOf(d).GetFields().Where(x => x.GetCustomAttributes<ColumnName>().SelectMany(n => n.Names).Contains(x.Name) || x.Name.IsIn(propnames, StringComparer.InvariantCultureIgnoreCase)).Where(x => x.Name.IsNotIn(PropInfos.Select(y => y.Name)));
-                            foreach (var info in PropInfos)
-                            {
-                                if (info.CanWrite)
-                                {
-                                    if (value == null || ReferenceEquals(value.GetType(), typeof(DBNull)))
-                                    {
-                                        info.SetValue(d, null);
-                                    }
-                                    else
-                                    {
-                                        info.SetValue(d, Converter.ChangeType(value, info.PropertyType));
-                                    }
-                                }
-                            }
-
-                            foreach (var info in FieldInfos)
-                            {
-                                if (ReferenceEquals(value.GetType(), typeof(DBNull)))
-                                {
-                                    info.SetValue(d, null);
-                                }
-                                else
-                                {
-                                    info.SetValue(d, Converter.ChangeType(value, info.FieldType));
-                                }
-                            }
-                        }
-                    }
-
-                    l.Add(d);
-                }
+                for (int i = 0; i < Data.Rows.Count; i++) l.Add(Data.Rows[i].Map<T>(args));                
 
             return l.AsEnumerable();
         }
