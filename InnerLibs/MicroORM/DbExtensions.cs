@@ -607,17 +607,17 @@ namespace InnerLibs.MicroORM
             }
         }
 
-        public static string GetValue(this DataTable Table, string Name, Expression<Func<object, object>> valueParser = null) => GetValue<string>(Table, Name, valueParser);
+        public static string GetValue(this DataTable Table, string Name = null, Expression<Func<object, object>> valueParser = null) => GetValue<string>(Table, Name, valueParser);
 
-        public static string GetValue(this DataSet Data, string Name, Expression<Func<object, object>> valueParser = null) => GetValue<string>(Data, Name, valueParser);
+        public static string GetValue(this DataSet Data, string Name = null, Expression<Func<object, object>> valueParser = null) => GetValue<string>(Data, Name, valueParser);
 
-        public static T GetValue<T>(this DataSet Data, string Name, Expression<Func<object, object>> valueParser = null)
+        public static T GetValue<T>(this DataSet Data, string Name = null, Expression<Func<object, object>> valueParser = null)
         {
             var r = Data.GetFirstRow();
             return r == null ? default : r.GetValue<T>(Name, valueParser);
         }
 
-        public static T GetValue<T>(this DataTable Table, string Name, Expression<Func<object, object>> valueParser = null)
+        public static T GetValue<T>(this DataTable Table, string Name = null, Expression<Func<object, object>> valueParser = null)
         {
             var r = Table.GetFirstRow();
             return r == null ? default : r.GetValue<T>(Name, valueParser);
