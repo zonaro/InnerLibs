@@ -1178,13 +1178,13 @@ namespace InnerLibs
         /// <returns></returns>
         public static bool IsAnagramOf(this string Text, string AnotherText)
         {
-            var char1 = Text.ToLower().ToCharArray();
-            var char2 = AnotherText.ToLower().ToCharArray();
+            var char1 = Text?.ToLower().ToCharArray() ?? Array.Empty<char>();
+            var char2 = AnotherText?.ToLower().ToCharArray() ?? Array.Empty<char>();
             Array.Sort(char1);
             Array.Sort(char2);
             string NewWord1 = new string(char1);
             string NewWord2 = new string(char2);
-            return (NewWord1 ?? "") == (NewWord2 ?? "");
+            return NewWord1 == NewWord2;
         }
 
         /// <summary>
@@ -1205,7 +1205,7 @@ namespace InnerLibs
 
         public static bool IsCloseWrapChar(this string Text) => Text.GetFirstChars().IsIn(PredefinedArrays.CloseWrappers);
 
-        public static bool IsCloseWrapChar(this char Char) => IsCloseWrapChar($"{Char}");
+        public static bool IsCloseWrapChar(this char c) => IsCloseWrapChar($"{c}");
 
         public static bool IsCrossLikeAny(this string Text, IEnumerable<string> Patterns) => (Patterns ?? Array.Empty<string>()).Any(x => Text.IfBlank("").Like(x) || x.Like(Text));
 
@@ -1259,6 +1259,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static bool IsPalindrome(this string Text, bool IgnoreWhiteSpaces = true)
         {
+            Text = Text ?? "";
             if (IgnoreWhiteSpaces)
             {
                 Text = Text.RemoveAny(" ");
@@ -1324,7 +1325,7 @@ namespace InnerLibs
         /// <param name="source"></param>
         /// <param name="Pattern"></param>
         /// <returns></returns>
-        public static bool Like(this String source, String Pattern) => new Like(Pattern).Matches(source);
+        public static bool Like(this string source, string Pattern) => new Like(Pattern).Matches(source);
 
         /// <summary>
         /// Aplica uma mascara a um numero de telefone
@@ -1412,10 +1413,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text">Texto</param>
         /// <param name="TotalLength">Tamanho total</param>
-        /// <param name="PaddingChar">Caractere</param>
-        /// <param name="Trim">
-        /// Quando TRUE, elimina caracteres do começo e fim da string se ela for maior que <paramref name="TotalLength"/>
-        /// </param>
+        /// <param name="PaddingChar">Caractere</param> 
         /// <returns></returns>
         public static string Pad(this string Text, int TotalLength, char PaddingChar = ' ')
         {
@@ -1488,7 +1486,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text">Texto</param>
         /// <returns></returns>
-        public static Type ParseDigits<Type>(this string Text, CultureInfo Culture = null) where Type : IConvertible => Text.ParseDigits(Culture).ChangeType<Type>();
+        public static T ParseDigits<T>(this string Text, CultureInfo Culture = null) where T : IConvertible => Text.ParseDigits(Culture).ChangeType<T>();
 
         /// <summary>
         /// Transforma uma <see cref="string"/> em um <see cref="NameValueCollection"/>
@@ -1506,7 +1504,7 @@ namespace InnerLibs
             {
                 Keys = Keys ?? Array.Empty<string>();
                 var queryParameters = new NameValueCollection();
-                var querySegments = QueryString.Split('&');
+                var querySegments = QueryString?.Split('&') ?? Array.Empty<string>();
                 foreach (string segment in querySegments)
                 {
                     var parts = segment.Split('=');
@@ -1863,7 +1861,7 @@ namespace InnerLibs
         public static string QuantifyText(this double Quantity, string PluralText) => PluralText.QuantifyText(Quantity);
 
         /// <summary>
-        /// Encapsula um tento entre 2 caracteres (normalmente parentesis, chaves, aspas ou colchetes)
+        /// Encapsula um texto entre 2 caracteres (normalmente parentesis, chaves, aspas ou colchetes)
         /// </summary>
         /// <param name="Text">Texto</param>
         /// <param name="OpenQuoteChar">Caractere de encapsulamento</param>

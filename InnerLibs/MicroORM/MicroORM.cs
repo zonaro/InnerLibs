@@ -180,10 +180,12 @@ namespace InnerLibs.MicroORM
                         case "=":
                             _tokens.Add($"{Column} IS NULL");
                             return;
+
                         case "!=":
                         case "<>":
                             _tokens.Add($"{Column} IS NOT NULL");
                             return;
+
                         default:
                             Value = default;
                             break;
@@ -401,10 +403,8 @@ namespace InnerLibs.MicroORM
             From<T>();
         }
 
-        public char QuoteChar { get; set; } = '[';
-
-
         public string Query => ToString();
+        public char QuoteChar { get; set; } = '[';
 
         public static FormattableString CreateSearch(IEnumerable<string> Values, params string[] Columns)
         {
@@ -630,11 +630,11 @@ namespace InnerLibs.MicroORM
         /// </summary>
         /// <param name="SubQuery">Subquery to be selected from</param>
         /// <returns></returns>
-        public Select<T> From<O>(Action<Select<O>> SubQuery, string SubQueryAlias = null) where O : class
+        public Select<T> From<TO>(Action<Select<TO>> SubQuery, string SubQueryAlias = null) where TO : class
         {
             if (SubQuery != null)
             {
-                var sl = new Select<O>();
+                var sl = new Select<TO>();
                 SubQuery(sl);
                 From(sl, SubQueryAlias);
             }
@@ -683,6 +683,10 @@ namespace InnerLibs.MicroORM
         /// <param name="on">Condition of the join (ON clause)</param>
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
         public Select<T> FullOuterJoin(string table, Condition on) => Join(JoinType.FullOuterJoin, table, on);
+
+        public Select<T> FullOuterJoin(string table, string ThisColumn, string ForeignColumn) => FullOuterJoin(table, Text.ToFormattableString(DbExtensions.FormatSQLColumn(QuoteChar, GetTableOrSubQuery(), ThisColumn) + " = " + DbExtensions.FormatSQLColumn(QuoteChar, table, ForeignColumn.IfBlank(ThisColumn))));
+
+
 
         /// <summary>
         /// Get the table name or subquery alias used in this select
@@ -924,6 +928,8 @@ namespace InnerLibs.MicroORM
             return this;
         }
 
+        public Select<T> RightOuterJoin(string table, string ThisColumn, string ForeignColumn) => RightOuterJoin(table, Text.ToFormattableString(DbExtensions.FormatSQLColumn(QuoteChar, GetTableOrSubQuery(), ThisColumn) + " = " + DbExtensions.FormatSQLColumn(QuoteChar, table, ForeignColumn.IfBlank(ThisColumn))));
+
         /// <summary>
         /// Sets a RIGHT OUTER JOIN clause in the SELECT being built.
         /// </summary>
@@ -939,8 +945,6 @@ namespace InnerLibs.MicroORM
         /// <param name="on">Condition of the join (ON clause)</param>
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
         public Select<T> RightOuterJoin(string table, Condition on) => Join(JoinType.RightOuterJoin, table, on);
-
-        public Select<T> RightOuterJoin(string table, string ThisColumn, string ForeignColumn) => RightOuterJoin(table, Text.ToFormattableString(DbExtensions.FormatSQLColumn(QuoteChar, GetTableOrSubQuery(), ThisColumn) + " = " + DbExtensions.FormatSQLColumn(QuoteChar, table, ForeignColumn.IfBlank(ThisColumn))));
 
         public Select<T> SetColumns(params string[] Columns)
         {
@@ -1073,11 +1077,12 @@ namespace InnerLibs.MicroORM
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
         public Select<T> Where(string LogicOperator, IEnumerable<FormattableString> conditions)
         {
+            LogicOperator = LogicOperator.IfBlank("and");
             foreach (var condition in conditions ?? Array.Empty<FormattableString>())
             {
                 if (condition != null && condition.ToString().IsNotBlank())
                 {
-                    if (LogicOperator.ToLower() == "or")
+                    if (LogicOperator.ToLower().IsAny("||", "|", "or"))
                     {
                         Or(condition);
                     }
@@ -1098,11 +1103,12 @@ namespace InnerLibs.MicroORM
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
         public Select<T> Where(string LogicOperator, IEnumerable<Condition> conditions)
         {
+            LogicOperator = LogicOperator.IfBlank("and");
             foreach (var condition in conditions ?? Array.Empty<Condition>())
             {
                 if (condition != null)
                 {
-                    if (LogicOperator.ToLower() == "or")
+                    if (LogicOperator.ToLower().IsAny("||", "|", "or"))
                     {
                         Or(condition);
                     }
@@ -1258,7 +1264,7 @@ namespace InnerLibs.MicroORM
                                 op = "is";
                             }
 
-                            if (valor == "'null'")
+                            if (valor == "'null'" || valor is null)
                             {
                                 valor = "null";
                             }
@@ -1275,7 +1281,7 @@ namespace InnerLibs.MicroORM
 
         public Select<T> WhereObject<TO>(TO Obj) where TO : class => WhereObject(Obj, "AND");
 
-        public Select<T> WhereObject<TO>(TO Obj, string LogicOperator = "AND") where TO : class
+        public Select<T> WhereObject<TO>(TO Obj, string LogicOperator) where TO : class
         {
             if (Obj != null)
             {

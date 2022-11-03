@@ -566,7 +566,7 @@ namespace InnerLibs.MicroORM
             {
                 if (row == null)
                 {
-                    throw new Exception("Row is null");
+                    throw new ArgumentException("Row is null");
                 }
 
                 object v = null;
@@ -633,7 +633,7 @@ namespace InnerLibs.MicroORM
         public static bool IsOpen(this DbConnection Connection) => Connection != null && (Connection.State == ConnectionState.Open);
 
         /// <summary>
-        /// Ustiliza o <see cref="TextWriter"/> especificado em <see cref="LogWriter"/> para
+        /// Utiliza o <see cref="TextWriter"/> especificado em <see cref="LogWriter"/> para
         /// escrever o comando
         /// </summary>
         /// <param name="Command"></param>
