@@ -85,6 +85,7 @@ namespace InnerLibs.MicroORM
             [typeof(decimal)] = DbType.Decimal,
             [typeof(bool)] = DbType.Boolean,
             [typeof(string)] = DbType.String,
+            [typeof(char[])] = DbType.String,
             [typeof(char)] = DbType.StringFixedLength,
             [typeof(Guid)] = DbType.Guid,
             [typeof(DateTime)] = DbType.DateTime,
