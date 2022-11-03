@@ -679,6 +679,81 @@ namespace InnerLibs.MicroORM
             return Command;
         }
 
+
+
+        public static IEnumerable<T> Map<T>(this DataTable Data, params object[] args) where T : class
+        {
+
+            var l = new List<T>();
+            args = args ?? Array.Empty<object>();
+            if (Data != null)
+                for (int i = 0; i < Data.Rows.Count; i++)
+                {
+                    var row = Data.Rows[i];
+
+                    T d;
+                    if (args.Any())
+                    {
+                        d = (T)Activator.CreateInstance(typeof(T), args);
+                    }
+                    else
+                    {
+                        d = Activator.CreateInstance<T>();
+                    }
+
+                    for (int ii = 0; ii < Data.Columns.Count; ii++)
+                    {
+                        var col = Data.Columns[ii];
+                        string name = col.ColumnName;
+                        var value = row.GetValue(name);
+                        if (d is Dictionary<string, object> dic)
+                        {
+                            dic.Set(name, value);
+                        }
+                        else if (d is NameValueCollection nvc)
+                        {
+                            nvc.Add(name, $"{value}");
+                        }
+                        else
+                        {
+                            var propnames = name.PropertyNamesFor().ToList();
+                            var PropInfos = Misc.GetTypeOf(d).GetProperties().Where(x => x.GetCustomAttributes<ColumnName>().SelectMany(n => n.Names).Contains(x.Name) || x.Name.IsIn(propnames, StringComparer.InvariantCultureIgnoreCase));
+                            var FieldInfos = Misc.GetTypeOf(d).GetFields().Where(x => x.GetCustomAttributes<ColumnName>().SelectMany(n => n.Names).Contains(x.Name) || x.Name.IsIn(propnames, StringComparer.InvariantCultureIgnoreCase)).Where(x => x.Name.IsNotIn(PropInfos.Select(y => y.Name)));
+                            foreach (var info in PropInfos)
+                            {
+                                if (info.CanWrite)
+                                {
+                                    if (value == null || ReferenceEquals(value.GetType(), typeof(DBNull)))
+                                    {
+                                        info.SetValue(d, null);
+                                    }
+                                    else
+                                    {
+                                        info.SetValue(d, Converter.ChangeType(value, info.PropertyType));
+                                    }
+                                }
+                            }
+
+                            foreach (var info in FieldInfos)
+                            {
+                                if (ReferenceEquals(value.GetType(), typeof(DBNull)))
+                                {
+                                    info.SetValue(d, null);
+                                }
+                                else
+                                {
+                                    info.SetValue(d, Converter.ChangeType(value, info.FieldType));
+                                }
+                            }
+                        }
+                    }
+
+                    l.Add(d);
+                }
+
+            return l.AsEnumerable();
+        }
+
         /// <summary>
         /// Mapeia o resultado de um <see cref="DbDataReader"/> para um <see cref="object"/>, <see
         /// cref="Dictionary{TKey, TValue}"/> ou <see cref="NameValueCollection"/>
