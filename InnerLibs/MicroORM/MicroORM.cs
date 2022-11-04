@@ -992,9 +992,9 @@ namespace InnerLibs.MicroORM
         /// <param name="Top"></param>
         /// <param name="Percent"></param>
         /// <returns></returns>
-        public Select<T> Top(int? Top, bool Percent = false)
+        public Select<T> Top(int Top, bool Percent = false)
         {
-            if (Top.HasValue && Top.Value >= 0)
+            if (Top > 0)
             {
                 _top = $"TOP({Top}) {Percent.AsIf("PERCENT")}";
             }
