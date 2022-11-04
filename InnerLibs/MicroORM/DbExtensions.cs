@@ -680,6 +680,14 @@ namespace InnerLibs.MicroORM
             return Command;
         }
 
+        public static DataSet ToDataSet(this DbDataReader reader, string DataSetName)
+        {
+            DataSet ds = new DataSet(DataSetName);
+
+            while (reader != null && !reader.IsClosed)
+                ds.Tables.Add().Load(reader);
+            return ds;
+        }
 
         public static T MapFirst<T>(this DataTable Data, params object[] args) where T : class => Data.Map<T>(args).FirstOrDefault();
         public static T Map<T>(this DataRow Row, params object[] args) where T : class
@@ -753,7 +761,7 @@ namespace InnerLibs.MicroORM
             var l = new List<T>();
             args = args ?? Array.Empty<object>();
             if (Data != null)
-                for (int i = 0; i < Data.Rows.Count; i++) l.Add(Data.Rows[i].Map<T>(args));                
+                for (int i = 0; i < Data.Rows.Count; i++) l.Add(Data.Rows[i].Map<T>(args));
 
             return l.AsEnumerable();
         }

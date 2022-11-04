@@ -1,5 +1,4 @@
-﻿using InnerLibs.LINQ;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Data.Common;
@@ -7,6 +6,7 @@ using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
+using InnerLibs.LINQ;
 
 namespace InnerLibs.MicroORM
 {
@@ -612,7 +612,7 @@ namespace InnerLibs.MicroORM
         /// <param name="ColumnName"></param>
         /// <param name="QuoteChar"></param>
         /// <returns></returns>
-        public string FormatColumnName(string ColumnName, char? QuoteChar = null) => DbExtensions.FormatSQLColumn(QuoteChar ?? this.QuoteChar, GetTableOrSubQuery(), ColumnName);
+        public string FormatColumnName(string ColumnName) => DbExtensions.FormatSQLColumn(this.QuoteChar, GetTableOrSubQuery(), ColumnName);
 
         /// <summary>
         /// Sets the FROM clause in the SELECT being built.
