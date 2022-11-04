@@ -994,7 +994,7 @@ namespace InnerLibs.MicroORM
         /// <returns></returns>
         public Select<T> Top(int? Top, bool Percent = false)
         {
-            if (Top.HasValue)
+            if (Top.HasValue && Top.Value >= 0)
             {
                 _top = $"TOP({Top}) {Percent.AsIf("PERCENT")}";
             }
