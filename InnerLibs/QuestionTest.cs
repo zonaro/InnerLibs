@@ -188,7 +188,7 @@ namespace InnerLibs.QuestionTest
         /// ou Radio Button
         /// </summary>
         /// <returns></returns>
-        public bool RenderAsSelect { get; set; } = false;
+        public bool RenderAsSelect { get; set; }
     }
 
     /// <summary>
