@@ -438,8 +438,12 @@ namespace InnerLibs.QuestionTest
 
             set
             {
-                _statement = value;
-                value._question = this;
+                if (value != null)
+                {
+                    _statement = value;
+                    value._question = this;
+                }
+
             }
         }
 
