@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace InnerLibs
 {
@@ -131,6 +132,11 @@ namespace InnerLibs
         public static decimal CalculateCompoundInterest(this decimal Capital, decimal Rate, decimal Time) => CalculateCompoundInterest((double)Capital, (double)Rate, (double)Time).ToDecimal();
 
         /// <summary>
+        /// Earth's circumference at the equator in km, considering the earth is a globe, not flat 
+        /// </summary>
+        public const double EarthCircumference = 40000.0d;
+
+        /// <summary>
         /// Calcula a distancia entre 2 locais
         /// </summary>
         /// <param name="FirstLocation">Primeiro Local</param>
@@ -138,11 +144,10 @@ namespace InnerLibs
         /// <returns>A distancia em kilometros</returns>
         public static double CalculateDistance(this AddressInfo FirstLocation, AddressInfo SecondLocation)
         {
-            double circumference = 40000.0d;
-            // Earth's circumference at the equator in km, considering the earth is a globe, not flat
+
 
             double distance = 0.0d;
-            if (FirstLocation.Latitude == SecondLocation.Latitude && FirstLocation.Longitude == SecondLocation.Longitude)
+            if (FirstLocation == null || SecondLocation == null || (FirstLocation.Latitude == SecondLocation.Latitude && FirstLocation.Longitude == SecondLocation.Longitude))
             {
                 return distance;
             }
@@ -159,7 +164,7 @@ namespace InnerLibs
             }
 
             double angleCalculation = Math.Acos(Math.Sin(latitude2Rad) * Math.Sin(latitude1Rad) + Math.Cos(latitude2Rad) * Math.Cos(latitude1Rad) * Math.Cos(longitudeDiff));
-            distance = circumference * angleCalculation / (2.0d * Math.PI);
+            distance = EarthCircumference * angleCalculation / (2.0d * Math.PI);
             return distance;
         }
 
@@ -195,7 +200,7 @@ namespace InnerLibs
         /// <summary>
         /// Calcula a porcentagem de cada valor de uma classe em relação a sua totalidade em uma lista
         /// </summary>
-        public static Dictionary<Tobject, decimal> CalculatePercent<Tobject, Tvalue>(this IEnumerable<Tobject> Obj, Expression<Func<Tobject, Tvalue>> ValueSelector) where Tvalue : struct => Obj.CalculatePercent(x => x, ValueSelector);
+        public static Dictionary<TObject, decimal> CalculatePercent<TObject, TValue>(this IEnumerable<TObject> Obj, Expression<Func<TObject, TValue>> ValueSelector) where TValue : struct => Obj.CalculatePercent(x => x, ValueSelector);
 
         /// <summary>
         /// Calcula a porcentagem de cada valor de uma classe em relação a sua totalidade em uma lista
@@ -707,6 +712,8 @@ namespace InnerLibs
         /// <param name="Number">Numero</param>
         /// <returns></returns>
         public static decimal RoundDecimal(this decimal Number, int? Decimals = default) => Decimals.HasValue ? Math.Round(Number, Decimals.Value.ForcePositive()) : Math.Round(Number);
+        public static decimal RoundDecimal(this double Number, int? Decimals = default) => Decimals.HasValue ? Math.Round(Number.ToDecimal(), Decimals.Value.ForcePositive()) : Math.Round(Number.ToDecimal());
+        
 
         /// <summary>
         /// Arredonda um numero para o valor inteiro mais próximo
@@ -714,6 +721,7 @@ namespace InnerLibs
         /// <param name="Number">Numero</param>
         /// <returns></returns>
         public static double RoundDouble(this double Number, int? Decimals = default) => Decimals.HasValue ? Math.Round(Number, Decimals.Value.ForcePositive()) : Math.Round(Number);
+        public static double RoundDouble(this decimal Number, int? Decimals = default) => Decimals.HasValue ? Math.Round(Number.ToDouble(), Decimals.Value.ForcePositive()) : Math.Round(Number.ToDouble());
 
         /// <summary>
         /// Arredonda um numero para o valor inteiro mais próximo
@@ -750,6 +758,8 @@ namespace InnerLibs
         /// <param name="MaxValue">Valor Maximo</param>
         /// <returns></returns>
         public static T SetMaxValue<T>(this T Number, T MaxValue) where T : IComparable => Number.LimitRange<T>(MaxValue: MaxValue);
+     
+        public static T Round<T>(this T Number,  int? Decimals = default) where T : IComparable => (Decimals.HasValue ? Math.Round(Number.ToDecimal(),Decimals.Value) : Math.Round(Number.ToDecimal())).ChangeType<T>();
 
         /// <summary>
         /// Limita o valor minimo de um numero

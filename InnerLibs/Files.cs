@@ -43,6 +43,30 @@ namespace InnerLibs
             return FilePath.FixPath(AlternativeChar);
         }
 
+
+        /// <summary>
+        /// Renomeia um arquivo e retorna um <see cref="FileInfo"/> do arquivo renomeado
+        /// </summary>
+        /// <param name="File"></param>
+        /// <param name="Name"></param>
+        /// <param name="KeepOriginalExtension"></param>
+        /// <returns></returns>
+        public static FileInfo Rename(this FileInfo File, string Name, bool KeepOriginalExtension = false)
+        {
+            if (File != null && Name.IsNotBlank())
+            {
+                if (KeepOriginalExtension)
+                {
+                    Name = $"{Path.GetFileNameWithoutExtension(Name)}.{File.Extension.Trim('.')}";
+                }
+
+                var pt = Path.Combine(File.DirectoryName, Name);
+                File.MoveTo(pt);
+                File = new FileInfo(pt);
+            }
+            return File;
+        }
+
         /// <summary>
         /// Retorna o nome do diretorio onde o arquivo se encontra
         /// </summary>
