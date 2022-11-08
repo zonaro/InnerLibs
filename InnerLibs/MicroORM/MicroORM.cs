@@ -1024,7 +1024,7 @@ namespace InnerLibs.MicroORM
             {
                 sql.Append($"{_top}");
             }
-            var cols = (_columns?.Distinct().SelectJoinString(",") ?? "").IfBlank(" * ");
+            var cols = (_columns?.Distinct().SelectJoinString(",") ?? InnerLibs.Text.Empty).IfBlank(" * ");
             sql.Append(cols);
             if (_fromsub != null && _fromsub.ToString().IsNotBlank())
             {
@@ -1164,7 +1164,7 @@ namespace InnerLibs.MicroORM
 
                 var rp = new Dictionary<string, string>()
                 {
-                    { $"{pName.Name}.", ""},
+                    { $"{pName.Name}.", InnerLibs.Text.Empty},
                     {"==", "="},
                     {"!=", "<>"},
                     {"AndAlso", " AND "},
@@ -1178,7 +1178,7 @@ namespace InnerLibs.MicroORM
                     {".Like", " LIKE "},
                     {".Equal", " = "},
                     {".IsIn", " in "},
-                    {"\"", "'"}
+                    {Text.DoubleQuoteChar, "'"}
                 };
                 Where(p.ReplaceFrom(rp).ToFormattableString());
             }

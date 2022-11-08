@@ -47,13 +47,13 @@ namespace InnerLibs.Console
         {
             while (BreakLines > 0)
             {
-                System.Console.WriteLine(string.Empty);
+                System.Console.WriteLine(InnerLibs.Text.Empty);
                 BreakLines--;
             }
             return Text;
         }
 
-        public static string ConsoleBreakLine(this int BreakLines) => ConsoleBreakLine("", BreakLines);
+        public static string ConsoleBreakLine(this int BreakLines) => ConsoleBreakLine(InnerLibs.Text.Empty, BreakLines);
 
         public static string ConsoleBreakLine() => ConsoleBreakLine(1);
 
@@ -95,7 +95,7 @@ namespace InnerLibs.Console
             CustomColoredWords = CustomColoredWords ?? new Dictionary<string, ConsoleColor>();
             CustomColoredWords = CustomColoredWords.SelectMany(x => x.Key.Split(" ").Distinct().ToDictionary(y => y, y => x.Value)).ToDictionary();
             var lastcolor = System.Console.ForegroundColor;
-            var maincolor = CustomColoredWords.GetValueOr("", lastcolor);
+            var maincolor = CustomColoredWords.GetValueOr(string.Empty, lastcolor);
             if (Text.IsNotBlank())
             {
                 var substrings = Text.Split(" ");
@@ -126,7 +126,7 @@ namespace InnerLibs.Console
         {
             var lastcolor = System.Console.ForegroundColor;
             System.Console.ForegroundColor = Color;
-            System.Console.Write(Text ?? "");
+            System.Console.Write(Text ?? string.Empty);
             System.Console.ForegroundColor = lastcolor;
             return Text.ConsoleBreakLine(BreakLines);
         }
@@ -194,7 +194,7 @@ namespace InnerLibs.Console
         public static string ConsoleWriteLine(this string Text, int BreakLines = 1) => Text.ConsoleWriteLine(System.Console.ForegroundColor, BreakLines);
 
 
-        public static string ConsoleWriteSeparator(char Separator = '-', ConsoleColor? Color = null, int BreakLines = 1) => ConsoleWriteSeparator("", Separator, Color, BreakLines);
+        public static string ConsoleWriteSeparator(char Separator = '-', ConsoleColor? Color = null, int BreakLines = 1) => ConsoleWriteSeparator(InnerLibs.Text.Empty, Separator, Color, BreakLines);
 
 
         /// <summary>

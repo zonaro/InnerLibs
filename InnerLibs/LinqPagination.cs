@@ -325,7 +325,7 @@ namespace InnerLibs.LINQ
         {
             if (Type != null)
             {
-                return Type.Name.PascalCaseSplit().SelectJoinString(x => x.FirstOrDefault().IfBlank(""), "").ToLower();
+                return Type.Name.PascalCaseSplit().SelectJoinString(x => x.FirstOrDefault().IfBlank(InnerLibs.Text.Empty), InnerLibs.Text.Empty).ToLower();
             }
 
             return "p";
@@ -392,7 +392,7 @@ namespace InnerLibs.LINQ
                     {
                         foreach (var item in PropertyValues)
                         {
-                            var exp = Expression.Equal(Member, Expression.Constant(string.Empty, Member.Type));
+                            var exp = Expression.Equal(Member, Expression.Constant(InnerLibs.Text.Empty, Member.Type));
                             if (body == null)
                             {
                                 body = exp;
@@ -1018,7 +1018,7 @@ namespace InnerLibs.LINQ
                     {
                         try
                         {
-                            var metodo = Member.Type.GetMethods().FirstOrDefault(x => (x.Name.ToLower() ?? "") == (Operator.ToLower() ?? ""));
+                            var metodo = Member.Type.GetMethods().FirstOrDefault(x => (x.Name.ToLower() ?? InnerLibs.Text.Empty) == (Operator.ToLower() ?? InnerLibs.Text.Empty));
                             Expression exp = (Expression)metodo.Invoke(null, new[] { PropertyValues });
                             exp = Expression.Equal(Expression.Invoke(exp, new[] { Member }), Expression.Constant(comparewith));
                             if (body == null)
@@ -1561,7 +1561,7 @@ namespace InnerLibs.LINQ
         /// <param name="Source"></param>
         /// <param name="Separator"></param>
         /// <returns></returns>
-        public static string SelectJoinString<TSource>(this IEnumerable<TSource> Source, string Separator = "") => Source.SelectJoinString(null, Separator);
+        public static string SelectJoinString<TSource>(this IEnumerable<TSource> Source, string Separator = InnerLibs.Text.Empty) => Source.SelectJoinString(null, Separator);
 
         /// <summary>
         /// Seleciona e une em uma unica string varios elementos
@@ -1571,11 +1571,11 @@ namespace InnerLibs.LINQ
         /// <param name="Selector"></param>
         /// <param name="Separator"></param>
         /// <returns></returns>
-        public static string SelectJoinString<TSource>(this IEnumerable<TSource> Source, Func<TSource, string> Selector, string Separator = "")
+        public static string SelectJoinString<TSource>(this IEnumerable<TSource> Source, Func<TSource, string> Selector, string Separator = InnerLibs.Text.Empty)
         {
             Selector = Selector ?? (x => $"{x}");
             Source = Source ?? Array.Empty<TSource>();
-            return Source.Any() ? String.Join(Separator, Source.Select(Selector).ToArray()) : "";
+            return Source.Any() ? String.Join(Separator, Source.Select(Selector).ToArray()) : InnerLibs.Text.Empty;
         }
 
         /// <summary>
@@ -1586,7 +1586,7 @@ namespace InnerLibs.LINQ
         /// <param name="Selector"></param>
         /// <param name="Separator"></param>
         /// <returns></returns>
-        public static string SelectManyJoinString<TSource>(this IEnumerable<TSource> Source, Func<TSource, IEnumerable<string>> Selector = null, string Separator = "") => SelectJoinString(Source.SelectMany(Selector ?? (x => (new[] { x.ToString() }))), Separator);
+        public static string SelectManyJoinString<TSource>(this IEnumerable<TSource> Source, Func<TSource, IEnumerable<string>> Selector = null, string Separator = InnerLibs.Text.Empty) => SelectJoinString(Source.SelectMany(Selector ?? (x => (new[] { x.ToString() }))), Separator);
 
         /// <summary>
         /// Seleciona e une em uma unica string varios elementos enumeraveis
@@ -1596,7 +1596,7 @@ namespace InnerLibs.LINQ
         /// <param name="Selector"></param>
         /// <param name="Separator"></param>
         /// <returns></returns>
-        public static string SelectManyJoinString<TSource>(this IQueryable<TSource> Source, Func<TSource, IEnumerable<string>> Selector = null, string Separator = "") => Source.AsEnumerable().SelectManyJoinString(Selector, Separator);
+        public static string SelectManyJoinString<TSource>(this IQueryable<TSource> Source, Func<TSource, IEnumerable<string>> Selector = null, string Separator = InnerLibs.Text.Empty) => Source.AsEnumerable().SelectManyJoinString(Selector, Separator);
 
         /// <summary>
         /// Busca em um <see cref="IQueryable{T}"/> usando uma expressao lambda a partir do nome de
@@ -1766,7 +1766,7 @@ namespace InnerLibs.LINQ
                 foreach (var t in Searches)
                 {
                     var arr = new[] {
-                         new Func<T, bool>(x => (PropertySelector(x) ?? "") == (t ?? "")),
+                         new Func<T, bool>(x => (PropertySelector(x) ?? InnerLibs.Text.Empty) == (t ?? InnerLibs.Text.Empty)),
                          new Func<T, bool>(x => PropertySelector(x).StartsWith(t)),
                          new Func<T, bool>(x => PropertySelector(x).Contains(t)),
                          new Func<T, bool>(x => PropertySelector(x).EndsWith(t))

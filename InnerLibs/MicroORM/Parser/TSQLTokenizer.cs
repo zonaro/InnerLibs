@@ -369,7 +369,7 @@ namespace TSQL
 						}
 					// ''
 					case '\'':
-					// ""
+					// string.Empty
 					case '\"':
 					// [dbo]
 					case '[':

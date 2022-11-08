@@ -434,7 +434,7 @@ namespace InnerLibs
         {
             foreach (var prop in this.GetProperties().Where(x => x.CanWrite))
             {
-                switch (prop.Name ?? "")
+                switch (prop.Name ?? InnerLibs.Text.Empty)
                 {
                     case nameof(ExactlyOneHundred):
                     case nameof(DecimalSeparator):
@@ -780,7 +780,7 @@ namespace InnerLibs
         {
             long dec = Number.GetDecimalPart(DecimalPlaces.LimitRange(0, 3));
             long num = (long)Math.Round(Number.Floor());
-            return (InExtensive(num) + (dec == 0L | DecimalPlaces == 0 ? "" : DecimalSeparator.Wrap(" ") + InExtensive(dec))).ToLower().TrimBetween();
+            return (InExtensive(num) + (dec == 0L | DecimalPlaces == 0 ? InnerLibs.Text.Empty : DecimalSeparator.Wrap(" ") + InExtensive(dec))).ToLower().TrimBetween();
         }
     }
 }

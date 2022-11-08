@@ -18,17 +18,17 @@ namespace TSQL.Tokens
 					.Replace("]]", "]");
 			}
 			// check for quoted identifiers here just in case
-			else if (Text.StartsWith("\""))
+			else if (Text.StartsWith(Text.QuoteChar))
 			{
 				Name = Text
 					.Substring(1, Text.Length - 2)
-					.Replace("\"\"", "\"");
+					.Replace("\Text.QuoteChar, Text.QuoteChar);
 			}
-			else if (Text.StartsWith("N\""))
+			else if (Text.StartsWith("N\string.Empty))
 			{
 				Name = Text
 					.Substring(2, Text.Length - 3)
-					.Replace("\"\"", "\"");
+					.Replace("\Text.QuoteChar, Text.QuoteChar);
 			}
 			else
 			{

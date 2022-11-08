@@ -258,7 +258,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static decimal CalculateSimpleInterest(this decimal Capital, decimal Rate, decimal Time) => Capital * Rate * Time;
 
-        public static decimal CalculateValueFromPercent(this string Percent, decimal Total) => Convert.ToDecimal(Convert.ToDecimal(Percent.Replace("%", "")) * Total / 100m);
+        public static decimal CalculateValueFromPercent(this string Percent, decimal Total) => Convert.ToDecimal(Convert.ToDecimal(Percent.Replace("%", InnerLibs.Text.Empty)) * Total / 100m);
 
         public static decimal CalculateValueFromPercent(this int Percent, decimal Total) => Convert.ToDecimal(Convert.ToDecimal(Percent * Total / 100m));
 

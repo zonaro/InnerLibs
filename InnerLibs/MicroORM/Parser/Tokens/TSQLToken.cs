@@ -75,7 +75,7 @@ namespace TSQL.Tokens
 				switch (c)
 				{
 					case '\'': literal.Append(@"\'"); break;
-					case '\"': literal.Append("\\\""); break;
+					case '\"': literal.Append("\\\string.Empty); break;
 					case '\\': literal.Append(@"\\"); break;
 					case '\0': literal.Append(@"\0"); break;
 					case '\a': literal.Append(@"\a"); break;

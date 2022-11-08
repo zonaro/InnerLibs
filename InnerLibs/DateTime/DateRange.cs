@@ -854,7 +854,7 @@ namespace InnerLibs.TimeMachine
         }
 
         /// <summary>
-        /// Dias não relevantes entre as datas Inicial e Final
+        /// Dias nï¿½o relevantes entre as datas Inicial e Final
         /// </summary>
         /// <returns></returns>
         public IEnumerable<DateTime> GetNonRelevantDays() => NonRelevantDaysOfWeek.Any() ? GetDays(NonRelevantDaysOfWeek) : Array.Empty<DateTime>().AsEnumerable();
@@ -893,7 +893,7 @@ namespace InnerLibs.TimeMachine
         public IEnumerable<DateTime> GetRelevantDays() => GetDays(RelevantDaysOfWeek);
 
         /// <summary>
-        /// Agrupa itens de uma lista de acordo com uma propriedade e uma expressão de agrupamento
+        /// Agrupa itens de uma lista de acordo com uma propriedade e uma expressï¿½o de agrupamento
         /// de datas
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -943,7 +943,7 @@ namespace InnerLibs.TimeMachine
         }
 
         /// <summary>
-        /// Verifica se este periodo está dentro de outro periodo
+        /// Verifica se este periodo estï¿½ dentro de outro periodo
         /// </summary>
         /// <param name="Period"></param>
         /// <returns></returns>
@@ -1119,7 +1119,7 @@ namespace InnerLibs.TimeMachine
                 milisegundos = milisegundos.NullIf(x => Years >= 1);
             }
 
-            string current = new[] { ano, mes, dia, horas, minutos, segundos, milisegundos }.WhereNotBlank().ToPhrase("", display.AndWord);
+            string current = new[] { ano, mes, dia, horas, minutos, segundos, milisegundos }.WhereNotBlank().ToPhrase(InnerLibs.Text.Empty, display.AndWord);
 
             return current.FixText();
         }

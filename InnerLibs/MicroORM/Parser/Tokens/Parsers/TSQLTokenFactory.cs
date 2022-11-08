@@ -87,7 +87,7 @@ namespace TSQL.Tokens.Parsers
 			}
 			else if (
 				!useQuotedIdentifiers &&
-				tokenValue.StartsWith("\""))
+				tokenValue.StartsWith(Text.QuoteChar))
 			{
 				// make sure there's an even number of quotes so that it's closed properly
 				if ((tokenValue.Split('\"').Length - 1) % 2 == 0)
@@ -205,7 +205,7 @@ namespace TSQL.Tokens.Parsers
 					) ||
 					(
 						useQuotedIdentifiers &&
-						tokenValue.StartsWith("\"") &&
+						tokenValue.StartsWith(Text.QuoteChar) &&
 						// see if there's an odd number of quotes
 						(tokenValue.Split('\"').Length - 1) % 2 == 1
 					))

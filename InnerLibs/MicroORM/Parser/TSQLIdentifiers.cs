@@ -10,7 +10,7 @@ namespace TSQL
 		private static Dictionary<string, TSQLIdentifiers> identifierLookup =
 			new Dictionary<string, TSQLIdentifiers>(StringComparer.OrdinalIgnoreCase);
 
-		public static readonly TSQLIdentifiers None = new TSQLIdentifiers("");
+		public static readonly TSQLIdentifiers None = new TSQLIdentifiers(string.Empty);
 
 #pragma warning disable 1591
 

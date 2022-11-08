@@ -38,7 +38,7 @@ namespace InnerLibs
 
         public string ToString(int Ident)
         {
-            string ss = "";
+            string ss = InnerLibs.Text.Empty;
             foreach (var s in this)
             {
                 ss += s.ToString() + " ";
@@ -60,7 +60,7 @@ namespace InnerLibs
             if (Text.IsNotBlank())
             {
                 var charlist = Text.Trim().ToArray().ToList();
-                string palavra = "";
+                string palavra = InnerLibs.Text.Empty;
                 var listabase = new List<string>();
 
                 // remove quaisquer caracteres nao desejados do inicio da frase
@@ -83,7 +83,7 @@ namespace InnerLibs
                                 if (palavra.IsNotBlank())
                                 {
                                     listabase.Add(palavra); // adiciona a plavra atual
-                                    palavra = "";
+                                    palavra = InnerLibs.Text.Empty;
                                 }
 
                                 listabase.Add(Convert.ToString(p)); // adiciona a virgula, wrapper ou pontuacao
@@ -95,10 +95,10 @@ namespace InnerLibs
                                 if (palavra.IsNotBlank())
                                 {
                                     listabase.Add(palavra); // adiciona a plavra atual
-                                    palavra = "";
+                                    palavra = InnerLibs.Text.Empty;
                                 }
                                 // senao, adiciona o proximo caractere a palavra atual
-                                palavra = "";
+                                palavra = InnerLibs.Text.Empty;
                                 break;
                             }
 
@@ -156,7 +156,7 @@ namespace InnerLibs
 
         public override string ToString()
         {
-            string sent = "";
+            string sent = InnerLibs.Text.Empty;
             foreach (var s in this)
             {
                 if (s.IsClosingQuote)
@@ -203,7 +203,7 @@ namespace InnerLibs
         /// <returns></returns>
         public bool IsComma => Text == ",";
 
-        public bool IsDoubleQuote => Text == "\"";
+        public bool IsDoubleQuote => Text == InnerLibs.Text.DoubleQuoteChar;
 
         /// <summary>
         /// Retorna TRUE se esta parte de senteça for um caractere de encerramento de frase (pontuaçao)
@@ -297,7 +297,7 @@ namespace InnerLibs
             int indexo = Sentence.IndexOf(this);
             if (indexo < 0)
             {
-                return "";
+                return InnerLibs.Text.Empty;
             }
 
             if (indexo == 0 || indexo == 1 && PredefinedArrays.OpenWrappers.Contains(Sentence[0].Text))
@@ -314,7 +314,7 @@ namespace InnerLibs
     /// </summary>
     public class TextStructure : List<Paragraph>
     {
-        private string _originaltext = "";
+        private string _originaltext = InnerLibs.Text.Empty;
 
         /// <summary>
         /// Cria um novo texto estruturado (dividido em paragrafos, sentenças e palavras)

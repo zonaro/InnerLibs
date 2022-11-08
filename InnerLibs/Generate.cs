@@ -75,7 +75,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Numbers"></param>
         /// <returns></returns>
-        public static string EANFromNumbers(params string[] Numbers) => Numbers.Where(x => x.IsNumber()).SelectJoinString("").AppendBarcodeCheckSum();
+        public static string EANFromNumbers(params string[] Numbers) => Numbers.Where(x => x.IsNumber()).SelectJoinString(InnerLibs.Text.Empty).AppendBarcodeCheckSum();
 
         /// <inheritdoc cref="EANFromNumbers(string[])"/>
         public static string EANFromNumbers(params int[] Numbers) => EANFromNumbers(Numbers.Select(x => x.ToString()).ToArray());
@@ -98,10 +98,10 @@ namespace InnerLibs
         /// <returns></returns>
         public static string Password(int AlphaUpperLenght, int AlphaLowerLenght, int NumberLenght, int SpecialLenght)
         {
-            string pass = "";
+            string pass = InnerLibs.Text.Empty;
             if (AlphaLowerLenght > 0)
             {
-                string ss = "";
+                string ss = InnerLibs.Text.Empty;
                 while (ss.Length < AlphaLowerLenght)
                 {
                     ss = ss.Append(PredefinedArrays.AlphaLowerChars.RandomItem());
@@ -112,7 +112,7 @@ namespace InnerLibs
 
             if (AlphaUpperLenght > 0)
             {
-                string ss = "";
+                string ss = InnerLibs.Text.Empty;
                 while (ss.Length < AlphaUpperLenght)
                 {
                     ss = ss.Append(PredefinedArrays.AlphaUpperChars.RandomItem());
@@ -123,7 +123,7 @@ namespace InnerLibs
 
             if (NumberLenght > 0)
             {
-                string ss = "";
+                string ss = InnerLibs.Text.Empty;
                 while (ss.Length < NumberLenght)
                 {
                     ss = ss.Append(PredefinedArrays.NumberChars.RandomItem());
@@ -134,7 +134,7 @@ namespace InnerLibs
 
             if (SpecialLenght > 0)
             {
-                string ss = "";
+                string ss = InnerLibs.Text.Empty;
                 while (ss.Length < SpecialLenght)
                 {
                     ss = ss.Append(PredefinedArrays.PasswordSpecialChars.RandomItem());
@@ -204,7 +204,7 @@ namespace InnerLibs
             while (l.Count < Quantity)
             {
                 var r = ColorExtensions.RandomColor(Red, Green, Blue);
-                if (l.Any(x => (x.ToHexadecimal() ?? "") == (r.ToHexadecimal() ?? "")))
+                if (l.Any(x => (x.ToHexadecimal() ?? InnerLibs.Text.Empty) == (r.ToHexadecimal() ?? InnerLibs.Text.Empty)))
                 {
                     errorcount++;
                     if (errorcount == Quantity)
@@ -236,7 +236,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string RandomFixLenghtNumber(int Len = 8)
         {
-            var n = "";
+            var n = InnerLibs.Text.Empty;
             for (int i = 0; i < Len; i++)
             {
                 n += PredefinedArrays.NumberChars.RandomItem();
@@ -374,7 +374,7 @@ namespace InnerLibs
         public static string RandomWord(int Length = 0)
         {
             Length = Length < 1 ? RandomNumber(2, 15) : Length;
-            string word = "";
+            string word = InnerLibs.Text.Empty;
             if (Length == 1)
             {
                 return Text.RandomItem(PredefinedArrays.AlphaLowerChars.ToArray());

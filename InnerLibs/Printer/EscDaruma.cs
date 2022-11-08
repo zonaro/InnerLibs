@@ -144,7 +144,7 @@ namespace InnerLibs.EscDarumaCommands
         {
             var list = new List<byte>();
             var bmp = new Bitmap(image);
-            string send = "" + '\u001b' + '3' + '\0';
+            string send = InnerLibs.Text.Empty + '\u001b' + '3' + '\0';
             var data = new byte[send.Length];
             for (int i = 0, loopTo = send.Length - 1; i <= loopTo; i++)
                 data[i] = Text.ToAscByte(send[i]);

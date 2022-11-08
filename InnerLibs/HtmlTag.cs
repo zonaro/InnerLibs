@@ -18,13 +18,13 @@ namespace InnerLibs
         {
         }
 
-        public HtmlTag(string TagName, string InnerHtml = "")
+        public HtmlTag(string TagName, string InnerHtml = InnerLibs.Text.Empty)
         {
             this.TagName = TagName.IfBlank("div");
             this.InnerHtml = InnerHtml;
         }
 
-        public HtmlTag(string TagName, object Attributes, string InnerHtml = "")
+        public HtmlTag(string TagName, object Attributes, string InnerHtml = InnerLibs.Text.Empty)
         {
             this.TagName = TagName.IfBlank("div");
             this.InnerHtml = InnerHtml;
@@ -46,7 +46,7 @@ namespace InnerLibs
 
         public string Class
         {
-            get => Attributes.GetValueOr("class", "");
+            get => Attributes.GetValueOr("class", InnerLibs.Text.Empty);
 
             set => Attributes["class"] = value;
         }
@@ -90,7 +90,7 @@ namespace InnerLibs
 
         public string this[string key]
         {
-            get => Attributes.GetValueOr(key, "");
+            get => Attributes.GetValueOr(key, InnerLibs.Text.Empty);
             set => Attributes.Set(key, value);
         }
 

@@ -9,7 +9,7 @@ namespace TSQL
 		private static Dictionary<string, TSQLKeywords> keywordLookup =
 			new Dictionary<string, TSQLKeywords>(StringComparer.OrdinalIgnoreCase);
 
-		public static readonly TSQLKeywords None = new TSQLKeywords("");
+		public static readonly TSQLKeywords None = new TSQLKeywords(string.Empty);
 
 #pragma warning disable 1591
 

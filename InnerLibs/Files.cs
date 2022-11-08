@@ -79,7 +79,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="File">Arquivo</param>
         /// <returns></returns>
-        public static string ReadAllText(this FileInfo File, Encoding encoding = null) => File != null && File.Exists ? System.IO.File.ReadAllText(File.FullName, encoding ?? Encoding.UTF8) : "";
+        public static string ReadAllText(this FileInfo File, Encoding encoding = null) => File != null && File.Exists ? System.IO.File.ReadAllText(File.FullName, encoding ?? Encoding.UTF8) : InnerLibs.Text.Empty;
 
         /// <summary>
         /// Salva um anexo para um diretório

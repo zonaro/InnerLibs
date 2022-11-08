@@ -602,7 +602,7 @@ namespace InnerLibs.Online
         /// Id desta mensagem
         /// </summary>
         /// <returns></returns>
-        public string ID => new[] { "F[", FromUserID.ToString(), "]T[", ToUserID.ToString(), "]@", (object)SentDate.Ticks }.SelectJoinString("");
+        public string ID => new[] { "F[", FromUserID.ToString(), "]T[", ToUserID.ToString(), "]@", (object)SentDate.Ticks }.SelectJoinString(InnerLibs.Text.Empty);
 
         /// <summary>
         /// Mensagem
@@ -755,7 +755,7 @@ namespace InnerLibs.Online
             if (User != null && Message.IsNotBlank())
             {
                 DateAndTime = DateAndTime ?? DateTime.Now;
-                if ((OnlineList[User].LastActivity ?? "") == (Message ?? ""))
+                if ((OnlineList[User].LastActivity ?? InnerLibs.Text.Empty) == (Message ?? InnerLibs.Text.Empty))
                 {
                     var lo = OnlineList[User].LastOnline; // nao cria log para locais repedidos dentro do tempo de N minutos
                     if (lo.HasValue && lo.Value.Add(OnlineList.ToleranceTime) >= DateAndTime == true)
@@ -809,7 +809,7 @@ namespace InnerLibs.Online
         /// ID desta entrada
         /// </summary>
         /// <returns></returns>
-        public string ID => new string[] { GetUser().OnlineList.Log.IndexOf(this).ToString(), "-", GetUser().ID.ToString() }.SelectJoinString("");
+        public string ID => new string[] { GetUser().OnlineList.Log.IndexOf(this).ToString(), "-", GetUser().ID.ToString() }.SelectJoinString(InnerLibs.Text.Empty);
 
         /// <summary>
         /// Informações adicionais

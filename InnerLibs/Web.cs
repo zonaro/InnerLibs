@@ -111,7 +111,7 @@ namespace InnerLibs
 
         public static string GetPublicIP()
         {
-            var IP = "";
+            var IP = InnerLibs.Text.Empty;
             Misc.TryExecute(() => IP = DownloadString("https://ipv4.icanhazip.com/")).ConsoleWriteError();
             return IP.Trim();
         }
@@ -120,7 +120,7 @@ namespace InnerLibs
 
         public static string DownloadString(this string URL)
         {
-            string s = "";
+            string s = InnerLibs.Text.Empty;
             using (var c = new WebClient())
             {
                 s = $"{c.DownloadString(URL)}";
@@ -222,7 +222,7 @@ namespace InnerLibs
             if (CSS.IsNotBlank())
             {
                 CSS = Regex.Replace(CSS, "[a-zA-Z]+#", "#");
-                CSS = Regex.Replace(CSS, @"[\n\r]+\s*", string.Empty);
+                CSS = Regex.Replace(CSS, @"[\n\r]+\s*", InnerLibs.Text.Empty);
                 CSS = Regex.Replace(CSS, @"\s+", " ");
                 CSS = Regex.Replace(CSS, @"\s?([:,;{}])\s?", "$1");
                 CSS = CSS.Replace(";}", "}");
@@ -230,7 +230,7 @@ namespace InnerLibs
                 // Remove comments from CSS
                 if (PreserveComments == false)
                 {
-                    CSS = Regex.Replace(CSS, @"/\*[\d\D]*?\*/", string.Empty);
+                    CSS = Regex.Replace(CSS, @"/\*[\d\D]*?\*/", InnerLibs.Text.Empty);
                 }
             }
 
@@ -268,7 +268,7 @@ namespace InnerLibs
 
         public static string RemoveUrlParameters(this string UrlPattern)
         {
-            UrlPattern = Regex.Replace(UrlPattern, @"{([^:]+)\s*:\s*(.+?)(?<!\\)}", "");
+            UrlPattern = Regex.Replace(UrlPattern, @"{([^:]+)\s*:\s*(.+?)(?<!\\)}", InnerLibs.Text.Empty);
             return UrlPattern.TrimLastEqual("/");
         }
 

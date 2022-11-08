@@ -232,7 +232,7 @@ namespace InnerLibs.TimeMachine
         /// </summary>
         /// <param name="Key"></param>
         /// <returns></returns>
-        public Fortnight this[string Key] => base[IndexOf(this.Where(x => (x.Key ?? "") == (Key ?? "")).SingleOrDefault())];
+        public Fortnight this[string Key] => base[IndexOf(this.Where(x => (x.Key ?? InnerLibs.Text.Empty) == (Key ?? InnerLibs.Text.Empty)).SingleOrDefault())];
 
         /// <summary>
         /// Retorna uma quinzena a partir da sua Index

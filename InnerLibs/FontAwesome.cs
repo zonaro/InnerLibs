@@ -12,7 +12,7 @@ namespace InnerLibs.FontAwesome
         /// <returns></returns>
         public static string GetIconByFileExtension(this string Extension)
         {
-            switch (Extension.RemoveAny(".").ToLower() ?? "")
+            switch (Extension.RemoveAny(".").ToLower() ?? InnerLibs.Text.Empty)
             {
                 case "vcf":
                 case "vcard":
@@ -257,6 +257,6 @@ namespace InnerLibs.FontAwesome
         /// </summary>
         /// <param name="MIME">MIME Type do Arquivo</param>
         /// <returns></returns>
-        public static string GetIconByFileType(this FileType MIME) => MIME.Extensions.FirstOr("").GetIconByFileExtension();
+        public static string GetIconByFileType(this FileType MIME) => MIME.Extensions.FirstOr(InnerLibs.Text.Empty).GetIconByFileExtension();
     }
 }

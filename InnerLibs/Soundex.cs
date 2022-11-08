@@ -13,7 +13,7 @@ namespace InnerLibs
         private static string SoundEx(string Text, int Length)
         {
             // Value to return
-            string Value = "";
+            string Value = string.Empty;
             // Size of the word to process
             int Size = Text.Length;
             // Make sure the word is at least two characters in length
@@ -24,7 +24,7 @@ namespace InnerLibs
                 // Convert to the word to a character array for faster processing
                 var Chars = Text.ToCharArray();
                 // Buffer to build up with character codes
-                string Buffer = "";
+                string Buffer = string.Empty;
 
                 // The current and previous character codes
                 int PrevCode = 0;
@@ -147,7 +147,7 @@ namespace InnerLibs
         /// <returns>TRUE se possuirem o mesmo fonema</returns>
         public static bool SoundsLike(this string FirstText, string SecondText)
         {
-            return (FirstText.SoundEx() ?? "") == (SecondText.SoundEx() ?? "");
+            return (FirstText.SoundEx() ?? InnerLibs.Text.Empty) == (SecondText.SoundEx() ?? InnerLibs.Text.Empty);
         }
     }
 
@@ -240,7 +240,7 @@ namespace InnerLibs
                 text = text.Replace("ST", "T");
                 text = text.Replace("W", "V");
                 text = text.Replace("L", "R");
-                text = text.Replace("H", "");
+                text = text.Replace("H", InnerLibs.Text.Empty);
                 var sb = new StringBuilder(text);
                 if (text.IsNotBlank())
                 {
@@ -262,7 +262,7 @@ namespace InnerLibs
                         }
                     }
 
-                    string frasesaida = "";
+                    string frasesaida = InnerLibs.Text.Empty;
                     try
                     {
                         frasesaida += Convert.ToString(sb[0]);
@@ -283,7 +283,7 @@ namespace InnerLibs
                 }
                 else
                 {
-                    return "";
+                    return InnerLibs.Text.Empty;
                 }
             }
         }
@@ -299,7 +299,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Word">Palavra para comparar</param>
         /// <returns></returns>
-        public bool this[string Word] => (new Phonetic(Word).SoundExCode ?? "") == (SoundExCode ?? "") | (Word ?? "") == (this.Word ?? "");
+        public bool this[string Word] => (new Phonetic(Word).SoundExCode ?? InnerLibs.Text.Empty) == (SoundExCode ?? InnerLibs.Text.Empty) | (Word ?? InnerLibs.Text.Empty) == (this.Word ?? InnerLibs.Text.Empty);
 
         public override string ToString() => SoundExCode;
     }

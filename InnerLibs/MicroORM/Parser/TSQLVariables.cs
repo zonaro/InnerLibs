@@ -10,7 +10,7 @@ namespace TSQL
 		private static Dictionary<string, TSQLVariables> variableLookup =
 			new Dictionary<string, TSQLVariables>(StringComparer.OrdinalIgnoreCase);
 
-		public static readonly TSQLVariables None = new TSQLVariables("");
+		public static readonly TSQLVariables None = new TSQLVariables(string.Empty);
 
 #pragma warning disable 1591
 

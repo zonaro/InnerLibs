@@ -348,8 +348,8 @@ namespace InnerLibs.Mail
                 {
                     if (item != null)
                     {
-                        string msg = Body.IfBlank("");
-                        string subj = Subject.IfBlank("");
+                        string msg = Body.IfBlank(InnerLibs.Text.Empty);
+                        string subj = Subject.IfBlank(InnerLibs.Text.Empty);
                         if (ReferenceEquals(item.GetType(), typeof(TemplateMailAddress)))
                         {
                             var data = ((TemplateMailAddress)item)?.TemplateData;
@@ -503,7 +503,7 @@ namespace InnerLibs.Mail
         /// </summary>
         /// <param name="TemplateOrFilePathOrUrl"></param>
         /// <returns></returns>
-        public FluentMailMessage UseTemplate(string TemplateOrFilePathOrUrl) => UseTemplate(TemplateOrFilePathOrUrl, "");
+        public FluentMailMessage UseTemplate(string TemplateOrFilePathOrUrl) => UseTemplate(TemplateOrFilePathOrUrl, InnerLibs.Text.Empty);
 
         /// <summary>
         /// Utiliza um template para o corpo da mensagem
@@ -704,8 +704,8 @@ namespace InnerLibs.Mail
         {
             if (Data != null)
             {
-                var name = "";
-                var email = "";
+                var name = InnerLibs.Text.Empty;
+                var email = InnerLibs.Text.Empty;
 
                 if (EmailSelector != null)
                 {

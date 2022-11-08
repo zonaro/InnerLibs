@@ -46,13 +46,13 @@ namespace InnerLibs.ConsoleTables
         private string Format(List<int> columnLengths, char delimiter = '|')
         {
             var columnAlignment = Enumerable.Range(0, Columns.Count).Select(x => GetNumberAlignment(x)).ToList();
-            string delimiterStr = delimiter == char.MinValue ? string.Empty : delimiter.ToString();
+            string delimiterStr = delimiter == char.MinValue ? InnerLibs.Text.Empty : delimiter.ToString();
             return (Enumerable.Range(0, Columns.Count).Select(i => " " + delimiterStr + " {" + i + "," + columnAlignment[i] + columnLengths[i] + "}").Aggregate((s, a) => s + a) + " " + delimiterStr).Trim();
         }
 
         private string GetNumberAlignment(int i)
         {
-            return Options.NumberAlignment == Alignment.Right && ColumnTypes != null && PredefinedArrays.NumericTypes.Contains(ColumnTypes[i]) ? "" : "-";
+            return Options.NumberAlignment == Alignment.Right && ColumnTypes != null && PredefinedArrays.NumericTypes.Contains(ColumnTypes[i]) ? InnerLibs.Text.Empty : "-";
         }
 
         private string ToMarkDownString(char delimiter)
@@ -125,7 +125,7 @@ namespace InnerLibs.ConsoleTables
             }
 
             while (v.Count < Columns.Count)
-                v.Add(string.Empty);
+                v.Add(InnerLibs.Text.Empty);
             Rows.Add(v.Take(Columns.Count).ToArray());
             return this;
         }
@@ -137,13 +137,13 @@ namespace InnerLibs.ConsoleTables
                 var l = new List<object>();
                 foreach (var item in Columns)
                 {
-                    if ((item ?? "") == (Key ?? ""))
+                    if ((item ?? InnerLibs.Text.Empty) == (Key ?? InnerLibs.Text.Empty))
                     {
                         l.Add(obj);
                     }
                     else
                     {
-                        l.Add(string.Empty);
+                        l.Add(InnerLibs.Text.Empty);
                     }
                 }
 
@@ -205,7 +205,7 @@ namespace InnerLibs.ConsoleTables
             string columnHeaders = string.Format(format, Columns.ToArray());
             int longestLine = Math.Max(maxRowLength, columnHeaders.Length);
             var results = Rows.Select(row => string.Format(format, row)).ToList();
-            string divider = " " + string.Join("", Enumerable.Repeat("-", longestLine - 1)) + " ";
+            string divider = " " + string.Join(InnerLibs.Text.Empty, Enumerable.Repeat("-", longestLine - 1)) + " ";
             builder.AppendLine(divider);
             builder.AppendLine(columnHeaders);
             foreach (var row in results)
@@ -217,7 +217,7 @@ namespace InnerLibs.ConsoleTables
             builder.AppendLine(divider);
             if (Options.EnableCount)
             {
-                builder.AppendLine("");
+                builder.AppendLine(InnerLibs.Text.Empty);
                 builder.AppendFormat(" Count: {0}", Rows.Count);
             }
 

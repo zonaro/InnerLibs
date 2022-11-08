@@ -117,7 +117,7 @@ namespace InnerLibs.Locations
         /// </summary>
         /// <param name="CityName"></param>
         /// <returns></returns>
-        public static IEnumerable<State> FindStateByCityName(string CityName) => States.Where(x => x.Cities.Any(c => (c.Name.ToSlugCase() ?? "") == (CityName.ToSlugCase() ?? "") || (c.IBGE.ToString() ?? "") == (CityName.ToSlugCase() ?? "")));
+        public static IEnumerable<State> FindStateByCityName(string CityName) => States.Where(x => x.Cities.Any(c => (c.Name.ToSlugCase() ?? InnerLibs.Text.Empty) == (CityName.ToSlugCase() ?? InnerLibs.Text.Empty) || (c.IBGE.ToString() ?? InnerLibs.Text.Empty) == (CityName.ToSlugCase() ?? InnerLibs.Text.Empty)));
 
         public static State FindStateByIBGE(int IBGE) => States.FirstOrDefault(x => x.IBGE == IBGE) ?? FindCityByIBGE(IBGE)?.State;
 
@@ -134,7 +134,7 @@ namespace InnerLibs.Locations
         /// <param name="NameOrStateCodeOrIBGE">Nome ou sigla do estado</param>
         /// <param name="CityName">Nome da cidade</param>
         /// <returns></returns>
-        public static string GetClosestCityName(string NameOrStateCodeOrIBGE, string CityName) => (GetClosestCity(NameOrStateCodeOrIBGE, CityName)?.Name ?? "").IfBlank(CityName);
+        public static string GetClosestCityName(string NameOrStateCodeOrIBGE, string CityName) => (GetClosestCity(NameOrStateCodeOrIBGE, CityName)?.Name ?? InnerLibs.Text.Empty).IfBlank(CityName);
         public static City GetClosestCity(string NameOrStateCodeOrIBGE, string CityName) => (GetState(NameOrStateCodeOrIBGE)?.Cities ?? new List<City>()).AsEnumerable().OrderBy(x => x.Name.LevenshteinDistance(CityName)).Where(x => CityName.IsNotBlank()).FirstOrDefault();
         public static City GetCapital(string NameOrStateCodeOrIBGE) => (GetState(NameOrStateCodeOrIBGE)?.Cities ?? new List<City>()).FirstOrDefault(x => x.Capital);
 
@@ -162,7 +162,7 @@ namespace InnerLibs.Locations
         public static State GetState(string NameOrStateCodeOrIBGE)
         {
             NameOrStateCodeOrIBGE = NameOrStateCodeOrIBGE.TrimBetween().ToSlugCase();
-            return States.FirstOrDefault(x => (x.Name.ToSlugCase() ?? "") == (NameOrStateCodeOrIBGE ?? "") || (x.StateCode.ToSlugCase() ?? "") == (NameOrStateCodeOrIBGE ?? "") || (x.IBGE.ToString()) == (NameOrStateCodeOrIBGE ?? ""));
+            return States.FirstOrDefault(x => (x.Name.ToSlugCase() ?? InnerLibs.Text.Empty) == (NameOrStateCodeOrIBGE ?? InnerLibs.Text.Empty) || (x.StateCode.ToSlugCase() ?? InnerLibs.Text.Empty) == (NameOrStateCodeOrIBGE ?? InnerLibs.Text.Empty) || (x.IBGE.ToString()) == (NameOrStateCodeOrIBGE ?? InnerLibs.Text.Empty));
         }
 
         /// <summary>
@@ -177,7 +177,7 @@ namespace InnerLibs.Locations
         /// </summary>
         /// <param name="Region"></param>
         /// <returns></returns>
-        public static IEnumerable<State> GetStatesOf(string Region) => States.Where(x => (x.Region.ToSlugCase() ?? "") == (Region.ToSlugCase().TrimBetween() ?? "") || Region.IsBlank());
+        public static IEnumerable<State> GetStatesOf(string Region) => States.Where(x => (x.Region.ToSlugCase() ?? InnerLibs.Text.Empty) == (Region.ToSlugCase().TrimBetween() ?? InnerLibs.Text.Empty) || Region.IsBlank());
 
         public void Reload() => l = new List<State>();
     }

@@ -19,8 +19,8 @@ namespace TSQL.Tokens
 
 			// remove line continuation backslash
 			// https://docs.microsoft.com/en-us/sql/t-sql/language-elements/sql-server-utilities-statements-backslash?view=sql-server-2017
-			Value = Value.Replace("\\\r\n", "");
-			Value = Value.Replace("\\\n", "");
+			Value = Value.Replace("\\\r\n", string.Empty);
+			Value = Value.Replace("\\\n", string.Empty);
 
 			Values = StringToByteArray(Value);
 		}

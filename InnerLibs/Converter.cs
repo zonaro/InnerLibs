@@ -177,7 +177,7 @@ namespace InnerLibs
                 {
                     k.Key.PropertyNamesFor();
                     string propname1 = k.Key.Trim().Replace(" ", "_").Replace("-", "_").Replace("~", "_");
-                    string propname3 = k.Key.Trim().Replace(" ", "").Replace("-", "").Replace("~", "");
+                    string propname3 = k.Key.Trim().Replace(" ", InnerLibs.Text.Empty).Replace("-", InnerLibs.Text.Empty).Replace("~", InnerLibs.Text.Empty);
                     string propname2 = propname1.RemoveAccents();
                     string propname4 = propname3.RemoveAccents();
                     var prop = Misc.NullCoalesce(tipo.GetProperty(propname1), tipo.GetProperty(propname2), tipo.GetProperty(propname3), tipo.GetProperty(propname4));
@@ -431,7 +431,7 @@ namespace InnerLibs
                 case "false":
                 case "0":
                 case "null":
-                case "":
+                case InnerLibs.Text.Empty:
                     return false;
                 default:
                     return true;

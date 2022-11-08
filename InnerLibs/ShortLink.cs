@@ -19,7 +19,7 @@ namespace InnerLibs
         private string urlPattern;
 
         public string UrlPattern { get => urlPattern; set => urlPattern = value.ValidateOr(x => x.IsURL(), UrlPattern); }
-        public ShortLinkGenerator() : this(null) => Seed = "";
+        public ShortLinkGenerator() : this(null) => Seed = InnerLibs.Text.Empty;
 
 
         public ShortLinkGenerator(string Seed, string UrlPattern) : this(Seed) => this.UrlPattern = UrlPattern;
@@ -86,7 +86,7 @@ namespace InnerLibs
                 return Token[0].ToString();
             }
 
-            string s = string.Empty;
+            string s = InnerLibs.Text.Empty;
             while (i > 0)
             {
                 s += Convert.ToString(Token[i % Token.Length]);
@@ -98,7 +98,7 @@ namespace InnerLibs
                 s += "0";
             }
 
-            return string.Join(string.Empty, s.Reverse());
+            return string.Join(InnerLibs.Text.Empty, s.Reverse());
         }
 
         public string RandomHash() => Encode(Generate.RandomNumber());

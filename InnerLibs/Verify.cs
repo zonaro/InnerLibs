@@ -291,7 +291,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text">Texto a ser validado</param>
         /// <returns>TRUE se for um email, FALSE se não for email</returns>
-        public static bool IsEmail(this string Text) => Text.IsNotBlank() && new Regex(@"(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|""(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*"")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])").IsMatch(Text);
+        public static bool IsEmail(this string Text) => Text.IsNotBlank() && new Regex(@"(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|InnerLibs.Text.Empty(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*InnerLibs.Text.Empty)@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])").IsMatch(Text);
 
         /// <summary>
         /// Verifica se um numero é par
@@ -538,7 +538,7 @@ namespace InnerLibs
                 return false;
             }
 
-            PIS = Regex.Replace(PIS, "[^0-9]", "").ToString();
+            PIS = Regex.Replace(PIS, "[^0-9]", InnerLibs.Text.Empty).ToString();
 
             if (PIS.Length != 11)
             {
@@ -591,7 +591,7 @@ namespace InnerLibs
         {
             bool isValid = false;
             // char firstChar = cnh[0];
-            if (CNH.Length == 11 && (CNH ?? "") != (new string('1', 11) ?? ""))
+            if (CNH.Length == 11 && (CNH ?? InnerLibs.Text.Empty) != (new string('1', 11) ?? InnerLibs.Text.Empty))
             {
                 int dsc = 0;
                 int v = 0;
@@ -623,7 +623,7 @@ namespace InnerLibs
 
                 int x = v % 11;
                 int vl2 = x >= 10 ? 0 : x - dsc;
-                isValid = ((vl1.ToString() ?? "") + (vl2.ToString() ?? "") ?? "") == (CNH.Substring(CNH.Length - 2, 2) ?? "");
+                isValid = ((vl1.ToString() ?? InnerLibs.Text.Empty) + (vl2.ToString() ?? InnerLibs.Text.Empty) ?? InnerLibs.Text.Empty) == (CNH.Substring(CNH.Length - 2, 2) ?? InnerLibs.Text.Empty);
             }
 
             return isValid;
@@ -645,7 +645,7 @@ namespace InnerLibs
                 string digito;
                 string tempCnpj;
                 Text = Text.Trim();
-                Text = Text.Replace(".", "").Replace("-", "").Replace("/", "");
+                Text = Text.Replace(".", InnerLibs.Text.Empty).Replace("-", InnerLibs.Text.Empty).Replace("/", InnerLibs.Text.Empty);
                 if (Text.Length != 14)
                 {
                     return false;
@@ -705,7 +705,7 @@ namespace InnerLibs
             try
             {
                 Text = Text.RemoveAny(".", "-");
-                string digito = "";
+                string digito = InnerLibs.Text.Empty;
                 int k;
                 int j;
                 int soma;
@@ -755,7 +755,7 @@ namespace InnerLibs
                 {
                     string HostName = new Uri(DomainOrEmail).Host;
                     ObjHost = System.Net.Dns.GetHostEntry(HostName);
-                    return (ObjHost.HostName ?? "") == (HostName ?? "");
+                    return (ObjHost.HostName ?? InnerLibs.Text.Empty) == (HostName ?? InnerLibs.Text.Empty);
                 }
                 catch
                 {

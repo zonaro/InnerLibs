@@ -471,7 +471,7 @@ namespace InnerLibs.QuestionTest
     {
         internal Question _question;
 
-        internal string _text = "";
+        internal string _text = InnerLibs.Text.Empty;
 
         internal QuestionStatement() => this.Images = new StatementImages(this);
 
@@ -506,7 +506,7 @@ namespace InnerLibs.QuestionTest
     [Description("Representa uma avaliação de perguntas e respostas")]
     public class QuestionTest : ObservableCollection<Question>
     {
-        private string _title = "";
+        private string _title = InnerLibs.Text.Empty;
 
         protected override sealed void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
         {
@@ -635,7 +635,7 @@ namespace InnerLibs.QuestionTest
         /// <returns></returns>
         [Category("Texto")]
         [Description("Rodapé da prova. Texto adicional que ficará após as questões")]
-        public string Footer { get; set; } = "";
+        public string Footer { get; set; } = InnerLibs.Text.Empty;
 
         /// <summary>
         /// Cabeçalho da prova. Texto adicional que ficará antes das questões e apoós o título
@@ -643,7 +643,7 @@ namespace InnerLibs.QuestionTest
         /// <returns></returns>
         [Category("Texto")]
         [Description("Cabeçalho da prova. Texto adicional que ficará antes das questões e após o título")]
-        public string Header { get; set; } = "";
+        public string Header { get; set; } = InnerLibs.Text.Empty;
 
         /// <summary>
         /// Porcentagem de Acertos do Usuário
@@ -753,7 +753,7 @@ namespace InnerLibs.QuestionTest
         {
             try
             {
-                return (Alternative)GetQuestion<AlternativeQuestion>(ID.GetFirstChars(2)).Alternatives.Where(a => (a.ID.ToLower() ?? "") == (ID.ToLower() ?? ""));
+                return (Alternative)GetQuestion<AlternativeQuestion>(ID.GetFirstChars(2)).Alternatives.Where(a => (a.ID.ToLower() ?? InnerLibs.Text.Empty) == (ID.ToLower() ?? InnerLibs.Text.Empty));
             }
             catch
             {
@@ -771,7 +771,7 @@ namespace InnerLibs.QuestionTest
         {
             try
             {
-                return (T)this.Where(q => (q.ID.ToLower() ?? "") == (ID.ToLower() ?? "")).First();
+                return (T)this.Where(q => (q.ID.ToLower() ?? InnerLibs.Text.Empty) == (ID.ToLower() ?? InnerLibs.Text.Empty)).First();
             }
             catch
             {
@@ -874,7 +874,7 @@ namespace InnerLibs.QuestionTest
                     return "<li class='Image'><img src=" + Image.ToDataURL().Quote() + " alt= " + Subtitle.Quote() + "/><small>Imagem " + (StatementImages.IndexOf(this) + 1).ToString() + ": " + Subtitle + "</small></li>";
                 }
 
-                return "";
+                return InnerLibs.Text.Empty;
             }
         }
 
@@ -890,7 +890,7 @@ namespace InnerLibs.QuestionTest
         /// Legenda da Imagem
         /// </summary>
         /// <returns></returns>
-        public string Subtitle { get; set; } = "";
+        public string Subtitle { get; set; } = InnerLibs.Text.Empty;
     }
 
     /// <summary>
@@ -905,7 +905,7 @@ namespace InnerLibs.QuestionTest
 
         public QuestionStatement Statement { get; private set; }
 
-        public void Add(Image Image, string Subtitle = "")
+        public void Add(Image Image, string Subtitle = InnerLibs.Text.Empty)
         {
             var i = new StatementImage(this)
             {
@@ -915,7 +915,7 @@ namespace InnerLibs.QuestionTest
             base.Add(i);
         }
 
-        public void Add(string ImagePath, string Subtitle = "")
+        public void Add(string ImagePath, string Subtitle = InnerLibs.Text.Empty)
         {
             var i = new StatementImage(this)
             {

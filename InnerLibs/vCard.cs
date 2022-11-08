@@ -40,12 +40,12 @@ namespace InnerLibs
         {
         }
 
-        public string AddressLabel { get; set; } = "";
-        public string AddressName { get; set; } = "";
+        public string AddressLabel { get; set; } = InnerLibs.Text.Empty;
+        public string AddressName { get; set; } = InnerLibs.Text.Empty;
         public vAddressTypes AddressType { get; set; } = vAddressTypes.INT;
         public vLocations Location { get; set; } = vLocations.HOME;
         public bool Preferred { get; set; } = false;
-        public string StreetAddress { get; set; } = "";
+        public string StreetAddress { get; set; } = InnerLibs.Text.Empty;
 
         public override string ToString()
         {
@@ -135,7 +135,7 @@ namespace InnerLibs
             }
         }
 
-        public string FirstName { get; set; } = "";
+        public string FirstName { get; set; } = InnerLibs.Text.Empty;
 
         public string FormattedName
         {
@@ -145,15 +145,15 @@ namespace InnerLibs
             }
         }
 
-        public string Gender { get; set; } = "";
-        public string JobTitle { get; set; } = "";
+        public string Gender { get; set; } = InnerLibs.Text.Empty;
+        public string JobTitle { get; set; } = InnerLibs.Text.Empty;
         public DateTime LastModified { get; set; } = DateTime.Now;
-        public string LastName { get; set; } = "";
-        public string MiddleName { get; set; } = "";
-        public string Nickname { get; set; } = "";
-        public string Note { get; set; } = "";
-        public string Organization { get; set; } = "";
-        public string OrganizationalUnit { get; set; } = "";
+        public string LastName { get; set; } = InnerLibs.Text.Empty;
+        public string MiddleName { get; set; } = InnerLibs.Text.Empty;
+        public string Nickname { get; set; } = InnerLibs.Text.Empty;
+        public string Note { get; set; } = InnerLibs.Text.Empty;
+        public string Organization { get; set; } = InnerLibs.Text.Empty;
+        public string OrganizationalUnit { get; set; } = InnerLibs.Text.Empty;
 
         public string Profession
         {
@@ -168,7 +168,7 @@ namespace InnerLibs
             }
         }
 
-        public string Role { get; set; } = "";
+        public string Role { get; set; } = InnerLibs.Text.Empty;
 
         public List<vSocial> Social
         {
@@ -184,7 +184,7 @@ namespace InnerLibs
             }
         }
 
-        public string Suffix { get; set; } = "";
+        public string Suffix { get; set; } = InnerLibs.Text.Empty;
 
         public List<vTelephone> Telephones
         {
@@ -200,7 +200,7 @@ namespace InnerLibs
             }
         }
 
-        public string Title { get; set; } = "";  // Mr., Mrs., Ms., Dr.
+        public string Title { get; set; } = InnerLibs.Text.Empty;  // Mr., Mrs., Ms., Dr.
 
         // I, II, Jr., Sr.
         public Guid? UID { get; set; } = default;
@@ -281,7 +281,7 @@ namespace InnerLibs
 
         public override string ToString()
         {
-            string result = "";
+            string result = InnerLibs.Text.Empty;
             result = result.AppendLine("BEGIN:VCARD");
             result = result.AppendLine("VERSION:3.0");
             result = result.AppendLine($"FN;CHARSET=UTF-8:{FormattedName}");
@@ -371,7 +371,7 @@ namespace InnerLibs
             Preferred = IsPreferred;
         }
 
-        public string EmailAddress { get; set; } = "";
+        public string EmailAddress { get; set; } = InnerLibs.Text.Empty;
         public bool Preferred { get; set; } = false;
         public string Type { get; set; } = "INTERNET";
 
@@ -389,8 +389,8 @@ namespace InnerLibs
             this.Name = Name;
         }
 
-        public string Name { get; set; } = "";
-        public string URL { get; set; } = "";
+        public string Name { get; set; } = InnerLibs.Text.Empty;
+        public string URL { get; set; } = InnerLibs.Text.Empty;
 
         public override string ToString()
         {
@@ -421,7 +421,7 @@ namespace InnerLibs
 
         public vLocations Location { get; set; } = vLocations.HOME;
         public bool Preferred { get; set; }
-        public string TelephoneNumber { get; set; } = "";
+        public string TelephoneNumber { get; set; } = InnerLibs.Text.Empty;
         public vPhoneTypes Type { get; set; } = vPhoneTypes.VOICE;
 
         public override string ToString()
@@ -445,7 +445,7 @@ namespace InnerLibs
 
         public vLocations Location { get; set; } = vLocations.WORK;
         public bool Preferred { get; set; }
-        public string URL { get; set; } = "";
+        public string URL { get; set; } = InnerLibs.Text.Empty;
 
         public override string ToString()
         {

@@ -28,7 +28,7 @@ namespace InnerLibs
             }
 
             num.Reverse();
-            return num.SelectJoinString("");
+            return num.SelectJoinString(string.Empty);
         }
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace InnerLibs
                 var letras = new List<char>();
                 foreach (var n in num) letras.Add((char)Math.Pow(n.ToDouble(), 1d / (double)(3 * Seed.SetMinValue(1))));
                 letras.Reverse();
-                return letras.SelectJoinString("");
+                return letras.SelectJoinString(InnerLibs.Text.Empty);
             }
             catch
             {

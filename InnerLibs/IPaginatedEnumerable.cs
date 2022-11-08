@@ -619,7 +619,7 @@ namespace InnerLibs.LINQ
             var parametros = UrlPattern.GetAllBetween("{", "}").Select(x => x.GetBefore(":"));
             var dic = ToDictionary(PageNumber, ForceEnabled, IncludePageSize, IncludePaginationOffset);
             UrlPattern = UrlPattern.ReplaceUrlParameters(dic);
-            string querystring = "";
+            string querystring = InnerLibs.Text.Empty;
             foreach (var q in dic)
             {
                 var v = Converter.ForceArray<string>(q.Value).ToList();
@@ -627,13 +627,13 @@ namespace InnerLibs.LINQ
                 {
                     if (parametros.Contains(q.Key, StringComparer.InvariantCultureIgnoreCase))
                     {
-                        UrlPattern = UrlPattern.Replace($"{{{q.Key}}}", v.FirstOrDefault().IfBlank(""));
+                        UrlPattern = UrlPattern.Replace($"{{{q.Key}}}", v.FirstOrDefault().IfBlank(InnerLibs.Text.Empty));
                         v.RemoveAt(0);
                     }
 
                     if (v.Any())
                     {
-                        querystring = new[] { querystring, v.SelectJoinString(x => q.Key + "=" + x.IfBlank("").ToString().UrlDecode(), "&") }.Where(x => x.IsNotBlank()).SelectJoinString("&");
+                        querystring = new[] { querystring, v.SelectJoinString(x => q.Key + "=" + x.IfBlank(InnerLibs.Text.Empty).ToString().UrlDecode(), "&") }.Where(x => x.IsNotBlank()).SelectJoinString("&");
                     }
                 }
             }
@@ -727,7 +727,7 @@ namespace InnerLibs.LINQ
                 return LINQExtensions.SelectJoinString(l, "&");
             }
 
-            return "";
+            return InnerLibs.Text.Empty;
         }
 
         /// <summary>
@@ -907,7 +907,7 @@ namespace InnerLibs.LINQ
         /// <param name="Selector"></param>
         /// <param name="Descending"></param>
         /// <returns></returns>
-        public PaginationFilter<ClassType, RemapType> OrderBy(string Selector, bool Descending = false) => OrderBy(Selector.IfBlank("").SplitAny(" ", "/", ","), Descending);
+        public PaginationFilter<ClassType, RemapType> OrderBy(string Selector, bool Descending = false) => OrderBy(Selector.IfBlank(InnerLibs.Text.Empty).SplitAny(" ", "/", ","), Descending);
 
         public PaginationFilter<ClassType, RemapType> OrderByDescending<T>(Expression<Func<ClassType, T>> Selector)
         {
@@ -926,28 +926,28 @@ namespace InnerLibs.LINQ
         /// <param name="TraillingTemplate">emplate de botoes de reticencias</param>
         /// <param name="Trailling">botao de reticencias</param>
         /// <returns></returns>
-        public string PageButtonsFromTemplate(string Template, string TraillingTemplate, string SeparatorTemplate = "", string Trailling = "...") => Template.IsNotBlank() ? TraillingTemplate.IsBlank() || Trailling.IsBlank() ? PageButtonsFromTemplate(Template, SeparatorTemplate) : LINQExtensions.SelectJoinString(CreatePaginationButtons(Trailling).Select(x =>
+        public string PageButtonsFromTemplate(string Template, string TraillingTemplate, string SeparatorTemplate = InnerLibs.Text.Empty, string Trailling = "...") => Template.IsNotBlank() ? TraillingTemplate.IsBlank() || Trailling.IsBlank() ? PageButtonsFromTemplate(Template, SeparatorTemplate) : LINQExtensions.SelectJoinString(CreatePaginationButtons(Trailling).Select(x =>
         {
             if (x.IsNumber())
             {
                 return Template.Inject(new { Page = x });
             }
-            else if ((x ?? "") == (Trailling ?? ""))
+            else if ((x ?? InnerLibs.Text.Empty) == (Trailling ?? InnerLibs.Text.Empty))
             {
                 return TraillingTemplate.Inject(new { Page = x, Trailling });
             }
             else
             {
-                return "";
+                return InnerLibs.Text.Empty;
             }
-        }), SeparatorTemplate.IfBlank("")) : "";
+        }), SeparatorTemplate.IfBlank(InnerLibs.Text.Empty)) : InnerLibs.Text.Empty;
 
         /// <summary>
         /// Aplica a paginação a um template
         /// </summary>
         /// <param name="Template">Template de pagina</param>
         /// <returns></returns>
-        public string PageButtonsFromTemplate(string Template, string SeparatorTemplate = "") => Template.IsNotBlank() ? LINQExtensions.SelectJoinString(CreatePaginationButtons("").Select(x => Template.Inject(new { Page = x })), SeparatorTemplate.IfBlank("")) : "";
+        public string PageButtonsFromTemplate(string Template, string SeparatorTemplate = InnerLibs.Text.Empty) => Template.IsNotBlank() ? LINQExtensions.SelectJoinString(CreatePaginationButtons(InnerLibs.Text.Empty).Select(x => Template.Inject(new { Page = x })), SeparatorTemplate.IfBlank(InnerLibs.Text.Empty)) : InnerLibs.Text.Empty;
 
         /// <summary>
         /// Seta a lista com os dados a serem filtrados nesse filtro
@@ -1120,7 +1120,7 @@ namespace InnerLibs.LINQ
             {
                 var t = typeof(ClassType);
                 var l = t.GetProperties();
-                if (l.Any(x => (x.Name ?? "") == (K ?? "")))
+                if (l.Any(x => (x.Name ?? InnerLibs.Text.Empty) == (K ?? InnerLibs.Text.Empty)))
                 {
                     if (Collection[K].IsNotBlank() && Collection.GetValues(K).Any())
                     {
@@ -1242,7 +1242,7 @@ namespace InnerLibs.LINQ
         /// Expressão binaria deste filtro, se ativo
         /// </summary>
         /// <returns></returns>
-        public BinaryExpression Filter => Enabled ? LINQExtensions.GetOperatorExpression(Member, Operator.IfBlank(""), ValidValues(), ValuesConditional) : null;
+        public BinaryExpression Filter => Enabled ? LINQExtensions.GetOperatorExpression(Member, Operator.IfBlank(InnerLibs.Text.Empty), ValidValues(), ValuesConditional) : null;
 
         /// <summary>
         /// Comparara o valor do filtro com TRUE ou FALSE
@@ -1392,11 +1392,11 @@ namespace InnerLibs.LINQ
         {
             if (Enabled || ForceEnabled)
             {
-                string xx = Operator.AppendIf(QueryStringSeparator, QueryStringSeparator.IsNotBlank() && Operator.ToLower().IsNotAny("", "=", "==", "===")).UrlEncode();
+                string xx = Operator.AppendIf(QueryStringSeparator, QueryStringSeparator.IsNotBlank() && Operator.ToLower().IsNotAny(InnerLibs.Text.Empty, "=", "==", "===")).UrlEncode();
                 return (OnlyValid ? ValidValues() : PropertyValues).Where(x => x != null && x.ToString().IsNotBlank()).SelectJoinString(x => $"{PropertyName}={xx}{x.ToString().UrlEncode()}");
             }
 
-            return "";
+            return InnerLibs.Text.Empty;
         }
 
         /// <summary>
