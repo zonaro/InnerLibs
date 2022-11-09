@@ -992,15 +992,15 @@ namespace InnerLibs
             }
         }
 
-        public static char GetOppositeWrapChar(this char Char) => $"{Char}".GetOppositeWrapChar().FirstOrDefault();
+        public static char GetOppositeWrapChar(this char c) => $"{c}".GetOppositeWrapChar().FirstOrDefault();
 
         /// <summary>
         /// Sorteia um item da Lista
         /// </summary>
-        /// <typeparam name="Type">Tipo da Matriz</typeparam>
+        /// <typeparam name="T">Tipo da Matriz</typeparam>
         /// <param name="Array">Matriz</param>
         /// <returns>Um valor do tipo especificado</returns>
-        public static Type GetRandomItem<Type>(this Type[] Array) => Array[Generate.RandomNumber(0, Array.Count() - 1)];
+        public static T GetRandomItem<T>(this T[] Array) => Array == null || Array.Length == 0 ? default(T) : Array[Generate.RandomNumber(0, Array.Length - 1)];
 
         /// <summary>
         /// Retorna o caminho relativo da url
@@ -2481,20 +2481,21 @@ namespace InnerLibs
         /// <param name="TextLength"></param>
         /// <param name="Ellipsis"></param>
         /// <returns></returns>
-        public static string Slice(this string Text, int TextLength = 0, string Ellipsis = "...", bool TrimCarriage = false)
+        public static string Slice(this string Text, int TextLength = 0, string Ellipsis = "...", bool BeforeNewLine = false)
         {
-            if (Text.IsBlank() || Text.Length <= TextLength || TextLength < 1)
+            if (Text.IsBlank() || Text?.Length <= TextLength || TextLength <= 0)
             {
                 return Text;
             }
             else
             {
-                if (TrimCarriage)
+                if (BeforeNewLine)
                 {
                     Text = Text.TrimCarriage().GetBefore(Environment.NewLine);
+                    if (TextLength == 0) return Text;
                 }
 
-                return $"{Text.GetFirstChars(TextLength)}{Ellipsis}";
+                return $"{Text.GetFirstChars(TextLength)}{Ellipsis ?? ""}";
             }
         }
 

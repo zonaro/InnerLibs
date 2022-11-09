@@ -104,7 +104,7 @@ namespace InnerLibs.TimeMachine
             var datas = new List<DateTime?>();
             if (DateSelector == null || !DateSelector.Any())
             {
-                throw new ArgumentNullException("DateSelector is null or empty");
+                throw new ArgumentNullException(nameof(DateSelector), "DateSelector is null or empty");
             }
             else
             {
@@ -219,7 +219,7 @@ namespace InnerLibs.TimeMachine
         /// Retorna um periodo equivalente a este grupo de quinzena
         /// </summary>
         /// <returns></returns>
-        public DateRange GetPeriod() => new DateRange(StartDate, EndDate);
+        public DateRange Period => new DateRange(StartDate, EndDate);
 
         /// <summary>
         /// Retorna a data inicial do periodo

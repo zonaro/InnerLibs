@@ -1,6 +1,7 @@
 ﻿using InnerLibs.Locations;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
@@ -20,6 +21,19 @@ namespace InnerLibs
     {
 
 
+        public static string ToDecimalString(this double number, int Decimals = -1, CultureInfo culture = null) => number.ToDecimal().ToDecimalString(Decimals, culture);
+        public static string ToDecimalString(this long number, int Decimals = -1, CultureInfo culture = null) => number.ToDecimal().ToDecimalString(Decimals, culture);
+        public static string ToDecimalString(this int number, int Decimals = -1, CultureInfo culture = null) => number.ToDecimal().ToDecimalString(Decimals, culture);
+        public static string ToDecimalString(this decimal number, int Decimals = -1, CultureInfo culture = null)
+        {
+            culture = culture ?? CultureInfo.CurrentCulture;
+            Decimals = Decimals < 0 ? GetDecimalLen(number) : Decimals;
+            return number.ToString("0".AppendIf("." + "0".Repeat(Decimals), Decimals > 0), culture);
+        }
+
+        public static int GetDecimalLen(this decimal number) => BitConverter.GetBytes(decimal.GetBits(number)[3])[2];
+        public static int GetDecimalLen(this double number) => number.ToDecimal().GetDecimalLen();
+
         /// <summary>
         /// The Collatz conjecture is one of the most famous unsolved problems in mathematics. The conjecture asks whether repeating two simple arithmetic operations will eventually transform every positive integer into 1
         /// </summary>
@@ -30,7 +44,7 @@ namespace InnerLibs
         {
             if (n < 1)
             {
-                throw new ArgumentException("n must be a natural number greater than zero.");
+                throw new ArgumentException("n must be a natural number greater than zero.", nameof(n));
             }
 
             yield return n;
@@ -134,7 +148,7 @@ namespace InnerLibs
         /// <summary>
         /// Earth's circumference at the equator in km, considering the earth is a globe, not flat 
         /// </summary>
-        public const double EarthCircumference = 40000.0d;
+        public const double EarthCircumference = 40075d;
 
         /// <summary>
         /// Calcula a distancia entre 2 locais
@@ -144,27 +158,24 @@ namespace InnerLibs
         /// <returns>A distancia em kilometros</returns>
         public static double CalculateDistance(this AddressInfo FirstLocation, AddressInfo SecondLocation)
         {
-
-
             double distance = 0.0d;
-            if (FirstLocation == null || SecondLocation == null || (FirstLocation.Latitude == SecondLocation.Latitude && FirstLocation.Longitude == SecondLocation.Longitude))
+            if (FirstLocation?.Latitude != null && FirstLocation?.Longitude != null && SecondLocation?.Latitude != null && SecondLocation?.Longitude != null && (FirstLocation.Latitude != SecondLocation.Latitude || FirstLocation.Longitude != SecondLocation.Longitude))
             {
-                return distance;
-            }
+                // Calculate radians
+                double latitude1Rad = FirstLocation.Latitude?.ToDouble().ToRadians() ?? 0;
+                double longitude1Rad = FirstLocation.Longitude?.ToDouble().ToRadians() ?? 0;
+                double latitude2Rad = SecondLocation.Latitude?.ToDouble().ToRadians() ?? 0;
+                double longitude2Rad = SecondLocation.Longitude?.ToDouble().ToRadians() ?? 0;
+                double longitudeDiff = Math.Abs(longitude1Rad - longitude2Rad);
+                if (longitudeDiff > Math.PI)
+                {
+                    longitudeDiff = 2.0d * Math.PI - longitudeDiff;
+                }
 
-            // Calculate radians
-            double latitude1Rad = ((double)FirstLocation.Latitude).ToRadians();
-            double longitude1Rad = ((double)FirstLocation.Longitude).ToRadians();
-            double latitude2Rad = ((double)SecondLocation.Latitude).ToRadians();
-            double longitude2Rad = ((double)SecondLocation.Longitude).ToRadians();
-            double longitudeDiff = Math.Abs(longitude1Rad - longitude2Rad);
-            if (longitudeDiff > Math.PI)
-            {
-                longitudeDiff = 2.0d * Math.PI - longitudeDiff;
-            }
+                double angleCalculation = Math.Acos(Math.Sin(latitude2Rad) * Math.Sin(latitude1Rad) + Math.Cos(latitude2Rad) * Math.Cos(latitude1Rad) * Math.Cos(longitudeDiff));
+                distance = EarthCircumference * angleCalculation / (2.0d * Math.PI);
 
-            double angleCalculation = Math.Acos(Math.Sin(latitude2Rad) * Math.Sin(latitude1Rad) + Math.Cos(latitude2Rad) * Math.Cos(latitude1Rad) * Math.Cos(longitudeDiff));
-            distance = EarthCircumference * angleCalculation / (2.0d * Math.PI);
+            }
             return distance;
         }
 
@@ -258,7 +269,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static decimal CalculateSimpleInterest(this decimal Capital, decimal Rate, decimal Time) => Capital * Rate * Time;
 
-        public static decimal CalculateValueFromPercent(this string Percent, decimal Total) => Convert.ToDecimal(Convert.ToDecimal(Percent.Replace("%", InnerLibs.Text.Empty)) * Total / 100m);
+        public static decimal CalculateValueFromPercent(this string Percent, decimal Total) => Convert.ToDecimal(Convert.ToDecimal(Percent.ReplaceNone("%")) * Total / 100m);
 
         public static decimal CalculateValueFromPercent(this int Percent, decimal Total) => Convert.ToDecimal(Convert.ToDecimal(Percent * Total / 100m));
 
@@ -282,29 +293,9 @@ namespace InnerLibs
             return aa;
         }
 
-        public static decimal Ceil(this decimal Number)
-        {
-            try
-            {
-                return Math.Ceiling(Number);
-            }
-            catch
-            {
-                return 0m;
-            }
-        }
+        public static decimal Ceil(this decimal Number) => Math.Ceiling(Number);
 
-        public static double Ceil(this double Number)
-        {
-            try
-            {
-                return Math.Ceiling(Number);
-            }
-            catch
-            {
-                return 0d;
-            }
-        }
+        public static double Ceil(this double Number) => Math.Ceiling(Number);
 
         /// <summary>
         /// Arredonda um numero para cima. Ex.: 4,5 -&gt; 5
@@ -334,6 +325,25 @@ namespace InnerLibs
         /// <returns>Um numero inteiro (Integer ou Int)</returns>
         public static long CeilLong(this decimal Number) => Number.Ceil().ToLong();
 
+        public static decimal CeilDecimal(this double Number) => Number.Ceil().ToDecimal();
+
+        /// <summary>
+        /// Arredonda um numero para cima. Ex.: 4,5 -&gt; 5
+        /// </summary>
+        /// <param name="Number">Numero a ser arredondado</param>
+        /// <returns>Um numero inteiro </returns>
+        public static decimal CeilDecimal(this decimal Number) => Number.Ceil().ToDecimal();
+
+
+        public static double CeilDouble(this double Number) => Number.Ceil().ToDouble();
+
+        /// <summary>
+        /// Arredonda um numero para cima. Ex.: 4,5 -&gt; 5
+        /// </summary>
+        /// <param name="Number">Numero a ser arredondado</param>
+        /// <returns>Um numero inteiro  </returns>
+        public static double CeilDouble(this decimal Number) => Number.Ceil().ToDouble();
+
         /// <summary>
         /// Retorna a diferença entre 2 numeros se o valor maximo for menor que o total
         /// </summary>
@@ -355,6 +365,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Number">Numero inteiro maior que zero</param>
         /// <returns>fatorial do numero inteiro</returns>
+        /// <remarks>Numeros negativos serão tratados como numeros positivos</remarks>
         public static int Factorial(this int Number)
         {
             Number = Number.ForcePositive();
@@ -395,48 +406,18 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Arredonda um numero para cima. Ex.: 4,5 -&gt; 5
-        /// </summary>
-        /// <param name="Number">Numero a ser arredondado</param>
-        /// <returns>Um numero inteiro (Integer ou Int)</returns>
-        /// <summary>
-        /// Arredonda um numero para cima. Ex.: 4,5 -&gt; 5
-        /// </summary>
-        /// <param name="Number">Numero a ser arredondado</param>
-        /// <returns>Um numero inteiro (Integer ou Int)</returns>
-        /// <summary>
         /// Arredonda um numero para baixo. Ex.: 4,5 -&gt; 4
         /// </summary>
         /// <param name="Number">Numero a ser arredondado</param>
         /// <returns>Um numero inteiro (Integer ou Int)</returns>
-        public static decimal Floor(this decimal Number)
-        {
-            try
-            {
-                return Math.Floor(Number);
-            }
-            catch
-            {
-                return 0m;
-            }
-        }
+        public static decimal Floor(this decimal Number) => Math.Floor(Number);
 
         /// <summary>
         /// Arredonda um numero para baixo. Ex.: 4,5 -&gt; 4
         /// </summary>
         /// <param name="Number">Numero a ser arredondado</param>
         /// <returns>Um numero inteiro (Integer ou Int)</returns>
-        public static double Floor(this double Number)
-        {
-            try
-            {
-                return Math.Floor(Number);
-            }
-            catch
-            {
-                return 0d;
-            }
-        }
+        public static double Floor(this double Number) => Math.Floor(Number);
 
         /// <summary>
         /// Arredonda um numero para baixo. Ex.: 4,5 -&gt; 4
@@ -512,8 +493,9 @@ namespace InnerLibs
             } while (Length > 0);
 
         }
+
         /// <summary>
-        /// Get the Decimal Part of <see cref="decimal" /> as long
+        /// Get the Decimal Part of <see cref="decimal" /> as <see cref="long">
         /// </summary>
         /// <param name="Value"></param>
         /// <param name="Length"></param>
@@ -527,12 +509,8 @@ namespace InnerLibs
                 Value *= 10m;
             }
 
-            if (Length > 0)
-            {
-                Value.ToString().GetFirstChars(Length).ToLong();
-            }
+            return $"{Value}".GetFirstChars(Length).ToLong();
 
-            return Value.ToLong();
         }
 
         /// <inheritdoc cref="GetOrdinal(long)"/>
@@ -713,7 +691,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static decimal RoundDecimal(this decimal Number, int? Decimals = default) => Decimals.HasValue ? Math.Round(Number, Decimals.Value.ForcePositive()) : Math.Round(Number);
         public static decimal RoundDecimal(this double Number, int? Decimals = default) => Decimals.HasValue ? Math.Round(Number.ToDecimal(), Decimals.Value.ForcePositive()) : Math.Round(Number.ToDecimal());
-        
+
 
         /// <summary>
         /// Arredonda um numero para o valor inteiro mais próximo
@@ -758,8 +736,6 @@ namespace InnerLibs
         /// <param name="MaxValue">Valor Maximo</param>
         /// <returns></returns>
         public static T SetMaxValue<T>(this T Number, T MaxValue) where T : IComparable => Number.LimitRange<T>(MaxValue: MaxValue);
-     
-        public static T Round<T>(this T Number,  int? Decimals = default) where T : IComparable => (Decimals.HasValue ? Math.Round(Number.ToDecimal(),Decimals.Value) : Math.Round(Number.ToDecimal())).ChangeType<T>();
 
         /// <summary>
         /// Limita o valor minimo de um numero

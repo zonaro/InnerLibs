@@ -510,7 +510,8 @@ namespace InnerLibs.QuestionTest
     [Description("Representa uma avaliação de perguntas e respostas")]
     public class QuestionTest : ObservableCollection<Question>
     {
-        private string _title = InnerLibs.Text.Empty;
+        private string _title = Text.Empty;
+        private Dictionary<string, object> personalInfo = new Dictionary<string, object>();
 
         protected override sealed void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
         {
@@ -639,7 +640,7 @@ namespace InnerLibs.QuestionTest
         /// <returns></returns>
         [Category("Texto")]
         [Description("Rodapé da prova. Texto adicional que ficará após as questões")]
-        public string Footer { get; set; } = InnerLibs.Text.Empty;
+        public string Footer { get; set; } = Text.Empty;
 
         /// <summary>
         /// Cabeçalho da prova. Texto adicional que ficará antes das questões e apoós o título
@@ -647,7 +648,7 @@ namespace InnerLibs.QuestionTest
         /// <returns></returns>
         [Category("Texto")]
         [Description("Cabeçalho da prova. Texto adicional que ficará antes das questões e após o título")]
-        public string Header { get; set; } = InnerLibs.Text.Empty;
+        public string Header { get; set; } = Text.Empty;
 
         /// <summary>
         /// Porcentagem de Acertos do Usuário
@@ -666,7 +667,7 @@ namespace InnerLibs.QuestionTest
         public int Hits => this.Count(x => x.IsCorrect);
 
         /// <summary>
-        /// Informações adicionais, normalmente nome do usuario e outras informações unicas
+        ///ID da prova, para identifica-la como unica
         /// </summary>
         /// <returns></returns>
         [Category("ID")]
@@ -704,8 +705,7 @@ namespace InnerLibs.QuestionTest
         /// <returns></returns>
         [Category("Usuário")]
         [Description("Informações relacionadas ao usuário/aluno, como Nome, documentos e outras informações pessoais")]
-        public Dictionary<string, object> PersonalInfo { get; set; } = new Dictionary<string, object>();
-
+        public Dictionary<string, object> PersonalInfo { get => personalInfo; set => personalInfo = value ?? new Dictionary<string, object>(); }
         /// <summary>
         /// Retorna as questões desta avaliação
         /// </summary>
@@ -737,9 +737,9 @@ namespace InnerLibs.QuestionTest
         /// <summary>
         /// Adiciona uma nova questão a avaliação.
         /// </summary>
-        public QuestionType CreateQuestion<QuestionType>() where QuestionType : Question
+        public TQuestion CreateQuestion<TQuestion>() where TQuestion : Question
         {
-            QuestionType Question = (QuestionType)Activator.CreateInstance(typeof(QuestionType), this);
+            TQuestion Question = (TQuestion)Activator.CreateInstance(typeof(TQuestion), this);
             if (!Contains(Question))
             {
                 Add(Question);
@@ -757,7 +757,7 @@ namespace InnerLibs.QuestionTest
         {
             try
             {
-                return (Alternative)GetQuestion<AlternativeQuestion>(ID.GetFirstChars(2)).Alternatives.Where(a => (a.ID.ToLower() ?? InnerLibs.Text.Empty) == (ID.ToLower() ?? InnerLibs.Text.Empty));
+                return (Alternative)GetQuestion<AlternativeQuestion>(ID.GetFirstChars(2)).Alternatives.Where(a => (a.ID.ToLower() ?? Text.Empty) == (ID.ToLower() ?? Text.Empty));
             }
             catch
             {
@@ -775,7 +775,7 @@ namespace InnerLibs.QuestionTest
         {
             try
             {
-                return (T)this.Where(q => (q.ID.ToLower() ?? InnerLibs.Text.Empty) == (ID.ToLower() ?? InnerLibs.Text.Empty)).First();
+                return (T)this.Where(q => (q.ID.ToLower() ?? Text.Empty) == (ID.ToLower() ?? Text.Empty)).First();
             }
             catch
             {
@@ -878,7 +878,7 @@ namespace InnerLibs.QuestionTest
                     return "<li class='Image'><img src=" + Image.ToDataURL().Quote() + " alt= " + Subtitle.Quote() + "/><small>Imagem " + (StatementImages.IndexOf(this) + 1).ToString() + ": " + Subtitle + "</small></li>";
                 }
 
-                return InnerLibs.Text.Empty;
+                return Text.Empty;
             }
         }
 
@@ -894,7 +894,7 @@ namespace InnerLibs.QuestionTest
         /// Legenda da Imagem
         /// </summary>
         /// <returns></returns>
-        public string Subtitle { get; set; } = InnerLibs.Text.Empty;
+        public string Subtitle { get; set; } = Text.Empty;
     }
 
     /// <summary>
@@ -909,24 +909,24 @@ namespace InnerLibs.QuestionTest
 
         public QuestionStatement Statement { get; private set; }
 
-        public void Add(Image Image, string Subtitle = InnerLibs.Text.Empty)
+        public void Add(Image Image, string Subtitle = Text.Empty)
         {
             var i = new StatementImage(this)
             {
                 Image = Image,
                 Subtitle = Subtitle
             };
-            base.Add(i);
+            Add(i);
         }
 
-        public void Add(string ImagePath, string Subtitle = InnerLibs.Text.Empty)
+        public void Add(string ImagePath, string Subtitle = Text.Empty)
         {
             var i = new StatementImage(this)
             {
                 Image = Image.FromFile(ImagePath),
                 Subtitle = Subtitle
             };
-            base.Add(i);
+            Add(i);
         }
 
         public override string ToString() => Count.ToString();
