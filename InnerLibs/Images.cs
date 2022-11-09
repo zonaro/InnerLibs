@@ -174,7 +174,7 @@ namespace InnerLibs
                         while (linha < image.Size.Height)
                         {
                             int pixelColor = image.GetPixel(coluna, linha).ToArgb();
-                            if (dctColorIncidence.Keys.Contains(pixelColor))
+                            if (dctColorIncidence.ContainsKey(pixelColor))
                             {
                                 dctColorIncidence[pixelColor] = dctColorIncidence[pixelColor] + 1;
                             }
@@ -183,10 +183,10 @@ namespace InnerLibs
                                 dctColorIncidence.Add(pixelColor, 1);
                             }
 
-                            linha = linha + 1;
+                            linha++;
                         }
 
-                        coluna = coluna + 1;
+                        coluna++;
                     }
                 }
 
@@ -250,7 +250,7 @@ namespace InnerLibs
 
                 // percorre imagem por imagem e gera uma unica imagem final
                 int offset = 0;
-                foreach (Bitmap image in Images)
+                foreach (Bitmap image in Images.Cast<Bitmap>())
                 {
                     if (VerticalFlow)
                     {
@@ -759,8 +759,9 @@ namespace InnerLibs
         /// <returns></returns>
         public static Image Pixelate(this Image Image, int PixelateSize = 1)
         {
+            if (Image == null) return null;
             var rectangle = new Rectangle(0, 0, Image.Width, Image.Height);
-            PixelateSize = PixelateSize + 1;
+            PixelateSize++;
             var pixelated = new Bitmap(Image.Width, Image.Height);
             using (var graphics = Graphics.FromImage(pixelated))
             {
@@ -1025,7 +1026,7 @@ namespace InnerLibs
             Color = Color ?? bitmap.GetPixel(0, 0);
             int w = bitmap.Width;
             int h = bitmap.Height;
-            Func<int, bool> IsAllWhiteRow = row =>
+            bool IsAllWhiteRow(int row)
             {
                 for (int i = 0, loopTo = w - 1; i <= loopTo; i++)
                 {
@@ -1036,8 +1037,8 @@ namespace InnerLibs
                 }
 
                 return true;
-            };
-            Func<int, bool> IsAllWhiteColumn = col =>
+            }
+            bool IsAllWhiteColumn(int col)
             {
                 for (int i = 0, loopTo = h - 1; i <= loopTo; i++)
                 {
@@ -1048,7 +1049,7 @@ namespace InnerLibs
                 }
 
                 return true;
-            };
+            }
             int leftMost = 0;
             for (int col = 0, loopTo = w - 1; col <= loopTo; col++)
             {

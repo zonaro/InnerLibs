@@ -31,10 +31,11 @@ namespace InnerLibs.MenuBuilder
         /// </summary>
         /// <param name="Title">Titulo do Menu</param>
         /// <param name="SubItems">Subitens do menu</param>
-        public MenuItem(string Title, List<MenuItem<T>> SubItems, string Icon = InnerLibs.Text.Empty)
+        public MenuItem(string Title, IEnumerable<MenuItem<T>> SubItems, string Icon = InnerLibs.Text.Empty)
         {
             this.Title = Title;
             this.SubItems = (MenuList<T>)SubItems;
+            this.Icon = Icon;
         }
 
         /// <summary>

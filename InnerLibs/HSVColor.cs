@@ -120,7 +120,7 @@ namespace InnerLibs
             H = Hue;
             S = Saturation;
             V = Brightness;
-            H = H / 360d;
+            H /= 360d;
             byte MAX = 255;
             if (S > 0d)
             {

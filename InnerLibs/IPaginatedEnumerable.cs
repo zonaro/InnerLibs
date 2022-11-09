@@ -34,17 +34,17 @@ namespace InnerLibs.LINQ
             {
                 if (LambdaExpression != null)
                 {
-                    if (FilteredData is IOrderedQueryable<ClassType>)
+                    if (FilteredData is IOrderedQueryable<ClassType> orderedQuery)
                     {
-                        FilteredData = ((IOrderedQueryable<ClassType>)FilteredData).Where(LambdaExpression);
-                        var dq = ((IOrderedQueryable<ClassType>)FilteredData).Select(x => 0);
+                        FilteredData = orderedQuery.Where(LambdaExpression);
+                        var dq = orderedQuery.Select(x => 0);
                         _total = dq.Count();
                     }
 
-                    if (FilteredData is IQueryable<ClassType>)
+                    if (FilteredData is IQueryable<ClassType> query)
                     {
-                        FilteredData = ((IQueryable<ClassType>)FilteredData).Where(LambdaExpression);
-                        var dq = ((IQueryable<ClassType>)FilteredData).Select(x => 0);
+                        FilteredData = query.Where(LambdaExpression);
+                        var dq = query.Select(x => 0);
                         _total = dq.Count();
                     }
                     else
@@ -70,19 +70,19 @@ namespace InnerLibs.LINQ
             {
                 if (PageNumber > 0 && PageSize > 0)
                 {
-                    if (FilteredData is IOrderedQueryable<ClassType>)
+                    if (FilteredData is IOrderedQueryable<ClassType> orderedQuery)
                     {
-                        FilteredData = ((IOrderedQueryable<ClassType>)FilteredData).Skip((PageNumber - 1) * PageSize).Take(PageSize);
+                        FilteredData = orderedQuery.Skip((PageNumber - 1) * PageSize).Take(PageSize);
                     }
-                    else if (Data is IQueryable<ClassType>)
+                    else if (FilteredData is IQueryable<ClassType> query)
                     {
-                        FilteredData = ((IQueryable<ClassType>)FilteredData).Skip((PageNumber - 1) * PageSize).Take(PageSize);
+                        FilteredData = query.Skip((PageNumber - 1) * PageSize).Take(PageSize);
                     }
-                    else if (FilteredData is IOrderedEnumerable<ClassType>)
+                    else if (FilteredData is IOrderedEnumerable<ClassType> orderedEnum)
                     {
-                        FilteredData = ((IOrderedEnumerable<ClassType>)FilteredData).Skip((PageNumber - 1) * PageSize).Take(PageSize);
+                        FilteredData = orderedEnum.Skip((PageNumber - 1) * PageSize).Take(PageSize);
                     }
-                    else if (Data is IEnumerable<ClassType>)
+                    else if (FilteredData is IEnumerable<ClassType>)
                     {
                         FilteredData = FilteredData.Skip((PageNumber - 1) * PageSize).Take(PageSize);
                     }
@@ -92,9 +92,9 @@ namespace InnerLibs.LINQ
             return FilteredData ?? Data;
         }
 
-        public List<PropertyFilter<ClassType, RemapType>> _filters = new List<PropertyFilter<ClassType, RemapType>>();
+        internal List<PropertyFilter<ClassType, RemapType>> _filters = new List<PropertyFilter<ClassType, RemapType>>();
 
-        public ParameterExpression param = LINQExtensions.GenerateParameterExpression<ClassType>();
+        internal ParameterExpression param = LINQExtensions.GenerateParameterExpression<ClassType>();
 
         public PaginationFilter()
         {
@@ -117,7 +117,7 @@ namespace InnerLibs.LINQ
         /// Fonte de Dados deste filtro
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<ClassType> Data { get; set; } = null;
+        public IEnumerable<ClassType> Data { get; set; }
 
         /// <summary>
         /// Expressão binária contendo todos os filtros
@@ -546,9 +546,11 @@ namespace InnerLibs.LINQ
         /// <returns></returns>
         public string CreateQueryString(int? PageNumber = default, bool ForceEnabled = false, bool IncludePageSize = false, bool IncludePaginationOffset = false)
         {
-            var l = new List<string>();
-            l.Add(GetFilterQueryString(ForceEnabled));
-            l.Add(GetPaginationQueryString(PageNumber ?? this.PageNumber, IncludePageSize, IncludePaginationOffset));
+            var l = new List<string>
+            {
+                GetFilterQueryString(ForceEnabled),
+                GetPaginationQueryString(PageNumber ?? this.PageNumber, IncludePageSize, IncludePaginationOffset)
+            };
             return LINQExtensions.SelectJoinString(l.Where(x => x.IsNotBlank()), "&");
         }
 

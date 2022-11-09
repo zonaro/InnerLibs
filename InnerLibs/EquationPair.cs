@@ -42,10 +42,7 @@ namespace InnerLibs
 
         public void SetMissing(T value)
         {
-            if (GetMissing() != null)
-            {
-                GetMissing().SetValue(this, value);
-            }
+            GetMissing()?.SetValue(this, value);
         }
 
         public T?[] ToArray() => new[] { X, Y };

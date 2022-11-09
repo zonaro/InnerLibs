@@ -146,10 +146,7 @@ namespace InnerLibs.Console
         /// <param name="Color">Cor</param>
         public static T ConsoleWriteError<T>(this T Exception, string Separator, ConsoleColor Color = ConsoleColor.Red, int BreakLines = 1) where T : Exception
         {
-            if (Exception != null)
-            {
-                Exception.ToFullExceptionString(Separator).ConsoleWrite(Color, BreakLines.SetMinValue(1));
-            }
+            Exception?.ToFullExceptionString(Separator).ConsoleWrite(Color, BreakLines.SetMinValue(1));
             return Exception;
         }
 

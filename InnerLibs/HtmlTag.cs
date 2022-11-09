@@ -163,7 +163,7 @@ namespace InnerLibs
                 properties = typeof(TPoco).GetProperties().Select(x => x.Name).ToArray();
             }
 
-            Func<TPoco, IEnumerable<PropertyInfo>> props = (TPoco t) => t.GetProperties().Where(x => x.Name.IsAny(StringComparison.InvariantCultureIgnoreCase, properties));
+            IEnumerable<PropertyInfo> props(TPoco t) => t.GetProperties().Where(x => x.Name.IsAny(StringComparison.InvariantCultureIgnoreCase, properties));
 
             if (header != null)
             {

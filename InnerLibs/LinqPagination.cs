@@ -31,27 +31,23 @@ namespace InnerLibs.LINQ
 
     public static class LINQExtensions
     {
-        private static MethodInfo containsMethod = typeof(string).GetMethod("Contains", new[] { typeof(string) });
+        private static readonly MethodInfo containsMethod = typeof(string).GetMethod("Contains", new[] { typeof(string) });
 
-        private static MethodInfo endsWithMethod = typeof(string).GetMethod("EndsWith", new[] { typeof(string) });
+        private static readonly MethodInfo endsWithMethod = typeof(string).GetMethod("EndsWith", new[] { typeof(string) });
 
-        private static MethodInfo equalMethod = typeof(string).GetMethod("Equals", new[] { typeof(string) });
+        private static readonly MethodInfo equalMethod = typeof(string).GetMethod("Equals", new[] { typeof(string) });
 
-        private static MethodInfo startsWithMethod = typeof(string).GetMethod("StartsWith", new[] { typeof(string) });
+        private static readonly MethodInfo startsWithMethod = typeof(string).GetMethod("StartsWith", new[] { typeof(string) });
 
 
 
-        public static IEnumerable<Tuple<T, T>> PairUp<T>(this IEnumerable<T> source)
+        public static IEnumerable<(T,T)> PairUp<T>(this IEnumerable<T> source)
         {
-            using (var iterator = source.GetEnumerator())
-            {
-                while (iterator.MoveNext())
-                {
-                    var first = iterator.Current;
-                    var second = iterator.MoveNext() ? iterator.Current : default(T);
-                    yield return Tuple.Create(first, second);
-                }
-            }
+            if (source != null)
+                using (var iterator = source.GetEnumerator())
+                    while (iterator.MoveNext())
+                        yield return (iterator.Current, iterator.MoveNext() ? iterator.Current : default);
+
         }
 
         /// <summary>

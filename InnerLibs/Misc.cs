@@ -1253,9 +1253,9 @@ namespace InnerLibs
         /// <typeparam name="T">
         /// Tipo do <paramref name="Value"/> da propriedade definida por <paramref name="PropertyName"/>
         /// </typeparam>
-        public static T SetPropertyValue<T>(this T MyObject, string PropertyName, object Value)
+        public static T SetPropertyValue<T>(this T MyObject, string PropertyName, object Value) where T : class
         {
-            if (PropertyName.IsNotBlank())
+            if (PropertyName.IsNotBlank() && MyObject != null)
             {
                 var props = MyObject.GetProperties();
 
