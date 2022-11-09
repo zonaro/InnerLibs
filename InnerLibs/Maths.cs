@@ -1,4 +1,5 @@
-﻿using InnerLibs.Locations;
+﻿using InnerLibs.LINQ;
+using InnerLibs.Locations;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -180,11 +181,14 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Calcula a distancia passando por todos os pontos
+        /// Calcula a matriz de distancia entre varios pontos
         /// </summary>
         /// <param name="Locations">Localizacoes</param>
         /// <returns></returns>
-        public static Tuple<AddressInfo, AddressInfo, decimal> CalculateDistanceMatrix(params AddressInfo[] Locations) => (Tuple<AddressInfo, AddressInfo, decimal>)CartesianProduct(Locations, Locations).Select(x => new Tuple<AddressInfo, AddressInfo, decimal>(x.First(), x.Last(), (decimal)x.First().CalculateDistance(x.Last())));
+        public static Tuple<AddressInfo, AddressInfo, double> CalculateDistanceMatrix(params AddressInfo[] Locations)
+        {
+            return (Tuple<AddressInfo, AddressInfo, double>)CartesianProduct(Locations, Locations).Select(x => new Tuple<AddressInfo, AddressInfo, double>(x.First(), x.Last(), x.First().CalculateDistance(x.Last())));
+        }
 
         /// <summary>
         /// Calcula a porcentagem de cada valor em um dicionario em relação a sua totalidade

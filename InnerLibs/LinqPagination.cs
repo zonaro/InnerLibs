@@ -39,6 +39,21 @@ namespace InnerLibs.LINQ
 
         private static MethodInfo startsWithMethod = typeof(string).GetMethod("StartsWith", new[] { typeof(string) });
 
+
+
+        public static IEnumerable<Tuple<T, T>> PairUp<T>(this IEnumerable<T> source)
+        {
+            using (var iterator = source.GetEnumerator())
+            {
+                while (iterator.MoveNext())
+                {
+                    var first = iterator.Current;
+                    var second = iterator.MoveNext() ? iterator.Current : default(T);
+                    yield return Tuple.Create(first, second);
+                }
+            }
+        }
+
         /// <summary>
         /// Retorna TRUE se a todos os testes em uma lista retornarem FALSE
         /// </summary>

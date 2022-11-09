@@ -1226,19 +1226,20 @@ namespace InnerLibs
 
         public static IDictionary<KeyType, string> SetOrRemove<KeyType, KT>(this IDictionary<KeyType, string> Dic, KT Key, string Value, bool NullIfBlank) => Dic.SetOrRemove(Key, NullIfBlank.AsIf(Value.NullIf(x => x.IsBlank()), Value));
 
-        public static IDictionary<KeyType, ValueType> SetOrRemove<KeyType, ValueType, KT, VT>(this IDictionary<KeyType, ValueType> Dic, KT Key, VT Value)
+        public static IDictionary<TKey, TValue> SetOrRemove<TKey, TValue, TK, TV>(this IDictionary<TKey, TValue> Dic, TK Key, TV Value)
         {
-            if (Key != null)
-            {
-                if (Value != null)
+            if (Dic != null)
+                if (Key != null)
                 {
-                    Dic[Key.ChangeType<KeyType>()] = Value.ChangeType<ValueType>();
+                    if (Value != null)
+                    {
+                        Dic[Key.ChangeType<TKey>()] = Value.ChangeType<TValue>();
+                    }
+                    else
+                    {
+                        Dic.RemoveIfExist(Key.ChangeType<TKey>());
+                    }
                 }
-                else
-                {
-                    Dic.RemoveIfExist(Key.ChangeType<KeyType>());
-                }
-            }
 
             return Dic;
         }
@@ -1249,47 +1250,58 @@ namespace InnerLibs
         /// <param name="MyObject">Objeto</param>
         /// <param name="PropertyName">Nome da properiedade</param>
         /// <param name="Value">Valor da propriedade definida por <paramref name="PropertyName"/></param>
-        /// <typeparam name="Type">
+        /// <typeparam name="T">
         /// Tipo do <paramref name="Value"/> da propriedade definida por <paramref name="PropertyName"/>
         /// </typeparam>
-        public static Type SetPropertyValue<Type>(this Type MyObject, string PropertyName, object Value)
+        public static T SetPropertyValue<T>(this T MyObject, string PropertyName, object Value)
         {
-            var props = MyObject.GetProperties();
-            var prop = props.FirstOrDefault(p => p != null && p.CanWrite && p.Name == PropertyName);
+            if (PropertyName.IsNotBlank())
+            {
+                var props = MyObject.GetProperties();
 
-            if (Value is DBNull)
-            {
-                prop.SetValue(MyObject, null);
-            }
-            else
-            {
-                prop.SetValue(MyObject, Converter.ChangeType(Value, prop.PropertyType));
+                var prop = props.FirstOrDefault(p => p != null && p.CanWrite && p.Name.IsAny(PropertyNamesFor(PropertyName).ToArray()));
+
+                if (prop != null)
+                    if (Value is DBNull)
+                    {
+                        prop.SetValue(MyObject, null);
+                    }
+                    else
+                    {
+                        prop.SetValue(MyObject, Converter.ChangeType(Value, prop.PropertyType));
+                    }
+
+
             }
 
             return MyObject;
         }
 
-        public static Type SetPropertyValue<Type, Prop>(this Type obj, Expression<Func<Type, Prop>> Selector, Prop Value) where Type : class
+        public static T SetPropertyValue<T, TProp>(this T obj, Expression<Func<T, TProp>> Selector, TProp Value) where T : class
         {
-            obj.GetPropertyInfo(Selector).SetValue(obj, Value);
+            if (obj != null)
+                obj.SetPropertyValue(obj.GetPropertyInfo(Selector).Name, Value);
             return obj;
         }
 
-        public static Dictionary<Group, Dictionary<Count, long>> SkipZero<Group, Count>(this Dictionary<Group, Dictionary<Count, long>> Grouped)
+        public static Dictionary<TGroup, Dictionary<TCount, long>> SkipZero<TGroup, TCount>(this Dictionary<TGroup, Dictionary<TCount, long>> Grouped)
         {
-            foreach (var dic in Grouped.ToArray())
+            if (Grouped != null)
             {
-                Grouped[dic.Key] = dic.Value.Where(x => x.Value > 0).ToDictionary();
-            }
+                foreach (var dic in Grouped.ToArray())
+                {
+                    Grouped[dic.Key] = dic.Value.Where(x => x.Value > 0).ToDictionary();
+                }
 
-            Grouped = Grouped.Where(x => x.Value.Any()).ToDictionary();
+                Grouped = Grouped.Where(x => x.Value.Any()).ToDictionary();
+            }
 
             return Grouped;
         }
 
-        public static Dictionary<Count, long> SkipZero<Count>(this Dictionary<Count, long> Grouped)
+        public static Dictionary<TCount, long> SkipZero<TCount>(this Dictionary<TCount, long> Grouped)
         {
-            Grouped = Grouped.Where(x => x.Value > 0).ToDictionary();
+            Grouped = Grouped?.Where(x => x.Value > 0).ToDictionary();
             return Grouped;
         }
 
@@ -1309,13 +1321,18 @@ namespace InnerLibs
         /// <summary>
         /// Traz os top N valores de um dicionario e agrupa os outros
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
         /// <param name="Dic"></param>
         /// <param name="Top"></param>
         /// <param name="GroupOthersLabel"></param>
         /// <returns></returns>
-        public static Dictionary<K, T> TakeTop<K, T>(this Dictionary<K, T> Dic, int Top, K GroupOthersLabel)
+        public static Dictionary<TKey, TValue> TakeTop<TKey, TValue>(this Dictionary<TKey, TValue> Dic, int Top, TKey GroupOthersLabel)
         {
+            if (Dic == null)
+            {
+                return null;
+            }
+
             if (Top < 1)
             {
                 return Dic.ToDictionary();
@@ -1324,7 +1341,7 @@ namespace InnerLibs
             var novodic = Dic.Take(Top).ToDictionary();
             if (GroupOthersLabel != null)
             {
-                novodic[GroupOthersLabel] = Dic.Values.Skip(Top).Select(x => x.ChangeType<decimal>()).Sum().ChangeType<T>();
+                novodic[GroupOthersLabel] = Dic.Values.Skip(Top).Select(x => x.ChangeType<decimal>()).Sum().ChangeType<TValue>();
             }
 
             return novodic;
