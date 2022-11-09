@@ -252,15 +252,9 @@ namespace InnerLibs.QuestionTest
         /// <returns></returns>
         public decimal Answer
         {
-            get
-            {
-                return a;
-            }
+            get => a;
 
-            set
-            {
-                a = value.LimitRange(MinValue, MaxValue);
-            }
+            set => a = value.LimitRange(MinValue, MaxValue);
         }
 
         /// <summary>
