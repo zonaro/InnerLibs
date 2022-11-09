@@ -37,18 +37,7 @@ namespace InnerLibs.QuestionTest
         /// ID da alternativa
         /// </summary>
         /// <returns></returns>
-        public string ID
-        {
-            get
-            {
-                if (Question != null)
-                {
-                    return Question.ID + "A" + Number;
-                }
-
-                return null;
-            }
-        }
+        public string ID => Question != null ? $"{Question.ID}A{Number}" : null;
 
         /// <summary>
         /// Verifica se a resposta do usuário é correta para esta alternativa
@@ -62,32 +51,12 @@ namespace InnerLibs.QuestionTest
         /// <returns></returns>
         public int Number
         {
-            get
-            {
-                if (Question != null)
-                {
-                    return Question.Alternatives.IndexOf(this) + 1;
-                }
+            get => Question != null ? Question.Alternatives.IndexOf(this) + 1 : -1;
 
-                return -1;
-            }
-
-            set
-            {
-                if (Question != null)
-                {
-                    Question.Alternatives.Move(Question.Alternatives.IndexOf(this), (value - 1).LimitRange(0, Question.Alternatives.Count - 1));
-                }
-            }
+            set => Question?.Alternatives.Move(Question.Alternatives.IndexOf(this), (value - 1).LimitRange(0, Question.Alternatives.Count - 1));
         }
 
-        public AlternativeQuestion Question
-        {
-            get
-            {
-                return _question;
-            }
-        }
+        public AlternativeQuestion Question => _question;
 
         /// <summary>
         /// Texto da alternativa
@@ -272,7 +241,7 @@ namespace InnerLibs.QuestionTest
                     {
                         if (q.IsCorrect)
                         {
-                            acertos = acertos + 1;
+                            acertos++;
                         }
                     }
 
@@ -352,7 +321,7 @@ namespace InnerLibs.QuestionTest
 
         internal decimal _weight = 1m;
 
-        public Question() => _statement = new QuestionStatement() { _question = this };
+        internal Question() => _statement = new QuestionStatement() { _question = this };
 
         /// <summary>
         /// Retorna um numero que representa o quanto o usuario acertou essa pergunta
@@ -364,18 +333,7 @@ namespace InnerLibs.QuestionTest
         /// O codigo de identificação desta questão
         /// </summary>
         /// <returns></returns>
-        public string ID
-        {
-            get
-            {
-                if (Test != null)
-                {
-                    return (Test.IndexOf(this) + 1).ToString().Prepend("Q");
-                }
-
-                return null;
-            }
-        }
+        public string ID => Test != null ? $"Q{Test.IndexOf(this) + 1}" : null;
 
         /// <summary>
         /// Verifica se a pergunta está corretamente assinalada
@@ -389,23 +347,9 @@ namespace InnerLibs.QuestionTest
         /// <returns></returns>
         public int Number
         {
-            get
-            {
-                if (Test != null)
-                {
-                    return Test.IndexOf(this) + 1;
-                }
+            get => Test != null ? Test.IndexOf(this) + 1 : -1;
 
-                return -1;
-            }
-
-            set
-            {
-                if (Test != null)
-                {
-                    Test.Move(Test.IndexOf(this), (value - 1).LimitRange(0, Test.Count - 1));
-                }
-            }
+            set => Test?.Move(Test.IndexOf(this), (value - 1).LimitRange(0, Test.Count - 1));
         }
 
         /// <summary>
@@ -414,16 +358,12 @@ namespace InnerLibs.QuestionTest
         /// <returns></returns>
         public string QuestionType => GetType().Name;
 
-        /// <summary>
-        /// Teste a qual esta questão pertence
-        /// </summary>
-        /// <returns></returns>
 
         /// <summary>
         /// Indica se esta questão foi revisada pelo professor
         /// </summary>
         /// <returns></returns>
-        public bool Reviewed { get; set; } = false;
+        public bool Reviewed { get; set; }
 
         /// <summary>
         /// Enunciado da questão (texto da pergunta)
@@ -431,10 +371,7 @@ namespace InnerLibs.QuestionTest
         /// <returns></returns>
         public QuestionStatement Statement
         {
-            get
-            {
-                return _statement;
-            }
+            get => _statement;
 
             set
             {
@@ -464,7 +401,7 @@ namespace InnerLibs.QuestionTest
         /// Return the statment text for this question
         /// </summary>
         /// <returns></returns>
-        public override string ToString() => Number.ToString() + ") " + Statement.Text;
+        public override string ToString() => ($"{Number}) " + Statement?.Text).Trim();
     }
 
     /// <summary>
@@ -516,7 +453,7 @@ namespace InnerLibs.QuestionTest
         protected override sealed void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
         {
             base.OnCollectionChanged(e);
-            switch (e.Action)
+            switch (e?.Action)
             {
                 case NotifyCollectionChangedAction.Add:
                     {
@@ -579,28 +516,7 @@ namespace InnerLibs.QuestionTest
         /// <returns></returns>
         [Category("Validação")]
         [Description("Média da Avaliação")]
-        public decimal Average
-        {
-            get
-            {
-                try
-                {
-                    int somapesos = 0;
-                    int somaquestoes = 0;
-                    foreach (var q in this)
-                    {
-                        somapesos = (int)Math.Round(somapesos + q.Weight);
-                        somaquestoes = (int)Math.Round(somaquestoes + (q.IsCorrect ? q.Hits : 0m));
-                    }
-
-                    return Weight * somaquestoes / Count;
-                }
-                catch
-                {
-                    return 0m;
-                }
-            }
-        }
+        public decimal Average => this.Sum(x => (x.IsCorrect ? x.Hits : 0) * x.Weight) / this.Sum(x => x.Weight);
 
         /// <summary>
         /// Pontos de bonificação que serão somados a média final da avaliação
