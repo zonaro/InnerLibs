@@ -229,28 +229,7 @@ namespace InnerLibs.QuestionTest
         /// Retorna um numero que representa o quanto o usuario acertou essa pergunta
         /// </summary>
         /// <returns></returns>
-        public override decimal Hits
-        {
-            get
-            {
-                int total = Alternatives.Count;
-                if (total > 0)
-                {
-                    int acertos = 0;
-                    foreach (var q in Alternatives)
-                    {
-                        if (q.IsCorrect)
-                        {
-                            acertos++;
-                        }
-                    }
-
-                    return acertos * Weight / total;
-                }
-
-                return 0m;
-            }
-        }
+        public override decimal Hits => Alternatives.Count(x => x.IsCorrect) * Weight / Alternatives.Count;
 
         /// <summary>
         /// Verifica se a pergunta está corretamente assinalada
