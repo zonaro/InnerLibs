@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
@@ -118,7 +117,9 @@ namespace InnerLibs.QuestionTest
                     Add(alt);
         }
 
-        public override string ToString() => Count.ToString();
+        public override string ToString() => ToString("Alternatives");
+        public string ToString(string AlternativesWord) => $"{Count} {AlternativesWord.QuantifyText(Count)}";
+
     }
 
     /// <summary>
@@ -143,12 +144,38 @@ namespace InnerLibs.QuestionTest
         /// <returns></returns>
         public AlternativeList Alternatives { get; private set; }
 
+
+        public void CreateAlternative(string Text, bool Correct = false)
+        {
+            Alternatives.Add(Text, Correct);
+        }
+
         /// <summary>
         /// Retorna as alternativas marcadas pelo usuário
         /// </summary>
         /// <returns></returns>
         public IEnumerable<Alternative> Answer => Alternatives.Where(p => p.Checked);
 
+        /// <summary>
+        /// Embaralha as alternativas
+        /// </summary>
+        public void Shuffle()
+        {
+
+            for (int i = 0; i < Alternatives.Count; i++)
+            {
+                var num1 = 0;
+                var num2 = 0;
+                while (num1 == num2)
+                {
+                    num1 = Generate.RandomNumber(0, Alternatives.Count - 1);
+                    num2 = Generate.RandomNumber(0, Alternatives.Count - 1);
+                }
+
+                this.Alternatives.Move(num1, num2);
+
+            }
+        }
 
     }
 
@@ -315,7 +342,7 @@ namespace InnerLibs.QuestionTest
         /// O codigo de identificação desta questão
         /// </summary>
         /// <returns></returns>
-        public string ID => Test != null ? $"Q{Test.IndexOf(this) + 1}" : null;
+        public string ID => Test != null ? $"Q{Number}" : null;
 
         /// <summary>
         /// Verifica se a pergunta está corretamente assinalada
@@ -380,6 +407,8 @@ namespace InnerLibs.QuestionTest
             set => _weight = value.SetMaxValue(Test.Weight - Test.Where(q => !ReferenceEquals(q, this)).Sum(q => q.Weight));
         }
 
+
+
         /// <summary>
         /// Return the statment text for this question
         /// </summary>
@@ -405,6 +434,9 @@ namespace InnerLibs.QuestionTest
         public StatementImages Images { get; }
 
         public Question Question => _question;
+        public QuestionTest Test => Question.Test;
+
+
 
         /// <summary>
         /// Texto do enunciado
@@ -425,7 +457,7 @@ namespace InnerLibs.QuestionTest
     /// Dissertativas, Multipla Escolha ou de Atribuição de Pontos
     /// </summary>
     [Serializable]
-    public class QuestionTest : ObservableCollection<Question>
+    public class QuestionTest : ObservableCollection<Question>, IComparable<QuestionTest>, IComparable
     {
         private string _title = Text.Empty;
         private Dictionary<string, object> personalInfo = new Dictionary<string, object>();
@@ -488,7 +520,7 @@ namespace InnerLibs.QuestionTest
         /// Instancia uma nova avaliação com titulo
         /// </summary>
         /// <param name="Title">Titulo da avaliação</param>
-        public QuestionTest(string Title) : this(Title, null)
+        public QuestionTest(string Title) : this(Title, "")
         {
             GenerateID();
         }
@@ -506,7 +538,73 @@ namespace InnerLibs.QuestionTest
         {
         }
 
+        public string ToHTML()
+        {
+            var str = "";
 
+            if (Title.IsNotBlank())
+            {
+                str += Title.WrapInTag("h1");
+            }
+            if (PersonalInfo.Any())
+            {
+                str += PersonalInfo.SelectJoinString(inf => new HtmlTag("label", inf.Key) + HtmlTag.CreateInput(inf.Key + "_input", $"{inf.Value}"), "<br>")
+                .WrapInTag("section").AddClass("personal-info");
+
+
+            }
+            str = str.WrapInTag("header");
+            str += "<hr>";
+
+
+
+            var list = new HtmlTag("section").AddClass("question-list");
+
+            foreach (var quest in this.Questions)
+            {
+
+                var sq = new HtmlTag("article").AddClass($"question-{quest.Number}").SetID(quest.ID);
+
+                sq.InnerHtml += quest.Statement.ToString().WrapInTag("h3").AddClass($"question-text-{quest.Number}");
+
+                if (quest.Statement.Images.Any())
+                {
+                    var imgpart = "";
+                    foreach (var i in quest.Statement.Images)
+                    {
+                        var img = HtmlTag.CreateImage(i.Image).SetAttr("alt", i.Subtitle).SetID(i.ID).AddClass($"img-{i.Number}");
+                        var caption = new HtmlTag("figcaption", $"{i.Number} - {i.Subtitle}").AddClass($"cap-{i.Number}");
+                        imgpart += new HtmlTag("figure", img + caption);
+                    }
+
+                    sq.InnerHtml += imgpart.ToString().WrapInTag("div").AddClass($"images-{quest.Number}"); ;
+                }
+
+                if (quest is DissertativeQuestion diss)
+                {
+
+                }
+                else if (quest is MultipleAlternativeQuestion multi)
+                {
+
+                }
+                else if (quest is SingleAlternativeQuestion single)
+                {
+
+                }
+                else if (quest is NumericQuestion num)
+                {
+
+                }
+
+
+            }
+
+            str += list;
+
+            return str.WrapInTag("form");
+
+        }
 
         /// <summary>
         /// Média da Avaliação
@@ -519,7 +617,7 @@ namespace InnerLibs.QuestionTest
         /// </summary>
         /// <returns></returns>
 
-        public decimal Bonus { get; set; } = 0m;
+        public decimal Bonus { get; set; }
 
         /// <summary>
         /// Porcentagem de Erros do Usuário
@@ -619,8 +717,7 @@ namespace InnerLibs.QuestionTest
         /// Titulo da Avaliação
         /// </summary>
         /// <returns></returns>
-        [Category("Texto")]
-        [Description("Título da Avaliação")]
+
         public string Title
         {
             get => _title.ToProperCase();
@@ -632,22 +729,82 @@ namespace InnerLibs.QuestionTest
         /// Peso da Avaliação (Normalmente 10)
         /// </summary>
         /// <returns></returns>
-        [Category("Validação")]
-        [Description("Peso da Avaliação (Normalmente 10)")]
+
         public decimal Weight { get; set; } = 10m;
 
         /// <summary>
         /// Adiciona uma nova questão a avaliação.
         /// </summary>
-        public TQuestion CreateQuestion<TQuestion>() where TQuestion : Question
+        public TQuestion CreateQuestion<TQuestion>(string Statement = null) where TQuestion : Question => (TQuestion)CreateQuestion(typeof(TQuestion), Statement);
+        /// <summary>
+        /// Adiciona uma nova questão a avaliação.
+        /// </summary>
+        public Question CreateQuestion(Type QuestionType, string Statement = null)
         {
-            TQuestion Question = (TQuestion)Activator.CreateInstance(typeof(TQuestion), this);
-            if (!Contains(Question))
+            if (QuestionType != null && QuestionType.IsAssignableFrom(typeof(Question)))
             {
-                Add(Question);
-            }
+                Question Question = (Question)Activator.CreateInstance(QuestionType, this);
+                if (Statement.IsNotBlank()) Question.Statement.Text = Statement;
+                if (!Contains(Question))
+                {
+                    Add(Question);
+                }
 
-            return Question;
+                return Question;
+            }
+            return null;
+        }
+
+        public DissertativeQuestion CreateDissertativeQuestion(string Statement, int Lines = 3)
+        {
+            var q = CreateQuestion<DissertativeQuestion>(Statement);
+            q.Lines = Lines;
+            return q;
+        }
+
+        public NumericQuestion CreateNumericQuestion(string Statement, decimal MinValue = 1, decimal MaxValue = 10)
+        {
+            var q = CreateQuestion<NumericQuestion>(Statement);
+            Misc.FixOrder(ref MinValue, ref MaxValue);
+            q.MinValue = MinValue;
+            q.MaxValue = MaxValue;
+            return q;
+        }
+
+        public SingleAlternativeQuestion CreateSingleAlternativeQuestion(string Statement, params string[] Alternatives)
+        {
+            var q = CreateQuestion<SingleAlternativeQuestion>(Statement);
+            foreach (var item in Alternatives ?? Array.Empty<string>())
+            {
+                q.CreateAlternative(item, Alternatives.GetIndexOf(item) == 0);
+            }
+            q.Shuffle();
+            return q;
+        }
+
+        public SingleAlternativeQuestion CreateSingleAlternativeQuestion(string Statement, params Alternative[] Alternatives)
+        {
+            var q = CreateQuestion<SingleAlternativeQuestion>(Statement);
+            q.Alternatives.AddRange(Alternatives);
+            return q;
+        }
+
+        public MultipleAlternativeQuestion CreateMultipleAlternativeQuestion(string Statement, params string[] Alternatives)
+        {
+            var q = CreateQuestion<MultipleAlternativeQuestion>(Statement);
+            foreach (var item in Alternatives ?? Array.Empty<string>())
+            {
+                q.CreateAlternative(item, Alternatives.GetIndexOf(item) == 0);
+            }
+            q.Shuffle();
+            return q;
+        }
+
+        public MultipleAlternativeQuestion CreateMultipleAlternativeQuestion(string Statement, params Alternative[] Alternatives)
+        {
+            var q = CreateQuestion<MultipleAlternativeQuestion>(Statement);
+            q.Alternatives.AddRange(Alternatives);
+            return q;
         }
 
         /// <summary>
@@ -669,7 +826,7 @@ namespace InnerLibs.QuestionTest
         /// Configura o valor minimo permitido para aprovação como metade do peso da avaliação
         /// </summary>
         /// <param name="Weight">Parametro opcional que altera o valor do peso da avaliação</param>
-        public void SetMinimumAllowedAsHalf(decimal Weight = 0m)
+        public QuestionTest SetMinimumAllowedAsHalf(decimal Weight = 0m)
         {
             if (Weight < 1m || Weight == default)
             {
@@ -678,6 +835,8 @@ namespace InnerLibs.QuestionTest
 
             this.Weight = Weight;
             MinimumWeightAllowed = this.Weight / 2m;
+            return this;
+
         }
 
         /// <summary>
@@ -685,7 +844,7 @@ namespace InnerLibs.QuestionTest
         /// </summary>
         /// <param name="Percent">Porcentagem da prova</param>
         /// <param name="Weight">Parametro opcional que altera o valor do peso da avaliação</param>
-        public void SetMinimumAllowedAsPercent(string Percent, decimal Weight = 0m)
+        public QuestionTest SetMinimumAllowedAsPercent(string Percent, decimal Weight = 0m)
         {
             if (Weight < 1m | Weight == default)
             {
@@ -694,9 +853,33 @@ namespace InnerLibs.QuestionTest
 
             this.Weight = Weight;
             MinimumWeightAllowed = Percent.CalculateValueFromPercent(this.Weight);
+            return this;
         }
 
         public override string ToString() => Title;
+
+        public int CompareTo(object obj)
+        {
+            if (obj != null)
+            {
+                if (obj is decimal i)
+                {
+                    if (i < this.FinalNote) return -1;
+                    if (i == this.FinalNote) return 0;
+                    return 1;
+                }
+
+                if (obj is QuestionTest)
+                {
+                    return CompareTo(this);
+                }
+            }
+        }
+
+        public int CompareTo(QuestionTest other)
+        {
+            return CompareTo(other.FinalNote);
+        }
     }
 
     /// <summary>
@@ -771,11 +954,25 @@ namespace InnerLibs.QuestionTest
 
         public StatementImages StatementImages { get; private set; }
 
+        public QuestionStatement Statement => StatementImages.Statement;
+        public Question Question => Statement.Question;
+        public QuestionTest Test => Question.Test;
+
         /// <summary>
         /// Legenda da Imagem
         /// </summary>
         /// <returns></returns>
         public string Subtitle { get; set; } = Text.Empty;
+
+        /// <summary>
+        /// ID desta imagem
+        /// </summary>
+        public string ID => $"{Statement.Question.ID}{this.StatementImages.IndexOf(this) + 1}";
+
+        /// <summary>
+        /// Número desta imagem em relação ao <see cref="Test"/>
+        /// </summary>
+        public int Number => Statement.Question.Test.SelectMany(x => x.Statement.Images).GetIndexOf(this);
     }
 
     /// <summary>
@@ -813,6 +1010,26 @@ namespace InnerLibs.QuestionTest
 
         }
 
-        public override string ToString() => Count.ToString();
+        public override string ToString() => ToString("Images");
+        public string ToString(string ImagesWord) => $"{Count} {ImagesWord.QuantifyText(Count)}";
     }
+
+    public static class QuestionTestExtensions
+    {
+        public static TQuestion SetWheight<TQuestion>(this TQuestion Question, decimal Weight) where TQuestion : Question
+        {
+            if (Question != null)
+            {
+                Question.Weight = Weight;
+            }
+            return Question;
+        }
+
+        public static List<QuestionTest> Rank(this List<QuestionTest> Tests)
+        {
+            Tests.Sort();
+        }
+    }
+
+
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Diagnostics;
+using System.Globalization;
 
 namespace InnerLibs
 {
@@ -61,8 +62,8 @@ namespace InnerLibs
 
         public static int ToArabic(this string RomanNumber)
         {
-            RomanNumber = RomanNumber.ToUpper().Trim();
-            if (RomanNumber == "N")
+            RomanNumber = $"{RomanNumber}".ToUpper(CultureInfo.InvariantCulture).Trim();
+            if (RomanNumber == "N" || RomanNumber.IsBlank())
             {
                 return 0;
             }
@@ -175,19 +176,18 @@ namespace InnerLibs
 
         public static string ToRoman(this int ArabicNumber)
         {
+            ArabicNumber = ArabicNumber.ForcePositive();
             // valida : aceita somente valores entre 1 e 3999
             if (ArabicNumber < 1 || ArabicNumber > 3999)
-            {
-                ArabicNumber = ArabicNumber.LimitRange(1, 3999);
-                Debug.Write("The numeric value must be between 1 and 3999.", "ArabicNumber");
-                return "+" + ToRoman(ArabicNumber);
+            {               
+                throw new ArgumentException("The numeric value must be between 1 and 3999.", nameof(ArabicNumber));                
             }
 
             var algarismosArabicos = new int[] { 1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1 };
             var algarismosRomanos = new string[] { "M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I" };
 
             // inicializa o string builder
-            string resultado = InnerLibs.Text.Empty;
+            string resultado = Text.Empty;
 
             // percorre os valores nos arrays
             for (int i = 0; i <= 12; i++)

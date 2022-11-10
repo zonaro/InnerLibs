@@ -1,6 +1,8 @@
 ﻿using InnerLibs.LINQ;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.Drawing;
 using System.Linq;
 using System.Reflection;
 
@@ -18,13 +20,13 @@ namespace InnerLibs
         {
         }
 
-        public HtmlTag(string TagName, string InnerHtml = InnerLibs.Text.Empty)
+        public HtmlTag(string TagName, string InnerHtml = Text.Empty)
         {
             this.TagName = TagName.IfBlank("div");
             this.InnerHtml = InnerHtml;
         }
 
-        public HtmlTag(string TagName, object Attributes, string InnerHtml = InnerLibs.Text.Empty)
+        public HtmlTag(string TagName, object Attributes, string InnerHtml = Text.Empty)
         {
             this.TagName = TagName.IfBlank("div");
             this.InnerHtml = InnerHtml;
@@ -46,7 +48,7 @@ namespace InnerLibs
 
         public string Class
         {
-            get => Attributes.GetValueOr("class", InnerLibs.Text.Empty);
+            get => Attributes.GetValueOr("class", Text.Empty);
 
             set => Attributes["class"] = value;
         }
@@ -60,7 +62,7 @@ namespace InnerLibs
 
         public string InnerHtml
         {
-            get => _innerHtml;
+            get => _innerHtml ?? "";
             set
             {
                 if (value.IsNotBlank())
@@ -73,15 +75,8 @@ namespace InnerLibs
 
         public string InnerText
         {
-            get => _innerHtml.RemoveHTML();
-            set
-            {
-                if (value.IsNotBlank())
-                {
-                    SelfCloseTag = false;
-                }
-                _innerHtml = value.RemoveHTML();
-            }
+            get => InnerHtml.RemoveHTML();
+            set => InnerHtml = value.RemoveHTML();
         }
 
         public bool SelfCloseTag { get; set; }
@@ -90,12 +85,16 @@ namespace InnerLibs
 
         public string this[string key]
         {
-            get => Attributes.GetValueOr(key, InnerLibs.Text.Empty);
+            get => Attributes.GetValueOr(key, Text.Empty);
             set => Attributes.Set(key, value);
         }
 
+        public string GetAttr(string key) => this[key];
+
+
         public static HtmlTag CreateAnchor(string URL, string Text, string Target = "_self", object htmlAttributes = null) => new HtmlTag("a", htmlAttributes, Text).SetAttr("href", URL, true).SetAttr("target", Target, true);
 
+        public static HtmlTag CreateImage(Image Img, object htmlAttributes = null) => CreateImage(Img?.ToDataURL(), htmlAttributes);
         public static HtmlTag CreateImage(string URL, object htmlAttributes = null) => new HtmlTag("img", htmlAttributes, null) { SelfCloseTag = true }
         .SetAttr("src", URL, true);
 
@@ -205,9 +204,17 @@ namespace InnerLibs
         {
             if (ClassName.IsNotBlank() && ClassName.IsIn(ClassList, StringComparer.InvariantCultureIgnoreCase))
             {
-                ClassList = ClassList.Where(x => x.ToLower() != ClassName.ToLower()).ToArray();
+                ClassList = ClassList.Where(x => x != null && x.Equals(ClassName, StringComparison.OrdinalIgnoreCase)).ToArray();
             }
 
+            return this;
+        }
+
+
+        public string ID { get => GetAttr("ID"); set => SetAttr("ID", value, true); }
+        public HtmlTag SetID(string Value)
+        {
+            ID = Value;
             return this;
         }
 
@@ -233,7 +240,7 @@ namespace InnerLibs
         public override string ToString()
         {
             TagName = TagName.RemoveAny("/", @"\").IfBlank("div");
-            return $"<{TagName}{Attributes.SelectJoinString(x => x.Key == x.Value ? x.Key.ToLower() : $"{x.Key.ToLower()}={x.Value.Wrap()}", " ").PrependIf(" ", b => b.IsNotBlank())}" + (SelfCloseTag ? " />" : $">{InnerHtml}</{TagName}>");
+            return $"<{TagName}{Attributes.SelectJoinString(x => x.Key == x.Value ? x.Key : $"{x.Key}={x.Value.Wrap()}", " ").PrependIf(" ", b => b.IsNotBlank())}" + (SelfCloseTag ? " />" : $">{InnerHtml}</{TagName}>");
         }
     }
 }
