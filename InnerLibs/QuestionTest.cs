@@ -874,11 +874,12 @@ namespace InnerLibs.QuestionTest
                     return CompareTo(this);
                 }
             }
+            return 0
         }
 
         public int CompareTo(QuestionTest other)
         {
-            return CompareTo(other.FinalNote);
+            return CompareTo(other?.FinalNote);
         }
     }
 
