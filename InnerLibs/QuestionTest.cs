@@ -874,13 +874,10 @@ namespace InnerLibs.QuestionTest
                     return CompareTo(this);
                 }
             }
-            return 0
+            return 0;
         }
 
-        public int CompareTo(QuestionTest other)
-        {
-            return CompareTo(other?.FinalNote);
-        }
+        public int CompareTo(QuestionTest other) => CompareTo(other?.FinalNote);
     }
 
     /// <summary>
