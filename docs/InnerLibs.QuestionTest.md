@@ -64,7 +64,6 @@ Properties
 | `Boolean` | AllowMultiple |  | 
 | `AlternativeList` | Alternatives |  | 
 | `IEnumerable<Alternative>` | Answer |  | 
-| `Boolean` | RenderAsSelect |  | 
 
 
 ## `DissertativeQuestion`
@@ -134,6 +133,7 @@ Properties
 | Type | Name | Summary | 
 | --- | --- | --- | 
 | `Decimal` | Hits |  | 
+| `Decimal` | HitsPercent |  | 
 | `String` | ID |  | 
 | `Boolean` | IsCorrect |  | 
 | `Int32` | Number |  | 
@@ -209,7 +209,7 @@ Methods
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `QuestionType` | CreateQuestion() |  | 
+| `TQuestion` | CreateQuestion() |  | 
 | `Alternative` | GetAlternative(`String` ID) |  | 
 | `T` | GetQuestion(`String` ID) |  | 
 | `void` | SetMinimumAllowedAsHalf(`Decimal` Weight = 0) |  | 
@@ -245,7 +245,6 @@ Properties
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `String` | HTML |  | 
 | `Image` | Image |  | 
 | `StatementImages` | StatementImages |  | 
 | `String` | Subtitle |  | 
@@ -270,8 +269,8 @@ Methods
 
 | Type | Name | Summary | 
 | --- | --- | --- | 
-| `void` | Add(`Image` Image, `String` Subtitle = ) |  | 
-| `void` | Add(`String` ImagePath, `String` Subtitle = ) |  | 
+| `StatementImages` | Add(`Image` Image, `String` Subtitle = ) |  | 
+| `StatementImages` | Add(`String` ImagePath, `String` Subtitle = ) |  | 
 | `String` | ToString() |  | 
 
 

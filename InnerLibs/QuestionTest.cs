@@ -1,4 +1,5 @@
-﻿using System;
+﻿using InnerLibs.LINQ;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -75,14 +76,14 @@ namespace InnerLibs.QuestionTest
         protected override sealed void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
         {
             base.OnCollectionChanged(e);
-            if (e.Action == NotifyCollectionChangedAction.Add)
+            if (e?.Action == NotifyCollectionChangedAction.Add)
             {
                 Debug.WriteLine("Alternative Added");
                 foreach (var ni in e.NewItems)
                 {
                     Alternative i = (Alternative)ni;
                     i._question = Question;
-                    if (!Question.AllowMultiple & i.Correct)
+                    if (!Question.AllowMultiple && i.Correct)
                     {
                         foreach (var ii in Question.Alternatives)
                         {
@@ -108,16 +109,13 @@ namespace InnerLibs.QuestionTest
         /// </summary>
         /// <param name="Text">Texto da alternativa</param>
         /// <param name="Correct">Parametro que indica se esta alternativa é correta ou verdadeira</param>
-        public void Add(string Text, bool Correct)
-        {
-            var c = new Alternative() { Text = Text, Correct = Correct };
-            Add(c);
-        }
+        public void Add(string Text, bool Correct) => Add(new Alternative() { Text = Text, Correct = Correct });
 
         public void AddRange(IEnumerable<Alternative> Alternatives)
         {
-            foreach (var alt in Alternatives)
-                Add(alt);
+            if (Alternatives != null)
+                foreach (var alt in Alternatives)
+                    Add(alt);
         }
 
         public override string ToString() => Count.ToString();
@@ -151,13 +149,7 @@ namespace InnerLibs.QuestionTest
         /// <returns></returns>
         public IEnumerable<Alternative> Answer => Alternatives.Where(p => p.Checked);
 
-        /// <summary>
-        /// Indica se esta alternativa deve ser renderizada no HTML como um <see
-        /// cref="HtmlSelectElement"/>. Caso Contrario, serão renderizadas como listas de Check Box
-        /// ou Radio Button
-        /// </summary>
-        /// <returns></returns>
-        public bool RenderAsSelect { get; set; }
+
     }
 
     /// <summary>
@@ -200,7 +192,13 @@ namespace InnerLibs.QuestionTest
         /// Representa quantos pontos essa questão vale de acordo com a assertividade
         /// </summary>
         /// <returns></returns>
-        public override decimal Hits => Assertiveness;
+        public override decimal Hits
+        {
+            get => Assertiveness;
+            set => Assertiveness = value;
+        }
+
+
 
         /// <summary>
         /// Verifica se a pergunta está preenchida
@@ -229,7 +227,11 @@ namespace InnerLibs.QuestionTest
         /// Retorna um numero que representa o quanto o usuario acertou essa pergunta
         /// </summary>
         /// <returns></returns>
-        public override decimal Hits => Alternatives.Count(x => x.IsCorrect) * Weight / Alternatives.Count;
+        public override decimal Hits
+        {
+            get => Alternatives.Count(x => x.IsCorrect) * Weight / Alternatives.Count;
+            set => Debug.WriteLine($"Can't set hits on {nameof(MultipleAlternativeQuestion)}");
+        }
 
         /// <summary>
         /// Verifica se a pergunta está corretamente assinalada
@@ -261,7 +263,11 @@ namespace InnerLibs.QuestionTest
         /// Pontos multiplicados pelo peso da questão
         /// </summary>
         /// <returns></returns>
-        public override decimal Hits => Answer * Weight;
+        public override decimal Hits
+        {
+            get => Answer * Weight;
+            set => Answer = value;
+        }
 
         /// <summary>
         /// Perguntas numericas sempre estão corretas. Neste caso, o que vale é a resposta
@@ -300,7 +306,10 @@ namespace InnerLibs.QuestionTest
         /// Retorna um numero que representa o quanto o usuario acertou essa pergunta
         /// </summary>
         /// <returns></returns>
-        public virtual decimal Hits { get; private set; } = 0m;
+        public abstract decimal Hits { get; set; }
+
+
+        public decimal HitsPercent => Hits.CalculatePercent(Weight);
 
         /// <summary>
         /// O codigo de identificação desta questão
@@ -313,6 +322,7 @@ namespace InnerLibs.QuestionTest
         /// </summary>
         /// <returns></returns>
         public abstract bool IsCorrect { get; }
+
 
         /// <summary>
         /// Numero da questão
@@ -379,8 +389,7 @@ namespace InnerLibs.QuestionTest
 
     /// <summary>
     /// Enunciado de uma pergunta
-    /// </summary>
-    [TypeConverter(typeof(ExpandableObjectConverter))]
+    /// </summary> 
     public class QuestionStatement
     {
         internal Question _question;
@@ -393,7 +402,7 @@ namespace InnerLibs.QuestionTest
         /// Imagens adicionadas ao enunciado (com legenda)
         /// </summary>
         /// <returns></returns>
-        public StatementImages Images { get; set; }
+        public StatementImages Images { get; }
 
         public Question Question => _question;
 
@@ -416,8 +425,6 @@ namespace InnerLibs.QuestionTest
     /// Dissertativas, Multipla Escolha ou de Atribuição de Pontos
     /// </summary>
     [Serializable]
-    [Category("Avaliação")]
-    [Description("Representa uma avaliação de perguntas e respostas")]
     public class QuestionTest : ObservableCollection<Question>
     {
         private string _title = Text.Empty;
@@ -481,119 +488,125 @@ namespace InnerLibs.QuestionTest
         /// Instancia uma nova avaliação com titulo
         /// </summary>
         /// <param name="Title">Titulo da avaliação</param>
-        public QuestionTest(string Title = "New Test") => this.Title = Title;
+        public QuestionTest(string Title) : this(Title, null)
+        {
+            GenerateID();
+        }
+
+        public QuestionTest() : this("New Test")
+        {
+        }
+
+        public QuestionTest(string Title, string ID)
+        {
+            this.Title = Title;
+            this.ID = ID;
+        }
+        public QuestionTest(string Title, Guid ID) : this(Title, ID.ToString())
+        {
+        }
+
+
 
         /// <summary>
         /// Média da Avaliação
         /// </summary>
         /// <returns></returns>
-        [Category("Validação")]
-        [Description("Média da Avaliação")]
         public decimal Average => this.Sum(x => (x.IsCorrect ? x.Hits : 0) * x.Weight) / this.Sum(x => x.Weight);
 
         /// <summary>
         /// Pontos de bonificação que serão somados a média final da avaliação
         /// </summary>
         /// <returns></returns>
-        [Category("Validação")]
-        [Description("Pontos de bonificação que serão somados a média final da avaliação")]
+
         public decimal Bonus { get; set; } = 0m;
 
         /// <summary>
         /// Porcentagem de Erros do Usuário
         /// </summary>
         /// <returns></returns>
-        [Category("Validação")]
-        [Description("Porcentagem de erros da avaliação")]
         public decimal FailPercent => Math.Round((Weight - Average).CalculatePercent(Weight));
 
         /// <summary>
         /// Numero de questões que o usuário errou
         /// </summary>
         /// <returns></returns>
-        [Category("Validação")]
-        [Description("Numero de questões que o usuário errou")]
         public int Fails => Count - Hits;
 
         /// <summary>
         /// Nota final da avaliação (Bonus + Média)
         /// </summary>
         /// <returns></returns>
-        [Category("Validação")]
-        [Description("Nota final da avaliação (Bonus + Média)")]
         public decimal FinalNote => Average + Bonus;
 
         /// <summary>
         /// Rodapé da prova. Texto adicional que ficará após as questões
         /// </summary>
         /// <returns></returns>
-        [Category("Texto")]
-        [Description("Rodapé da prova. Texto adicional que ficará após as questões")]
-        public string Footer { get; set; } = Text.Empty;
+
+        public string Footer { get; set; }
 
         /// <summary>
         /// Cabeçalho da prova. Texto adicional que ficará antes das questões e apoós o título
         /// </summary>
         /// <returns></returns>
-        [Category("Texto")]
-        [Description("Cabeçalho da prova. Texto adicional que ficará antes das questões e após o título")]
-        public string Header { get; set; } = Text.Empty;
+
+        public string Header { get; set; }
 
         /// <summary>
         /// Porcentagem de Acertos do Usuário
         /// </summary>
         /// <returns></returns>
-        [Category("Validação")]
-        [Description("Porcentagem de acertos da avaliação")]
+
         public decimal HitPercent => Math.Round(Average.CalculatePercent(Weight));
 
         /// <summary>
         /// Numero de questões que o usuário acertou
         /// </summary>
         /// <returns></returns>
-        [Category("Validação")]
-        [Description("Numero de questões que o usuário acertou")]
+
         public int Hits => this.Count(x => x.IsCorrect);
 
         /// <summary>
         ///ID da prova, para identifica-la como unica
         /// </summary>
         /// <returns></returns>
-        [Category("ID")]
-        [Description("ID único desta prova")]
+
         public string ID { get; set; }
+
+
+        public QuestionTest GenerateID()
+        {
+            ID = Guid.NewGuid().ToString();
+            return this;
+        }
 
         /// <summary>
         /// Retorna TRUE se a nota final (média da avaliação + os bonus) é maior ou igual ao minimo
         /// permitido, caso contrário, FALSE
         /// </summary>
         /// <returns></returns>
-        [Category("Validação")]
-        [Description("Retorna TRUE se a nota final (média da avaliação + os bonus) é maior ou igual ao minimo permitido, caso contrário, FALSE")]
         public bool IsApproved => FinalNote >= MinimumWeightAllowed;
 
         /// <summary>
         /// Verifica se o peso da prova equivale a soma dos pesos das questões
         /// </summary>
         /// <returns></returns>
-        [Category("Validação")]
-        [Description("Verifica se o peso da prova equivale a soma dos pesos das questões")]
+
         public bool IsValid => this.Sum(q => q.Weight) == Weight;
 
         /// <summary>
         /// Valor Minimo da nota para aprovação (Normalmente 6)
         /// </summary>
         /// <returns></returns>
-        [Category("Validação")]
-        [Description("Valor Minimo da nota para aprovação (Normalmente 6)")]
+
         public decimal MinimumWeightAllowed { get; set; } = 6m;
 
         /// <summary>
         /// Informações adicionais, normalmente nome do usuario e outras informações unicas
         /// </summary>
         /// <returns></returns>
-        [Category("Usuário")]
-        [Description("Informações relacionadas ao usuário/aluno, como Nome, documentos e outras informações pessoais")]
+
         public Dictionary<string, object> PersonalInfo { get => personalInfo; set => personalInfo = value ?? new Dictionary<string, object>(); }
         /// <summary>
         /// Retorna as questões desta avaliação
@@ -642,17 +655,7 @@ namespace InnerLibs.QuestionTest
         /// </summary>
         /// <param name="ID"></param>
         /// <returns></returns>
-        public Alternative GetAlternative(string ID)
-        {
-            try
-            {
-                return (Alternative)GetQuestion<AlternativeQuestion>(ID.GetFirstChars(2)).Alternatives.Where(a => (a.ID.ToLower() ?? Text.Empty) == (ID.ToLower() ?? Text.Empty));
-            }
-            catch
-            {
-                return null;
-            }
-        }
+        public Alternative GetAlternative(string ID) => GetQuestion<AlternativeQuestion>(ID.GetFirstChars(2)).Alternatives.FirstOrDefault(a => $"{a.ID}" == $"{ID}");
 
         /// <summary>
         /// Pega uma questão por ID
@@ -660,17 +663,7 @@ namespace InnerLibs.QuestionTest
         /// <typeparam name="T">Tipo da Questão</typeparam>
         /// <param name="ID"></param>
         /// <returns></returns>
-        public T GetQuestion<T>(string ID) where T : Question
-        {
-            try
-            {
-                return (T)this.Where(q => (q.ID.ToLower() ?? Text.Empty) == (ID.ToLower() ?? Text.Empty)).First();
-            }
-            catch
-            {
-                return null;
-            }
-        }
+        public T GetQuestion<T>(string ID) where T : Question => (T)this.FirstOrDefault(q => $"{q.ID}" == $"{ID}");
 
         /// <summary>
         /// Configura o valor minimo permitido para aprovação como metade do peso da avaliação
@@ -715,7 +708,17 @@ namespace InnerLibs.QuestionTest
         /// Retorna um numero que representa o quanto o usuario acertou essa pergunta
         /// </summary>
         /// <returns></returns>
-        public override decimal Hits => IsCorrect ? Weight : 0m;
+        public override decimal Hits
+        {
+            get => IsCorrect ? Weight : 0m;
+            set
+            {
+                if (value > 0)
+                {
+                    this.Alternatives.Each(x => x.Checked = x.Correct);
+                }
+            }
+        }
 
         /// <summary>
         /// Verifica se a pergunta está corretamente assinalada. Anula a questão automaticamente se
@@ -758,18 +761,7 @@ namespace InnerLibs.QuestionTest
             StatementImages = l;
         }
 
-        public string HTML
-        {
-            get
-            {
-                if (StatementImages != null)
-                {
-                    return "<li class='Image'><img src=" + Image.ToDataURL().Quote() + " alt= " + Subtitle.Quote() + "/><small>Imagem " + (StatementImages.IndexOf(this) + 1).ToString() + ": " + Subtitle + "</small></li>";
-                }
 
-                return Text.Empty;
-            }
-        }
 
         /// <summary>
         /// Imagem do enunciado
@@ -798,7 +790,7 @@ namespace InnerLibs.QuestionTest
 
         public QuestionStatement Statement { get; private set; }
 
-        public void Add(Image Image, string Subtitle = Text.Empty)
+        public StatementImages Add(Image Image, string Subtitle = Text.Empty)
         {
             var i = new StatementImage(this)
             {
@@ -806,9 +798,10 @@ namespace InnerLibs.QuestionTest
                 Subtitle = Subtitle
             };
             Add(i);
+            return this;
         }
 
-        public void Add(string ImagePath, string Subtitle = Text.Empty)
+        public StatementImages Add(string ImagePath, string Subtitle = Text.Empty)
         {
             var i = new StatementImage(this)
             {
@@ -816,6 +809,8 @@ namespace InnerLibs.QuestionTest
                 Subtitle = Subtitle
             };
             Add(i);
+            return this;
+
         }
 
         public override string ToString() => Count.ToString();

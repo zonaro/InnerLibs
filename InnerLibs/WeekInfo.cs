@@ -3,7 +3,7 @@ using System.Globalization;
 
 namespace InnerLibs.TimeMachine
 {
-    public struct WeekInfo
+    public struct WeekInfo : IEquatable<WeekInfo>
     {
         public WeekInfo(int WeekOfMonth, int Month, int Year, CultureInfo culture = null, string stringFormat = null) : this(new DateTime(Year, Month, 1) + WeekOfMonth.Weeks(), culture, stringFormat)
         {
@@ -65,5 +65,36 @@ namespace InnerLibs.TimeMachine
 
 
         public override string ToString() => WeekString;
+
+        public override bool Equals(object obj)
+        {
+            if (obj is WeekInfo info)
+            {
+                return Equals(info);
+            }
+            else if (obj is int i)
+            {
+                return GetHashCode().Equals(i);
+            }
+            else if (obj is int[] ia)
+            {
+                return GetHashCode().Equals(ia.GetHashCode());
+            }
+            return false;
+        }
+
+        public override int GetHashCode() => ((int[])this).GetHashCode();
+
+        public static bool operator ==(WeekInfo left, WeekInfo right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(WeekInfo left, WeekInfo right)
+        {
+            return !(left == right);
+        }
+
+        public bool Equals(WeekInfo other) => other != null && this.GetHashCode() == other.GetHashCode();
     }
 }

@@ -47,10 +47,10 @@ Static Methods
 | `IQueryable<T>` | DistinctBy(this `IQueryable<T>` Items, `Expression<Func<T, TKey>>` Property) |  | 
 | `IEnumerable<T>` | Each(this `IEnumerable<T>` items, `Action<T>` Action) |  | 
 | `BinaryExpression` | Equal(this `Expression` MemberExpression, `Expression` ValueExpression) |  | 
+| `IEnumerable<T>` | FilterDateRange(this `IEnumerable<T>` List, `Expression<Func<T, Nullable<DateTime>>>` Property, `DateRange` Range, `Nullable<DateRangeFilterBehavior>` FilterBehavior = null) |  | 
 | `IQueryable<T>` | FilterDateRange(this `IQueryable<T>` List, `Expression<Func<T, DateTime>>` Property, `DateRange` Range, `Nullable<DateRangeFilterBehavior>` FilterBehavior = null) |  | 
 | `IQueryable<T>` | FilterDateRange(this `IQueryable<T>` List, `Expression<Func<T, Nullable<DateTime>>>` Property, `DateRange` Range, `Nullable<DateRangeFilterBehavior>` FilterBehavior = null) |  | 
 | `IEnumerable<T>` | FilterDateRange(this `IEnumerable<T>` List, `Expression<Func<T, DateTime>>` Property, `DateRange` Range, `Nullable<DateRangeFilterBehavior>` FilterBehavior = null) |  | 
-| `IEnumerable<T>` | FilterDateRange(this `IEnumerable<T>` List, `Expression<Func<T, Nullable<DateTime>>>` Property, `DateRange` Range, `Nullable<DateRangeFilterBehavior>` FilterBehavior = null) |  | 
 | `IQueryable<T>` | FilterRange(this `IQueryable<T>` List, `Expression<Func<T, V>>` MinProperty, `Expression<Func<T, V>>` MaxProperty, `IEnumerable<V>` Values) |  | 
 | `IQueryable<T>` | FilterRange(this `IQueryable<T>` List, `Expression<Func<T, V>>` MinProperty, `Expression<Func<T, V>>` MaxProperty, `V[]` Values) |  | 
 | `T` | FirstOr(this `IEnumerable<T>` source, `T[]` Alternate) |  | 
@@ -93,10 +93,10 @@ Static Methods
 | `BinaryExpression` | NotEqual(this `Expression` MemberExpression, `Expression` ValueExpression) |  | 
 | `Expression<Func<T, Boolean>>` | Or(this `Expression<Func<T, Boolean>>` FirstExpression, `Expression`1[]` OtherExpressions) |  | 
 | `IOrderedEnumerable<T>` | OrderByLike(this `IEnumerable<T>` items, `Func<T, String>` PropertySelector, `Boolean` Ascending, `String[]` Searches) |  | 
+| `IOrderedQueryable<T>` | OrderByMany(this `IQueryable<T>` Data, `Boolean` Ascending, `Expression`1[]` Selectors) |  | 
 | `IOrderedEnumerable<T>` | OrderByMany(this `IEnumerable<T>` Data, `Expression`1[]` Selectors) |  | 
 | `IOrderedEnumerable<T>` | OrderByMany(this `IEnumerable<T>` Data, `Boolean` Ascending, `Expression`1[]` Selectors) |  | 
 | `IOrderedQueryable<T>` | OrderByMany(this `IQueryable<T>` Data, `Expression`1[]` Selectors) |  | 
-| `IOrderedQueryable<T>` | OrderByMany(this `IQueryable<T>` Data, `Boolean` Ascending, `Expression`1[]` Selectors) |  | 
 | `IOrderedEnumerable<T>` | OrderByManyDescending(this `IEnumerable<T>` Data, `Expression`1[]` Selectors) |  | 
 | `IOrderedQueryable<T>` | OrderByManyDescending(this `IQueryable<T>` Data, `Expression`1[]` Selectors) |  | 
 | `IEnumerable<T>` | OrderByPredefinedOrder(this `IEnumerable<T>` Source, `Expression<Func<T, TOrder>>` PropertySelector, `TOrder[]` order) |  | 
@@ -107,6 +107,7 @@ Static Methods
 | `Expression<Func<T, Boolean>>` | OrSearch(this `Expression<Func<T, Boolean>>` FirstExpression, `String` Text, `Expression`1[]` Properties) |  | 
 | `IQueryable<TSource>` | Page(this `IQueryable<TSource>` Source, `Int32` PageNumber, `Int32` PageSize) |  | 
 | `IEnumerable<TSource>` | Page(this `IEnumerable<TSource>` Source, `Int32` PageNumber, `Int32` PageSize) |  | 
+| `IEnumerable<ValueTuple<T, T>>` | PairUp(this `IEnumerable<T>` source) |  | 
 | `Expression` | PropertyExpression(this `ParameterExpression` Parameter, `String` PropertyName) |  | 
 | `T` | RandomItem(this `IEnumerable<T>` l) |  | 
 | `T` | RandomItem(this `IEnumerable<T>` l, `Func<T, Boolean>` predicade) |  | 
@@ -170,14 +171,6 @@ Methods
 public class InnerLibs.LINQ.PaginationFilter<ClassType, RemapType>
 
 ```
-
-Fields
-
-| Type | Name | Summary | 
-| --- | --- | --- | 
-| `List<PropertyFilter<ClassType, RemapType>>` | _filters |  | 
-| `ParameterExpression` | param |  | 
-
 
 Properties
 

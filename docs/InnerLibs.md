@@ -29,6 +29,7 @@ Static Methods
 | `String` | Btoa(this `String` Text, `Encoding` Encoding = null) |  | 
 | `FileInfo` | CreateFileFromDataURL(this `String` Base64StringOrDataURL, `String` FilePath) |  | 
 | `String` | FixBase64(this `String` Base64StringOrDataUrl) |  | 
+| `Boolean` | IsBase64(this `String` base64String) |  | 
 | `Boolean` | IsDataURL(this `String` Text) |  | 
 | `String` | ToBase64(this `Byte[]` Bytes) |  | 
 | `String` | ToBase64(this `Image` OriginalImage, `ImageFormat` OriginalImageFormat) |  | 
@@ -1198,6 +1199,7 @@ Static Methods
 | `String` | FormatPath(this `Nullable<DateTime>` DateAndTime, `String` FilePath, `Boolean` AlternativeChar = False) |  | 
 | `String` | GetLatestDirectoryName(this `FileInfo` Path) |  | 
 | `String` | ReadAllText(this `FileInfo` File, `Encoding` encoding = null) |  | 
+| `FileInfo` | Rename(this `FileInfo` File, `String` Name, `Boolean` KeepOriginalExtension = False) |  | 
 | `FileInfo` | SaveMailAttachment(this `Attachment` attachment, `DirectoryInfo` Directory, `Nullable<DateTime>` DateAndTime = null) |  | 
 | `FileInfo` | SaveMailAttachment(this `Attachment` attachment, `String` FilePath, `Nullable<DateTime>` DateAndTime = null) |  | 
 | `Byte[]` | ToBytes(this `Attachment` attachment) |  | 
@@ -1707,6 +1709,13 @@ public static class InnerLibs.MathExt
 
 ```
 
+Static Fields
+
+| Type | Name | Summary | 
+| --- | --- | --- | 
+| `Double` | EarthCircumference |  | 
+
+
 Static Methods
 
 | Type | Name | Summary | 
@@ -1720,10 +1729,10 @@ Static Methods
 | `Double` | CalculateCompoundInterest(this `Double` Capital, `Double` Rate, `Double` Time) |  | 
 | `Decimal` | CalculateCompoundInterest(this `Decimal` Capital, `Decimal` Rate, `Decimal` Time) |  | 
 | `Double` | CalculateDistance(this `AddressInfo` FirstLocation, `AddressInfo` SecondLocation) |  | 
-| `Tuple<AddressInfo, AddressInfo, Decimal>` | CalculateDistanceMatrix(`AddressInfo[]` Locations) |  | 
+| `Tuple<AddressInfo, AddressInfo, Double>` | CalculateDistanceMatrix(`AddressInfo[]` Locations) |  | 
 | `Dictionary<TKey, Decimal>` | CalculatePercent(this `Dictionary<TKey, TValue>` Dic) |  | 
 | `Dictionary<TKey, Decimal>` | CalculatePercent(this `IEnumerable<TObject>` Obj, `Expression<Func<TObject, TKey>>` KeySelector, `Expression<Func<TObject, TValue>>` ValueSelector) |  | 
-| `Dictionary<Tobject, Decimal>` | CalculatePercent(this `IEnumerable<Tobject>` Obj, `Expression<Func<Tobject, Tvalue>>` ValueSelector) |  | 
+| `Dictionary<TObject, Decimal>` | CalculatePercent(this `IEnumerable<TObject>` Obj, `Expression<Func<TObject, TValue>>` ValueSelector) |  | 
 | `Dictionary<TValue, Decimal>` | CalculatePercent(this `IEnumerable<TValue>` Obj) |  | 
 | `Decimal` | CalculatePercent(this `Decimal` Value, `Decimal` Total) |  | 
 | `Decimal` | CalculatePercent(this `Decimal` Value, `Decimal` Total, `Int32` DecimalPlaces) |  | 
@@ -1738,6 +1747,10 @@ Static Methods
 | `IEnumerable<IEnumerable<T>>` | CartesianProduct(`IEnumerable`1[]` Sets) |  | 
 | `Decimal` | Ceil(this `Decimal` Number) |  | 
 | `Double` | Ceil(this `Double` Number) |  | 
+| `Decimal` | CeilDecimal(this `Double` Number) |  | 
+| `Decimal` | CeilDecimal(this `Decimal` Number) |  | 
+| `Double` | CeilDouble(this `Double` Number) |  | 
+| `Double` | CeilDouble(this `Decimal` Number) |  | 
 | `Int32` | CeilInt(this `Double` Number) |  | 
 | `Int32` | CeilInt(this `Decimal` Number) |  | 
 | `Int64` | CeilLong(this `Double` Number) |  | 
@@ -1766,6 +1779,8 @@ Static Methods
 | `Single` | ForcePositive(this `Single` Value) |  | 
 | `Int16` | ForcePositive(this `Int16` Value) |  | 
 | `IEnumerable<Int32>` | GeometricProgression(this `Int32` FirstNumber, `Int32` Constant, `Int32` Length) |  | 
+| `Int32` | GetDecimalLen(this `Decimal` number) |  | 
+| `Int32` | GetDecimalLen(this `Double` number) |  | 
 | `Int64` | GetDecimalPart(this `Decimal` Value, `Int32` Length = 0) |  | 
 | `String` | GetOrdinal(this `Int32` Number) |  | 
 | `String` | GetOrdinal(this `Decimal` Number) |  | 
@@ -1779,7 +1794,6 @@ Static Methods
 | `Single` | Lerp(this `Single` Start, `Single` End, `Single` Amount) |  | 
 | `Int32` | LimitIndex(this `Int32` Int, `IEnumerable<AnyType>` Collection) |  | 
 | `Int64` | LimitIndex(this `Int64` Lng, `IEnumerable<AnyType>` Collection) |  | 
-| `T` | LimitRange(this `IComparable` Number, `IComparable` MinValue = null, `IComparable` MaxValue = null) |  | 
 | `String` | LimitRange(this `String` Number, `String` MinValue = null, `String` MaxValue = null) |  | 
 | `Char` | LimitRange(this `Char` Number, `Nullable<Char>` MinValue = null, `Nullable<Char>` MaxValue = null) |  | 
 | `Single` | LimitRange(this `Single` Number, `IComparable` MinValue = null, `IComparable` MaxValue = null) |  | 
@@ -1788,8 +1802,11 @@ Static Methods
 | `Int64` | LimitRange(this `Double` Number, `IComparable` MinValue = null, `IComparable` MaxValue = null) |  | 
 | `Int64` | LimitRange(this `Int64` Number, `IComparable` MinValue = null, `IComparable` MaxValue = null) |  | 
 | `DateTime` | LimitRange(this `DateTime` Number, `IComparable` MinValue = null, `IComparable` MaxValue = null) |  | 
+| `T` | LimitRange(this `IComparable` Number, `IComparable` MinValue = null, `IComparable` MaxValue = null) |  | 
 | `Decimal` | RoundDecimal(this `Decimal` Number, `Nullable<Int32>` Decimals = null) |  | 
+| `Decimal` | RoundDecimal(this `Double` Number, `Nullable<Int32>` Decimals = null) |  | 
 | `Double` | RoundDouble(this `Double` Number, `Nullable<Int32>` Decimals = null) |  | 
+| `Double` | RoundDouble(this `Decimal` Number, `Nullable<Int32>` Decimals = null) |  | 
 | `Int32` | RoundInt(this `Decimal` Number) |  | 
 | `Int32` | RoundInt(this `Double` Number) |  | 
 | `Int64` | RoundLong(this `Decimal` Number) |  | 
@@ -1800,6 +1817,10 @@ Static Methods
 | `Int64` | Sum(`Int64[]` Values) |  | 
 | `Int32` | Sum(`Int32[]` Values) |  | 
 | `Decimal` | Sum(`Decimal[]` Values) |  | 
+| `String` | ToDecimalString(this `Double` number, `Int32` Decimals = -1, `CultureInfo` culture = null) |  | 
+| `String` | ToDecimalString(this `Int64` number, `Int32` Decimals = -1, `CultureInfo` culture = null) |  | 
+| `String` | ToDecimalString(this `Int32` number, `Int32` Decimals = -1, `CultureInfo` culture = null) |  | 
+| `String` | ToDecimalString(this `Decimal` number, `Int32` Decimals = -1, `CultureInfo` culture = null) |  | 
 | `String` | ToOrdinalNumber(this `Int32` Number) |  | 
 | `String` | ToOrdinalNumber(this `Int64` Number) |  | 
 | `String` | ToOrdinalNumber(this `Int16` Number) |  | 
@@ -1923,16 +1944,16 @@ Static Methods
 | `List<T>` | RemoveLast(this `List<T>` List, `Int32` Count = 1) |  | 
 | `IDictionary<KeyType, ValueType>` | Set(this `IDictionary<KeyType, ValueType>` Dic, `KT` Key, `VT` Value) |  | 
 | `IDictionary<KeyType, String>` | SetOrRemove(this `IDictionary<KeyType, String>` Dic, `KT` Key, `String` Value, `Boolean` NullIfBlank) |  | 
-| `IDictionary<KeyType, ValueType>` | SetOrRemove(this `IDictionary<KeyType, ValueType>` Dic, `KT` Key, `VT` Value) |  | 
-| `Type` | SetPropertyValue(this `Type` MyObject, `String` PropertyName, `Object` Value) |  | 
-| `Type` | SetPropertyValue(this `Type` obj, `Expression<Func<Type, Prop>>` Selector, `Prop` Value) |  | 
-| `Dictionary<Group, Dictionary<Count, Int64>>` | SkipZero(this `Dictionary<Group, Dictionary<Count, Int64>>` Grouped) |  | 
-| `Dictionary<Count, Int64>` | SkipZero(this `Dictionary<Count, Int64>` Grouped) |  | 
+| `IDictionary<TKey, TValue>` | SetOrRemove(this `IDictionary<TKey, TValue>` Dic, `TK` Key, `TV` Value) |  | 
+| `T` | SetPropertyValue(this `T` MyObject, `String` PropertyName, `Object` Value) |  | 
+| `T` | SetPropertyValue(this `T` obj, `Expression<Func<T, TProp>>` Selector, `TProp` Value) |  | 
+| `Dictionary<TGroup, Dictionary<TCount, Int64>>` | SkipZero(this `Dictionary<TGroup, Dictionary<TCount, Int64>>` Grouped) |  | 
+| `Dictionary<TCount, Int64>` | SkipZero(this `Dictionary<TCount, Int64>` Grouped) |  | 
 | `ValueTuple<T, T>` | Swap(`T&` FirstValue, `T&` SecondValue) |  | 
 | `Dictionary<K, IEnumerable<T>>` | TakeTop(this `Dictionary<K, IEnumerable<T>>` Dic, `Int32` Top, `Expression<Func<T, Object>>` ValueSelector) |  | 
 | `IEnumerable<T>` | TakeTop(this `IEnumerable<T>` List, `Int32` Top, `Expression`1[]` ValueSelector) |  | 
 | `IEnumerable<T>` | TakeTop(this `IEnumerable<T>` List, `Int32` Top, `Expression<Func<T, L>>` LabelSelector, `L` GroupOthersLabel, `Expression`1[]` ValueSelector) |  | 
-| `Dictionary<K, T>` | TakeTop(this `Dictionary<K, T>` Dic, `Int32` Top, `K` GroupOthersLabel) |  | 
+| `Dictionary<TKey, TValue>` | TakeTop(this `Dictionary<TKey, TValue>` Dic, `Int32` Top, `TKey` GroupOthersLabel) |  | 
 | `String` | ToFullExceptionString(this `Exception` ex, `String` Separator =  => ) |  | 
 | `T` | Toggle(this `T` Current, `T` TrueValue, `T` FalseValue = null) |  | 
 | `String` | ToQueryString(this `Dictionary<String, String>` Dic) |  | 
@@ -2040,6 +2061,7 @@ Static Properties
 | `IEnumerable<Type>` | NumericTypes |  | 
 | `IEnumerable<String>` | OpenWrappers |  | 
 | `IEnumerable<String>` | PasswordSpecialChars |  | 
+| `IEnumerable<String>` | Punctuation |  | 
 | `IEnumerable<Char>` | RegexChars |  | 
 | `IEnumerable<String>` | Slashes |  | 
 | `IEnumerable<String>` | SpecialChars |  | 
@@ -2317,6 +2339,14 @@ public static class InnerLibs.Text
 
 ```
 
+Static Fields
+
+| Type | Name | Summary | 
+| --- | --- | --- | 
+| `String` | DoubleQuoteChar |  | 
+| `String` | Empty |  | 
+
+
 Static Methods
 
 | Type | Name | Summary | 
@@ -2391,24 +2421,27 @@ Static Methods
 | `String` | GetLastChars(this `String` Text, `Int32` Number = 1) |  | 
 | `String` | GetMiddleChars(this `String` Text, `Int32` Length) |  | 
 | `String` | GetOppositeWrapChar(this `String` Text) |  | 
-| `Char` | GetOppositeWrapChar(this `Char` Char) |  | 
-| `Type` | GetRandomItem(this `Type[]` Array) |  | 
+| `Char` | GetOppositeWrapChar(this `Char` c) |  | 
+| `T` | GetRandomItem(this `T[]` Array) |  | 
 | `String` | GetRelativeURL(this `Uri` URL, `Boolean` WithQueryString = True) |  | 
 | `String` | GetRelativeURL(this `String` URL, `Boolean` WithQueryString = True) |  | 
 | `IOrderedEnumerable<String>` | GetWords(this `String` Text) |  | 
 | `String[]` | GetWrappedText(this `String` Text, `String` Character = ", `Boolean` ExcludeWrapChars = True) |  | 
+| `Boolean` | HasLength(this `String` Text, `Int32` Length) |  | 
+| `Boolean` | HasMaxLength(this `String` Text, `Int32` Length) |  | 
+| `Boolean` | HasMinLength(this `String` Text, `Int32` Length) |  | 
 | `String` | HtmlDecode(this `String` Text) |  | 
 | `String` | HtmlEncode(this `String` Text) |  | 
+| `String` | Inject(this `String` formatString, `Hashtable` attributes, `Boolean` IsSQL = False) |  | 
 | `String` | Inject(this `T` Obj, `String` TemplatedString, `Boolean` IsSQL = False) |  | 
 | `String` | Inject(this `String` formatString, `T` injectionObject, `Boolean` IsSQL = False) |  | 
-| `String` | Inject(this `String` formatString, `Hashtable` attributes, `Boolean` IsSQL = False) |  | 
 | `String` | InjectSingleValue(this `String` formatString, `String` key, `Object` replacementValue, `Boolean` IsSQL = False, `CultureInfo` cultureInfo = null) |  | 
 | `String` | Interpolate(this `String` Text, `String[]` Texts) |  | 
 | `Boolean` | IsAnagramOf(this `String` Text, `String` AnotherText) |  | 
 | `Boolean` | IsAny(this `String` Text, `String[]` Texts) |  | 
 | `Boolean` | IsAny(this `String` Text, `StringComparison` Comparison, `String[]` Texts) |  | 
 | `Boolean` | IsCloseWrapChar(this `String` Text) |  | 
-| `Boolean` | IsCloseWrapChar(this `Char` Char) |  | 
+| `Boolean` | IsCloseWrapChar(this `Char` c) |  | 
 | `Boolean` | IsCrossLikeAny(this `String` Text, `IEnumerable<String>` Patterns) |  | 
 | `Boolean` | IsLikeAny(this `String` Text, `IEnumerable<String>` Patterns) |  | 
 | `Boolean` | IsLikeAny(this `String` Text, `String[]` Patterns) |  | 
@@ -2428,7 +2461,7 @@ Static Methods
 | `String` | ParseAlphaNumeric(this `String` Text) |  | 
 | `ConnectionStringParser` | ParseConnectionString(this `String` ConnectionString) |  | 
 | `String` | ParseDigits(this `String` Text, `CultureInfo` Culture = null) |  | 
-| `Type` | ParseDigits(this `String` Text, `CultureInfo` Culture = null) |  | 
+| `T` | ParseDigits(this `String` Text, `CultureInfo` Culture = null) |  | 
 | `NameValueCollection` | ParseQueryString(this `String` QueryString, `String[]` Keys) |  | 
 | `String` | PascalCaseAdjust(this `String` Text) |  | 
 | `IEnumerable<String>` | PascalCaseSplit(this `String` Text) |  | 
@@ -2485,7 +2518,7 @@ Static Methods
 | `List<Type>` | Shuffle(this `List<Type>` List) |  | 
 | `String` | Shuffle(this `String` Text) |  | 
 | `String` | Singularize(this `String` Text) |  | 
-| `String` | Slice(this `String` Text, `Int32` TextLength = 0, `String` Ellipsis = ..., `Boolean` TrimCarriage = False) |  | 
+| `String` | Slice(this `String` Text, `Int32` TextLength = 0, `String` Ellipsis = ..., `Boolean` BeforeNewLine = False) |  | 
 | `String[]` | Split(this `String` Text, `String` Separator, `StringSplitOptions` Options = RemoveEmptyEntries) |  | 
 | `String[]` | SplitAny(this `String` Text, `String[]` SplitText) |  | 
 | `String[]` | SplitAny(this `String` Text, `StringSplitOptions` SplitOptions, `String[]` SplitText) |  | 
