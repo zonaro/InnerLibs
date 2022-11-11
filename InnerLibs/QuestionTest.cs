@@ -14,11 +14,15 @@ namespace InnerLibs.QuestionTest
     /// </summary>
     public class Alternative
     {
+
+       
+
         internal AlternativeQuestion _question;
 
-        public Alternative()
+        internal Alternative(AlternativeQuestion question)
         {
-            _question = new SingleAlternativeQuestion();
+            _question = question;
+
         }
 
         /// <summary>
@@ -108,7 +112,7 @@ namespace InnerLibs.QuestionTest
         /// </summary>
         /// <param name="Text">Texto da alternativa</param>
         /// <param name="Correct">Parametro que indica se esta alternativa é correta ou verdadeira</param>
-        public void Add(string Text, bool Correct) => Add(new Alternative() { Text = Text, Correct = Correct });
+        public void Add(string Text, bool Correct) => Add(new Alternative(this.Question) { Text = Text, Correct = Correct });
 
         public void AddRange(IEnumerable<Alternative> Alternatives)
         {
@@ -184,6 +188,9 @@ namespace InnerLibs.QuestionTest
     /// </summary>
     public class DissertativeQuestion : Question
     {
+
+        
+
         private decimal ass;
 
         /// <summary>
@@ -246,9 +253,11 @@ namespace InnerLibs.QuestionTest
     /// </summary>
     public class MultipleAlternativeQuestion : AlternativeQuestion
     {
-        public MultipleAlternativeQuestion() : base()
+        internal MultipleAlternativeQuestion(QuestionTest Test) : base()
         {
+            this._test = Test;
         }
+
 
         /// <summary>
         /// Retorna um numero que representa o quanto o usuario acertou essa pergunta
@@ -459,6 +468,9 @@ namespace InnerLibs.QuestionTest
     [Serializable]
     public class QuestionTest : ObservableCollection<Question>, IComparable<QuestionTest>, IComparable
     {
+
+       
+
         private string _title = Text.Empty;
         private Dictionary<string, object> personalInfo = new Dictionary<string, object>();
 
@@ -610,7 +622,7 @@ namespace InnerLibs.QuestionTest
         /// Média da Avaliação
         /// </summary>
         /// <returns></returns>
-        public decimal Average => this.Sum(x => (x.IsCorrect ? x.Hits : 0) * x.Weight) / this.Sum(x => x.Weight);
+        public decimal Average => this.Count > 0 ? this.Sum(x => (x.IsCorrect ? x.Hits : 0) * x.Weight) / this.Sum(x => x.Weight) : 0;
 
         /// <summary>
         /// Pontos de bonificação que serão somados a média final da avaliação
@@ -729,21 +741,21 @@ namespace InnerLibs.QuestionTest
         /// Peso da Avaliação (Normalmente 10)
         /// </summary>
         /// <returns></returns>
-
         public decimal Weight { get; set; } = 10m;
 
         /// <summary>
         /// Adiciona uma nova questão a avaliação.
         /// </summary>
         public TQuestion CreateQuestion<TQuestion>(string Statement = null) where TQuestion : Question => (TQuestion)CreateQuestion(typeof(TQuestion), Statement);
+        
         /// <summary>
         /// Adiciona uma nova questão a avaliação.
         /// </summary>
         public Question CreateQuestion(Type QuestionType, string Statement = null)
         {
-            if (QuestionType != null && QuestionType.IsAssignableFrom(typeof(Question)))
+            if (QuestionType != null && QuestionType.IsSubclassOf(typeof(Question)))
             {
-                Question Question = (Question)Activator.CreateInstance(QuestionType, this);
+                Question Question = (Question)Activator.CreateInstance(QuestionType, System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance, null, new object[] { this }, null);
                 if (Statement.IsNotBlank()) Question.Statement.Text = Statement;
                 if (!Contains(Question))
                 {
@@ -755,6 +767,12 @@ namespace InnerLibs.QuestionTest
             return null;
         }
 
+        /// <summary>
+        /// Cria uma questão dissertativa para esta prova
+        /// </summary>
+        /// <param name="Statement">Enunciado</param>
+        /// <param name="Lines">Linhas para esta pergunta</param>
+        /// <returns></returns>
         public DissertativeQuestion CreateDissertativeQuestion(string Statement, int Lines = 3)
         {
             var q = CreateQuestion<DissertativeQuestion>(Statement);
@@ -762,6 +780,13 @@ namespace InnerLibs.QuestionTest
             return q;
         }
 
+        /// <summary>
+        /// Cria uma questão de 
+        /// </summary>
+        /// <param name="Statement"></param>
+        /// <param name="MinValue"></param>
+        /// <param name="MaxValue"></param>
+        /// <returns></returns>
         public NumericQuestion CreateNumericQuestion(string Statement, decimal MinValue = 1, decimal MaxValue = 10)
         {
             var q = CreateQuestion<NumericQuestion>(Statement);
@@ -860,24 +885,87 @@ namespace InnerLibs.QuestionTest
 
         public int CompareTo(object obj)
         {
+            var pos = 0;
             if (obj != null)
             {
-                if (obj is decimal i)
+                if (obj is QuestionTest q)
                 {
-                    if (i < this.FinalNote) return -1;
-                    if (i == this.FinalNote) return 0;
-                    return 1;
+                    obj = q.FinalNote;
                 }
 
-                if (obj is QuestionTest)
+                if (obj.IsNumber())
                 {
-                    return CompareTo(this);
+                    obj = obj.ToDecimal();
+                }
+
+                if (obj is decimal i)
+                {
+                    if (i < this.FinalNote)
+                        pos = -1;
+
+                    if (i > this.FinalNote)
+                        pos = 1;
                 }
             }
-            return 0;
+            return pos;
         }
 
         public int CompareTo(QuestionTest other) => CompareTo(other?.FinalNote);
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            if (ReferenceEquals(obj, null))
+            {
+                return false;
+            }
+
+            throw new NotImplementedException();
+        }
+
+        public override int GetHashCode()
+        {
+            throw new NotImplementedException();
+        }
+
+        public static bool operator ==(QuestionTest left, QuestionTest right)
+        {
+            if (ReferenceEquals(left, null))
+            {
+                return ReferenceEquals(right, null);
+            }
+
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(QuestionTest left, QuestionTest right)
+        {
+            return !(left == right);
+        }
+
+        public static bool operator <(QuestionTest left, QuestionTest right)
+        {
+            return ReferenceEquals(left, null) ? !ReferenceEquals(right, null) : left.CompareTo(right) < 0;
+        }
+
+        public static bool operator <=(QuestionTest left, QuestionTest right)
+        {
+            return ReferenceEquals(left, null) || left.CompareTo(right) <= 0;
+        }
+
+        public static bool operator >(QuestionTest left, QuestionTest right)
+        {
+            return !ReferenceEquals(left, null) && left.CompareTo(right) > 0;
+        }
+
+        public static bool operator >=(QuestionTest left, QuestionTest right)
+        {
+            return ReferenceEquals(left, null) ? ReferenceEquals(right, null) : left.CompareTo(right) >= 0;
+        }
     }
 
     /// <summary>
@@ -885,6 +973,12 @@ namespace InnerLibs.QuestionTest
     /// </summary>
     public class SingleAlternativeQuestion : AlternativeQuestion
     {
+
+        internal SingleAlternativeQuestion(QuestionTest Test) : base()
+        {
+            this._test = Test;
+        }
+
         /// <summary>
         /// Retorna um numero que representa o quanto o usuario acertou essa pergunta
         /// </summary>
@@ -1025,7 +1119,8 @@ namespace InnerLibs.QuestionTest
 
         public static List<QuestionTest> Rank(this List<QuestionTest> Tests)
         {
-            Tests.Sort();
+            if (Tests != null) Tests.Sort();
+            return Tests;
         }
     }
 
