@@ -1,30 +1,28 @@
-﻿using InnerLibs.LINQ;
-using InnerLibs.Locations;
+﻿using InnerLibs.Locations;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 
 namespace InnerLibs
 {
-
-
-
-
     /// <summary>
     /// Módulo para calculos
     /// </summary>
     /// <remarks></remarks>
     public static class MathExt
     {
+        public static string ToDecimalString(this float number, int Decimals = -1, CultureInfo culture = null) => number.ToDecimal().ToDecimalString(Decimals, culture);
 
+        public static string ToDecimalString(this short number, int Decimals = -1, CultureInfo culture = null) => number.ToDecimal().ToDecimalString(Decimals, culture);
 
         public static string ToDecimalString(this double number, int Decimals = -1, CultureInfo culture = null) => number.ToDecimal().ToDecimalString(Decimals, culture);
+
         public static string ToDecimalString(this long number, int Decimals = -1, CultureInfo culture = null) => number.ToDecimal().ToDecimalString(Decimals, culture);
+
         public static string ToDecimalString(this int number, int Decimals = -1, CultureInfo culture = null) => number.ToDecimal().ToDecimalString(Decimals, culture);
+
         public static string ToDecimalString(this decimal number, int Decimals = -1, CultureInfo culture = null)
         {
             culture = culture ?? CultureInfo.CurrentCulture;
@@ -33,6 +31,7 @@ namespace InnerLibs
         }
 
         public static int GetDecimalLen(this decimal number) => BitConverter.GetBytes(decimal.GetBits(number)[3])[2];
+
         public static int GetDecimalLen(this double number) => number.ToDecimal().GetDecimalLen();
 
         /// <summary>
@@ -64,11 +63,8 @@ namespace InnerLibs
                 }
 
                 yield return _n;
-
             }
-
         }
-
 
         /// <summary>
         /// Retorna uma progressão Aritmética com N numeros
@@ -87,7 +83,6 @@ namespace InnerLibs
                 yield return FirstNumber;
                 Length--;
             } while (Length > 0);
-
         }
 
         /// <summary>
@@ -142,12 +137,11 @@ namespace InnerLibs
         /// <returns></returns>
         public static double CalculateCompoundInterest(this double Capital, double Rate, double Time) => Capital * Math.Pow(1 + Rate, Time);
 
-
         /// <inheritdoc cref="CalculateCompoundInterest(double,double,double)" />
         public static decimal CalculateCompoundInterest(this decimal Capital, decimal Rate, decimal Time) => CalculateCompoundInterest((double)Capital, (double)Rate, (double)Time).ToDecimal();
 
         /// <summary>
-        /// Earth's circumference at the equator in km, considering the earth is a globe, not flat 
+        /// Earth's circumference at the equator in km, considering the earth is a globe, not flat
         /// </summary>
         public const double EarthCircumference = 40075d;
 
@@ -175,7 +169,6 @@ namespace InnerLibs
 
                 double angleCalculation = Math.Acos(Math.Sin(latitude2Rad) * Math.Sin(latitude1Rad) + Math.Cos(latitude2Rad) * Math.Cos(latitude1Rad) * Math.Cos(longitudeDiff));
                 distance = EarthCircumference * angleCalculation / (2.0d * Math.PI);
-
             }
             return distance;
         }
@@ -338,7 +331,6 @@ namespace InnerLibs
         /// <returns>Um numero inteiro </returns>
         public static decimal CeilDecimal(this decimal Number) => Number.Ceil().ToDecimal();
 
-
         public static double CeilDouble(this double Number) => Number.Ceil().ToDouble();
 
         /// <summary>
@@ -379,7 +371,6 @@ namespace InnerLibs
             }
             else
             {
-
                 int fact = Number;
                 int counter = Number - 1;
                 while (counter > 0)
@@ -455,16 +446,13 @@ namespace InnerLibs
 
         public static int ForceNegative(this int Value) => Value > 0 ? -Value : Value;
 
-
         public static long ForceNegative(this long Value) => Value > 0L ? -Value : Value;
-
 
         public static double ForceNegative(this double Value) => Value > 0d ? -Value : Value;
 
         public static float ForceNegative(this float Value) => Value > 0f ? -Value : Value;
 
         public static short ForceNegative(this short Value) => (short)(Value > 0 ? -Value : Value);
-
 
         public static decimal ForcePositive(this decimal Value) => Value < 0m ? -Value : Value;
 
@@ -495,7 +483,6 @@ namespace InnerLibs
                 yield return FirstNumber;
                 Length--;
             } while (Length > 0);
-
         }
 
         /// <summary>
@@ -514,7 +501,6 @@ namespace InnerLibs
             }
 
             return $"{Value}".GetFirstChars(Length).ToLong();
-
         }
 
         /// <inheritdoc cref="GetOrdinal(long)"/>
@@ -694,8 +680,8 @@ namespace InnerLibs
         /// <param name="Number">Numero</param>
         /// <returns></returns>
         public static decimal RoundDecimal(this decimal Number, int? Decimals = default) => Decimals.HasValue ? Math.Round(Number, Decimals.Value.ForcePositive()) : Math.Round(Number);
-        public static decimal RoundDecimal(this double Number, int? Decimals = default) => Decimals.HasValue ? Math.Round(Number.ToDecimal(), Decimals.Value.ForcePositive()) : Math.Round(Number.ToDecimal());
 
+        public static decimal RoundDecimal(this double Number, int? Decimals = default) => Decimals.HasValue ? Math.Round(Number.ToDecimal(), Decimals.Value.ForcePositive()) : Math.Round(Number.ToDecimal());
 
         /// <summary>
         /// Arredonda um numero para o valor inteiro mais próximo
@@ -703,6 +689,7 @@ namespace InnerLibs
         /// <param name="Number">Numero</param>
         /// <returns></returns>
         public static double RoundDouble(this double Number, int? Decimals = default) => Decimals.HasValue ? Math.Round(Number, Decimals.Value.ForcePositive()) : Math.Round(Number);
+
         public static double RoundDouble(this decimal Number, int? Decimals = default) => Decimals.HasValue ? Math.Round(Number.ToDouble(), Decimals.Value.ForcePositive()) : Math.Round(Number.ToDouble());
 
         /// <summary>
