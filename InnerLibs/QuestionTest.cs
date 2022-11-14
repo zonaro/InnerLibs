@@ -574,7 +574,7 @@ namespace InnerLibs.QuestionTest
         {
         }
 
-        public string ToHTML()
+        public HtmlTag ToHTML()
         {
             var str = "";
 
