@@ -4490,6 +4490,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string Wrap(this string Text, string OpenWrapText, string CloseWrapText) => $"{OpenWrapText}{Text}{CloseWrapText.IfBlank(OpenWrapText)}";
 
+        public static HtmlTag WrapInTag(this HtmlTag Tag, string TagName) => Tag?.ToString().WrapInTag(TagName) ?? new HtmlTag(TagName);
         public static HtmlTag WrapInTag(this string Text, string TagName) => new HtmlTag() { InnerHtml = Text, TagName = TagName };
     }
 }

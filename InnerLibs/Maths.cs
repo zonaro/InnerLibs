@@ -27,7 +27,8 @@ namespace InnerLibs
         {
             culture = culture ?? CultureInfo.CurrentCulture;
             Decimals = Decimals < 0 ? GetDecimalLength(number) : Decimals;
-            return number.ToString("0".AppendIf("." + "0".Repeat(Decimals), Decimals > 0), culture);
+            Decimals = Decimals < 0 ? culture.NumberFormat.NumberDecimalDigits : Decimals;
+            return number.ToString("0".AppendIf(culture.NumberFormat.NumberDecimalSeparator + "0".Repeat(Decimals), Decimals > 0), culture);
         }
 
         public static int GetDecimalLength(this decimal number) => BitConverter.GetBytes(decimal.GetBits(number)[3])[2];

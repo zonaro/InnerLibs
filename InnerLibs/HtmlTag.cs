@@ -1,13 +1,16 @@
 ﻿using InnerLibs.LINQ;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Drawing;
 using System.Linq;
 using System.Reflection;
 
 namespace InnerLibs
 {
+
+
+
+
     /// <summary>
     /// Classe para criação de strings contendo tags HTML
     /// </summary>
@@ -22,13 +25,13 @@ namespace InnerLibs
 
         public HtmlTag(string TagName, string InnerHtml = Text.Empty)
         {
-            this.TagName = TagName.IfBlank("div");
+            this.TagName = TagName;
             this.InnerHtml = InnerHtml;
         }
 
         public HtmlTag(string TagName, object Attributes, string InnerHtml = Text.Empty)
         {
-            this.TagName = TagName.IfBlank("div");
+            this.TagName = TagName;
             this.InnerHtml = InnerHtml;
 
             foreach (var Attr in Attributes.CreateDictionary())
@@ -53,11 +56,11 @@ namespace InnerLibs
             set => Attributes["class"] = value;
         }
 
-        public string[] ClassList
+        public IEnumerable<string> ClassList
         {
             get => Class.Split(" ");
 
-            set => Class = (value ?? Array.Empty<string>()).SelectJoinString(" ");
+            set => Class = (value ?? Array.Empty<string>().AsEnumerable()).SelectJoinString(" ");
         }
 
         public string InnerHtml
@@ -81,7 +84,13 @@ namespace InnerLibs
 
         public bool SelfCloseTag { get; set; }
 
-        public string TagName { get; set; } = "div";
+        private string _tagname = "div";
+
+        public string TagName
+        {
+            get => _tagname;
+            set => _tagname = value.IfBlank("div");
+        }
 
         public string this[string key]
         {

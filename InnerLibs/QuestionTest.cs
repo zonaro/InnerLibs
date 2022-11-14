@@ -15,7 +15,7 @@ namespace InnerLibs.QuestionTest
     public class Alternative
     {
 
-       
+
 
         internal AlternativeQuestion _question;
 
@@ -189,7 +189,7 @@ namespace InnerLibs.QuestionTest
     public class DissertativeQuestion : Question
     {
 
-        
+
 
         private decimal ass;
 
@@ -469,7 +469,7 @@ namespace InnerLibs.QuestionTest
     public class QuestionTest : ObservableCollection<Question>, IComparable<QuestionTest>, IComparable
     {
 
-       
+
 
         private string _title = Text.Empty;
         private Dictionary<string, object> personalInfo = new Dictionary<string, object>();
@@ -594,18 +594,27 @@ namespace InnerLibs.QuestionTest
 
                 if (quest is DissertativeQuestion diss)
                 {
-
+                    sq.InnerHtml += new HtmlTag("textarea", diss.Answer).SetID(diss.ID).SetAttr("name", diss.ID).SetAttr("rows", $"{diss.Lines}");
                 }
-                else if (quest is MultipleAlternativeQuestion multi)
+                else if (quest is AlternativeQuestion altquest)
                 {
+                    var div = new HtmlTag().AddClass("alt-" + altquest.ID);
+                    foreach (var alt in altquest.Alternatives)
+                    {
+                        if (altquest is MultipleAlternativeQuestion)
+                        {
+                            div.InnerHtml += HtmlTag.CreateInput(alt.Question.ID, alt.ID, "checkbox").SetAttr("checked", $"{alt.Checked}");
+                        }
+                        else
+                        {
+                            div.InnerHtml += HtmlTag.CreateInput(alt.Question.ID, alt.ID, "radio").SetAttr("checked", $"{alt.Checked}");
+                        }
 
-                }
-                else if (quest is SingleAlternativeQuestion single)
-                {
-
+                    }
                 }
                 else if (quest is NumericQuestion num)
                 {
+                    sq.InnerHtml += HtmlTag.CreateInput(num.ID, $"{num.Answer}", "number").SetID(num.ID).SetAttr("min", $"{num.MinValue}").SetAttr("max", $"{num.MaxValue}");
 
                 }
 
@@ -747,7 +756,7 @@ namespace InnerLibs.QuestionTest
         /// Adiciona uma nova questão a avaliação.
         /// </summary>
         public TQuestion CreateQuestion<TQuestion>(string Statement = null) where TQuestion : Question => (TQuestion)CreateQuestion(typeof(TQuestion), Statement);
-        
+
         /// <summary>
         /// Adiciona uma nova questão a avaliação.
         /// </summary>
@@ -1108,7 +1117,7 @@ namespace InnerLibs.QuestionTest
 
     public static class QuestionTestExtensions
     {
-        public static TQuestion SetWheight<TQuestion>(this TQuestion Question, decimal Weight) where TQuestion : Question
+        public static TQuestion SetWeight<TQuestion>(this TQuestion Question, decimal Weight) where TQuestion : Question
         {
             if (Question != null)
             {
@@ -1119,7 +1128,7 @@ namespace InnerLibs.QuestionTest
 
         public static List<QuestionTest> Rank(this List<QuestionTest> Tests)
         {
-            if (Tests != null) Tests.Sort();
+            Tests?.Sort();
             return Tests;
         }
     }
