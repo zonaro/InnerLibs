@@ -2481,7 +2481,7 @@ namespace InnerLibs
         /// <param name="TextLength"></param>
         /// <param name="Ellipsis"></param>
         /// <returns></returns>
-        public static string Slice(this string Text, int TextLength = 0, string Ellipsis = "...", bool BeforeNewLine = false)
+        public static string GetTextPreview(this string Text, int TextLength = 0, string Ellipsis = "...", bool BeforeNewLine = true)
         {
             if (Text.IsBlank() || Text?.Length <= TextLength || TextLength <= 0)
             {
