@@ -188,7 +188,10 @@ namespace InnerLibs.QuestionTest
     /// </summary>
     public class DissertativeQuestion : Question
     {
-
+        internal DissertativeQuestion(QuestionTest Test) : base()
+        {
+            _test = Test;
+        }
 
 
         private decimal ass;
@@ -207,7 +210,6 @@ namespace InnerLibs.QuestionTest
         public decimal Assertiveness
         {
             set => ass = value.LimitRange(0, Weight);
-
             get => ass.LimitRange(0, Weight);
         }
 
@@ -265,7 +267,7 @@ namespace InnerLibs.QuestionTest
         /// <returns></returns>
         public override decimal Hits
         {
-            get => Alternatives.Count(x => x.IsCorrect) * Weight / Alternatives.Count;
+            get => Alternatives.Count > 0 ? Alternatives.Count(x => x.IsCorrect) * Weight / Alternatives.Count : 0;
             set => Debug.WriteLine($"Can't set hits on {nameof(MultipleAlternativeQuestion)}");
         }
 
@@ -282,6 +284,11 @@ namespace InnerLibs.QuestionTest
     /// </summary>
     public class NumericQuestion : Question
     {
+        internal NumericQuestion(QuestionTest Test) : base()
+        {
+            _test = Test;
+        }
+
         private decimal a = 0m;
 
         /// <summary>
@@ -332,7 +339,7 @@ namespace InnerLibs.QuestionTest
     {
         internal QuestionStatement _statement;
 
-        internal QuestionTest _test = new QuestionTest();
+        internal QuestionTest _test;
 
         internal decimal _weight = 1m;
 
@@ -469,7 +476,24 @@ namespace InnerLibs.QuestionTest
     public class QuestionTest : ObservableCollection<Question>, IComparable<QuestionTest>, IComparable
     {
 
+        public QuestionTest Shuffle()
+        {
 
+            for (int i = 0; i < Count; i++)
+            {
+                var num1 = 0;
+                var num2 = 0;
+                while (num1 == num2)
+                {
+                    num1 = Generate.RandomNumber(0, Count - 1);
+                    num2 = Generate.RandomNumber(0, Count - 1);
+                }
+
+                this.Move(num1, num2);
+
+            }
+            return this;
+        }
 
         private string _title = Text.Empty;
         private Dictionary<string, object> personalInfo = new Dictionary<string, object>();
@@ -598,19 +622,24 @@ namespace InnerLibs.QuestionTest
                 }
                 else if (quest is AlternativeQuestion altquest)
                 {
-                    var div = new HtmlTag().AddClass("alt-" + altquest.ID);
+                    var div = new HtmlTag("div").AddClass("alt-" + altquest.ID);
                     foreach (var alt in altquest.Alternatives)
                     {
+                        var lab = new HtmlTag("label").SetAttr("for", alt.ID);
+
                         if (altquest is MultipleAlternativeQuestion)
                         {
-                            div.InnerHtml += HtmlTag.CreateInput(alt.Question.ID, alt.ID, "checkbox").SetAttr("checked", $"{alt.Checked}");
+                            lab.InnerHtml += HtmlTag.CreateInput(alt.Question.ID, alt.ID, "checkbox").SetProp("checked", alt.Checked);
                         }
                         else
                         {
-                            div.InnerHtml += HtmlTag.CreateInput(alt.Question.ID, alt.ID, "radio").SetAttr("checked", $"{alt.Checked}");
+                            lab.InnerHtml += HtmlTag.CreateInput(alt.Question.ID, alt.ID, "radio").SetProp("checked", alt.Checked);
                         }
 
+                        lab.InnerHtml += new HtmlTag("span", alt.Text) + new HtmlTag("br") { SelfCloseTag = true };
+                        div.InnerHtml += lab;
                     }
+                    sq.InnerHtml += div;
                 }
                 else if (quest is NumericQuestion num)
                 {
@@ -618,6 +647,7 @@ namespace InnerLibs.QuestionTest
 
                 }
 
+                list.InnerHtml += sq;
 
             }
 
