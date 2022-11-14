@@ -26,13 +26,13 @@ namespace InnerLibs
         public static string ToDecimalString(this decimal number, int Decimals = -1, CultureInfo culture = null)
         {
             culture = culture ?? CultureInfo.CurrentCulture;
-            Decimals = Decimals < 0 ? GetDecimalLen(number) : Decimals;
+            Decimals = Decimals < 0 ? GetDecimalLength(number) : Decimals;
             return number.ToString("0".AppendIf("." + "0".Repeat(Decimals), Decimals > 0), culture);
         }
 
-        public static int GetDecimalLen(this decimal number) => BitConverter.GetBytes(decimal.GetBits(number)[3])[2];
+        public static int GetDecimalLength(this decimal number) => BitConverter.GetBytes(decimal.GetBits(number)[3])[2];
 
-        public static int GetDecimalLen(this double number) => number.ToDecimal().GetDecimalLen();
+        public static int GetDecimalLength(this double number) => number.ToDecimal().GetDecimalLength();
 
         /// <summary>
         /// The Collatz conjecture is one of the most famous unsolved problems in mathematics. The conjecture asks whether repeating two simple arithmetic operations will eventually transform every positive integer into 1
@@ -229,6 +229,10 @@ namespace InnerLibs
         public static decimal CalculatePercentCompletion<TValue>(this IEnumerable<TValue> Obj, Expression<Func<TValue, bool>> selector)
         {
             var total = Obj.Count();
+            if (selector == null)
+            {
+                selector = x => true;
+            }
             var part = Obj.Count(selector.Compile());
             return CalculatePercent(part.ToDecimal(), total.ToDecimal());
         }
@@ -266,11 +270,11 @@ namespace InnerLibs
         /// <returns></returns>
         public static decimal CalculateSimpleInterest(this decimal Capital, decimal Rate, decimal Time) => Capital * Rate * Time;
 
-        public static decimal CalculateValueFromPercent(this string Percent, decimal Total) => Convert.ToDecimal(Convert.ToDecimal(Percent.ReplaceNone("%")) * Total / 100m);
+        public static decimal CalculateValueFromPercent(this string Percent, decimal Total) => Percent.ReplaceNone("%").ToDecimal().CalculateValueFromPercent(Total);
 
-        public static decimal CalculateValueFromPercent(this int Percent, decimal Total) => Convert.ToDecimal(Convert.ToDecimal(Percent * Total / 100m));
+        public static decimal CalculateValueFromPercent(this int Percent, decimal Total) => Percent.ToDecimal().CalculateValueFromPercent(Total);
 
-        public static decimal CalculateValueFromPercent(this decimal Percent, decimal Total) => Convert.ToDecimal(Convert.ToDecimal(Percent * Total / 100m));
+        public static decimal CalculateValueFromPercent(this decimal Percent, decimal Total) => Percent * Total / 100m;
 
         /// <summary>
         /// Retorna todas as possiveis combinações de Arrays do mesmo tipo (Produto Cartesiano)
@@ -293,6 +297,7 @@ namespace InnerLibs
         public static decimal Ceil(this decimal Number) => Math.Ceiling(Number);
 
         public static double Ceil(this double Number) => Math.Ceiling(Number);
+
 
         /// <summary>
         /// Arredonda um numero para cima. Ex.: 4,5 -&gt; 5
@@ -576,9 +581,9 @@ namespace InnerLibs
             return Start + adjusted;
         }
 
-        public static int LimitIndex<AnyType>(this int Int, IEnumerable<AnyType> Collection) => Int.LimitRange<int>(0, Collection.Count() - 1);
+        public static int LimitIndex<T>(this int Int, IEnumerable<T> Collection) => Int.LimitRange<int>(0, Collection.Count() - 1);
 
-        public static long LimitIndex<AnyType>(this long Lng, IEnumerable<AnyType> Collection) => Lng.LimitRange<long>(0, Collection.LongCount() - 1L);
+        public static long LimitIndex<T>(this long Lng, IEnumerable<T> Collection) => Lng.LimitRange<long>(0, Collection.LongCount() - 1L);
 
         /// <summary>
         /// Limita um range para um numero
