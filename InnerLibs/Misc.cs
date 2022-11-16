@@ -595,6 +595,7 @@ namespace InnerLibs
         /// <param name="FileName"></param>
         /// <returns></returns>
         public static byte[] GetResourceBytes(this Assembly Assembly, string FileName) => Assembly.GetManifestResourceStream(FileName)?.ToBytes() ?? Array.Empty<byte>();
+        public static byte[] GetResourceBytes(string FileName) => GetResourceBytes(Assembly.GetExecutingAssembly(), FileName);
 
         /// <summary>
         /// Pega o texto de um arquivo embutido no assembly
@@ -620,6 +621,9 @@ namespace InnerLibs
 
             return txt;
         }
+
+        public static string GetResourceFileText(string FileName) => GetResourceFileText(Assembly.GetExecutingAssembly(), FileName);
+
 
         /// <summary>
         /// Retorna o <see cref="Type"/> do objeto mesmo se ele for nulo
