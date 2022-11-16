@@ -638,61 +638,65 @@ namespace InnerLibs
         {
             try
             {
-                var multiplicador1 = new int[12] { 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
-                var multiplicador2 = new int[13] { 6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
-                int soma;
-                int resto;
-                string digito;
-                string tempCnpj;
-                Text = Text.Trim();
-                Text = Text.Replace(".", InnerLibs.Text.Empty).Replace("-", InnerLibs.Text.Empty).Replace("/", InnerLibs.Text.Empty);
-                if (Text.Length != 14)
+                if (Text != null && !Text.IsBlank())
                 {
-                    return false;
+                    var multiplicador1 = new int[12] { 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
+                    var multiplicador2 = new int[13] { 6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
+                    int soma;
+                    int resto;
+                    string digito;
+                    string tempCnpj;
+                    Text = Text.Trim();
+                    Text = Text.Replace(".", InnerLibs.Text.Empty).Replace("-", InnerLibs.Text.Empty).Replace("/", InnerLibs.Text.Empty);
+                    if (Text.Length != 14)
+                    {
+                        return false;
+                    }
+
+                    tempCnpj = Text.Substring(0, 12);
+                    soma = 0;
+                    for (int i = 0; i <= 12 - 1; i++)
+                    {
+                        soma += int.Parse(tempCnpj[i].ToString()) * multiplicador1[i];
+                    }
+
+                    resto = soma % 11;
+                    if (resto < 2)
+                    {
+                        resto = 0;
+                    }
+                    else
+                    {
+                        resto = 11 - resto;
+                    }
+
+                    digito = resto.ToString();
+                    tempCnpj += digito;
+                    soma = 0;
+                    for (int i = 0; i <= 13 - 1; i++)
+                    {
+                        soma += int.Parse(tempCnpj[i].ToString()) * multiplicador2[i];
+                    }
+
+                    resto = soma % 11;
+                    if (resto < 2)
+                    {
+                        resto = 0;
+                    }
+                    else
+                    {
+                        resto = 11 - resto;
+                    }
+
+                    digito += resto.ToString();
+                    return Text.EndsWith(digito);
                 }
 
-                tempCnpj = Text.Substring(0, 12);
-                soma = 0;
-                for (int i = 0; i <= 12 - 1; i++)
-                {
-                    soma += int.Parse(tempCnpj[i].ToString()) * multiplicador1[i];
-                }
-
-                resto = soma % 11;
-                if (resto < 2)
-                {
-                    resto = 0;
-                }
-                else
-                {
-                    resto = 11 - resto;
-                }
-
-                digito = resto.ToString();
-                tempCnpj += digito;
-                soma = 0;
-                for (int i = 0; i <= 13 - 1; i++)
-                {
-                    soma += int.Parse(tempCnpj[i].ToString()) * multiplicador2[i];
-                }
-
-                resto = soma % 11;
-                if (resto < 2)
-                {
-                    resto = 0;
-                }
-                else
-                {
-                    resto = 11 - resto;
-                }
-
-                digito += resto.ToString();
-                return Text.EndsWith(digito);
             }
             catch
             {
-                return false;
             }
+            return false;
         }
 
         /// <summary>
