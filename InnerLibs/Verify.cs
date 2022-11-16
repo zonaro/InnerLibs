@@ -638,7 +638,7 @@ namespace InnerLibs
         {
             try
             {
-                if (Text != null && !Text.IsBlank())
+                if (Text.IsNotBlank())
                 {
                     var multiplicador1 = new int[12] { 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
                     var multiplicador2 = new int[13] { 6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
@@ -708,29 +708,33 @@ namespace InnerLibs
         {
             try
             {
-                Text = Text.RemoveAny(".", "-");
-                string digito = InnerLibs.Text.Empty;
-                int k;
-                int j;
-                int soma;
-                for (k = 0; k <= 1; k++)
+                if (Text.IsNotBlank())
                 {
-                    soma = 0;
-                    var loopTo = 9 + (k - 1);
-                    for (j = 0; j <= loopTo; j++)
+
+                    Text = Text.RemoveAny(".", "-");
+                    string digito = InnerLibs.Text.Empty;
+                    int k;
+                    int j;
+                    int soma;
+                    for (k = 0; k <= 1; k++)
                     {
-                        soma += int.Parse(Text[j].ToString()) * (10 + k - j);
+                        soma = 0;
+                        var loopTo = 9 + (k - 1);
+                        for (j = 0; j <= loopTo; j++)
+                        {
+                            soma += int.Parse(Text[j].ToString()) * (10 + k - j);
+                        }
+
+                        digito += (soma % 11 == 0 || soma % 11 == 1 ? 0 : 11 - soma % 11).ToString();
                     }
 
-                    digito += (soma % 11 == 0 || soma % 11 == 1 ? 0 : 11 - soma % 11).ToString();
+                    return digito[0] == Text[9] & digito[1] == Text[10];
                 }
-
-                return digito[0] == Text[9] & digito[1] == Text[10];
             }
             catch
             {
-                return false;
             }
+            return false;
         }
 
         /// <summary>
