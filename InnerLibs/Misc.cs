@@ -427,7 +427,7 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Traz o valor de uma enumeração a partir de uma string
+        /// Traz o valor de uma <see cref="Enum"> do tipo <typeparamref name="T"/> a partir de uma string
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
@@ -437,11 +437,23 @@ namespace InnerLibs
             return Name.IsNotBlank() ? ((T[])Enum.GetValues(typeof(T))).FirstOrDefault(x => x.ToString().Equals(Name, StringComparison.InvariantCultureIgnoreCase) || (Name.IsNumber() && Name.ToInt() == x.ToInt())) : default;
         }
 
-        public static T GetEnumValue<T>(this int Name) => GetEnumValue<T>(Name.ToString());
+        /// <summary>
+        /// Traz o valor de uma <see cref="Enum"> do tipo <typeparamref name="T"/> a partir de um <paramref name="Value"/> inteiro
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T GetEnumValue<T>(this int? Value) => Value.HasValue ? GetEnumValue<T>($"{Value.Value}") : default(T);
 
 
         /// <summary>
-        /// Traz o valor de uma enumeração a partir de uma string
+        /// Traz o valor de uma <see cref="Enum"> do tipo <typeparamref name="T"/> a partir de um <paramref name="Value"/> inteiro
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T GetEnumValue<T>(this int Value) => GetEnumValue<T>($"{Value}");
+
+        /// <summary>
+        /// Traz a string correspondente ao <paramref name="Value"/> de uma <see cref="Enum"/> do tipo <typeparamref name="T"/>
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
@@ -450,6 +462,19 @@ namespace InnerLibs
             if (!typeof(T).IsEnum) throw new Exception("T must be an Enumeration type.");
             return Enum.GetName(typeof(T), Value);
         }
+        /// <summary>
+        /// Traz a string correspondente ao <paramref name="Value"/> de uma <see cref="Enum"/> do tipo <typeparamref name="T"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static string GetEnumValueAsString<T>(this string Value) => Value.GetEnumValue<T>().GetEnumValueAsString<T>();
+        /// <summary>
+        /// Traz a string correspondente ao <paramref name="Value"/> de uma <see cref="Enum"/> do tipo <typeparamref name="T"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static string GetEnumValueAsString<T>(this int Value) => Value.GetEnumValue<T>().GetEnumValueAsString<T>();
+
 
         /// <summary>
         /// Traz todos os Valores de uma enumeração
@@ -524,7 +549,7 @@ namespace InnerLibs
         public static PropertyInfo GetProperty<T>(this T MyObject, string Name) => MyObject.GetTypeOf().GetProperties().SingleOrDefault(x => (x.Name ?? InnerLibs.Text.Empty) == (Name ?? InnerLibs.Text.Empty));
 
         /// <summary>
-        /// Retorna uma HashTable das propriedades de um objeto
+        /// Retorna uma <see cref="Hashtable" /> das propriedades de um objeto
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="properties"></param>
@@ -550,7 +575,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="MyObject">Objeto</param>
         /// <returns></returns>
-        public static T GetPropertyValue<T, O>(this O MyObject, string Name)
+        public static T GetPropertyValue<T, O>(this O MyObject, string Name) where O : class
         {
             if (MyObject != null)
             {

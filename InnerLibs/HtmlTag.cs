@@ -72,7 +72,7 @@ namespace InnerLibs
                 {
                     SelfCloseTag = false;
                 }
-                _innerHtml = value;
+                _innerHtml = value ?? "";
             }
         }
 
