@@ -218,10 +218,9 @@ namespace InnerLibs
         /// <returns>Um Bitmap com a combinaçao de todas as imagens do Array</returns>
         public static Bitmap CombineImages(this IEnumerable<Image> Images, bool VerticalFlow = false)
         {
-            Bitmap imagemFinal = null;
             int width = 0;
             int height = 0;
-            foreach (Image image in Images)
+            foreach (var image in Images ?? Array.Empty<Image>())
             {
                 // cria um bitmap a partir do arquivo e o inclui na lista
                 var bitmap = new Bitmap(image);
@@ -237,10 +236,11 @@ namespace InnerLibs
                     width += bitmap.Width;
                     height = bitmap.Height > height ? bitmap.Height : height;
                 }
+                bitmap.Dispose();
             }
 
             // cria um bitmap para tratar a imagem combinada
-            imagemFinal = new Bitmap(width, height);
+            Bitmap imagemFinal = new Bitmap(width, height);
 
             // Obtem o objeto gráfico da imagem
             using (var g = Graphics.FromImage(imagemFinal))

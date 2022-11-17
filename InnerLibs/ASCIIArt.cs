@@ -6,7 +6,7 @@ namespace InnerLibs
 {
     public static class AsciiArt
     {
-        private static string[] asciiChars = new[] { "#", "#", "@", "%", "=", "+", "*", ":", "-", ".", " " };
+        private static readonly string[] asciiChars = new[] { "#", "#", "@", "%", "=", "+", "*", ":", "-", ".", " " };
 
         public static string ToAsciiArt(this Bitmap image, int ratio)
         {

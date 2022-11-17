@@ -57,7 +57,7 @@ namespace InnerLibs
     /// </summary>
     public class HSVColor : IComparable<int>, IComparable<HSVColor>, IComparable<Color>, IComparable, ICloneable
     {
-        private static List<HSVColor> staticNamedColors = new List<HSVColor>();
+        private static readonly List<HSVColor> staticNamedColors = new List<HSVColor>();
         private double _h, _s, _v;
         private string _name;
         private Color _scolor;

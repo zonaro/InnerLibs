@@ -8,16 +8,16 @@ namespace InnerLibs
     /// <summary>
     /// Uma estrutura <see cref="IDictionary"/> que utiliza como Key uma propriedade de Value
     /// </summary>
-    /// <typeparam name="KeyType">Tipo da Key</typeparam>
-    /// <typeparam name="ClassType">Tipo da</typeparam>
-    public class SelfKeyDictionary<KeyType, ClassType> : IDictionary<KeyType, ClassType>, IDictionary
-        where KeyType : IComparable
-        where ClassType : class
+    /// <typeparam name="TK">Tipo da Key</typeparam>
+    /// <typeparam name="TClass">Tipo da</typeparam>
+    public class SelfKeyDictionary<TK, TClass> : IDictionary<TK, TClass>, IDictionary
+        where TK : IComparable
+        where TClass : class
     {
-        private List<ClassType> collection = new List<ClassType>();
-        private Func<ClassType, KeyType> keyselector;
+        private List<TClass> collection = new List<TClass>();
+        private Func<TClass, TK> keyselector;
 
-        public void Add(KeyType key, ClassType value)
+        public void Add(TK key, TClass value)
         {
             if (value != null)
             {
@@ -28,12 +28,7 @@ namespace InnerLibs
             }
         }
 
-
-
-
-        private IEnumerator IEnumerable_GetEnumerator() => ((IEnumerable)this).GetEnumerator();
-
-        public SelfKeyDictionary(Func<ClassType, KeyType> KeySelector)
+        public SelfKeyDictionary(Func<TClass, TK> KeySelector)
         {
             if (KeySelector != null)
             {
@@ -49,9 +44,9 @@ namespace InnerLibs
 
         public bool IsReadOnly => false;
 
-        public ICollection<KeyType> Keys => collection?.Select(x => keyselector(x)).ToArray();
+        public ICollection<TK> Keys => collection?.Select(x => keyselector(x)).ToArray();
 
-        public ICollection<ClassType> Values => collection;
+        public ICollection<TClass> Values => collection;
 
         ICollection IDictionary.Keys => (ICollection)Keys;
 
@@ -63,9 +58,9 @@ namespace InnerLibs
 
         public bool IsSynchronized => true;
 
-        public object this[object key] { get => this[((KeyType)key)]; set => this[((KeyType)key)] = (ClassType)value; }
+        public object this[object key] { get => this[((TK)key)]; set => this[((TK)key)] = (TClass)value; }
 
-        public ClassType this[KeyType key]
+        public TClass this[TK key]
         {
             get => collection.Where(x => keyselector(x).Equals(key)).SingleOrDefault();
 
@@ -84,7 +79,7 @@ namespace InnerLibs
             }
         }
 
-        public KeyType Add(ClassType Value)
+        public TK Add(TClass Value)
         {
             if (Value != null)
             {
@@ -95,11 +90,11 @@ namespace InnerLibs
             return default;
         }
 
-        public IEnumerable<KeyType> AddRange(params ClassType[] Values) => AddRange((Values ?? Array.Empty<ClassType>()).AsEnumerable());
+        public IEnumerable<TK> AddRange(params TClass[] Values) => AddRange((Values ?? Array.Empty<TClass>()).AsEnumerable());
 
-        public IEnumerable<KeyType> AddRange(IEnumerable<ClassType> Values)
+        public IEnumerable<TK> AddRange(IEnumerable<TClass> Values)
         {
-            Values = (Values ?? Array.Empty<ClassType>()).Where(x => x != null).AsEnumerable();
+            Values = (Values ?? Array.Empty<TClass>()).Where(x => x != null).AsEnumerable();
             foreach (var value in Values)
             {
                 Add(value);
@@ -110,15 +105,15 @@ namespace InnerLibs
 
         public void Clear() => collection.Clear();
 
-        public bool Contains(KeyValuePair<KeyType, ClassType> item) => collection.Any(x => keyselector(x).Equals(item.Key));
+        public bool Contains(KeyValuePair<TK, TClass> item) => collection.Any(x => keyselector(x).Equals(item.Key));
 
-        public bool ContainsKey(KeyType key) => Keys.Contains(key);
+        public bool ContainsKey(TK key) => Keys.Contains(key);
 
-        public void CopyTo(KeyValuePair<KeyType, ClassType>[] array, int arrayIndex) => collection.Select(x => new KeyValuePair<KeyType, ClassType>(keyselector(x), x)).ToArray().CopyTo(array, arrayIndex);
+        public void CopyTo(KeyValuePair<TK, TClass>[] array, int arrayIndex) => collection.Select(x => new KeyValuePair<TK, TClass>(keyselector(x), x)).ToArray().CopyTo(array, arrayIndex);
 
-        public IEnumerator<KeyValuePair<KeyType, ClassType>> GetEnumerator() => collection.Select(x => new KeyValuePair<KeyType, ClassType>(keyselector(x), x)).GetEnumerator();
+        public IEnumerator<KeyValuePair<TK, TClass>> GetEnumerator() => collection.Select(x => new KeyValuePair<TK, TClass>(keyselector(x), x)).GetEnumerator();
 
-        public bool Remove(KeyType key)
+        public bool Remove(TK key)
         {
             if (ContainsKey(key))
             {
@@ -141,11 +136,11 @@ namespace InnerLibs
 
         }
 
-        public bool Remove(ClassType Value) => Remove(keyselector(Value));
+        public bool Remove(TClass Value) => Remove(keyselector(Value));
 
-        public bool Remove(KeyValuePair<KeyType, ClassType> item) => collection.Remove(item.Value);
+        public bool Remove(KeyValuePair<TK, TClass> item) => collection.Remove(item.Value);
 
-        public bool TryGetValue(KeyType key, out ClassType value)
+        public bool TryGetValue(TK key, out TClass value)
         {
 
             try
@@ -160,17 +155,17 @@ namespace InnerLibs
             }
         }
 
-        void ICollection<KeyValuePair<KeyType, ClassType>>.Add(KeyValuePair<KeyType, ClassType> item) => collection.Add(item.Value);
+        void ICollection<KeyValuePair<TK, TClass>>.Add(KeyValuePair<TK, TClass> item) => collection.Add(item.Value);
 
-        void IDictionary<KeyType, ClassType>.Add(KeyType key, ClassType value) => Add(key, value);
+        void IDictionary<TK, TClass>.Add(TK key, TClass value) => Add(key, value);
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public bool Contains(object key) => key != null && key is KeyType ckey && ContainsKey(ckey);
+        public bool Contains(object key) => key != null && key is TK ckey && ContainsKey(ckey);
 
         public void Add(object key, object value)
         {
-            if (key is KeyType && value is ClassType cvalue)
+            if (key is TK && value is TClass cvalue)
             {
                 collection.Add(cvalue);
             }
@@ -183,7 +178,7 @@ namespace InnerLibs
 
         public void Remove(object key)
         {
-            if (key is KeyType ckey)
+            if (key is TK ckey)
             {
                 collection.Remove(this[ckey]);
             }
@@ -196,11 +191,11 @@ namespace InnerLibs
                 throw new ArgumentNullException("array");
             }
 
-            ClassType[] ppArray = array as ClassType[];
+            TClass[] ppArray = array as TClass[];
             if (ppArray == null)
             {
                 throw new ArgumentException();
-            } ((ICollection<ClassType>)this).CopyTo(ppArray, index);
+            } ((ICollection<TClass>)this).CopyTo(ppArray, index);
         }
     }
 }
