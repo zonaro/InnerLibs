@@ -680,14 +680,15 @@ namespace InnerLibs.MicroORM
             return Command;
         }
 
+        public static DataSet ToDataSet(this DbDataReader reader) => ToDataSet(reader, null);
         public static DataSet ToDataSet(this DbDataReader reader, string DataSetName, params string[] TableNames)
         {
-            DataSet ds = new DataSet(DataSetName);
+            DataSet ds = new DataSet(DataSetName.IfBlank("DataSet"));
             TableNames = TableNames ?? Array.Empty<string>();
             var i = 0;
             while (reader != null && !reader.IsClosed)
             {
-                ds.Tables.Add(TableNames.IfBlankOrNoIndex(i, $"{i}")).Load(reader);
+                ds.Tables.Add(TableNames.IfBlankOrNoIndex(i, $"Table{i}")).Load(reader);
                 i++;
             }
             return ds;
