@@ -418,10 +418,7 @@ namespace InnerLibs
                 {
                     return ValueSelector.Compile()(att);
                 }
-                catch (Exception)
-                {
-                    return default;
-                }
+                catch{}
             }
             return default;
         }
