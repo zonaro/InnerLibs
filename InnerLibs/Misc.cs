@@ -434,7 +434,7 @@ namespace InnerLibs
         public static T GetEnumValue<T>(this string Name)
         {
             if (!typeof(T).IsEnum) throw new ArgumentException("T must be an Enumeration type.");
-            return Name.IsNotBlank() ? ((T[])Enum.GetValues(typeof(T))).FirstOrDefault(x => x.ToString().Equals(Name, StringComparison.InvariantCultureIgnoreCase) || (Name.IsNumber() && Name.ToInt() == x.ToInt())) : default;
+            return Name.IsNotBlank() ? ((T[])Enum.GetValues(typeof(T))).FirstOrDefault(x => x.ToString().RemoveAccents().Equals(Name.RemoveAccents(), StringComparison.InvariantCultureIgnoreCase) || (Name.IsNumber() && Name.ToInt() == x.ToInt())) : default;
         }
 
         /// <summary>
