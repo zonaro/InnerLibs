@@ -41,7 +41,7 @@ namespace InnerLibs.LINQ
 
 
 
-        public static IEnumerable<(T,T)> PairUp<T>(this IEnumerable<T> source)
+        public static IEnumerable<(T, T)> PairUp<T>(this IEnumerable<T> source)
         {
             if (source != null)
                 using (var iterator = source.GetEnumerator())
@@ -344,10 +344,9 @@ namespace InnerLibs.LINQ
 
         public static FieldInfo GetFieldInfo<TSource, TProperty>(this Expression<Func<TSource, TProperty>> propertyLambda)
         {
-            var propInfo = GetMemberInfo(propertyLambda) as FieldInfo;
-            if (propInfo is null)
+            if (!(GetMemberInfo(propertyLambda) is FieldInfo propInfo))
             {
-                throw new ArgumentException(string.Format("Expression '{0}' refers to a property, not a field.", propertyLambda.ToString()));
+                throw new ArgumentException($"Expression '{propertyLambda}' refers to a property, not a field.");
             }
 
             return propInfo;
@@ -355,20 +354,19 @@ namespace InnerLibs.LINQ
 
         public static MemberInfo GetMemberInfo<TSource, TProperty>(this Expression<Func<TSource, TProperty>> propertyLambda)
         {
-            var type = typeof(TSource);
             MemberExpression member;
-            if (propertyLambda.Body is UnaryExpression)
+            switch (propertyLambda.Body)
             {
-                UnaryExpression unaryExpression = (UnaryExpression)(propertyLambda.Body);
-                member = (MemberExpression)(unaryExpression.Operand);
-            }
-            else
-            {
-                member = propertyLambda.Body as MemberExpression;
+                case UnaryExpression unaryExpression:
+                    member = (MemberExpression)unaryExpression.Operand;
+                    break;
+                default:
+                    member = propertyLambda.Body as MemberExpression;
+                    break;
             }
             if (member is null)
             {
-                throw new ArgumentException(string.Format("Expression '{0}' refers to a method, not a property.", propertyLambda.ToString()));
+                throw new ArgumentException($"Expression '{propertyLambda}' refers to a method, not a property.");
             }
 
             return member.Member;
@@ -403,18 +401,23 @@ namespace InnerLibs.LINQ
                     {
                         foreach (var item in PropertyValues)
                         {
-                            var exp = Expression.Equal(Member, Expression.Constant(InnerLibs.Text.Empty, Member.Type));
-                            if (body == null)
+                            var exp = Expression.Equal(Member, Expression.Constant(Text.Empty, Member?.Type));
+                            switch (body)
                             {
-                                body = exp;
-                            }
-                            else if (Conditional == FilterConditional.And)
-                            {
-                                body = Expression.AndAlso(body, exp);
-                            }
-                            else
-                            {
-                                body = Expression.OrElse(body, exp);
+                                case null:
+                                    body = exp;
+                                    break;
+                                default:
+                                    if (Conditional == FilterConditional.And)
+                                    {
+                                        body = Expression.AndAlso(body, exp);
+                                    }
+                                    else
+                                    {
+                                        body = Expression.OrElse(body, exp);
+                                    }
+
+                                    break;
                             }
 
                             if (comparewith == false)
