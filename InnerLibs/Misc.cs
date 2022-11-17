@@ -459,7 +459,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string GetEnumValueAsString<T>(this T Value)
         {
-            if (!typeof(T).IsEnum) throw new Exception("T must be an Enumeration type.");
+            if (!typeof(T).IsEnum) throw new ArgumentException("T must be an Enumeration type.",nameof(T));
             return Enum.GetName(typeof(T), Value);
         }
         /// <summary>
