@@ -689,7 +689,8 @@ namespace InnerLibs.MicroORM
             return ds;
         }
 
-        public static T MapFirst<T>(this DataTable Data, params object[] args) where T : class => Data.Map<T>(args).FirstOrDefault();
+        public static T MapFirst<T>(this DataSet Data, params object[] args) where T : class => Data.GetFirstRow().Map<T>(args);
+        public static T MapFirst<T>(this DataTable Data, params object[] args) where T : class => Data.GetFirstRow().Map<T>(args);
         public static T Map<T>(this DataRow Row, params object[] args) where T : class
         {
 
