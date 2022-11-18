@@ -110,7 +110,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="attachment"></param>
         /// <returns></returns>
-        public static byte[] ToBytes(this System.Net.Mail.Attachment attachment) => attachment?.ContentStream.ToBytes() ?? Array.Empty<;
+        public static byte[] ToBytes(this System.Net.Mail.Attachment attachment) => attachment?.ContentStream.ToBytes() ?? Array.Empty<byte>();
 
         /// <summary>
         /// Converte um stream em Bytes
