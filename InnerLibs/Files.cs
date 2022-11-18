@@ -110,7 +110,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="attachment"></param>
         /// <returns></returns>
-        public static byte[] ToBytes(this System.Net.Mail.Attachment attachment) => attachment.ContentStream.ToBytes();
+        public static byte[] ToBytes(this System.Net.Mail.Attachment attachment) => attachment?.ContentStream.ToBytes() ?? Array.Empty<;
 
         /// <summary>
         /// Converte um stream em Bytes
@@ -140,14 +140,17 @@ namespace InnerLibs
         /// <returns></returns>
         public static byte[] ToBytes(this FileInfo File)
         {
-            var fInfo = new FileInfo(File.FullName);
-            using (var fStream = new FileStream(File.FullName, FileMode.Open, FileAccess.Read))
-            {
-                using (var br = new BinaryReader(fStream))
+            if (File != null)
+            {               
+                using (var fStream = new FileStream(File.FullName, FileMode.Open, FileAccess.Read))
                 {
-                    return br.ReadBytes((int)fInfo.Length);
+                    using (var br = new BinaryReader(fStream))
+                    {
+                        return br.ReadBytes((int)File.Length);
+                    }
                 }
             }
+            return Array.Empty<byte>();
         }
 
         /// <summary>
@@ -232,5 +235,7 @@ namespace InnerLibs
         /// <param name="File">Arquivo</param>
         /// <returns>Um Fileinfo contendo as informações do arquivo criado</returns>
         public static FileInfo WriteToFile(this string Text, FileInfo File, bool Append = false, Encoding Enconding = null, DateTime? DateAndTime = null) => Text.WriteToFile(File.FullName, Append, Enconding, DateAndTime);
+        public static FileInfo WriteToFile(this string Text, DirectoryInfo Directory, string FileName, bool Append = false, Encoding Enconding = null, DateTime? DateAndTime = null) => Text.WriteToFile(Path.Combine(Directory?.FullName, Path.GetFileName(FileName)), Append, Enconding, DateAndTime);
+        public static FileInfo WriteToFile(this string Text, DirectoryInfo Directory, string SubDirecotry, string FileName, bool Append = false, Encoding Enconding = null, DateTime? DateAndTime = null) => Text.WriteToFile(Path.Combine(Directory?.FullName, SubDirecotry, Path.GetFileName(FileName)), Append, Enconding, DateAndTime);
     }
 }
