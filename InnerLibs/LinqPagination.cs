@@ -40,6 +40,32 @@ namespace InnerLibs.LINQ
         private static readonly MethodInfo startsWithMethod = typeof(string).GetMethod("StartsWith", new[] { typeof(string) });
 
 
+        /// <summary>
+        /// Rankeia um <see cref="IEnumerable{TObject}"/> a partir de uma propriedade definida por <paramref name="ValueSelector"/> guardando sua posição no <paramref name="RankSelector"/> 
+        /// </summary>
+        /// <typeparam name="TObject"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        /// <typeparam name="TRank"></typeparam>
+        /// <param name="values"></param>
+        /// <param name="ValueSelector"></param>
+        /// <param name="RankSelector"></param>
+        /// <returns></returns>
+        public static IOrderedEnumerable<TObject> Rank<TObject, TValue, TRank>(this IEnumerable<TObject> values, Expression<Func<TObject, TValue>> ValueSelector, Expression<Func<TObject, TRank>> RankSelector) where TObject : class where TValue : IComparable where TRank : IComparable
+        {
+            if (values != null && ValueSelector != null && RankSelector != null)
+            {
+                var filtered = values.OrderByDescending(ValueSelector.Compile()).Select(ValueSelector.Compile()).Distinct().ToList();
+
+                foreach (TObject item in values)
+                {
+                    item.SetPropertyValue(RankSelector, (filtered.IndexOf((ValueSelector.Compile().Invoke(item))) + 1).ChangeType<TRank>());
+                }
+                return values.OrderBy(RankSelector.Compile());
+            }
+
+            return values.OrderBy(x => true);
+        }
+
 
         public static IEnumerable<(T, T)> PairUp<T>(this IEnumerable<T> source)
         {
