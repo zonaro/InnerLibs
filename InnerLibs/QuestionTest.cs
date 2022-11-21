@@ -608,7 +608,7 @@ namespace InnerLibs.QuestionTest
                     var imgpart = "";
                     foreach (var i in quest.Statement.Images)
                     {
-                        var img = HtmlTag.CreateImage(i.Image).SetAttr("alt", i.Subtitle).SetID(i.ID).AddClass($"img-{i.Number}");
+                        var img = HtmlTag.CreateImage(i.Image).SetAttribute("alt", i.Subtitle).SetID(i.ID).AddClass($"img-{i.Number}");
                         var caption = new HtmlTag("figcaption", $"{i.Number} - {i.Subtitle}").AddClass($"cap-{i.Number}");
                         imgpart += new HtmlTag("figure", img + caption);
                     }
@@ -618,14 +618,14 @@ namespace InnerLibs.QuestionTest
 
                 if (quest is DissertativeQuestion diss)
                 {
-                    sq.InnerHtml += new HtmlTag("textarea", diss.Answer).SetID(diss.ID).SetAttr("name", diss.ID).SetAttr("rows", $"{diss.Lines}");
+                    sq.InnerHtml += new HtmlTag("textarea", diss.Answer).SetID(diss.ID).SetAttribute("name", diss.ID).SetAttribute("rows", $"{diss.Lines}");
                 }
                 else if (quest is AlternativeQuestion altquest)
                 {
                     var div = new HtmlTag("div").AddClass("alt-" + altquest.ID);
                     foreach (var alt in altquest.Alternatives)
                     {
-                        var lab = new HtmlTag("label").SetAttr("for", alt.ID);
+                        var lab = new HtmlTag("label").SetAttribute("for", alt.ID);
 
                         if (altquest is MultipleAlternativeQuestion)
                         {
@@ -636,14 +636,14 @@ namespace InnerLibs.QuestionTest
                             lab.InnerHtml += HtmlTag.CreateInput(alt.Question.ID, alt.ID, "radio").SetProp("checked", alt.Checked);
                         }
 
-                        lab.InnerHtml += new HtmlTag("span", alt.Text) + new HtmlTag("br") { SelfCloseTag = true };
+                        lab.InnerHtml += new HtmlTag("span", alt.Text) + new HtmlTag("br") { SelfClosing = true };
                         div.InnerHtml += lab;
                     }
                     sq.InnerHtml += div;
                 }
                 else if (quest is NumericQuestion num)
                 {
-                    sq.InnerHtml += HtmlTag.CreateInput(num.ID, $"{num.Answer}", "number").SetID(num.ID).SetAttr("min", $"{num.MinValue}").SetAttr("max", $"{num.MaxValue}");
+                    sq.InnerHtml += HtmlTag.CreateInput(num.ID, $"{num.Answer}", "number").SetID(num.ID).SetAttribute("min", $"{num.MinValue}").SetAttribute("max", $"{num.MaxValue}");
 
                 }
 

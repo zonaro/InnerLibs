@@ -21,6 +21,7 @@ namespace InnerLibs
     public static class Text
     {
         public const string DoubleQuoteChar = "\"";
+        public const string SingleQuoteChar = "\'";
         public const string Empty = "";
 
         public static bool HasLength(this string Text, int Length) => Text != null && Text.Length == Length;
@@ -464,7 +465,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text">Texto a ser tratado</param>
         /// <returns>String pronta para a query</returns>
-        public static string EscapeQuotesToQuery(this string Text, bool AlsoQuoteText = false) => Text.Replace("'", "''").QuoteIf(AlsoQuoteText, '\'');
+        public static string EscapeQuotesToQuery(this string Text, bool AlsoQuoteText = false) => Text.Replace(InnerLibs.Text.SingleQuoteChar, "''").QuoteIf(AlsoQuoteText, '\'');
 
         /// <summary>
         /// Extrai emails de uma string
@@ -968,7 +969,7 @@ namespace InnerLibs
             switch (Text.GetFirstChars() ?? InnerLibs.Text.Empty)
             {
                 case DoubleQuoteChar: return DoubleQuoteChar;
-                case "'": return "'";
+                case InnerLibs.Text.SingleQuoteChar: return InnerLibs.Text.SingleQuoteChar;
                 case "(": return ")";
                 case ")": return "(";
                 case "[": return "]";
@@ -4490,6 +4491,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string Wrap(this string Text, string OpenWrapText, string CloseWrapText) => $"{OpenWrapText}{Text}{CloseWrapText.IfBlank(OpenWrapText)}";
 
+        public static HtmlTag WrapInTag(this IEnumerable<HtmlTag> Tags, string TagName) => new HtmlTag(TagName, Tags?.SelectJoinString(x => x.ToString()));
         public static HtmlTag WrapInTag(this HtmlTag Tag, string TagName) => Tag?.ToString().WrapInTag(TagName) ?? new HtmlTag(TagName);
         public static HtmlTag WrapInTag(this string Text, string TagName) => new HtmlTag() { InnerHtml = Text, TagName = TagName };
     }

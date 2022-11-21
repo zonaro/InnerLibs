@@ -7,29 +7,30 @@ using System.Reflection;
 
 namespace InnerLibs
 {
-
-
-
-
-    /// <summary>
-    /// Classe para criação de strings contendo tags HTML
-    /// </summary>
     public class HtmlTag
     {
-        private string _innerHtml;
+        private List<HtmlTag> _children = new List<HtmlTag>();
+        private string _tagname = "div";
         private Dictionary<string, string> attrs = new Dictionary<string, string>();
+        private string _content;
 
-        public HtmlTag()
+        public HtmlTag() : base()
         {
+            this.Type = HtmlNodeType.Element;
         }
 
-        public HtmlTag(string TagName, string InnerHtml = Text.Empty)
+        public HtmlTag(HtmlNodeType type)
+        {
+            this.Type = type;
+        }
+
+        public HtmlTag(string TagName, string InnerHtml = Text.Empty) : this()
         {
             this.TagName = TagName;
             this.InnerHtml = InnerHtml;
         }
 
-        public HtmlTag(string TagName, object Attributes, string InnerHtml = Text.Empty)
+        public HtmlTag(string TagName, object Attributes, string InnerHtml = Text.Empty) : this()
         {
             this.TagName = TagName;
             this.InnerHtml = InnerHtml;
@@ -49,6 +50,16 @@ namespace InnerLibs
             }
         }
 
+        public IEnumerable<HtmlTag> Children
+        {
+            get
+            {
+                _children = _children ?? new List<HtmlTag>();
+                return _children;
+            }
+        }
+
+
         public string Class
         {
             get => Attributes.GetValueOr("class", Text.Empty);
@@ -63,57 +74,165 @@ namespace InnerLibs
             set => Class = (value ?? Array.Empty<string>().AsEnumerable()).SelectJoinString(" ");
         }
 
+        public string Content
+        {
+            get
+            {
+                switch (this.Type)
+                {
+                    case HtmlNodeType.Element:
+                        return InnerText;
+                    case HtmlNodeType.Text:
+                        return _content;
+
+                    case HtmlNodeType.Comment:
+                        return $"<!-- {_content} -->";
+                    default:
+                        return "";
+                }
+            }
+
+
+            set
+            {
+                switch (this.Type)
+                {
+                    case HtmlNodeType.Element:
+                        InnerHtml = value;
+                        break;
+                    case HtmlNodeType.Comment:
+                    case HtmlNodeType.Text:
+                        _content = value;
+                        break;
+                    default:
+                        break;
+                }
+
+            }
+        }
+        public string ID { get => GetAttribute("id").IfBlank(GetAttribute("ID")); set => SetAttribute("id", value, true); }
+
         public string InnerHtml
         {
-            get => _innerHtml ?? "";
+            get
+            {
+                switch (this.Type)
+                {
+                    case HtmlNodeType.Element:
+                        return Children.SelectJoinString(x => x.OuterHtml) ?? "";
+
+                    case HtmlNodeType.Text:
+                    case HtmlNodeType.Comment:
+                        return Content;
+                    default:
+                        return "";
+                }
+            }
+
             set
             {
                 if (value.IsNotBlank())
                 {
-                    SelfCloseTag = false;
+                    SelfClosing = false;
                 }
-                _innerHtml = value ?? "";
+
+                this.ClearChildren();
+
+                if (value.IsNotBlank())
+                    this.AddChildren(Parse(value));
             }
         }
 
         public string InnerText
         {
-            get => InnerHtml.RemoveHTML();
-            set => InnerHtml = value.RemoveHTML();
+            get => this.Type == HtmlNodeType.Element ? Children.Traverse(x => x.Children).Where(x => x.Type == HtmlNodeType.Text).SelectJoinString() : _content;
+            set
+            {
+                ClearChildren();
+                if (value.IsNotBlank())
+                    this.AddChildren(new HtmlTag(HtmlNodeType.Text) { Content = value });
+            }
         }
 
-        public bool SelfCloseTag { get; set; }
+        public string OuterHtml
+        {
+            get
+            {
+                switch (this.Type)
+                {
+                    case HtmlNodeType.Element:
+                        return $"<{TagName.IfBlank("div")}{Attributes.SelectJoinString(x => x.Key == x.Value ? x.Key : $"{x.Key}={x.Value.Wrap()}", " ").PrependIf(" ", b => b.IsNotBlank())}" + (SelfClosing ? " />" : $">{InnerHtml}</{TagName.IfBlank("div")}>");
 
-        private string _tagname = "div";
+                    case HtmlNodeType.Text:
+                        return Content;
+
+                    case HtmlNodeType.Comment:
+                        return $"<!-- {Content} -->";
+
+                    default:
+                        return "";
+                }
+            }
+            set
+            {
+                if (value.IsNotBlank())
+                {
+                    var list = Parse(value);
+
+                    if (list.Count() == 1)
+                    {
+                        var l = list.FirstOrDefault();
+                        if (l != null)
+                        {
+                            this.TagName = l.TagName;
+                            this.Attributes.Clear();
+                            this.AddAttributes(l.Attributes);
+                            ClearChildren();
+                            this.AddChildren(l._children);
+                        }
+                    }
+                    else
+                    {
+                        ClearChildren();
+                        this.AddChildren(list);
+                    }
+                }
+            }
+        }
+
+        public bool SelfClosing { get; set; }
 
         public string TagName
         {
-            get => _tagname;
+            get => this.Type == HtmlNodeType.Element ? _tagname : "";
             set => _tagname = value.IfBlank("div");
         }
 
-        public string this[string key]
+        public HtmlNodeType Type { get; private set; }
+
+
+        public HtmlTag this[string ID]
         {
-            get => Attributes.GetValueOr(key, Text.Empty);
-            set => Attributes.Set(key, value);
+            get => Children.FirstOrDefault(x => x.ID == ID);
+            set
+            {
+                if (value != null) AddChildren(value.SetID(ID));
+            }
         }
 
-        public string GetAttr(string key) => this[key];
-
-
-        public static HtmlTag CreateAnchor(string URL, string Text, string Target = "_self", object htmlAttributes = null) => new HtmlTag("a", htmlAttributes, Text).SetAttr("href", URL, true).SetAttr("target", Target, true);
+        public static HtmlTag CreateAnchor(string URL, string Text, string Target = "_self", object htmlAttributes = null) => new HtmlTag("a", htmlAttributes, Text).SetAttribute("href", URL, true).SetAttribute("target", Target, true);
 
         public static HtmlTag CreateImage(Image Img, object htmlAttributes = null) => CreateImage(Img?.ToDataURL(), htmlAttributes);
-        public static HtmlTag CreateImage(string URL, object htmlAttributes = null) => new HtmlTag("img", htmlAttributes, null) { SelfCloseTag = true }
-        .SetAttr("src", URL, true);
 
-        public static HtmlTag CreateInput(string Name, string Value = null, string Type = "text", object htmlAttributes = null) => new HtmlTag("input", htmlAttributes, null) { SelfCloseTag = true }
-                .SetAttr("name", Name, true)
-                .SetAttr("value", Value, true)
-                .SetAttr("type", Type.IfBlank("text"), true);
+        public static HtmlTag CreateImage(string URL, object htmlAttributes = null) => new HtmlTag("img", htmlAttributes, null) { SelfClosing = true }
+               .SetAttribute("src", URL, true);
 
+        public static HtmlTag CreateInput(string Name, string Value = null, string Type = "text", object htmlAttributes = null) => new HtmlTag("input", htmlAttributes, null) { SelfClosing = true }
+                      .SetAttribute("name", Name, true)
+                      .SetAttribute("value", Value, true)
+                      .SetAttribute("type", Type.IfBlank("text"), true);
 
-        public static HtmlTag CreateOption(string Name, string Value = null, bool Selected = false) => new HtmlTag("option", null, Name.RemoveHTML()).SetAttr("value", Value).SetProp("selected", Selected);
+        public static HtmlTag CreateOption(string Name, string Value = null, bool Selected = false) => new HtmlTag("option", null, Name.RemoveHTML()).SetAttribute("value", Value).SetProp("selected", Selected);
 
         public static HtmlTag CreateTable(string[,] Table, bool Header = false)
         {
@@ -151,13 +270,12 @@ namespace InnerLibs
                 catch
                 {
                 }
-
             }
             return CreateTable(Rows, h, IDProperty, Properties);
         }
 
-
         public static HtmlTag CreateTable<TPoco>(IEnumerable<TPoco> Rows) where TPoco : class => CreateTable(Rows, false, null, null);
+
         public static HtmlTag CreateTable<TPoco>(IEnumerable<TPoco> Rows, TPoco header, string IDProperty, params string[] properties) where TPoco : class
         {
             HtmlTag tag = new HtmlTag("table");
@@ -182,7 +300,7 @@ namespace InnerLibs
             {
                 tag.InnerHtml += Rows.SelectJoinString(row => props(row).SelectJoinString(column => column.GetValue(row)?.ToString().WrapInTag("td")).WrapInTag("tr").With(w =>
                 {
-                    if (IDProperty.IsNotBlank()) w.SetAttr("ID", row.GetPropertyValue<object, TPoco>(IDProperty).ToString());
+                    if (IDProperty.IsNotBlank()) w.SetAttribute("ID", row.GetPropertyValue<object, TPoco>(IDProperty).ToString());
                 }).ToString()).WrapInTag("tbody");
             }
 
@@ -190,6 +308,34 @@ namespace InnerLibs
         }
 
         public static implicit operator string(HtmlTag Tag) => Tag?.ToString();
+
+        public static IEnumerable<HtmlTag> Parse(string text) => HtmlParser.Instance.Parse(text);
+        public static HtmlTag ParseTag(string text) => Parse(text).FirstOrDefault();
+
+        public HtmlTag AddAttributes(params (string, string)[] pairs)
+        {
+            pairs = pairs ?? Array.Empty<(string, string)>();
+            return AddAttributes(pairs.ToDictionary(x => x.Item1, x => x.Item2));
+        }
+
+        public HtmlTag AddAttributes(IEnumerable<KeyValuePair<string, string>> dictionary)
+        {
+            if (dictionary != null)
+            {
+                foreach (var att in dictionary) { SetAttribute(att.Key, att.Value); }
+            }
+            return this;
+        }
+
+        public HtmlTag AddChildren(string TagName, string InnerHtml = "") => AddChildren(new HtmlTag(TagName, InnerHtml));
+        public HtmlTag AddChildren(params HtmlTag[] node) => AddChildren((node ?? Array.Empty<HtmlTag>()).AsEnumerable());
+
+        public HtmlTag AddChildren(IEnumerable<HtmlTag> nodes)
+        {
+            SelfClosing = false;
+            this._children.AddRange(nodes);
+            return this;
+        }
 
         public HtmlTag AddClass(string ClassName)
         {
@@ -201,11 +347,51 @@ namespace InnerLibs
             return this;
         }
 
-        public bool HasAttribute(string AttrName) => Attributes.ContainsKey(AttrName);
+        public HtmlTag ClearChildren()
+        {
+            _children.Clear();
+            return this;
+        }
+
+        public string GetAttribute(string key) => Attributes.GetValueOr(key, Text.Empty);
+
+
+
+        public bool HasAttribute(string AttrName) => AttrName.IsNotBlank() ? Attributes.ContainsKey(AttrName) : HasAttributes();
+
+        /// <summary>
+        /// Determine if attributes property has items.
+        /// </summary>
+        /// <returns>Returns true if attributes property has items, otherwise false.</returns>
+        public bool HasAttributes() => this.Attributes?.Any() ?? false;
+
+        /// <summary>
+        /// Determine if children property has items.
+        /// </summary>
+        /// <returns>Returns true if children property has items, otherwise false.</returns>
+        public bool HasChildren() => this.Children?.Any() ?? false;
 
         public HtmlTag RemoveAttr(string AttrName)
         {
             Attributes.SetOrRemove(AttrName, null, true);
+            return this;
+        }
+
+        public HtmlTag RemoveChildren(int Index)
+        {
+            _children.RemoveAt(Index);
+            return this;
+        }
+
+        public HtmlTag RemoveChildren(params HtmlTag[] Children)
+        {
+            foreach (var item in Children ?? Array.Empty<HtmlTag>())
+            {
+                if (_children.Contains(item))
+                {
+                    _children.Remove(item);
+                }
+            }
             return this;
         }
 
@@ -219,8 +405,14 @@ namespace InnerLibs
             return this;
         }
 
+        public HtmlTag SetAttribute(string AttrName, string Value, bool RemoveIfBlank = false)
+        {
+            Attributes.SetOrRemove(AttrName, Value, RemoveIfBlank);
+            return this;
+        }
 
-        public string ID { get => GetAttr("ID"); set => SetAttr("ID", value, true); }
+
+
         public HtmlTag SetID(string Value)
         {
             ID = Value;
@@ -238,18 +430,9 @@ namespace InnerLibs
             this.InnerText = Text;
             return this;
         }
-        public HtmlTag SetAttr(string AttrName, string Value, bool RemoveIfBlank = false)
-        {
-            Attributes.SetOrRemove(AttrName, Value, RemoveIfBlank);
-            return this;
-        }
 
-        public HtmlTag SetProp(string AttrName, bool Value = true) => Value ? SetAttr(AttrName, AttrName) : RemoveAttr(AttrName);
+        public HtmlTag SetProp(string AttrName, bool Value = true) => Value ? SetAttribute(AttrName, AttrName) : RemoveAttr(AttrName);
 
-        public override string ToString()
-        {
-            TagName = TagName.RemoveAny("/", @"\").IfBlank("div");
-            return $"<{TagName}{Attributes.SelectJoinString(x => x.Key == x.Value ? x.Key : $"{x.Key}={x.Value.Wrap()}", " ").PrependIf(" ", b => b.IsNotBlank())}" + (SelfCloseTag ? " />" : $">{InnerHtml}</{TagName}>");
-        }
+        public override string ToString() => OuterHtml;
     }
 }

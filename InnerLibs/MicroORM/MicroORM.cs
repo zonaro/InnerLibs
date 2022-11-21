@@ -1178,7 +1178,7 @@ namespace InnerLibs.MicroORM
                     {".Like", " LIKE "},
                     {".Equal", " = "},
                     {".IsIn", " in "},
-                    {Text.DoubleQuoteChar, "'"}
+                    {Text.DoubleQuoteChar, InnerLibs.Text.SingleQuoteChar}
                 };
                 Where(p.ReplaceFrom(rp).ToFormattableString());
             }

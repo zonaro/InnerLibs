@@ -239,7 +239,7 @@ namespace InnerLibs
         public bool IsPunctuation => IsEndOfSentencePunctuation || IsMidSentencePunctuation;
 
         public bool IsQuote => IsSingleQuote || IsDoubleQuote;
-        public bool IsSingleQuote => Text == "'";
+        public bool IsSingleQuote => Text == InnerLibs.Text.SingleQuoteChar;
 
         /// <summary>
         /// Retorna TRUE se esta parte de senteça for uma palavra

@@ -15,6 +15,18 @@ namespace InnerLibs
 {
     public static class Misc
     {
+        public static string Peek(this Queue<char> queue, int take) => new String(queue.Take(take).ToArray());
+
+
+        public static T Add<T, TK, TV>(this T Dictionary, KeyValuePair<TK, TV> Pair) where T : IDictionary<TK, TV>
+        {
+            if (Dictionary != null)
+            {
+                Dictionary[Pair.Key] = Pair.Value;
+            }
+            return Dictionary;
+        }
+
         /// <summary>
         /// Retorna um valor de um tipo especifico de acordo com um valor boolean
         /// </summary>
@@ -23,7 +35,7 @@ namespace InnerLibs
         /// <param name="TrueValue">Valor se verdadeiro</param>
         /// <param name="FalseValue">valor se falso</param>
         /// <returns></returns>
-        public static R AsIf<T, R>(this T obj, Expression<Func<T, bool>> BoolExp, R TrueValue, R FalseValue = default) => obj == null || BoolExp == null ? FalseValue : BoolExp.Compile()(obj).AsIf(TrueValue, FalseValue);
+        public static TR AsIf<T, TR>(this T obj, Expression<Func<T, bool>> BoolExp, TR TrueValue, TR FalseValue = default) => obj == null || BoolExp == null ? FalseValue : BoolExp.Compile()(obj).AsIf(TrueValue, FalseValue);
 
         /// <summary>
         /// Retorna um valor de um tipo especifico de acordo com um valor boolean
@@ -418,7 +430,7 @@ namespace InnerLibs
                 {
                     return ValueSelector.Compile()(att);
                 }
-                catch{}
+                catch { }
             }
             return default;
         }
@@ -456,7 +468,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string GetEnumValueAsString<T>(this T Value)
         {
-            if (!typeof(T).IsEnum) throw new ArgumentException("T must be an Enumeration type.",nameof(T));
+            if (!typeof(T).IsEnum) throw new ArgumentException("T must be an Enumeration type.", nameof(T));
             return Enum.GetName(typeof(T), Value);
         }
         /// <summary>

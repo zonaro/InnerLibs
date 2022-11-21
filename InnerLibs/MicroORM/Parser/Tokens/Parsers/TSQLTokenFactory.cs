@@ -66,7 +66,7 @@ namespace TSQL.Tokens.Parsers
 				}
 			}
 			else if (
-				tokenValue.StartsWith("'") ||
+				tokenValue.StartsWith(InnerLibs.Text.SingleQuoteChar) ||
 				tokenValue.StartsWith("N'"))
 			{
 				// make sure there's an even number of quotes so that it's closed properly
