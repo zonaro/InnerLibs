@@ -10,9 +10,9 @@ namespace InnerLibs
     public class HtmlTag
     {
         private List<HtmlTag> _children = new List<HtmlTag>();
+        internal string _content;
         private string _tagname = "div";
         private Dictionary<string, string> attrs = new Dictionary<string, string>();
-        private string _content;
 
         public HtmlTag() : base()
         {
@@ -59,7 +59,6 @@ namespace InnerLibs
             }
         }
 
-
         public string Class
         {
             get => Attributes.GetValueOr("class", Text.Empty);
@@ -82,16 +81,17 @@ namespace InnerLibs
                 {
                     case HtmlNodeType.Element:
                         return InnerText;
+
                     case HtmlNodeType.Text:
                         return _content;
 
                     case HtmlNodeType.Comment:
                         return $"<!-- {_content} -->";
+
                     default:
                         return "";
                 }
             }
-
 
             set
             {
@@ -100,16 +100,18 @@ namespace InnerLibs
                     case HtmlNodeType.Element:
                         InnerHtml = value;
                         break;
+
                     case HtmlNodeType.Comment:
                     case HtmlNodeType.Text:
                         _content = value;
                         break;
+
                     default:
                         break;
                 }
-
             }
         }
+
         public string ID { get => GetAttribute("id").IfBlank(GetAttribute("ID")); set => SetAttribute("id", value, true); }
 
         public string InnerHtml
@@ -124,6 +126,7 @@ namespace InnerLibs
                     case HtmlNodeType.Text:
                     case HtmlNodeType.Comment:
                         return Content;
+
                     default:
                         return "";
                 }
@@ -209,7 +212,6 @@ namespace InnerLibs
         }
 
         public HtmlNodeType Type { get; private set; }
-
 
         public HtmlTag this[string ID]
         {
@@ -309,8 +311,22 @@ namespace InnerLibs
 
         public static implicit operator string(HtmlTag Tag) => Tag?.ToString();
 
-        public static IEnumerable<HtmlTag> Parse(string text) => HtmlParser.Instance.Parse(text);
-        public static HtmlTag ParseTag(string text) => Parse(text).FirstOrDefault();
+        public static IEnumerable<HtmlTag> Parse(string HtmlStringOrURL)
+        {
+            if (HtmlStringOrURL.IsURL())
+            {
+                HtmlStringOrURL = Web.DownloadString(HtmlStringOrURL);
+            }
+            if (HtmlStringOrURL.IsNotBlank())
+                return HtmlParser.Instance.Parse(HtmlStringOrURL);
+            return Array.Empty<HtmlTag>();
+        }
+
+        public static IEnumerable<HtmlTag> Parse(Uri Url) => Parse(Url?.ToString());
+
+        public static HtmlTag ParseTag(string HtmlStringOrURL) => Parse(HtmlStringOrURL).FirstOrDefault();
+
+        public static HtmlTag ParseTag(Uri Url) => Parse(Url).FirstOrDefault();
 
         public HtmlTag AddAttributes(params (string, string)[] pairs)
         {
@@ -328,6 +344,7 @@ namespace InnerLibs
         }
 
         public HtmlTag AddChildren(string TagName, string InnerHtml = "") => AddChildren(new HtmlTag(TagName, InnerHtml));
+
         public HtmlTag AddChildren(params HtmlTag[] node) => AddChildren((node ?? Array.Empty<HtmlTag>()).AsEnumerable());
 
         public HtmlTag AddChildren(IEnumerable<HtmlTag> nodes)
@@ -354,8 +371,6 @@ namespace InnerLibs
         }
 
         public string GetAttribute(string key) => Attributes.GetValueOr(key, Text.Empty);
-
-
 
         public bool HasAttribute(string AttrName) => AttrName.IsNotBlank() ? Attributes.ContainsKey(AttrName) : HasAttributes();
 
@@ -411,8 +426,6 @@ namespace InnerLibs
             return this;
         }
 
-
-
         public HtmlTag SetID(string Value)
         {
             ID = Value;
@@ -432,6 +445,11 @@ namespace InnerLibs
         }
 
         public HtmlTag SetProp(string AttrName, bool Value = true) => Value ? SetAttribute(AttrName, AttrName) : RemoveAttr(AttrName);
+
+
+
+
+
 
         public override string ToString() => OuterHtml;
     }

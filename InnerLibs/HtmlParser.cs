@@ -4,34 +4,19 @@ using System.Linq;
 
 namespace InnerLibs
 {
-    public enum HtmlNodeType
-    {
-        Element,
-        Comment,
-        Text
-    }
-
     internal class HtmlParser
     {
-        internal static HtmlParser Instance = new HtmlParser();
-
-        private int index;
         private Queue<char> q;
 
-
-        private char Dequeue()
-        {
-            index++;
-            return q.Dequeue();
-        }
+        private char Dequeue() => q.Dequeue();
 
         private string Dequeue(int length)
         {
             string text = string.Empty;
             while (length-- > 0)
             {
-                index++;
-                text += q.Dequeue();
+                if (q.Any())
+                    text += q.Dequeue();
             }
             return text;
         }
@@ -48,7 +33,7 @@ namespace InnerLibs
 
             do
             {
-                attrs.Add(GetAttribute());
+                attrs.SetOrRemove(GetAttribute());
                 SkipSpace();
             } while (q.Any() && q.Peek() != '>' && q.Peek(2) != "/>");
 
@@ -101,11 +86,9 @@ namespace InnerLibs
 
         private string GetTagName() => GetUpTo(' ', '>', '/', '\r', '\n');
 
-        private string GetUpTo(params char[] chars)
-            => GetUpTo(() => chars.Contains(q.Peek()));
+        private string GetUpTo(params char[] chars) => GetUpTo(() => chars.Contains(q.Peek()));
 
-        private string GetUpTo(string text)
-            => GetUpTo(() => this.q.Peek(text.Length) == text);
+        private string GetUpTo(string text) => GetUpTo(() => this.q.Peek(text.Length) == text);
 
         private string GetUpTo(Func<bool> fn)
         {
@@ -119,9 +102,6 @@ namespace InnerLibs
             }
             return text;
         }
-
-        public IEnumerable<string> SelfClosingTags { get; set; } = new[] { "area", "base", "br", "col", "embed", "hr", "img", "input", "keygen", "link", "menuitem", "meta", "param", "source", "track", "wbr" };
-
 
         private IEnumerable<HtmlTag> InternalParse(HtmlTag parent = null)
         {
@@ -145,11 +125,9 @@ namespace InnerLibs
                     node.Content = comment;
                     list.Add(node);
                 }
-
                 else if (c == '<')
                 {
                     node = new HtmlTag();
-
 
                     Dequeue();
                     node.TagName = GetTagName();
@@ -162,7 +140,6 @@ namespace InnerLibs
 
                     if (!q.Any())
                     {
-
                         list.Add(node);
                         break;
                     }
@@ -173,7 +150,6 @@ namespace InnerLibs
                         Dequeue(3 + node.TagName.Length);
 
                         Dequeue();
-
 
                         list.Add(node);
                     }
@@ -195,7 +171,7 @@ namespace InnerLibs
                     else if (node.TagName.Equals("script", StringComparison.OrdinalIgnoreCase))
                     {
                         Dequeue(); // >
-                        node.Content = GetUpTo("</script");
+                        node._content = GetUpTo("</script");
 
                         Dequeue(9);
                         list.Add(node);
@@ -230,17 +206,13 @@ namespace InnerLibs
                 Dequeue();
         }
 
-
-
-        public string Source { get; private set; }
+        internal static HtmlParser Instance = new HtmlParser();
+        public IEnumerable<string> SelfClosingTags { get; set; } = new[] { "area", "base", "br", "col", "embed", "hr", "img", "input", "keygen", "link", "menuitem", "meta", "param", "source", "track", "wbr" };
 
         public IEnumerable<HtmlTag> Parse(string source)
         {
             if (source.IsNotBlank())
             {
-                this.Source = source;
-
-                this.index = 0;
                 this.q = new Queue<char>(source);
 
                 return InternalParse();
@@ -249,5 +221,10 @@ namespace InnerLibs
         }
     }
 
-
+    public enum HtmlNodeType
+    {
+        Element,
+        Comment,
+        Text
+    }
 }

@@ -18,12 +18,13 @@ namespace InnerLibs
         public static string Peek(this Queue<char> queue, int take) => new String(queue.Take(take).ToArray());
 
 
-        public static T Add<T, TK, TV>(this T Dictionary, KeyValuePair<TK, TV> Pair) where T : IDictionary<TK, TV>
+        public static HtmlTag QueryLinq(this IEnumerable<HtmlTag> tags, Func<HtmlTag, bool> query) => QueryLinqAll(tags, query).FirstOrDefault();
+        public static IEnumerable<HtmlTag> QueryLinqAll(this IEnumerable<HtmlTag> tags, Func<HtmlTag, bool> query) => tags.Traverse(ht => ht.Children).Where(query);
+
+
+        public static T SetOrRemove<T, TK, TV>(this T Dictionary, KeyValuePair<TK, TV> Pair) where T : IDictionary<TK, TV>
         {
-            if (Dictionary != null)
-            {
-                Dictionary[Pair.Key] = Pair.Value;
-            }
+            Dictionary?.SetOrRemove(Pair.Key, Pair.Value);
             return Dictionary;
         }
 
