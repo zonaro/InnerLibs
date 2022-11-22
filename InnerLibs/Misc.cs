@@ -15,19 +15,6 @@ namespace InnerLibs
 {
     public static class Misc
     {
-        public static string Peek(this Queue<char> queue, int take) => new String(queue.Take(take).ToArray());
-
-
-        public static HtmlTag QueryLinq(this IEnumerable<HtmlTag> tags, Func<HtmlTag, bool> query) => QueryLinqAll(tags, query).FirstOrDefault();
-        public static IEnumerable<HtmlTag> QueryLinqAll(this IEnumerable<HtmlTag> tags, Func<HtmlTag, bool> query) => tags.Traverse(ht => ht.Children).Where(query);
-
-
-        public static T SetOrRemove<T, TK, TV>(this T Dictionary, KeyValuePair<TK, TV> Pair) where T : IDictionary<TK, TV>
-        {
-            Dictionary?.SetOrRemove(Pair.Key, Pair.Value);
-            return Dictionary;
-        }
-
         /// <summary>
         /// Retorna um valor de um tipo especifico de acordo com um valor boolean
         /// </summary>
@@ -375,8 +362,9 @@ namespace InnerLibs
         /// Troca valor de <paramref name="FirstValue"/> pelo de <paramref name="SecondValue"/> se
         /// <paramref name="FirstValue"/> for maior que <paramref name="SecondValue"/> fazendo com
         /// que <paramref name="FirstValue"/> seja sempre menor que <paramref name="SecondValue"/>.
-        /// Util para tratar ranges. Se qualquer um dos 2 valores for null, copia o valor da outra variavel não <b>null</b>. Se ambas forem <b>null</b> nada acontece.
-        /// </summary> 
+        /// Util para tratar ranges. Se qualquer um dos 2 valores for null, copia o valor da outra
+        /// variavel não <b>null</b>. Se ambas forem <b>null</b> nada acontece.
+        /// </summary>
         public static (T, T) FixOrderNotNull<T>(ref T FirstValue, ref T SecondValue) where T : IComparable
         {
             if (FirstValue == null && SecondValue != null)
@@ -396,7 +384,6 @@ namespace InnerLibs
             }
 
             return Misc.FixOrder(ref FirstValue, ref SecondValue);
-
         }
 
         public static TValue GetAttributeValue<TAttribute, TValue>(this MemberInfo prop, Expression<Func<TAttribute, TValue>> ValueSelector) where TAttribute : Attribute
@@ -436,34 +423,27 @@ namespace InnerLibs
             return default;
         }
 
-        /// <summary>
-        /// Traz o valor de uma <see cref="Enum"> do tipo <typeparamref name="T"/> a partir de uma string
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
+        /// <summary> Traz o valor de uma <see cref="Enum"> do tipo <typeparamref name="T"/> a
+        /// partir de uma string </summary> <typeparam name="T"></typeparam> <returns></returns>
         public static T GetEnumValue<T>(this string Name)
         {
             if (!typeof(T).IsEnum) throw new ArgumentException("T must be an Enumeration type.");
             return Name.IsNotBlank() ? ((T[])Enum.GetValues(typeof(T))).FirstOrDefault(x => x.ToString().RemoveAccents().Equals(Name.RemoveAccents(), StringComparison.InvariantCultureIgnoreCase) || (Name.IsNumber() && Name.ToInt() == x.ToInt())) : default;
         }
 
-        /// <summary>
-        /// Traz o valor de uma <see cref="Enum"> do tipo <typeparamref name="T"/> a partir de um <paramref name="Value"/> inteiro
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
+        /// <summary> Traz o valor de uma <see cref="Enum"> do tipo <typeparamref name="T"/> a
+        /// partir de um <paramref name="Value"/> inteiro </summary> <typeparam
+        /// name="T"></typeparam> <returns></returns>
         public static T GetEnumValue<T>(this int? Value) => Value.HasValue ? GetEnumValue<T>($"{Value.Value}") : default(T);
 
-
-        /// <summary>
-        /// Traz o valor de uma <see cref="Enum"> do tipo <typeparamref name="T"/> a partir de um <paramref name="Value"/> inteiro
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
+        /// <summary> Traz o valor de uma <see cref="Enum"> do tipo <typeparamref name="T"/> a
+        /// partir de um <paramref name="Value"/> inteiro </summary> <typeparam
+        /// name="T"></typeparam> <returns></returns>
         public static T GetEnumValue<T>(this int Value) => GetEnumValue<T>($"{Value}");
 
         /// <summary>
-        /// Traz a string correspondente ao <paramref name="Value"/> de uma <see cref="Enum"/> do tipo <typeparamref name="T"/>
+        /// Traz a string correspondente ao <paramref name="Value"/> de uma <see cref="Enum"/> do
+        /// tipo <typeparamref name="T"/>
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
@@ -472,19 +452,22 @@ namespace InnerLibs
             if (!typeof(T).IsEnum) throw new ArgumentException("T must be an Enumeration type.", nameof(T));
             return Enum.GetName(typeof(T), Value);
         }
+
         /// <summary>
-        /// Traz a string correspondente ao <paramref name="Value"/> de uma <see cref="Enum"/> do tipo <typeparamref name="T"/>
+        /// Traz a string correspondente ao <paramref name="Value"/> de uma <see cref="Enum"/> do
+        /// tipo <typeparamref name="T"/>
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         public static string GetEnumValueAsString<T>(this string Value) => Value.GetEnumValue<T>().GetEnumValueAsString<T>();
+
         /// <summary>
-        /// Traz a string correspondente ao <paramref name="Value"/> de uma <see cref="Enum"/> do tipo <typeparamref name="T"/>
+        /// Traz a string correspondente ao <paramref name="Value"/> de uma <see cref="Enum"/> do
+        /// tipo <typeparamref name="T"/>
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         public static string GetEnumValueAsString<T>(this int Value) => Value.GetEnumValue<T>().GetEnumValueAsString<T>();
-
 
         /// <summary>
         /// Traz todos os Valores de uma enumeração
@@ -559,7 +542,7 @@ namespace InnerLibs
         public static PropertyInfo GetProperty<T>(this T MyObject, string Name) => MyObject.GetTypeOf().GetProperties().SingleOrDefault(x => (x.Name ?? InnerLibs.Text.Empty) == (Name ?? InnerLibs.Text.Empty));
 
         /// <summary>
-        /// Retorna uma <see cref="Hashtable" /> das propriedades de um objeto
+        /// Retorna uma <see cref="Hashtable"/> das propriedades de um objeto
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="properties"></param>
@@ -605,6 +588,7 @@ namespace InnerLibs
         /// <param name="FileName"></param>
         /// <returns></returns>
         public static byte[] GetResourceBytes(this Assembly Assembly, string FileName) => Assembly.GetManifestResourceStream(FileName)?.ToBytes() ?? Array.Empty<byte>();
+
         public static byte[] GetResourceBytes(string FileName) => GetResourceBytes(Assembly.GetExecutingAssembly(), FileName);
 
         /// <summary>
@@ -633,7 +617,6 @@ namespace InnerLibs
         }
 
         public static string GetResourceFileText(string FileName) => GetResourceFileText(Assembly.GetExecutingAssembly(), FileName);
-
 
         /// <summary>
         /// Retorna o <see cref="Type"/> do objeto mesmo se ele for nulo
@@ -1163,16 +1146,26 @@ namespace InnerLibs
         /// <returns></returns>
         public static bool OnlyOneOf<T>(this IEnumerable<T> List, Func<T, bool> predicate) => List?.Count(predicate) == 1;
 
+        public static string Peek(this Queue<char> queue, int take) => new String(queue.Take(take).ToArray());
+
         public static IEnumerable<string> PropertyNamesFor(this string Name)
         {
-            string propname1 = Name.Trim().Replace(" ", "_").Replace("-", "_").Replace("~", "_");
-            string propname3 = Name.Trim().Replace(" ", InnerLibs.Text.Empty).Replace("-", InnerLibs.Text.Empty).Replace("~", InnerLibs.Text.Empty);
-            string propname2 = propname1.RemoveAccents();
-            string propname4 = propname3.RemoveAccents();
-            var propnames = new[] { Name, propname1, propname2, propname3, propname4 }.ToList();
-            propnames.AddRange(propnames.Select(x => $"_{x}").ToArray());
-            return propnames.Distinct();
+            if (Name.IsNotBlank())
+            {
+                string propname1 = Name?.Trim().Replace(" ", "_").Replace("-", "_").Replace("~", "_");
+                string propname3 = Name.Trim().Replace(" ", InnerLibs.Text.Empty).Replace("-", InnerLibs.Text.Empty).Replace("~", InnerLibs.Text.Empty);
+                string propname2 = propname1.RemoveAccents();
+                string propname4 = propname3.RemoveAccents();
+                var propnames = new[] { Name, propname1, propname2, propname3, propname4 }.ToList();
+                propnames.AddRange(propnames.Select(x => $"_{x}").ToArray());
+                return propnames.Distinct();
+            }
+            return Array.Empty<string>();
         }
+
+        public static HtmlTag QueryLinq(this IEnumerable<HtmlTag> tags, Func<HtmlTag, bool> query) => QueryLinqAll(tags, query).FirstOrDefault();
+
+        public static IEnumerable<HtmlTag> QueryLinqAll(this IEnumerable<HtmlTag> tags, Func<HtmlTag, bool> query) => tags.Traverse(ht => ht.Children).Where(query);
 
         /// <summary>
         /// Agrupa e conta os itens de uma lista a partir de uma propriedade
@@ -1263,6 +1256,12 @@ namespace InnerLibs
             return Dic;
         }
 
+        public static T SetOrRemove<T, TK, TV>(this T Dictionary, KeyValuePair<TK, TV> Pair) where T : IDictionary<TK, TV>
+        {
+            Dictionary?.SetOrRemove(Pair.Key, Pair.Value);
+            return Dictionary;
+        }
+
         public static IDictionary<KeyType, string> SetOrRemove<KeyType, KT>(this IDictionary<KeyType, string> Dic, KT Key, string Value, bool NullIfBlank) => Dic.SetOrRemove(Key, NullIfBlank.AsIf(Value.NullIf(x => x.IsBlank()), Value));
 
         public static IDictionary<TKey, TValue> SetOrRemove<TKey, TValue, TK, TV>(this IDictionary<TKey, TValue> Dic, TK Key, TV Value)
@@ -1309,8 +1308,6 @@ namespace InnerLibs
                     {
                         prop.SetValue(MyObject, Converter.ChangeType(Value, prop.PropertyType));
                     }
-
-
             }
 
             return MyObject;

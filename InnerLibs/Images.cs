@@ -292,7 +292,7 @@ namespace InnerLibs
         /// <param name="Image">Imagem</param>
         /// <param name="SizeExpression">Tamanho</param>
         /// <returns></returns>
-        public static Image Crop(this Image Image, string SizeExpression) => Image.Crop(SizeExpression.ParseSize());
+        public static Image Crop(this Image Image, string SizeExpression) => Image?.Crop(SizeExpression.ParseSize());
 
         /// <summary>
         /// Cropa uma imagem a patir do centro
@@ -300,10 +300,8 @@ namespace InnerLibs
         /// <param name="Image">Imagem</param>
         /// <param name="Size">Tamanho</param>
         /// <returns></returns>
-        public static Image Crop(this Image Image, Size Size)
-        {
-            return Image.Crop(Size.Width, Size.Height);
-        }
+        public static Image Crop(this Image Image, Size Size) => Image?.Crop(Size.Width, Size.Height);
+
 
         /// <summary>
         /// Cropa uma imagem a patir do centro

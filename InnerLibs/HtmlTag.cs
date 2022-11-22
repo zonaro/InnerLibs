@@ -10,9 +10,9 @@ namespace InnerLibs
     public class HtmlTag
     {
         private List<HtmlTag> _children = new List<HtmlTag>();
-        internal string _content;
         private string _tagname = "div";
         private Dictionary<string, string> attrs = new Dictionary<string, string>();
+        internal string _content;
 
         public HtmlTag() : base()
         {
@@ -317,9 +317,7 @@ namespace InnerLibs
             {
                 HtmlStringOrURL = Web.DownloadString(HtmlStringOrURL);
             }
-            if (HtmlStringOrURL.IsNotBlank())
-                return HtmlParser.Instance.Parse(HtmlStringOrURL);
-            return Array.Empty<HtmlTag>();
+            return HtmlStringOrURL.IsNotBlank() ? HtmlParser.Instance.Parse(HtmlStringOrURL) : Array.Empty<HtmlTag>();
         }
 
         public static IEnumerable<HtmlTag> Parse(Uri Url) => Parse(Url?.ToString());
@@ -445,11 +443,6 @@ namespace InnerLibs
         }
 
         public HtmlTag SetProp(string AttrName, bool Value = true) => Value ? SetAttribute(AttrName, AttrName) : RemoveAttr(AttrName);
-
-
-
-
-
 
         public override string ToString() => OuterHtml;
     }
