@@ -1163,8 +1163,10 @@ namespace InnerLibs
             return Array.Empty<string>();
         }
 
+        public static HtmlTag QueryLinq(this HtmlTag tags, Func<HtmlTag, bool> query) => QueryLinq(tags.Children, query);
         public static HtmlTag QueryLinq(this IEnumerable<HtmlTag> tags, Func<HtmlTag, bool> query) => QueryLinqAll(tags, query).FirstOrDefault();
 
+        public static IEnumerable<HtmlTag> QueryLinqAll(this HtmlTag tags, Func<HtmlTag, bool> query) => QueryLinqAll(tags.Children, query);
         public static IEnumerable<HtmlTag> QueryLinqAll(this IEnumerable<HtmlTag> tags, Func<HtmlTag, bool> query) => tags.Traverse(ht => ht.Children).Where(query);
 
         /// <summary>
