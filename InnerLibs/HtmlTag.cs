@@ -11,8 +11,9 @@ namespace InnerLibs
     public class HtmlTag
     {
         private List<HtmlTag> _children = new List<HtmlTag>();
-        private string _tagname = "div";
         private Dictionary<string, string> attrs = new Dictionary<string, string>();
+        private string _tagname = "div";
+        private readonly CSSStyles _stl;
         internal string _content;
 
         public HtmlTag() : this(HtmlNodeType.Element)
@@ -62,6 +63,9 @@ namespace InnerLibs
             }
         }
 
+        public HtmlTag FirstChild() => Children.FirstOrDefault();
+        public HtmlTag LastChild() => Children.LastOrDefault();
+
         public string Class
         {
             get => Attributes.GetValueOr("class", Text.Empty);
@@ -76,7 +80,7 @@ namespace InnerLibs
             set => Class = (value ?? Array.Empty<string>().AsEnumerable()).SelectJoinString(" ");
         }
 
-        public bool HasClass(params string[] Classes) => Classes?.Any(x => ClassList.Contains(x, StringComparer.CurrentCultureIgnoreCase)) ?? false;
+        public bool HasClass(params string[] Classes) => (Classes?.Any() ?? false ? Classes?.Any(x => ClassList.Contains(x, StringComparer.CurrentCultureIgnoreCase)) : ClassList.Any()) ?? false;
 
         public string Content
         {
@@ -455,7 +459,6 @@ namespace InnerLibs
 
         public HtmlTag SetProp(string AttrName, bool Value = true) => Value ? SetAttribute(AttrName, AttrName) : RemoveAttr(AttrName);
 
-        private CSSStyles _stl;
         public CSSStyles Styles
         {
             get => _stl;
@@ -484,7 +487,7 @@ namespace InnerLibs
         {
             dic = _tag.GetAttribute("style").Split(";").ToDictionary(x => x.GetBefore(":"), x => x.GetAfter(":"));
         }
-        
+
         public string GetStyle(string name)
         {
             ParseStyle();

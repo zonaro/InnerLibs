@@ -1307,6 +1307,13 @@ namespace InnerLibs.MicroORM
             return this;
         }
 
+        public Select<T> WhereIn<TO>(string Column, params TO[] Items) => AndIn(Column, Items);
+        public Select<T> AndIn<TO>(string Column, params TO[] Items) => And(Text.ToFormattableString(Column + " in " + Items.ToSQLString()));
+
+        public Select<T> OrIn<TO>(string Column, params TO[] Items) => Or(Text.ToFormattableString(Column + " in " + Items.ToSQLString()));
+
+
+
         public Select<T> WhereObject<TO>(TO Obj) where TO : class => AndObject(Obj);
 
         public Select<T> WhereObject<TO>(TO Obj, DbExtensions.LogicConcatenationOperator LogicOperator) where TO : class => WhereObject(Obj, LogicOperator.GetEnumValueAsString());
