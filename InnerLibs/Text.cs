@@ -4467,14 +4467,14 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text">Texto</param>
         /// <returns></returns>
-        public static string UrlDecode(this string Text) => Text.IsNotBlank() ? System.Net.WebUtility.UrlDecode(Text) : InnerLibs.Text.Empty;
+        public static string UrlDecode(this string Text) => Text.IsNotBlank() ? System.Net.WebUtility.UrlDecode(Text) : Empty;
 
         /// <summary>
         /// Encoda uma string para transmissão por URL
         /// </summary>
         /// <param name="Text">Texto</param>
         /// <returns></returns>
-        public static string UrlEncode(this string Text) => Text.IsNotBlank() ? System.Net.WebUtility.UrlEncode(Text) : InnerLibs.Text.Empty;
+        public static string UrlEncode(this string Text) => Text.IsNotBlank() ? System.Net.WebUtility.UrlEncode(Text) : Empty;
 
         /// <summary>
         /// Encapsula um tento entre 2 textos
@@ -4491,8 +4491,10 @@ namespace InnerLibs
         /// <returns></returns>
         public static string Wrap(this string Text, string OpenWrapText, string CloseWrapText) => $"{OpenWrapText}{Text}{CloseWrapText.IfBlank(OpenWrapText)}";
 
-        public static HtmlTag WrapInTag(this IEnumerable<HtmlTag> Tags, string TagName) => new HtmlTag(TagName, Tags?.SelectJoinString(x => x.ToString()));
-        public static HtmlTag WrapInTag(this HtmlTag Tag, string TagName) => Tag?.ToString().WrapInTag(TagName) ?? new HtmlTag(TagName);
+        public static HtmlTag WrapInTag(this IEnumerable<HtmlTag> Tags, string TagName) => new HtmlTag(TagName).AddChildren(Tags);
+        public static HtmlTag WrapInTag(this HtmlTag Tag, string TagName) => new HtmlTag(TagName).AddChildren(Tag);
         public static HtmlTag WrapInTag(this string Text, string TagName) => new HtmlTag() { InnerHtml = Text, TagName = TagName };
+        public static IEnumerable<HtmlTag> ParseTags(this string HtmlStringOrUrl) => HtmlTag.Parse(HtmlStringOrUrl);
+        public static HtmlTag ParseTag(this string HtmlStringOrUrl) => HtmlTag.ParseTag(HtmlStringOrUrl);
     }
 }

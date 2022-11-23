@@ -10,7 +10,7 @@ namespace InnerLibs
 {
     public class HtmlTag : ICloneable
     {
-        private List<HtmlTag> _children = new List<HtmlTag>();
+        internal List<HtmlTag> _children = new List<HtmlTag>();
         private Dictionary<string, string> attrs = new Dictionary<string, string>();
         private string _tagname = "div";
         private readonly CSSStyles _stl;
