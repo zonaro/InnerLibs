@@ -18,8 +18,6 @@ namespace InnerLibs
 
         public HtmlTag() : this(HtmlNodeType.Element)
         {
-
-
         }
 
         public HtmlTag(HtmlNodeType type) : base()
@@ -460,10 +458,7 @@ namespace InnerLibs
 
         public HtmlTag SetProp(string AttrName, bool Value = true) => Value ? SetAttribute(AttrName, AttrName) : RemoveAttr(AttrName);
 
-        public CSSStyles Styles
-        {
-            get => _stl;
-        }
+        public CSSStyles Styles => _stl;
 
         public override string ToString() => OuterHtml;
 
