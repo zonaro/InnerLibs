@@ -8,7 +8,7 @@ using System.Reflection;
 
 namespace InnerLibs
 {
-    public class HtmlTag
+    public class HtmlTag : ICloneable
     {
         private List<HtmlTag> _children = new List<HtmlTag>();
         private Dictionary<string, string> attrs = new Dictionary<string, string>();
@@ -324,6 +324,7 @@ namespace InnerLibs
             return tag;
         }
 
+ 
         public static implicit operator string(HtmlTag Tag) => Tag?.ToString();
 
         public static IEnumerable<HtmlTag> Parse(string HtmlStringOrURL)
@@ -465,6 +466,9 @@ namespace InnerLibs
         }
 
         public override string ToString() => OuterHtml;
+
+        public object Clone() => CloneTag();
+        public HtmlTag CloneTag() => ParseTag(OuterHtml);
     }
 
 
