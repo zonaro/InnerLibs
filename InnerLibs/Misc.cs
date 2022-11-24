@@ -23,7 +23,7 @@ namespace InnerLibs
         /// <param name="TrueValue">Valor se verdadeiro</param>
         /// <param name="FalseValue">valor se falso</param>
         /// <returns></returns>
-        public static TR AsIf<T, TR>(this T obj, Expression<Func<T, bool>> BoolExp, TR TrueValue, TR FalseValue = default) => obj == null || BoolExp == null ? FalseValue : BoolExp.Compile()(obj).AsIf(TrueValue, FalseValue);
+        public static TR AsIf<T, TR>(this T obj, Expression<Func<T, bool>> BoolExp, TR TrueValue, TR FalseValue = default) => obj == null || BoolExp == null ? FalseValue : BoolExp.Compile().Invoke(obj).AsIf(TrueValue, FalseValue);
 
         /// <summary>
         /// Retorna um valor de um tipo especifico de acordo com um valor boolean
@@ -1104,8 +1104,8 @@ namespace InnerLibs
         /// <returns></returns>
         public static T NullPropertiesAsDefault<T>(this T Obj, bool IncludeVirtual = false) where T : class
         {
+            TryExecute(() => Obj = Obj ?? Activator.CreateInstance<T>());
             if (Obj != null)
-            {
                 foreach (var item in Obj.GetProperties())
                 {
                     if (item.CanRead && item.CanWrite && item.GetValue(Obj) is null)
@@ -1132,7 +1132,6 @@ namespace InnerLibs
                         }
                     }
                 }
-            }
 
             return Obj;
         }
@@ -1164,9 +1163,11 @@ namespace InnerLibs
         }
 
         public static HtmlTag QueryLinq(this HtmlTag tags, Func<HtmlTag, bool> query) => QueryLinq(tags.Children, query);
+
         public static HtmlTag QueryLinq(this IEnumerable<HtmlTag> tags, Func<HtmlTag, bool> query) => QueryLinqAll(tags, query).FirstOrDefault();
 
         public static IEnumerable<HtmlTag> QueryLinqAll(this HtmlTag tags, Func<HtmlTag, bool> query) => QueryLinqAll(tags.Children, query);
+
         public static IEnumerable<HtmlTag> QueryLinqAll(this IEnumerable<HtmlTag> tags, Func<HtmlTag, bool> query) => tags.Traverse(ht => ht.Children).Where(query);
 
         /// <summary>
@@ -1183,15 +1184,18 @@ namespace InnerLibs
             return grouped.Take(First).Union(new[] { new KeyValuePair<Group, long>(OtherLabel, grouped.Skip(First).Sum(s => s.Value)) }).ToDictionary();
         }
 
-        public static Dictionary<Group, Dictionary<Count, long>> ReduceToTop<Group, Count>(this Dictionary<Group, Dictionary<Count, long>> Grouped, int First, Count OtherLabel)
+        public static Dictionary<TGroup, Dictionary<TCount, long>> ReduceToTop<TGroup, TCount>(this Dictionary<TGroup, Dictionary<TCount, long>> Grouped, int First, TCount OtherLabel)
         {
-            foreach (var item in Grouped.ToArray())
+            if (Grouped != null)
             {
-                var gp = item.Value.OrderByDescending(x => x.Value).ToDictionary();
-                Grouped[item.Key] = gp.Take(First).Union(new[] { new KeyValuePair<Count, long>(OtherLabel, gp.Skip(First).Sum(s => s.Value)) }).ToDictionary();
-            }
+                foreach (var item in Grouped.ToArray())
+                {
+                    var gp = item.Value.OrderByDescending(x => x.Value).ToDictionary();
+                    Grouped[item.Key] = gp.Take(First).Union(new[] { new KeyValuePair<TCount, long>(OtherLabel, gp.Skip(First).Sum(s => s.Value)) }).ToDictionary();
+                }
 
-            Grouped.Values.MergeKeys();
+                Grouped.Values.MergeKeys();
+            }
             return Grouped;
         }
 
@@ -1202,12 +1206,15 @@ namespace InnerLibs
         /// <typeparam name="Tvalue"></typeparam>
         /// <param name="dic"></param>
         /// <param name="Keys"></param>
-        public static void RemoveIfExist<TKey, TValue>(this IDictionary<TKey, TValue> dic, params TKey[] Keys)
+        public static IDictionary<TKey, TValue> RemoveIfExist<TKey, TValue>(this IDictionary<TKey, TValue> dic, params TKey[] Keys)
         {
-            foreach (var k in (Keys ?? Array.Empty<TKey>()).Where(x => dic.ContainsKey(x)))
-            {
-                dic.Remove(k);
-            }
+            if (dic != null)
+                foreach (var k in (Keys ?? Array.Empty<TKey>()).Where(x => dic.ContainsKey(x)))
+                {
+                    dic.Remove(k);
+                }
+
+            return dic;
         }
 
         /// <summary>
@@ -1217,7 +1224,7 @@ namespace InnerLibs
         /// <typeparam name="Tvalue"></typeparam>
         /// <param name="dic"></param>
         /// <param name="predicate"></param>
-        public static void RemoveIfExist<TKey, TValue>(this IDictionary<TKey, TValue> dic, Func<KeyValuePair<TKey, TValue>, bool> predicate) => dic.RemoveIfExist(dic.Where(predicate).Select(x => x.Key).ToArray());
+        public static IDictionary<TKey, TValue> RemoveIfExist<TKey, TValue>(this IDictionary<TKey, TValue> dic, Func<KeyValuePair<TKey, TValue>, bool> predicate) => dic.RemoveIfExist(dic.Where(predicate).Select(x => x.Key).ToArray());
 
         /// <summary>
         /// Remove <paramref name="Count"/> elementos de uma <paramref name="List"/>
@@ -1228,13 +1235,14 @@ namespace InnerLibs
         /// <returns></returns>
         public static List<T> RemoveLast<T>(this List<T> List, int Count = 1)
         {
-            for (int index = 1, loopTo = Count; index <= loopTo; index++)
-            {
-                if (List != null && List.Any())
+            if (List != null)
+                for (int index = 1, loopTo = Count; index <= loopTo; index++)
                 {
-                    List.RemoveAt(List.Count - 1);
+                    if (List.Any())
+                    {
+                        List.RemoveAt(List.Count - 1);
+                    }
                 }
-            }
 
             return List;
         }
@@ -1243,16 +1251,16 @@ namespace InnerLibs
         /// Adciona ou substitui um valor a este <see cref="Dictionary(Of TKey, TValue)"/> e retorna
         /// a mesma instancia deste <see cref="Dictionary(Of TKey, TValue)"/>
         /// </summary>
-        /// <typeparam name="KeyType">Tipo da Key</typeparam>
-        /// <typeparam name="ValueType">Tipo do valor</typeparam>
+        /// <typeparam name="TKey">Tipo da Key</typeparam>
+        /// <typeparam name="TValue">Tipo do valor</typeparam>
         /// <param name="Key">Valor da key</param>
         /// <param name="Value">Valor do Value</param>
         /// <returns>o mesmo objeto do tipo <see cref="Dictionary"/> que chamou este método</returns>
-        public static IDictionary<KeyType, ValueType> Set<KeyType, ValueType, KT, VT>(this IDictionary<KeyType, ValueType> Dic, KT Key, VT Value)
+        public static IDictionary<TKey, TValue> Set<TKey, TValue, TK, TV>(this IDictionary<TKey, TValue> Dic, TK Key, TV Value)
         {
-            if (Key != null)
+            if (Key != null && Dic != null)
             {
-                Dic[Key.ChangeType<KeyType>()] = Value.ChangeType<ValueType>();
+                Dic[Key.ChangeType<TKey>()] = Value.ChangeType<TValue>();
             }
 
             return Dic;
@@ -1264,22 +1272,21 @@ namespace InnerLibs
             return Dictionary;
         }
 
-        public static IDictionary<KeyType, string> SetOrRemove<KeyType, KT>(this IDictionary<KeyType, string> Dic, KT Key, string Value, bool NullIfBlank) => Dic.SetOrRemove(Key, NullIfBlank.AsIf(Value.NullIf(x => x.IsBlank()), Value));
+        public static IDictionary<TKey, string> SetOrRemove<TKey, TK>(this IDictionary<TKey, string> Dic, TK Key, string Value, bool NullIfBlank) => Dic.SetOrRemove(Key, NullIfBlank.AsIf(Value.NullIf(x => x.IsBlank()), Value));
 
         public static IDictionary<TKey, TValue> SetOrRemove<TKey, TValue, TK, TV>(this IDictionary<TKey, TValue> Dic, TK Key, TV Value)
         {
-            if (Dic != null)
-                if (Key != null)
+            if (Dic != null && Key != null)
+            {
+                if (Value != null)
                 {
-                    if (Value != null)
-                    {
-                        Dic[Key.ChangeType<TKey>()] = Value.ChangeType<TValue>();
-                    }
-                    else
-                    {
-                        Dic.RemoveIfExist(Key.ChangeType<TKey>());
-                    }
+                    Dic[Key.ChangeType<TKey>()] = Value.ChangeType<TValue>();
                 }
+                else
+                {
+                    Dic.RemoveIfExist(Key.ChangeType<TKey>());
+                }
+            }
 
             return Dic;
         }
@@ -1317,8 +1324,7 @@ namespace InnerLibs
 
         public static T SetPropertyValue<T, TProp>(this T obj, Expression<Func<T, TProp>> Selector, TProp Value) where T : class
         {
-            if (obj != null)
-                obj.SetPropertyValue(obj.GetPropertyInfo(Selector).Name, Value);
+            obj?.SetPropertyValue(obj.GetPropertyInfo(Selector).Name, Value);
             return obj;
         }
 
@@ -1386,16 +1392,16 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// traz os top N valores de um dicionario e agrupa os outros
+        /// Traz os top N valores de um dicionario e agrupa os outros
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="Dic"></param>
         /// <param name="Top"></param>
         /// <param name="GroupOthersLabel"></param>
         /// <returns></returns>
-        public static Dictionary<K, IEnumerable<T>> TakeTop<K, T>(this Dictionary<K, IEnumerable<T>> Dic, int Top, Expression<Func<T, dynamic>> ValueSelector) where T : class
+        public static Dictionary<TKey, IEnumerable<T>> TakeTop<TKey, T>(this Dictionary<TKey, IEnumerable<T>> Dic, int Top, Expression<Func<T, dynamic>> ValueSelector) where T : class
         {
-            Dictionary<K, IEnumerable<T>> novodic = Dic.ToDictionary();
+            Dictionary<TKey, IEnumerable<T>> novodic = Dic.ToDictionary();
 
             if (ValueSelector != null)
             {
@@ -1412,13 +1418,13 @@ namespace InnerLibs
 
         public static IEnumerable<T> TakeTop<T>(this IEnumerable<T> List, int Top, params Expression<Func<T, dynamic>>[] ValueSelector) where T : class => TakeTop<T, object>(List, Top, null, null, ValueSelector?.ToArray());
 
-        public static IEnumerable<T> TakeTop<T, L>(this IEnumerable<T> List, int Top, Expression<Func<T, L>> LabelSelector, L GroupOthersLabel, params Expression<Func<T, dynamic>>[] ValueSelector) where T : class
+        public static IEnumerable<T> TakeTop<T, TLabel>(this IEnumerable<T> List, int Top, Expression<Func<T, TLabel>> LabelSelector, TLabel GroupOthersLabel, params Expression<Func<T, dynamic>>[] ValueSelector) where T : class
         {
             ValueSelector = ValueSelector ?? Array.Empty<Expression<Func<T, dynamic>>>();
 
             if (ValueSelector.WhereNotNull().IsNullOrEmpty())
             {
-                throw new ArgumentException("You need at least one value selector");
+                throw new ArgumentException("You need at least one value selector", nameof(ValueSelector));
             }
 
             var newlist = List.OrderByManyDescending(ValueSelector).Take(Top).ToList();
@@ -1464,17 +1470,17 @@ namespace InnerLibs
         /// </summary>
         /// <param name="NVC"></param>
         /// <returns></returns>
-        public static string ToQueryString(this NameValueCollection NVC) => NVC.AllKeys.SelectManyJoinString(n => NVC.GetValues(n).Select(v => n + "=" + v).Where(x => x.IsNotBlank() && x != "="), "&");
+        public static string ToQueryString(this NameValueCollection NVC) => NVC?.AllKeys.SelectManyJoinString(n => NVC.GetValues(n).Select(v => n + "=" + v).Where(x => x.IsNotBlank() && x != "="), "&");
 
         /// <summary>
         /// Projeta um unico array os valores sub-agrupados e unifica todos num unico array de arrays
         /// </summary>
-        /// <typeparam name="GroupKey"></typeparam>
-        /// <typeparam name="SubGroupKey"></typeparam>
-        /// <typeparam name="SubGroupValue"></typeparam>
+        /// <typeparam name="TGroupKey"></typeparam>
+        /// <typeparam name="TSubGroupKey"></typeparam>
+        /// <typeparam name="TSubGroupValue"></typeparam>
         /// <param name="Groups"></param>
         /// <returns></returns>
-        public static IEnumerable<object> ToTableArray<GroupKey, SubGroupKey, SubGroupValue, HeaderProperty>(this Dictionary<GroupKey, Dictionary<SubGroupKey, SubGroupValue>> Groups, Func<SubGroupKey, HeaderProperty> HeaderProp)
+        public static IEnumerable<object> ToTableArray<TGroupKey, TSubGroupKey, TSubGroupValue, THeaderProperty>(this Dictionary<TGroupKey, Dictionary<TSubGroupKey, TSubGroupValue>> Groups, Func<TSubGroupKey, THeaderProperty> HeaderProp)
         {
             var lista = new List<object>();
             var header = new List<object>
@@ -1508,14 +1514,17 @@ namespace InnerLibs
         /// Projeta um unico array os valores sub-agrupados e unifica todos num unico array de
         /// arrays formando uma tabela
         /// </summary>
-        public static IEnumerable<object[]> ToTableArray<GroupKeyType, GroupValueType>(this Dictionary<GroupKeyType, GroupValueType> Groups) => Groups.Select(x => new List<object> { x.Key, x.Value }.ToArray());
+        public static IEnumerable<object[]> ToTableArray<TGroupKey, TGroupValue>(this Dictionary<TGroupKey, TGroupValue> Groups) => Groups.Select(x => new List<object> { x.Key, x.Value }.ToArray());
 
         /// <summary>
         /// Run a <see cref="Action"/> inside a Try-catch block and return a <see cref="Exception"/>
         /// if fail
         /// </summary>
         /// <param name="action"></param>
-        /// <returns></returns>
+        /// <returns>
+        /// A null <see cref="Exception"/> if <paramref name="action"/> runs successfully, otherwise
+        /// the captured <see cref="Exception"/>
+        /// </returns>
         public static Exception TryExecute(Action action)
         {
             try
@@ -1529,20 +1538,22 @@ namespace InnerLibs
             }
         }
 
-        /// <summary>
-        /// Metodo de extensão para utilizar qualquer objeto usando FluentAPI
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="Obj"></param>
-        /// <param name="Callback"></param>
-        /// <returns></returns>
-        public static T With<T>(this T Obj, Action<T> Callback)
-        {
-            if (Obj != null && Callback != null)
-            {
-                Callback(Obj);
-            }
+        ///<inheritdoc cref="With{T}(T, Action{T}, out Exception)"/>
+        public static T With<T>(this T Obj, Action<T> Callback) => With(Obj, Callback, out _);
 
+        /// <summary>
+        /// Run a <see cref="Action{T}"/> inside a Try-Catch block and return the same <typeparamref name="T"/>
+        /// </summary>
+        /// <typeparam name="T">Object Type</typeparam>
+        /// <param name="Obj">Object</param>
+        /// <param name="Callback">The action to execute</param>
+        /// <param name="ex">
+        /// An out param to capture a <see cref="Exception"/> if <paramref name="Callback"/> fails
+        /// </param>
+        /// <returns>The same <paramref name="Obj"/></returns>
+        public static T With<T>(this T Obj, Action<T> Callback, out Exception ex)
+        {
+            ex = TryExecute(() => Callback?.Invoke(Obj));
             return Obj;
         }
     }
