@@ -4267,6 +4267,8 @@ namespace InnerLibs
         /// <returns></returns>
         public static string TrimFirstAny(this string Text, bool ContinuouslyRemove, StringComparison comparison, params string[] StartStringTest)
         {
+            Text = Text ?? "";
+            StartStringTest = StartStringTest ?? Array.Empty<string>();
             while (Text.StartsWithAny(comparison, StartStringTest))
             {
                 foreach (var item in StartStringTest)
@@ -4317,6 +4319,8 @@ namespace InnerLibs
         /// <param name="StartStringTest">Texto inicial que será comparado</param>
         public static string TrimFirstEqual(this string Text, string StartStringTest, StringComparison comparison = default)
         {
+            Text = Text ?? "";
+            StartStringTest = StartStringTest ?? "";
             if (Text.StartsWith(StartStringTest, comparison))
             {
                 Text = Text.RemoveFirstChars(StartStringTest.Length);
@@ -4338,6 +4342,7 @@ namespace InnerLibs
         public static string TrimLastAny(this string Text, bool ContinuouslyRemove, StringComparison comparison, params string[] EndStringTest)
         {
             Text = Text ?? "";
+            EndStringTest = EndStringTest ?? Array.Empty<string>();
             while (Text.EndsWithAny(comparison, EndStringTest))
             {
                 foreach (var item in EndStringTest)
