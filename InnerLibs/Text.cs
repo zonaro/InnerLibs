@@ -36,9 +36,9 @@ namespace InnerLibs
         /// <returns></returns>
         public static string Alphabetize(this string Text)
         {
-            var a = Text.IfBlank(string.Empty).ToCharArray();
+            var a = Text.IfBlank(Empty).ToCharArray();
             Array.Sort(a);
-            return a.SelectJoinString(string.Empty);
+            return a.SelectJoinString(Empty);
         }
 
         /// <summary>
