@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace InnerLibs.MicroORM
@@ -540,6 +541,66 @@ namespace InnerLibs.MicroORM
             else
                 return null;
         }
+        public static T GetValue<T>(this DataRow row, int ColumnIndex = 0)
+        {
+            try
+            {
+                return Converter.ChangeType<T>(row != null ? row[ColumnIndex] : default);
+            }
+            catch
+            {
+                return default;
+            }
+        }
+        public static T GetValue<T>(this DataRow row, string ColumnNameOrIndex)
+        {
+            try
+            {
+                return Converter.ChangeType<T>(row != null ? row[ColumnNameOrIndex] : default);
+            }
+            catch
+            {
+                if (ColumnNameOrIndex.IsNumber())
+                {
+                    return GetValue<T>(row, ColumnNameOrIndex.ToInt());
+                }
+            }
+            return default;
+        }
+
+        public static T GetSingleValue<T>(this DataSet data, string ColumnNameOrIndex)
+        {
+            var row = data?.GetFirstRow();
+            if (row != null)
+                return row.GetValue<T>(ColumnNameOrIndex);
+            return default;
+        }
+
+        public static T GetSingleValue<T>(this DataSet data, int ColumnIndex = 0)
+        {
+            var row = data?.GetFirstRow();
+            if (row != null)
+                return row.GetValue<T>(ColumnIndex);
+            return default;
+        }
+
+        public static T GetSingleValue<T>(this DataTable table, string ColumnNameOrIndex)
+        {
+            var row = table?.GetFirstRow();
+            if (row != null)
+                return row.GetValue<T>(ColumnNameOrIndex);
+            return default;
+        }
+
+        public static T GetSingleValue<T>(this DataTable table, int ColumnIndex = 0)
+        {
+            var row = table?.GetFirstRow();
+            if (row != null)
+                return row.GetValue<T>(ColumnIndex);
+            return default;
+        }
+
+
 
         /// <summary>
         /// Retorna um <see cref="Type"/> de um <see cref="DbType"/>

@@ -4393,6 +4393,8 @@ namespace InnerLibs
         /// <param name="EndStringTest">Texto final que será comparado</param>
         public static string TrimLastEqual(this string Text, string EndStringTest, StringComparison comparison = default)
         {
+            Text = Text ?? "";
+            EndStringTest = EndStringTest ?? "";
             if (Text.EndsWith(EndStringTest, comparison))
             {
                 Text = Text.RemoveLastChars(EndStringTest.Length);
