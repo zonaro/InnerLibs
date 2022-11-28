@@ -23,6 +23,7 @@ namespace InnerLibs
         public const string DoubleQuoteChar = "\"";
         public const string SingleQuoteChar = "\'";
         public const string Empty = "";
+        private const string WhitespaceChar = " ";
 
         public static bool HasLength(this string Text, int Length) => Text != null && Text.Length == Length;
         public static bool HasMinLength(this string Text, int Length) => Text != null && Text.Length >= Length;
@@ -95,7 +96,7 @@ namespace InnerLibs
                 Url.ParseQueryString();
                 foreach (var v in Value ?? Array.Empty<string>())
                 {
-                    Url += string.Format("&{0}={1}", Key, v.UrlEncode().IfBlank(InnerLibs.Text.Empty));
+                    Url += string.Format("&{0}={1}", Key, v.UrlEncode().IfBlank(Empty));
                 }
                 return Url;
             }
@@ -128,7 +129,7 @@ namespace InnerLibs
         {
             foreach (var c in PredefinedArrays.WordWrappers)
             {
-                Text = Text.Replace(c, " " + c + " ");
+                Text = Text.Replace(c, WhitespaceChar + c + WhitespaceChar);
             }
 
             return Text;
@@ -200,7 +201,7 @@ namespace InnerLibs
         /// </returns>
         public static (string Text, bool IsCensored) Censor(this string Text, IEnumerable<string> BadWords, char CensorshipCharacter)
         {
-            var words = Text.Split(" ", StringSplitOptions.None);
+            var words = Text.Split(WhitespaceChar, StringSplitOptions.None);
             BadWords = BadWords ?? Array.Empty<string>();
             var IsCensored = false;
             if (words.ContainsAny(BadWords))
@@ -223,7 +224,7 @@ namespace InnerLibs
                     }
                 }
 
-                Text = words.SelectJoinString(" ");
+                Text = words.SelectJoinString(WhitespaceChar);
             }
             return (Text, IsCensored);
         }
@@ -448,7 +449,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text">Lista de palavras</param>
         /// <returns></returns>
-        public static Dictionary<string, long> DistinctCount(this string Text) => Text.Split(" ").ToList().DistinctCount();
+        public static Dictionary<string, long> DistinctCount(this string Text) => Text.Split(WhitespaceChar).ToList().DistinctCount();
 
         /// <summary>
         /// Verifica se uma string termina com alguma outra string de um array
@@ -540,7 +541,7 @@ namespace InnerLibs
                 Text = sentences.SelectJoinString(dot);
             }
 
-            sentences = Text.Split(" ").ToList();
+            sentences = Text.Split(WhitespaceChar).ToList();
             Text = InnerLibs.Text.Empty;
             foreach (var c in sentences)
             {
@@ -552,12 +553,12 @@ namespace InnerLibs
                     string proximapalavra = sentences.IfNoIndex(sentences.IndexOf(c) + 1, InnerLibs.Text.Empty);
                     if (!(proximapalavra.EndsWith(".") && palavra.Length == 2))
                     {
-                        Text += " ";
+                        Text += WhitespaceChar;
                     }
                 }
                 else
                 {
-                    Text += c + " ";
+                    Text += c + WhitespaceChar;
                 }
             }
 
@@ -572,7 +573,7 @@ namespace InnerLibs
         public static string FixHTMLBreakLines(this string Text)
         {
             Text = Text.ReplaceMany(Environment.NewLine, "<br/>", "<br />", "<br>");
-            return Text.Replace("&nbsp;", " ");
+            return Text.Replace("&nbsp;", WhitespaceChar);
         }
 
         /// <summary>
@@ -603,7 +604,7 @@ namespace InnerLibs
         /// <returns>Frase corretamente pontuada</returns>
         public static string FixPunctuation(this string Text, string Punctuation = ".", bool ForceSpecificPunctuation = false)
         {
-            Text = Text.TrimLastAny(true, ",", " ");
+            Text = Text.TrimLastAny(true, ",", WhitespaceChar);
             var pts = new[] { ".", "!", "?", ":", ";" };
             if (ForceSpecificPunctuation)
             {
@@ -1171,7 +1172,7 @@ namespace InnerLibs
             {
                 foreach (var item in s)
                 {
-                    ns += item.AsEnumerable().IfNoIndex(i, " ".FirstOrDefault());
+                    ns += item.AsEnumerable().IfNoIndex(i, WhitespaceChar.FirstOrDefault());
                 }
             }
 
@@ -1270,7 +1271,7 @@ namespace InnerLibs
             Text = Text ?? InnerLibs.Text.Empty;
             if (IgnoreWhiteSpaces)
             {
-                Text = Text.RemoveAny(" ");
+                Text = Text.RemoveAny(WhitespaceChar);
             }
 
             return Text == Text.ToCharArray().Reverse().SelectJoinString();
@@ -1342,78 +1343,39 @@ namespace InnerLibs
         /// <returns></returns>
         public static string MaskTelephoneNumber(this string Number)
         {
-            Number = Number ?? InnerLibs.Text.Empty;
-            Number = Number.ParseDigits().RemoveAny(",", ".").ToLong().ToString();
-            if (Number.IsBlank())
-            {
-                return InnerLibs.Text.Empty;
-            }
-
+            Number = Number ?? Empty;
+            Number = Number.ParseDigits().RemoveAny(",", ".").TrimBetween().GetLastChars(13);
             string mask;
-            switch (Number.Length)
-            {
-                case var fourOrLess when fourOrLess <= 4:
-                    {
-                        mask = "{0:####}";
-                        break;
-                    }
+            if (Number.Length <= 4)
+                mask = "{0:####}";
+            else if (Number.Length <= 8)
+                mask = "{0:####-####}";
+            else if (Number.Length == 9)
+                mask = "{0:#####-####}";
+            else if (Number.Length == 10)
+                mask = "{0:(##) ####-####}";
+            else if (Number.Length == 11)
+                mask = "{0:(##) #####-####}";
+            else if (Number.Length == 12)
+                mask = "{0:+## (##) ####-####}";
+            else
+                mask = "{0:+## (##) #####-####}";
 
-                case var eightOrLess when eightOrLess <= 8:
-                    {
-                        mask = "{0:####-####}";
-                        break;
-                    }
+            return string.Format(mask, long.Parse(Number.IfBlank("0")));
 
-                case 9:
-                    {
-                        mask = "{0:#####-####}";
-                        break;
-                    }
-
-                case 10:
-                    {
-                        mask = "{0:(##) ####-####}";
-                        break;
-                    }
-
-                case 11:
-                    {
-                        mask = "{0:(##) #####-####}";
-                        break;
-                    }
-
-                case 12:
-                    {
-                        mask = "{0:+## (##) ####-####}";
-                        break;
-                    }
-
-                case 13:
-                    {
-                        mask = "{0:+## (##) #####-####}";
-                        break;
-                    }
-
-                default:
-                    {
-                        return Number.ToString();
-                    }
-            }
-
-            return string.Format(mask, long.Parse(Number));
         }
 
         /// <inheritdoc cref="MaskTelephoneNumber(int)"/>
-        public static string MaskTelephoneNumber(this long Number) => Number.ToString().MaskTelephoneNumber();
+        public static string MaskTelephoneNumber(this long Number) => MaskTelephoneNumber($"{Number}");
 
         /// <inheritdoc cref="MaskTelephoneNumber(string)"/>
-        public static string MaskTelephoneNumber(this int Number) => Number.ToString().MaskTelephoneNumber();
+        public static string MaskTelephoneNumber(this int Number) => MaskTelephoneNumber($"{Number}");
 
         /// <inheritdoc cref="MaskTelephoneNumber(int)"/>
-        public static string MaskTelephoneNumber(this decimal Number) => Number.ToString().MaskTelephoneNumber();
+        public static string MaskTelephoneNumber(this decimal Number) => MaskTelephoneNumber($"{Number}");
 
         /// <inheritdoc cref="MaskTelephoneNumber(int)"/>
-        public static string MaskTelephoneNumber(this double Number) => Number.ToString().MaskTelephoneNumber();
+        public static string MaskTelephoneNumber(this double Number) => MaskTelephoneNumber($"{Number}");
 
         /// <summary>
         /// Adciona caracteres ao inicio e final de uma string enquanto o <see
@@ -1449,12 +1411,12 @@ namespace InnerLibs
         public static string ParseAlphaNumeric(this string Text)
         {
             var l = new List<string>();
-            foreach (var item in Text.Split(" ", StringSplitOptions.RemoveEmptyEntries))
+            foreach (var item in Text.Split(WhitespaceChar, StringSplitOptions.RemoveEmptyEntries))
             {
-                l.Add(Regex.Replace(item, "[^A-Za-z0-9]", InnerLibs.Text.Empty));
+                l.Add(Regex.Replace(item, "[^A-Za-z0-9]", Empty));
             }
 
-            return l.SelectJoinString(" ");
+            return l.SelectJoinString(WhitespaceChar);
         }
 
         /// <summary>
@@ -1472,7 +1434,7 @@ namespace InnerLibs
         public static string ParseDigits(this string Text, CultureInfo Culture = null)
         {
             Culture = Culture ?? CultureInfo.CurrentCulture;
-            string strDigits = InnerLibs.Text.Empty;
+            string strDigits = Empty;
             if (string.IsNullOrEmpty(Text))
             {
                 return strDigits;
@@ -1482,7 +1444,7 @@ namespace InnerLibs
             {
                 if (char.IsDigit(c) || c == Convert.ToChar(Culture.NumberFormat.NumberDecimalSeparator))
                 {
-                    strDigits += Convert.ToString(c);
+                    strDigits += $"{c}";
                 }
             }
 
@@ -1518,8 +1480,8 @@ namespace InnerLibs
                     var parts = segment.Split('=');
                     if (parts.Any())
                     {
-                        string key = parts.First().TrimFirstAny(" ", "?");
-                        string val = InnerLibs.Text.Empty;
+                        string key = parts.First().TrimFirstAny(WhitespaceChar, "?");
+                        string val = Empty;
                         if (parts.Skip(1).Any())
                         {
                             val = parts[1].Trim().UrlDecode();
@@ -1542,9 +1504,9 @@ namespace InnerLibs
         /// <returns></returns>
         public static string PascalCaseAdjust(this string Text)
         {
-            Text = Text.IfBlank(InnerLibs.Text.Empty);
+            Text = Text.IfBlank(Empty);
             var chars = Text.ToArray();
-            Text = InnerLibs.Text.Empty;
+            Text = Empty;
             int uppercount = 0;
             foreach (var c in chars)
             {
@@ -1552,7 +1514,7 @@ namespace InnerLibs
                 {
                     if (!(uppercount > 0))
                     {
-                        Text += " ";
+                        Text += WhitespaceChar;
                     }
 
                     uppercount++;
@@ -1561,13 +1523,14 @@ namespace InnerLibs
                 {
                     if (uppercount > 1)
                     {
-                        Text += " ";
+                        Text += WhitespaceChar;
                     }
 
                     uppercount = 0;
                 }
 
-                Text += Convert.ToString(c);
+                Text += $"{c}";
+
             }
 
             return Text.Trim();
@@ -1578,7 +1541,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static IEnumerable<string> PascalCaseSplit(this string Text) => Text.PascalCaseAdjust().Split(" ");
+        public static IEnumerable<string> PascalCaseSplit(this string Text) => Text.PascalCaseAdjust().Split(WhitespaceChar);
 
         /// <summary>
         /// Retorna uma string em sua forma poop
@@ -1608,7 +1571,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static string Poopfy(this string Text) => Poopfy(Text.Split(" ")).SelectJoinString(" ");
+        public static string Poopfy(this string Text) => Poopfy(Text.Split(WhitespaceChar)).SelectJoinString(WhitespaceChar);
 
         /// <summary>
         /// Return a Idented XML string
@@ -2367,7 +2330,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string Singularize(this string Text)
         {
-            var phrase = Text.ApplySpaceOnWrapChars().Split(" ");
+            var phrase = Text.ApplySpaceOnWrapChars().Split(WhitespaceChar);
             for (int index = 0, loopTo = phrase.Count() - 1; index <= loopTo; index++)
             {
                 string endchar = phrase[index].GetLastChars();
@@ -2472,7 +2435,7 @@ namespace InnerLibs
                 }
             }
 
-            return phrase.SelectJoinString(" ").TrimBetween();
+            return phrase.SelectJoinString(WhitespaceChar).TrimBetween();
         }
 
         /// <summary>
@@ -2696,7 +2659,7 @@ namespace InnerLibs
         /// Indica se os espacos serão substituidos por underscores (underline). Use FALSE para hifens
         /// </param>
         /// <returns>string amigavel para URL</returns>
-        public static string ToFriendlyURL(this string Text, bool UseUnderscore = false) => Text.ReplaceMany(UseUnderscore ? "_" : "-", "_", "-", " ").RemoveAny("(", ")", ".", ",", "#").ToFriendlyPathName().RemoveAccents().ToLower();
+        public static string ToFriendlyURL(this string Text, bool UseUnderscore = false) => Text.ReplaceMany(UseUnderscore ? "_" : "-", "_", "-", WhitespaceChar).RemoveAny("(", ")", ".", ",", "#").ToFriendlyPathName().RemoveAccents().ToLower();
 
         /// <summary>
         /// Converte um texto para Leet (1337)
@@ -4000,7 +3963,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static string ToNormalCase(this string Text) => Text.PascalCaseAdjust().Replace("_", " ");
+        public static string ToNormalCase(this string Text) => Text.PascalCaseAdjust().Replace("_", WhitespaceChar);
 
         /// <summary>
         /// Retorna um numero com o sinal de porcentagem
@@ -4077,9 +4040,9 @@ namespace InnerLibs
 
             Texts = (Texts ?? Array.Empty<TSource>()).WhereNotBlank();
 
-            if (PhraseStart.IsNotBlank() && !PhraseStart.EndsWith(" "))
+            if (PhraseStart.IsNotBlank() && !PhraseStart.EndsWith(WhitespaceChar))
             {
-                PhraseStart += " ";
+                PhraseStart += WhitespaceChar;
             }
 
             switch (Texts.Count())
@@ -4129,7 +4092,7 @@ namespace InnerLibs
                 Text = Text.ToLower();
             }
 
-            var l = Text.Split(" ", StringSplitOptions.None).ToList();
+            var l = Text.Split(WhitespaceChar, StringSplitOptions.None).ToList();
             for (int index = 0, loopTo = l.Count - 1; index <= loopTo; index++)
             {
                 string pal = l[index];
@@ -4149,7 +4112,7 @@ namespace InnerLibs
                 }
             }
 
-            return l.SelectJoinString(" ");
+            return l.SelectJoinString(WhitespaceChar);
         }
 
         /// <summary>
@@ -4194,7 +4157,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static string ToSnakeCase(this string Text) => Text.Replace(" ", "_").ToLower();
+        public static string ToSnakeCase(this string Text) => Text.Replace(WhitespaceChar, "_").ToLower();
 
         /// <summary>
         /// Cria um <see cref="Stream"/> a partir de uma string
@@ -4277,9 +4240,9 @@ namespace InnerLibs
             {
                 var arr = Text.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
                 Text = arr.SelectJoinString(Environment.NewLine);
-                arr = Text.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
-                Text = arr.SelectJoinString(" ");
-                Text = Text.TrimAny(" ", Environment.NewLine).Trim();
+                arr = Text.Split(new string[] { WhitespaceChar }, StringSplitOptions.RemoveEmptyEntries);
+                Text = arr.SelectJoinString(WhitespaceChar);
+                Text = Text.TrimAny(WhitespaceChar, Environment.NewLine).Trim();
             }
 
             return Text;
