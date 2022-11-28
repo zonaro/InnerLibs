@@ -4337,6 +4337,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string TrimLastAny(this string Text, bool ContinuouslyRemove, StringComparison comparison, params string[] EndStringTest)
         {
+            Text = Text ?? "";
             while (Text.EndsWithAny(comparison, EndStringTest))
             {
                 foreach (var item in EndStringTest)
@@ -4395,9 +4396,9 @@ namespace InnerLibs
             return Text;
         }
 
-        public static string UnBrackfy(this string Text) => Text.UnBrackfy(char.MinValue, true);
+        public static string UnBrackfy(this string Text) => Text.UnBrackfy('{', true);
 
-        public static string UnBrackfy(this string Text, char BracketChar, bool ContinuouslyRemove = false) => Text.UnQuote(BracketChar, ContinuouslyRemove);
+        public static string UnBrackfy(this string Text, char OpenBracketChar, bool ContinuouslyRemove = false) => Text.UnQuote(OpenBracketChar, ContinuouslyRemove);
 
         public static string UnQuote(this string Text) => Text.UnQuote(char.MinValue, true);
 
