@@ -96,11 +96,11 @@ namespace InnerLibs
                 Url.ParseQueryString();
                 foreach (var v in Value ?? Array.Empty<string>())
                 {
-                    Url += string.Format("&{0}={1}", Key, v.UrlEncode().IfBlank(Empty));
+                    Url += $"&{Key}={v?.UrlEncode()}";
                 }
                 return Url;
             }
-            throw new ArgumentException("string is not a valid URL");
+            throw new ArgumentException("string is not a valid URL", nameof(Url));
         }
 
         /// <summary>
