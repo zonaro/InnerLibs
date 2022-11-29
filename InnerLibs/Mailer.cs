@@ -682,13 +682,13 @@ namespace InnerLibs.Mail
 
         public FluentMailMessage AddAttachmentFromData<T>(Expression<Func<T, IEnumerable<Attachment>>> AttachmentSelector)
         {
-            Misc.AddAttachmentFromData(this.To.Where(x => x is TemplateMailAddress).Cast<TemplateMailAddress>(), AttachmentSelector);
+            Misc.AddAttachmentFromData(To.Where(x => x is TemplateMailAddress).Cast<TemplateMailAddress>(), AttachmentSelector);
             return this;
         }
 
         public FluentMailMessage AddAttachmentFromData<T>(Expression<Func<T, Attachment>> AttachmentSelector)
         {
-            Misc.AddAttachmentFromData(this.To.Where(x => x is TemplateMailAddress).Cast<TemplateMailAddress>(), AttachmentSelector);
+            Misc.AddAttachmentFromData(To.Where(x => x is TemplateMailAddress).Cast<TemplateMailAddress>(), AttachmentSelector);
             return this;
         }
 
