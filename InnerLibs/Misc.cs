@@ -17,6 +17,24 @@ namespace InnerLibs
     public static class Misc
     {
 
+
+        public static T[,] To2D<T>(this T[][] source)
+        {
+
+            int FirstDim = source.Length;
+            int SecondDim = source.GroupBy(row => row.Length).Max().Key;
+
+            var result = new T[FirstDim, SecondDim];
+            for (int i = 0; i < FirstDim; ++i)
+                for (int j = 0; j < SecondDim; ++j)
+                    result[i, j] = source[i].IfNoIndex(j);
+
+            return result;
+
+
+        }
+
+
         public static IEnumerable<TemplateMailAddress> AddAttachmentFromData<T>(this IEnumerable<TemplateMailAddress> recipients, Expression<Func<T, IEnumerable<System.Net.Mail.Attachment>>> AttachmentSelector)
         {
             if (AttachmentSelector != null)

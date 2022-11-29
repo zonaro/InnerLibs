@@ -10,8 +10,6 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 
 namespace InnerLibs.MicroORM
 {
@@ -1225,6 +1223,8 @@ namespace InnerLibs.MicroORM
 
             return resposta;
         }
+
+
 
         /// <summary>
         /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de

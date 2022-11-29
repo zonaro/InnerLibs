@@ -7,14 +7,13 @@ using System.Linq.Expressions;
 using System.Net;
 using System.Net.Mail;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace InnerLibs.Mail
 {
     [Flags]
     public enum SentStatus
     {
-        NotSent = 0,
+        None = 0,
         Success = 1,
         Error = 2,
         PartialSuccess = Error + Success,
@@ -161,6 +160,18 @@ namespace InnerLibs.Mail
         {
             if (Attachment != null && Attachment.Length > 0)
                 this.Attachments.Add(new Attachment(Attachment.FullName));
+            return this;
+        }
+
+        public FluentMailMessage AddAttachmentFromData<T>(Expression<Func<T, IEnumerable<Attachment>>> AttachmentSelector)
+        {
+            Misc.AddAttachmentFromData(To.Where(x => x is TemplateMailAddress).Cast<TemplateMailAddress>(), AttachmentSelector);
+            return this;
+        }
+
+        public FluentMailMessage AddAttachmentFromData<T>(Expression<Func<T, Attachment>> AttachmentSelector)
+        {
+            Misc.AddAttachmentFromData(To.Where(x => x is TemplateMailAddress).Cast<TemplateMailAddress>(), AttachmentSelector);
             return this;
         }
 
@@ -510,18 +521,24 @@ namespace InnerLibs.Mail
         /// <param name="TemplateOrFilePathOrUrl"></param>
         /// <returns></returns>
         public FluentMailMessage UseTemplate(string TemplateOrFilePathOrUrl, string MessageTemplate) => UseTemplate(TemplateOrFilePathOrUrl, new { BodyText = MessageTemplate });
+
         public FluentMailMessage UseTemplate(HtmlTag Template, string MessageTemplate) => UseTemplate(Template?.OuterHtml ?? Text.Empty, new { BodyText = MessageTemplate });
+
         public FluentMailMessage UseTemplate(HtmlTag Template) => UseTemplate(Template?.OuterHtml ?? Text.Empty, Text.Empty);
+
         public FluentMailMessage UseTemplate<T>(HtmlTag Template, T MessageTemplate) where T : class => UseTemplate(Template.OuterHtml, MessageTemplate);
 
         public FluentMailMessage UseTemplate(FileInfo Template) => UseTemplate(Template?.FullName ?? Text.Empty, Text.Empty);
+
         public FluentMailMessage UseTemplate(FileInfo Template, string MessageTemplate) => UseTemplate(Template?.FullName, MessageTemplate);
+
         public FluentMailMessage UseTemplate<T>(FileInfo Template, T MessageTemplate) where T : class => UseTemplate(Template?.FullName ?? Text.Empty, MessageTemplate);
 
         public FluentMailMessage UseTemplate(DirectoryInfo TemplateDirectory, string TemplateFileName) => UseTemplate(Path.Combine(TemplateDirectory?.FullName ?? Text.Empty, TemplateFileName ?? Text.Empty), Text.Empty);
-        public FluentMailMessage UseTemplate(DirectoryInfo TemplateDirectory, string TemplateFileName, string MessageTemplate) => UseTemplate(Path.Combine(TemplateDirectory?.FullName ?? Text.Empty, TemplateFileName ?? Text.Empty), MessageTemplate);
-        public FluentMailMessage UseTemplate<T>(DirectoryInfo TemplateDirectory, string TemplateFileName, T MessageTemplate) where T : class => UseTemplate(Path.Combine(TemplateDirectory?.FullName ?? Text.Empty, TemplateFileName ?? Text.Empty), MessageTemplate);
 
+        public FluentMailMessage UseTemplate(DirectoryInfo TemplateDirectory, string TemplateFileName, string MessageTemplate) => UseTemplate(Path.Combine(TemplateDirectory?.FullName ?? Text.Empty, TemplateFileName ?? Text.Empty), MessageTemplate);
+
+        public FluentMailMessage UseTemplate<T>(DirectoryInfo TemplateDirectory, string TemplateFileName, T MessageTemplate) where T : class => UseTemplate(Path.Combine(TemplateDirectory?.FullName ?? Text.Empty, TemplateFileName ?? Text.Empty), MessageTemplate);
 
         /// <summary>
         /// Utiliza um template para o corpo da mensagem
@@ -678,20 +695,6 @@ namespace InnerLibs.Mail
             Subject = Text;
             return this;
         }
-
-
-        public FluentMailMessage AddAttachmentFromData<T>(Expression<Func<T, IEnumerable<Attachment>>> AttachmentSelector)
-        {
-            Misc.AddAttachmentFromData(To.Where(x => x is TemplateMailAddress).Cast<TemplateMailAddress>(), AttachmentSelector);
-            return this;
-        }
-
-        public FluentMailMessage AddAttachmentFromData<T>(Expression<Func<T, Attachment>> AttachmentSelector)
-        {
-            Misc.AddAttachmentFromData(To.Where(x => x is TemplateMailAddress).Cast<TemplateMailAddress>(), AttachmentSelector);
-            return this;
-        }
-
     }
 
     /// <summary>
@@ -714,19 +717,8 @@ namespace InnerLibs.Mail
             this.TemplateData = TemplateData;
         }
 
-        public virtual object TemplateData { get; set; }
-
-
         public List<Attachment> Attachments { get; set; }
-
-        public TemplateMailAddress AddAttachment(string fileName) => AddAttachment(new Attachment(fileName));
-        public TemplateMailAddress AddAttachment(FileInfo file) => AddAttachment(file?.FullName);
-        public TemplateMailAddress AddAttachment(Attachment attachment)
-        {
-            Attachments = Attachments ?? new List<Attachment>();
-            Attachments.Add(attachment);
-            return this;
-        }
+        public virtual object TemplateData { get; set; }
 
         public static IEnumerable<TemplateMailAddress> FromList<T>(IEnumerable<T> Data, Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector = null) => (Data ?? Array.Empty<T>()).AsEnumerable().Select(x => FromObject(x, EmailSelector, NameSelector)).Where(x => x != null);
 
@@ -757,6 +749,17 @@ namespace InnerLibs.Mail
                 }
             }
             return null;
+        }
+
+        public TemplateMailAddress AddAttachment(string fileName) => AddAttachment(new Attachment(fileName));
+
+        public TemplateMailAddress AddAttachment(FileInfo file) => AddAttachment(file?.FullName);
+
+        public TemplateMailAddress AddAttachment(Attachment attachment)
+        {
+            Attachments = Attachments ?? new List<Attachment>();
+            Attachments.Add(attachment);
+            return this;
         }
     }
 }

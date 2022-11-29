@@ -1,4 +1,5 @@
-﻿using System;
+﻿using InnerLibs.LINQ;
+using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Data.Common;
@@ -6,7 +7,6 @@ using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
-using InnerLibs.LINQ;
 
 namespace InnerLibs.MicroORM
 {

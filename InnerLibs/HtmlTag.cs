@@ -257,13 +257,7 @@ namespace InnerLibs
 
         public static HtmlTag CreateOption(string Name, string Value = null, bool Selected = false) => new HtmlTag("option", null, Name.RemoveHTML()).SetAttribute("value", Value).SetProp("selected", Selected);
 
-        // public static HtmlTag CreateTable(string[][] Table, bool Header = false)
-        // {
-        //     foreach (var a in Table ?? Array.Empty<string[]>)
-        //     {
-
-        //     }
-        // }
+        public static HtmlTag CreateTable(string[][] Table, bool Header = false) => CreateTable(Table?.To2D(), Header);
         public static HtmlTag CreateTable(string[,] Table, bool Header = false)
         {
             HtmlTag tag = new HtmlTag("table");
@@ -275,10 +269,9 @@ namespace InnerLibs
                     for (int j = 0; j < Table.GetLength(1); j++)
                     {
                         Header = Header && i == 0;
-                        var col = new HtmlTag(Header ? "th" : "td", Table[i, j]);
-                        row.InnerHtml += col;
+                        row.AddChildren(Header ? "th" : "td", Table[i, j]);
                     }
-                    tag.InnerHtml += row;
+                    tag.AddChildren(row);
                 }
             return tag;
         }
