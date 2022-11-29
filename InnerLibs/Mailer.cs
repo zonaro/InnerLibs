@@ -719,6 +719,14 @@ namespace InnerLibs.Mail
 
         public List<Attachment> Attachments { get; set; }
 
+        public TemplateMailAddress AddAttachment(string fileName) => AddAttachment(new Attachment(fileName));
+        public TemplateMailAddress AddAttachment(FileInfo file) => AddAttachment(file?.FullName);
+        public TemplateMailAddress AddAttachment(Attachment attachment)
+        {
+            Attachments = Attachments ?? new List<Attachment>();
+            Attachments.Add(attachment);
+            return this;
+        }
 
         public static IEnumerable<TemplateMailAddress> FromList<T>(IEnumerable<T> Data, Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector = null) => (Data ?? Array.Empty<T>()).AsEnumerable().Select(x => FromObject(x, EmailSelector, NameSelector)).Where(x => x != null);
 
