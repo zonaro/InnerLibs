@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -97,12 +98,17 @@ namespace InnerLibs
         /// <returns></returns>
         public static FileInfo SaveMailAttachment(this System.Net.Mail.Attachment attachment, string FilePath, DateTime? DateAndTime = null)
         {
-            if (FilePath.IsDirectoryPath())
+            if (attachment != null)
             {
-                FilePath = FilePath + @"\" + attachment.Name.IfBlank(attachment.ContentId);
-            }
+                if (FilePath.IsDirectoryPath())
+                {
+                    FilePath = FilePath + @"\" + attachment.Name.IfBlank(attachment.ContentId);
+                }
 
-            return attachment.ToBytes().WriteToFile(FilePath, DateAndTime);
+                return attachment.ToBytes().WriteToFile(FilePath, DateAndTime);
+            }
+            
+            return null;
         }
 
         /// <summary>
@@ -141,7 +147,7 @@ namespace InnerLibs
         public static byte[] ToBytes(this FileInfo File)
         {
             if (File != null)
-            {               
+            {
                 using (var fStream = new FileStream(File.FullName, FileMode.Open, FileAccess.Read))
                 {
                     using (var br = new BinaryReader(fStream))

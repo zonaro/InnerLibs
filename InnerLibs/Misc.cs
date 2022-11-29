@@ -1,4 +1,5 @@
 ﻿using InnerLibs.LINQ;
+using InnerLibs.Mail;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -15,6 +16,44 @@ namespace InnerLibs
 {
     public static class Misc
     {
+
+        public static IEnumerable<TemplateMailAddress> AddAttachmentFromData<T>(this IEnumerable<TemplateMailAddress> recipients, Expression<Func<T, IEnumerable<System.Net.Mail.Attachment>>> AttachmentSelector)
+        {
+            if (AttachmentSelector != null)
+                foreach (var rec in recipients ?? Array.Empty<TemplateMailAddress>())
+                {
+                    if (rec.TemplateData is T data)
+                    {
+                        rec.Attachments.AddRange(AttachmentSelector.Compile().Invoke(data));
+                    }
+                }
+            return recipients;
+        }
+
+        public static TemplateMailAddress AddAttachmentFromData<T>(this TemplateMailAddress recipient, Expression<Func<T, IEnumerable<System.Net.Mail.Attachment>>> AttachmentSelector)
+        {
+            return AddAttachmentFromData(new[] { recipient }, AttachmentSelector).FirstOrDefault();
+        }
+
+        public static TemplateMailAddress AddAttachmentFromData<T>(this TemplateMailAddress recipient, Expression<Func<T, System.Net.Mail.Attachment>> AttachmentSelector)
+        {
+            return AddAttachmentFromData(new[] { recipient }, AttachmentSelector).FirstOrDefault();
+        }
+
+
+        public static IEnumerable<TemplateMailAddress> AddAttachmentFromData<T>(this IEnumerable<TemplateMailAddress> recipients, Expression<Func<T, System.Net.Mail.Attachment>> AttachmentSelector)
+        {
+            if (AttachmentSelector != null)
+                foreach (var rec in recipients ?? Array.Empty<TemplateMailAddress>())
+                {
+                    if (rec.TemplateData is T data)
+                    {
+                        rec.Attachments.Add(AttachmentSelector.Compile().Invoke(data));
+                    }
+                }
+            return recipients;
+        }
+
         /// <summary>
         /// Retorna um valor de um tipo especifico de acordo com um valor boolean
         /// </summary>

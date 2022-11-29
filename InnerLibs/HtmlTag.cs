@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 
@@ -235,6 +236,13 @@ namespace InnerLibs
             }
         }
 
+        public static IEnumerable<HtmlTag> FromFile(FileInfo file)
+        {
+            if (file != null && file.Exists)
+                return Parse(file.ReadAllText());
+            return Array.Empty<HtmlTag>();
+        }
+
         public static HtmlTag CreateAnchor(string URL, string Text, string Target = "_self", object htmlAttributes = null) => new HtmlTag("a", htmlAttributes, Text).SetAttribute("href", URL, true).SetAttribute("target", Target, true);
 
         public static HtmlTag CreateImage(Image Img, object htmlAttributes = null) => CreateImage(Img?.ToDataURL(), htmlAttributes);
@@ -249,6 +257,13 @@ namespace InnerLibs
 
         public static HtmlTag CreateOption(string Name, string Value = null, bool Selected = false) => new HtmlTag("option", null, Name.RemoveHTML()).SetAttribute("value", Value).SetProp("selected", Selected);
 
+        // public static HtmlTag CreateTable(string[][] Table, bool Header = false)
+        // {
+        //     foreach (var a in Table ?? Array.Empty<string[]>)
+        //     {
+
+        //     }
+        // }
         public static HtmlTag CreateTable(string[,] Table, bool Header = false)
         {
             HtmlTag tag = new HtmlTag("table");
@@ -322,7 +337,7 @@ namespace InnerLibs
             return tag;
         }
 
- 
+
         public static implicit operator string(HtmlTag Tag) => Tag?.ToString();
 
         public static IEnumerable<HtmlTag> Parse(string HtmlStringOrURL)
