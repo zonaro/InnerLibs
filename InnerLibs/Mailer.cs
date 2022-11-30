@@ -401,11 +401,56 @@ namespace InnerLibs.Mail
 
                         ErrorAction?.Invoke(mailMessage.To.First(), this, ex);
                     }
+                    finally
+                    {
+                        mailMessage.Dispose();
+                    }
                 }
             }
             else
             {
                 throw new ArgumentException("SmtpHost is null", nameof(Smtp));
+            }
+
+            return this;
+        }
+
+
+        /// <summary>
+        /// Envia os emails para um destinatário de teste. Não dispara os callbacks <see cref="SuccessAction"/> e <see cref="ErrorAction"/> e não altera a <see cref="SentStatus"/> nem a <see cref="SentStatusList"/>
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        public FluentMailMessage<T> SendTest(string Email)
+        {
+            if (!Email.IsEmail()) throw new ArgumentException("Email is not a valid email", nameof(Email));
+
+            if (Smtp != null)
+            {
+                foreach (MailMessage mailMessage in CompileEmails())
+                {
+                    try
+                    {
+                        mailMessage.To.Clear();
+                        mailMessage.Bcc.Clear();
+                        mailMessage.CC.Clear();
+                        mailMessage.To.Add(Email);
+                        Smtp.Send(mailMessage);
+
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+                    finally
+                    {
+                        mailMessage.Dispose();
+                    }
+                }
+            }
+            else
+            {
+                throw new NullReferenceException("SmtpHost is null");
             }
 
             return this;
@@ -443,6 +488,8 @@ namespace InnerLibs.Mail
                     msgIndiv.Body = msg;
                     msgIndiv.Subject = subj;
                     msgIndiv.To.Add(item);
+
+
 
                     msgIndiv.SubjectEncoding = this.SubjectEncoding;
                     msgIndiv.HeadersEncoding = this.HeadersEncoding;
@@ -785,6 +832,8 @@ namespace InnerLibs.Mail
                     email = EmailSelector.Compile().Invoke(Data);
                 }
 
+                if (email.IsEmail() == false) return null;
+
                 if (NameSelector != null)
                 {
                     name = NameSelector.Compile().Invoke(Data);
@@ -802,10 +851,7 @@ namespace InnerLibs.Mail
             return null;
         }
 
-
-
-
-        public List<Attachment> Attachments { get; set; }
+        public List<Attachment> Attachments { get; set; } = new List<Attachment>();
         public virtual T TemplateData { get; set; }
 
 

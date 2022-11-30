@@ -22,29 +22,39 @@ namespace InnerLibs
             if (AttachmentSelector != null)
                 foreach (var rec in recipients ?? Array.Empty<TemplateMailAddress<T>>())
                 {
-                    rec.Attachments.AddRange(AttachmentSelector.Compile().Invoke(rec.TemplateData));
+                    if (rec?.TemplateData != null)
+                    {
+                        var att = AttachmentSelector.Compile().Invoke(rec.TemplateData);
+                        if (att != null)
+                        {
+                            if (rec.Attachments == null) rec.Attachments = new List<Attachment>();
+                            rec.Attachments.AddRange(att.Where(x => x != null));
+
+                        }
+
+                    }
                 }
             return recipients;
         }
 
-        public static TemplateMailAddress<T> AddAttachmentFromData<T>(this TemplateMailAddress<T> recipient, Expression<Func<T, IEnumerable<System.Net.Mail.Attachment>>> AttachmentSelector) where T : class
-        {
-            return AddAttachmentFromData(new[] { recipient }, AttachmentSelector).FirstOrDefault();
-        }
+        public static TemplateMailAddress<T> AddAttachmentFromData<T>(this TemplateMailAddress<T> recipient, Expression<Func<T, IEnumerable<System.Net.Mail.Attachment>>> AttachmentSelector) where T : class => AddAttachmentFromData(new[] { recipient }, AttachmentSelector).FirstOrDefault();
 
-        public static TemplateMailAddress<T> AddAttachmentFromData<T>(this TemplateMailAddress<T> recipient, Expression<Func<T, System.Net.Mail.Attachment>> AttachmentSelector) where T : class
-        {
-            return AddAttachmentFromData(new[] { recipient }, AttachmentSelector).FirstOrDefault();
-        }
+        public static TemplateMailAddress<T> AddAttachmentFromData<T>(this TemplateMailAddress<T> recipient, Expression<Func<T, System.Net.Mail.Attachment>> AttachmentSelector) where T : class => AddAttachmentFromData(new[] { recipient }, AttachmentSelector).FirstOrDefault();
 
         public static IEnumerable<TemplateMailAddress<T>> AddAttachmentFromData<T>(this IEnumerable<TemplateMailAddress<T>> recipients, Expression<Func<T, System.Net.Mail.Attachment>> AttachmentSelector) where T : class
         {
             if (AttachmentSelector != null)
                 foreach (var rec in recipients ?? Array.Empty<TemplateMailAddress<T>>())
                 {
-                    if (rec.TemplateData is T data)
+                    if (rec?.TemplateData != null)
                     {
-                        rec.Attachments.Add(AttachmentSelector.Compile().Invoke(data));
+                        var att = AttachmentSelector.Compile().Invoke(rec.TemplateData);
+                        if (att != null)
+                        {
+                            if (rec.Attachments == null) rec.Attachments = new List<Attachment>();
+                            rec.Attachments.Add(att);
+                        }
+
                     }
                 }
             return recipients;

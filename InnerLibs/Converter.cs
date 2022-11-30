@@ -431,7 +431,7 @@ namespace InnerLibs
                 case "false":
                 case "0":
                 case "null":
-                case InnerLibs.Text.Empty:
+                case Text.Empty:
                     return false;
                 default:
                     return true;
