@@ -67,13 +67,13 @@ namespace InnerLibs.EscDarumaCommands
 
         public byte[] Code128(string code)
         {
-            return (new byte[] { 27, 'b'.ToByte(), 5 }).AddBytes(new byte[] { 2 }).AddBytes(new byte[] { 50 }).AddBytes(new byte[] { 0 }).AddTextBytes(code, Encoding).AddBytes(new byte[] { 0 }); // Code Type
+            return (new byte[] { 27, 'b'.ToByte(), 5 }).AddBytes(new byte[] { 2 }).AddBytes(new byte[] { 50 }).AddBytes(new byte[] { 0 }).AddTextBytes(code, Encoding).AddBytes(new byte[] { 0 }); // Code T
             // Witdh Height If print code informed (1 print, 0 dont print)
         }
 
         public byte[] Code39(string code)
         {
-            return (new byte[] { 27, 'b'.ToByte(), 6 }).AddBytes(new byte[] { 2 }).AddBytes(new byte[] { 50 }).AddBytes(new byte[] { 0 }).AddTextBytes(code, Encoding).AddBytes(new byte[] { 0 }); // Code Type
+            return (new byte[] { 27, 'b'.ToByte(), 6 }).AddBytes(new byte[] { 2 }).AddBytes(new byte[] { 50 }).AddBytes(new byte[] { 0 }).AddTextBytes(code, Encoding).AddBytes(new byte[] { 0 }); // Code T
             // Witdh Height If print code informed (1 print, 0 dont print)
         }
 
@@ -86,7 +86,7 @@ namespace InnerLibs.EscDarumaCommands
         {
             if (code.Trim().Length != 13)
                 return new byte[0];
-            return (new byte[] { 27, 'b'.ToByte(), 1 }).AddBytes(new byte[] { 2 }).AddBytes(new byte[] { 50 }).AddBytes(new byte[] { 0 }).AddTextBytes(code.Substring(0, 12), Encoding).AddBytes(new byte[] { 0 }); // Code Type
+            return (new byte[] { 27, 'b'.ToByte(), 1 }).AddBytes(new byte[] { 2 }).AddBytes(new byte[] { 50 }).AddBytes(new byte[] { 0 }).AddTextBytes(code.Substring(0, 12), Encoding).AddBytes(new byte[] { 0 }); // Code T
             // Witdh Height If print code informed (1 print, 0 dont print)
         }
 

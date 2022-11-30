@@ -8,6 +8,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Net.Mail;
 using System.Reflection;
 using System.Xml;
 using System.Xml.Serialization;
@@ -16,53 +17,30 @@ namespace InnerLibs
 {
     public static class Misc
     {
-
-
-        public static T[,] To2D<T>(this T[][] source)
-        {
-
-            int FirstDim = source.Length;
-            int SecondDim = source.GroupBy(row => row.Length).Max().Key;
-
-            var result = new T[FirstDim, SecondDim];
-            for (int i = 0; i < FirstDim; ++i)
-                for (int j = 0; j < SecondDim; ++j)
-                    result[i, j] = source[i].IfNoIndex(j);
-
-            return result;
-
-
-        }
-
-
-        public static IEnumerable<TemplateMailAddress> AddAttachmentFromData<T>(this IEnumerable<TemplateMailAddress> recipients, Expression<Func<T, IEnumerable<System.Net.Mail.Attachment>>> AttachmentSelector)
+        public static IEnumerable<TemplateMailAddress<T>> AddAttachmentFromData<T>(this IEnumerable<TemplateMailAddress<T>> recipients, Expression<Func<T, IEnumerable<System.Net.Mail.Attachment>>> AttachmentSelector) where T : class
         {
             if (AttachmentSelector != null)
-                foreach (var rec in recipients ?? Array.Empty<TemplateMailAddress>())
+                foreach (var rec in recipients ?? Array.Empty<TemplateMailAddress<T>>())
                 {
-                    if (rec.TemplateData is T data)
-                    {
-                        rec.Attachments.AddRange(AttachmentSelector.Compile().Invoke(data));
-                    }
+                    rec.Attachments.AddRange(AttachmentSelector.Compile().Invoke(rec.TemplateData));
                 }
             return recipients;
         }
 
-        public static TemplateMailAddress AddAttachmentFromData<T>(this TemplateMailAddress recipient, Expression<Func<T, IEnumerable<System.Net.Mail.Attachment>>> AttachmentSelector)
+        public static TemplateMailAddress<T> AddAttachmentFromData<T>(this TemplateMailAddress<T> recipient, Expression<Func<T, IEnumerable<System.Net.Mail.Attachment>>> AttachmentSelector) where T : class
         {
             return AddAttachmentFromData(new[] { recipient }, AttachmentSelector).FirstOrDefault();
         }
 
-        public static TemplateMailAddress AddAttachmentFromData<T>(this TemplateMailAddress recipient, Expression<Func<T, System.Net.Mail.Attachment>> AttachmentSelector)
+        public static TemplateMailAddress<T> AddAttachmentFromData<T>(this TemplateMailAddress<T> recipient, Expression<Func<T, System.Net.Mail.Attachment>> AttachmentSelector) where T : class
         {
             return AddAttachmentFromData(new[] { recipient }, AttachmentSelector).FirstOrDefault();
         }
 
-
-        public static IEnumerable<TemplateMailAddress> AddAttachmentFromData<T>(this IEnumerable<TemplateMailAddress> recipients, Expression<Func<T, System.Net.Mail.Attachment>> AttachmentSelector)
+        public static IEnumerable<TemplateMailAddress<T>> AddAttachmentFromData<T>(this IEnumerable<TemplateMailAddress<T>> recipients, Expression<Func<T, System.Net.Mail.Attachment>> AttachmentSelector) where T : class
         {
             if (AttachmentSelector != null)
-                foreach (var rec in recipients ?? Array.Empty<TemplateMailAddress>())
+                foreach (var rec in recipients ?? Array.Empty<TemplateMailAddress<T>>())
                 {
                     if (rec.TemplateData is T data)
                     {
@@ -190,13 +168,13 @@ namespace InnerLibs
         /// <summary>
         /// Converte um objeto para um <see cref="Dictionary"/>
         /// </summary>
-        /// <typeparam name="Type">
+        /// <typeparam name="T">
         /// Tipo da classe, <see cref="NameValueCollection"/> ou <see cref="Dictionary{TKey, TValue}"/>
         /// </typeparam>
         /// <param name="Obj">valor do objeto</param>
         /// <param name="Keys">Chaves incluidas no dicionario final</param>
         /// <returns></returns>
-        public static Dictionary<string, object> CreateDictionary<Type>(this Type Obj, params string[] Keys)
+        public static Dictionary<string, object> CreateDictionary<T>(this T Obj, params string[] Keys)
         {
             if (Obj != null)
             {
@@ -233,7 +211,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static Guid CreateGuidOrDefault(this string Source)
         {
-            var g = Guid.NewGuid();
+            Guid g;
             if (Source.IsNotBlank() || !Guid.TryParse(Source, out g))
             {
                 g = Guid.NewGuid();
@@ -291,7 +269,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static T Detach<T>(this List<T> List, int Index)
         {
-            if (Index.IsBetween(0, List.Count))
+            if (List != null && Index.IsBetween(0, List.Count))
             {
                 var p = List.ElementAt(Index);
                 List.RemoveAt(Index);
@@ -312,26 +290,26 @@ namespace InnerLibs
         /// <summary>
         /// Conta de maneira distinta items de uma coleçao
         /// </summary>
-        /// <typeparam name="Type">TIpo de Objeto</typeparam>
+        /// <typeparam name="T">TIpo de Objeto</typeparam>
         /// <param name="Arr">colecao</param>
         /// <returns></returns>
-        public static Dictionary<Type, long> DistinctCount<Type>(this IEnumerable<Type> Arr) => Arr.Distinct().Select(p => new KeyValuePair<Type, long>(p, Arr.Where(x => x.Equals(p)).LongCount())).OrderByDescending(p => p.Value).ToDictionary();
+        public static Dictionary<T, long> DistinctCount<T>(this IEnumerable<T> Arr) => Arr.Distinct().Select(p => new KeyValuePair<T, long>(p, Arr.Where(x => x.Equals(p)).LongCount())).OrderByDescending(p => p.Value).ToDictionary();
 
         /// <summary>
         /// Conta de maneira distinta items de uma coleçao a partir de uma propriedade
         /// </summary>
-        /// <typeparam name="Type">TIpo de Objeto</typeparam>
+        /// <typeparam name="T">TIpo de Objeto</typeparam>
         /// <param name="Arr">colecao</param>
         /// <returns></returns>
-        public static Dictionary<PropT, long> DistinctCount<Type, PropT>(this IEnumerable<Type> Arr, Func<Type, PropT> Prop) => Arr.GroupBy(Prop).ToDictionary(x => x.Key, x => x.LongCount()).OrderByDescending(p => p.Value).ToDictionary();
+        public static Dictionary<TProp, long> DistinctCount<T, TProp>(this IEnumerable<T> Arr, Func<T, TProp> Prop) => Arr.GroupBy(Prop).ToDictionary(x => x.Key, x => x.LongCount()).OrderByDescending(p => p.Value).ToDictionary();
 
         /// <summary>
         /// Conta de maneira distinta N items de uma coleçao e agrupa o resto
         /// </summary>
-        /// <typeparam name="Type">TIpo de Objeto</typeparam>
+        /// <typeparam name="T">TIpo de Objeto</typeparam>
         /// <param name="Arr">colecao</param>
         /// <returns></returns>
-        public static Dictionary<Type, long> DistinctCountTop<Type>(this IEnumerable<Type> Arr, int Top, Type Others)
+        public static Dictionary<T, long> DistinctCountTop<T>(this IEnumerable<T> Arr, int Top, T Others)
         {
             var a = Arr.DistinctCount();
             var topN = a.TakeTop(Top, Others);
@@ -342,10 +320,10 @@ namespace InnerLibs
         /// Conta de maneira distinta N items de uma coleçao a partir de uma propriedade e agrupa o
         /// resto em outra
         /// </summary>
-        /// <typeparam name="Type">TIpo de Objeto</typeparam>
+        /// <typeparam name="T">TIpo de Objeto</typeparam>
         /// <param name="Arr">colecao</param>
         /// <returns></returns>
-        public static Dictionary<PropT, long> DistinctCountTop<Type, PropT>(this IEnumerable<Type> Arr, Func<Type, PropT> Prop, int Top, PropT Others)
+        public static Dictionary<TProp, long> DistinctCountTop<T, TProp>(this IEnumerable<T> Arr, Func<T, TProp> Prop, int Top, TProp Others)
         {
             var a = Arr.DistinctCount(Prop);
             if (Top < 1)
@@ -455,7 +433,7 @@ namespace InnerLibs
 
         public static TValue GetAttributeValue<TAttribute, TValue>(this Type type, Expression<Func<TAttribute, TValue>> ValueSelector) where TAttribute : Attribute
         {
-            if (type.GetCustomAttributes(typeof(TAttribute), true).FirstOrDefault() is TAttribute att && att != null)
+            if (type != null && type.GetCustomAttributes(typeof(TAttribute), true).FirstOrDefault() is TAttribute att && att != null)
             {
                 return att.GetAttributeValue(ValueSelector);
             }
@@ -533,7 +511,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static IEnumerable<T> GetEnumValues<T>()
         {
-            if (!typeof(T).IsEnum) throw new Exception("T must be an Enumeration type.");
+            if (!typeof(T).IsEnum) throw new ArgumentException("T must be an Enumeration type.", nameof(T));
             return Enum.GetValues(typeof(T)).Cast<T>().AsEnumerable();
         }
 
@@ -1500,6 +1478,41 @@ namespace InnerLibs
             return newlist.AsEnumerable();
         }
 
+        public static T[,] To2D<T>(this T[][] source)
+        {
+            int FirstDim = source.Length;
+            int SecondDim = source.GroupBy(row => row.Length).Max().Key;
+
+            var result = new T[FirstDim, SecondDim];
+            for (int i = 0; i < FirstDim; ++i)
+                for (int j = 0; j < SecondDim; ++j)
+                    result[i, j] = source[i].IfNoIndex(j);
+
+            return result;
+        }
+
+        public static Attachment ToAttachment(this FileInfo file)
+        {
+            if (file != null && file.Exists)
+                return new Attachment(file.FullName);
+            return null;
+        }
+
+        public static Attachment ToAttachment(this Stream stream, string name)
+        {
+            if (stream != null && stream.Length > 0)
+                return new Attachment(stream, name.IfBlank("untitledFile.bin"));
+            return null;
+        }
+
+        public static Attachment ToAttachment(this byte[] bytes, string name)
+        {
+            if (bytes != null && bytes.Any())
+                using (var s = new MemoryStream(bytes))
+                    return s.ToAttachment(name);
+            return null;
+        }
+
         /// <summary>
         /// Concatena todas as <see cref="Exception.InnerException"/> em uma única string
         /// </summary>
@@ -1601,7 +1614,7 @@ namespace InnerLibs
         /// <summary>
         /// Run a <see cref="Action{T}"/> inside a Try-Catch block and return the same <typeparamref name="T"/>
         /// </summary>
-        /// <typeparam name="T">Object Type</typeparam>
+        /// <typeparam name="T">Object T</typeparam>
         /// <param name="Obj">Object</param>
         /// <param name="Callback">The action to execute</param>
         /// <param name="ex">

@@ -16,21 +16,21 @@ namespace InnerLibs
     public static class FileTypeExtensions
     {
         /// <summary>
-        /// Retorna o Mime Type a partir da extensão de um arquivo
+        /// Retorna o Mime T a partir da extensão de um arquivo
         /// </summary>
         /// <param name="Extension">extensão do arquivo</param>
         /// <returns>string mime type</returns>
         public static IEnumerable<string> GetFileType(this string Extension) => FileType.GetFileType(Extension).GetMimeTypesOrDefault();
 
         /// <summary>
-        /// Retorna o Mime Type a partir de um arquivo
+        /// Retorna o Mime T a partir de um arquivo
         /// </summary>
         /// <param name="File">Arquivo</param>
         /// <returns>string mime type</returns>
         public static IEnumerable<string> GetFileType(this FileInfo File) => File.Extension.GetFileType();
 
         /// <summary>
-        /// Retorna o Mime Type a partir de de um formato de Imagem
+        /// Retorna o Mime T a partir de de um formato de Imagem
         /// </summary>
         /// <param name="RawFormat">Formato de Imagem</param>
         /// <returns>string mime type</returns>
@@ -54,7 +54,7 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Retorna o Mime Type a partir de de uma Imagem
+        /// Retorna o Mime T a partir de de uma Imagem
         /// </summary>
         /// <param name="Image">Imagem</param>
         /// <returns>string mime type</returns>
@@ -78,7 +78,7 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Retorna um Objeto FileType a partir de uma string MIME Type, Nome ou Extensão de Arquivo
+        /// Retorna um Objeto FileType a partir de uma string MIME T, Nome ou Extensão de Arquivo
         /// </summary>
         /// <param name="MimeTypeOrExtensionOrPathOrDataURI"></param>
         /// <returns></returns>
@@ -86,7 +86,7 @@ namespace InnerLibs
     }
 
     /// <summary>
-    /// Classe que representa um MIME Type
+    /// Classe que representa um MIME T
     /// </summary>
     public class FileType
     {
@@ -101,20 +101,20 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Constroi um MIME Type Default
+        /// Constroi um MIME T Default
         /// </summary>
         public FileType()
         {
         }
 
         /// <summary>
-        /// Constroi um File Type a partir de um Arquivo (FileInfo)
+        /// Constroi um File T a partir de um Arquivo (FileInfo)
         /// </summary>
         /// <param name="File">Fileinfo com o Arquivo</param>
         public FileType(FileInfo File, FileTypeList FileTypeList = null) => Build(File.Extension, FileTypeList);
 
         /// <summary>
-        /// Constroi um File Type a partir da extensão ou MIME Type de um Arquivo
+        /// Constroi um File T a partir da extensão ou MIME T de um Arquivo
         /// </summary>
         /// <param name="MimeTypeOrExtensionOrPathOrDataURI">Extensão do arquivo</param>
         public FileType(string MimeTypeOrExtensionOrPathOrDataURI, FileTypeList FileTypeList = null) => Build(MimeTypeOrExtensionOrPathOrDataURI.ToLower(), FileTypeList);
@@ -132,19 +132,19 @@ namespace InnerLibs
         public List<string> Extensions { get; set; } = new List<string>();
 
         /// <summary>
-        /// Tipo do arquivo (MIME Type String)
+        /// Tipo do arquivo (MIME T String)
         /// </summary>
         /// <returns></returns>
         public List<string> MimeTypes { get; set; } = new List<string>();
 
         /// <summary>
-        /// Retorna o subtipo do MIME Type (depois da barra)
+        /// Retorna o subtipo do MIME T (depois da barra)
         /// </summary>
         /// <returns></returns>
         public IEnumerable<string> SubTypes => GetMimeTypesOrDefault().Select(p => p.ToLower().Trim().GetAfter("/")).Distinct();
 
         /// <summary>
-        /// Retorna o tipo do MIME Type (antes da barra)
+        /// Retorna o tipo do MIME T (antes da barra)
         /// </summary>
         /// <returns></returns>
         public IEnumerable<string> Types => GetMimeTypesOrDefault().Select(p => p.ToLower().Trim().GetBefore("/")).Distinct();
@@ -152,7 +152,7 @@ namespace InnerLibs
         /// <summary>
         /// Traz uma lista de extensões de acordo com o MIME type especificado
         /// </summary>
-        /// <param name="MIME">MIME Type String</param>
+        /// <param name="MIME">MIME T String</param>
         /// <returns></returns>
         public static List<string> GetExtensions(string MIME, FileTypeList FileTypeList = null)
         {

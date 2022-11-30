@@ -255,7 +255,7 @@ namespace InnerLibs.FontAwesome
         /// <summary>
         /// Retorna a classe do icone do FontAwesome que representa melhor o arquivo
         /// </summary>
-        /// <param name="MIME">MIME Type do Arquivo</param>
+        /// <param name="MIME">MIME T do Arquivo</param>
         /// <returns></returns>
         public static string GetIconByFileType(this FileType MIME) => MIME.Extensions.FirstOr(InnerLibs.Text.Empty).GetIconByFileExtension();
     }

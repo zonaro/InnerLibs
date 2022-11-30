@@ -272,7 +272,7 @@ namespace InnerLibs
         /// </param>
         /// <returns>Uma string em formato Base64</returns>
         /// <summary>
-        /// Converte uma imagem para DataURI trocando o MIME Type
+        /// Converte uma imagem para DataURI trocando o MIME T
         /// </summary>
         /// <param name="OriginalImage">Imagem</param>
         /// <param name="OriginalImageFormat">Formato da Imagem</param>

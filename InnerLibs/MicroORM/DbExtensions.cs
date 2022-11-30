@@ -710,7 +710,7 @@ namespace InnerLibs.MicroORM
                 {
                     foreach (DbParameter item in Command.Parameters)
                     {
-                        string bx = $"Parameter: @{item.ParameterName}{Environment.NewLine}Value: {item.Value}{Environment.NewLine}Type: {item.DbType}{Environment.NewLine}Precision/Scale: {item.Precision}/{item.Scale}";
+                        string bx = $"Parameter: @{item.ParameterName}{Environment.NewLine}Value: {item.Value}{Environment.NewLine}T: {item.DbType}{Environment.NewLine}Precision/Scale: {item.Precision}/{item.Scale}";
                         LogWriter.WriteLine(bx);
                         LogWriter.WriteLine("-".Repeat(10));
                     }
