@@ -19,10 +19,12 @@ namespace InnerLibs.Mail
         PartialSuccess = Error + Success,
     }
 
-
-    public class FluentMailMessage : FluentMailMessage<object>
+    /// <summary>
+    /// Wrapper de <see cref="System.Net.Mail"/> em FluentAPI com configurações de Template métodos
+    /// auxiliares. Utiliza objetos do tipo <see cref="Dictionary{string, object}"/> para objetos de template
+    /// </summary>
+    public class FluentMailMessage : FluentMailMessage<Dictionary<string, object>>
     {
-
         /// <summary>
         /// Cria um <see cref="FluentMailMessage{T}"/> com destinatários a partir de uma <see cref="IEnumerable{T}"/>
         /// </summary>
@@ -33,66 +35,14 @@ namespace InnerLibs.Mail
         public static FluentMailMessage<T> CreateWithRecipients<T>(IEnumerable<T> Recipients, Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector = null) where T : class => new FluentMailMessage<T>().AddRecipient(Recipients, EmailSelector, NameSelector);
 
         /// <summary>
-        /// Cria um <see cref="FluentMailMessage{T}"/> com destinatários a partir de um objeto do tipo <typeparamref name="T"/>
+        /// Cria um <see cref="FluentMailMessage{T}"/> com destinatários a partir de um objeto do
+        /// tipo <typeparamref name="T"/>
         /// </summary>
         /// <param name="Recipient">objeto de template d edestinatário</param>
         /// <param name="EmailSelector"></param>
         /// <param name="NameSelector"></param>
         /// <returns></returns>
         public static FluentMailMessage<T> CreateWithRecipients<T>(T Recipient, Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector = null) where T : class => CreateWithRecipients(new[] { Recipient }, EmailSelector, NameSelector);
-
-
-    }
-
-
-    /// <summary>
-    /// Wrapper de <see cref="System.Net.Mail"/> em FluentAPI com configurações de Template e
-    /// métodos auxiliares.
-    /// </summary>
-    public class FluentMailMessage<T> : MailMessage where T : class
-    {
-        private List<(MailAddress, SentStatus, Exception)> _status = new List<(MailAddress, SentStatus, Exception)>();
-
-        public FluentMailMessage() : base()
-        {
-            this.IsBodyHtml = true;
-        }
-
-
-        /// <summary>
-        /// Ação executada quando ocorrer erro no disparo
-        /// </summary>
-        public Action<MailAddress, FluentMailMessage<T>, Exception> ErrorAction { get; set; }
-
-        /// <summary>
-        /// Lista contendo os endereços de email que encontraram algum erro ao serem enviados
-        /// </summary>
-        public IEnumerable<(MailAddress, Exception)> ErrorList => SentStatusList.Where(x => x.Status.HasFlag(SentStatus.Error)).Select(x => (x.Destination, x.Error));
-
-        /// <summary>
-        /// Status geral do disparo
-        /// </summary>
-        public SentStatus SentStatus => SentStatusList.Select(x => x.Status).Aggregate((x, y) => x | y);
-
-        /// <summary>
-        /// Lista contendo os destinatários e o status do disparo
-        /// </summary>
-        public IEnumerable<(MailAddress Destination, SentStatus Status, Exception Error)> SentStatusList => _status.AsEnumerable();
-
-        /// <summary>
-        /// Informações de SMTP
-        /// </summary>
-        public SmtpClient Smtp { get; set; } = new SmtpClient();
-
-        /// <summary>
-        /// Ação executada quando o disparo for concluido com êxito
-        /// </summary>
-        public Action<MailAddress, FluentMailMessage<T>> SuccessAction { get; set; }
-
-        /// <summary>
-        /// Lista contendo os endereços de email que foram enviados com sucesso
-        /// </summary>
-        public IEnumerable<MailAddress> SuccessList => SentStatusList.Where(x => x.Status.HasFlag(SentStatus.Success)).Select(x => x.Destination);
 
         /// <summary>
         /// SMTP do Gmail
@@ -142,6 +92,112 @@ namespace InnerLibs.Mail
         /// <param name="Message">Corpo da Mensagem</param>
         /// <returns></returns>
         public static SentStatus QuickSend(string Email, string Password, string SmtpHost, int SmtpPort, bool UseSSL, string Recipient, string Subject, string Message) => new FluentMailMessage().WithSmtp(SmtpHost, SmtpPort, UseSSL).WithCredentials(Email, Password).AddRecipient(Recipient).WithSubject(Subject).WithMessage(Message).OnError((m, a, ex) => Debug.WriteLine(ex.ToFullExceptionString())).SendAndDispose();
+    }
+
+    /// <summary>
+    /// Wrapper de <see cref="System.Net.Mail"/> em FluentAPI com configurações de Template métodos
+    /// auxiliares. Utiliza objetos do tipo <typeparamref name="T"/> para objetos de template
+    /// </summary>
+    public class FluentMailMessage<T> : MailMessage where T : class
+    {
+        private List<(TemplateMailAddress<T>, SentStatus, Exception)> _status = new List<(TemplateMailAddress<T>, SentStatus, Exception)>();
+
+        /// <summary>
+        /// Envia os emails
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        private FluentMailMessage<T> Send(string TestEmail)
+        {
+            if (Smtp != null)
+            {
+                if (TestEmail.IsNotBlank() && !TestEmail.IsEmail())
+                {
+                    throw new ArgumentException("TestEmail is not a valid email", nameof(TestEmail));
+                }
+
+                ResetStatus();
+
+                foreach (FluentMailMessage<T> mailMessage in GenerateEmails())
+                {
+                    try
+                    {
+                        if (TestEmail.IsEmail())
+                        {
+                            mailMessage.To.Clear();
+                            mailMessage.Bcc.Clear();
+                            mailMessage.CC.Clear();
+                            mailMessage.To.Add(TestEmail);
+                        }
+
+                        Smtp.Send(mailMessage);
+
+                        _status.Add((mailMessage.To.First() as TemplateMailAddress<T>, SentStatus.Success, null));
+
+                        SuccessAction?.Invoke(mailMessage.To.First() as TemplateMailAddress<T>, this);
+                    }
+                    catch (Exception ex)
+                    {
+                        _status.Add((mailMessage.To.First() as TemplateMailAddress<T>, SentStatus.Error, ex));
+
+                        ErrorAction?.Invoke(mailMessage.To.First() as TemplateMailAddress<T>, this, ex);
+                    }
+                    finally
+                    {
+                        mailMessage.Dispose();
+                    }
+                }
+            }
+            else
+            {
+                throw new ArgumentException("SmtpHost is null", nameof(Smtp));
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Instancia uma nova <see cref="FluentMailMessage{T}"/> vazia
+        /// </summary>
+        public FluentMailMessage() : base()
+        {
+            this.IsBodyHtml = true;
+        }
+
+        /// <summary>
+        /// Ação executada quando ocorrer erro no disparo
+        /// </summary>
+        public Action<TemplateMailAddress<T>, FluentMailMessage<T>, Exception> ErrorAction { get; set; }
+
+        /// <summary>
+        /// Lista contendo os endereços de email que encontraram algum erro ao serem enviados
+        /// </summary>
+        public IEnumerable<(TemplateMailAddress<T>, Exception)> ErrorList => SentStatusList.Where(x => x.Status.HasFlag(SentStatus.Error)).Select(x => (x.Destination, x.Error));
+
+        /// <summary>
+        /// Status geral do disparo
+        /// </summary>
+        public SentStatus SentStatus => SentStatusList.Select(x => x.Status).Aggregate((x, y) => x | y);
+
+        /// <summary>
+        /// Lista contendo os destinatários e o status do disparo
+        /// </summary>
+        public IEnumerable<(TemplateMailAddress<T> Destination, SentStatus Status, Exception Error)> SentStatusList => _status.AsEnumerable();
+
+        /// <summary>
+        /// Informações de SMTP
+        /// </summary>
+        public SmtpClient Smtp { get; set; } = new SmtpClient();
+
+        /// <summary>
+        /// Ação executada quando o disparo for concluido com êxito
+        /// </summary>
+        public Action<TemplateMailAddress<T>, FluentMailMessage<T>> SuccessAction { get; set; }
+
+        /// <summary>
+        /// Lista contendo os endereços de email que foram enviados com sucesso
+        /// </summary>
+        public IEnumerable<TemplateMailAddress<T>> SuccessList => SentStatusList.Where(x => x.Status.HasFlag(SentStatus.Success)).Select(x => x.Destination);
 
         /// <summary>
         /// Adciona um anexo ao email
@@ -161,8 +217,6 @@ namespace InnerLibs.Mail
                         this.Attachments.Add(item);
             return this;
         }
-
-
 
         /// <summary>
         /// Adciona um anexo ao email
@@ -194,12 +248,28 @@ namespace InnerLibs.Mail
             return this;
         }
 
+        /// <summary>
+        /// Adiciona anexos individuais a cada destinatário a partir de uma propriedade do template
+        /// </summary>
+        /// <param name="AttachmentSelector"></param>
+        /// <returns></returns>
+        /// <remarks>
+        /// É necessario que o template ja tenha sido carregado previamente nesta <see cref="FluentMailMessage{T}"/>
+        /// </remarks>
         public FluentMailMessage<T> AddAttachmentFromData(Expression<Func<T, IEnumerable<Attachment>>> AttachmentSelector)
         {
             Misc.AddAttachmentFromData(To.Where(x => x is TemplateMailAddress<T>).Cast<TemplateMailAddress<T>>(), AttachmentSelector);
             return this;
         }
 
+        /// <summary>
+        /// Adiciona anexos individuais a cada destinatário a partir de uma propriedade do template
+        /// </summary>
+        /// <param name="AttachmentSelector"></param>
+        /// <returns></returns>
+        /// <remarks>
+        /// É necessario que o template ja tenha sido carregado previamente nesta <see cref="FluentMailMessage{T}"/>
+        /// </remarks>
         public FluentMailMessage<T> AddAttachmentFromData(Expression<Func<T, Attachment>> AttachmentSelector)
         {
             Misc.AddAttachmentFromData(To.Where(x => x is TemplateMailAddress<T>).Cast<TemplateMailAddress<T>>(), AttachmentSelector);
@@ -211,7 +281,7 @@ namespace InnerLibs.Mail
         /// </summary>
         /// <param name="Emails"></param>
         /// <returns></returns>
-        public FluentMailMessage<T> AddBlindCarbonCopy(params string[] Emails)
+        public FluentMailMessage<T> AddBcc(params string[] Emails)
         {
             foreach (var email in (Emails ?? Array.Empty<string>()).SelectMany(x => x.ExtractEmails()).ToArray())
                 Bcc.Add(new TemplateMailAddress(email));
@@ -223,7 +293,7 @@ namespace InnerLibs.Mail
         /// </summary>
         /// <param name="Emails"></param>
         /// <returns></returns>
-        public FluentMailMessage<T> AddBlindCarbonCopy(params MailAddress[] Emails)
+        public FluentMailMessage<T> AddBcc(params MailAddress[] Emails)
         {
             foreach (var email in Emails ?? Array.Empty<MailAddress>())
                 Bcc.Add(email);
@@ -235,7 +305,7 @@ namespace InnerLibs.Mail
         /// </summary>
         /// <param name="Emails"></param>
         /// <returns></returns>
-        public FluentMailMessage<T> AddCarbonCopy(params string[] Emails)
+        public FluentMailMessage<T> AddCc(params string[] Emails)
         {
             foreach (var email in (Emails ?? Array.Empty<string>()).SelectMany(x => x.ExtractEmails()).ToArray())
                 CC.Add(new TemplateMailAddress(email));
@@ -247,7 +317,7 @@ namespace InnerLibs.Mail
         /// </summary>
         /// <param name="Emails"></param>
         /// <returns></returns>
-        public FluentMailMessage<T> AddCarbonCopy(params MailAddress[] Emails)
+        public FluentMailMessage<T> AddCc(params MailAddress[] Emails)
         {
             foreach (var email in Emails ?? Array.Empty<MailAddress>())
                 CC.Add(email);
@@ -342,11 +412,89 @@ namespace InnerLibs.Mail
         }
 
         /// <summary>
+        /// Retorna uma lista de <see cref="FluentMailMessage{T}"/> com todas as mensagens de emails
+        /// geradas por essa <see cref="FluentMailMessage{T}"/>
+        /// </summary>
+        public IEnumerable<FluentMailMessage<T>> GenerateEmails()
+        {
+            if (To != null)
+                foreach (var item in To)
+                {
+                    if (item != null)
+                    {
+                        var msgIndiv = new FluentMailMessage<T>();
+
+                        string msg = Body.IfBlank(Text.Empty);
+                        string subj = Subject.IfBlank(Text.Empty);
+
+                        if (item is TemplateMailAddress<T> templateMail)
+                        {
+                            var data = templateMail.TemplateData;
+                            if (data != null)
+                            {
+                                msg = msg.Inject(data);
+                                subj = subj.Inject(data);
+
+                                foreach (var att in templateMail.Attachments ?? new List<Attachment>())
+                                    msgIndiv.Attachments.Add(att);
+                            }
+                        }
+
+                        msgIndiv.To.Add(item);
+                        msgIndiv.Body = msg;
+                        msgIndiv.Subject = subj;
+                        msgIndiv.From = this.From;
+                        msgIndiv.Sender = this.Sender;
+                        msgIndiv.IsBodyHtml = this.IsBodyHtml;
+                        msgIndiv.BodyEncoding = this.BodyEncoding;
+                        msgIndiv.BodyTransferEncoding = this.BodyTransferEncoding;
+                        msgIndiv.DeliveryNotificationOptions = this.DeliveryNotificationOptions;
+                        msgIndiv.SubjectEncoding = this.SubjectEncoding;
+                        msgIndiv.HeadersEncoding = this.HeadersEncoding;
+                        msgIndiv.Priority = this.Priority;
+                        msgIndiv.Headers.Add(this.Headers);
+
+                        foreach (var email in this.CC)
+                        {
+                            msgIndiv.CC.Add(email);
+                        }
+
+                        foreach (var email in this.ReplyToList)
+                        {
+                            msgIndiv.ReplyToList.Add(email);
+                        }
+
+                        foreach (var email in this.CC)
+                        {
+                            msgIndiv.CC.Add(email);
+                        }
+
+                        foreach (var email in this.Bcc)
+                        {
+                            msgIndiv.Bcc.Add(email);
+                        }
+
+                        foreach (var att in this.Attachments)
+                        {
+                            msgIndiv.Attachments.Add(att);
+                        }
+
+                        foreach (var alt in this.AlternateViews)
+                        {
+                            msgIndiv.AlternateViews.Add(alt);
+                        }
+
+                        yield return msgIndiv;
+                    }
+                }
+        }
+
+        /// <summary>
         /// Função executada quando houver um disparo com erro
         /// </summary>
         /// <param name="Action"></param>
         /// <returns></returns>
-        public FluentMailMessage<T> OnError(Action<MailAddress, FluentMailMessage<T>, Exception> Action)
+        public FluentMailMessage<T> OnError(Action<TemplateMailAddress<T>, FluentMailMessage<T>, Exception> Action)
         {
             ErrorAction = Action;
             return this;
@@ -357,7 +505,7 @@ namespace InnerLibs.Mail
         /// </summary>
         /// <param name="Action"></param>
         /// <returns></returns>
-        public FluentMailMessage<T> OnSuccess(Action<MailAddress, FluentMailMessage<T>> Action)
+        public FluentMailMessage<T> OnSuccess(Action<TemplateMailAddress<T>, FluentMailMessage<T>> Action)
         {
             SuccessAction = Action;
             return this;
@@ -369,169 +517,12 @@ namespace InnerLibs.Mail
         /// <returns></returns>
         public FluentMailMessage<T> ResetStatus()
         {
-            _status = _status ?? new List<(MailAddress, SentStatus, Exception)>();
+            _status = _status ?? new List<(TemplateMailAddress<T>, SentStatus, Exception)>();
             _status.Clear();
             return this;
         }
 
-        /// <summary>
-        /// Envia os emails
-        /// </summary>
-        /// <returns></returns>
-        /// <exception cref="ArgumentException"></exception>
-        public FluentMailMessage<T> Send()
-        {
-            ResetStatus();
-
-            if (Smtp != null)
-            {
-                foreach (MailMessage mailMessage in CompileEmails())
-                {
-                    try
-                    {
-                        Smtp.Send(mailMessage);
-
-                        _status.Add((mailMessage.To.First(), SentStatus.Success, null));
-
-                        SuccessAction?.Invoke(mailMessage.To.First(), this);
-                    }
-                    catch (Exception ex)
-                    {
-                        _status.Add((mailMessage.To.First(), SentStatus.Error, ex));
-
-                        ErrorAction?.Invoke(mailMessage.To.First(), this, ex);
-                    }
-                    finally
-                    {
-                        mailMessage.Dispose();
-                    }
-                }
-            }
-            else
-            {
-                throw new ArgumentException("SmtpHost is null", nameof(Smtp));
-            }
-
-            return this;
-        }
-
-
-        /// <summary>
-        /// Envia os emails para um destinatário de teste. Não dispara os callbacks <see cref="SuccessAction"/> e <see cref="ErrorAction"/> e não altera a <see cref="SentStatus"/> nem a <see cref="SentStatusList"/>
-        /// </summary>
-        /// <returns></returns>
-        /// <exception cref="ArgumentException"></exception>
-        public FluentMailMessage<T> SendTest(string Email)
-        {
-            if (!Email.IsEmail()) throw new ArgumentException("Email is not a valid email", nameof(Email));
-
-            if (Smtp != null)
-            {
-                foreach (MailMessage mailMessage in CompileEmails())
-                {
-                    try
-                    {
-                        mailMessage.To.Clear();
-                        mailMessage.Bcc.Clear();
-                        mailMessage.CC.Clear();
-                        mailMessage.To.Add(Email);
-                        Smtp.Send(mailMessage);
-
-                    }
-                    catch (Exception ex)
-                    {
-
-                    }
-                    finally
-                    {
-                        mailMessage.Dispose();
-                    }
-                }
-            }
-            else
-            {
-                throw new NullReferenceException("SmtpHost is null");
-            }
-
-            return this;
-        }
-
-        public IEnumerable<MailMessage> CompileEmails()
-        {
-            foreach (var item in To)
-            {
-                if (item != null)
-                {
-                    var msgIndiv = new MailMessage();
-
-                    string msg = Body.IfBlank(Text.Empty);
-                    string subj = Subject.IfBlank(Text.Empty);
-
-                    if (item is TemplateMailAddress<T> templateMail)
-                    {
-                        var data = templateMail.TemplateData;
-                        if (data != null)
-                        {
-                            msg = msg.Inject(data);
-                            subj = subj.Inject(data);
-
-                            foreach (var att in templateMail.Attachments ?? new List<Attachment>())
-                                msgIndiv.Attachments.Add(att);
-                        }
-                    }
-
-                    msgIndiv.IsBodyHtml = this.IsBodyHtml;
-                    msgIndiv.BodyEncoding = this.BodyEncoding;
-                    msgIndiv.BodyTransferEncoding = this.BodyTransferEncoding;
-                    msgIndiv.DeliveryNotificationOptions = this.DeliveryNotificationOptions;
-                    msgIndiv.From = this.From;
-                    msgIndiv.Body = msg;
-                    msgIndiv.Subject = subj;
-                    msgIndiv.To.Add(item);
-
-
-
-                    msgIndiv.SubjectEncoding = this.SubjectEncoding;
-                    msgIndiv.HeadersEncoding = this.HeadersEncoding;
-                    msgIndiv.Priority = this.Priority;
-                    msgIndiv.Sender = this.Sender;
-                    msgIndiv.Headers.Add(this.Headers);
-
-                    foreach (var email in this.CC)
-                    {
-                        msgIndiv.CC.Add(email);
-                    }
-
-                    foreach (var email in this.ReplyToList)
-                    {
-                        msgIndiv.ReplyToList.Add(email);
-                    }
-
-                    foreach (var email in this.CC)
-                    {
-                        msgIndiv.CC.Add(email);
-                    }
-
-                    foreach (var email in this.Bcc)
-                    {
-                        msgIndiv.Bcc.Add(email);
-                    }
-
-                    foreach (var att in this.Attachments)
-                    {
-                        msgIndiv.Attachments.Add(att);
-                    }
-
-                    foreach (var alt in this.AlternateViews)
-                    {
-                        msgIndiv.AlternateViews.Add(alt);
-                    }
-
-                    yield return msgIndiv;
-
-                }
-            }
-        }
+        public FluentMailMessage<T> Send() => Send(null);
 
         /// <summary>
         /// Envia os emails
@@ -547,6 +538,13 @@ namespace InnerLibs.Mail
         }
 
         /// <summary>
+        /// Envia os emails para um destinatário de teste.
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        public FluentMailMessage<T> SendTest(string Email) => Email.IsEmail() ? Send(Email) : throw new ArgumentException($"Invalid email: {Email}", nameof(Email));
+
+        /// <summary>
         /// Retorna o corpo da mensagem
         /// </summary>
         /// <returns></returns>
@@ -558,7 +556,7 @@ namespace InnerLibs.Mail
         /// <returns></returns>
         public FluentMailMessage<T> UseGmailSmtp()
         {
-            Smtp = GmailSmtp();
+            Smtp = FluentMailMessage.GmailSmtp();
             return this;
         }
 
@@ -568,7 +566,7 @@ namespace InnerLibs.Mail
         /// <returns></returns>
         public FluentMailMessage<T> UseLocawebSmtp()
         {
-            Smtp = LocawebSmtp();
+            Smtp = FluentMailMessage.LocawebSmtp();
             return this;
         }
 
@@ -578,7 +576,7 @@ namespace InnerLibs.Mail
         /// <returns></returns>
         public FluentMailMessage<T> UseOffice365Smtp()
         {
-            Smtp = Office365Smtp();
+            Smtp = FluentMailMessage.Office365Smtp();
             return this;
         }
 
@@ -588,7 +586,7 @@ namespace InnerLibs.Mail
         /// <returns></returns>
         public FluentMailMessage<T> UseOutlookSmtp()
         {
-            Smtp = OutlookSmtp();
+            Smtp = FluentMailMessage.OutlookSmtp();
             return this;
         }
 
@@ -606,22 +604,49 @@ namespace InnerLibs.Mail
         /// <returns></returns>
         public FluentMailMessage<T> UseTemplate(string TemplateOrFilePathOrUrl, string MessageTemplate) => UseTemplate(TemplateOrFilePathOrUrl, new { BodyText = MessageTemplate });
 
-        public FluentMailMessage<T> UseTemplate(HtmlTag Template, string MessageTemplate) => UseTemplate(Template?.OuterHtml ?? Text.Empty, new { BodyText = MessageTemplate });
+        /// <summary>
+        /// Utiliza um template para o corpo da mensagem
+        /// </summary>
+        public FluentMailMessage<T> UseTemplate(HtmlTag Template, string MessageTemplate) => UseTemplate(Template?.OuterHtml ?? Text.Empty, new { BodyText = MessageTemplate }).With(x => x.IsBodyHtml = true);
 
-        public FluentMailMessage<T> UseTemplate(HtmlTag Template) => UseTemplate(Template?.OuterHtml ?? Text.Empty, Text.Empty);
+        /// <summary>
+        /// Utiliza um template para o corpo da mensagem
+        /// </summary>
+        public FluentMailMessage<T> UseTemplate(HtmlTag Template) => UseTemplate(Template?.OuterHtml ?? Text.Empty, Text.Empty).With(x => x.IsBodyHtml = true);
 
-        public FluentMailMessage<T> UseTemplate<TMessage>(HtmlTag Template, TMessage MessageTemplate) => UseTemplate(Template?.OuterHtml ?? Text.Empty, MessageTemplate);
+        /// <summary>
+        /// Utiliza um template para o corpo da mensagem
+        /// </summary>
+        public FluentMailMessage<T> UseTemplate<TMessage>(HtmlTag Template, TMessage MessageTemplate) => UseTemplate(Template?.OuterHtml ?? Text.Empty, MessageTemplate).With(x => x.IsBodyHtml = true);
 
+        /// <summary>
+        /// Utiliza um template para o corpo da mensagem
+        /// </summary>
         public FluentMailMessage<T> UseTemplate(FileInfo Template) => UseTemplate(Template?.FullName ?? Text.Empty, Text.Empty);
 
+        /// <summary>
+        /// Utiliza um template para o corpo da mensagem
+        /// </summary>
         public FluentMailMessage<T> UseTemplate(FileInfo Template, string MessageTemplate) => UseTemplate(Template?.FullName, MessageTemplate);
 
+        /// <summary>
+        /// Utiliza um template para o corpo da mensagem
+        /// </summary>
         public FluentMailMessage<T> UseTemplate<TMessage>(FileInfo Template, TMessage MessageTemplate) => UseTemplate(Template?.FullName ?? Text.Empty, MessageTemplate);
 
+        /// <summary>
+        /// Utiliza um template para o corpo da mensagem
+        /// </summary>
         public FluentMailMessage<T> UseTemplate(DirectoryInfo TemplateDirectory, string TemplateFileName) => UseTemplate(Path.Combine(TemplateDirectory?.FullName ?? Text.Empty, TemplateFileName ?? Text.Empty), Text.Empty);
 
+        /// <summary>
+        /// Utiliza um template para o corpo da mensagem
+        /// </summary>
         public FluentMailMessage<T> UseTemplate(DirectoryInfo TemplateDirectory, string TemplateFileName, string MessageTemplate) => UseTemplate(Path.Combine(TemplateDirectory?.FullName ?? Text.Empty, TemplateFileName ?? Text.Empty), MessageTemplate);
 
+        /// <summary>
+        /// Utiliza um template para o corpo da mensagem
+        /// </summary>
         public FluentMailMessage<T> UseTemplate<TMessage>(DirectoryInfo TemplateDirectory, string TemplateFileName, TMessage MessageTemplate) => UseTemplate(Path.Combine(TemplateDirectory?.FullName ?? Text.Empty, TemplateFileName ?? Text.Empty), MessageTemplate);
 
         /// <summary>
@@ -686,6 +711,18 @@ namespace InnerLibs.Mail
         }
 
         /// <summary>
+        /// Configura o email com prioridade alta
+        /// </summary>
+        /// <returns></returns>
+        public FluentMailMessage<T> WithHighPriority() => WithPriority(MailPriority.High);
+
+        /// <summary>
+        /// Configura o email com prioridade baixa
+        /// </summary>
+        /// <returns></returns>
+        public FluentMailMessage<T> WithLowPriority() => WithPriority(MailPriority.Low);
+
+        /// <summary>
         /// Configura a mensagem a ser enviada
         /// </summary>
         /// <returns></returns>
@@ -703,6 +740,23 @@ namespace InnerLibs.Mail
         {
             IsBodyHtml = true;
             Body = Text?.ToString() ?? "";
+            return this;
+        }
+
+        /// <summary>
+        /// Configura o email com prioridade normal
+        /// </summary>
+        /// <returns></returns>
+        public FluentMailMessage<T> WithNormalPriority() => WithPriority(MailPriority.Normal);
+
+        /// <summary>
+        /// Configura a prioridade do email
+        /// </summary>
+        /// <param name="priority"></param>
+        /// <returns></returns>
+        public FluentMailMessage<T> WithPriority(MailPriority priority)
+        {
+            Priority = priority;
             return this;
         }
 
@@ -781,22 +835,20 @@ namespace InnerLibs.Mail
         }
     }
 
-
-    public class TemplateMailAddress : TemplateMailAddress<object>
+    public class TemplateMailAddress : TemplateMailAddress<Dictionary<string, object>>
     {
-        public TemplateMailAddress(string address, object TemplateData = null) : base(address, TemplateData)
+        public TemplateMailAddress(string address, Dictionary<string, object> TemplateData = null) : base(address, TemplateData)
         {
         }
 
-        public TemplateMailAddress(string address, string displayName, object TemplateData = null) : base(address, displayName, TemplateData)
+        public TemplateMailAddress(string address, string displayName, Dictionary<string, object> TemplateData = null) : base(address, displayName, TemplateData)
         {
         }
 
-        public TemplateMailAddress(string address, string displayName, Encoding displayNameEncoding, object TemplateData = null) : base(address, displayName, displayNameEncoding, TemplateData)
+        public TemplateMailAddress(string address, string displayName, Encoding displayNameEncoding, Dictionary<string, object> TemplateData = null) : base(address, displayName, displayNameEncoding, TemplateData)
         {
         }
     }
-
 
     /// <summary>
     /// Um destinatário de email contendo informações que serão aplicadas em um template
@@ -818,8 +870,33 @@ namespace InnerLibs.Mail
             this.TemplateData = TemplateData;
         }
 
+        /// <summary>
+        /// Lista de anexos exclusivos deste destinatário
+        /// </summary>
+        public List<Attachment> Attachments { get; set; } = new List<Attachment>();
+
+        /// <summary>
+        /// Objeto com as informações deste destinatário que serão aplicados ao template
+        /// </summary>
+        public virtual T TemplateData { get; set; }
+
+        /// <summary>
+        /// Cria uma <see cref="IEnumerable{TemplateMailAddress{T}}"/> a partir de uma lista de
+        /// objetos de template
+        /// </summary>
+        /// <param name="Data"></param>
+        /// <param name="EmailSelector"></param>
+        /// <param name="NameSelector"></param>
+        /// <returns></returns>
         public static IEnumerable<TemplateMailAddress<T>> FromList(IEnumerable<T> Data, Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector = null) => (Data ?? Array.Empty<T>()).AsEnumerable().Select(x => FromObject(x, EmailSelector, NameSelector)).Where(x => x != null);
 
+        /// <summary>
+        /// Cria um <see cref="TemplateMailAddress{T}"/> a partir de um objeto de template
+        /// </summary>
+        /// <param name="Data"></param>
+        /// <param name="EmailSelector"></param>
+        /// <param name="NameSelector"></param>
+        /// <returns></returns>
         public static TemplateMailAddress<T> FromObject(T Data, Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector = null)
         {
             if (Data != null)
@@ -851,15 +928,17 @@ namespace InnerLibs.Mail
             return null;
         }
 
-        public List<Attachment> Attachments { get; set; } = new List<Attachment>();
-        public virtual T TemplateData { get; set; }
-
-
-
+        /// <inheritdoc cref="AddAttachment(Attachment)"/>
         public TemplateMailAddress<T> AddAttachment(string fileName) => AddAttachment(new Attachment(fileName));
 
+        /// <inheritdoc cref="AddAttachment(Attachment)"/>
         public TemplateMailAddress<T> AddAttachment(FileInfo file) => AddAttachment(file?.FullName);
 
+        /// <summary>
+        /// Adiciona um anexo a este email
+        /// </summary>
+        /// <param name="attachment"></param>
+        /// <returns></returns>
         public TemplateMailAddress<T> AddAttachment(Attachment attachment)
         {
             Attachments = Attachments ?? new List<Attachment>();

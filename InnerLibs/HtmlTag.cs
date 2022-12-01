@@ -9,6 +9,9 @@ using System.Reflection;
 
 namespace InnerLibs
 {
+    /// <summary>
+    /// Objeto que representa uma tag HTML ou XML com metodos auxiliares
+    /// </summary>
     public class HtmlTag : ICloneable
     {
         internal List<HtmlTag> _children = new List<HtmlTag>();
@@ -44,6 +47,9 @@ namespace InnerLibs
             }
         }
 
+        /// <summary>
+        /// atributos desta tag 
+        /// </summary>
         public Dictionary<string, string> Attributes
         {
             get
@@ -53,6 +59,9 @@ namespace InnerLibs
             }
         }
 
+        /// <summary>
+        /// Filhos desta tag 
+        /// </summary>
         public IEnumerable<HtmlTag> Children
         {
             get
@@ -62,6 +71,13 @@ namespace InnerLibs
             }
         }
 
+
+
+
+        /// <summary>
+        /// Retorna o primeiro filho desta tag
+        /// </summary>
+        /// <returns></returns>
         public HtmlTag FirstChild() => Children.FirstOrDefault();
         public HtmlTag LastChild() => Children.LastOrDefault();
 
@@ -236,14 +252,24 @@ namespace InnerLibs
             }
         }
 
-        public static IEnumerable<HtmlTag> FromFile(FileInfo file)
-        {
-            if (file != null && file.Exists)
-                return Parse(file.ReadAllText());
-            return Array.Empty<HtmlTag>();
-        }
+        public static IEnumerable<HtmlTag> FromFile(FileInfo file) => file != null && file.Exists ? Parse(file.ReadAllText()) : Array.Empty<HtmlTag>();
 
         public static HtmlTag CreateAnchor(string URL, string Text, string Target = "_self", object htmlAttributes = null) => new HtmlTag("a", htmlAttributes, Text).SetAttribute("href", URL, true).SetAttribute("target", Target, true);
+
+        public static HtmlTag CreateWithespace() => new HtmlTag(HtmlNodeType.Text).With(x => x._content = "&nbsp;");
+        public static HtmlTag CreateComment(string Comment) => new HtmlTag(HtmlNodeType.Comment).With(x => x._content = Comment ?? "");
+        public static HtmlTag CreateBreakLine() => new HtmlTag("br") { SelfClosing = true };
+        public HtmlTag AddWhiteSpace() => AddChildren(CreateWithespace());
+        public HtmlTag AddBreakLine() => AddChildren(CreateBreakLine());
+        public HtmlTag AddComment(string Comment) => AddChildren(CreateComment(Comment));
+        public HtmlTag AddAnchor(string URL, string Text, string Target = "_self", object htmlAttributes = null)
+        {
+            _children.Add(CreateAnchor(URL, Text, Target, htmlAttributes));
+            return this;
+        }
+
+
+
 
         public static HtmlTag CreateImage(Image Img, object htmlAttributes = null) => CreateImage(Img?.ToDataURL(), htmlAttributes);
 
@@ -258,6 +284,14 @@ namespace InnerLibs
         public static HtmlTag CreateOption(string Name, string Value = null, bool Selected = false) => new HtmlTag("option", null, Name.RemoveHTML()).SetAttribute("value", Value).SetProp("selected", Selected);
 
         public static HtmlTag CreateTable(string[][] Table, bool Header = false) => CreateTable(Table?.To2D(), Header);
+
+
+        public HtmlTag AddTable(string[][] Table, bool Header = false)
+        {
+            _children.Add(CreateTable(Table, Header));
+            return this;
+        }
+
         public static HtmlTag CreateTable(string[,] Table, bool Header = false)
         {
             HtmlTag tag = new HtmlTag("table");
@@ -274,6 +308,12 @@ namespace InnerLibs
                     tag.AddChildren(row);
                 }
             return tag;
+        }
+
+        public HtmlTag AddTable(string[,] Table, bool Header = false)
+        {
+            _children.Add(CreateTable(Table, Header));
+            return this;
         }
 
         public static HtmlTag CreateTable<TPoco>(IEnumerable<TPoco> Rows, bool header, string IDProperty, params string[] Properties) where TPoco : class
@@ -297,7 +337,19 @@ namespace InnerLibs
             return CreateTable(Rows, h, IDProperty, Properties);
         }
 
+        public HtmlTag AddTable<TPoco>(IEnumerable<TPoco> Rows, bool header, string IDProperty, params string[] Properties) where TPoco : class
+        {
+            _children.Add(CreateTable(Rows, header, IDProperty, Properties));
+            return this;
+        }
+
         public static HtmlTag CreateTable<TPoco>(IEnumerable<TPoco> Rows) where TPoco : class => CreateTable(Rows, false, null, null);
+
+        public HtmlTag AddTable<TPoco>(IEnumerable<TPoco> Rows) where TPoco : class
+        {
+            _children.Add(CreateTable(Rows));
+            return this;
+        }
 
         public static HtmlTag CreateTable<TPoco>(IEnumerable<TPoco> Rows, TPoco header, string IDProperty, params string[] properties) where TPoco : class
         {
@@ -330,7 +382,11 @@ namespace InnerLibs
             return tag;
         }
 
-
+        public HtmlTag AddTable<TPoco>(IEnumerable<TPoco> Rows, TPoco header, string IDProperty, params string[] properties) where TPoco : class
+        {
+            _children.Add(CreateTable(Rows, header, IDProperty, properties));
+            return this;
+        }
         public static implicit operator string(HtmlTag Tag) => Tag?.ToString();
 
         public static IEnumerable<HtmlTag> Parse(string HtmlStringOrURL)

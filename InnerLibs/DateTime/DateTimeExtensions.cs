@@ -1640,6 +1640,8 @@ namespace InnerLibs.TimeMachine
 
         public static DateTime SetTime(this DateTime current, TimeSpan Time) => current.SetTime(Time.Hours, Time.Minutes, Time.Seconds, Time.Milliseconds);
 
+        public static DateTime SetTime(this DateTime current, DateTime Time) => current.SetTime(Time.Hour, Time.Minute, Time.Second, Time.Millisecond);
+
         /// <summary>
         /// Returns the original <see cref="DateTime"/> with Hour part changed to supplied hour parameter.
         /// </summary>

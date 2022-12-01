@@ -1913,7 +1913,7 @@ namespace InnerLibs.LINQ
         /// <returns></returns>
         public static IEnumerable<T> Traverse<T>(this IEnumerable<T> items, Func<T, IEnumerable<T>> ChildSelector)
         {
-            var stack = new Stack<T>(items);
+            var stack = new Stack<T>(items.Reverse());
             while (stack.Any())
             {
                 var next = stack.Pop();

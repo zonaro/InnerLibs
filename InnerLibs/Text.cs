@@ -29,6 +29,10 @@ namespace InnerLibs
         public static bool HasMinLength(this string Text, int Length) => Text != null && Text.Length >= Length;
         public static bool HasMaxLength(this string Text, int Length) => Text != null && Text.Length <= Length;
 
+        public static bool EqualsIgnoreCase(this string Text, string CompareText) => string.Equals(Text ?? "", CompareText ?? "", StringComparison.OrdinalIgnoreCase);
+        public static bool EqualsIgnoreCaseAndAccents(this string Text, string CompareText) => EqualsIgnoreCase(Text.RemoveAccents(), CompareText.RemoveAccents());
+
+
         /// <summary>
         /// Retorna uma string em ordem afabética baseada em uma outra string
         /// </summary>
