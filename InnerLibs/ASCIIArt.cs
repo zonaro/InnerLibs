@@ -6,7 +6,13 @@ namespace InnerLibs
 {
     public static class AsciiArt
     {
+        #region Private Fields
+
         private static readonly string[] asciiChars = new[] { "#", "#", "@", "%", "=", "+", "*", ":", "-", ".", " " };
+
+        #endregion Private Fields
+
+        #region Public Methods
 
         public static string ToAsciiArt(this Bitmap image, int ratio)
         {
@@ -49,5 +55,7 @@ namespace InnerLibs
 
             return sb.ToString();
         }
+
+        #endregion Public Methods
     }
 }

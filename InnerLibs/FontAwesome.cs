@@ -5,6 +5,8 @@ namespace InnerLibs.FontAwesome
 {
     public static class FontAwesome
     {
+        #region Public Methods
+
         /// <summary>
         /// Retorna a classe do icone do FontAwesome que representa melhor o arquivo
         /// </summary>
@@ -258,5 +260,7 @@ namespace InnerLibs.FontAwesome
         /// <param name="MIME">MIME T do Arquivo</param>
         /// <returns></returns>
         public static string GetIconByFileType(this FileType MIME) => MIME.Extensions.FirstOr(InnerLibs.Text.Empty).GetIconByFileExtension();
+
+        #endregion Public Methods
     }
 }

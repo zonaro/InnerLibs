@@ -9,66 +9,21 @@ using System.Xml;
 
 namespace InnerLibs
 {
-    [Flags]
-    public enum ColorMood
-    {
-        Dark = 1,
-        MediumDark = 2,
-        Medium = 4,
-        MediumLight = 8,
-        Light = 16,
-        Sad = 32,
-        Happy = 64,
-        Love = MostRed | NoGreen | Happy,
-        Nature = MostGreen | Happy,
-        Water = ~Red | Medium,
-        Cooler = 128,
-        Cool = 256,
-        Warm = 512,
-        Warmer = 1024,
-        Ice = Blue | NoRed | Cooler,
-        Fire = Red | NoBlue | Warmer,
-        Invisible = 2048,
-        SemiVisible = 4096,
-        Visible = 8192,
-        LowLuminance = 16384,
-        HighLuminance = 32768,
-        Red = 65536,
-        Green = 131072,
-        Blue = 262144,
-        MostRed = 524288,
-        MostGreen = 1048576,
-        MostBlue = 2097152,
-        NoRed = 4194304,
-        NoGreen = 8388608,
-        NoBlue = 16777216,
-        FullRed = NoGreen | NoBlue,
-        FullGreen = NoRed | NoBlue,
-        FullBlue = NoRed | NoGreen,
-    }
-
-
-
-
-
-
     /// <summary>
     /// Representa uma cor no formato HSV e RGBA com metodos para manipulação de valores
     /// </summary>
     public class HSVColor : IComparable<int>, IComparable<HSVColor>, IComparable<Color>, IComparable, ICloneable
     {
+        #region Private Fields
+
         private static readonly List<HSVColor> staticNamedColors = new List<HSVColor>();
         private double _h, _s, _v;
         private string _name;
         private Color _scolor;
 
-        /// <summary>
-        /// Retorna uma lista de cores criadas a partir de strings
-        /// </summary>
-        /// <param name="Colors"></param>
-        /// <returns></returns>
-        public static IEnumerable<HSVColor> CreateColors(params string[] Colors) => Colors.IfNullOrEmpty(RandomColor().Hexadecimal).Select(x => new HSVColor(x));
+        #endregion Private Fields
 
+        #region Private Methods
 
         private void _loadColor(Color Color)
         {
@@ -190,6 +145,10 @@ namespace InnerLibs
             _v = V.LimitRange(0d, 1.0d);
         }
 
+        #endregion Private Methods
+
+        #region Public Constructors
+
         /// <summary>
         /// Instancia uma nova <see cref="HSVColor"/> a partir de seu ARGB
         /// </summary>
@@ -237,6 +196,10 @@ namespace InnerLibs
         /// <param name="Color">Cor</param>
         /// <param name="Name">Nome da cor</param>
         public HSVColor(Color Color, string Name) : this(Color) => _name = Name;
+
+        #endregion Public Constructors
+
+        #region Public Properties
 
         /// <summary>
         /// Lista com todas as <see cref="HSVColor"/> com nomes oficiais
@@ -591,6 +554,17 @@ namespace InnerLibs
                 }
             }
         }
+
+        #endregion Public Properties
+
+        #region Public Methods
+
+        /// <summary>
+        /// Retorna uma lista de cores criadas a partir de strings
+        /// </summary>
+        /// <param name="Colors"></param>
+        /// <returns></returns>
+        public static IEnumerable<HSVColor> CreateColors(params string[] Colors) => Colors.IfNullOrEmpty(RandomColor().Hexadecimal).Select(x => new HSVColor(x));
 
         /// <summary>
         /// Retorna a cor vibrante de uma imagem
@@ -1021,7 +995,8 @@ namespace InnerLibs
         public HSVColor MakeLighter(float Percent = 50f) => new HSVColor(_scolor.MakeLighter(Percent));
 
         /// <summary>
-        /// Retorna novas <see cref="HSVColor"/> a partir da cor atual, movendo ela N graus na roda de cores
+        /// Retorna novas <see cref="HSVColor"/> a partir da cor atual, movendo ela N graus na roda
+        /// de cores
         /// </summary>
         /// <param name="excludeMe">Inclui esta cor no array</param>
         /// <param name="Degrees">Lista contendo os graus que serão movidos na roda de cores.</param>
@@ -1035,7 +1010,8 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Retorna novas <see cref="HSVColor"/> a partir da cor atual, movendo ela N graus na roda de cores
+        /// Retorna novas <see cref="HSVColor"/> a partir da cor atual, movendo ela N graus na roda
+        /// de cores
         /// </summary>
         /// <param name="Degrees">Lista contendo os graus que serão movidos na roda de cores.</param>
         /// <returns></returns>
@@ -1163,5 +1139,45 @@ namespace InnerLibs
         /// <param name="Amount"></param>
         /// <returns></returns>
         public HSVColor[] TriadicPallete(int Amount = 3) => Monochromatic(Amount).SelectMany(item => item.Triadic()).ToArray();
+
+        #endregion Public Methods
+    }
+
+    [Flags]
+    public enum ColorMood
+    {
+        Dark = 1,
+        MediumDark = 2,
+        Medium = 4,
+        MediumLight = 8,
+        Light = 16,
+        Sad = 32,
+        Happy = 64,
+        Love = MostRed | NoGreen | Happy,
+        Nature = MostGreen | Happy,
+        Water = ~Red | Medium,
+        Cooler = 128,
+        Cool = 256,
+        Warm = 512,
+        Warmer = 1024,
+        Ice = Blue | NoRed | Cooler,
+        Fire = Red | NoBlue | Warmer,
+        Invisible = 2048,
+        SemiVisible = 4096,
+        Visible = 8192,
+        LowLuminance = 16384,
+        HighLuminance = 32768,
+        Red = 65536,
+        Green = 131072,
+        Blue = 262144,
+        MostRed = 524288,
+        MostGreen = 1048576,
+        MostBlue = 2097152,
+        NoRed = 4194304,
+        NoGreen = 8388608,
+        NoBlue = 16777216,
+        FullRed = NoGreen | NoBlue,
+        FullGreen = NoRed | NoBlue,
+        FullBlue = NoRed | NoGreen,
     }
 }

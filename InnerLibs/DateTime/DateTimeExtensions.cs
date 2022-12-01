@@ -12,6 +12,8 @@ namespace InnerLibs.TimeMachine
     /// </summary>
     public static class DateTimeExtensions
     {
+        #region Public Properties
+
         public static DateTime BrazilianNow => TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById("E. South America Standard Time"));
 
         public static DateTime BrazilianTomorrow => BrazilianNow.AddDays(1);
@@ -21,6 +23,10 @@ namespace InnerLibs.TimeMachine
         public static DateTime Tomorrow => DateTime.Now.AddDays(1);
 
         public static DateTime Yesterday => DateTime.Now.AddDays(-1);
+
+        #endregion Public Properties
+
+        #region Public Methods
 
         /// <summary>
         /// Adds the given number of business days to the <see cref="DateTime"/>.
@@ -1304,24 +1310,19 @@ namespace InnerLibs.TimeMachine
         /// <returns></returns>
         public static DateTime OrToday(this DateTime? Date) => Date ?? DateTime.Today;
 
-
         public static DateRange PeriodRange(this DateTime date, string Group, CultureInfo culture) => PeriodRange(date, date, Group, (culture ?? CultureInfo.CurrentCulture).DateTimeFormat.FirstDayOfWeek);
-
 
         public static DateRange PeriodRange(this DateRange Dates, string Group, CultureInfo culture) => PeriodRange(Dates, Group, (culture ?? CultureInfo.CurrentCulture).DateTimeFormat.FirstDayOfWeek);
 
-
         public static DateRange PeriodRange(this DateTime date, string Group) => PeriodRange(date, Group, CultureInfo.CurrentCulture);
 
-
         public static DateRange PeriodRange(this DateRange dates, string Group) => PeriodRange(dates, Group, CultureInfo.CurrentCulture);
-
 
         public static DateRange PeriodRange(this DateRange dates, string Group, DayOfWeek FirstDayOfWeek) => PeriodRange(dates.StartDate, dates.EndDate, Group, FirstDayOfWeek);
 
         public static DateRange PeriodRange(this DateTime StartDate, DateTime? EndDate, string Group, CultureInfo culture) => PeriodRange(StartDate, EndDate, Group, (culture ?? CultureInfo.CurrentCulture).DateTimeFormat.FirstDayOfWeek);
-        public static DateRange PeriodRange(this DateTime StartDate, DateTime? EndDate, string Group) => PeriodRange(StartDate, EndDate, Group, CultureInfo.CurrentCulture);
 
+        public static DateRange PeriodRange(this DateTime StartDate, DateTime? EndDate, string Group) => PeriodRange(StartDate, EndDate, Group, CultureInfo.CurrentCulture);
 
         /// <summary>
         /// Returns a group-defined period from a date. The dates will be adjusted for the beginning
@@ -1394,6 +1395,7 @@ namespace InnerLibs.TimeMachine
                     StartDate = StartDate.BeginningOfDay();
                     EndDate = EndDate.Value.EndOfDay();
                     break;
+
                 default:
                     break;
             }
@@ -1833,6 +1835,8 @@ namespace InnerLibs.TimeMachine
         /// </summary>
         public static TimeSpan Years(this int years, DateTime? fromDateTime = null) => fromDateTime.OrNow().Date.AddYears(years) - fromDateTime.OrNow().Date;
 
+        #endregion Public Methods
+
         #region DateStrings
 
         public static string BimesterString(this DateTime datetime, string format = null) => format.IfBlank("{number}{ordinal} B/{year}").Inject(new { number = datetime.GetBimesterOfYear(), ordinal = datetime.GetBimesterOfYear().GetOrdinal(), year = datetime.Year, shortyear = datetime.Year.ToString().GetLastChars(2) });
@@ -1856,6 +1860,8 @@ namespace InnerLibs.TimeMachine
 
     public class PeriodFormat
     {
+        #region Public Properties
+
         public string BimesterFormat { get; set; }
         public CultureInfo Culture { get; set; } = CultureInfo.CurrentCulture;
         public string DayFormat { get; set; }
@@ -1866,9 +1872,12 @@ namespace InnerLibs.TimeMachine
         public string WeekFormat { get; set; }
         public string YearFormat { get; set; }
 
+        #endregion Public Properties
 
+        #region Public Methods
 
         public string Format(DateRange Date, string Group, string format, bool simplify = false) => Format(Date.StartDate, Date.EndDate, Group, format, simplify);
+
         public string Format(DateTime StartDate, DateTime EndDate, string Group, string format, bool simplify = false)
         {
             Misc.FixOrder(ref StartDate, ref EndDate);
@@ -1886,7 +1895,6 @@ namespace InnerLibs.TimeMachine
                 case "mensal":
                 case "mes":
                     return Date.MonthString(MonthFormat);
-
 
                 case "semanal":
                 case "week":
@@ -1925,7 +1933,6 @@ namespace InnerLibs.TimeMachine
                 default:
                     return Date.DayString(DayFormat, Culture);
             }
-
         }
 
         public string Get(string Group)
@@ -1936,7 +1943,6 @@ namespace InnerLibs.TimeMachine
                 case "mensal":
                 case "mes":
                     return MonthFormat;
-
 
                 case "semanal":
                 case "week":
@@ -1975,7 +1981,6 @@ namespace InnerLibs.TimeMachine
                 default:
                     return DayFormat;
             }
-
         }
 
         public Expression<Func<T, string>> GroupByPeriodExpression<T>(string Group, Expression<Func<T, DateTime>> prop)
@@ -2043,12 +2048,14 @@ namespace InnerLibs.TimeMachine
                     method = typeof(DateTimeExtensions).GetMethod(nameof(DateTimeExtensions.DayString), new[] { typeof(DateTime), typeof(string), typeof(CultureInfo) });
                     exp = Expression.Call(null, method, prop.Body, Expression.Constant(DayFormat), c);
                     break;
+
                 default:
                     return Expression.Lambda<Func<T, string>>(Expression.Constant(Group), param);
-
             }
 
             return Expression.Lambda<Func<T, string>>(exp, param);
         }
+
+        #endregion Public Methods
     }
 }

@@ -7,14 +7,26 @@ namespace InnerLibs
 {
     public class DebugTextWriter : StreamWriter
     {
+        #region Public Constructors
+
         public DebugTextWriter() : base(new DebugOutStream(), Encoding.Unicode, 1024)
         {
             AutoFlush = true;
         }
 
+        #endregion Public Constructors
+
+        #region Public Classes
+
         public sealed class DebugOutStream : Stream
         {
+            #region Private Properties
+
             private static InvalidOperationException Bad_op => new InvalidOperationException("Operation not supported");
+
+            #endregion Private Properties
+
+            #region Public Properties
 
             public override bool CanRead => false;
 
@@ -31,6 +43,10 @@ namespace InnerLibs
                 set => throw Bad_op;
             }
 
+            #endregion Public Properties
+
+            #region Public Methods
+
             public override void Flush() => Debug.Flush();
 
             public override int Read(byte[] buffer, int offset, int count) => throw Bad_op;
@@ -40,6 +56,10 @@ namespace InnerLibs
             public override void SetLength(long value) => throw Bad_op;
 
             public override void Write(byte[] buffer, int offset, int count) => Debug.Write(Encoding.Unicode.GetString(buffer, offset, count));
+
+            #endregion Public Methods
         }
+
+        #endregion Public Classes
     }
 }

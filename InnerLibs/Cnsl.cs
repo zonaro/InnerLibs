@@ -10,6 +10,8 @@ namespace InnerLibs.Console
     /// </summary>
     public static class Cnsl
     {
+        #region Public Methods
+
         /// <summary>
         /// Toca um Beep
         /// </summary>
@@ -190,9 +192,7 @@ namespace InnerLibs.Console
         /// <param name="Text">Texto</param>
         public static string ConsoleWriteLine(this string Text, int BreakLines = 1) => Text.ConsoleWriteLine(System.Console.ForegroundColor, BreakLines);
 
-
         public static string ConsoleWriteSeparator(char Separator = '-', ConsoleColor? Color = null, int BreakLines = 1) => ConsoleWriteSeparator(InnerLibs.Text.Empty, Separator, Color, BreakLines);
-
 
         /// <summary>
         /// Escreve um separador no console. Este separador pode conter um texto
@@ -212,7 +212,6 @@ namespace InnerLibs.Console
             try
             {
                 Text = Text.Pad(System.Console.BufferWidth, Separator);
-
             }
             catch
             {
@@ -221,6 +220,7 @@ namespace InnerLibs.Console
         }
 
         public static string ConsoleWriteTitle(this string Text, ConsoleColor? Color = null, int BreakLines = 1) => ConsoleWriteSeparator(Text, ' ', Color, BreakLines);
+
         public static string ConsoleWriteTitleBar(this string Text, ConsoleColor? Color = null, int BreakLines = 1, char BarChar = '-')
         {
             ConsoleWriteSeparator(BarChar, Color);
@@ -258,7 +258,6 @@ namespace InnerLibs.Console
         /// <returns></returns>
         public static T GetArgumentValue<T>(this string[] args, string ArgName, T ValueIfNull = default) => GetArgumentValue(args, ArgName, ValueIfNull.ChangeType<T>()).ChangeType<T>();
 
-
         /// <summary>
         /// Le o proximo caractere inserido no console pelo usuário
         /// </summary>
@@ -278,5 +277,7 @@ namespace InnerLibs.Console
             Key = System.Console.ReadKey().Key;
             return Key;
         }
+
+        #endregion Public Methods
     }
 }

@@ -12,10 +12,16 @@ namespace InnerLibs
     /// <remarks></remarks>
     public static class ColorExtensions
     {
+        #region Public Properties
+
         /// <summary>
         /// Retorna uma lista com todas as <see cref="KnowColor"/> convertidas em <see cref="System.Drawing.Color"/>
         /// </summary>
         public static IEnumerable<Color> KnowColors => Misc.GetEnumValues<KnownColor>().Select(x => Color.FromKnownColor(x));
+
+        #endregion Public Properties
+
+        #region Public Methods
 
         /// <summary>
         /// Procura uma cor na tabela de cores <see cref="HSVColor.NamedColors"/>
@@ -23,7 +29,7 @@ namespace InnerLibs
         /// <param name="Text"></param>
         /// <returns></returns>
         public static HSVColor FindColor(this string Text) => HSVColor.NamedColors
-                .FirstOrDefault(x => x.Name.ToLower().Replace("grey", "gray").RemoveAny(PredefinedArrays.PasswordSpecialChars.Union(new[] { " " }).ToArray()) == Text.ToLower().Replace("grey", "gray").RemoveAny(PredefinedArrays.PasswordSpecialChars.Union(new[] { " " }).ToArray()));
+               .FirstOrDefault(x => x.Name.ToLower().Replace("grey", "gray").RemoveAny(PredefinedArrays.PasswordSpecialChars.Union(new[] { " " }).ToArray()) == Text.ToLower().Replace("grey", "gray").RemoveAny(PredefinedArrays.PasswordSpecialChars.Union(new[] { " " }).ToArray()));
 
         /// <summary>
         /// Retorna o nome comum mais proximo a esta cor
@@ -312,6 +318,8 @@ namespace InnerLibs
         public static string ToHexadecimal(this Color Color, bool Hash = true) => (Color.R.ToString("X2") + Color.G.ToString("X2") + Color.B.ToString("X2")).PrependIf("#", Hash);
 
         public static IEnumerable<HSVColor> ToHSVColorList(this IEnumerable<Color> ColorList) => ColorList?.Select(x => new HSVColor(x));
+
+        #endregion Public Methods
 
         /// <summary>
         /// Converte uma cor de sistema para hexadecimal

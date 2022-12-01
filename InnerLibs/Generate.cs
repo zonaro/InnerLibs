@@ -1,11 +1,9 @@
 ﻿using InnerLibs.LINQ;
 using InnerLibs.Locations;
-using InnerLibs.TimeMachine;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Security.Cryptography;
 
 namespace InnerLibs
 {
@@ -15,10 +13,13 @@ namespace InnerLibs
     /// <remarks></remarks>
     public static class Generate
     {
+        #region Private Fields
 
+        private static readonly Random init_rnd = new Random();
 
+        #endregion Private Fields
 
-
+        #region Public Methods
 
         /// <inheritdoc cref="BarcodeCheckSum(string)"/>
         public static string BarcodeCheckSum(long Code) => BarcodeCheckSum(Code.ToString());
@@ -70,6 +71,8 @@ namespace InnerLibs
             return T.ToString();
         }
 
+        public static string EAN(int ContryCode, int ManufacturerCode, int ProductCode) => EANFromNumbers(ContryCode, ManufacturerCode, ProductCode);
+
         /// <summary>
         /// Gera um numero de EAN válido a aprtir da combinação de vários numeros
         /// </summary>
@@ -79,9 +82,6 @@ namespace InnerLibs
 
         /// <inheritdoc cref="EANFromNumbers(string[])"/>
         public static string EANFromNumbers(params int[] Numbers) => EANFromNumbers(Numbers.Select(x => x.ToString()).ToArray());
-
-
-        public static string EAN(int ContryCode, int ManufacturerCode, int ProductCode) => EANFromNumbers(ContryCode, ManufacturerCode, ProductCode);
 
         /// <summary>
         /// Generate a password with specific lenght for each char type
@@ -223,6 +223,44 @@ namespace InnerLibs
         }
 
         /// <summary>
+        /// Gera uma data aleatória a partir de componentes nulos de data
+        /// </summary>
+        /// <param name="Min">Numero minimo, Padrão 0</param>
+        /// <param name="Max">Numero Maximo, Padrão <see cref="int.MaxValue"/></param>
+        /// <returns>Um numero Inteiro</returns>
+        public static DateTime RandomDateTime(int? Year = null, int? Month = null, int? Day = null, int? Hour = null, int? Minute = null, int? Second = null)
+        {
+            Year = (Year ?? RandomNumber(DateTime.MinValue.Year, DateTime.MaxValue.Year)).ForcePositive().LimitRange(DateTime.MinValue.Year, DateTime.MaxValue.Year);
+            Month = (Month ?? RandomNumber(DateTime.MinValue.Month, DateTime.MaxValue.Month)).ForcePositive().LimitRange(1, 12);
+            Day = (Day ?? RandomNumber(DateTime.MinValue.Day, DateTime.MaxValue.Day)).ForcePositive().LimitRange(1, 31);
+            Hour = (Hour ?? RandomNumber(DateTime.MinValue.Hour, DateTime.MaxValue.Hour)).ForcePositive().LimitRange(1, 31);
+            Minute = (Minute ?? RandomNumber(DateTime.MinValue.Minute, DateTime.MaxValue.Minute)).ForcePositive().LimitRange(0, 59);
+            Second = (Second ?? RandomNumber(DateTime.MinValue.Second, DateTime.MaxValue.Second)).ForcePositive().LimitRange(0, 59);
+
+            DateTime randomCreated = DateTime.Now;
+            while (Misc.TryExecute(() => randomCreated = new DateTime(Year.Value, Month.Value, Day.Value, Hour.Value, Minute.Value, Second.Value)) != null)
+            {
+                Day--;
+            }
+
+            return randomCreated;
+        }
+
+        /// <summary>
+        /// Gera uma data aleatória entre 2 datas
+        /// </summary>
+        /// <param name="Min">Data Minima</param>
+        /// <param name="Max">Data Maxima</param>
+        /// <returns>Um numero Inteiro</returns>
+        public static DateTime RandomDateTime(DateTime? MinDate, DateTime? MaxDate = null)
+        {
+            var Min = (MinDate ?? RandomDateTime()).Ticks;
+            var Max = (MaxDate ?? RandomDateTime()).Ticks;
+            Misc.FixOrder(ref Min, ref Max);
+            return new DateTime(RandomNumber(Min, Max));
+        }
+
+        /// <summary>
         /// Gera um EAN aleatório com digito verificador válido
         /// </summary>
         /// <param name="Len"></param>
@@ -255,6 +293,41 @@ namespace InnerLibs
         public static TextStructure RandomIpsum(int ParagraphCount = 5, int SentenceCount = 3, int MinWordCount = 10, int MaxWordCount = 50, int IdentSize = 0, int BreakLinesBetweenParagraph = 0) => new TextStructure(Enumerable.Range(1, ParagraphCount.SetMinValue(1)).SelectJoinString(pp => Enumerable.Range(1, SentenceCount.SetMinValue(1)).SelectJoinString(s => Enumerable.Range(1, RandomNumber(MinWordCount.SetMinValue(1), MaxWordCount.SetMinValue(1))).SelectJoinString(p => RandomBool(20).AsIf(RandomWord(RandomNumber(2, 6)).ToUpper(), RandomWord()) + RandomBool(30).AsIf(","), " "), PredefinedArrays.EndOfSentencePunctuation.TakeRandom() + " "), Environment.NewLine)) { Ident = IdentSize, BreakLinesBetweenParagraph = BreakLinesBetweenParagraph };
 
         /// <summary>
+        /// Gera um numero Aleatório entre 2 números
+        /// </summary>
+        /// <param name="Min">Numero minimo, Padrão 0</param>
+        /// <param name="Max">Numero Maximo, Padrão <see cref="int.MaxValue"/></param>
+        /// <returns>Um numero Inteiro</returns>
+        public static int RandomNumber(int Min = 0, int Max = int.MaxValue)
+        {
+            Misc.FixOrder(ref Min, ref Max);
+            return Min == Max ? Min : init_rnd.Next(Min, Max == int.MaxValue ? int.MaxValue : Max + 1);
+        }
+
+        /// <summary>
+        /// Gera um numero Aleatório entre 2 números
+        /// </summary>
+        /// <param name="Min">Numero minimo, Padrão 0</param>
+        /// <param name="Max">Numero Maximo, Padrão <see cref="long.MaxValue"/></param>
+        /// <returns>Um numero Inteiro</returns>
+        public static long RandomNumber(long Min, long Max = long.MaxValue)
+        {
+            Misc.FixOrder(ref Min, ref Max);
+            if (Min == Max)
+            {
+                return Min;
+            }
+            else
+            {
+                Max = Max == long.MaxValue ? long.MaxValue : Max + 1;
+                byte[] buf = new byte[8];
+                init_rnd.NextBytes(buf);
+                long longRand = BitConverter.ToInt64(buf, 0);
+                return Math.Abs(longRand % (Max - Min)) + Min;
+            }
+        }
+
+        /// <summary>
         /// Gera uma Lista com numeros Aleatórios entre 2 números
         /// </summary>
         /// <param name="Min">Numero minimo, Padrão 0</param>
@@ -280,84 +353,6 @@ namespace InnerLibs
             }
             return Array.Empty<int>();
         }
-
-        /// <summary>
-        /// Gera uma data aleatória a partir de componentes nulos de data
-        /// </summary>
-        /// <param name="Min">Numero minimo, Padrão 0</param>
-        /// <param name="Max">Numero Maximo, Padrão <see cref="int.MaxValue"/></param>
-        /// <returns>Um numero Inteiro</returns>
-        public static DateTime RandomDateTime(int? Year = null, int? Month = null, int? Day = null, int? Hour = null, int? Minute = null, int? Second = null)
-        {
-            Year = (Year ?? RandomNumber(DateTime.MinValue.Year, DateTime.MaxValue.Year)).ForcePositive().LimitRange(DateTime.MinValue.Year, DateTime.MaxValue.Year);
-            Month = (Month ?? RandomNumber(DateTime.MinValue.Month, DateTime.MaxValue.Month)).ForcePositive().LimitRange(1, 12);
-            Day = (Day ?? RandomNumber(DateTime.MinValue.Day, DateTime.MaxValue.Day)).ForcePositive().LimitRange(1, 31);
-            Hour = (Hour ?? RandomNumber(DateTime.MinValue.Hour, DateTime.MaxValue.Hour)).ForcePositive().LimitRange(1, 31);
-            Minute = (Minute ?? RandomNumber(DateTime.MinValue.Minute, DateTime.MaxValue.Minute)).ForcePositive().LimitRange(0, 59);
-            Second = (Second ?? RandomNumber(DateTime.MinValue.Second, DateTime.MaxValue.Second)).ForcePositive().LimitRange(0, 59);
-
-            DateTime randomCreated = DateTime.Now;
-            while (Misc.TryExecute(() => randomCreated = new DateTime(Year.Value, Month.Value, Day.Value, Hour.Value, Minute.Value, Second.Value)) != null)
-            {
-                Day--;
-            }
-
-            return randomCreated;
-
-        }
-
-        /// <summary>
-        /// Gera uma data aleatória entre 2 datas
-        /// </summary>
-        /// <param name="Min">Data Minima</param>
-        /// <param name="Max">Data Maxima </param>
-        /// <returns>Um numero Inteiro</returns>
-        public static DateTime RandomDateTime(DateTime? MinDate, DateTime? MaxDate = null)
-        {
-            var Min = (MinDate ?? RandomDateTime()).Ticks;
-            var Max = (MaxDate ?? RandomDateTime()).Ticks;
-            Misc.FixOrder(ref Min, ref Max);
-            return new DateTime(RandomNumber(Min, Max));
-        }
-
-
-
-        /// <summary>
-        /// Gera um numero Aleatório entre 2 números
-        /// </summary>
-        /// <param name="Min">Numero minimo, Padrão 0</param>
-        /// <param name="Max">Numero Maximo, Padrão <see cref="int.MaxValue"/></param>
-        /// <returns>Um numero Inteiro</returns>
-        public static int RandomNumber(int Min = 0, int Max = int.MaxValue)
-        {
-            Misc.FixOrder(ref Min, ref Max);
-            return Min == Max ? Min : init_rnd.Next(Min, Max == int.MaxValue ? int.MaxValue : Max + 1);
-        }
-        /// <summary>
-        /// Gera um numero Aleatório entre 2 números
-        /// </summary>
-        /// <param name="Min">Numero minimo, Padrão 0</param>
-        /// <param name="Max">Numero Maximo, Padrão <see cref="long.MaxValue"/></param>
-        /// <returns>Um numero Inteiro</returns>
-        public static long RandomNumber(long Min, long Max = long.MaxValue)
-        {
-            Misc.FixOrder(ref Min, ref Max);
-            if (Min == Max)
-            {
-                return Min;
-            }
-            else
-            {
-                Max = Max == long.MaxValue ? long.MaxValue : Max + 1;
-                byte[] buf = new byte[8];
-                init_rnd.NextBytes(buf);
-                long longRand = BitConverter.ToInt64(buf, 0);
-                return Math.Abs(longRand % (Max - Min)) + Min;
-            }
-
-        }
-
-        private static readonly Random init_rnd = new Random();
 
         /// <summary>
         /// Gera uma palavra aleatória com o numero de caracteres entre <paramref name="MinLength"/>
@@ -427,7 +422,6 @@ namespace InnerLibs
         /// Gerar URL baseado na latitude e Longitude. Padrão FALSE retorna a URL baseada no Logradouro
         /// </param>
         /// <returns>Uma URI do Google Maps</returns>
-
         public static Uri ToGoogleMapsURL(this AddressInfo local, bool LatLong = false)
         {
             string s;
@@ -442,5 +436,7 @@ namespace InnerLibs
 
             return new Uri("https://www.google.com.br/maps/search/" + s);
         }
+
+        #endregion Public Methods
     }
 }

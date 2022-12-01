@@ -10,21 +10,14 @@ using System.Text;
 
 namespace InnerLibs.Mail
 {
-    [Flags]
-    public enum SentStatus
-    {
-        None = 0,
-        Success = 1,
-        Error = 2,
-        PartialSuccess = Error + Success,
-    }
-
     /// <summary>
     /// Wrapper de <see cref="System.Net.Mail"/> em FluentAPI com configurações de Template métodos
     /// auxiliares. Utiliza objetos do tipo <see cref="Dictionary{string, object}"/> para objetos de template
     /// </summary>
     public class FluentMailMessage : FluentMailMessage<Dictionary<string, object>>
     {
+        #region Public Methods
+
         /// <summary>
         /// Cria um <see cref="FluentMailMessage{T}"/> com destinatários a partir de uma <see cref="IEnumerable{T}"/>
         /// </summary>
@@ -92,6 +85,8 @@ namespace InnerLibs.Mail
         /// <param name="Message">Corpo da Mensagem</param>
         /// <returns></returns>
         public static SentStatus QuickSend(string Email, string Password, string SmtpHost, int SmtpPort, bool UseSSL, string Recipient, string Subject, string Message) => new FluentMailMessage().WithSmtp(SmtpHost, SmtpPort, UseSSL).WithCredentials(Email, Password).AddRecipient(Recipient).WithSubject(Subject).WithMessage(Message).OnError((m, a, ex) => Debug.WriteLine(ex.ToFullExceptionString())).SendAndDispose();
+
+        #endregion Public Methods
     }
 
     /// <summary>
@@ -100,7 +95,13 @@ namespace InnerLibs.Mail
     /// </summary>
     public class FluentMailMessage<T> : MailMessage where T : class
     {
+        #region Private Fields
+
         private List<(TemplateMailAddress<T>, SentStatus, Exception)> _status = new List<(TemplateMailAddress<T>, SentStatus, Exception)>();
+
+        #endregion Private Fields
+
+        #region Private Methods
 
         /// <summary>
         /// Envia os emails
@@ -156,6 +157,10 @@ namespace InnerLibs.Mail
             return this;
         }
 
+        #endregion Private Methods
+
+        #region Public Constructors
+
         /// <summary>
         /// Instancia uma nova <see cref="FluentMailMessage{T}"/> vazia
         /// </summary>
@@ -163,6 +168,10 @@ namespace InnerLibs.Mail
         {
             this.IsBodyHtml = true;
         }
+
+        #endregion Public Constructors
+
+        #region Public Properties
 
         /// <summary>
         /// Ação executada quando ocorrer erro no disparo
@@ -198,6 +207,10 @@ namespace InnerLibs.Mail
         /// Lista contendo os endereços de email que foram enviados com sucesso
         /// </summary>
         public IEnumerable<TemplateMailAddress<T>> SuccessList => SentStatusList.Where(x => x.Status.HasFlag(SentStatus.Success)).Select(x => x.Destination);
+
+        #endregion Public Properties
+
+        #region Public Methods
 
         /// <summary>
         /// Adciona um anexo ao email
@@ -833,10 +846,14 @@ namespace InnerLibs.Mail
             Subject = Text;
             return this;
         }
+
+        #endregion Public Methods
     }
 
     public class TemplateMailAddress : TemplateMailAddress<Dictionary<string, object>>
     {
+        #region Public Constructors
+
         public TemplateMailAddress(string address, Dictionary<string, object> TemplateData = null) : base(address, TemplateData)
         {
         }
@@ -848,6 +865,8 @@ namespace InnerLibs.Mail
         public TemplateMailAddress(string address, string displayName, Encoding displayNameEncoding, Dictionary<string, object> TemplateData = null) : base(address, displayName, displayNameEncoding, TemplateData)
         {
         }
+
+        #endregion Public Constructors
     }
 
     /// <summary>
@@ -855,6 +874,8 @@ namespace InnerLibs.Mail
     /// </summary>
     public class TemplateMailAddress<T> : MailAddress where T : class
     {
+        #region Public Constructors
+
         public TemplateMailAddress(string address, T TemplateData = null) : base(address)
         {
             this.TemplateData = TemplateData;
@@ -870,6 +891,10 @@ namespace InnerLibs.Mail
             this.TemplateData = TemplateData;
         }
 
+        #endregion Public Constructors
+
+        #region Public Properties
+
         /// <summary>
         /// Lista de anexos exclusivos deste destinatário
         /// </summary>
@@ -879,6 +904,10 @@ namespace InnerLibs.Mail
         /// Objeto com as informações deste destinatário que serão aplicados ao template
         /// </summary>
         public virtual T TemplateData { get; set; }
+
+        #endregion Public Properties
+
+        #region Public Methods
 
         /// <summary>
         /// Cria uma <see cref="IEnumerable{TemplateMailAddress{T}}"/> a partir de uma lista de
@@ -945,5 +974,16 @@ namespace InnerLibs.Mail
             Attachments.Add(attachment);
             return this;
         }
+
+        #endregion Public Methods
+    }
+
+    [Flags]
+    public enum SentStatus
+    {
+        None = 0,
+        Success = 1,
+        Error = 2,
+        PartialSuccess = Error + Success,
     }
 }

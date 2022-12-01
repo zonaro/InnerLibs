@@ -10,8 +10,14 @@ namespace InnerLibs
     /// </summary>
     public class UnitConverter
     {
+        #region Private Fields
+
         private readonly Dictionary<decimal, string> Units = new Dictionary<decimal, string>();
         private CultureInfo culture = CultureInfo.InvariantCulture;
+
+        #endregion Private Fields
+
+        #region Private Methods
 
         /// <summary>
         /// Retorna a unidade e a base a partir do nome da unidade
@@ -29,6 +35,10 @@ namespace InnerLibs
                 return Units.SingleOrDefault(x => x.Value.Split(";").Any(y => y.Trim().Equals(U.Trim(), UnitComparisonType)));
             }
         }
+
+        #endregion Private Methods
+
+        #region Public Constructors
 
         /// <summary>
         /// Inicia um <see cref="UnitConverter"/> vazio
@@ -107,8 +117,16 @@ namespace InnerLibs
         {
         }
 
+        #endregion Public Constructors
+
+        #region Public Properties
+
         public CultureInfo Culture { get => culture ?? CultureInfo.CurrentCulture; set => culture = value; }
         public StringComparison UnitComparisonType { get; set; } = StringComparison.Ordinal;
+
+        #endregion Public Properties
+
+        #region Public Methods
 
         /// <summary>
         /// Cria um <see cref="UnitConverter"/> de Base 1000 (de y a E)
@@ -141,7 +159,6 @@ namespace InnerLibs
         /// <returns></returns>
         public string Abreviate(decimal Number, int DecimalPlaces = -1)
         {
-
             if (DecimalPlaces < 0)
             {
                 DecimalPlaces = culture.NumberFormat.NumberDecimalDigits;
@@ -187,7 +204,6 @@ namespace InnerLibs
                     }
             }
         }
- 
 
         /// <summary>
         /// Abrevia um numero com a unidade mais alta encontrada dentro do conversor
@@ -246,7 +262,7 @@ namespace InnerLibs
         /// <returns></returns>
         public decimal Parse(string Number, int DecimalPlaces = -1)
         {
-            if(DecimalPlaces < 0)
+            if (DecimalPlaces < 0)
             {
                 DecimalPlaces = culture.NumberFormat.NumberDecimalDigits;
             }
@@ -303,5 +319,7 @@ namespace InnerLibs
 
             return u;
         }
+
+        #endregion Public Methods
     }
 }

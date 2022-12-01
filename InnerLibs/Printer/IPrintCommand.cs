@@ -5,10 +5,16 @@ namespace InnerLibs.Printer.Command
 {
     public interface IPrintCommand
     {
+        #region Public Properties
+
         int ColsCondensed { get; }
         int ColsExpanded { get; }
         int ColsNormal { get; }
         Encoding Encoding { get; set; }
+
+        #endregion Public Properties
+
+        #region Public Methods
 
         byte[] AutoTest();
 
@@ -53,5 +59,7 @@ namespace InnerLibs.Printer.Command
         byte[] Right();
 
         byte[] Underline(bool state);
+
+        #endregion Public Methods
     }
 }

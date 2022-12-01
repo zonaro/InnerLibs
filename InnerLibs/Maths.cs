@@ -13,59 +13,16 @@ namespace InnerLibs
     /// <remarks></remarks>
     public static class MathExt
     {
-        public static string ToDecimalString(this float number, int Decimals = -1, CultureInfo culture = null) => number.ToDecimal().ToDecimalString(Decimals, culture);
-
-        public static string ToDecimalString(this short number, int Decimals = -1, CultureInfo culture = null) => number.ToDecimal().ToDecimalString(Decimals, culture);
-
-        public static string ToDecimalString(this double number, int Decimals = -1, CultureInfo culture = null) => number.ToDecimal().ToDecimalString(Decimals, culture);
-
-        public static string ToDecimalString(this long number, int Decimals = -1, CultureInfo culture = null) => number.ToDecimal().ToDecimalString(Decimals, culture);
-
-        public static string ToDecimalString(this int number, int Decimals = -1, CultureInfo culture = null) => number.ToDecimal().ToDecimalString(Decimals, culture);
-
-        public static string ToDecimalString(this decimal number, int Decimals = -1, CultureInfo culture = null)
-        {
-            culture = culture ?? CultureInfo.CurrentCulture;
-            Decimals = Decimals < 0 ? GetDecimalLength(number) : Decimals;
-            Decimals = Decimals < 0 ? culture.NumberFormat.NumberDecimalDigits : Decimals;
-            return number.ToString("0".AppendIf(culture.NumberFormat.NumberDecimalSeparator + "0".Repeat(Decimals), Decimals > 0), culture);
-        }
-
-        public static int GetDecimalLength(this decimal number) => BitConverter.GetBytes(decimal.GetBits(number)[3])[2];
-
-        public static int GetDecimalLength(this double number) => number.ToDecimal().GetDecimalLength();
+        #region Public Fields
 
         /// <summary>
-        /// The Collatz conjecture is one of the most famous unsolved problems in mathematics. The conjecture asks whether repeating two simple arithmetic operations will eventually transform every positive integer into 1
+        /// Earth's circumference at the equator in km, considering the earth is a globe, not flat
         /// </summary>
-        /// <param name="n">Natural number greater than zero</param>
-        /// <returns>an <see cref="IEnumerable{decimal}" /> with all steps until 1  </returns>
-        /// <exception cref="ArgumentException"></exception>
-        public static IEnumerable<decimal> CollatzConjecture(this int n)
-        {
-            if (n < 1)
-            {
-                throw new ArgumentException("n must be a natural number greater than zero.", nameof(n));
-            }
+        public const double EarthCircumference = 40075d;
 
-            yield return n;
+        #endregion Public Fields
 
-            decimal _n = n; //n precisa ser decimal
-
-            while (_n > 1)
-            {
-                if (_n.IsEven())
-                {
-                    _n /= 2;
-                }
-                else
-                {
-                    _n = _n * 3 + 1;
-                }
-
-                yield return _n;
-            }
-        }
+        #region Public Methods
 
         /// <summary>
         /// Retorna uma progressão Aritmética com N numeros
@@ -138,13 +95,8 @@ namespace InnerLibs
         /// <returns></returns>
         public static double CalculateCompoundInterest(this double Capital, double Rate, double Time) => Capital * Math.Pow(1 + Rate, Time);
 
-        /// <inheritdoc cref="CalculateCompoundInterest(double,double,double)" />
+        /// <inheritdoc cref="CalculateCompoundInterest(double,double,double)"/>
         public static decimal CalculateCompoundInterest(this decimal Capital, decimal Rate, decimal Time) => CalculateCompoundInterest((double)Capital, (double)Rate, (double)Time).ToDecimal();
-
-        /// <summary>
-        /// Earth's circumference at the equator in km, considering the earth is a globe, not flat
-        /// </summary>
-        public const double EarthCircumference = 40075d;
 
         /// <summary>
         /// Calcula a distancia entre 2 locais
@@ -299,6 +251,23 @@ namespace InnerLibs
 
         public static double Ceil(this double Number) => Math.Ceiling(Number);
 
+        public static decimal CeilDecimal(this double Number) => Number.Ceil().ToDecimal();
+
+        /// <summary>
+        /// Arredonda um numero para cima. Ex.: 4,5 -&gt; 5
+        /// </summary>
+        /// <param name="Number">Numero a ser arredondado</param>
+        /// <returns>Um numero inteiro</returns>
+        public static decimal CeilDecimal(this decimal Number) => Number.Ceil().ToDecimal();
+
+        public static double CeilDouble(this double Number) => Number.Ceil().ToDouble();
+
+        /// <summary>
+        /// Arredonda um numero para cima. Ex.: 4,5 -&gt; 5
+        /// </summary>
+        /// <param name="Number">Numero a ser arredondado</param>
+        /// <returns>Um numero inteiro</returns>
+        public static double CeilDouble(this decimal Number) => Number.Ceil().ToDouble();
 
         /// <summary>
         /// Arredonda um numero para cima. Ex.: 4,5 -&gt; 5
@@ -328,23 +297,39 @@ namespace InnerLibs
         /// <returns>Um numero inteiro (Integer ou Int)</returns>
         public static long CeilLong(this decimal Number) => Number.Ceil().ToLong();
 
-        public static decimal CeilDecimal(this double Number) => Number.Ceil().ToDecimal();
-
         /// <summary>
-        /// Arredonda um numero para cima. Ex.: 4,5 -&gt; 5
+        /// The Collatz conjecture is one of the most famous unsolved problems in mathematics. The
+        /// conjecture asks whether repeating two simple arithmetic operations will eventually
+        /// transform every positive integer into 1
         /// </summary>
-        /// <param name="Number">Numero a ser arredondado</param>
-        /// <returns>Um numero inteiro </returns>
-        public static decimal CeilDecimal(this decimal Number) => Number.Ceil().ToDecimal();
+        /// <param name="n">Natural number greater than zero</param>
+        /// <returns>an <see cref="IEnumerable{decimal}"/> with all steps until 1</returns>
+        /// <exception cref="ArgumentException"></exception>
+        public static IEnumerable<decimal> CollatzConjecture(this int n)
+        {
+            if (n < 1)
+            {
+                throw new ArgumentException("n must be a natural number greater than zero.", nameof(n));
+            }
 
-        public static double CeilDouble(this double Number) => Number.Ceil().ToDouble();
+            yield return n;
 
-        /// <summary>
-        /// Arredonda um numero para cima. Ex.: 4,5 -&gt; 5
-        /// </summary>
-        /// <param name="Number">Numero a ser arredondado</param>
-        /// <returns>Um numero inteiro  </returns>
-        public static double CeilDouble(this decimal Number) => Number.Ceil().ToDouble();
+            decimal _n = n; //n precisa ser decimal
+
+            while (_n > 1)
+            {
+                if (_n.IsEven())
+                {
+                    _n /= 2;
+                }
+                else
+                {
+                    _n = _n * 3 + 1;
+                }
+
+                yield return _n;
+            }
+        }
 
         /// <summary>
         /// Retorna a diferença entre 2 numeros se o valor maximo for menor que o total
@@ -491,12 +476,12 @@ namespace InnerLibs
             } while (Length > 0);
         }
 
-        /// <summary>
-        /// Get the Decimal Part of <see cref="decimal" /> as <see cref="long">
-        /// </summary>
-        /// <param name="Value"></param>
-        /// <param name="Length"></param>
-        /// <returns></returns>
+        public static int GetDecimalLength(this decimal number) => BitConverter.GetBytes(decimal.GetBits(number)[3])[2];
+
+        public static int GetDecimalLength(this double number) => number.ToDecimal().GetDecimalLength();
+
+        /// <summary> Get the Decimal Part of <see cref="decimal" /> as <see cref="long"> </summary>
+        /// <param name="Value"></param> <param name="Length"></param> <returns></returns>
         public static long GetDecimalPart(this decimal Value, int Length = 0)
         {
             Value = Value.ForcePositive();
@@ -770,6 +755,24 @@ namespace InnerLibs
         /// <returns>Decimal contendo a soma de todos os valores</returns>
         public static decimal Sum(params decimal[] Values) => Values.Sum();
 
+        public static string ToDecimalString(this float number, int Decimals = -1, CultureInfo culture = null) => number.ToDecimal().ToDecimalString(Decimals, culture);
+
+        public static string ToDecimalString(this short number, int Decimals = -1, CultureInfo culture = null) => number.ToDecimal().ToDecimalString(Decimals, culture);
+
+        public static string ToDecimalString(this double number, int Decimals = -1, CultureInfo culture = null) => number.ToDecimal().ToDecimalString(Decimals, culture);
+
+        public static string ToDecimalString(this long number, int Decimals = -1, CultureInfo culture = null) => number.ToDecimal().ToDecimalString(Decimals, culture);
+
+        public static string ToDecimalString(this int number, int Decimals = -1, CultureInfo culture = null) => number.ToDecimal().ToDecimalString(Decimals, culture);
+
+        public static string ToDecimalString(this decimal number, int Decimals = -1, CultureInfo culture = null)
+        {
+            culture = culture ?? CultureInfo.CurrentCulture;
+            Decimals = Decimals < 0 ? GetDecimalLength(number) : Decimals;
+            Decimals = Decimals < 0 ? culture.NumberFormat.NumberDecimalDigits : Decimals;
+            return number.ToString("0".AppendIf(culture.NumberFormat.NumberDecimalSeparator + "0".Repeat(Decimals), Decimals > 0), culture);
+        }
+
         /// <summary>
         /// retorna o numeor em sua forma ordinal (inglês)
         /// </summary>
@@ -811,5 +814,7 @@ namespace InnerLibs
         /// <param name="Degrees"></param>
         /// <returns></returns>
         public static double ToRadians(this double Degrees) => Degrees * Math.PI / 180.0d;
+
+        #endregion Public Methods
     }
 }

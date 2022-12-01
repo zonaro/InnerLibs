@@ -9,6 +9,8 @@ namespace InnerLibs
     /// </summary>
     public class FullNumberWriter
     {
+        #region Internal Methods
+
         internal string InExtensive(decimal Number)
         {
             switch (Number)
@@ -427,6 +429,10 @@ namespace InnerLibs
             }
         }
 
+        #endregion Internal Methods
+
+        #region Public Constructors
+
         /// <summary>
         /// Instancia um novo <see cref="FullNumberWriter"/> com as configurações default (inglês)
         /// </summary>
@@ -475,8 +481,22 @@ namespace InnerLibs
             }
 
             DecimalSeparator = CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator;
-
         }
+
+        #endregion Public Constructors
+
+        #region Public Indexers
+
+        /// <summary>
+        /// Escreve um numero por extenso
+        /// </summary>
+        /// <param name="Number"></param>
+        /// <returns></returns>
+        public virtual string this[decimal Number, int DecimalPlaces = 2] => ToString(Number, DecimalPlaces);
+
+        #endregion Public Indexers
+
+        #region Public Properties
 
         /// <summary>
         /// String que representa a palavra "e". Utilizada na concatenação de expressões
@@ -767,12 +787,9 @@ namespace InnerLibs
         /// <returns></returns>
         public string Zero { get; set; }
 
-        /// <summary>
-        /// Escreve um numero por extenso
-        /// </summary>
-        /// <param name="Number"></param>
-        /// <returns></returns>
-        public virtual string this[decimal Number, int DecimalPlaces = 2] => ToString(Number, DecimalPlaces);
+        #endregion Public Properties
+
+        #region Public Methods
 
         public override string ToString() => ToString(0m);
 
@@ -782,5 +799,7 @@ namespace InnerLibs
             long num = (long)Math.Round(Number.Floor());
             return (InExtensive(num) + (dec == 0L | DecimalPlaces == 0 ? InnerLibs.Text.Empty : DecimalSeparator.Wrap(" ") + InExtensive(dec))).ToLower().TrimBetween();
         }
+
+        #endregion Public Methods
     }
 }

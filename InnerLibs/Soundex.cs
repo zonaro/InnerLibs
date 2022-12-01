@@ -5,6 +5,8 @@ namespace InnerLibs
 {
     public static class SoundExType
     {
+        #region Private Methods
+
         /// <summary>
         /// Gera um código SOUNDEX para comparação de fonemas
         /// </summary>
@@ -129,6 +131,10 @@ namespace InnerLibs
             return Value;
         }
 
+        #endregion Private Methods
+
+        #region Public Methods
+
         /// <summary>
         /// Gera um código SOUNDEX para comparação de fonemas
         /// </summary>
@@ -149,6 +155,8 @@ namespace InnerLibs
         {
             return (FirstText.SoundEx() ?? InnerLibs.Text.Empty) == (SecondText.SoundEx() ?? InnerLibs.Text.Empty);
         }
+
+        #endregion Public Methods
     }
 
     /// <summary>
@@ -156,6 +164,8 @@ namespace InnerLibs
     /// </summary>
     public sealed class Phonetic
     {
+        #region Public Constructors
+
         /// <summary>
         /// Cria um novo Phonetic a partir de uma palavra
         /// </summary>
@@ -171,6 +181,21 @@ namespace InnerLibs
                 this.Word = Word;
             }
         }
+
+        #endregion Public Constructors
+
+        #region Public Indexers
+
+        /// <summary>
+        /// Compara o fonema de uma palavra em portugues com outra palavra
+        /// </summary>
+        /// <param name="Word">Palavra para comparar</param>
+        /// <returns></returns>
+        public bool this[string Word] => (new Phonetic(Word).SoundExCode ?? InnerLibs.Text.Empty) == (SoundExCode ?? InnerLibs.Text.Empty) | (Word ?? InnerLibs.Text.Empty) == (this.Word ?? InnerLibs.Text.Empty);
+
+        #endregion Public Indexers
+
+        #region Public Properties
 
         /// <summary>
         /// Código SoundExBR que representa o fonema da palavra
@@ -294,13 +319,12 @@ namespace InnerLibs
         /// <returns></returns>
         public string Word { get; set; }
 
-        /// <summary>
-        /// Compara o fonema de uma palavra em portugues com outra palavra
-        /// </summary>
-        /// <param name="Word">Palavra para comparar</param>
-        /// <returns></returns>
-        public bool this[string Word] => (new Phonetic(Word).SoundExCode ?? InnerLibs.Text.Empty) == (SoundExCode ?? InnerLibs.Text.Empty) | (Word ?? InnerLibs.Text.Empty) == (this.Word ?? InnerLibs.Text.Empty);
+        #endregion Public Properties
+
+        #region Public Methods
 
         public override string ToString() => SoundExCode;
+
+        #endregion Public Methods
     }
 }

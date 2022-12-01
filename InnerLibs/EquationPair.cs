@@ -8,11 +8,17 @@ namespace InnerLibs
     /// </summary>
     public class EquationPair<T> where T : struct
     {
+        #region Public Constructors
+
         public EquationPair(T? X, T? Y)
         {
             this.X = X;
             this.Y = Y;
         }
+
+        #endregion Public Constructors
+
+        #region Public Properties
 
         public bool IsComplete => X.HasValue && Y.HasValue;
         public bool IsNotComplete => !IsComplete;
@@ -20,6 +26,10 @@ namespace InnerLibs
         public bool MissY => !Y.HasValue;
         public T? X { get; set; }
         public T? Y { get; set; }
+
+        #endregion Public Properties
+
+        #region Public Methods
 
         public static explicit operator EquationPair<T>(Tuple<T?, T?> Equation) => new EquationPair<T>(Equation.Item1, Equation.Item2);
 
@@ -46,5 +56,7 @@ namespace InnerLibs
         }
 
         public T?[] ToArray() => new[] { X, Y };
+
+        #endregion Public Methods
     }
 }

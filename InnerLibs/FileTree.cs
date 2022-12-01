@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -9,9 +8,15 @@ namespace InnerLibs
 {
     public class FileTree
     {
+        #region Private Fields
+
         private List<FileTree> _children = new List<FileTree>();
 
         private FileSystemInfo info;
+
+        #endregion Private Fields
+
+        #region Internal Constructors
 
         internal FileTree(DirectoryInfo Directory, FileTree parent, string[] FileSearchPatterns)
         {
@@ -45,25 +50,11 @@ namespace InnerLibs
             _children = new List<FileTree>(new List<FileTree>());
         }
 
+        #endregion Internal Constructors
+
         //TODO: construtor que permite aninhar arquivos relacionados
 
-        public FileTree(string Path, params string[] FileSearchPatterns)
-        {
-            if (Path.IsDirectoryPath())
-            {
-                Construct(new DirectoryInfo(Path), FileSearchPatterns);
-            }
-            else if (Path.IsFilePath())
-            {
-                Construct(new FileInfo(Path).Directory, FileSearchPatterns);
-
-            }
-            else
-            {
-                throw new ArgumentException("Path is not valid");
-            }
-        }
-        public FileTree(DirectoryInfo Directory, params string[] FileSearchPatterns) => Construct(Directory, FileSearchPatterns);
+        #region Internal Methods
 
         internal void Construct(DirectoryInfo Directory, params string[] FileSearchPatterns)
         {
@@ -78,8 +69,34 @@ namespace InnerLibs
             {
                 _children = new List<FileTree>(new[] { new FileTree(Directory, this, FileSearchPatterns) }.ToList());
             }
-
         }
+
+        #endregion Internal Methods
+
+        #region Public Constructors
+
+        public FileTree(string Path, params string[] FileSearchPatterns)
+        {
+            if (Path.IsDirectoryPath())
+            {
+                Construct(new DirectoryInfo(Path), FileSearchPatterns);
+            }
+            else if (Path.IsFilePath())
+            {
+                Construct(new FileInfo(Path).Directory, FileSearchPatterns);
+            }
+            else
+            {
+                throw new ArgumentException("Path is not valid");
+            }
+        }
+
+        public FileTree(DirectoryInfo Directory, params string[] FileSearchPatterns) => Construct(Directory, FileSearchPatterns);
+
+        #endregion Public Constructors
+
+        #region Public Properties
+
         public IEnumerable<FileTree> Children => _children.AsEnumerable();
 
         public DateTime CreationTime => info.CreationTime;
@@ -100,6 +117,14 @@ namespace InnerLibs
 
         public string TypeDescription => IsDirectory ? "Directory" : (GetFileType()?.Description) ?? "File";
 
+        #endregion Public Properties
+
+        #region Public Methods
+
+        public static implicit operator DirectoryInfo(FileTree Ft) => Ft.IsDirectory ? new DirectoryInfo(Ft.Path) : new FileInfo(Ft.Path).Directory;
+
+        public static implicit operator FileInfo(FileTree Ft) => Ft.IsFile ? new FileInfo(Ft.Path) : null;
+
         public FileType GetFileType()
         {
             if (IsFile)
@@ -114,7 +139,6 @@ namespace InnerLibs
 
         public override string ToString() => info.Name;
 
-        public static implicit operator DirectoryInfo(FileTree Ft) => Ft.IsDirectory ? new DirectoryInfo(Ft.Path) : new FileInfo(Ft.Path).Directory;
-        public static implicit operator FileInfo(FileTree Ft) => Ft.IsFile ? new FileInfo(Ft.Path) : null;
+        #endregion Public Methods
     }
 }

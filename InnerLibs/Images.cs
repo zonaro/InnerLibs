@@ -15,6 +15,8 @@ namespace InnerLibs
     /// <remarks></remarks>
     public static class Images
     {
+        #region Private Methods
+
         /// <summary>
         /// Aplica um borrão a uma determinada parte da imagem
         /// </summary>
@@ -115,11 +117,19 @@ namespace InnerLibs
             }
         }
 
+        #endregion Private Methods
+
+        #region Public Properties
+
         /// <summary>
         /// Lista com todos os formatos de imagem
         /// </summary>
         /// <returns></returns>
         public static ImageFormat[] ImageTypes { get; private set; } = new[] { ImageFormat.Bmp, ImageFormat.Emf, ImageFormat.Exif, ImageFormat.Gif, ImageFormat.Icon, ImageFormat.Jpeg, ImageFormat.Png, ImageFormat.Tiff, ImageFormat.Wmf };
+
+        #endregion Public Properties
+
+        #region Public Methods
 
         /// <summary>
         /// Aplica um borrão a imagem
@@ -301,7 +311,6 @@ namespace InnerLibs
         /// <param name="Size">Tamanho</param>
         /// <returns></returns>
         public static Image Crop(this Image Image, Size Size) => Image?.Crop(Size.Width, Size.Height);
-
 
         /// <summary>
         /// Cropa uma imagem a patir do centro
@@ -1160,5 +1169,7 @@ namespace InnerLibs
             gr.DrawImage(bm_marcaDagua, X, Y);
             return bm_Resultado;
         }
+
+        #endregion Public Methods
     }
 }

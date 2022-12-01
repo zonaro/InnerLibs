@@ -6,18 +6,14 @@ using System.Linq.Expressions;
 
 namespace InnerLibs.LINQ
 {
-    public enum FilterConditional
-    {
-        Or,
-        And
-    }
-
     /// <summary>
     /// Classe para criação de paginação e filtros dinâmicos para listas de classes
     /// </summary>
     /// <typeparam name="ClassType"></typeparam>
     public class PaginationFilter<ClassType, RemapType> where ClassType : class
     {
+        #region Private Fields
+
         private int? _total = default;
 
         private int pgnumber = 1;
@@ -25,6 +21,10 @@ namespace InnerLibs.LINQ
         private string pnp, psp, pop;
 
         private Func<ClassType, RemapType> remapexp;
+
+        #endregion Private Fields
+
+        #region Private Methods
 
         private IEnumerable<ClassType> ApplyFilter(IEnumerable<ClassType> FilteredData)
         {
@@ -92,9 +92,17 @@ namespace InnerLibs.LINQ
             return FilteredData ?? Data;
         }
 
+        #endregion Private Methods
+
+        #region Internal Fields
+
         internal List<PropertyFilter<ClassType, RemapType>> _filters = new List<PropertyFilter<ClassType, RemapType>>();
 
         internal ParameterExpression param = LINQExtensions.GenerateParameterExpression<ClassType>();
+
+        #endregion Internal Fields
+
+        #region Public Constructors
 
         public PaginationFilter()
         {
@@ -112,6 +120,21 @@ namespace InnerLibs.LINQ
         }
 
         public PaginationFilter(Action<PaginationFilter<ClassType, RemapType>> Options) => Config(Options);
+
+        #endregion Public Constructors
+
+        #region Public Indexers
+
+        /// <summary>
+        /// Dados da Pagina Atual
+        /// </summary>
+        /// <param name="PageNumber"></param>
+        /// <returns></returns>
+        public RemapType[] this[int PageNumber] => GetPage(PageNumber);
+
+        #endregion Public Indexers
+
+        #region Public Properties
 
         /// <summary>
         /// Fonte de Dados deste filtro
@@ -443,12 +466,9 @@ namespace InnerLibs.LINQ
         /// <returns></returns>
         public List<Expression<Func<ClassType, bool>>> WhereFilters { get; set; } = new List<Expression<Func<ClassType, bool>>>();
 
-        /// <summary>
-        /// Dados da Pagina Atual
-        /// </summary>
-        /// <param name="PageNumber"></param>
-        /// <returns></returns>
-        public RemapType[] this[int PageNumber] => GetPage(PageNumber);
+        #endregion Public Properties
+
+        #region Public Methods
 
         public static implicit operator List<RemapType>(PaginationFilter<ClassType, RemapType> obj) => obj.GetPage().ToList();
 
@@ -1204,10 +1224,14 @@ namespace InnerLibs.LINQ
 
             return this;
         }
+
+        #endregion Public Methods
     }
 
     public class PaginationFilter<ClassType> : PaginationFilter<ClassType, ClassType> where ClassType : class
     {
+        #region Public Constructors
+
         public PaginationFilter() : base()
         {
         }
@@ -1217,12 +1241,24 @@ namespace InnerLibs.LINQ
         /// </summary>
         public PaginationFilter(Action<PaginationFilter<ClassType>> Options) : base() => Config(Options);
 
+        #endregion Public Constructors
+
+        #region Public Methods
+
         public PaginationFilter<ClassType> Config(Action<PaginationFilter<ClassType>> options) => this.With(options);
+
+        #endregion Public Methods
     }
 
     public class PropertyFilter<ClassType, RemapType> where ClassType : class
     {
+        #region Public Constructors
+
         public PropertyFilter(PaginationFilter<ClassType, RemapType> LB) => PaginationFilter = LB;
+
+        #endregion Public Constructors
+
+        #region Public Properties
 
         /// <summary>
         /// Configura este filtro para utilização de valores nulos na query
@@ -1288,6 +1324,10 @@ namespace InnerLibs.LINQ
 
         public FilterConditional ValuesConditional { get; set; } = FilterConditional.Or;
         public Expression<Func<IComparable, bool>> ValueValidation { get; set; } = null;
+
+        #endregion Public Properties
+
+        #region Public Methods
 
         /// <summary>
         /// Adciona varios valores para esse filtro testar.
@@ -1738,5 +1778,13 @@ namespace InnerLibs.LINQ
 
             return v;
         }
+
+        #endregion Public Methods
+    }
+
+    public enum FilterConditional
+    {
+        Or,
+        And
     }
 }

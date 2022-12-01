@@ -10,11 +10,17 @@ namespace InnerLibs
 
     public class RuleOfThree<T> where T : struct
     {
+        #region Private Fields
+
         private string custom_param_name;
 
         private Func<T?> equationexp;
 
         private string paramname;
+
+        #endregion Private Fields
+
+        #region Private Methods
 
         private void GetExpression()
         {
@@ -88,6 +94,10 @@ namespace InnerLibs
             }
         }
 
+        #endregion Private Methods
+
+        #region Public Constructors
+
         /// <summary>
         /// Calcula uma regra de tres
         /// </summary>
@@ -137,6 +147,10 @@ namespace InnerLibs
             RuleExpression(e1x, e1y, e2x, e2y);
         }
 
+        #endregion Public Constructors
+
+        #region Public Properties
+
         /// <summary>
         /// Primeira Equação
         /// </summary>
@@ -152,6 +166,10 @@ namespace InnerLibs
         public string UnknownName => custom_param_name.IfBlank(paramname);
 
         public T? UnknownValue => equationexp();
+
+        #endregion Public Properties
+
+        #region Public Methods
 
         /// <summary>
         /// Atualiza o campo nulo da <see cref="EquationPair"/> correspondente pelo <see cref="UnknownValue"/>
@@ -185,5 +203,7 @@ namespace InnerLibs
 
             return null;
         }
+
+        #endregion Public Methods
     }
 }

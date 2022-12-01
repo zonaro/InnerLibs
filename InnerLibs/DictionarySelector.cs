@@ -14,19 +14,14 @@ namespace InnerLibs
         where TK : IComparable
         where TClass : class
     {
+        #region Private Fields
+
         private List<TClass> collection = new List<TClass>();
         private Func<TClass, TK> keyselector;
 
-        public void Add(TK key, TClass value)
-        {
-            if (value != null)
-            {
-                if (!ContainsKey(keyselector(value)) && !ContainsKey(key))
-                {
-                    collection.Add(value);
-                }
-            }
-        }
+        #endregion Private Fields
+
+        #region Public Constructors
 
         public SelfKeyDictionary(Func<TClass, TK> KeySelector)
         {
@@ -40,23 +35,9 @@ namespace InnerLibs
             }
         }
 
-        public int Count => collection.Count;
+        #endregion Public Constructors
 
-        public bool IsReadOnly => false;
-
-        public ICollection<TK> Keys => collection?.Select(x => keyselector(x)).ToArray();
-
-        public ICollection<TClass> Values => collection;
-
-        ICollection IDictionary.Keys => (ICollection)Keys;
-
-        ICollection IDictionary.Values => (ICollection)Values;
-
-        public bool IsFixedSize => false;
-
-        public object SyncRoot => SyncRoot;
-
-        public bool IsSynchronized => true;
+        #region Public Indexers
 
         public object this[object key] { get => this[((TK)key)]; set => this[((TK)key)] = (TClass)value; }
 
@@ -79,6 +60,43 @@ namespace InnerLibs
             }
         }
 
+        #endregion Public Indexers
+
+        #region Public Properties
+
+        public int Count => collection.Count;
+
+        public bool IsFixedSize => false;
+
+        public bool IsReadOnly => false;
+
+        public bool IsSynchronized => true;
+
+        public ICollection<TK> Keys => collection?.Select(x => keyselector(x)).ToArray();
+
+        public object SyncRoot => SyncRoot;
+
+        public ICollection<TClass> Values => collection;
+
+        ICollection IDictionary.Keys => (ICollection)Keys;
+
+        ICollection IDictionary.Values => (ICollection)Values;
+
+        #endregion Public Properties
+
+        #region Public Methods
+
+        public void Add(TK key, TClass value)
+        {
+            if (value != null)
+            {
+                if (!ContainsKey(keyselector(value)) && !ContainsKey(key))
+                {
+                    collection.Add(value);
+                }
+            }
+        }
+
         public TK Add(TClass Value)
         {
             if (Value != null)
@@ -88,6 +106,14 @@ namespace InnerLibs
             }
 
             return default;
+        }
+
+        public void Add(object key, object value)
+        {
+            if (key is TK && value is TClass cvalue)
+            {
+                collection.Add(cvalue);
+            }
         }
 
         public IEnumerable<TK> AddRange(params TClass[] Values) => AddRange((Values ?? Array.Empty<TClass>()).AsEnumerable());
@@ -107,9 +133,25 @@ namespace InnerLibs
 
         public bool Contains(KeyValuePair<TK, TClass> item) => collection.Any(x => keyselector(x).Equals(item.Key));
 
+        public bool Contains(object key) => key != null && key is TK ckey && ContainsKey(ckey);
+
         public bool ContainsKey(TK key) => Keys.Contains(key);
 
         public void CopyTo(KeyValuePair<TK, TClass>[] array, int arrayIndex) => collection.Select(x => new KeyValuePair<TK, TClass>(keyselector(x), x)).ToArray().CopyTo(array, arrayIndex);
+
+        public void CopyTo(Array array, int index)
+        {
+            if (array == null)
+            {
+                throw new ArgumentNullException("array");
+            }
+
+            TClass[] ppArray = array as TClass[];
+            if (ppArray == null)
+            {
+                throw new ArgumentException();
+            } ((ICollection<TClass>)this).CopyTo(ppArray, index);
+        }
 
         public IEnumerator<KeyValuePair<TK, TClass>> GetEnumerator() => collection.Select(x => new KeyValuePair<TK, TClass>(keyselector(x), x)).GetEnumerator();
 
@@ -117,32 +159,36 @@ namespace InnerLibs
         {
             if (ContainsKey(key))
             {
-
                 var success = Misc.TryExecute(() =>
-                  {
-                      var ii = collection.FirstOrDefault(x => keyselector(x).Equals(key));
+                    {
+                        var ii = collection.FirstOrDefault(x => keyselector(x).Equals(key));
 
-                      if (ii != null)
-                      {
-                          collection.Remove(ii);
-                      }
-                  }) == null;
+                        if (ii != null)
+                        {
+                            collection.Remove(ii);
+                        }
+                    }) == null;
 
                 return success;
-
             }
 
             return false;
-
         }
 
         public bool Remove(TClass Value) => Remove(keyselector(Value));
 
         public bool Remove(KeyValuePair<TK, TClass> item) => collection.Remove(item.Value);
 
+        public void Remove(object key)
+        {
+            if (key is TK ckey)
+            {
+                collection.Remove(this[ckey]);
+            }
+        }
+
         public bool TryGetValue(TK key, out TClass value)
         {
-
             try
             {
                 value = collection.SingleOrDefault(x => keyselector(x).Equals(key));
@@ -161,41 +207,11 @@ namespace InnerLibs
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public bool Contains(object key) => key != null && key is TK ckey && ContainsKey(ckey);
-
-        public void Add(object key, object value)
-        {
-            if (key is TK && value is TClass cvalue)
-            {
-                collection.Add(cvalue);
-            }
-        }
-
         IDictionaryEnumerator IDictionary.GetEnumerator()
         {
             throw new NotImplementedException();
         }
 
-        public void Remove(object key)
-        {
-            if (key is TK ckey)
-            {
-                collection.Remove(this[ckey]);
-            }
-        }
-
-        public void CopyTo(Array array, int index)
-        {
-            if (array == null)
-            {
-                throw new ArgumentNullException("array");
-            }
-
-            TClass[] ppArray = array as TClass[];
-            if (ppArray == null)
-            {
-                throw new ArgumentException();
-            } ((ICollection<TClass>)this).CopyTo(ppArray, index);
-        }
+        #endregion Public Methods
     }
 }

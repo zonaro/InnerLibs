@@ -6,72 +6,31 @@ using System.Linq;
 namespace InnerLibs.RolePlayingGame
 {
     /// <summary>
-    /// Tipos de Dados
-    /// </summary>
-    public enum DiceType
-    {
-        /// <summary>
-        /// Dado customizado
-        /// </summary>
-        Custom = 0,
-
-        /// <summary>
-        /// Moeda
-        /// </summary>
-        Coin = 2,
-
-        /// <summary>
-        /// Dado de 4 Lados (Tetraedro/Pirâmide)
-        /// </summary>
-        D4 = 4,
-
-        /// <summary>
-        /// Dado de 6 Lados (Pentalátero/Cubo/Dado Tradicional)
-        /// </summary>
-        D6 = 6,
-
-        /// <summary>
-        /// Dado de 8 Lados (Octaedro)
-        /// </summary>
-        D8 = 8,
-
-        /// <summary>
-        /// Dado de 10 Lados (Decaedro)
-        /// </summary>
-        D10 = 10,
-
-        /// <summary>
-        /// Dado de 12 Lados (Dodecaedro)
-        /// </summary>
-        D12 = 12,
-
-        /// <summary>
-        /// Dado de 20 Lados (Icosaedro)
-        /// </summary>
-        D20 = 20,
-
-        /// <summary>
-        /// Dado de 100 Lados (Esfera/Bola - Particulamente util para porcentagem)
-        /// </summary>
-        D100 = 100
-    }
-
-    /// <summary>
     /// Dado de RPG
     /// </summary>
     public class Dice
     {
+        #region Private Fields
+
         private static readonly Dice _coin = new Dice(DiceType.Coin);
 
         private static readonly Dice _d6 = new Dice(DiceType.D6);
 
         private int _rolledtimes = 0;
 
+        #endregion Private Fields
+
+        #region Private Methods
+
         private void ApplyPercent()
         {
             foreach (var f in Faces ?? Array.Empty<DiceFace>().AsEnumerable())
                 f._weightpercent = GetChancePercent(f.Number);
         }
+
+        #endregion Private Methods
+
+        #region Public Constructors
 
         public Dice() : this(DiceType.D6)
         {
@@ -94,6 +53,29 @@ namespace InnerLibs.RolePlayingGame
             Faces = new ReadOnlyCollection<DiceFace>(Enumerable.Range(1, CustomFaces.SetMinValue(2)).Select(x => new DiceFace(this)).ToList());
             ApplyPercent();
         }
+
+        #endregion Public Constructors
+
+        #region Public Indexers
+
+        /// <summary>
+        /// Retorna a face correspondente ao numero
+        /// </summary>
+        /// <param name="FaceNumber">Numero da face</param>
+        /// <returns></returns>
+        public DiceFace this[int FaceNumber]
+        {
+            get
+            {
+                if (FaceNumber.IsBetweenOrEqual(1, Faces.Count))
+                    return Faces[FaceNumber - 1];
+                return null;
+            }
+        }
+
+        #endregion Public Indexers
+
+        #region Public Properties
 
         public static Dice Coin => _coin;
 
@@ -176,20 +158,9 @@ namespace InnerLibs.RolePlayingGame
             set => NormalizeWeight(value / Faces.Count);
         }
 
-        /// <summary>
-        /// Retorna a face correspondente ao numero
-        /// </summary>
-        /// <param name="FaceNumber">Numero da face</param>
-        /// <returns></returns>
-        public DiceFace this[int FaceNumber]
-        {
-            get
-            {
-                if (FaceNumber.IsBetweenOrEqual(1, Faces.Count))
-                    return Faces[FaceNumber - 1];
-                return null;
-            }
-        }
+        #endregion Public Properties
+
+        #region Public Methods
 
         /// <summary>
         /// Combina 2 dados em um DiceRoller
@@ -295,14 +266,28 @@ namespace InnerLibs.RolePlayingGame
 
         public override string ToString() => $"{Type}{$"{Value}".PrependIf(" - ", x => x.IsNotBlank())}";
 
+        #endregion Public Methods
+
+        #region Public Classes
+
         /// <summary>
         /// Face de um dado. Pode ser viciada ou não
         /// </summary>
         public class DiceFace
         {
+            #region Private Fields
+
             private string _name = null;
 
+            #endregion Private Fields
+
+            #region Protected Internal Fields
+
             protected internal decimal _weightpercent = 1m;
+
+            #endregion Protected Internal Fields
+
+            #region Internal Fields
 
             internal List<DateTime> _h = new List<DateTime>();
 
@@ -310,10 +295,18 @@ namespace InnerLibs.RolePlayingGame
 
             internal Dice dice = null;
 
+            #endregion Internal Fields
+
+            #region Internal Constructors
+
             internal DiceFace(Dice d)
             {
                 dice = d;
             }
+
+            #endregion Internal Constructors
+
+            #region Public Properties
 
             /// <summary>
             /// Objeto do dado desta face
@@ -334,7 +327,6 @@ namespace InnerLibs.RolePlayingGame
                         {
                             _name = new FullNumberWriter().ToString(Number, 0).ToTitle();
                         }
-
                     }
 
                     return _name;
@@ -400,12 +392,20 @@ namespace InnerLibs.RolePlayingGame
                 }
             }
 
+            #endregion Public Properties
+
+            #region Public Methods
+
             public static implicit operator int(DiceFace v) => v.Number;
 
             public IEnumerable<DiceFace> OtherFaces() => dice.Faces.Where(x => x.Number != Number);
 
             public override string ToString() => FaceName;
+
+            #endregion Public Methods
         }
+
+        #endregion Public Classes
     }
 
     /// <summary>
@@ -413,6 +413,8 @@ namespace InnerLibs.RolePlayingGame
     /// </summary>
     public class DiceRoller : List<Dice>
     {
+        #region Public Constructors
+
         /// <summary>
         /// Cria uma nova combinação de Dados
         /// </summary>
@@ -452,11 +454,19 @@ namespace InnerLibs.RolePlayingGame
             foreach (var d in DiceType) Add(new Dice(d));
         }
 
+        #endregion Public Constructors
+
+        #region Public Properties
+
         /// <summary>
         /// Retorna a soma de todos os valores dos dados
         /// </summary>
         /// <returns>Integer</returns>
         public int Value => this.Sum(x => x.Value).ToInt();
+
+        #endregion Public Properties
+
+        #region Public Methods
 
         /// <summary>
         /// Combina um dado com DiceRoller
@@ -494,5 +504,58 @@ namespace InnerLibs.RolePlayingGame
         /// </summary>
         /// <returns>Retorna a soma de todos os valores dos dados após a rolagem</returns>
         public IEnumerable<Dice.DiceFace> Roll(int Times = 1) => this.Select(x => x.Roll(Times.SetMinValue(1)));
+
+        #endregion Public Methods
+    }
+
+    /// <summary>
+    /// Tipos de Dados
+    /// </summary>
+    public enum DiceType
+    {
+        /// <summary>
+        /// Dado customizado
+        /// </summary>
+        Custom = 0,
+
+        /// <summary>
+        /// Moeda
+        /// </summary>
+        Coin = 2,
+
+        /// <summary>
+        /// Dado de 4 Lados (Tetraedro/Pirâmide)
+        /// </summary>
+        D4 = 4,
+
+        /// <summary>
+        /// Dado de 6 Lados (Pentalátero/Cubo/Dado Tradicional)
+        /// </summary>
+        D6 = 6,
+
+        /// <summary>
+        /// Dado de 8 Lados (Octaedro)
+        /// </summary>
+        D8 = 8,
+
+        /// <summary>
+        /// Dado de 10 Lados (Decaedro)
+        /// </summary>
+        D10 = 10,
+
+        /// <summary>
+        /// Dado de 12 Lados (Dodecaedro)
+        /// </summary>
+        D12 = 12,
+
+        /// <summary>
+        /// Dado de 20 Lados (Icosaedro)
+        /// </summary>
+        D20 = 20,
+
+        /// <summary>
+        /// Dado de 100 Lados (Esfera/Bola - Particulamente util para porcentagem)
+        /// </summary>
+        D100 = 100
     }
 }

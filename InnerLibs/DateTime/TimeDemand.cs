@@ -11,9 +11,15 @@ namespace InnerLibs.TimeMachine
     /// </summary>
     public class JourneyDay
     {
+        #region Private Fields
+
         private TimeSpan lunch_hour = new TimeSpan(12, 0, 0);
 
         private TimeSpan start_hour = default;
+
+        #endregion Private Fields
+
+        #region Public Constructors
 
         /// <summary>
         /// Inicia uma instancia de dia letivo
@@ -31,10 +37,14 @@ namespace InnerLibs.TimeMachine
         /// <param name="Journey">Jornada de trabalho</param>
         public JourneyDay(DateTime StartDateTime, TimeSpan Journey, DateTime LunchHour = default, TimeSpan LunchTime = default) : this(StartDateTime) => SetJourney(StartDateTime, Journey, LunchHour, LunchTime);
 
+        #endregion Public Constructors
+
+        #region Public Properties
+
         public DayOfWeek DayOfWeek { get; private set; }
 
-        public bool IsJourney => JourneyTime.Milliseconds > 0;
         public bool HasLunch => LunchTime.Milliseconds > 0;
+        public bool IsJourney => JourneyTime.Milliseconds > 0;
 
         /// <summary>
         /// Hora que se encerra a jornada (inclui hora de almoço)
@@ -84,11 +94,17 @@ namespace InnerLibs.TimeMachine
         /// <returns></returns>
         public TimeSpan TotalTime => JourneyTime + LunchTime;
 
+        #endregion Public Properties
+
+        #region Public Methods
+
         public DateTime? JourneyEndHourAt(DateTime Day) => Day.DayOfWeek == DayOfWeek && IsJourney ? Day.Date.At(JourneyEndHour) : (DateTime?)null;
 
-        public DateTime? LunchStartHourAt(DateTime Day) => Day.DayOfWeek == DayOfWeek && IsJourney && HasLunch ? Day.At(LunchStartHour) : (DateTime?)null;
+        public DateTime? JourneyStartHourAt(DateTime Day) => Day.DayOfWeek == DayOfWeek && IsJourney ? Day.Date.At(JourneyStartHour) : (DateTime?)null;
 
         public DateTime? LunchEndHourAt(DateTime Day) => Day.DayOfWeek == DayOfWeek && IsJourney && HasLunch ? Day.At(LunchEndHour) : (DateTime?)null;
+
+        public DateTime? LunchStartHourAt(DateTime Day) => Day.DayOfWeek == DayOfWeek && IsJourney && HasLunch ? Day.At(LunchStartHour) : (DateTime?)null;
 
         /// <summary>
         /// Define a hora inicial e a jornada de trabalho deste dia
@@ -113,10 +129,11 @@ namespace InnerLibs.TimeMachine
             return this;
         }
 
-        public DateTime? JourneyStartHourAt(DateTime Day) => Day.DayOfWeek == DayOfWeek && IsJourney ? Day.Date.At(JourneyStartHour) : (DateTime?)null;
-
         public override string ToString() => ToString(null);
+
         public string ToString(CultureInfo culture) => (culture ?? CultureInfo.CurrentCulture)?.DateTimeFormat?.DayNames?.IfNoIndex(DayOfWeek.ToInt()) ?? DayOfWeek.ToString();
+
+        #endregion Public Methods
     }
 
     /// <summary>
@@ -124,10 +141,14 @@ namespace InnerLibs.TimeMachine
     /// </summary>
     public class TimeDemand : DateRange
     {
-
+        #region Private Fields
 
         private List<JourneyDay> _journeys = new List<JourneyDay>();
         private int _quantity = 1;
+
+        #endregion Private Fields
+
+        #region Public Constructors
 
         /// <summary>
         /// inicia uma nova demanda
@@ -170,6 +191,10 @@ namespace InnerLibs.TimeMachine
         /// <param name="EndDate">Tempo do item</param>
         /// <param name="Quantity">Quantidade de itens</param>
         public TimeDemand(DateTime StartDate, DateTime EndDate, int Quantity = 1) : this(StartDate, new TimeSpan(0), Quantity) => ItemProductionTime = GetWorkingTimeUntil(EndDate);
+
+        #endregion Public Constructors
+
+        #region Public Properties
 
         /// <summary>
         /// Data de encerramento da produção
@@ -221,8 +246,6 @@ namespace InnerLibs.TimeMachine
         /// </summary>
         /// <returns></returns>
         public IEnumerable<DateTime> NonRelevantDays => GetWorkDays().ClearTime().Where(x => x.IsNotIn(RelevantDays));
-
-
 
         /// <summary>
         /// Tempo total de produção de todos os itens
@@ -295,6 +318,8 @@ namespace InnerLibs.TimeMachine
         /// <returns></returns>
         public JourneyDay Wednesday => GetJourneyDay(DayOfWeek.Wednesday);
 
+        public TimeSpan WeekJourneyHours => GetWorkTimeBetween(StartDate.BeginningOfWeek(), EndDate.EndOfWeek());
+
         /// <summary>
         /// Intervalo de horas trabalhadas entre as datas de inicio e fim desta demanda
         /// </summary>
@@ -306,6 +331,10 @@ namespace InnerLibs.TimeMachine
         /// </summary>
         /// <returns></returns>
         public TimeSpan WorkTime => GetWorkTimeBetween(StartDate, EndDate);
+
+        #endregion Public Properties
+
+        #region Public Methods
 
         /// <summary>
         /// Cria uma demanda após a demanda atual com as mesmas caracteristicas
@@ -355,8 +384,9 @@ namespace InnerLibs.TimeMachine
         /// <returns></returns>
         public TimeSpan GetWorkTimeBetween(DateTime StartDate, DateTime EndDate) => new TimeSpan(RelevantDays.Where(x => x.DayOfWeek.IsIn(RelevantDaysOfWeek) && x.IsBetweenOrEqual(StartDate, EndDate)).Sum(x => GetJourneyDay(x).JourneyTime.Ticks));
 
-        public bool IsJourney(DateTime DateAndTime) => GetJourneyDay(DateAndTime).IsJourney;
         public bool HasLunch(DateTime DateAndTime) => GetJourneyDay(DateAndTime).HasLunch;
+
+        public bool IsJourney(DateTime DateAndTime) => GetJourneyDay(DateAndTime).IsJourney;
 
         /// <summary>
         /// Retorna a hora final da jornada de uma data acordo com as configuracoes desta demanda
@@ -404,7 +434,6 @@ namespace InnerLibs.TimeMachine
         {
             base.StartDate = PushDateIntoJourney(StartDate);
             base.EndDate = base.StartDate.Add(ProductionTime);
-
 
             foreach (var dia in GetRelevantDays())
             {
@@ -454,9 +483,6 @@ namespace InnerLibs.TimeMachine
             return Date;
         }
 
-
-        public TimeSpan WeekJourneyHours => GetWorkTimeBetween(StartDate.BeginningOfWeek(), EndDate.EndOfWeek());
-
         /// <summary>
         /// Ajusta a jornada de trabalho de um dia da semana
         /// </summary>
@@ -497,5 +523,7 @@ namespace InnerLibs.TimeMachine
         /// <param name="[Date]"></param>
         /// <returns></returns>
         public TimeSpan TotalTime(DateTime Date) => GetJourneyDay(Date).TotalTime;
+
+        #endregion Public Methods
     }
 }

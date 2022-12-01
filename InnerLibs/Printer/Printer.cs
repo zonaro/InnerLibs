@@ -37,14 +37,20 @@ namespace InnerLibs.Printer
 {
     public static class PrinterExtension
     {
+        #region Public Methods
+
         public static Printer CreatePrinter(this InnerLibs.Printer.Command.IPrintCommand CommandType, string PrinterName, int ColsNormal = 0, int ColsCondensed = 0, int ColsExpanded = 0, Encoding Encoding = null)
         {
             return Printer.CreatePrinter(CommandType, PrinterName, ColsNormal, ColsCondensed, ColsExpanded, Encoding);
         }
+
+        #endregion Public Methods
     }
 
     public class Printer
     {
+        #region Private Fields
+
         private bool _ommit = false;
 
         private string Align = "Left";
@@ -55,9 +61,19 @@ namespace InnerLibs.Printer
 
         private TextWriter txw;
 
+        #endregion Private Fields
+
+        #region Private Classes
+
         private class PrinterWriter : TextWriter
         {
+            #region Private Fields
+
             private Printer p;
+
+            #endregion Private Fields
+
+            #region Public Constructors
 
             public PrinterWriter(Printer p)
             {
@@ -69,7 +85,15 @@ namespace InnerLibs.Printer
                 this.p = p;
             }
 
+            #endregion Public Constructors
+
+            #region Public Properties
+
             public override Encoding Encoding => p.Command?.Encoding;
+
+            #endregion Public Properties
+
+            #region Public Methods
 
             public override void Flush()
             {
@@ -80,7 +104,13 @@ namespace InnerLibs.Printer
             {
                 Write($"{value}");
             }
+
+            #endregion Public Methods
         }
+
+        #endregion Private Classes
+
+        #region Internal Methods
 
         internal string GetDotLine(string LeftText, string RightText, int? Columns = default, char CharLine = ' ')
         {
@@ -115,6 +145,10 @@ namespace InnerLibs.Printer
 
             return $"{s1}{dots}{s2}";
         }
+
+        #endregion Internal Methods
+
+        #region Public Constructors
 
         public Printer(Encoding Encoding) : this(null, null, 0, 0, 0, Encoding)
         {
@@ -204,6 +238,10 @@ namespace InnerLibs.Printer
         public Printer(string PrinterName) : this(PrinterName, 0, 0, 0, null)
         {
         }
+
+        #endregion Public Constructors
+
+        #region Public Properties
 
         public bool AutoPrint { get; set; } = false;
 
@@ -314,6 +352,10 @@ namespace InnerLibs.Printer
         /// </summary>
         /// <returns></returns>
         public TextWriter TextWriter => txw;
+
+        #endregion Public Properties
+
+        #region Public Methods
 
         public static Printer CreatePrinter<CommandType>(string PrinterName, int ColsNormal = 0, int ColsCondensed = 0, int ColsExpanded = 0, Encoding Encoding = null) where CommandType : InnerLibs.Printer.Command.IPrintCommand
         {
@@ -1308,6 +1350,8 @@ namespace InnerLibs.Printer
             PartialPaperCut();
             return this;
         }
+
+        #endregion Public Methods
     }
 }
 
@@ -1315,6 +1359,8 @@ namespace InnerLibs.Printer.XmlTemplates
 {
     public class XmlTemplatePrinter : Printer
     {
+        #region Public Methods
+
         /// <summary>
         /// Escreve um template de um <see cref="XDocument"/> para cada entrada em uma lista
         /// substituindo as marcações {Propriedade} encontradas pelo valor da propriedade equivalente
@@ -1634,5 +1680,7 @@ namespace InnerLibs.Printer.XmlTemplates
             ResetFont();
             return this;
         }
+
+        #endregion Public Methods
     }
 }

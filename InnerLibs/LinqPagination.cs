@@ -9,14 +9,24 @@ namespace InnerLibs.LINQ
 {
     internal class ExpressionReplacer : ExpressionVisitor
     {
+        #region Private Fields
+
         private Expression _dest;
         private Expression _source;
+
+        #endregion Private Fields
+
+        #region Public Constructors
 
         public ExpressionReplacer(Expression source, Expression dest)
         {
             _source = source;
             _dest = dest;
         }
+
+        #endregion Public Constructors
+
+        #region Public Methods
 
         public override Expression Visit(Expression node)
         {
@@ -27,10 +37,14 @@ namespace InnerLibs.LINQ
 
             return base.Visit(node);
         }
+
+        #endregion Public Methods
     }
 
     public static class LINQExtensions
     {
+        #region Private Fields
+
         private static readonly MethodInfo containsMethod = typeof(string).GetMethod("Contains", new[] { typeof(string) });
 
         private static readonly MethodInfo endsWithMethod = typeof(string).GetMethod("EndsWith", new[] { typeof(string) });
@@ -39,42 +53,9 @@ namespace InnerLibs.LINQ
 
         private static readonly MethodInfo startsWithMethod = typeof(string).GetMethod("StartsWith", new[] { typeof(string) });
 
+        #endregion Private Fields
 
-        /// <summary>
-        /// Rankeia um <see cref="IEnumerable{TObject}"/> a partir de uma propriedade definida por <paramref name="ValueSelector"/> guardando sua posição no <paramref name="RankSelector"/> 
-        /// </summary>
-        /// <typeparam name="TObject"></typeparam>
-        /// <typeparam name="TValue"></typeparam>
-        /// <typeparam name="TRank"></typeparam>
-        /// <param name="values"></param>
-        /// <param name="ValueSelector"></param>
-        /// <param name="RankSelector"></param>
-        /// <returns></returns>
-        public static IOrderedEnumerable<TObject> Rank<TObject, TValue, TRank>(this IEnumerable<TObject> values, Expression<Func<TObject, TValue>> ValueSelector, Expression<Func<TObject, TRank>> RankSelector) where TObject : class where TValue : IComparable where TRank : IComparable
-        {
-            if (values != null && ValueSelector != null && RankSelector != null)
-            {
-                var filtered = values.OrderByDescending(ValueSelector.Compile()).Select(ValueSelector.Compile()).Distinct().ToList();
-
-                foreach (TObject item in values)
-                {
-                    item.SetPropertyValue(RankSelector, (filtered.IndexOf((ValueSelector.Compile().Invoke(item))) + 1).ChangeType<TRank>());
-                }
-                return values.OrderBy(RankSelector.Compile());
-            }
-
-            return values.OrderBy(x => true);
-        }
-
-
-        public static IEnumerable<(T, T)> PairUp<T>(this IEnumerable<T> source)
-        {
-            if (source != null)
-                using (var iterator = source.GetEnumerator())
-                    while (iterator.MoveNext())
-                        yield return (iterator.Current, iterator.MoveNext() ? iterator.Current : default);
-
-        }
+        #region Public Methods
 
         /// <summary>
         /// Retorna TRUE se a todos os testes em uma lista retornarem FALSE
@@ -109,10 +90,10 @@ namespace InnerLibs.LINQ
         }
 
         public static Expression<Func<T, bool>> AndSearch<T>(this Expression<Func<T, bool>> FirstExpression, IEnumerable<string> Text, params Expression<Func<T, string>>[] Properties)
-        => (FirstExpression ?? true.CreateWhereExpression<T>()).And(Text.SearchExpression(Properties));
+               => (FirstExpression ?? true.CreateWhereExpression<T>()).And(Text.SearchExpression(Properties));
 
         public static Expression<Func<T, bool>> AndSearch<T>(this Expression<Func<T, bool>> FirstExpression, string Text, params Expression<Func<T, string>>[] Properties)
-        => (FirstExpression ?? true.CreateWhereExpression<T>()).And(Text.SearchExpression(Properties));
+               => (FirstExpression ?? true.CreateWhereExpression<T>()).And(Text.SearchExpression(Properties));
 
         public static Expression<Func<TModel, TToProperty>> ConvertParameterType<TModel, TFromProperty, TToProperty>(this Expression<Func<TModel, TFromProperty>> expression)
         {
@@ -386,6 +367,7 @@ namespace InnerLibs.LINQ
                 case UnaryExpression unaryExpression:
                     member = (MemberExpression)unaryExpression.Operand;
                     break;
+
                 default:
                     member = propertyLambda.Body as MemberExpression;
                     break;
@@ -433,6 +415,7 @@ namespace InnerLibs.LINQ
                                 case null:
                                     body = exp;
                                     break;
+
                                 default:
                                     if (Conditional == FilterConditional.And)
                                     {
@@ -1396,6 +1379,40 @@ namespace InnerLibs.LINQ
         public static IOrderedQueryable<T> OrderByManyDescending<T>(this IQueryable<T> Data, params Expression<Func<T, object>>[] Selectors) => Data.OrderByMany(false, Selectors);
 
         /// <summary>
+        /// Order a list following another list order
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TOrder"></typeparam>
+        /// <param name="Items"></param>
+        /// <param name="Property"></param>
+        /// <param name="Order"></param>
+        /// <returns></returns>
+        public static IEnumerable<T> OrderByPredefinedOrder<T, TOrder>(this IEnumerable<T> Source, Expression<Func<T, TOrder>> PropertySelector, params TOrder[] order)
+        {
+            Source = Source ?? Array.Empty<T>();
+            if (PropertySelector == null) throw new ArgumentException("Property is null");
+            var p = PropertySelector.Compile();
+            var lookup = Source.ToLookup(p, t => t);
+            if (order.IsNotNullOrEmpty())
+            {
+                foreach (var id in order)
+                {
+                    foreach (var t in lookup[id])
+                    {
+                        yield return t;
+                    }
+                }
+            }
+            else
+            {
+                foreach (var item in Source)
+                {
+                    yield return item;
+                }
+            }
+        }
+
+        /// <summary>
         /// Randomiza a ordem de um <see cref="IEnumerable"/>
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -1432,10 +1449,10 @@ namespace InnerLibs.LINQ
         }
 
         public static Expression<Func<T, bool>> OrSearch<T>(this Expression<Func<T, bool>> FirstExpression, IEnumerable<string> Text, params Expression<Func<T, string>>[] Properties)
-        => (FirstExpression ?? false.CreateWhereExpression<T>()).Or(Text.SearchExpression(Properties));
+               => (FirstExpression ?? false.CreateWhereExpression<T>()).Or(Text.SearchExpression(Properties));
 
         public static Expression<Func<T, bool>> OrSearch<T>(this Expression<Func<T, bool>> FirstExpression, string Text, params Expression<Func<T, string>>[] Properties)
-        => (FirstExpression ?? false.CreateWhereExpression<T>()).Or(Text.SearchExpression(Properties));
+               => (FirstExpression ?? false.CreateWhereExpression<T>()).Or(Text.SearchExpression(Properties));
 
         /// <summary>
         /// Reduz um <see cref="IQueryable"/> em uma página especifica
@@ -1465,6 +1482,14 @@ namespace InnerLibs.LINQ
             return Source.Skip((PageNumber - 1).SetMinValue(0) * PageSize).Take(PageSize);
         }
 
+        public static IEnumerable<(T, T)> PairUp<T>(this IEnumerable<T> source)
+        {
+            if (source != null)
+                using (var iterator = source.GetEnumerator())
+                    while (iterator.MoveNext())
+                        yield return (iterator.Current, iterator.MoveNext() ? iterator.Current : default);
+        }
+
         public static Expression PropertyExpression(this ParameterExpression Parameter, string PropertyName)
         {
             Expression prop = Parameter;
@@ -1486,6 +1511,33 @@ namespace InnerLibs.LINQ
         public static T RandomItemOr<T>(this IEnumerable<T> l, params T[] Alternate) => l.TakeRandom().FirstOr(Alternate);
 
         public static T RandomItemOr<T>(this IEnumerable<T> l, Func<T, bool> predicade, params T[] Alternate) => l.TakeRandom(predicade).FirstOr(Alternate);
+
+        /// <summary>
+        /// Rankeia um <see cref="IEnumerable{TObject}"/> a partir de uma propriedade definida por
+        /// <paramref name="ValueSelector"/> guardando sua posição no <paramref name="RankSelector"/>
+        /// </summary>
+        /// <typeparam name="TObject"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        /// <typeparam name="TRank"></typeparam>
+        /// <param name="values"></param>
+        /// <param name="ValueSelector"></param>
+        /// <param name="RankSelector"></param>
+        /// <returns></returns>
+        public static IOrderedEnumerable<TObject> Rank<TObject, TValue, TRank>(this IEnumerable<TObject> values, Expression<Func<TObject, TValue>> ValueSelector, Expression<Func<TObject, TRank>> RankSelector) where TObject : class where TValue : IComparable where TRank : IComparable
+        {
+            if (values != null && ValueSelector != null && RankSelector != null)
+            {
+                var filtered = values.OrderByDescending(ValueSelector.Compile()).Select(ValueSelector.Compile()).Distinct().ToList();
+
+                foreach (TObject item in values)
+                {
+                    item.SetPropertyValue(RankSelector, (filtered.IndexOf((ValueSelector.Compile().Invoke(item))) + 1).ChangeType<TRank>());
+                }
+                return values.OrderBy(RankSelector.Compile());
+            }
+
+            return values.OrderBy(x => true);
+        }
 
         public static List<T> RemoveWhere<T>(this List<T> list, Expression<Func<T, bool>> predicate)
         {
@@ -1805,11 +1857,12 @@ namespace InnerLibs.LINQ
             {
                 foreach (var t in Searches)
                 {
-                    var arr = new[] {
-                         new Func<T, bool>(x => (PropertySelector(x) ?? InnerLibs.Text.Empty) == (t ?? InnerLibs.Text.Empty)),
-                         new Func<T, bool>(x => PropertySelector(x).StartsWith(t)),
-                         new Func<T, bool>(x => PropertySelector(x).Contains(t)),
-                         new Func<T, bool>(x => PropertySelector(x).EndsWith(t))
+                    var arr = new[]
+                    {
+                        new Func<T, bool>(x => (PropertySelector(x) ?? InnerLibs.Text.Empty) == (t ?? InnerLibs.Text.Empty)),
+                        new Func<T, bool>(x => PropertySelector(x).StartsWith(t)),
+                        new Func<T, bool>(x => PropertySelector(x).Contains(t)),
+                        new Func<T, bool>(x => PropertySelector(x).EndsWith(t))
                     };
 
                     foreach (var exp in arr)
@@ -2049,6 +2102,8 @@ namespace InnerLibs.LINQ
 
         public static IEnumerable<Type> WhereType<BaseType, Type>(this IEnumerable<BaseType> List) where Type : BaseType => List.Where(x => x is Type).Cast<Type>();
 
+        #endregion Public Methods
+
         #region FilterDateRange
 
         public static IEnumerable<T> FilterDateRange<T>(this IEnumerable<T> List, Expression<Func<T, DateTime>> Property, DateRange Range, DateRangeFilterBehavior? FilterBehavior = null)
@@ -2182,42 +2237,5 @@ namespace InnerLibs.LINQ
         }
 
         #endregion IsBetweenOrEqual
-
-
-        /// <summary>
-        /// Order a list following another list order
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <typeparam name="TOrder"></typeparam>
-        /// <param name="Items"></param>
-        /// <param name="Property"></param>
-        /// <param name="Order"></param>
-        /// <returns></returns>
-        public static IEnumerable<T> OrderByPredefinedOrder<T, TOrder>(this IEnumerable<T> Source, Expression<Func<T, TOrder>> PropertySelector, params TOrder[] order)
-        {
-            Source = Source ?? Array.Empty<T>();
-            if (PropertySelector == null) throw new ArgumentException("Property is null");
-            var p = PropertySelector.Compile();
-            var lookup = Source.ToLookup(p, t => t);
-            if (order.IsNotNullOrEmpty())
-            {
-                foreach (var id in order)
-                {
-                    foreach (var t in lookup[id])
-                    {
-                        yield return t;
-                    }
-                }
-            }
-            else
-            {
-                foreach (var item in Source)
-                {
-                    yield return item;
-
-                }
-            }
-        }
-
     }
 }

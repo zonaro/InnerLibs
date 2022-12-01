@@ -7,22 +7,10 @@ using System.Text.RegularExpressions;
 
 namespace InnerLibs.ConsoleTables
 {
-    public enum Alignment
-    {
-        Left,
-        Right
-    }
-
-    public enum Format
-    {
-        Default = 0,
-        MarkDown = 1,
-        Alternative = 2,
-        Minimal = 3
-    }
-
     public class ConsoleTable
     {
+        #region Private Methods
+
         private static IEnumerable<string> GetColumns<T>(bool FixCase = true)
         {
             return typeof(T).GetProperties().Select(x => !FixCase ? x.Name : x.Name.ToNormalCase().ToTitle()).ToArray();
@@ -69,6 +57,10 @@ namespace InnerLibs.ConsoleTables
             return builder.ToString();
         }
 
+        #endregion Private Methods
+
+        #region Public Constructors
+
         public ConsoleTable(params string[] columns)
         {
             Options.Columns.AddRange(columns ?? Array.Empty<string>());
@@ -78,6 +70,10 @@ namespace InnerLibs.ConsoleTables
         {
             Options = options ?? Options;
         }
+
+        #endregion Public Constructors
+
+        #region Public Properties
 
         public List<string> Columns
         {
@@ -98,6 +94,10 @@ namespace InnerLibs.ConsoleTables
         public Type[] ColumnTypes { get; set; }
         public ConsoleTableOptions Options { get; set; } = new ConsoleTableOptions();
         public List<object[]> Rows { get; set; } = new List<object[]>();
+
+        #endregion Public Properties
+
+        #region Public Methods
 
         public static ConsoleTable From<T>(IEnumerable<T> values)
         {
@@ -249,13 +249,33 @@ namespace InnerLibs.ConsoleTables
         {
             Options.OutputTo.WriteLine(ToString(format));
         }
+
+        #endregion Public Methods
     }
 
     public class ConsoleTableOptions
     {
+        #region Public Properties
+
         public List<string> Columns { get; set; } = new List<string>();
         public bool EnableCount { get; set; } = true;
         public Alignment NumberAlignment { get; set; } = Alignment.Left;
         public TextWriter OutputTo { get; set; } = System.Console.Out;
+
+        #endregion Public Properties
+    }
+
+    public enum Alignment
+    {
+        Left,
+        Right
+    }
+
+    public enum Format
+    {
+        Default = 0,
+        MarkDown = 1,
+        Alternative = 2,
+        Minimal = 3
     }
 }

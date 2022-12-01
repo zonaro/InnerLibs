@@ -11,105 +11,10 @@ using System.Xml;
 
 namespace InnerLibs.Locations
 {
-    /// <summary>
-    /// Partes de um Endereço
-    /// </summary>
-    [Flags]
-    public enum AddressPart
-    {
-        /// <summary>
-        /// Formato default definido pela propriedade <see cref="AddressInfo.Format"/> ou <see cref="AddressInfo.GlobalFormat"/>
-        /// </summary>
-        Default = 0,
-
-        /// <summary>
-        /// Tipo do Lograoduro
-        /// </summary>
-        StreetType = 1,
-
-        /// <summary>
-        /// Nome do Logradouro
-        /// </summary>
-        StreetName = 2,
-
-        /// <summary>
-        /// Logradouro
-        /// </summary>
-        Street = StreetType + StreetName,
-
-        /// <summary>
-        /// Numero do local
-        /// </summary>
-        Number = 4,
-
-        /// <summary>
-        /// Complemento do local
-        /// </summary>
-        Complement = 8,
-
-        /// <summary>
-        /// Numero e complemento
-        /// </summary>
-        LocationInfo = Number + Complement,
-
-        /// <summary>
-        /// Logradouro, Numero e complemento
-        /// </summary>
-        FullLocationInfo = Street + Number + Complement,
-
-        /// <summary>
-        /// Bairro
-        /// </summary>
-        Neighborhood = 16,
-
-        /// <summary>
-        /// Cidade
-        /// </summary>
-        City = 32,
-
-        /// <summary>
-        /// Estado
-        /// </summary>
-        State = 64,
-
-        /// <summary>
-        /// Cidade e Estado
-        /// </summary>
-        CityState = City + State,
-
-        /// <summary>
-        /// UF
-        /// </summary>
-        StateCode = 128,
-
-        /// <summary>
-        /// Cidade e UF
-        /// </summary>
-        CityStateCode = City + StateCode,
-
-        /// <summary>
-        /// País
-        /// </summary>
-        Country = 256,
-
-        /// <summary>
-        /// País
-        /// </summary>
-        CountryCode = 512,
-
-        /// <summary>
-        /// CEP
-        /// </summary>
-        PostalCode = 1024,
-
-        /// <summary>
-        /// Endereço completo
-        /// </summary>
-        FullAddress = Street + LocationInfo + Neighborhood + CityStateCode + Country + PostalCode
-    }
-
     public static class AddressTypes
     {
+        #region Public Properties
+
         public static string[] Aeroporto => new[] { "Aeroporto", "Ar", "Aero", "Air" };
         public static string[] Alameda => new[] { "Alameda", "Al", "Alm" };
         public static string[] Área => new[] { "Área", "Area" };
@@ -155,6 +60,10 @@ namespace InnerLibs.Locations
         public static string[] Viela => new[] { "Viela" };
         public static string[] Vila => new[] { "Vila", "Vl" };
 
+        #endregion Public Properties
+
+        #region Public Methods
+
         public static string GetAddressType(string Endereco) => GetAddressTypeProperty(Endereco)?.Name.IfBlank(InnerLibs.Text.Empty);
 
         public static string[] GetAddressTypeList(string Endereco) => (string[])(GetAddressTypeProperty(Endereco)?.GetValue(null) ?? new string[] { });
@@ -170,6 +79,8 @@ namespace InnerLibs.Locations
 
             return null;
         }
+
+        #endregion Public Methods
     }
 
     /// <summary>
@@ -178,11 +89,23 @@ namespace InnerLibs.Locations
     /// <remarks></remarks>
     public class AddressInfo
     {
+        #region Private Fields
+
         private static AddressPart _globalformat = AddressPart.FullAddress;
 
         private AddressPart _format = AddressPart.Default;
 
         private Dictionary<string, string> details = new Dictionary<string, string>();
+
+        #endregion Private Fields
+
+        #region Private Methods
+
+        private static string PropCleaner(string value) => value.IfBlank(InnerLibs.Text.Empty).TrimAny(true, " ", ".", " ", ",", " ", "-", " ").ToTitle().NullIf(x => x.IsBlank());
+
+        #endregion Private Methods
+
+        #region Public Constructors
 
         /// <summary>
         /// Cria um novo objeto de localização
@@ -190,6 +113,83 @@ namespace InnerLibs.Locations
         public AddressInfo()
         {
         }
+
+        #endregion Public Constructors
+
+        #region Public Indexers
+
+        public string this[string key]
+        {
+            get
+            {
+                if (details is null)
+                {
+                    details = new Dictionary<string, string>();
+                }
+
+                if (key.IsBlank())
+                {
+                    return InnerLibs.Text.Empty;
+                }
+
+                key = key.ToLower();
+                if (!details.ContainsKey(key))
+                {
+                    switch (key)
+                    {
+                        case "geolocation":
+                            {
+                                return LatitudeLongitude();
+                            }
+
+                        case "fulladdress":
+                        case "tostring":
+                        case "address":
+                            {
+                                return FullAddress;
+                            }
+
+                        case "streetname":
+                        case "name":
+                            {
+                                return Name;
+                            }
+
+                        case "streettype":
+                        case "type":
+                            {
+                                return Type;
+                            }
+
+                        default:
+                            {
+                                break;
+                            }
+                    }
+                }
+
+                return details.GetValueOr(key, null);
+            }
+
+            set
+            {
+                if (key.IsNotBlank())
+                {
+                    if (value.IsNotBlank())
+                    {
+                        details[key.ToLower()] = value.TrimAny(" ");
+                    }
+                    else if (ContainsKey(key))
+                    {
+                        Remove(key);
+                    }
+                }
+            }
+        }
+
+        #endregion Public Indexers
+
+        #region Public Properties
 
         /// <summary>
         /// Formato global de todas as intancias de <see cref="AddressInfo"/> quando chamadas pelo
@@ -213,9 +213,6 @@ namespace InnerLibs.Locations
                 _globalformat = value;
             }
         }
-
-        private static string PropCleaner(string value) => value.IfBlank(InnerLibs.Text.Empty).TrimAny(true, " ", ".", " ", ",", " ", "-", " ").ToTitle().NullIf(x => x.IsBlank());
-
 
         public string City
         {
@@ -420,74 +417,9 @@ namespace InnerLibs.Locations
             set => PostalCode = value;
         }
 
-        public string this[string key]
-        {
-            get
-            {
-                if (details is null)
-                {
-                    details = new Dictionary<string, string>();
-                }
+        #endregion Public Properties
 
-                if (key.IsBlank())
-                {
-                    return InnerLibs.Text.Empty;
-                }
-
-                key = key.ToLower();
-                if (!details.ContainsKey(key))
-                {
-                    switch (key)
-                    {
-                        case "geolocation":
-                            {
-                                return LatitudeLongitude();
-                            }
-
-                        case "fulladdress":
-                        case "tostring":
-                        case "address":
-                            {
-                                return FullAddress;
-                            }
-
-                        case "streetname":
-                        case "name":
-                            {
-                                return Name;
-                            }
-
-                        case "streettype":
-                        case "type":
-                            {
-                                return Type;
-                            }
-
-                        default:
-                            {
-                                break;
-                            }
-                    }
-                }
-
-                return details.GetValueOr(key, null);
-            }
-
-            set
-            {
-                if (key.IsNotBlank())
-                {
-                    if (value.IsNotBlank())
-                    {
-                        details[key.ToLower()] = value.TrimAny(" ");
-                    }
-                    else if (ContainsKey(key))
-                    {
-                        Remove(key);
-                    }
-                }
-            }
-        }
+        #region Public Methods
 
         /// <summary>
         /// Cria uma localização a partir de partes de endereço
@@ -714,7 +646,6 @@ namespace InnerLibs.Locations
         /// <param name="PostalCode"></param>
         /// <param name="Number">Numero da casa</param>
         public static AddressInfo FromViaCEP(int PostalCode, string Number = null, string Complement = null) => FromViaCEP<AddressInfo>(PostalCode, Number, Complement);
-
 
         /// <summary>
         /// Cria um objeto de localização e imadiatamente pesquisa as informações de um local
@@ -1027,5 +958,104 @@ namespace InnerLibs.Locations
 
             return retorno.TrimBetween().TrimAny(".", " ", ",", " ", "-");
         }
+
+        #endregion Public Methods
+    }
+
+    /// <summary>
+    /// Partes de um Endereço
+    /// </summary>
+    [Flags]
+    public enum AddressPart
+    {
+        /// <summary>
+        /// Formato default definido pela propriedade <see cref="AddressInfo.Format"/> ou <see cref="AddressInfo.GlobalFormat"/>
+        /// </summary>
+        Default = 0,
+
+        /// <summary>
+        /// Tipo do Lograoduro
+        /// </summary>
+        StreetType = 1,
+
+        /// <summary>
+        /// Nome do Logradouro
+        /// </summary>
+        StreetName = 2,
+
+        /// <summary>
+        /// Logradouro
+        /// </summary>
+        Street = StreetType + StreetName,
+
+        /// <summary>
+        /// Numero do local
+        /// </summary>
+        Number = 4,
+
+        /// <summary>
+        /// Complemento do local
+        /// </summary>
+        Complement = 8,
+
+        /// <summary>
+        /// Numero e complemento
+        /// </summary>
+        LocationInfo = Number + Complement,
+
+        /// <summary>
+        /// Logradouro, Numero e complemento
+        /// </summary>
+        FullLocationInfo = Street + Number + Complement,
+
+        /// <summary>
+        /// Bairro
+        /// </summary>
+        Neighborhood = 16,
+
+        /// <summary>
+        /// Cidade
+        /// </summary>
+        City = 32,
+
+        /// <summary>
+        /// Estado
+        /// </summary>
+        State = 64,
+
+        /// <summary>
+        /// Cidade e Estado
+        /// </summary>
+        CityState = City + State,
+
+        /// <summary>
+        /// UF
+        /// </summary>
+        StateCode = 128,
+
+        /// <summary>
+        /// Cidade e UF
+        /// </summary>
+        CityStateCode = City + StateCode,
+
+        /// <summary>
+        /// País
+        /// </summary>
+        Country = 256,
+
+        /// <summary>
+        /// País
+        /// </summary>
+        CountryCode = 512,
+
+        /// <summary>
+        /// CEP
+        /// </summary>
+        PostalCode = 1024,
+
+        /// <summary>
+        /// Endereço completo
+        /// </summary>
+        FullAddress = Street + LocationInfo + Neighborhood + CityStateCode + Country + PostalCode
     }
 }

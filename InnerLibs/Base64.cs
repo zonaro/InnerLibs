@@ -13,39 +13,7 @@ namespace InnerLibs
     /// <remarks></remarks>
     public static class Base64
     {
-
-
-        /// <summary>
-        /// Retorna verdadeiro se identificar que a string é base64
-        /// </summary>
-        /// <param name="base64String"></param>
-        /// <returns></returns>
-        public static bool IsBase64(this string base64String)
-        {
-            // Credit: oybek https://stackoverflow.com/users/794764/oybek
-            if(string.IsNullOrWhiteSpace(base64String) ||
-               base64String.Length % 4 != 0 ||
-               base64String.Contains(" ") ||
-               base64String.Contains("\t") ||
-               base64String.Contains("\r") ||
-               base64String.Contains("\n"))
-            {
-                return false;
-            }
-
-            try
-            {
-                Convert.FromBase64String(base64String);
-                return true;
-            }
-            catch
-            {
-                //ignore
-            }
-
-            return false;
-        }
-
+        #region Public Methods
 
         /// <summary>
         /// Decoda uma string em Base64
@@ -146,6 +114,37 @@ namespace InnerLibs
             }
 
             return dummyData;
+        }
+
+        /// <summary>
+        /// Retorna verdadeiro se identificar que a string é base64
+        /// </summary>
+        /// <param name="base64String"></param>
+        /// <returns></returns>
+        public static bool IsBase64(this string base64String)
+        {
+            // Credit: oybek https://stackoverflow.com/users/794764/oybek
+            if (string.IsNullOrWhiteSpace(base64String) ||
+                base64String.Length % 4 != 0 ||
+                base64String.Contains(" ") ||
+                base64String.Contains("\t") ||
+                base64String.Contains("\r") ||
+                base64String.Contains("\n"))
+            {
+                return false;
+            }
+
+            try
+            {
+                Convert.FromBase64String(base64String);
+                return true;
+            }
+            catch
+            {
+                //ignore
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -325,6 +324,8 @@ namespace InnerLibs
                 return Image.FromStream(s);
             }
         }
+
+        #endregion Public Methods
     }
 
     /// <summary>
@@ -332,6 +333,8 @@ namespace InnerLibs
     /// </summary>
     public class DataURI
     {
+        #region Public Constructors
+
         /// <summary>
         /// Cria um novo DATAURL a aprtir de uma string
         /// </summary>
@@ -356,6 +359,10 @@ namespace InnerLibs
                 throw new ArgumentException("DataURI not Valid", ex);
             }
         }
+
+        #endregion Public Constructors
+
+        #region Public Properties
 
         /// <summary>
         /// String Base64 ou Base32
@@ -387,6 +394,16 @@ namespace InnerLibs
         /// <returns></returns>
         public string Mime { get; private set; }
 
+        #endregion Public Properties
+
+        #region Public Methods
+
+        public static implicit operator byte[](DataURI d) => d.ToBytes();
+
+        public static implicit operator FileType(DataURI d) => d.ToFileType();
+
+        public static implicit operator string(DataURI d) => d.ToString();
+
         /// <summary>
         /// Converte esta dataURI em Bytes()
         /// </summary>
@@ -412,9 +429,6 @@ namespace InnerLibs
         /// <returns></returns>
         public FileInfo WriteToFile(string Path, DateTime? dateTime = null) => ToBytes().WriteToFile(Path, dateTime);
 
-        public static implicit operator byte[](DataURI d) => d.ToBytes();
-        public static implicit operator string(DataURI d) => d.ToString();
-        public static implicit operator FileType(DataURI d) => d.ToFileType();
-
+        #endregion Public Methods
     }
 }

@@ -11,7 +11,13 @@ namespace InnerLibs.Locations
     /// </summary>
     public sealed class Brasil
     {
+        #region Private Fields
+
         private static List<State> l = new List<State>();
+
+        #endregion Private Fields
+
+        #region Public Properties
 
         public static IEnumerable<City> Cities => States.SelectMany(x => x.Cities).ToArray();
 
@@ -62,6 +68,10 @@ namespace InnerLibs.Locations
                 return l;
             }
         }
+
+        #endregion Public Properties
+
+        #region Public Methods
 
         /// <summary>
         /// Retorna um <see cref="AddressInfo"/> da cidade e estado correspondentes
@@ -121,12 +131,16 @@ namespace InnerLibs.Locations
 
         public static State FindStateByIBGE(int IBGE) => States.FirstOrDefault(x => x.IBGE == IBGE) ?? FindCityByIBGE(IBGE)?.State;
 
+        public static City GetCapital(string NameOrStateCodeOrIBGE) => (GetState(NameOrStateCodeOrIBGE)?.Cities ?? new List<City>()).FirstOrDefault(x => x.Capital);
+
         /// <summary>
         /// Retorna as cidades de um estado a partir do nome ou sigla do estado
         /// </summary>
         /// <param name="NameOrStateCodeOrIBGE">Nome ou sigla do estado</param>
         /// <returns></returns>
         public static IEnumerable<City> GetCitiesOf(string NameOrStateCodeOrIBGE) => (GetState(NameOrStateCodeOrIBGE)?.Cities ?? new List<City>()).AsEnumerable();
+
+        public static City GetClosestCity(string NameOrStateCodeOrIBGE, string CityName) => (GetState(NameOrStateCodeOrIBGE)?.Cities ?? new List<City>()).AsEnumerable().OrderBy(x => x.Name.LevenshteinDistance(CityName)).Where(x => CityName.IsNotBlank()).FirstOrDefault();
 
         /// <summary>
         /// Retorna o nome da cidade mais parecido com o especificado em <paramref name="CityName"/>
@@ -135,8 +149,6 @@ namespace InnerLibs.Locations
         /// <param name="CityName">Nome da cidade</param>
         /// <returns></returns>
         public static string GetClosestCityName(string NameOrStateCodeOrIBGE, string CityName) => (GetClosestCity(NameOrStateCodeOrIBGE, CityName)?.Name ?? InnerLibs.Text.Empty).IfBlank(CityName);
-        public static City GetClosestCity(string NameOrStateCodeOrIBGE, string CityName) => (GetState(NameOrStateCodeOrIBGE)?.Cities ?? new List<City>()).AsEnumerable().OrderBy(x => x.Name.LevenshteinDistance(CityName)).Where(x => CityName.IsNotBlank()).FirstOrDefault();
-        public static City GetCapital(string NameOrStateCodeOrIBGE) => (GetState(NameOrStateCodeOrIBGE)?.Cities ?? new List<City>()).FirstOrDefault(x => x.Capital);
 
         public static int? GetIBGEOf(string NameOrStateCodeOrIBGE) => GetState(NameOrStateCodeOrIBGE)?.IBGE;
 
@@ -180,11 +192,13 @@ namespace InnerLibs.Locations
         public static IEnumerable<State> GetStatesOf(string Region) => States.Where(x => (x.Region.ToSlugCase() ?? InnerLibs.Text.Empty) == (Region.ToSlugCase().TrimBetween() ?? InnerLibs.Text.Empty) || Region.IsBlank());
 
         public void Reload() => l = new List<State>();
+
+        #endregion Public Methods
     }
 
     public class City
     {
-
+        #region Public Constructors
 
         public City(string Name, int IBGE, int DDD, State State, string SIAFI, string TimeZone, decimal Latitude, decimal Longitude, bool Capital) : base()
         {
@@ -199,19 +213,27 @@ namespace InnerLibs.Locations
             this.Capital = Capital;
         }
 
+        #endregion Public Constructors
+
+        #region Public Properties
+
+        public bool Capital { get; }
         public int DDD { get; }
         public int IBGE { get; }
-        public string Name { get; }
-        public State State { get; } = new State(null);
-
-        public string SIAFI { get; }
-        public string TimeZone { get; }
-
         public decimal Latitude { get; }
         public decimal Longitude { get; }
-        public bool Capital { get; }
+        public string Name { get; }
+        public string SIAFI { get; }
+        public State State { get; } = new State(null);
+        public string TimeZone { get; }
+
+        #endregion Public Properties
+
+        #region Public Methods
 
         public override string ToString() => Name;
+
+        #endregion Public Methods
     }
 
     /// <summary>
@@ -219,6 +241,8 @@ namespace InnerLibs.Locations
     /// </summary>
     public class State
     {
+        #region Public Constructors
+
         /// <summary>
         /// Sigla do estado
         /// </summary>
@@ -250,7 +274,9 @@ namespace InnerLibs.Locations
             }
         }
 
+        #endregion Public Constructors
 
+        #region Public Properties
 
         /// <summary>
         /// Lista de cidades do estado
@@ -264,6 +290,10 @@ namespace InnerLibs.Locations
 
         public int IBGE { get; }
 
+        public decimal Latitude { get; }
+
+        public decimal Longitude { get; }
+
         /// <summary>
         /// Nome do estado
         /// </summary>
@@ -271,14 +301,18 @@ namespace InnerLibs.Locations
         public string Name { get; }
 
         public string Region { get; }
-        public decimal Latitude { get; }
-        public decimal Longitude { get; }
         public string StateCode { get; }
+
+        #endregion Public Properties
+
+        #region Public Methods
 
         /// <summary>
         /// Retorna a String correspondente ao estado
         /// </summary>
         /// <returns></returns>
         public override string ToString() => StateCode;
+
+        #endregion Public Methods
     }
 }

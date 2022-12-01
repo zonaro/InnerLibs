@@ -13,6 +13,8 @@ namespace InnerLibs.TimeMachine
     /// </summary>
     public partial class DateRange : IEquatable<TimeSpan>, IEquatable<DateRange>, IComparable<TimeSpan>, IComparable<DateRange>, ICloneable, IComparable
     {
+        #region Private Fields
+
         private int _days;
         private DateRangeDisplay _display = null;
 
@@ -25,15 +27,9 @@ namespace InnerLibs.TimeMachine
 
         private TimeSpan? _timeSpanBase = null;
 
-        private enum Phase
-        {
-            Years,
-            Months,
-            Days,
-            Done
-        }
+        #endregion Private Fields
 
-
+        #region Private Methods
 
         private static DateRange AddInternal(DateRange left, TimeSpan right) => new DateRange(left.StartDate, right);
 
@@ -150,6 +146,22 @@ namespace InnerLibs.TimeMachine
             }
         }
 
+        #endregion Private Methods
+
+        #region Private Enums
+
+        private enum Phase
+        {
+            Years,
+            Months,
+            Days,
+            Done
+        }
+
+        #endregion Private Enums
+
+        #region Public Constructors
+
         /// <summary>
         /// Create a new <see cref="DateRange"/> for today (from 00:00:00.000 to 23:59:59.999)
         /// </summary>
@@ -237,6 +249,10 @@ namespace InnerLibs.TimeMachine
         /// <param name="Dates"></param>
         public DateRange(IEnumerable<DateTime> Dates) : this(Dates.Min(), Dates.Max())
         { }
+
+        #endregion Public Constructors
+
+        #region Public Properties
 
         /// <inheritdoc cref="TimeSpan.Days"/>
         public int Days { get => IsSingleDateTime() ? 1 : _days; private set => _days = value; }
@@ -364,7 +380,6 @@ namespace InnerLibs.TimeMachine
         }
 
         /// <inheritdoc cref="TimeSpan.Ticks"/>
-
         public long Ticks => TimeSpan.Ticks;
 
         /// <summary>
@@ -447,6 +462,10 @@ namespace InnerLibs.TimeMachine
         /// <returns></returns>
         public int Years { get; private set; }
 
+        #endregion Public Properties
+
+        #region Public Methods
+
         /// <summary>
         /// Performs an implicit conversion from a <see cref="System.TimeSpan"/> to <see cref="DateRange"/>.
         /// </summary>
@@ -493,8 +512,6 @@ namespace InnerLibs.TimeMachine
         /// otherwise <c>false</c>.
         /// </returns>
         public static bool operator !=(DateRange left, DateRange right) => !(left == right);
-
-
 
         public static bool operator !=(DateRange left, TimeSpan right) => !(left == right);
 
@@ -591,7 +608,6 @@ namespace InnerLibs.TimeMachine
             FilterBehavior = FilterBehavior,
             NoTime = NoTime,
             ForceFirstAndLastMoments = ForceFirstAndLastMoments,
-
         };
 
         public int CompareTo(TimeSpan other) => TimeSpan.CompareTo(other);
@@ -964,13 +980,15 @@ namespace InnerLibs.TimeMachine
         public bool IsNow(DateRangeFilterBehavior FilterBehavior) => Contains(DateTime.Now, FilterBehavior);
 
         /// <summary>
-        /// Return <b>true</b> when the date part of <see cref="StartDate"/> and <see cref="EndDate"/> are equal
+        /// Return <b>true</b> when the date part of <see cref="StartDate"/> and <see
+        /// cref="EndDate"/> are equal
         /// </summary>
         /// <returns></returns>
         public bool IsSingleDate() => StartDate.Date == EndDate.Date;
 
         /// <summary>
-        /// Return <b>true</b> when date and time parts of <see cref="StartDate"/> and <see cref="EndDate"/> are equal
+        /// Return <b>true</b> when date and time parts of <see cref="StartDate"/> and <see
+        /// cref="EndDate"/> are equal
         /// </summary>
         /// <returns></returns>
         public bool IsSingleDateTime() => StartDate == EndDate;
@@ -1149,5 +1167,7 @@ namespace InnerLibs.TimeMachine
         object ICloneable.Clone() => Clone();
 
         int IComparable.CompareTo(object value) => CompareTo(value);
+
+        #endregion Public Methods
     }
 }

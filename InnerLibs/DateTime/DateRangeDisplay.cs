@@ -7,6 +7,8 @@ namespace InnerLibs.TimeMachine
     /// </summary>
     public class DateRangeDisplay
     {
+        #region Public Constructors
+
         public DateRangeDisplay()
         {
             foreach (var item in this.GetProperties().Where(x => x.Name.EndsWith("Word")))
@@ -47,6 +49,10 @@ namespace InnerLibs.TimeMachine
             this.YearsWord = YearsWord;
             this.FormatRule = FormatRule;
         }
+
+        #endregion Public Constructors
+
+        #region Public Properties
 
         /// <summary>
         /// the "And" word, use to concatenate the last item in the string
@@ -93,12 +99,16 @@ namespace InnerLibs.TimeMachine
         /// </summary>
         public QuantityTextPair YearsWord { get; set; }
 
+        #endregion Public Properties
+
+        #region Public Methods
+
         public static DateRangeDisplay Default() => new DateRangeDisplay();
 
         public static DateRangeDisplay DefaultPtBr() => new DateRangeDisplay("e", "milisegundos", "segundos", "minutos", "horas", "dias", "meses;mes", "anos");
 
-
         public override string ToString() => new string[] { YearsWord.Plural, MonthsWord.Plural, DaysWord.Plural, HoursWord.Plural, MinutesWord.Plural, SecondsWord.Plural, MillisecondsWord.Plural }.ToPhrase(InnerLibs.Text.Empty, AndWord);
 
+        #endregion Public Methods
     }
 }

@@ -6,7 +6,13 @@ namespace InnerLibs
 {
     internal class HtmlParser
     {
+        #region Private Fields
+
         private Queue<char> q;
+
+        #endregion Private Fields
+
+        #region Private Methods
 
         private char Dequeue() => q.Dequeue();
 
@@ -206,8 +212,21 @@ namespace InnerLibs
                 Dequeue();
         }
 
+        #endregion Private Methods
+
+        #region Internal Fields
+
         internal static HtmlParser Instance = new HtmlParser();
+
+        #endregion Internal Fields
+
+        #region Public Properties
+
         public IEnumerable<string> SelfClosingTags { get; set; } = new[] { "area", "base", "br", "col", "embed", "hr", "img", "input", "keygen", "link", "menuitem", "meta", "param", "source", "track", "wbr" };
+
+        #endregion Public Properties
+
+        #region Public Methods
 
         public IEnumerable<HtmlTag> Parse(string source)
         {
@@ -219,6 +238,8 @@ namespace InnerLibs
             }
             return Array.Empty<HtmlTag>();
         }
+
+        #endregion Public Methods
     }
 
     public enum HtmlNodeType

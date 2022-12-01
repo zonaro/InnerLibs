@@ -6,30 +6,23 @@ using System.Linq;
 
 namespace InnerLibs.DOTLanguage
 {
-    public enum GraphType
-    {
-        /// <summary>
-        /// Gráficos não orientados
-        /// </summary>
-        Graph,
-
-        /// <summary>
-        /// Gráficos orientados
-        /// </summary>
-        Digraph
-    }
-
     public class Cluster : DotObject
     {
+        #region Public Properties
+
         public override string ID
         {
             get;
             set;
         }
+
+        #endregion Public Properties
     }
 
     public class DotAttributeCollection : Dictionary<string, object>
     {
+        #region Public Methods
+
         public override string ToString()
         {
             string dotstring = InnerLibs.Text.Empty;
@@ -51,6 +44,8 @@ namespace InnerLibs.DOTLanguage
 
             return dotstring.Quote('[') + ";" + Environment.NewLine;
         }
+
+        #endregion Public Methods
     }
 
     /// <summary>
@@ -58,6 +53,8 @@ namespace InnerLibs.DOTLanguage
     /// </summary>
     public class DotEdge : DotObject
     {
+        #region Public Constructors
+
         /// <summary>
         /// Cria uma nova ligação
         /// </summary>
@@ -68,6 +65,10 @@ namespace InnerLibs.DOTLanguage
             this.ChildNode = ChildNode;
             this.Oriented = Oriented;
         }
+
+        #endregion Public Constructors
+
+        #region Public Properties
 
         public DotNode ChildNode { get; set; }
 
@@ -86,6 +87,10 @@ namespace InnerLibs.DOTLanguage
 
         public DotNode ParentNode { get; set; }
 
+        #endregion Public Properties
+
+        #region Public Methods
+
         /// <summary>
         /// Escreve a DOT String desta ligação
         /// </summary>
@@ -100,6 +105,8 @@ namespace InnerLibs.DOTLanguage
 
             return dotstring;
         }
+
+        #endregion Public Methods
     }
 
     /// <summary>
@@ -107,7 +114,13 @@ namespace InnerLibs.DOTLanguage
     /// </summary>
     public class DotNode : DotObject
     {
+        #region Private Fields
+
         private string _id;
+
+        #endregion Private Fields
+
+        #region Public Constructors
 
         /// <summary>
         /// Cria um novo nó
@@ -117,6 +130,10 @@ namespace InnerLibs.DOTLanguage
         {
             this.ID = ID;
         }
+
+        #endregion Public Constructors
+
+        #region Public Properties
 
         /// <summary>
         /// ID deste nó
@@ -129,17 +146,27 @@ namespace InnerLibs.DOTLanguage
             set => _id = value.ToSlugCase(true);
         }
 
+        #endregion Public Properties
+
+        #region Public Methods
+
         /// <summary>
         /// Escreve a DOT string deste nó e seus respectivos nós filhos
         /// </summary>
         /// <returns></returns>
         public override string ToString() => ID + Attributes.ToString() + Environment.NewLine;
+
+        #endregion Public Methods
     }
 
     public abstract class DotObject
     {
+        #region Public Properties
+
         public DotAttributeCollection Attributes { get; private set; } = new DotAttributeCollection();
         public abstract string ID { get; set; }
+
+        #endregion Public Properties
     }
 
     /// <summary>
@@ -147,13 +174,14 @@ namespace InnerLibs.DOTLanguage
     /// </summary>
     public class Graph : List<DotObject>
     {
+        #region Public Properties
+
         public List<Cluster> Clusters { get; set; } = new List<Cluster>();
 
         /// <summary>
         /// Tipo do Grafico (graph, digraph)
         /// </summary>
         /// <returns></returns>
-
         public GraphType GraphType { get; set; } = GraphType.Graph;
 
         /// <summary>
@@ -163,6 +191,10 @@ namespace InnerLibs.DOTLanguage
         public string ID { get; set; } = InnerLibs.Text.Empty;
 
         public bool Strict { get; set; } = false;
+
+        #endregion Public Properties
+
+        #region Public Methods
 
         /// <summary>
         /// Escreve a DOT string correspondente a este gráfico
@@ -180,5 +212,20 @@ namespace InnerLibs.DOTLanguage
 
             return gg + " " + ID.ToSlugCase(true) + " " + s.Quote('{');
         }
+
+        #endregion Public Methods
+    }
+
+    public enum GraphType
+    {
+        /// <summary>
+        /// Gráficos não orientados
+        /// </summary>
+        Graph,
+
+        /// <summary>
+        /// Gráficos orientados
+        /// </summary>
+        Digraph
     }
 }

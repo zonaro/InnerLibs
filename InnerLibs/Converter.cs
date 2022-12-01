@@ -12,6 +12,35 @@ namespace InnerLibs
 {
     public static class Converter
     {
+        #region Public Methods
+
+        /// <summary>
+        /// Retorna true se <paramref name="Value"/> não estiver em branco, for diferente de NULL,
+        /// zero ou 'false'
+        /// </summary>
+        /// <param name="Value"></param>
+        /// <returns></returns>
+        public static bool AsBool(this string Value)
+        {
+            if (Value == null)
+            {
+                return false;
+            }
+
+            Value = Value.TrimBetween().ToLower();
+            switch (Value)
+            {
+                case "false":
+                case "0":
+                case "null":
+                case Text.Empty:
+                    return false;
+
+                default:
+                    return true;
+            }
+        }
+
         /// <summary>
         /// Converte um array de um tipo para outro
         /// </summary>
@@ -131,7 +160,6 @@ namespace InnerLibs
             }
         }
 
-
         public static object CreateOrSetObject(this Dictionary<string, object> Dic, object Obj, Type Type, params object[] args)
         {
             var tipo = Type.GetNullableTypeOf();
@@ -216,7 +244,6 @@ namespace InnerLibs
             return Obj;
         }
 
-
         /// <summary>
         /// Cria uma lista vazia usando um objeto como o tipo da lista. Util para tipos anonimos
         /// </summary>
@@ -235,7 +262,6 @@ namespace InnerLibs
         /// <returns></returns>
         public static object[] ForceArray(this object Obj, Type Type)
         {
-
             Type = Type ?? typeof(object);
             if (Obj != null)
             {
@@ -371,7 +397,6 @@ namespace InnerLibs
                 }
             }
             return Dics.Select(x => x.OrderBy(y => y.Key).ToDictionary());
-
         }
 
         public static T SetValuesIn<T>(this Dictionary<string, object> Dic) => (T)Dic.CreateOrSetObject(null, typeof(T));
@@ -414,31 +439,6 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Retorna true se <paramref name="Value"/> não estiver em branco, for diferente de NULL, zero ou 'false' 
-        /// </summary>
-        /// <param name="Value"></param>
-        /// <returns></returns>
-        public static bool AsBool(this string Value)
-        {
-            if (Value == null)
-            {
-                return false;
-            }
-
-            Value = Value.TrimBetween().ToLower();
-            switch (Value)
-            {
-                case "false":
-                case "0":
-                case "null":
-                case Text.Empty:
-                    return false;
-                default:
-                    return true;
-            }
-        }
-
-        /// <summary>
         /// Converte um tipo para Boolean. Retorna Nothing (NULL) se a conversão falhar
         /// </summary>
         /// <typeparam name="FromType">Tipo de origem</typeparam>
@@ -477,7 +477,6 @@ namespace InnerLibs
         /// <param name="Value">Variavel com valor</param>
         /// <returns>Valor convertido em novo tipo</returns>
         public static decimal ToDecimal<FromType>(this FromType Value) => Value.ChangeType<decimal>();
-
 
         /// <summary>
         /// Retorna um <see cref="Dictionary"/> a partir de um <see cref="IGrouping(Of TKey, TElement)"/>
@@ -675,5 +674,7 @@ namespace InnerLibs
         /// <param name="Value">Variavel com valor</param>
         /// <returns>Valor convertido em novo tipo</returns>
         public static float ToSingle<FromType>(this FromType Value) => Value.ChangeType<float>();
+
+        #endregion Public Methods
     }
 }

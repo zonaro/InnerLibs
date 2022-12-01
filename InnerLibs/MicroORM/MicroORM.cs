@@ -12,6 +12,8 @@ namespace InnerLibs.MicroORM
 {
     internal class Join
     {
+        #region Private Properties
+
         private string JoinString
         {
             get
@@ -56,34 +58,28 @@ namespace InnerLibs.MicroORM
             }
         }
 
+        #endregion Private Properties
+
+        #region Internal Properties
+
         internal Condition On { get; set; }
         internal string Table { get; set; }
         internal JoinType Type { get; set; }
 
+        #endregion Internal Properties
+
+        #region Public Methods
+
         public override string ToString() => On == null ? string.Format(CultureInfo.InvariantCulture, "{0} {1}", JoinString, Table) : string.Format(CultureInfo.InvariantCulture, "{0} {1} On {2}", JoinString, Table, On);
-    }
 
-    public enum JoinType
-    {
-        Join,
-        Inner,
-        LeftOuterJoin,
-        RightOuterJoin,
-        FullOuterJoin,
-        CrossJoin,
-        CrossApply
-    }
-
-    public interface ISelect
-    {
-        string ToString();
-
-        string ToString(bool SubQuery);
+        #endregion Public Methods
     }
 
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = true, Inherited = true)]
     public class ColumnName : Attribute
     {
+        #region Public Constructors
+
         public ColumnName(string ColumnName, params string[] AlternativeNames)
         {
             if (ColumnName.IsBlank())
@@ -96,7 +92,13 @@ namespace InnerLibs.MicroORM
             Names = l.Select(x => x.UnQuote()).SelectMany(x => x.Split(",")).ToArray();
         }
 
+        #endregion Public Constructors
+
+        #region Public Properties
+
         public string[] Names { get; private set; }
+
+        #endregion Public Properties
     }
 
     /// <summary>
@@ -104,7 +106,13 @@ namespace InnerLibs.MicroORM
     /// </summary>
     public class Condition
     {
+        #region Internal Fields
+
         internal readonly List<string> _tokens = new List<string>();
+
+        #endregion Internal Fields
+
+        #region Public Constructors
 
         public Condition(string LogicOperator, params FormattableString[] Conditions)
         {
@@ -200,6 +208,10 @@ namespace InnerLibs.MicroORM
         {
         }
 
+        #endregion Public Constructors
+
+        #region Public Methods
+
         public static Condition AndMany(params FormattableString[] conditions) => new Condition("And", conditions);
 
         public static Condition OrMany(params FormattableString[] conditions) => new Condition("Or", conditions);
@@ -277,16 +289,28 @@ namespace InnerLibs.MicroORM
         /// </summary>
         /// <returns>The condition statement as a SQL query</returns>
         public override string ToString() => string.Join(" ", _tokens).QuoteIf(_tokens.Count > 2, '(');
+
+        #endregion Public Methods
     }
 
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
     public class FromSQL : Attribute
     {
+        #region Private Fields
+
         private string sql;
+
+        #endregion Private Fields
+
+        #region Public Constructors
 
         public FromSQL() : base()
         {
         }
+
+        #endregion Public Constructors
+
+        #region Public Properties
 
         /// <summary>
         /// Arquivo contendo as instruções sql para esta classe
@@ -340,10 +364,14 @@ namespace InnerLibs.MicroORM
         /// Nome da tabela, gera automaticamente uma query padrão para esta classe
         /// </summary>
         public string TableName { get; set; }
+
+        #endregion Public Properties
     }
 
     public class Select : Select<Dictionary<string, object>>
     {
+        #region Public Constructors
+
         public Select() : base()
         {
         }
@@ -355,13 +383,18 @@ namespace InnerLibs.MicroORM
         public Select(Dictionary<string, object> Obj) : base(Obj)
         {
         }
+
+        #endregion Public Constructors
     }
 
     /// <summary>
-    /// Class that aids building a SELECT clause using <see cref="Dictionary{TKey, TValue}"/> or POCO Classes.
+    /// Class that aids building a SELECT clause using <see cref="Dictionary{TKey, TValue}"/> or
+    /// POCO Classes.
     /// </summary>
     public class Select<T> : ISelect where T : class
     {
+        #region Internal Fields
+
         internal List<string> _columns;
 
         internal string _from;
@@ -380,6 +413,10 @@ namespace InnerLibs.MicroORM
         internal string _top;
         internal Condition _where;
 
+        #endregion Internal Fields
+
+        #region Public Constructors
+
         /// <summary>
         /// Class that aids building a SELECT clause.
         /// </summary>
@@ -395,6 +432,7 @@ namespace InnerLibs.MicroORM
                 SetColumns("*");
             }
         }
+
         /// <summary>
         /// Class that aids building a SELECT clause.
         /// </summary>
@@ -415,12 +453,20 @@ namespace InnerLibs.MicroORM
             From<T>();
         }
 
+        #endregion Public Constructors
+
+        #region Public Properties
+
         /// <summary>
         /// The final Query string generated by this instance
         /// </summary>
         public string Query => ToString();
 
         public char QuoteChar { get; set; } = '[';
+
+        #endregion Public Properties
+
+        #region Public Methods
 
         public static FormattableString CreateSearch(IEnumerable<string> Values, params string[] Columns)
         {
@@ -557,6 +603,8 @@ namespace InnerLibs.MicroORM
 
             return this;
         }
+
+        public Select<T> AndIn<TO>(string Column, params TO[] Items) => And(Text.ToFormattableString(Column + " in " + Items.ToSQLString()));
 
         public Select<T> AndObject<TO>(TO Obj) where TO : class => WhereObject(Obj, "AND");
 
@@ -938,6 +986,8 @@ namespace InnerLibs.MicroORM
             return this;
         }
 
+        public Select<T> OrIn<TO>(string Column, params TO[] Items) => Or(Text.ToFormattableString(Column + " in " + Items.ToSQLString()));
+
         public Select<T> OrObject<TO>(TO Obj) where TO : class => WhereObject(Obj, "OR");
 
         public Select<T> OrSearch(string Value, params string[] Columns) => OrSearch(new[] { Value }, Columns);
@@ -1308,11 +1358,6 @@ namespace InnerLibs.MicroORM
         }
 
         public Select<T> WhereIn<TO>(string Column, params TO[] Items) => AndIn(Column, Items);
-        public Select<T> AndIn<TO>(string Column, params TO[] Items) => And(Text.ToFormattableString(Column + " in " + Items.ToSQLString()));
-
-        public Select<T> OrIn<TO>(string Column, params TO[] Items) => Or(Text.ToFormattableString(Column + " in " + Items.ToSQLString()));
-
-
 
         public Select<T> WhereObject<TO>(TO Obj) where TO : class => AndObject(Obj);
 
@@ -1337,5 +1382,29 @@ namespace InnerLibs.MicroORM
 
             return this;
         }
+
+        #endregion Public Methods
+    }
+
+    public enum JoinType
+    {
+        Join,
+        Inner,
+        LeftOuterJoin,
+        RightOuterJoin,
+        FullOuterJoin,
+        CrossJoin,
+        CrossApply
+    }
+
+    public interface ISelect
+    {
+        #region Public Methods
+
+        string ToString();
+
+        string ToString(bool SubQuery);
+
+        #endregion Public Methods
     }
 }

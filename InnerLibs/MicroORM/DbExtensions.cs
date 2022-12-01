@@ -20,6 +20,8 @@ namespace InnerLibs.MicroORM
     /// </summary>
     public static class DataSetType
     {
+        #region Public Fields
+
         /// <summary>
         /// Coloca todos os datasets no <see cref="SQLResponse{T}.Data"/>.
         /// </summary>
@@ -52,7 +54,13 @@ namespace InnerLibs.MicroORM
         /// <remarks>pode tambem ser representado pelas strings "ARRAY", "LIST"</remarks>
         public const string Values = "VALUES";
 
+        #endregion Public Fields
+
+        #region Public Methods
+
         public static IEnumerable<string> ToList() => new List<string>() { Many, Pair, Row, Value, Values };
+
+        #endregion Public Methods
     }
 
     /// <summary>
@@ -60,11 +68,7 @@ namespace InnerLibs.MicroORM
     /// </summary>
     public static class DbExtensions
     {
-        public enum LogicConcatenationOperator
-        {
-            AND,
-            OR
-        }
+        #region Public Properties
 
         /// <summary>
         /// Dicionario com os <see cref="Type"/> e seu <see cref="DbType"/> correspondente
@@ -99,6 +103,10 @@ namespace InnerLibs.MicroORM
         /// </summary>
         /// <returns></returns>
         public static TextWriter LogWriter { get; set; } = new DebugTextWriter();
+
+        #endregion Public Properties
+
+        #region Public Methods
 
         public static string AsSQLColumns(this IDictionary<string, object> obj, char Quote = '[') => obj.Select(x => x.Key.ToString().Quote(Quote)).SelectJoinString(",");
 
@@ -539,32 +547,6 @@ namespace InnerLibs.MicroORM
             else
                 return null;
         }
-        public static T GetValue<T>(this DataRow row, int ColumnIndex = 0)
-        {
-            try
-            {
-                return Converter.ChangeType<T>(row != null ? row[ColumnIndex] : default);
-            }
-            catch
-            {
-                return default;
-            }
-        }
-        public static T GetValue<T>(this DataRow row, string ColumnNameOrIndex)
-        {
-            try
-            {
-                return Converter.ChangeType<T>(row != null ? row[ColumnNameOrIndex] : default);
-            }
-            catch
-            {
-                if (ColumnNameOrIndex.IsNumber())
-                {
-                    return GetValue<T>(row, ColumnNameOrIndex.ToInt());
-                }
-            }
-            return default;
-        }
 
         public static T GetSingleValue<T>(this DataSet data, string ColumnNameOrIndex)
         {
@@ -598,8 +580,6 @@ namespace InnerLibs.MicroORM
             return default;
         }
 
-
-
         /// <summary>
         /// Retorna um <see cref="Type"/> de um <see cref="DbType"/>
         /// </summary>
@@ -608,6 +588,34 @@ namespace InnerLibs.MicroORM
         /// <param name="DefaultType"></param>
         /// <returns></returns>
         public static Type GetTypeFromDb(this DbType Type, Type DefaultType = null) => DbTypes.Where(x => x.Value == Type).Select(x => x.Key).FirstOrDefault() ?? DefaultType ?? typeof(object);
+
+        public static T GetValue<T>(this DataRow row, int ColumnIndex = 0)
+        {
+            try
+            {
+                return Converter.ChangeType<T>(row != null ? row[ColumnIndex] : default);
+            }
+            catch
+            {
+                return default;
+            }
+        }
+
+        public static T GetValue<T>(this DataRow row, string ColumnNameOrIndex)
+        {
+            try
+            {
+                return Converter.ChangeType<T>(row != null ? row[ColumnNameOrIndex] : default);
+            }
+            catch
+            {
+                if (ColumnNameOrIndex.IsNumber())
+                {
+                    return GetValue<T>(row, ColumnNameOrIndex.ToInt());
+                }
+            }
+            return default;
+        }
 
         /// <inheritdoc cref="GetValue{T}(DataRow, string, Expression{Func{object, object}})"/>
         public static string GetValue(this DataRow row, string Name = null, Expression<Func<object, object>> valueParser = null) => GetValue<string>(row, Name, valueParser);
@@ -694,8 +702,8 @@ namespace InnerLibs.MicroORM
         public static bool IsOpen(this DbConnection Connection) => Connection != null && (Connection.State == ConnectionState.Open);
 
         /// <summary>
-        /// Utiliza o <see cref="TextWriter"/> especificado em <see cref="LogWriter"/> para
-        /// escrever o comando
+        /// Utiliza o <see cref="TextWriter"/> especificado em <see cref="LogWriter"/> para escrever
+        /// o comando
         /// </summary>
         /// <param name="Command"></param>
         /// <returns></returns>
@@ -739,25 +747,8 @@ namespace InnerLibs.MicroORM
             return Command;
         }
 
-        public static DataSet ToDataSet(this DbDataReader reader) => ToDataSet(reader, null);
-        public static DataSet ToDataSet(this DbDataReader reader, string DataSetName, params string[] TableNames)
-        {
-            DataSet ds = new DataSet(DataSetName.IfBlank("DataSet"));
-            TableNames = TableNames ?? Array.Empty<string>();
-            var i = 0;
-            while (reader != null && !reader.IsClosed)
-            {
-                ds.Tables.Add(TableNames.IfBlankOrNoIndex(i, $"Table{i}")).Load(reader);
-                i++;
-            }
-            return ds;
-        }
-
-        public static T MapFirst<T>(this DataSet Data, params object[] args) where T : class => Data.GetFirstRow().Map<T>(args);
-        public static T MapFirst<T>(this DataTable Data, params object[] args) where T : class => Data.GetFirstRow().Map<T>(args);
         public static T Map<T>(this DataRow Row, params object[] args) where T : class
         {
-
             T d;
             if (args.Any())
             {
@@ -816,13 +807,10 @@ namespace InnerLibs.MicroORM
                     }
                 }
             return d;
-
         }
-
 
         public static IEnumerable<T> Map<T>(this DataTable Data, params object[] args) where T : class
         {
-
             var l = new List<T>();
             args = args ?? Array.Empty<object>();
             if (Data != null)
@@ -905,6 +893,10 @@ namespace InnerLibs.MicroORM
 
             return l.AsEnumerable();
         }
+
+        public static T MapFirst<T>(this DataSet Data, params object[] args) where T : class => Data.GetFirstRow().Map<T>(args);
+
+        public static T MapFirst<T>(this DataTable Data, params object[] args) where T : class => Data.GetFirstRow().Map<T>(args);
 
         /// <summary>
         /// Mapeia a primeira linha de um datareader para uma classe POCO do tipo <typeparamref name="T"/>
@@ -1223,8 +1215,6 @@ namespace InnerLibs.MicroORM
 
             return resposta;
         }
-
-
 
         /// <summary>
         /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de
@@ -1567,6 +1557,21 @@ namespace InnerLibs.MicroORM
             }
         }
 
+        public static DataSet ToDataSet(this DbDataReader reader) => ToDataSet(reader, null);
+
+        public static DataSet ToDataSet(this DbDataReader reader, string DataSetName, params string[] TableNames)
+        {
+            DataSet ds = new DataSet(DataSetName.IfBlank("DataSet"));
+            TableNames = TableNames ?? Array.Empty<string>();
+            var i = 0;
+            while (reader != null && !reader.IsClosed)
+            {
+                ds.Tables.Add(TableNames.IfBlankOrNoIndex(i, $"Table{i}")).Load(reader);
+                i++;
+            }
+            return ds;
+        }
+
         /// <summary>
         /// Monta um Comando SQL para executar uma procedure especifica e trata valores especificos
         /// de um NameValueCollection como parametros da procedure
@@ -1701,13 +1706,29 @@ namespace InnerLibs.MicroORM
 
             return null;
         }
+
+        #endregion Public Methods
+
+        #region Public Enums
+
+        public enum LogicConcatenationOperator
+        {
+            AND,
+            OR
+        }
+
+        #endregion Public Enums
     }
 
     public class SQLResponse<T>
     {
+        #region Public Properties
+
         public T Data { get; set; }
         public string Message { get; set; }
         public string SQL { get; set; }
         public string Status { get; set; }
+
+        #endregion Public Properties
     }
 }

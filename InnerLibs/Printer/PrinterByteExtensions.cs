@@ -7,15 +7,10 @@ using System.Text;
 
 namespace InnerLibs.Printer
 {
-    internal enum Justifications
-    {
-        Left,
-        Right,
-        Center
-    }
-
     internal static class PrinterByteExtensions
     {
+        #region Internal Methods
+
         internal static byte[] SharedImagePrinter(Image image, bool highDensity)
         {
             var list = new List<byte>();
@@ -76,6 +71,10 @@ namespace InnerLibs.Printer
             return list.ToArray();
         }
 
+        #endregion Internal Methods
+
+        #region Public Methods
+
         public static byte[] AddBytes(this byte[] bytes, byte[] pAddBytes)
         {
             if (pAddBytes is null)
@@ -135,10 +134,14 @@ namespace InnerLibs.Printer
         {
             return (byte)c;
         }
+
+        #endregion Public Methods
     }
 
     internal class RawPrinterHelper
     {
+        #region Public Classes
+
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
         public class DOCINFOA
         {
@@ -151,6 +154,8 @@ namespace InnerLibs.Printer
             [MarshalAs(UnmanagedType.LPStr)]
             public string pDataType;
         }
+
+        #endregion Public Classes
 
         #region Declaration Dll
 
@@ -244,6 +249,13 @@ namespace InnerLibs.Printer
         }
 
         #endregion Methods
+    }
+
+    internal enum Justifications
+    {
+        Left,
+        Right,
+        Center
     }
 
     public enum QrCodeSize

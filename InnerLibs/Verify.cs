@@ -10,35 +10,32 @@ using System.Threading;
 
 namespace InnerLibs
 {
-    public enum PasswordLevel
-    {
-        VeryWeak = 2,
-        Weak = 3,
-        Medium = 4,
-        Strong = 5,
-        VeryStrong = 6
-    }
-
     /// <summary>
     /// Verifica determinados valores como Arquivos, Numeros e URLs
     /// </summary>
     /// <remarks></remarks>
     public static class Verify
     {
+        #region Private Fields
+
         private const int ERROR_LOCK_VIOLATION = 33;
 
         private const int ERROR_SHARING_VIOLATION = 32;
 
         private static readonly Expression<Func<string, bool>>[] passwordValidations = new Expression<Func<string, bool>>[]
             {
-               x => x.ToLower().ToArray().Distinct().Count() >= 4,
-               x => x.ToLower().ToArray().Distinct().Count() >= 6,
-               x => x.Length >= 8,
-               x => x.ContainsAny(StringComparison.InvariantCulture, PredefinedArrays.PasswordSpecialChars.ToArray()),
-               x => x.ContainsAny(StringComparison.InvariantCulture, PredefinedArrays.NumberChars.ToArray()),
-               x => x.ContainsAny(StringComparison.InvariantCulture, PredefinedArrays.AlphaUpperChars.ToArray()),
-               x => x.ContainsAny(StringComparison.InvariantCulture, PredefinedArrays.AlphaLowerChars.ToArray())
+                x => x.ToLower().ToArray().Distinct().Count() >= 4,
+                x => x.ToLower().ToArray().Distinct().Count() >= 6,
+                x => x.Length >= 8,
+                x => x.ContainsAny(StringComparison.InvariantCulture, PredefinedArrays.PasswordSpecialChars.ToArray()),
+                x => x.ContainsAny(StringComparison.InvariantCulture, PredefinedArrays.NumberChars.ToArray()),
+                x => x.ContainsAny(StringComparison.InvariantCulture, PredefinedArrays.AlphaUpperChars.ToArray()),
+                x => x.ContainsAny(StringComparison.InvariantCulture, PredefinedArrays.AlphaLowerChars.ToArray())
             };
+
+        #endregion Private Fields
+
+        #region Public Methods
 
         /// <summary>
         /// Verifica se o valor é um numero ou pode ser convertido em numero
@@ -286,6 +283,8 @@ namespace InnerLibs
             }
         }
 
+        public static bool IsDomain(this string Text) => Text.IsNotBlank() && $"http://{Text}".IsURL();
+
         /// <summary>
         /// Verifica se um determinado texto é um email
         /// </summary>
@@ -504,76 +503,6 @@ namespace InnerLibs
         /// <param name="Text">Texto a ser verificado</param>
         /// <returns>TRUE se for uma URL, FALSE se não for uma URL válida</returns>
         public static bool IsURL(this string Text) => Text.IsNotBlank() && Uri.TryCreate(Text.Trim(), UriKind.Absolute, out _) && !Text.Trim().Contains(" ");
-        public static bool IsDomain(this string Text) => Text.IsNotBlank() && $"http://{Text}".IsURL();
-
-        /// <summary>
-        /// Verifica se um numero é um EAN válido
-        /// </summary>
-        /// <param name="Code"></param>
-        /// <returns></returns>
-        /// <exception cref="FormatException"></exception>
-        public static bool IsValidEAN(this string Code)
-        {
-            if (Code.IsNotNumber() || Code.Length < 3)
-            {
-                return false;
-            }
-
-            var bar = Code.RemoveLastChars();
-            var ver = Code.GetLastChars();
-            return Generate.BarcodeCheckSum(bar) == ver;
-        }
-        public static bool IsValidEAN(this int Code) => Code.ToString(CultureInfo.InvariantCulture).PadLeft(12, '0').ToString().IsValidEAN();
-
-
-        /// <summary>
-        /// Verifica se uma string é um PIS válido
-        /// </summary>
-        /// <param name="CEP"></param>
-        /// <returns></returns> 
-        public static bool IsValidPIS(this string PIS)
-        {
-            if (PIS.IsBlank())
-            {
-                return false;
-            }
-
-            PIS = Regex.Replace(PIS, "[^0-9]", InnerLibs.Text.Empty).ToString();
-
-            if (PIS.Length != 11)
-            {
-                return false;
-            }
-
-            var count = PIS[0];
-            if (PIS.Count(w => w == count) == PIS.Length)
-            {
-                return false;
-            }
-
-            var multiplicador = new int[10] { 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
-            int soma;
-            int resto;
-
-            soma = 0;
-
-            for (var i = 0; i < 10; i++)
-            {
-                soma += int.Parse(PIS[i].ToString()) * multiplicador[i];
-            }
-
-            resto = soma % 11;
-
-            resto = resto < 2 ? 0 : 11 - resto;
-
-            if (PIS.EndsWith(resto.ToString()))
-            {
-                return true;
-            }
-
-            return false;
-        }
-
 
         /// <summary>
         /// Verifica se uma string é um cep válido
@@ -691,7 +620,6 @@ namespace InnerLibs
                     digito += resto.ToString();
                     return Text.EndsWith(digito);
                 }
-
             }
             catch
             {
@@ -710,7 +638,6 @@ namespace InnerLibs
             {
                 if (Text.IsNotBlank())
                 {
-
                     Text = Text.RemoveAny(".", "-");
                     string digito = InnerLibs.Text.Empty;
                     int k;
@@ -769,6 +696,74 @@ namespace InnerLibs
                 {
                 }
             }
+            return false;
+        }
+
+        /// <summary>
+        /// Verifica se um numero é um EAN válido
+        /// </summary>
+        /// <param name="Code"></param>
+        /// <returns></returns>
+        /// <exception cref="FormatException"></exception>
+        public static bool IsValidEAN(this string Code)
+        {
+            if (Code.IsNotNumber() || Code.Length < 3)
+            {
+                return false;
+            }
+
+            var bar = Code.RemoveLastChars();
+            var ver = Code.GetLastChars();
+            return Generate.BarcodeCheckSum(bar) == ver;
+        }
+
+        public static bool IsValidEAN(this int Code) => Code.ToString(CultureInfo.InvariantCulture).PadLeft(12, '0').ToString().IsValidEAN();
+
+        /// <summary>
+        /// Verifica se uma string é um PIS válido
+        /// </summary>
+        /// <param name="CEP"></param>
+        /// <returns></returns>
+        public static bool IsValidPIS(this string PIS)
+        {
+            if (PIS.IsBlank())
+            {
+                return false;
+            }
+
+            PIS = Regex.Replace(PIS, "[^0-9]", InnerLibs.Text.Empty).ToString();
+
+            if (PIS.Length != 11)
+            {
+                return false;
+            }
+
+            var count = PIS[0];
+            if (PIS.Count(w => w == count) == PIS.Length)
+            {
+                return false;
+            }
+
+            var multiplicador = new int[10] { 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
+            int soma;
+            int resto;
+
+            soma = 0;
+
+            for (var i = 0; i < 10; i++)
+            {
+                soma += int.Parse(PIS[i].ToString()) * multiplicador[i];
+            }
+
+            resto = soma % 11;
+
+            resto = resto < 2 ? 0 : 11 - resto;
+
+            if (PIS.EndsWith(resto.ToString()))
+            {
+                return true;
+            }
+
             return false;
         }
 
@@ -838,6 +833,7 @@ namespace InnerLibs
 
             return Value;
         }
+
         /// <summary>
         /// Returns true if all logical operations return true
         /// </summary>
@@ -846,6 +842,7 @@ namespace InnerLibs
         /// <param name="Tests"></param>
         /// <returns></returns>
         public static bool Validate<T>(this T Value, params Expression<Func<T, bool>>[] Tests) => Validate(Value, 0, Tests);
+
         /// <summary>
         /// Returns true if a certain minimum number of logical operations return true
         /// </summary>
@@ -982,10 +979,20 @@ namespace InnerLibs
                 else
                 {
                     OnFail?.Invoke(File);
-
                 }
             }
             return false;
         }
+
+        #endregion Public Methods
+    }
+
+    public enum PasswordLevel
+    {
+        VeryWeak = 2,
+        Weak = 3,
+        Medium = 4,
+        Strong = 5,
+        VeryStrong = 6
     }
 }

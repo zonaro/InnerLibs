@@ -1,5 +1,4 @@
 ﻿using InnerLibs.LINQ;
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -12,12 +11,16 @@ namespace InnerLibs.Online
 {
     public class LogEntryBackup
     {
+        #region Public Properties
+
         public DateTime DateTime { get; set; }
         public string ID { get; set; }
         public Dictionary<string, string> LogData { get; set; }
         public string Message { get; set; }
         public string Url { get; set; }
         public string UserID { get; set; }
+
+        #endregion Public Properties
     }
 
     /// <summary>
@@ -30,8 +33,14 @@ namespace InnerLibs.Online
         where UserType : class
         where IdType : struct
     {
+        #region Private Fields
+
         private TimeSpan _tolerancetime = new TimeSpan(0, 1, 0);
         private Func<UserType, IdType> idgetter;
+
+        #endregion Private Fields
+
+        #region Public Constructors
 
         /// <summary>
         /// Cria uma nova instancia de OnlineList apontando a propriedade do ID do usuario e opcionalmente
@@ -46,6 +55,32 @@ namespace InnerLibs.Online
             Chat = new UserChat<UserType, IdType>(this);
             Log = new UserLog<UserType, IdType>(this);
         }
+
+        #endregion Public Constructors
+
+        #region Public Indexers
+
+        /// <summary>
+        /// Retorna um usuario de acordo com seu ID
+        /// </summary>
+        /// <param name="User"></param>
+        /// <returns></returns>
+        public OnlineUser<UserType, IdType> this[UserType User]
+        {
+            get
+            {
+                return GetUser(User);
+            }
+
+            set
+            {
+                value = Add(value.User);
+            }
+        }
+
+        #endregion Public Indexers
+
+        #region Public Properties
 
         /// <summary>
         /// Diretorio onde serão guardados os XMLs deta lista
@@ -131,23 +166,9 @@ namespace InnerLibs.Online
             }
         }
 
-        /// <summary>
-        /// Retorna um usuario de acordo com seu ID
-        /// </summary>
-        /// <param name="User"></param>
-        /// <returns></returns>
-        public OnlineUser<UserType, IdType> this[UserType User]
-        {
-            get
-            {
-                return GetUser(User);
-            }
+        #endregion Public Properties
 
-            set
-            {
-                value = Add(value.User);
-            }
-        }
+        #region Public Methods
 
         /// <summary>
         /// Adciona um usuario a esta lista
@@ -337,26 +358,26 @@ namespace InnerLibs.Online
         public new void Remove(IdType ID) => this.RemoveIfExist(ID);
 
         public void SaveChatXML() => Chat.Select(x =>
-          {
-              var bkp = new UserConversationBackup();
-              bkp.SentDate = x.SentDate;
-              bkp.Message = x.Message;
-              bkp.FromUserID = x.FromUserID.ToString();
-              bkp.ToUserID = x.ToUserID.ToString();
-              bkp.ViewedDate = x.ViewedDate;
-              return bkp;
-          }).ToList().CreateXmlFile(ChatFile.FullName);
+            {
+                var bkp = new UserConversationBackup();
+                bkp.SentDate = x.SentDate;
+                bkp.Message = x.Message;
+                bkp.FromUserID = x.FromUserID.ToString();
+                bkp.ToUserID = x.ToUserID.ToString();
+                bkp.ViewedDate = x.ViewedDate;
+                return bkp;
+            }).ToList().CreateXmlFile(ChatFile.FullName);
 
         public void SaveLogXML() => Log.Select(x =>
-                                                                                              {
-                                                                                                  var bkp = new LogEntryBackup();
-                                                                                                  bkp.DateTime = x.DateTime;
-                                                                                                  bkp.Message = x.Message;
-                                                                                                  bkp.UserID = x.UserID.ToString();
-                                                                                                  bkp.ID = x.ID;
-                                                                                                  bkp.LogData = x.LogData;
-                                                                                                  return bkp;
-                                                                                              }).ToList().CreateXmlFile(LogFile.FullName);
+                                               {
+                                                   var bkp = new LogEntryBackup();
+                                                   bkp.DateTime = x.DateTime;
+                                                   bkp.Message = x.Message;
+                                                   bkp.UserID = x.UserID.ToString();
+                                                   bkp.ID = x.ID;
+                                                   bkp.LogData = x.LogData;
+                                                   return bkp;
+                                               }).ToList().CreateXmlFile(LogFile.FullName);
 
         /// <summary>
         /// Seta um usuario como offline e cria uma entrada no log
@@ -407,6 +428,8 @@ namespace InnerLibs.Online
         /// </summary>
         /// <returns></returns>
         public IEnumerable<OnlineUser<UserType, IdType>> Users() => this.Select(x => x.Value);
+
+        #endregion Public Methods
     }
 
     /// <summary>
@@ -418,13 +441,23 @@ namespace InnerLibs.Online
         where UserType : class
         where IdType : struct
     {
+        #region Internal Fields
+
         internal OnlineList<UserType, IdType> OnlineList;
+
+        #endregion Internal Fields
+
+        #region Internal Constructors
 
         internal OnlineUser(UserType Data, OnlineList<UserType, IdType> list)
         {
             User = Data;
             OnlineList = list;
         }
+
+        #endregion Internal Constructors
+
+        #region Public Properties
 
         /// <summary>
         /// Conversas deste usuário
@@ -473,6 +506,10 @@ namespace InnerLibs.Online
         /// <returns></returns>
         public UserType User { get; private set; }
 
+        #endregion Public Properties
+
+        #region Public Methods
+
         /// <summary>
         /// Retorna uma lista de conversas com um usuario específico ou todas
         /// </summary>
@@ -496,6 +533,8 @@ namespace InnerLibs.Online
         public UserConversation<UserType, IdType> SendMessage(UserType ToUser, string Message) => OnlineList.Chat.Send(User, ToUser, Message);
 
         public override string ToString() => User.ToString();
+
+        #endregion Public Methods
     }
 
     /// <summary>
@@ -507,20 +546,38 @@ namespace InnerLibs.Online
         where UserType : class
         where IdType : struct
     {
+        #region Internal Fields
+
         internal OnlineList<UserType, IdType> ChatList;
+
+        #endregion Internal Fields
+
+        #region Internal Constructors
 
         internal UserChat(OnlineList<UserType, IdType> List) : base()
         {
             ChatList = List;
         }
 
+        #endregion Internal Constructors
+
+        #region Public Constructors
+
         public UserChat() : base()
         {
         }
 
+        #endregion Public Constructors
+
+        #region Public Properties
+
         public Encoding Encoding { get; set; } = new UTF8Encoding(false);
 
         public IEnumerable<string> IDs => this.Select(x => x.ID);
+
+        #endregion Public Properties
+
+        #region Public Methods
 
         /// <summary>
         /// Apaga uma conversa com um usuário
@@ -570,6 +627,8 @@ namespace InnerLibs.Online
             Add(i);
             return i;
         }
+
+        #endregion Public Methods
     }
 
     /// <summary>
@@ -581,16 +640,30 @@ namespace InnerLibs.Online
         where UserType : class
         where IdType : struct
     {
+        #region Internal Fields
+
         internal UserChat<UserType, IdType> chatlist;
+
+        #endregion Internal Fields
+
+        #region Internal Constructors
 
         internal UserConversation(UserChat<UserType, IdType> chatlist)
         {
             this.chatlist = chatlist;
         }
 
+        #endregion Internal Constructors
+
+        #region Public Constructors
+
         public UserConversation() : base()
         {
         }
+
+        #endregion Public Constructors
+
+        #region Public Properties
 
         /// <summary>
         /// Id do usuário emissor
@@ -648,6 +721,10 @@ namespace InnerLibs.Online
         /// </summary>
         /// <returns></returns>
         public DateTime? ViewedDate { get; set; } = default;
+
+        #endregion Public Properties
+
+        #region Public Methods
 
         /// <summary>
         /// Usuario Emissor
@@ -716,34 +793,58 @@ namespace InnerLibs.Online
         /// </summary>
         /// <returns></returns>
         public OnlineUser<UserType, IdType> ToUser() => chatlist.ChatList.UserById(ToUserID);
+
+        #endregion Public Methods
     }
 
     public class UserConversationBackup
     {
+        #region Public Properties
+
         public string FromUserID { get; set; }
         public string ID { get; set; }
         public string Message { get; set; }
         public DateTime SentDate { get; set; }
         public string ToUserID { get; set; }
         public DateTime? ViewedDate { get; set; }
+
+        #endregion Public Properties
     }
 
     public class UserLog<UserType, IdType> : List<UserLogEntry<UserType, IdType>>
-                        where UserType : class
+                     where UserType : class
         where IdType : struct
     {
+        #region Internal Fields
+
         internal OnlineList<UserType, IdType> OnlineList;
+
+        #endregion Internal Fields
+
+        #region Internal Constructors
 
         internal UserLog(OnlineList<UserType, IdType> List) : base()
         {
             OnlineList = List;
         }
 
+        #endregion Internal Constructors
+
+        #region Public Constructors
+
         public UserLog() : base()
         {
         }
 
+        #endregion Public Constructors
+
+        #region Public Properties
+
         public IEnumerable<string> IDs => this.Select(x => x.ID);
+
+        #endregion Public Properties
+
+        #region Public Methods
 
         /// <summary>
         /// Cria uma entrada no log deste usuário com uma data especifica
@@ -780,6 +881,8 @@ namespace InnerLibs.Online
 
             return null;
         }
+
+        #endregion Public Methods
     }
 
     /// <summary>
@@ -791,13 +894,23 @@ namespace InnerLibs.Online
         where UserType : class
         where IdType : struct
     {
+        #region Internal Fields
+
         internal OnlineList<UserType, IdType> list;
+
+        #endregion Internal Fields
+
+        #region Internal Constructors
 
         internal UserLogEntry(IdType ID, OnlineList<UserType, IdType> list) : base()
         {
             UserID = ID;
             this.list = list;
         }
+
+        #endregion Internal Constructors
+
+        #region Public Properties
 
         /// <summary>
         /// Data e hora da ocorrência
@@ -835,10 +948,16 @@ namespace InnerLibs.Online
         /// <returns></returns>
         public IdType UserID { get; set; }
 
+        #endregion Public Properties
+
+        #region Public Methods
+
         /// <summary>
         /// Usuário
         /// </summary>
         /// <returns></returns>
         public OnlineUser<UserType, IdType> GetUser() => list.UserById(UserID);
+
+        #endregion Public Methods
     }
 }

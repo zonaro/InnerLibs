@@ -9,16 +9,17 @@ namespace InnerLibs
     /// </summary>
     public static class PredefinedArrays
     {
+        #region Public Properties
+
         public static IEnumerable<string> AlphaChars => AlphaUpperChars.Union(AlphaLowerChars).OrderBy(x => x).AsEnumerable();
         public static IEnumerable<string> AlphaLowerChars => LowerConsonants.Union(LowerVowels).OrderBy(x => x).AsEnumerable();
         public static IEnumerable<string> AlphaNumericChars => AlphaChars.Union(NumberChars).AsEnumerable();
         public static IEnumerable<string> AlphaUpperChars => AlphaLowerChars.Select(x => x.ToUpper());
         public static IEnumerable<string> BreakLineChars => new[] { Environment.NewLine, "\t", "\n", "\r", "\r\n", "<br>", "<br/>", "<br />" }.AsEnumerable();
-        public static IEnumerable<string> IdentChars => new[] { "\t" }.AsEnumerable();
         public static IEnumerable<string> CloseWrappers => new[] { Text.DoubleQuoteChar, InnerLibs.Text.SingleQuoteChar, ")", "}", "]", ">", "`" }.AsEnumerable();
         public static IEnumerable<string> Consonants => UpperConsonants.Union(LowerConsonants).AsEnumerable();
-        public static IEnumerable<string> Punctuation => EndOfSentencePunctuation.Union(MidSentencePunctuation).AsEnumerable();
         public static IEnumerable<string> EndOfSentencePunctuation => new[] { ".", "?", "!" }.AsEnumerable();
+        public static IEnumerable<string> IdentChars => new[] { "\t" }.AsEnumerable();
         public static IEnumerable<string> InvisibleChars => WhiteSpaceChars.Union(BreakLineChars).Union(IdentChars).AsEnumerable();
         public static IEnumerable<string> LowerConsonants => new[] { "b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n", "p", "q", "r", "s", "t", "v", "w", "x", "z" }.AsEnumerable();
         public static IEnumerable<string> LowerVowels => new[] { "a", "e", "i", "o", "u", "y" }.AsEnumerable();
@@ -29,6 +30,7 @@ namespace InnerLibs
         public static IEnumerable<Type> NumericTypes => new[] { typeof(float), typeof(ushort), typeof(short), typeof(int), typeof(uint), typeof(ulong), typeof(long), typeof(double), typeof(decimal) }.AsEnumerable();
         public static IEnumerable<string> OpenWrappers => new[] { Text.DoubleQuoteChar, InnerLibs.Text.SingleQuoteChar, "(", "{", "[", "<", "`" }.AsEnumerable();
         public static IEnumerable<string> PasswordSpecialChars => SpecialChars.Union(WordWrappers).Union(EndOfSentencePunctuation).Union(MidSentencePunctuation).Where(x => x.IsNotAny(Text.DoubleQuoteChar, "\'")).AsEnumerable();
+        public static IEnumerable<string> Punctuation => EndOfSentencePunctuation.Union(MidSentencePunctuation).AsEnumerable();
         public static IEnumerable<char> RegexChars => new[] { '.', '$', '^', '{', '[', '(', '|', ')', '*', '+', '?', '|' }.AsEnumerable();
         public static IEnumerable<string> Slashes => new[] { "|", @"\", "/" }.AsEnumerable();
         public static IEnumerable<string> SpecialChars => new[] { "@", "#", "$", "%", "&" }.AsEnumerable();
@@ -40,5 +42,7 @@ namespace InnerLibs
         public static IEnumerable<string> WhiteSpaceChars => new[] { " ", "&nbsp;" }.AsEnumerable();
         public static IEnumerable<string> WordSplitters => InvisibleChars.Union(PasswordSpecialChars).AsEnumerable();
         public static IEnumerable<string> WordWrappers => OpenWrappers.Union(CloseWrappers);
+
+        #endregion Public Properties
     }
 }

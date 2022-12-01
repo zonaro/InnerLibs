@@ -8,11 +8,16 @@ namespace InnerLibs
     /// </summary>
     public class QuantityTextPair
     {
+        #region Public Constructors
+
         /// <summary>
         /// Create a QuantityTextPair with a Plural word and, optionally, Singular Word
         /// </summary>
         /// <param name="Plural">the plural word for the specified item</param>
-        /// <param name="Singular">the singular word for specified item. If ommited, is automatically computed by <see cref="Text.QuantifyText(decimal, string)"/>.</param>
+        /// <param name="Singular">
+        /// the singular word for specified item. If ommited, is automatically computed by <see
+        /// cref="Text.QuantifyText(decimal, string)"/>.
+        /// </param>
         public QuantityTextPair(string Plural, string Singular = InnerLibs.Text.Empty)
         {
             this.Plural = Plural;
@@ -26,9 +31,9 @@ namespace InnerLibs
         {
         }
 
-        public string Plural { get; set; } = "Items";
+        #endregion Public Constructors
 
-        public string Singular { get; set; } = "Item";
+        #region Public Indexers
 
         /// <summary>
         /// Return the singular or plural word based on <paramref name="Number"/>
@@ -62,6 +67,26 @@ namespace InnerLibs
             }
         }
 
+        #endregion Public Indexers
+
+        #region Public Properties
+
+        public string Plural { get; set; } = "Items";
+
+        public string Singular { get; set; } = "Item";
+
+        #endregion Public Properties
+
+        #region Public Methods
+
+        public static implicit operator QuantityTextPair(string b)
+        {
+            var parts = b.SplitAny(":", "/", ";");
+            return new QuantityTextPair(parts.FirstOrDefault().IfBlank("Items"), parts.LastOrDefault().NullIf(parts.FirstOrDefault().IfBlank(InnerLibs.Text.Empty)));
+        }
+
+        public static implicit operator string(QuantityTextPair b) => b.ToString();
+
         public override string ToString() => Plural;
 
         public string ToString(long Number) => this[Number];
@@ -76,12 +101,6 @@ namespace InnerLibs
 
         public string ToString(float Number) => this[Number];
 
-        public static implicit operator string(QuantityTextPair b) => b.ToString();
-
-        public static implicit operator QuantityTextPair(string b)
-        {
-            var parts = b.SplitAny(":", "/", ";");
-            return new QuantityTextPair(parts.FirstOrDefault().IfBlank("Items"), parts.LastOrDefault().NullIf(parts.FirstOrDefault().IfBlank(InnerLibs.Text.Empty)));
-        }
+        #endregion Public Methods
     }
 }

@@ -5,12 +5,16 @@ namespace InnerLibs.TimeMachine
 {
     public class Fortnight : DateRange
     {
+        #region Private Fields
+
         private static string _format;
 
+        #endregion Private Fields
+
+        #region Public Constructors
 
         public Fortnight() : this(DateTime.Now)
         {
-
         }
 
         /// <summary>
@@ -20,6 +24,10 @@ namespace InnerLibs.TimeMachine
         public Fortnight(DateTime? AnyDate) : base(AnyDate.OrNow().FirstDayOfFortnight(), AnyDate.OrNow().LastDayOfFortnight())
         {
         }
+
+        #endregion Public Constructors
+
+        #region Public Properties
 
         /// <summary>
         /// Define o formato global de uma string de uma <see cref="Fortnight"/>
@@ -38,7 +46,9 @@ namespace InnerLibs.TimeMachine
         /// <returns></returns>
         public int Number => EndDate.Day <= 15 ? 1 : 2;
 
+        #endregion Public Properties
 
+        #region Public Methods
 
         /// <summary>
         /// Retorna a Key de um <see cref="Fortnight"/> em um formato especifico.
@@ -142,5 +152,6 @@ namespace InnerLibs.TimeMachine
 
         public override string ToString() => FormatName();
 
+        #endregion Public Methods
     }
 }

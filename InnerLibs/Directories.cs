@@ -12,6 +12,8 @@ namespace InnerLibs
     /// <remarks></remarks>
     public static class Directories
     {
+        #region Public Methods
+
         /// <summary>
         /// Remove todos os subdiretorios vazios
         /// </summary>
@@ -178,36 +180,6 @@ namespace InnerLibs
         public static bool DeleteIfExist(this FileSystemInfo Path) => Path.FullName.DeleteIfExist();
 
         /// <summary>
-        /// Retorna uma lista de arquivos ou diretórios baseado em uma busca usando predicate
-        /// </summary>
-        /// <param name="Directory">Diretório</param>
-        /// <param name="predicate">Funcao LINQ utilizada para a busca</param>
-        /// <param name="SearchOption">
-        /// Indica se apenas o diretorio atual ou todos os subdiretorios devem ser percorridos pela busca
-        /// </param>
-        /// <returns></returns>
-        public static IEnumerable<FindType> Where<FindType>(this DirectoryInfo Directory, Func<FindType, bool> predicate, SearchOption SearchOption = SearchOption.AllDirectories) where FindType : FileSystemInfo
-        {
-            switch (typeof(FindType))
-            {
-                case var @case when @case == typeof(FileInfo):
-                    {
-                        return (IEnumerable<FindType>)Directory.GetFiles("*", SearchOption).Where((Func<FileInfo, bool>)predicate);
-                    }
-
-                case var case1 when case1 == typeof(DirectoryInfo):
-                    {
-                        return (IEnumerable<FindType>)Directory.GetDirectories("*", SearchOption).Where((Func<DirectoryInfo, bool>)predicate);
-                    }
-
-                default:
-                    {
-                        return (IEnumerable<FindType>)Directory.GetFileSystemInfos("*", SearchOption).Where((Func<FileSystemInfo, bool>)predicate);
-                    }
-            }
-        }
-
-        /// <summary>
         /// Verifica se um diretório possui subdiretórios
         /// </summary>
         /// <param name="Directory">Diretório</param>
@@ -246,6 +218,8 @@ namespace InnerLibs
         /// <param name="Directory">Diretório</param>
         /// <returns></returns>
         public static bool IsNotEmpty(this DirectoryInfo Directory) => !Directory.IsEmpty();
+
+        public static bool IsVisible<T>(this T dir) where T : FileSystemInfo => dir != null && dir.Exists && dir.Attributes.HasFlag(FileAttributes.Hidden) == false;
 
         public static IEnumerable<string> ReadManyText(this DirectoryInfo directory, SearchOption Option, params string[] Patterns) => directory.SearchFiles(Option, Patterns).Select(x => x.ReadAllText());
 
@@ -356,8 +330,6 @@ namespace InnerLibs
             return Directory.SearchFiles(SearchOption, Searches).Where(file => file.LastWriteTime.IsBetween(FirstDate, SecondDate)).OrderByDescending(f => f.LastWriteTime.Year <= 1601 ? f.CreationTime : f.LastWriteTime).ToList();
         }
 
-        public static T ToggleVisibility<T>(this T dir) where T : FileSystemInfo => dir.IsVisible() ? dir.Hide() : dir.Show();
-
         public static T Show<T>(this T dir) where T : FileSystemInfo
         {
             if (dir != null && dir.Exists)
@@ -369,7 +341,39 @@ namespace InnerLibs
             }
             return dir;
         }
-        public static bool IsVisible<T>(this T dir) where T : FileSystemInfo => dir != null && dir.Exists && dir.Attributes.HasFlag(FileAttributes.Hidden) == false;
 
+        public static T ToggleVisibility<T>(this T dir) where T : FileSystemInfo => dir.IsVisible() ? dir.Hide() : dir.Show();
+
+        /// <summary>
+        /// Retorna uma lista de arquivos ou diretórios baseado em uma busca usando predicate
+        /// </summary>
+        /// <param name="Directory">Diretório</param>
+        /// <param name="predicate">Funcao LINQ utilizada para a busca</param>
+        /// <param name="SearchOption">
+        /// Indica se apenas o diretorio atual ou todos os subdiretorios devem ser percorridos pela busca
+        /// </param>
+        /// <returns></returns>
+        public static IEnumerable<FindType> Where<FindType>(this DirectoryInfo Directory, Func<FindType, bool> predicate, SearchOption SearchOption = SearchOption.AllDirectories) where FindType : FileSystemInfo
+        {
+            switch (typeof(FindType))
+            {
+                case var @case when @case == typeof(FileInfo):
+                    {
+                        return (IEnumerable<FindType>)Directory.GetFiles("*", SearchOption).Where((Func<FileInfo, bool>)predicate);
+                    }
+
+                case var case1 when case1 == typeof(DirectoryInfo):
+                    {
+                        return (IEnumerable<FindType>)Directory.GetDirectories("*", SearchOption).Where((Func<DirectoryInfo, bool>)predicate);
+                    }
+
+                default:
+                    {
+                        return (IEnumerable<FindType>)Directory.GetFileSystemInfos("*", SearchOption).Where((Func<FileSystemInfo, bool>)predicate);
+                    }
+            }
+        }
+
+        #endregion Public Methods
     }
 }

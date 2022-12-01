@@ -7,9 +7,11 @@ namespace InnerLibs.TimeMachine
 {
     public class FortnightGroup<DataType> : FortnightGroup
     {
+        #region Public Constructors
+
         /// <summary>
-        /// Instancia um novo <see cref="FortnightGroup{DataType}"/> a partir de uma data inicial
-        /// e um numero fixo de quinzenas
+        /// Instancia um novo <see cref="FortnightGroup{DataType}"/> a partir de uma data inicial e
+        /// um numero fixo de quinzenas
         /// </summary>
         /// <param name="StartDate"></param>
         /// <param name="FortnightCount"></param>
@@ -17,8 +19,9 @@ namespace InnerLibs.TimeMachine
         {
         }
 
-        public List<DataType> DataCollection { get; set; } = new List<DataType>();
-        public List<Func<DataType, DateTime>> DateSelector { get; set; } = new List<Func<DataType, DateTime>>();
+        #endregion Public Constructors
+
+        #region Public Indexers
 
         /// <summary>
         /// Retorna da <see cref="DataCollection"/> os valores correspondentes a quinzena especificada
@@ -62,6 +65,17 @@ namespace InnerLibs.TimeMachine
                 return lista;
             }
         }
+
+        #endregion Public Indexers
+
+        #region Public Properties
+
+        public List<DataType> DataCollection { get; set; } = new List<DataType>();
+        public List<Func<DataType, DateTime>> DateSelector { get; set; } = new List<Func<DataType, DateTime>>();
+
+        #endregion Public Properties
+
+        #region Public Methods
 
         /// <summary>
         /// Cria um <see cref="FortnightGroup(Of DataType)"/> a partir de uma coleção de objetos
@@ -126,7 +140,7 @@ namespace InnerLibs.TimeMachine
         /// <param name="StartDate">Data inicial</param>
         /// <param name="EndDate">Data Final</param>
         /// <returns></returns>
-        public static new FortnightGroup<DataType> CreateFromDateRange(DateTime StartDate, DateTime EndDate)
+        public new static FortnightGroup<DataType> CreateFromDateRange(DateTime StartDate, DateTime EndDate)
         {
             Misc.FixOrder(ref StartDate, ref EndDate);
             int fortcount = 0;
@@ -146,7 +160,7 @@ namespace InnerLibs.TimeMachine
         /// <param name="StartDate">Data inicial</param>
         /// <param name="EndDate">Data Final</param>
         /// <returns></returns>
-        public static new FortnightGroup<DataType> CreateFromDateRange(DateRange DateRange) => CreateFromDateRange(DateRange.StartDate, DateRange.EndDate);
+        public new static FortnightGroup<DataType> CreateFromDateRange(DateRange DateRange) => CreateFromDateRange(DateRange.StartDate, DateRange.EndDate);
 
         /// <summary>
         /// Retorna um <see cref="Dictionary(Of String, DataType)"/> com as informações agrupadas
@@ -167,6 +181,8 @@ namespace InnerLibs.TimeMachine
 
             return d;
         }
+
+        #endregion Public Methods
     }
 
     /// <summary>
@@ -174,6 +190,8 @@ namespace InnerLibs.TimeMachine
     /// </summary>
     public class FortnightGroup : ReadOnlyCollection<Fortnight>
     {
+        #region Private Methods
+
         /// <summary>
         /// Instancia um novo <see cref="FortnightGroup"/> a partir de uma data e um numero de quinzenas
         /// </summary>
@@ -194,6 +212,10 @@ namespace InnerLibs.TimeMachine
             return l;
         }
 
+        #endregion Private Methods
+
+        #region Public Constructors
+
         /// <summary>
         /// Instancia um novo <see cref="FortnightGroup"/> a partir de uma data e um numero de quinzenas
         /// </summary>
@@ -202,6 +224,28 @@ namespace InnerLibs.TimeMachine
         public FortnightGroup(DateTime StartDate = default, int FortnightCount = 1) : base(GerarLista(StartDate, FortnightCount))
         {
         }
+
+        #endregion Public Constructors
+
+        #region Public Indexers
+
+        /// <summary>
+        /// Retorna uma quinzena a partir da sua Key
+        /// </summary>
+        /// <param name="Key"></param>
+        /// <returns></returns>
+        public Fortnight this[string Key] => base[IndexOf(this.Where(x => (x.Key ?? InnerLibs.Text.Empty) == (Key ?? InnerLibs.Text.Empty)).SingleOrDefault())];
+
+        /// <summary>
+        /// Retorna uma quinzena a partir da sua Index
+        /// </summary>
+        /// <param name="Index"></param>
+        /// <returns></returns>
+        public new Fortnight this[int Index] => base[Index];
+
+        #endregion Public Indexers
+
+        #region Public Properties
 
         /// <summary>
         /// Retorna uma lista com todos os dias entre as quinzenas
@@ -227,19 +271,9 @@ namespace InnerLibs.TimeMachine
         /// <returns></returns>
         public DateTime StartDate => this.First().StartDate;
 
-        /// <summary>
-        /// Retorna uma quinzena a partir da sua Key
-        /// </summary>
-        /// <param name="Key"></param>
-        /// <returns></returns>
-        public Fortnight this[string Key] => base[IndexOf(this.Where(x => (x.Key ?? InnerLibs.Text.Empty) == (Key ?? InnerLibs.Text.Empty)).SingleOrDefault())];
+        #endregion Public Properties
 
-        /// <summary>
-        /// Retorna uma quinzena a partir da sua Index
-        /// </summary>
-        /// <param name="Index"></param>
-        /// <returns></returns>
-        public new Fortnight this[int Index] => base[Index];
+        #region Public Methods
 
         /// <summary>
         /// Cria um grupo de quinzenas entre 2 datas
@@ -265,5 +299,7 @@ namespace InnerLibs.TimeMachine
         /// <param name="Range">Periodo</param>
         /// <returns></returns>
         public static FortnightGroup CreateFromDateRange(DateRange Range) => CreateFromDateRange(Range.StartDate, Range.EndDate);
+
+        #endregion Public Methods
     }
 }

@@ -10,12 +10,11 @@
         /// <summary>
         /// Abreviado
         /// </summary>
-
         ShortName = 1,
+
         /// <summary>
         /// Completo
         /// </summary>
-
         LongName = 0
     }
 }

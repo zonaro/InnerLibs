@@ -15,6 +15,8 @@ namespace InnerLibs
     /// </summary>
     public static class FileTypeExtensions
     {
+        #region Public Methods
+
         /// <summary>
         /// Retorna o Mime T a partir da extensão de um arquivo
         /// </summary>
@@ -83,6 +85,8 @@ namespace InnerLibs
         /// <param name="MimeTypeOrExtensionOrPathOrDataURI"></param>
         /// <returns></returns>
         public static FileType ToFileType(this string MimeTypeOrExtensionOrPathOrDataURI) => new FileType(MimeTypeOrExtensionOrPathOrDataURI);
+
+        #endregion Public Methods
     }
 
     /// <summary>
@@ -90,7 +94,13 @@ namespace InnerLibs
     /// </summary>
     public class FileType
     {
+        #region Private Fields
+
         private static FileTypeList BaseList = new FileTypeList();
+
+        #endregion Private Fields
+
+        #region Internal Methods
 
         internal void Build(string Extension, FileTypeList FileTypeList = null)
         {
@@ -99,6 +109,10 @@ namespace InnerLibs
             MimeTypes = item.MimeTypes;
             Description = item.Description.ToProperCase();
         }
+
+        #endregion Internal Methods
+
+        #region Public Constructors
 
         /// <summary>
         /// Constroi um MIME T Default
@@ -118,6 +132,10 @@ namespace InnerLibs
         /// </summary>
         /// <param name="MimeTypeOrExtensionOrPathOrDataURI">Extensão do arquivo</param>
         public FileType(string MimeTypeOrExtensionOrPathOrDataURI, FileTypeList FileTypeList = null) => Build(MimeTypeOrExtensionOrPathOrDataURI.ToLower(), FileTypeList);
+
+        #endregion Public Constructors
+
+        #region Public Properties
 
         /// <summary>
         /// Descrição do tipo de arquivo
@@ -148,6 +166,10 @@ namespace InnerLibs
         /// </summary>
         /// <returns></returns>
         public IEnumerable<string> Types => GetMimeTypesOrDefault().Select(p => p.ToLower().Trim().GetBefore("/")).Distinct();
+
+        #endregion Public Properties
+
+        #region Public Methods
 
         /// <summary>
         /// Traz uma lista de extensões de acordo com o MIME type especificado
@@ -202,8 +224,6 @@ namespace InnerLibs
             {
                 MimeTypeOrExtensionOrPathOrDataURI = "." + MimeTypeOrExtensionOrPathOrDataURI.TrimAny(true, " ", ".");
             }
-
-
 
             return (FileTypeList ?? GetFileTypeList()).FirstOr(x => x.Extensions.ToArray().Union(x.GetMimeTypesOrDefault().ToArray()).Contains(MimeTypeOrExtensionOrPathOrDataURI, StringComparer.InvariantCultureIgnoreCase), new FileType());
         }
@@ -320,6 +340,8 @@ namespace InnerLibs
         /// </summary>
         /// <returns></returns>
         public override string ToString() => GetMimeTypesOrDefault().First();
+
+        #endregion Public Methods
     }
 
     /// <summary>
@@ -327,6 +349,8 @@ namespace InnerLibs
     /// </summary>
     public class FileTypeList : List<FileType>
     {
+        #region Public Constructors
+
         /// <summary>
         /// Cria uma nova lista vazia
         /// </summary>
@@ -372,6 +396,10 @@ namespace InnerLibs
         {
         }
 
+        #endregion Public Constructors
+
+        #region Public Properties
+
         public IEnumerable<string> Descriptions => (IEnumerable<string>)this.SelectMany(x => x.Description).Distinct();
 
         /// <summary>
@@ -390,6 +418,10 @@ namespace InnerLibs
 
         public IEnumerable<string> SubTypes => this.SelectMany(x => x.SubTypes).Distinct();
 
+        #endregion Public Properties
+
+        #region Public Methods
+
         /// <summary>
         /// Busca arquivos que correspondam com as extensões desta lista
         /// </summary>
@@ -403,5 +435,7 @@ namespace InnerLibs
         /// </summary>
         /// <returns></returns>
         public string ToFilterString() => this.SelectJoinString(x => x.ToFilterString(), "|");
+
+        #endregion Public Methods
     }
 }

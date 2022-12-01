@@ -16,6 +16,8 @@ namespace InnerLibs
     /// <remarks></remarks>
     public static class Web
     {
+        #region Public Methods
+
         /// <summary>
         /// Adciona um parametro a Query String de uma URL
         /// </summary>
@@ -54,6 +56,30 @@ namespace InnerLibs
         /// <returns></returns>
         public static Uri AddParameter(this Uri Url, string Key, params string[] Values) => Url.AddParameter(Key, true, Values);
 
+        public static byte[] DownloadFile(this string URL)
+        {
+            byte[] s;
+            using (var c = new WebClient())
+            {
+                s = c.DownloadData(URL);
+            }
+
+            return s;
+        }
+
+        public static System.Drawing.Image DownloadImage(this string URL) => DownloadFile(URL).ToImage();
+
+        public static string DownloadString(this string URL)
+        {
+            string s = InnerLibs.Text.Empty;
+            using (var c = new WebClient())
+            {
+                s = $"{c.DownloadString(URL)}";
+            }
+
+            return s;
+        }
+
         /// <summary>
         /// Retorna o Titulo do arquivo a partir do nome do arquivo
         /// </summary>
@@ -74,8 +100,8 @@ namespace InnerLibs
         /// <param name="URL">URL do Facebook</param>
         /// <returns></returns>
         public static string GetFacebookUsername(this string URL) => URL.IsURL() && URL.GetDomain().ToLower().IsAny("facebook.com", "fb.com")
-                ? Regex.Match(URL, @"(?:(?:http|https):\/\/)?(?:www.)?facebook.com\/(?:(?:\w)*#!\/)?(?:pages\/)?(?:[?\w\-]*\/)?(?:profile.php\?id=(?=\d.*))?([\w\-]*)?").Groups[1].Value
-                : throw new Exception("Invalid Facebook URL");
+               ? Regex.Match(URL, @"(?:(?:http|https):\/\/)?(?:www.)?facebook.com\/(?:(?:\w)*#!\/)?(?:pages\/)?(?:[?\w\-]*\/)?(?:profile.php\?id=(?=\d.*))?([\w\-]*)?").Groups[1].Value
+                 : throw new Exception("Invalid Facebook URL");
 
         /// <summary>
         /// Captura o Username ou UserID de uma URL do Facebook
@@ -84,18 +110,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string GetFacebookUsername(this Uri URL) => URL.AbsoluteUri.GetFacebookUsername();
 
-        public static byte[] DownloadFile(this string URL)
-        {
-            byte[] s;
-            using (var c = new WebClient())
-            {
-                s = c.DownloadData(URL);
-            }
-
-            return s;
-        }
-
-        public static System.Drawing.Image DownloadImage(this string URL) => DownloadFile(URL).ToImage();
+        public static IEnumerable<string> GetIPs() => GetLocalIP().Union(new[] { GetPublicIP() });
 
         public static IEnumerable<string> GetLocalIP()
         {
@@ -116,19 +131,6 @@ namespace InnerLibs
             return IP.Trim();
         }
 
-        public static IEnumerable<string> GetIPs() => GetLocalIP().Union(new[] { GetPublicIP() });
-
-        public static string DownloadString(this string URL)
-        {
-            string s = InnerLibs.Text.Empty;
-            using (var c = new WebClient())
-            {
-                s = $"{c.DownloadString(URL)}";
-            }
-
-            return s;
-        }
-
         /// <summary>
         /// Retorna os segmentos de uma url
         /// </summary>
@@ -147,6 +149,18 @@ namespace InnerLibs
             return l;
         }
 
+        /// <summary>
+        /// Captura o ID de um video do YOUTUBE ou VIMEO em uma URL
+        /// </summary>
+        /// <param name="URL">URL do video</param>
+        /// <returns>ID do video do youtube ou Vimeo</returns>
+        /// <summary>
+        /// Captura o ID de um video do youtube em uma URL
+        /// </summary>
+        /// <param name="URL">URL do video</param>
+        /// <returns>ID do video do youtube</returns>
+        public static string GetVideoId(this Uri URL) => GetVideoID(URL.AbsoluteUri);
+
         public static string GetVideoID(this string URL)
         {
             if (URL.IsURL())
@@ -163,18 +177,6 @@ namespace InnerLibs
 
             throw new Exception("Invalid Youtube or Vimeo URL");
         }
-
-        /// <summary>
-        /// Captura o ID de um video do YOUTUBE ou VIMEO em uma URL
-        /// </summary>
-        /// <param name="URL">URL do video</param>
-        /// <returns>ID do video do youtube ou Vimeo</returns>
-        /// <summary>
-        /// Captura o ID de um video do youtube em uma URL
-        /// </summary>
-        /// <param name="URL">URL do video</param>
-        /// <returns>ID do video do youtube</returns>
-        public static string GetVideoId(this Uri URL) => GetVideoID(URL.AbsoluteUri);
 
         /// <summary>
         /// Captura a Thumbnail de um video do youtube
@@ -289,5 +291,7 @@ namespace InnerLibs
 
             return UrlPattern.TrimLastEqual("/");
         }
+
+        #endregion Public Methods
     }
 }

@@ -7,7 +7,13 @@ namespace InnerLibs
     [Obsolete("Experimental Cryptography. Insecure")]
     public static class InnerCrypt
     {
+        #region Private Properties
+
         private static string[] Array_letras => PredefinedArrays.AlphaChars.ToArray();
+
+        #endregion Private Properties
+
+        #region Public Methods
 
         /// <summary>
         /// Criptografa uma suma string usando a logica InnerCrypt
@@ -51,5 +57,7 @@ namespace InnerLibs
                 return null;
             }
         }
+
+        #endregion Public Methods
     }
 }

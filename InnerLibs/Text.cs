@@ -20,18 +20,16 @@ namespace InnerLibs
     /// <remarks></remarks>
     public static class Text
     {
+        #region Public Fields
+
         public const string DoubleQuoteChar = "\"";
-        public const string SingleQuoteChar = "\'";
         public const string Empty = "";
-        private const string WhitespaceChar = " ";
+        public const string SingleQuoteChar = "\'";
+        public const string WhitespaceChar = " ";
 
-        public static bool HasLength(this string Text, int Length) => Text != null && Text.Length == Length;
-        public static bool HasMinLength(this string Text, int Length) => Text != null && Text.Length >= Length;
-        public static bool HasMaxLength(this string Text, int Length) => Text != null && Text.Length <= Length;
+        #endregion Public Fields
 
-        public static bool EqualsIgnoreCase(this string Text, string CompareText) => string.Equals(Text ?? "", CompareText ?? "", StringComparison.OrdinalIgnoreCase);
-        public static bool EqualsIgnoreCaseAndAccents(this string Text, string CompareText) => EqualsIgnoreCase(Text.RemoveAccents(), CompareText.RemoveAccents());
-
+        #region Public Methods
 
         /// <summary>
         /// Retorna uma string em ordem afabética baseada em uma outra string
@@ -131,6 +129,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string ApplySpaceOnWrapChars(this string Text)
         {
+            Text = Text ?? Empty;
             foreach (var c in PredefinedArrays.WordWrappers)
             {
                 Text = Text.Replace(c, WhitespaceChar + c + WhitespaceChar);
@@ -140,11 +139,11 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Encapsula um texto em uma caixa
+        /// Encapsula um texto em uma caixa. Funciona somente com fonte monoespaçadas
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static string BoxText(this string Text)
+        public static string BoxText(this string Text, char BoxChar = '*')
         {
             var Lines = Text.SplitAny(PredefinedArrays.BreakLineChars.ToArray()).ToList();
             string linha_longa = string.Empty;
@@ -161,13 +160,13 @@ namespace InnerLibs
 
             for (int i = 0, loopTo1 = Lines.Count - 1; i <= loopTo1; i++)
             {
-                Lines[i] = $"* {Lines[i]} *";
+                Lines[i] = $"{BoxChar} {Lines[i]} {BoxChar}";
             }
 
             charcount = Lines.Max(x => x.Length);
             while (linha_longa.Length < charcount)
             {
-                linha_longa += "* ";
+                linha_longa += $"{BoxChar} ";
             }
 
             linha_longa = linha_longa.Trim();
@@ -464,6 +463,10 @@ namespace InnerLibs
         public static bool EndsWithAny(this string Text, StringComparison comparison, params string[] Words) => Words.Any(p => Text.EndsWith(p, comparison));
 
         public static bool EndsWithAny(this string Text, params string[] Words) => EndsWithAny(Text, default, Words);
+
+        public static bool EqualsIgnoreCase(this string Text, string CompareText) => string.Equals(Text ?? "", CompareText ?? "", StringComparison.OrdinalIgnoreCase);
+
+        public static bool EqualsIgnoreCaseAndAccents(this string Text, string CompareText) => EqualsIgnoreCase(Text.RemoveAccents(), CompareText.RemoveAccents());
 
         /// <summary>
         /// Prepara uma string com aspas simples para uma Query TransactSQL
@@ -1023,6 +1026,31 @@ namespace InnerLibs
         public static string GetRelativeURL(this string URL, bool WithQueryString = true) => URL.IsURL() ? new Uri(URL).GetRelativeURL(WithQueryString) : null;
 
         /// <summary>
+        /// Corta um texto para exibir um numero máximo de caracteres ou na primeira quebra de linha.
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <param name="TextLength"></param>
+        /// <param name="Ellipsis"></param>
+        /// <returns></returns>
+        public static string GetTextPreview(this string Text, int TextLength = 0, string Ellipsis = "...", bool BeforeNewLine = true)
+        {
+            if (Text.IsBlank() || Text?.Length <= TextLength || TextLength <= 0)
+            {
+                return Text;
+            }
+            else
+            {
+                if (BeforeNewLine)
+                {
+                    Text = Text.TrimCarriage().GetBefore(Environment.NewLine);
+                    if (TextLength == 0) return Text;
+                }
+
+                return $"{Text.GetFirstChars(TextLength)}{Ellipsis ?? ""}";
+            }
+        }
+
+        /// <summary>
         /// Retorna uma lista de palavras encontradas no texto em ordem alfabetica
         /// </summary>
         /// <param name="Text"></param>
@@ -1064,6 +1092,12 @@ namespace InnerLibs
 
             return lista.ToArray();
         }
+
+        public static bool HasLength(this string Text, int Length) => Text != null && Text.Length == Length;
+
+        public static bool HasMaxLength(this string Text, int Length) => Text != null && Text.Length <= Length;
+
+        public static bool HasMinLength(this string Text, int Length) => Text != null && Text.Length >= Length;
 
         /// <summary>
         /// Retorna um texto com entidades HTML convertidas para caracteres e tags BR em breaklines
@@ -1366,7 +1400,6 @@ namespace InnerLibs
                 mask = "{0:+## (##) #####-####}";
 
             return string.Format(mask, long.Parse(Number.IfBlank("0")));
-
         }
 
         /// <inheritdoc cref="MaskTelephoneNumber(int)"/>
@@ -1387,7 +1420,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text">Texto</param>
         /// <param name="TotalLength">Tamanho total</param>
-        /// <param name="PaddingChar">Caractere</param> 
+        /// <param name="PaddingChar">Caractere</param>
         /// <returns></returns>
         public static string Pad(this string Text, int TotalLength, char PaddingChar = ' ')
         {
@@ -1501,6 +1534,10 @@ namespace InnerLibs
             }
         }
 
+        public static HtmlTag ParseTag(this string HtmlStringOrUrl) => HtmlTag.ParseTag(HtmlStringOrUrl);
+
+        public static IEnumerable<HtmlTag> ParseTags(this string HtmlStringOrUrl) => HtmlTag.Parse(HtmlStringOrUrl);
+
         /// <summary>
         /// Separa as palavras de um texto CamelCase a partir de suas letras maíusculas
         /// </summary>
@@ -1534,7 +1571,6 @@ namespace InnerLibs
                 }
 
                 Text += $"{c}";
-
             }
 
             return Text.Trim();
@@ -2440,31 +2476,6 @@ namespace InnerLibs
             }
 
             return phrase.SelectJoinString(WhitespaceChar).TrimBetween();
-        }
-
-        /// <summary>
-        /// Corta um texto para exibir um numero máximo de caracteres ou na primeira quebra de linha.
-        /// </summary>
-        /// <param name="Text"></param>
-        /// <param name="TextLength"></param>
-        /// <param name="Ellipsis"></param>
-        /// <returns></returns>
-        public static string GetTextPreview(this string Text, int TextLength = 0, string Ellipsis = "...", bool BeforeNewLine = true)
-        {
-            if (Text.IsBlank() || Text?.Length <= TextLength || TextLength <= 0)
-            {
-                return Text;
-            }
-            else
-            {
-                if (BeforeNewLine)
-                {
-                    Text = Text.TrimCarriage().GetBefore(Environment.NewLine);
-                    if (TextLength == 0) return Text;
-                }
-
-                return $"{Text.GetFirstChars(TextLength)}{Ellipsis ?? ""}";
-            }
         }
 
         /// <summary>
@@ -4465,10 +4476,13 @@ namespace InnerLibs
         /// <param name="Text">Texto</param>
         /// <returns></returns>
         public static string Wrap(this string Text, string OpenWrapText, string CloseWrapText) => $"{OpenWrapText}{Text}{CloseWrapText.IfBlank(OpenWrapText)}";
+
         public static HtmlTag WrapInTag(this IEnumerable<HtmlTag> Tags, string TagName) => new HtmlTag(TagName).AddChildren(Tags);
+
         public static HtmlTag WrapInTag(this HtmlTag Tag, string TagName) => new HtmlTag(TagName).AddChildren(Tag);
+
         public static HtmlTag WrapInTag(this string Text, string TagName) => new HtmlTag() { InnerHtml = Text, TagName = TagName };
-        public static IEnumerable<HtmlTag> ParseTags(this string HtmlStringOrUrl) => HtmlTag.Parse(HtmlStringOrUrl);
-        public static HtmlTag ParseTag(this string HtmlStringOrUrl) => HtmlTag.ParseTag(HtmlStringOrUrl);
+
+        #endregion Public Methods
     }
 }

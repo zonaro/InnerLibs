@@ -8,6 +8,8 @@ namespace InnerLibs
 {
     public class Paragraph : List<Sentence>
     {
+        #region Internal Constructors
+
         internal Paragraph(string Text, TextStructure StructuredText)
         {
             this.StructuredText = StructuredText;
@@ -26,11 +28,19 @@ namespace InnerLibs
             }
         }
 
+        #endregion Internal Constructors
+
+        #region Public Properties
+
         public TextStructure StructuredText { get; set; }
 
         public int WordCount => Words.Count();
 
         public IEnumerable<string> Words => this.SelectMany(x => x.Words);
+
+        #endregion Public Properties
+
+        #region Public Methods
 
         public static implicit operator string(Paragraph paragraph) => paragraph.ToString();
 
@@ -47,6 +57,8 @@ namespace InnerLibs
             //ss = ss.TrimBetween();
             return ss.PadLeft(ss.Length + Ident);
         }
+
+        #endregion Public Methods
     }
 
     /// <summary>
@@ -54,6 +66,8 @@ namespace InnerLibs
     /// </summary>
     public class Sentence : List<SentencePart>
     {
+        #region Internal Constructors
+
         internal Sentence(string Text, Paragraph Paragraph)
         {
             this.Paragraph = Paragraph;
@@ -146,11 +160,19 @@ namespace InnerLibs
             }
         }
 
+        #endregion Internal Constructors
+
+        #region Public Properties
+
         public Paragraph Paragraph { get; private set; }
 
         public int WordCount => Words.Count();
 
         public IEnumerable<string> Words => this.Where(x => x.IsWord).Select(x => x.Text);
+
+        #endregion Public Properties
+
+        #region Public Methods
 
         public static implicit operator string(Sentence sentence) => sentence.ToString();
 
@@ -176,6 +198,8 @@ namespace InnerLibs
 
             return sent;
         }
+
+        #endregion Public Methods
     }
 
     /// <summary>
@@ -183,11 +207,17 @@ namespace InnerLibs
     /// </summary>
     public class SentencePart
     {
+        #region Internal Constructors
+
         internal SentencePart(string Text, Sentence Sentence)
         {
             this.Text = Text.Trim();
             this.Sentence = Sentence;
         }
+
+        #endregion Internal Constructors
+
+        #region Public Properties
 
         /// <summary>
         /// Retorna TRUE se esta parte de senteça for um caractere de fechamento de encapsulamento
@@ -261,6 +291,10 @@ namespace InnerLibs
         /// <returns></returns>
         public string Text { get; set; }
 
+        #endregion Public Properties
+
+        #region Public Methods
+
         public static implicit operator string(SentencePart sentencePart) => sentencePart.ToString();
 
         public SentencePart GetMatchQuote()
@@ -307,6 +341,8 @@ namespace InnerLibs
 
             return Text;
         }
+
+        #endregion Public Methods
     }
 
     /// <summary>
@@ -314,7 +350,13 @@ namespace InnerLibs
     /// </summary>
     public class TextStructure : List<Paragraph>
     {
+        #region Private Fields
+
         private string _originaltext = InnerLibs.Text.Empty;
+
+        #endregion Private Fields
+
+        #region Public Constructors
 
         /// <summary>
         /// Cria um novo texto estruturado (dividido em paragrafos, sentenças e palavras)
@@ -324,6 +366,10 @@ namespace InnerLibs
         {
             Text = OriginalText;
         }
+
+        #endregion Public Constructors
+
+        #region Public Properties
 
         public int BreakLinesBetweenParagraph { get; set; } = 0;
         public int Ident { get; set; } = 0;
@@ -355,6 +401,10 @@ namespace InnerLibs
 
         public IEnumerable<string> Words => this.SelectMany(x => x.Words);
 
+        #endregion Public Properties
+
+        #region Public Methods
+
         public static implicit operator int(TextStructure s) => s.Count;
 
         public static implicit operator long(TextStructure s) => s.LongCount();
@@ -374,5 +424,7 @@ namespace InnerLibs
         /// </summary>
         /// <returns></returns>
         public override string ToString() => this.SelectJoinString(parag => parag.ToString(Ident), Enumerable.Range(1, 1 + BreakLinesBetweenParagraph.SetMinValue(0)).SelectJoinString(x => Environment.NewLine));
+
+        #endregion Public Methods
     }
 }

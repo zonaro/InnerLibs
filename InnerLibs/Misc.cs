@@ -17,6 +17,8 @@ namespace InnerLibs
 {
     public static class Misc
     {
+        #region Public Methods
+
         public static IEnumerable<TemplateMailAddress<T>> AddAttachmentFromData<T>(this IEnumerable<TemplateMailAddress<T>> recipients, Expression<Func<T, IEnumerable<System.Net.Mail.Attachment>>> AttachmentSelector) where T : class
         {
             if (AttachmentSelector != null)
@@ -29,9 +31,7 @@ namespace InnerLibs
                         {
                             if (rec.Attachments == null) rec.Attachments = new List<Attachment>();
                             rec.Attachments.AddRange(att.Where(x => x != null));
-
                         }
-
                     }
                 }
             return recipients;
@@ -54,7 +54,6 @@ namespace InnerLibs
                             if (rec.Attachments == null) rec.Attachments = new List<Attachment>();
                             rec.Attachments.Add(att);
                         }
-
                     }
                 }
             return recipients;
@@ -1636,5 +1635,7 @@ namespace InnerLibs
             ex = TryExecute(() => Callback?.Invoke(Obj));
             return Obj;
         }
+
+        #endregion Public Methods
     }
 }

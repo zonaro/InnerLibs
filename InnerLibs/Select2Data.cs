@@ -5,21 +5,12 @@ using System.Linq;
 
 namespace InnerLibs.Select2
 {
-    public interface ISelect2Option : ISelect2Result
-    {
-        bool Disabled { get; set; }
-        string ID { get; set; }
-        bool Selected { get; set; }
-    }
-
-    public interface ISelect2Result
-    {
-        string Text { get; set; }
-    }
-
     public static class Select2Extensions
     {
+        #region Public Methods
+
         public static Select2Data CreateSelect2Data<T>(this IEnumerable<T> List) where T : ISelect2Option => CreateSelect2Data<T, T>(List, x => x.Text, x => x.ID);
+
         public static Select2Data CreateSelect2Data(this IEnumerable<Select2Option> List) => CreateSelect2Data<Select2Option, Select2Option>(List, x => x.Text, x => x.ID);
 
         public static Select2Data CreateSelect2Data<OptionType, T>(this IEnumerable<T> List, Func<T, string> TextSelector, Func<T, string> IdSelector, Action<T, OptionType> OtherSelectors = null, Func<T, string> GroupSelector = null) where OptionType : ISelect2Option
@@ -83,11 +74,17 @@ namespace InnerLibs.Select2
                 return Optionitem;
             }
         }
+
+        #endregion Public Methods
     }
 
     public class Pagination
     {
+        #region Public Properties
+
         public bool More { get; set; } = false;
+
+        #endregion Public Properties
     }
 
     /// <summary>
@@ -95,6 +92,8 @@ namespace InnerLibs.Select2
     /// </summary>
     public class Select2Data
     {
+        #region Public Constructors
+
         public Select2Data()
         {
         }
@@ -121,12 +120,20 @@ namespace InnerLibs.Select2
             Pagination.More = PaginationMore;
         }
 
+        #endregion Public Constructors
+
+        #region Public Properties
+
         public Pagination Pagination { get; set; } = new Pagination();
         public IEnumerable<ISelect2Result> Results { get; set; } = Array.Empty<ISelect2Result>();
+
+        #endregion Public Properties
     }
 
     public class Select2Group : ISelect2Result
     {
+        #region Public Constructors
+
         public Select2Group(string Text) => this.Text = Text;
 
         public Select2Group(string Text, IEnumerable<ISelect2Option> Children) : this(Text) => this.Children = (Children ?? Array.Empty<ISelect2Option>()).WhereNotNull();
@@ -135,12 +142,20 @@ namespace InnerLibs.Select2
         {
         }
 
+        #endregion Public Constructors
+
+        #region Public Properties
+
         public IEnumerable<ISelect2Option> Children { get; set; } = Array.Empty<ISelect2Option>();
         public string Text { get; set; }
+
+        #endregion Public Properties
     }
 
     public sealed class Select2Option : ISelect2Option, IComparable<Select2Option>, IComparable
     {
+        #region Public Constructors
+
         public Select2Option()
         {
         }
@@ -151,15 +166,45 @@ namespace InnerLibs.Select2
             this.Text = Text.IfBlank(ID);
         }
 
+        #endregion Public Constructors
+
+        #region Public Properties
+
         public bool Disabled { get; set; }
         public string ID { get; set; }
         public bool Selected { get; set; }
         public string Text { get; set; }
+
+        #endregion Public Properties
+
+        #region Public Methods
 
         public int CompareTo(object obj) => ID.CompareTo(obj?.ToString());
 
         public int CompareTo(Select2Option other) => ID.CompareTo(other.ID);
 
         public override string ToString() => $"<option value='{ID}'{Disabled.AsIf(" disabled")}{Selected.AsIf(" selected")}>{Text}</option>";
+
+        #endregion Public Methods
+    }
+
+    public interface ISelect2Option : ISelect2Result
+    {
+        #region Public Properties
+
+        bool Disabled { get; set; }
+        string ID { get; set; }
+        bool Selected { get; set; }
+
+        #endregion Public Properties
+    }
+
+    public interface ISelect2Result
+    {
+        #region Public Properties
+
+        string Text { get; set; }
+
+        #endregion Public Properties
     }
 }

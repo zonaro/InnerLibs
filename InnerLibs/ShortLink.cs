@@ -5,22 +5,28 @@ using System.Text;
 
 namespace InnerLibs
 {
-
-
-
     /// <summary>
     /// Classe para encodar IDs numéricos em hashs curtas
     /// </summary>
     /// <remarks>Não utilize isto como criptografia de segurança</remarks>
     public class ShortLinkGenerator
     {
-        public readonly string Seed = null;
-        public readonly string Token;
+        #region Private Fields
+
         private string urlPattern;
 
-        public string UrlPattern { get => urlPattern; set => urlPattern = value.ValidateOr(x => x.IsURL(), UrlPattern); }
-        public ShortLinkGenerator() : this(null) => Seed = InnerLibs.Text.Empty;
+        #endregion Private Fields
 
+        #region Public Fields
+
+        public readonly string Seed = null;
+        public readonly string Token;
+
+        #endregion Public Fields
+
+        #region Public Constructors
+
+        public ShortLinkGenerator() : this(null) => Seed = InnerLibs.Text.Empty;
 
         public ShortLinkGenerator(string Seed, string UrlPattern) : this(Seed) => this.UrlPattern = UrlPattern;
 
@@ -46,6 +52,16 @@ namespace InnerLibs
                 UrlPattern = Seed;
             }
         }
+
+        #endregion Public Constructors
+
+        #region Public Properties
+
+        public string UrlPattern { get => urlPattern; set => urlPattern = value.ValidateOr(x => x.IsURL(), UrlPattern); }
+
+        #endregion Public Properties
+
+        #region Public Methods
 
         /// <summary>
         /// Gera um link com a hash
@@ -106,5 +122,7 @@ namespace InnerLibs
         public string RandomHash(int Min, int Max) => Encode(Generate.RandomNumber(Min, Max));
 
         public override string ToString() => Token;
+
+        #endregion Public Methods
     }
 }

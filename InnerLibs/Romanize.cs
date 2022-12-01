@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Diagnostics;
 using System.Globalization;
 
 namespace InnerLibs
@@ -15,50 +14,7 @@ namespace InnerLibs
         /// Lista de algarismos romanos
         /// </summary>
 
-        public enum RomanDigit
-        {
-            /// <summary>
-            /// Valor correspondente
-            /// </summary>
-
-            I = 1,
-            /// <summary>
-            /// Valor correspondente
-            /// </summary>
-
-            V = 5,
-            /// <summary>
-            /// Valor correspondente
-            /// </summary>
-
-            X = 10,
-            /// <summary>
-            /// Valor correspondente
-            /// </summary>
-
-            L = 50,
-            /// <summary>
-            /// Valor correspondente
-            /// </summary>
-
-            C = 100,
-            /// <summary>
-            /// Valor correspondente
-            /// </summary>
-
-            D = 500,
-            /// <summary>
-            /// Valor correspondente
-            /// </summary>
-
-            M = 1000
-        }
-
-        /// <summary>
-        /// Converte uma String contendo um numero romano para seu valor arabico
-        /// </summary>
-        /// <param name="RomanNumber">String contendo o numero romano</param>
-        /// <returns>Valor em arabico</returns>
+        #region Public Methods
 
         public static int ToArabic(this string RomanNumber)
         {
@@ -168,19 +124,13 @@ namespace InnerLibs
             return total;
         }
 
-        /// <summary>
-        /// Converte um valor numérico arabico para numero romano
-        /// </summary>
-        /// <param name="ArabicNumber">Valor numerico arabico</param>
-        /// <returns>uma string com o numero romano</returns>
-
         public static string ToRoman(this int ArabicNumber)
         {
             ArabicNumber = ArabicNumber.ForcePositive();
             // valida : aceita somente valores entre 1 e 3999
             if (ArabicNumber < 1 || ArabicNumber > 3999)
-            {               
-                throw new ArgumentException("The numeric value must be between 1 and 3999.", nameof(ArabicNumber));                
+            {
+                throw new ArgumentException("The numeric value must be between 1 and 3999.", nameof(ArabicNumber));
             }
 
             var algarismosArabicos = new int[] { 1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1 };
@@ -204,5 +154,60 @@ namespace InnerLibs
             // retorna o resultado
             return resultado.ToString();
         }
+
+        #endregion Public Methods
+
+        #region Public Enums
+
+        public enum RomanDigit
+        {
+            /// <summary>
+            /// Valor correspondente
+            /// </summary>
+            I = 1,
+
+            /// <summary>
+            /// Valor correspondente
+            /// </summary>
+            V = 5,
+
+            /// <summary>
+            /// Valor correspondente
+            /// </summary>
+            X = 10,
+
+            /// <summary>
+            /// Valor correspondente
+            /// </summary>
+            L = 50,
+
+            /// <summary>
+            /// Valor correspondente
+            /// </summary>
+            C = 100,
+
+            /// <summary>
+            /// Valor correspondente
+            /// </summary>
+            D = 500,
+
+            /// <summary>
+            /// Valor correspondente
+            /// </summary>
+            M = 1000
+        }
+
+        #endregion Public Enums
+
+        /// <summary>
+        /// Converte uma String contendo um numero romano para seu valor arabico
+        /// </summary>
+        /// <param name="RomanNumber">String contendo o numero romano</param>
+        /// <returns>Valor em arabico</returns>
+        /// <summary>
+        /// Converte um valor numérico arabico para numero romano
+        /// </summary>
+        /// <param name="ArabicNumber">Valor numerico arabico</param>
+        /// <returns>uma string com o numero romano</returns>
     }
 }

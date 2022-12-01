@@ -11,6 +11,8 @@ namespace InnerLibs.MenuBuilder
     /// </summary>
     public class MenuItem<T>
     {
+        #region Public Constructors
+
         /// <summary>
         /// Inicializa um novo MenuBuilderItem
         /// </summary>
@@ -44,6 +46,10 @@ namespace InnerLibs.MenuBuilder
         public MenuItem()
         {
         }
+
+        #endregion Public Constructors
+
+        #region Public Properties
 
         /// <summary>
         /// Indica se o menu está ativo (selecionado)
@@ -110,6 +116,8 @@ namespace InnerLibs.MenuBuilder
         /// </summary>
         /// <returns></returns>
         public bool Visible { get; set; } = true;
+
+        #endregion Public Properties
     }
 
     /// <summary>
@@ -117,6 +125,8 @@ namespace InnerLibs.MenuBuilder
     /// </summary>
     public class MenuList<T> : List<MenuItem<T>>
     {
+        #region Public Properties
+
         /// <summary>
         /// Verifica se este menu possui itens
         /// </summary>
@@ -128,6 +138,8 @@ namespace InnerLibs.MenuBuilder
                 return Count > 0;
             }
         }
+
+        #endregion Public Properties
     }
 
     public class MenuList : MenuList<object>

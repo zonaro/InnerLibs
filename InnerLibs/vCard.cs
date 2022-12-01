@@ -7,38 +7,17 @@ using System.Text;
 
 namespace InnerLibs
 {
-    public enum vAddressTypes
-    {
-        PARCEL,  // Parcel post
-        DOM,     // Domestic
-        INT     // International
-    }
-
-    public enum vLocations
-    {
-        HOME,
-        WORK,
-        CELL
-    }
-
-    public enum vPhoneTypes
-    {
-        VOICE,
-        FAX,
-        MSG,
-        PAGER,
-        BBS,
-        MODEM,
-        CAR,
-        ISDN,
-        VIDEO
-    }
-
     public class vAddress : AddressInfo
     {
+        #region Public Constructors
+
         public vAddress()
         {
         }
+
+        #endregion Public Constructors
+
+        #region Public Properties
 
         public string AddressLabel { get; set; } = InnerLibs.Text.Empty;
         public string AddressName { get; set; } = InnerLibs.Text.Empty;
@@ -46,6 +25,10 @@ namespace InnerLibs
         public vLocations Location { get; set; } = vLocations.HOME;
         public bool Preferred { get; set; } = false;
         public string StreetAddress { get; set; } = InnerLibs.Text.Empty;
+
+        #endregion Public Properties
+
+        #region Public Methods
 
         public override string ToString()
         {
@@ -62,6 +45,8 @@ namespace InnerLibs
 
             return result.ToString();
         }
+
+        #endregion Public Methods
     }
 
     /// <summary>
@@ -69,15 +54,25 @@ namespace InnerLibs
     /// </summary>
     public class vCard
     {
+        #region Private Fields
+
         private List<vAddress> _Addresses;
         private List<vEmail> _Emails;
         private List<vSocial> _Social;
         private List<vTelephone> _Telephones;
         private List<vURL> _URLs;
 
+        #endregion Private Fields
+
+        #region Public Constructors
+
         public vCard()
         {
         }
+
+        #endregion Public Constructors
+
+        #region Public Properties
 
         public List<vAddress> Addresses
         {
@@ -220,6 +215,10 @@ namespace InnerLibs
             }
         }
 
+        #endregion Public Properties
+
+        #region Public Methods
+
         public vEmail AddEmail(string Email)
         {
             if (Email.IsEmail())
@@ -356,10 +355,14 @@ namespace InnerLibs
             result = result.AppendLine("END:VCARD");
             return result;
         }
+
+        #endregion Public Methods
     }
 
     public class vEmail
     {
+        #region Public Constructors
+
         public vEmail(string Email)
         {
             EmailAddress = Email;
@@ -371,35 +374,59 @@ namespace InnerLibs
             Preferred = IsPreferred;
         }
 
+        #endregion Public Constructors
+
+        #region Public Properties
+
         public string EmailAddress { get; set; } = InnerLibs.Text.Empty;
         public bool Preferred { get; set; } = false;
         public string Type { get; set; } = "INTERNET";
+
+        #endregion Public Properties
+
+        #region Public Methods
 
         public override string ToString()
         {
             return $"EMAIL{Preferred.AsIf(";PREF")};CHARSET=UTF-8;type={Type.ToUpper()},INTERNET:{EmailAddress}";
         }
+
+        #endregion Public Methods
     }
 
     public class vSocial
     {
+        #region Public Constructors
+
         public vSocial(string Name, string URL)
         {
             this.URL = URL;
             this.Name = Name;
         }
 
+        #endregion Public Constructors
+
+        #region Public Properties
+
         public string Name { get; set; } = InnerLibs.Text.Empty;
         public string URL { get; set; } = InnerLibs.Text.Empty;
+
+        #endregion Public Properties
+
+        #region Public Methods
 
         public override string ToString()
         {
             return $"X-SOCIALPROFILE;CHARSET=UTF-8;TYPE={Name.ToUpper()}:{URL}";
         }
+
+        #endregion Public Methods
     }
 
     public class vTelephone
     {
+        #region Public Constructors
+
         public vTelephone(string Number)
         {
             TelephoneNumber = Number;
@@ -419,19 +446,31 @@ namespace InnerLibs
             Preferred = IsPreferred;
         }
 
+        #endregion Public Constructors
+
+        #region Public Properties
+
         public vLocations Location { get; set; } = vLocations.HOME;
         public bool Preferred { get; set; }
         public string TelephoneNumber { get; set; } = InnerLibs.Text.Empty;
         public vPhoneTypes Type { get; set; } = vPhoneTypes.VOICE;
 
+        #endregion Public Properties
+
+        #region Public Methods
+
         public override string ToString()
         {
             return $"TEL{Preferred.AsIf(";PREF")};TYPE={Location},{Type}:{TelephoneNumber}";
         }
+
+        #endregion Public Methods
     }
 
     public class vURL
     {
+        #region Public Constructors
+
         public vURL(string NewURL)
         {
             URL = NewURL;
@@ -443,13 +482,50 @@ namespace InnerLibs
             Preferred = IsPreffered;
         }
 
+        #endregion Public Constructors
+
+        #region Public Properties
+
         public vLocations Location { get; set; } = vLocations.WORK;
         public bool Preferred { get; set; }
         public string URL { get; set; } = InnerLibs.Text.Empty;
+
+        #endregion Public Properties
+
+        #region Public Methods
 
         public override string ToString()
         {
             return $"URL{Preferred.AsIf(";PREF")};CHARSET=UTF-8;{Location}:{URL}";
         }
+
+        #endregion Public Methods
+    }
+
+    public enum vAddressTypes
+    {
+        PARCEL,  // Parcel post
+        DOM,     // Domestic
+        INT     // International
+    }
+
+    public enum vLocations
+    {
+        HOME,
+        WORK,
+        CELL
+    }
+
+    public enum vPhoneTypes
+    {
+        VOICE,
+        FAX,
+        MSG,
+        PAGER,
+        BBS,
+        MODEM,
+        CAR,
+        ISDN,
+        VIDEO
     }
 }

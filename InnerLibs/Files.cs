@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -13,6 +12,8 @@ namespace InnerLibs
     /// <remarks></remarks>
     public static class Files
     {
+        #region Public Methods
+
         /// <summary>
         /// Format a file path using a <see cref="DateTime"/>
         /// </summary>
@@ -44,6 +45,19 @@ namespace InnerLibs
             return FilePath.FixPath(AlternativeChar);
         }
 
+        /// <summary>
+        /// Retorna o nome do diretorio onde o arquivo se encontra
+        /// </summary>
+        /// <param name="Path">Caminho do arquivo</param>
+        /// <returns>o nome do diretório sem o caminho</returns>
+        public static string GetLatestDirectoryName(this FileInfo Path) => System.IO.Path.GetDirectoryName(Path.DirectoryName);
+
+        /// <summary>
+        /// Retorna o conteudo de um arquivo de texto
+        /// </summary>
+        /// <param name="File">Arquivo</param>
+        /// <returns></returns>
+        public static string ReadAllText(this FileInfo File, Encoding encoding = null) => File != null && File.Exists ? System.IO.File.ReadAllText(File.FullName, encoding ?? Encoding.UTF8) : InnerLibs.Text.Empty;
 
         /// <summary>
         /// Renomeia um arquivo e retorna um <see cref="FileInfo"/> do arquivo renomeado
@@ -67,20 +81,6 @@ namespace InnerLibs
             }
             return File;
         }
-
-        /// <summary>
-        /// Retorna o nome do diretorio onde o arquivo se encontra
-        /// </summary>
-        /// <param name="Path">Caminho do arquivo</param>
-        /// <returns>o nome do diretório sem o caminho</returns>
-        public static string GetLatestDirectoryName(this FileInfo Path) => System.IO.Path.GetDirectoryName(Path.DirectoryName);
-
-        /// <summary>
-        /// Retorna o conteudo de um arquivo de texto
-        /// </summary>
-        /// <param name="File">Arquivo</param>
-        /// <returns></returns>
-        public static string ReadAllText(this FileInfo File, Encoding encoding = null) => File != null && File.Exists ? System.IO.File.ReadAllText(File.FullName, encoding ?? Encoding.UTF8) : InnerLibs.Text.Empty;
 
         /// <summary>
         /// Salva um anexo para um diretório
@@ -107,7 +107,7 @@ namespace InnerLibs
 
                 return attachment.ToBytes().WriteToFile(FilePath, DateAndTime);
             }
-            
+
             return null;
         }
 
@@ -241,7 +241,11 @@ namespace InnerLibs
         /// <param name="File">Arquivo</param>
         /// <returns>Um Fileinfo contendo as informações do arquivo criado</returns>
         public static FileInfo WriteToFile(this string Text, FileInfo File, bool Append = false, Encoding Enconding = null, DateTime? DateAndTime = null) => Text.WriteToFile(File.FullName, Append, Enconding, DateAndTime);
+
         public static FileInfo WriteToFile(this string Text, DirectoryInfo Directory, string FileName, bool Append = false, Encoding Enconding = null, DateTime? DateAndTime = null) => Text.WriteToFile(Path.Combine(Directory?.FullName, Path.GetFileName(FileName)), Append, Enconding, DateAndTime);
+
         public static FileInfo WriteToFile(this string Text, DirectoryInfo Directory, string SubDirecotry, string FileName, bool Append = false, Encoding Enconding = null, DateTime? DateAndTime = null) => Text.WriteToFile(Path.Combine(Directory?.FullName, SubDirecotry, Path.GetFileName(FileName)), Append, Enconding, DateAndTime);
+
+        #endregion Public Methods
     }
 }

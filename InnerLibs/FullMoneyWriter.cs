@@ -7,6 +7,8 @@ namespace InnerLibs
     /// </summary>
     public class FullMoneyWriter : FullNumberWriter
     {
+        #region Public Properties
+
         /// <summary>
         /// Par de strings que representam os centavos desta moeda em sua forma singular ou plural
         /// </summary>
@@ -18,6 +20,10 @@ namespace InnerLibs
         /// </summary>
         /// <returns></returns>
         public QuantityTextPair CurrencyName { get; set; } = new QuantityTextPair("dollars", "dollar");
+
+        #endregion Public Properties
+
+        #region Public Methods
 
         /// <summary>
         /// Escreve um numero por extenso
@@ -32,5 +38,7 @@ namespace InnerLibs
         }
 
         public override string ToString() => ToString(0m);
+
+        #endregion Public Methods
     }
 }

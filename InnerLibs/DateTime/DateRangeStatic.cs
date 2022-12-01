@@ -5,8 +5,13 @@ namespace InnerLibs.TimeMachine
 {
     public partial class DateRange
     {
+        #region Public Methods
+
         public static DateRange Bimester(DateTime? Date = null) => new DateRange(Date.OrNow().BeginningOfBimester(), Date.OrNow().EndOfBimester());
+
         public static DateRange Day(DateTime? Date = null) => new DateRange(Date.OrNow().BeginningOfDay(), Date.OrNow().EndOfDay());
+
+        public static DateRange Fortnight(DateTime? Date = null) => new DateRange(Date.OrNow().BeginningOfFortnight(), Date.OrNow().EndOfFortnight());
 
         public static DateRange FromDate(DateTime? Date = null) => new DateRange(Date.OrNow());
 
@@ -38,15 +43,18 @@ namespace InnerLibs.TimeMachine
 
         public static DateRange Now() => new DateRange();
 
-        public static DateRange Fortnight(DateTime? Date = null) => new DateRange(Date.OrNow().BeginningOfFortnight(), Date.OrNow().EndOfFortnight());
         public static DateRange Quarter(DateTime? Date = null) => new DateRange(Date.OrNow().BeginningOfQuarter(), Date.OrNow().EndOfQuarter());
 
         public static DateRange Semester(DateTime? Date = null) => new DateRange(Date.OrNow().BeginningOfSemester(), Date.OrNow().EndOfSemester());
 
         public static DateRange Week(DateTime? Date = null) => Week(Date, null);
+
         public static DateRange Week(DateTime? Date, DayOfWeek FirstDayOfWeek) => new DateRange(Date.OrNow().FirstDayOfWeek(FirstDayOfWeek), Date.OrNow().LastDayOfWeek(FirstDayOfWeek));
+
         public static DateRange Week(DateTime? Date, CultureInfo culture = null) => new DateRange(Date.OrNow().FirstDayOfWeek(culture), Date.OrNow().LastDayOfWeek(culture));
 
         public static DateRange Year(DateTime? Date = null) => new DateRange(Date.OrNow().BeginningOfYear(), Date.OrNow().EndOfYear());
+
+        #endregion Public Methods
     }
 }
