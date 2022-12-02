@@ -1076,7 +1076,7 @@ namespace InnerLibs
         public static string[] GetWrappedText(this string Text, string Character = DoubleQuoteChar, bool ExcludeWrapChars = true)
         {
             var lista = new List<string>();
-            string regx = Character.RegexEscape() + "(.*?)" + Character.ToString().GetOppositeWrapChar().RegexEscape();
+            string regx = $"{Character.RegexEscape()}(.*?){Character.GetOppositeWrapChar().RegexEscape()}";
             var mm = new Regex(regx, (RegexOptions)((int)RegexOptions.Singleline + (int)RegexOptions.IgnoreCase)).Matches(Text);
             foreach (Match a in mm)
             {

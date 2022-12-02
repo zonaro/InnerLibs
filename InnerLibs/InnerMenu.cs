@@ -20,7 +20,7 @@ namespace InnerLibs.MenuBuilder
         /// <param name="URL">URL do menu</param>
         /// <param name="Target">Alvo do menu, nomralmente _self</param>
         /// <param name="Icon">icone do menu</param>
-        public MenuItem(string Title, string URL, string Target = "_self", string Icon = InnerLibs.Text.Empty)
+        public MenuItem(string Title, string URL, string Target = "_self", string Icon = Text.Empty)
         {
             this.Title = Title;
             this.URL = URL;
@@ -33,7 +33,7 @@ namespace InnerLibs.MenuBuilder
         /// </summary>
         /// <param name="Title">Titulo do Menu</param>
         /// <param name="SubItems">Subitens do menu</param>
-        public MenuItem(string Title, IEnumerable<MenuItem<T>> SubItems, string Icon = InnerLibs.Text.Empty)
+        public MenuItem(string Title, IEnumerable<MenuItem<T>> SubItems, string Icon = Text.Empty)
         {
             this.Title = Title;
             this.SubItems = (MenuList<T>)SubItems;
@@ -55,7 +55,7 @@ namespace InnerLibs.MenuBuilder
         /// Indica se o menu está ativo (selecionado)
         /// </summary>
         /// <returns></returns>
-        public bool Active { get; set; } = false;
+        public bool Active { get; set; }
 
         /// <summary>
         /// Informações relacionadas a este item
@@ -73,13 +73,7 @@ namespace InnerLibs.MenuBuilder
         /// Verifica se este item possui subitens
         /// </summary>
         /// <returns></returns>
-        public bool HasItems
-        {
-            get
-            {
-                return SubItems.Count > 0;
-            }
-        }
+        public bool HasItems => SubItems.Count > 0;
 
         /// <summary>
         /// Ícone correspondente a este menu
@@ -131,13 +125,7 @@ namespace InnerLibs.MenuBuilder
         /// Verifica se este menu possui itens
         /// </summary>
         /// <returns></returns>
-        public object HasItems
-        {
-            get
-            {
-                return Count > 0;
-            }
-        }
+        public object HasItems => Count > 0;
 
         #endregion Public Properties
     }
