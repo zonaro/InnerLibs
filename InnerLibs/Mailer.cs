@@ -699,7 +699,7 @@ namespace InnerLibs.Mail
         public FluentMailMessage<T> WithCredentials(NetworkCredential Credentials)
         {
             if (Smtp == null) throw new ArgumentException("SMTP is null, Define SMTP before defining credentials", nameof(Smtp));
-            Smtp.Credentials = Credentials ?? throw new ArgumentNullException(nameof(Credentials));
+            Smtp.Credentials = Credentials ?? throw new ArgumentNullException("Credentials is null",nameof(Credentials));
             if (From == null || From.Address.IsBlank())
             {
                 From = new MailAddress(Credentials.UserName);
@@ -713,14 +713,9 @@ namespace InnerLibs.Mail
         /// </summary>
         public FluentMailMessage<T> WithCredentials(string Login, string Password)
         {
-            if (Smtp == null || Smtp.Host.IsBlank())
-            {
-                return WithQuickConfig(Login, Password);
-            }
-            else
-            {
-                return WithCredentials(new NetworkCredential(Login, Password));
-            }
+            return Smtp == null || Smtp.Host.IsBlank()
+                ? WithQuickConfig(Login, Password)
+                : WithCredentials(new NetworkCredential(Login, Password));
         }
 
         /// <summary>
