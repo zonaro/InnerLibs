@@ -219,9 +219,9 @@ namespace InnerLibs
 
                     for (int index = 0, loopTo1 = words.Length - 1; index <= loopTo1; index++)
                     {
-                        if ((words[index].RemoveDiacritics().RemoveAny(PredefinedArrays.WordSplitters.ToArray()).ToLower() ?? string.Empty) == (bad.RemoveDiacritics().RemoveAny(PredefinedArrays.WordSplitters.ToArray()).ToLower() ?? string.Empty))
+                        if ((words[index].RemoveDiacritics().RemoveAny(PredefinedArrays.WordSplitters.ToArray()).ToLowerInvariant() ?? string.Empty) == (bad.RemoveDiacritics().RemoveAny(PredefinedArrays.WordSplitters.ToArray()).ToLowerInvariant() ?? string.Empty))
                         {
-                            words[index] = words[index].ToLower().Replace(bad, censored);
+                            words[index] = words[index].ToLowerInvariant().Replace(bad, censored);
                             IsCensored = true;
                         }
                     }
@@ -395,7 +395,7 @@ namespace InnerLibs
             var palavras = Text.Split(PredefinedArrays.WordSplitters.ToArray(), StringSplitOptions.RemoveEmptyEntries).ToArray();
             if (Words.Any())
             {
-                palavras = palavras.Where(x => Words.Select(y => y.ToLower()).Contains(x.ToLower())).ToArray();
+                palavras = palavras.Where(x => Words.Select(y => y.ToLowerInvariant()).Contains(x.ToLowerInvariant())).ToArray();
             }
 
             if (RemoveDiacritics)
@@ -480,7 +480,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static IEnumerable<string> ExtractEmails(this string Text) => Text.IfBlank(string.Empty).SplitAny(PredefinedArrays.InvisibleChars.Union(PredefinedArrays.BreakLineChars).ToArray()).Where(x => x.IsEmail()).Select(x => x.ToLower()).Distinct().ToArray();
+        public static IEnumerable<string> ExtractEmails(this string Text) => Text.IfBlank(string.Empty).SplitAny(PredefinedArrays.InvisibleChars.Union(PredefinedArrays.BreakLineChars).ToArray()).Where(x => x.IsEmail()).Select(x => x.ToLowerInvariant()).Distinct().ToArray();
 
         /// <summary>
         /// Procura CEPs em uma string
@@ -1058,7 +1058,7 @@ namespace InnerLibs
         public static IOrderedEnumerable<string> GetWords(this string Text)
         {
             var txt = new List<string>();
-            var palavras = Text.TrimBetween().FixHTMLBreakLines().ToLower().RemoveHTML().Split(PredefinedArrays.WordSplitters.ToArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
+            var palavras = Text.TrimBetween().FixHTMLBreakLines().ToLowerInvariant().RemoveHTML().Split(PredefinedArrays.WordSplitters.ToArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
             foreach (var w in palavras)
             {
                 txt.Add(w);
@@ -1225,8 +1225,8 @@ namespace InnerLibs
         /// <returns></returns>
         public static bool IsAnagramOf(this string Text, string AnotherText)
         {
-            var char1 = Text?.ToLower().ToCharArray() ?? Array.Empty<char>();
-            var char2 = AnotherText?.ToLower().ToCharArray() ?? Array.Empty<char>();
+            var char1 = Text?.ToLowerInvariant().ToCharArray() ?? Array.Empty<char>();
+            var char2 = AnotherText?.ToLowerInvariant().ToCharArray() ?? Array.Empty<char>();
             Array.Sort(char1);
             Array.Sort(char2);
             string NewWord1 = new string(char1);
@@ -1595,12 +1595,12 @@ namespace InnerLibs
             {
                 decimal l = (decimal)(Text.Length / 2d);
                 l = l.Floor();
-                if (!Text.GetFirstChars((int)Math.Round(l)).Last().ToString().ToLower().IsIn(PredefinedArrays.LowerVowels))
+                if (!Text.GetFirstChars((int)Math.Round(l)).Last().ToString().ToLowerInvariant().IsIn(PredefinedArrays.LowerVowels))
                 {
                     l = l.ToInt() - 1;
                 }
 
-                p.Add(Text.GetFirstChars((int)Math.Round(l)).Trim() + Text.GetFirstChars((int)Math.Round(l)).Reverse().ToList().SelectJoinString().ToLower().Trim() + Text.RemoveFirstChars((int)Math.Round(l)).TrimFirstAny(PredefinedArrays.LowerConsonants.ToArray()));
+                p.Add(Text.GetFirstChars((int)Math.Round(l)).Trim() + Text.GetFirstChars((int)Math.Round(l)).Reverse().ToList().SelectJoinString().ToLowerInvariant().Trim() + Text.RemoveFirstChars((int)Math.Round(l)).TrimFirstAny(PredefinedArrays.LowerConsonants.ToArray()));
             }
 
             return p.ToArray();
@@ -1740,16 +1740,16 @@ namespace InnerLibs
             {
                 decimal numero = 0m;
                 string str = PluralText.Format.QuantifyText(PluralText.GetArguments().FirstOrDefault(), ref numero);
-                str = str.Replace("{0}", numero.ToString());
-                for (int index = 1, loopTo = PluralText.GetArguments().Count() - 1; index <= loopTo; index++)
+                str = str.Replace("{0}", $"{numero}");
+                for (int index = 1, loopTo = PluralText.GetArguments().Length - 1; index <= loopTo; index++)
                 {
-                    str = str.Replace($"{{{index}}}", Convert.ToString(PluralText.GetArgument(index)));
+                    str = str.Replace($"{{{index}}}", $"{PluralText.GetArgument(index)}");
                 }
 
                 return str;
             }
 
-            return PluralText?.ToString();
+            return $"{PluralText}";
         }
 
         /// <summary>
@@ -2674,7 +2674,7 @@ namespace InnerLibs
         /// Indica se os espacos serão substituidos por underscores (underline). Use FALSE para hifens
         /// </param>
         /// <returns>string amigavel para URL</returns>
-        public static string ToFriendlyURL(this string Text, bool UseUnderscore = false) => Text.ReplaceMany(UseUnderscore ? "_" : "-", "_", "-", WhitespaceChar).RemoveAny("(", ")", ".", ",", "#").ToFriendlyPathName().RemoveAccents().ToLower();
+        public static string ToFriendlyURL(this string Text, bool UseUnderscore = false) => Text.ReplaceMany(UseUnderscore ? "_" : "-", "_", "-", WhitespaceChar).RemoveAny("(", ")", ".", ",", "#").ToFriendlyPathName().RemoveAccents().ToLowerInvariant();
 
         /// <summary>
         /// Converte um texto para Leet (1337)
@@ -4104,7 +4104,7 @@ namespace InnerLibs
 
             if (ForceCase)
             {
-                Text = Text.ToLower();
+                Text = Text.ToLowerInvariant();
             }
 
             var l = Text.Split(WhitespaceChar, StringSplitOptions.None).ToList();
@@ -4172,7 +4172,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static string ToSnakeCase(this string Text) => Text.Replace(WhitespaceChar, "_").ToLower();
+        public static string ToSnakeCase(this string Text) => Text.Replace(WhitespaceChar, "_").ToLowerInvariant();
 
         /// <summary>
         /// Cria um <see cref="Stream"/> a partir de uma string
