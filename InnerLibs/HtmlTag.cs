@@ -650,6 +650,8 @@ namespace InnerLibs
 
         public static HtmlTag CreateComment(string Comment) => new HtmlTag(HtmlNodeType.Comment).With(x => x._content = Comment ?? "");
 
+        public static HtmlTag CreateHorizontalRule() => new HtmlTag("hr") { SelfClosing = true };
+
         public static HtmlTag CreateImage(Image Img, object htmlAttributes = null) => CreateImage(Img?.ToDataURL(), htmlAttributes);
 
         public static HtmlTag CreateImage(string URL, object htmlAttributes = null) => new HtmlTag("img", htmlAttributes, null) { SelfClosing = true }
@@ -757,6 +759,7 @@ namespace InnerLibs
 
         public static HtmlTag ParseTag(Uri Url) => Parse(Url).FirstOrDefault();
 
+        public HtmlTag AddHorizontalRule() => AddChildren(CreateHorizontalRule())
         public HtmlTag AddAnchor(string URL, string Text, string Target = "_self", object htmlAttributes = null)
         {
             _children.Add(CreateAnchor(URL, Text, Target, htmlAttributes));
@@ -850,6 +853,7 @@ namespace InnerLibs
         /// </summary>
         /// <returns></returns>
         public HtmlTag FirstChild() => Children.FirstOrDefault();
+
         public HtmlTag FirstChild(Expression<Func<HtmlTag, bool>> predicate) => Children.FirstOrDefault(predicate?.Compile());
 
         public string GetAttribute(string key) => Attributes.GetValueOr(key, Text.Empty);
@@ -877,6 +881,7 @@ namespace InnerLibs
         }
 
         public HtmlTag LastChild() => Children.LastOrDefault();
+
         public HtmlTag LastChild(Expression<Func<HtmlTag, bool>> predicate) => Children.LastOrDefault(predicate?.Compile());
 
         public HtmlTag RemoveAttr(string AttrName)
