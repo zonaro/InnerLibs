@@ -1094,7 +1094,7 @@ namespace InnerLibs.QuestionTest
                     new HtmlTag("div")
                     .AddClass("personal-info-item")
                    .AddChildren("label", inf.Key)
-                   .AddChildren(HtmlTag.CreateInput($"{inf.Key}_input", $"{inf.Value}"))
+                   .AddChildren(HtmlTag.CreateInput($"{inf.Key}_personalinfo_input", $"{inf.Value}"))
                    .AddBreakLine()
                    .InsertInto(section);
                 }
