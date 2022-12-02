@@ -10,21 +10,15 @@ namespace InnerLibs
 {
     public class CSSStyles
     {
-        #region Private Methods
-
-        private void ParseStyle()
-        {
-            dic = _tag.GetAttribute("style").Split(";").ToDictionary(x => x.GetBefore(":"), x => x.GetAfter(":"));
-        }
-
-        #endregion Private Methods
-
         #region Internal Fields
 
         internal HtmlTag _tag;
+
         internal Dictionary<string, string> dic = new Dictionary<string, string>();
 
         #endregion Internal Fields
+
+
 
         #region Public Constructors
 
@@ -34,6 +28,8 @@ namespace InnerLibs
         }
 
         #endregion Public Constructors
+
+
 
         #region Public Properties
 
@@ -375,7 +371,16 @@ namespace InnerLibs
 
         #endregion Public Properties
 
-        #region Public Methods
+
+
+        #region Private Methods
+
+        private void ParseStyle()
+        {
+            dic = _tag.GetAttribute("style").Split(";").ToDictionary(x => x.GetBefore(":"), x => x.GetAfter(":"));
+        }
+
+        #endregion Private Methods
 
         public string GetStyle(string name)
         {
@@ -400,8 +405,6 @@ namespace InnerLibs
         }
 
         public override string ToString() => dic.SelectJoinString(x => $"{x.Key.ToLowerInvariant()}:{x.Value}", ";");
-
-        #endregion Public Methods
     }
 
     /// <summary>
@@ -417,14 +420,8 @@ namespace InnerLibs
 
         #endregion Private Fields
 
-        #region Internal Fields
-
         internal List<HtmlTag> _children = new List<HtmlTag>();
         internal string _content;
-
-        #endregion Internal Fields
-
-        #region Public Constructors
 
         public HtmlTag() : this(HtmlNodeType.Element)
         {
@@ -458,23 +455,6 @@ namespace InnerLibs
             this.SelfClosing = selfClosing;
             this.Type = type;
         }
-
-        #endregion Public Constructors
-
-        #region Public Indexers
-
-        public HtmlTag this[string ID]
-        {
-            get => Children.FirstOrDefault(x => x.ID == ID);
-            set
-            {
-                if (value != null) AddChildren(value.SetID(ID));
-            }
-        }
-
-        #endregion Public Indexers
-
-        #region Public Properties
 
         /// <summary>
         /// atributos desta tag
@@ -522,9 +502,11 @@ namespace InnerLibs
                 {
                     case HtmlNodeType.Element:
                         return InnerText;
+
                     case HtmlNodeType.Text:
                     case HtmlNodeType.Comment:
-                        return _content; 
+                        return _content;
+
                     default:
                         return "";
                 }
@@ -652,9 +634,14 @@ namespace InnerLibs
 
         public HtmlNodeType Type { get; private set; }
 
-        #endregion Public Properties
-
-        #region Public Methods
+        public HtmlTag this[string ID]
+        {
+            get => Children.FirstOrDefault(x => x.ID == ID);
+            set
+            {
+                if (value != null) AddChildren(value.SetID(ID));
+            }
+        }
 
         public static HtmlTag CreateAnchor(string URL, string Text, string Target = "_self", object htmlAttributes = null) => new HtmlTag("a", htmlAttributes, Text).SetAttribute("href", URL, true).SetAttribute("target", Target, true);
 
@@ -881,6 +868,12 @@ namespace InnerLibs
 
         public bool HasClass(params string[] Classes) => (Classes?.Any() ?? false ? Classes?.Any(x => ClassList.Contains(x, StringComparer.CurrentCultureIgnoreCase)) : ClassList.Any()) ?? false;
 
+        public HtmlTag InsertInto(HtmlTag ParentTag)
+        {
+            ParentTag?.AddChildren(this);
+            return thhis;
+        }
+
         public HtmlTag LastChild() => Children.LastOrDefault();
 
         public HtmlTag RemoveAttr(string AttrName)
@@ -944,7 +937,5 @@ namespace InnerLibs
         public HtmlTag SetProp(string AttrName, bool Value = true) => Value ? SetAttribute(AttrName, AttrName) : RemoveAttr(AttrName);
 
         public override string ToString() => OuterHtml;
-
-        #endregion Public Methods
     }
 }
