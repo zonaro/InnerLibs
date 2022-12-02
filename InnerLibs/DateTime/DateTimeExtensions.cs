@@ -1337,7 +1337,7 @@ namespace InnerLibs.TimeMachine
         {
             var end = EndDate ?? StartDate;
             (StartDate, EndDate) = Misc.FixOrder(ref StartDate, ref end);
-            switch (Group.ToLower().RemoveAccents())
+            switch (Group.ToLowerInvariant().RemoveAccents())
             {
                 case "month":
                 case "mensal":
@@ -1889,7 +1889,7 @@ namespace InnerLibs.TimeMachine
 
         public string Format(DateTime Date, string Group)
         {
-            switch (Group?.ToLower().RemoveAccents())
+            switch (Group?.ToLowerInvariant().RemoveAccents())
             {
                 case "month":
                 case "mensal":
@@ -1937,7 +1937,7 @@ namespace InnerLibs.TimeMachine
 
         public string Get(string Group)
         {
-            switch (Group?.ToLower().RemoveAccents())
+            switch (Group?.ToLowerInvariant().RemoveAccents())
             {
                 case "month":
                 case "mensal":
@@ -1990,7 +1990,7 @@ namespace InnerLibs.TimeMachine
             MethodInfo method = typeof(DateTime).GetMethod(nameof(DateTime.ToString), new Type[] { });
             MethodCallExpression exp = Expression.Call(prop.Body, method);
             Expression c = Expression.Constant(Culture ?? CultureInfo.CurrentCulture);
-            switch (Group.ToLower().RemoveAccents())
+            switch (Group.ToLowerInvariant().RemoveAccents())
             {
                 case "month":
                 case "mensal":

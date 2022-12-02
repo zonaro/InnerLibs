@@ -14,7 +14,7 @@ namespace InnerLibs.FontAwesome
         /// <returns></returns>
         public static string GetIconByFileExtension(this string Extension)
         {
-            switch (Extension.RemoveAny(".").ToLower() ?? InnerLibs.Text.Empty)
+            switch (Extension.RemoveAny(".").ToLowerInvariant() ?? InnerLibs.Text.Empty)
             {
                 case "vcf":
                 case "vcard":

@@ -29,7 +29,7 @@ namespace InnerLibs
         /// <param name="Text"></param>
         /// <returns></returns>
         public static HSVColor FindColor(this string Text) => HSVColor.NamedColors
-               .FirstOrDefault(x => x.Name.ToLower().Replace("grey", "gray").RemoveAny(PredefinedArrays.PasswordSpecialChars.Union(new[] { " " }).ToArray()) == Text.ToLower().Replace("grey", "gray").RemoveAny(PredefinedArrays.PasswordSpecialChars.Union(new[] { " " }).ToArray()));
+               .FirstOrDefault(x => x.Name.ToLowerInvariant().Replace("grey", "gray").RemoveAny(PredefinedArrays.PasswordSpecialChars.Union(new[] { " " }).ToArray()) == Text.ToLowerInvariant().Replace("grey", "gray").RemoveAny(PredefinedArrays.PasswordSpecialChars.Union(new[] { " " }).ToArray()));
 
         /// <summary>
         /// Retorna o nome comum mais proximo a esta cor

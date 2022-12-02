@@ -397,7 +397,7 @@ namespace InnerLibs.MicroORM
             var resp = new SQLResponse<object>();
             try
             {
-                DataSetType = DataSetType.IfBlank("default").ToLower();
+                DataSetType = DataSetType.IfBlank("default").ToLowerInvariant();
                 var Connection = Command?.Connection;
                 if (Connection == null)
                 {

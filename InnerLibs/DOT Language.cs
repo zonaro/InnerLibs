@@ -31,7 +31,7 @@ namespace InnerLibs.DOTLanguage
                 string val = prop.Value.ToString().QuoteIf(prop.Value.ToString().Contains(" ") | prop.Value.ToString().IsBlank() | prop.Value.ToString().IsURL());
                 if (Misc.IsIn(val, new[] { "True", "False" }))
                 {
-                    val = val.ToLower();
+                    val = val.ToLowerInvariant();
                 }
 
                 if (val.IsNumber())
@@ -202,7 +202,7 @@ namespace InnerLibs.DOTLanguage
         /// <returns></returns>
         public override string ToString()
         {
-            var gg = $"{GraphType}".ToLower();
+            var gg = $"{GraphType}".ToLowerInvariant();
             string s = this.Select(n => n.ToString() + Environment.NewLine).ToArray().SelectJoinString();
             s = s.Split(Environment.NewLine).Distinct().SelectJoinString(Environment.NewLine) + Environment.NewLine;
             if (gg.Equals("graph"))

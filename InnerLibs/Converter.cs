@@ -27,7 +27,7 @@ namespace InnerLibs
                 return false;
             }
 
-            Value = Value.TrimBetween().ToLower();
+            Value = Value.TrimBetween().ToLowerInvariant();
             switch (Value)
             {
                 case "false":

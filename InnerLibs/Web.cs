@@ -99,7 +99,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="URL">URL do Facebook</param>
         /// <returns></returns>
-        public static string GetFacebookUsername(this string URL) => URL.IsURL() && URL.GetDomain().ToLower().IsAny("facebook.com", "fb.com")
+        public static string GetFacebookUsername(this string URL) => URL.IsURL() && URL.GetDomain().ToLowerInvariant().IsAny("facebook.com", "fb.com")
                ? Regex.Match(URL, @"(?:(?:http|https):\/\/)?(?:www.)?facebook.com\/(?:(?:\w)*#!\/)?(?:pages\/)?(?:[?\w\-]*\/)?(?:profile.php\?id=(?=\d.*))?([\w\-]*)?").Groups[1].Value
                  : throw new Exception("Invalid Facebook URL");
 

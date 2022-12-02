@@ -266,7 +266,7 @@ namespace InnerLibs.TimeMachine
             {
                 if (_display == null)
                 {
-                    _display = CultureInfo.CurrentCulture.TwoLetterISOLanguageName.AsIf(x => x.ToLower() == "pt", DateRangeDisplay.DefaultPtBr(), DateRangeDisplay.Default());
+                    _display = CultureInfo.CurrentCulture.TwoLetterISOLanguageName.AsIf(x => x.ToLowerInvariant() == "pt", DateRangeDisplay.DefaultPtBr(), DateRangeDisplay.Default());
                 }
                 return _display;
             }

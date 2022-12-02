@@ -882,7 +882,7 @@ namespace InnerLibs.Printer
                         }
                         else
                         {
-                            HTMLDocument.Root.Add(XElement.Parse($"<span class='align-{Align.ToLower()} font-{FontMode.ToLower()}{IsBold.AsIf(" bold")}{IsItalic.AsIf(" italic")}{IsUnderline.AsIf(" underline")}'>{v.Replace(" ", "&#160;")}</span>"));
+                            HTMLDocument.Root.Add(XElement.Parse($"<span class='align-{Align.ToLowerInvariant()} font-{FontMode.ToLowerInvariant()}{IsBold.AsIf(" bold")}{IsItalic.AsIf(" italic")}{IsUnderline.AsIf(" underline")}'>{v.Replace(" ", "&#160;")}</span>"));
                         }
                     }
                     catch
@@ -1450,7 +1450,7 @@ namespace InnerLibs.Printer.XmlTemplates
         {
             int lines = 0;
 
-            string name = Xml.Name.LocalName.ToLower();
+            string name = Xml.Name.LocalName.ToLowerInvariant();
             if (name.IsIn("br"))
             {
                 try
@@ -1480,7 +1480,7 @@ namespace InnerLibs.Printer.XmlTemplates
                 string sep = "-";
                 foreach (var attr in Xml.Attributes())
                 {
-                    if (attr.Name.LocalName.ToLower() == "char")
+                    if (attr.Name.LocalName.ToLowerInvariant() == "char")
                     {
                         try
                         {
@@ -1559,20 +1559,20 @@ namespace InnerLibs.Printer.XmlTemplates
 
             foreach (var attr in Xml.Attributes())
             {
-                string atname = attr.Name.LocalName.ToLower();
+                string atname = attr.Name.LocalName.ToLowerInvariant();
                 if (atname == "bold")
                 {
-                    Bold($"{attr.Value}".ToLower().IfBlank("true").ToBool());
+                    Bold($"{attr.Value}".ToLowerInvariant().IfBlank("true").ToBool());
                 }
 
                 if (atname == "italic")
                 {
-                    Italic($"{attr.Value}".ToLower().IfBlank("true").ToBool());
+                    Italic($"{attr.Value}".ToLowerInvariant().IfBlank("true").ToBool());
                 }
 
                 if (atname == "underline")
                 {
-                    UnderLine($"{attr.Value}".ToLower().IfBlank("true").ToBool());
+                    UnderLine($"{attr.Value}".ToLowerInvariant().IfBlank("true").ToBool());
                 }
 
                 if (atname == "lines")
@@ -1589,7 +1589,7 @@ namespace InnerLibs.Printer.XmlTemplates
 
                 if (atname == "align")
                 {
-                    switch (attr.Value?.ToLower() ?? InnerLibs.Text.Empty)
+                    switch (attr.Value?.ToLowerInvariant() ?? InnerLibs.Text.Empty)
                     {
                         case "right":
                             {
@@ -1613,7 +1613,7 @@ namespace InnerLibs.Printer.XmlTemplates
 
                 if (atname == "font-size")
                 {
-                    switch (attr.Value?.ToLower() ?? InnerLibs.Text.Empty)
+                    switch (attr.Value?.ToLowerInvariant() ?? InnerLibs.Text.Empty)
                     {
                         case "2":
                         case "medium":
@@ -1639,7 +1639,7 @@ namespace InnerLibs.Printer.XmlTemplates
 
                 if (atname == "font-stretch")
                 {
-                    switch (attr.Value?.ToLower() ?? InnerLibs.Text.Empty)
+                    switch (attr.Value?.ToLowerInvariant() ?? InnerLibs.Text.Empty)
                     {
                         case "2":
                         case "condensed":

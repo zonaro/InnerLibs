@@ -120,7 +120,7 @@ namespace InnerLibs.MicroORM
             {
                 if (condition != null && condition.ToString().IsNotBlank())
                 {
-                    if (LogicOperator.ToLower() == "or")
+                    if (LogicOperator.ToLowerInvariant() == "or")
                     {
                         Or(condition);
                     }
@@ -138,7 +138,7 @@ namespace InnerLibs.MicroORM
             {
                 if (condition != null && condition.ToString().IsNotBlank())
                 {
-                    if (LogicOperator.ToLower() == "or")
+                    if (LogicOperator.ToLowerInvariant() == "or")
                     {
                         Or(condition);
                     }
@@ -1158,7 +1158,7 @@ namespace InnerLibs.MicroORM
             {
                 if (condition != null && condition.ToString().IsNotBlank())
                 {
-                    if (LogicOperator.ToLower().IsAny("||", "|", "or"))
+                    if (LogicOperator.ToLowerInvariant().IsAny("||", "|", "or"))
                     {
                         Or(condition);
                     }
@@ -1184,7 +1184,7 @@ namespace InnerLibs.MicroORM
             {
                 if (condition != null)
                 {
-                    if (LogicOperator.ToLower().IsAny("||", "|", "or"))
+                    if (LogicOperator.ToLowerInvariant().IsAny("||", "|", "or"))
                     {
                         Or(condition);
                     }
@@ -1369,7 +1369,7 @@ namespace InnerLibs.MicroORM
             {
                 foreach (var item in Obj.GetNullableTypeOf().GetProperties().Where(x => x.CanRead))
                 {
-                    if (LogicOperator.ToLower().IsIn("or", "||", "|"))
+                    if (LogicOperator.ToLowerInvariant().IsIn("or", "||", "|"))
                     {
                         Or(item.Name, item.GetValue(Obj));
                     }

@@ -240,7 +240,7 @@ namespace InnerLibs.Console
         {
             if (args.Contains(ArgName, StringComparer.InvariantCultureIgnoreCase))
             {
-                var index = args.Select(x => x.ToLower()).GetIndexOf(ArgName.ToLower());
+                var index = args.Select(x => x.ToLowerInvariant()).GetIndexOf(ArgName.ToLowerInvariant());
                 if (index > -1)
                 {
                     return args.IfBlankOrNoIndex(index + 1, ValueIfNull);

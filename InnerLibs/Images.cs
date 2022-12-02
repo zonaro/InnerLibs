@@ -629,7 +629,7 @@ namespace InnerLibs
         public static Size ParseSize(this string Text)
         {
             var s = new Size();
-            Text = Text.ReplaceMany(" ", "px", " ", ";", ":").ToLower().Trim();
+            Text = Text.ReplaceMany(" ", "px", " ", ";", ":").ToLowerInvariant().Trim();
             Text = Text.Replace("largura", "width");
             Text = Text.Replace("altura", "height");
             Text = Text.Replace("l ", "w ");

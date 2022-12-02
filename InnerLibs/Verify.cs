@@ -24,8 +24,8 @@ namespace InnerLibs
 
         private static readonly Expression<Func<string, bool>>[] passwordValidations = new Expression<Func<string, bool>>[]
             {
-                x => x.ToLower().ToArray().Distinct().Count() >= 4,
-                x => x.ToLower().ToArray().Distinct().Count() >= 6,
+                x => x.ToLowerInvariant().ToArray().Distinct().Count() >= 4,
+                x => x.ToLowerInvariant().ToArray().Distinct().Count() >= 6,
                 x => x.Length >= 8,
                 x => x.ContainsAny(StringComparison.InvariantCulture, PredefinedArrays.PasswordSpecialChars.ToArray()),
                 x => x.ContainsAny(StringComparison.InvariantCulture, PredefinedArrays.NumberChars.ToArray()),
@@ -223,7 +223,7 @@ namespace InnerLibs
         /// <returns>TRUE se estivar vazia ou em branco, caso contrario FALSE</returns>
         public static bool IsBlank(this FormattableString Text) => Text == null || Text.ToString().IsBlank();
 
-        public static bool IsBool<T>(this T Obj) => Misc.GetNullableTypeOf(Obj) == typeof(bool) || Obj?.ToString().ToLower().IsIn<string>("true", "false") == true;
+        public static bool IsBool<T>(this T Obj) => Misc.GetNullableTypeOf(Obj) == typeof(bool) || Obj?.ToString().ToLowerInvariant().IsIn<string>("true", "false") == true;
 
         public static bool IsDate(this string Obj)
         {

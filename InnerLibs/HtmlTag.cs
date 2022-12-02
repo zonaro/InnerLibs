@@ -399,7 +399,7 @@ namespace InnerLibs
             return this;
         }
 
-        public override string ToString() => dic.SelectJoinString(x => $"{x.Key.ToLower()}:{x.Value}", ";");
+        public override string ToString() => dic.SelectJoinString(x => $"{x.Key.ToLowerInvariant()}:{x.Value}", ";");
 
         #endregion Public Methods
     }

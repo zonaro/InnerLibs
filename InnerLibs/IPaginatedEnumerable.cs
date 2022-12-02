@@ -1434,7 +1434,7 @@ namespace InnerLibs.LINQ
         {
             if (Enabled || ForceEnabled)
             {
-                string xx = Operator.AppendIf(QueryStringSeparator, QueryStringSeparator.IsNotBlank() && Operator.ToLower().IsNotAny(InnerLibs.Text.Empty, "=", "==", "===")).UrlEncode();
+                string xx = Operator.AppendIf(QueryStringSeparator, QueryStringSeparator.IsNotBlank() && Operator.ToLowerInvariant().IsNotAny(InnerLibs.Text.Empty, "=", "==", "===")).UrlEncode();
                 return (OnlyValid ? ValidValues() : PropertyValues).Where(x => x != null && x.ToString().IsNotBlank()).SelectJoinString(x => $"{PropertyName}={xx}{x.ToString().UrlEncode()}");
             }
 
@@ -1684,7 +1684,7 @@ namespace InnerLibs.LINQ
         /// <returns></returns>
         public PropertyFilter<ClassType, RemapType> SetOperator(string Operator)
         {
-            this.Operator = Operator.IfBlank("=").ToLower();
+            this.Operator = Operator.IfBlank("=").ToLowerInvariant();
             return this;
         }
 

@@ -257,7 +257,7 @@ namespace InnerLibs
         /// <returns>Uma DataURI em string</returns>
         public static string ToDataURL(this Image Image)
         {
-            return "data:" + Image.GetFileType().First().ToLower().Replace("application/octet-stream", FileTypeExtensions.GetFileType(".png").First()) + ";base64," + Image.ToBase64();
+            return "data:" + Image.GetFileType().First().ToLowerInvariant().Replace("application/octet-stream", FileTypeExtensions.GetFileType(".png").First()) + ";base64," + Image.ToBase64();
         }
 
         /// <summary>
@@ -345,9 +345,9 @@ namespace InnerLibs
             {
                 var regex = new Regex(@"^data:(?<mimeType>(?<mime>\w+)\/(?<extension>\w+));(?<encoding>\w+),(?<data>.*)", RegexOptions.Compiled);
                 var match = regex.Match(DataURI);
-                Mime = match.Groups["mime"].Value.ToLower();
-                Extension = match.Groups["extension"].Value.ToLower();
-                Encoding = match.Groups["encoding"].Value.ToLower();
+                Mime = match.Groups["mime"].Value.ToLowerInvariant();
+                Extension = match.Groups["extension"].Value.ToLowerInvariant();
+                Encoding = match.Groups["encoding"].Value.ToLowerInvariant();
                 Data = match.Groups["data"].Value;
                 if (new[] { Mime, Extension, Encoding, Data }.Any(x => x.IsBlank()))
                 {

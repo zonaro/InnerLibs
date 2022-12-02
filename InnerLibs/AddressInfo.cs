@@ -132,7 +132,7 @@ namespace InnerLibs.Locations
                     return InnerLibs.Text.Empty;
                 }
 
-                key = key.ToLower();
+                key = key.ToLowerInvariant();
                 if (!details.ContainsKey(key))
                 {
                     switch (key)
@@ -177,7 +177,7 @@ namespace InnerLibs.Locations
                 {
                     if (value.IsNotBlank())
                     {
-                        details[key.ToLower()] = value.TrimAny(" ");
+                        details[key.ToLowerInvariant()] = value.TrimAny(" ");
                     }
                     else if (ContainsKey(key))
                     {
@@ -853,7 +853,7 @@ namespace InnerLibs.Locations
 
         public void Clear() => details.Clear();
 
-        public bool ContainsKey(string key) => details.ContainsKey(key.ToLower());
+        public bool ContainsKey(string key) => details.ContainsKey(key.ToLowerInvariant());
 
         /// <summary>
         /// Retona uma informação deste endereço

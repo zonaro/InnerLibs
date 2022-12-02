@@ -131,7 +131,7 @@ namespace InnerLibs
         /// Constroi um File T a partir da extensão ou MIME T de um Arquivo
         /// </summary>
         /// <param name="MimeTypeOrExtensionOrPathOrDataURI">Extensão do arquivo</param>
-        public FileType(string MimeTypeOrExtensionOrPathOrDataURI, FileTypeList FileTypeList = null) => Build(MimeTypeOrExtensionOrPathOrDataURI.ToLower(), FileTypeList);
+        public FileType(string MimeTypeOrExtensionOrPathOrDataURI, FileTypeList FileTypeList = null) => Build(MimeTypeOrExtensionOrPathOrDataURI.ToLowerInvariant(), FileTypeList);
 
         #endregion Public Constructors
 
@@ -159,13 +159,13 @@ namespace InnerLibs
         /// Retorna o subtipo do MIME T (depois da barra)
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<string> SubTypes => GetMimeTypesOrDefault().Select(p => p.ToLower().Trim().GetAfter("/")).Distinct();
+        public IEnumerable<string> SubTypes => GetMimeTypesOrDefault().Select(p => p.ToLowerInvariant().Trim().GetAfter("/")).Distinct();
 
         /// <summary>
         /// Retorna o tipo do MIME T (antes da barra)
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<string> Types => GetMimeTypesOrDefault().Select(p => p.ToLower().Trim().GetBefore("/")).Distinct();
+        public IEnumerable<string> Types => GetMimeTypesOrDefault().Select(p => p.ToLowerInvariant().Trim().GetBefore("/")).Distinct();
 
         #endregion Public Properties
 

@@ -343,7 +343,7 @@ namespace InnerLibs.LINQ
         {
             if (Type != null)
             {
-                return Type.Name.PascalCaseSplit().SelectJoinString(x => x.FirstOrDefault().IfBlank(InnerLibs.Text.Empty), InnerLibs.Text.Empty).ToLower();
+                return Type.Name.PascalCaseSplit().SelectJoinString(x => x.FirstOrDefault().IfBlank(InnerLibs.Text.Empty), InnerLibs.Text.Empty).ToLowerInvariant();
             }
 
             return "p";
@@ -399,7 +399,7 @@ namespace InnerLibs.LINQ
 
             BinaryExpression body = null;
             // Dim body As Expression = Nothing
-            switch (Operator.ToLower().IfBlank("equal"))
+            switch (Operator.ToLowerInvariant().IfBlank("equal"))
             {
                 case "blank":
                 case "compareblank":
@@ -1041,7 +1041,7 @@ namespace InnerLibs.LINQ
                     {
                         try
                         {
-                            var metodo = Member.Type.GetMethods().FirstOrDefault(x => (x.Name.ToLower() ?? InnerLibs.Text.Empty) == (Operator.ToLower() ?? InnerLibs.Text.Empty));
+                            var metodo = Member.Type.GetMethods().FirstOrDefault(x => (x.Name.ToLowerInvariant() ?? InnerLibs.Text.Empty) == (Operator.ToLowerInvariant() ?? InnerLibs.Text.Empty));
                             Expression exp = (Expression)metodo.Invoke(null, new[] { PropertyValues });
                             exp = Expression.Equal(Expression.Invoke(exp, new[] { Member }), Expression.Constant(comparewith));
                             if (body == null)
