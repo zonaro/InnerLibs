@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace InnerLibs
@@ -849,6 +850,7 @@ namespace InnerLibs
         /// </summary>
         /// <returns></returns>
         public HtmlTag FirstChild() => Children.FirstOrDefault();
+        public HtmlTag FirstChild(Expression<Func<HtmlTag, bool>> predicate) => Children.FirstOrDefault(predicate?.Compile());
 
         public string GetAttribute(string key) => Attributes.GetValueOr(key, Text.Empty);
 
@@ -871,10 +873,11 @@ namespace InnerLibs
         public HtmlTag InsertInto(HtmlTag ParentTag)
         {
             ParentTag?.AddChildren(this);
-            return thhis;
+            return this;
         }
 
         public HtmlTag LastChild() => Children.LastOrDefault();
+        public HtmlTag LastChild(Expression<Func<HtmlTag, bool>> predicate) => Children.LastOrDefault(predicate?.Compile());
 
         public HtmlTag RemoveAttr(string AttrName)
         {
