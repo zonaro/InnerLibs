@@ -974,10 +974,10 @@ namespace InnerLibs
         /// <returns></returns>
         public static string GetOppositeWrapChar(this string Text)
         {
-            switch (Text.GetFirstChars() ?? InnerLibs.Text.Empty)
+            switch (Text.GetFirstChars() ?? Empty)
             {
                 case DoubleQuoteChar: return DoubleQuoteChar;
-                case InnerLibs.Text.SingleQuoteChar: return InnerLibs.Text.SingleQuoteChar;
+                case SingleQuoteChar: return SingleQuoteChar;
                 case "(": return ")";
                 case ")": return "(";
                 case "[": return "]";
