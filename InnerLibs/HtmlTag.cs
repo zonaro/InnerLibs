@@ -522,13 +522,9 @@ namespace InnerLibs
                 {
                     case HtmlNodeType.Element:
                         return InnerText;
-
                     case HtmlNodeType.Text:
-                        return _content;
-
                     case HtmlNodeType.Comment:
-                        return $"<!-- {_content} -->";
-
+                        return _content; 
                     default:
                         return "";
                 }
@@ -544,7 +540,7 @@ namespace InnerLibs
 
                     case HtmlNodeType.Comment:
                     case HtmlNodeType.Text:
-                        _content = value;
+                        _content = value.HtmlEncode();
                         break;
 
                     default:
