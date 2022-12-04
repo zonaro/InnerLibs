@@ -409,7 +409,7 @@ namespace InnerLibs
     }
 
     /// <summary>
-    /// Objeto que representa uma tag HTML ou XML com metodos auxiliares
+    /// A Helper for generate HTML or XML Tags/Documents
     /// </summary>
     public class HtmlTag : ICloneable
     {
@@ -419,10 +419,10 @@ namespace InnerLibs
         private string _tagname = "div";
         private Dictionary<string, string> attrs = new Dictionary<string, string>();
 
-        #endregion Private Fields
-
         internal List<HtmlTag> _children = new List<HtmlTag>();
         internal string _content;
+
+        #endregion Private Fields
 
         public HtmlTag() : this(HtmlNodeType.Element)
         {
@@ -446,9 +446,8 @@ namespace InnerLibs
             this.InnerHtml = InnerHtml;
 
             foreach (var Attr in Attributes.CreateDictionary())
-            {
                 this.Attributes.SetOrRemove(Attr.Key, Attr.Value);
-            }
+
         }
 
         public HtmlTag(bool selfClosing, HtmlNodeType type)
@@ -523,7 +522,7 @@ namespace InnerLibs
 
                     case HtmlNodeType.Comment:
                     case HtmlNodeType.Text:
-                        _content = value.HtmlEncode();
+                        _content = $"{value}".HtmlEncode();
                         break;
 
                     default:
@@ -648,7 +647,8 @@ namespace InnerLibs
 
         public static HtmlTag CreateBreakLine() => new HtmlTag("br") { SelfClosing = true };
 
-        public static HtmlTag CreateComment(string Comment) => new HtmlTag(HtmlNodeType.Comment).With(x => x._content = Comment ?? "");
+        public static HtmlTag CreateComment(string Comment) => new HtmlTag(HtmlNodeType.Comment).With(x => x.Content = Comment);
+        public static HtmlTag CreateText(string Text) => new HtmlTag(HtmlNodeType.Text).With(x => x.Content = Text);
 
         public static HtmlTag CreateHorizontalRule() => new HtmlTag("hr") { SelfClosing = true };
 
@@ -759,7 +759,6 @@ namespace InnerLibs
 
         public static HtmlTag ParseTag(Uri Url) => Parse(Url).FirstOrDefault();
 
-        public HtmlTag AddHorizontalRule() => AddChildren(CreateHorizontalRule())
         public HtmlTag AddAnchor(string URL, string Text, string Target = "_self", object htmlAttributes = null)
         {
             _children.Add(CreateAnchor(URL, Text, Target, htmlAttributes));
@@ -776,35 +775,40 @@ namespace InnerLibs
         {
             if (dictionary != null)
             {
-                foreach (var att in dictionary) { SetAttribute(att.Key, att.Value); }
+                foreach (var att in dictionary) SetAttribute(att.Key, att.Value);
             }
             return this;
         }
 
         public HtmlTag AddBreakLine() => AddChildren(CreateBreakLine());
 
-        public HtmlTag AddChildren(string TagName, string InnerHtml = "") => AddChildren(new HtmlTag(TagName, InnerHtml));
+        public HtmlTag AddChildren(string TagName, string InnerHtml = "", Action<HtmlTag> WithTag = null) => AddChildren(new HtmlTag(TagName, InnerHtml).With(WithTag));
 
         public HtmlTag AddChildren(params HtmlTag[] node) => AddChildren((node ?? Array.Empty<HtmlTag>()).AsEnumerable());
 
-        public HtmlTag AddChildren(IEnumerable<HtmlTag> nodes)
+        public HtmlTag AddChildren(IEnumerable<HtmlTag> nodes )
         {
             SelfClosing = false;
             this._children.AddRange(nodes);
             return this;
         }
 
-        public HtmlTag AddClass(string ClassName)
+
+        public HtmlTag AddClass(params string[] ClassName)
         {
-            if (ClassName.IsNotBlank() && ClassName.IsNotIn(ClassList, StringComparer.InvariantCultureIgnoreCase))
+            if (ClassName != null && ClassName.Any())
             {
-                Class = Class.Append(" " + ClassName);
+                ClassList = ClassList.Union(ClassName).Distinct(StringComparer.InvariantCultureIgnoreCase);
             }
 
             return this;
         }
 
         public HtmlTag AddComment(string Comment) => AddChildren(CreateComment(Comment));
+
+        public HtmlTag AddText(string Text) => AddChildren(CreateText(Text));
+
+        public HtmlTag AddHorizontalRule() => AddChildren(CreateHorizontalRule());
 
         public HtmlTag AddTable(string[][] Table, bool Header = false)
         {
@@ -824,32 +828,56 @@ namespace InnerLibs
             return this;
         }
 
+        ///<inheritdoc cref="AddTable{TPoco}(IEnumerable{TPoco}, TPoco, string, string[])"/>
+        ///<inheritdoc cref="AddTable{TPoco}(IEnumerable{TPoco}, TPoco, string, string[])"/>
         public HtmlTag AddTable<TPoco>(IEnumerable<TPoco> Rows) where TPoco : class
         {
             _children.Add(CreateTable(Rows));
             return this;
         }
 
+        /// <summary>
+        /// Generate a table from <typeparamref name="TPoco"/> classes as a childre of this <see cref="HtmlTag"/>
+        /// </summary>
+        /// <typeparam name="TPoco"></typeparam>
+        /// <param name="Rows"></param>
+        /// <param name="header"></param>
+        /// <param name="IDProperty"></param>
+        /// <param name="properties"></param>
+        /// <returns></returns>
         public HtmlTag AddTable<TPoco>(IEnumerable<TPoco> Rows, TPoco header, string IDProperty, params string[] properties) where TPoco : class
         {
             _children.Add(CreateTable(Rows, header, IDProperty, properties));
             return this;
         }
 
+        /// <summary>
+        /// Add a new <see cref="HtmlTag"/> containing a witespace
+        /// </summary>
+        /// <returns></returns>
         public HtmlTag AddWhiteSpace() => AddChildren(CreateWithespace());
 
+        /// <summary>
+        /// Clear all children
+        /// </summary>
+        /// <returns></returns>
         public HtmlTag ClearChildren()
         {
             _children.Clear();
             return this;
         }
 
+        /// <inheritdoc cref="CloneTag"/>
         public object Clone() => CloneTag();
 
+        /// <summary>
+        /// Clone this tag into a new <see cref="HtmlTag"/>
+        /// </summary>
+        /// <returns></returns>
         public HtmlTag CloneTag() => ParseTag(OuterHtml);
 
         /// <summary>
-        /// Retorna o primeiro filho desta tag
+        /// Return the first child
         /// </summary>
         /// <returns></returns>
         public HtmlTag FirstChild() => Children.FirstOrDefault();
@@ -858,7 +886,7 @@ namespace InnerLibs
 
         public string GetAttribute(string key) => Attributes.GetValueOr(key, Text.Empty);
 
-        public bool HasAttribute(string AttrName) => AttrName.IsNotBlank() ? Attributes.ContainsKey(AttrName) : HasAttributes();
+        public bool HasAttribute(string AttrName) => AttrName.IsBlank() ? HasAttributes() : Attributes.ContainsKey(AttrName);
 
         /// <summary>
         /// Determine if attributes property has items.
@@ -873,6 +901,13 @@ namespace InnerLibs
         public bool HasChildren() => this.Children?.Any() ?? false;
 
         public bool HasClass(params string[] Classes) => (Classes?.Any() ?? false ? Classes?.Any(x => ClassList.Contains(x, StringComparer.CurrentCultureIgnoreCase)) : ClassList.Any()) ?? false;
+
+        public HtmlTag Insert(int Index, HtmlTag Tag)
+        {
+            if (Tag != null && Index >= 0)
+                _children.Insert(Index, Tag);
+            return this;
+        }
 
         public HtmlTag InsertInto(HtmlTag ParentTag)
         {

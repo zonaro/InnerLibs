@@ -882,7 +882,12 @@ namespace InnerLibs.QuestionTest
             q.Lines = Lines;
             return q;
         }
-
+        /// <summary>
+        /// Cria uma questão de multiplas alternativas (VERDADEIRO ou FALSO)
+        /// </summary>
+        /// <param name="Statement"></param>
+        /// <param name="Alternatives"></param>
+        /// <returns></returns>
         public MultipleAlternativeQuestion CreateMultipleAlternativeQuestion(string Statement, params string[] Alternatives)
         {
             var q = CreateQuestion<MultipleAlternativeQuestion>(Statement);
@@ -893,7 +898,7 @@ namespace InnerLibs.QuestionTest
             q.Shuffle();
             return q;
         }
-
+        /// <inheritdoc cref="CreateMultipleAlternativeQuestion(string, string[])"/>
         public MultipleAlternativeQuestion CreateMultipleAlternativeQuestion(string Statement, params Alternative[] Alternatives)
         {
             var q = CreateQuestion<MultipleAlternativeQuestion>(Statement);
@@ -902,7 +907,7 @@ namespace InnerLibs.QuestionTest
         }
 
         /// <summary>
-        /// Cria uma questão de
+        /// Cria uma questão de atribuição numérica
         /// </summary>
         /// <param name="Statement"></param>
         /// <param name="MinValue"></param>
@@ -1070,10 +1075,10 @@ namespace InnerLibs.QuestionTest
             return this;
         }
 
-/// <summary>
-/// Retorna uma <see cref="HtmlTag" /> contendo um formulário com esta <see cref="QuestionTest" />
-/// </summary>
-/// <returns></returns>
+        /// <summary>
+        /// Retorna uma <see cref="HtmlTag" /> contendo um formulário com esta <see cref="QuestionTest" />
+        /// </summary>
+        /// <returns></returns>
         public HtmlTag ToHTML()
         {
             var form = new HtmlTag("form");

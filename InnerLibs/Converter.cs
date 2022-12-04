@@ -81,7 +81,7 @@ namespace InnerLibs
         {
             try
             {
-                var met = Value.GetType().GetNullableTypeOf().GetMethods().FirstOrDefault(x => x.Name == $"To{typeof(ToType).Name}" && x.ReturnType == typeof(ToType) && x.IsPublic && x.GetParameters().Any() == false);
+                var met = Value?.GetType().GetNullableTypeOf().GetMethods().FirstOrDefault(x => x.Name == $"To{typeof(ToType).Name}" && x.ReturnType == typeof(ToType) && x.IsPublic && x.GetParameters().Any() == false);
                 if (met != null)
                 {
                     return (ToType)met.Invoke(Value, new object[] { });

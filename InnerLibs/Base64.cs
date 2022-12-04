@@ -184,6 +184,13 @@ namespace InnerLibs
             }
         }
 
+        /// <summary>
+        /// Converte uma Imagem para String Base64
+        /// </summary>
+        /// <param name="OriginalImage">
+        /// Imagem original, tipo Image() (Picturebox.Image, Picturebox.BackgroundImage etc.)
+        /// </param>
+        /// <returns>Uma string em formato Base64</returns>
         public static string ToBase64(this Image OriginalImage)
         {
             using (var ms = new MemoryStream())
@@ -194,16 +201,25 @@ namespace InnerLibs
             }
         }
 
+        /// <summary>
+        /// Converte uma Imagem da WEB para String Base64
+        /// </summary>
+        /// <param name="ImageURL">Caminho da imagem</param>
+        /// <returns>Uma string em formato Base64</returns>
         public static string ToBase64(this Uri ImageURL)
         {
-            var imagem = Web.DownloadImage(ImageURL.AbsoluteUri);
-            using (var m = new MemoryStream())
+            if (ImageURL != null)
             {
-                imagem.Save(m, imagem.RawFormat);
-                var imageBytes = m.ToArray();
-                string base64String = Convert.ToBase64String(imageBytes);
-                return base64String;
+                var imagem = Web.DownloadImage(ImageURL?.AbsoluteUri);
+                using (var m = new MemoryStream())
+                {
+                    imagem.Save(m, imagem.RawFormat);
+                    var imageBytes = m.ToArray();
+                    string base64String = Convert.ToBase64String(imageBytes);
+                    return base64String;
+                }
             }
+            return null;
         }
 
         public static string ToBase64(this string ImageURL, System.Drawing.Imaging.ImageFormat OriginalImageFormat)
@@ -261,17 +277,7 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Converte uma Imagem para String Base64
-        /// </summary>
-        /// <param name="OriginalImage">
-        /// Imagem original, tipo Image() (Picturebox.Image, Picturebox.BackgroundImage etc.)
-        /// </param>
-        /// <param name="OriginalImageFormat">
-        /// Formato da imagem de acordo com sua extensão (JPG, PNG, GIF etc.)
-        /// </param>
-        /// <returns>Uma string em formato Base64</returns>
-        /// <summary>
-        /// Converte uma imagem para DataURI trocando o MIME T
+        /// Converte uma imagem para DataURI trocando o MIME Type
         /// </summary>
         /// <param name="OriginalImage">Imagem</param>
         /// <param name="OriginalImageFormat">Formato da Imagem</param>
@@ -281,18 +287,6 @@ namespace InnerLibs
             return OriginalImage.ToBase64(OriginalImageFormat).Base64ToImage().ToDataURL();
         }
 
-        /// <summary>
-        /// Converte uma Imagem para String Base64
-        /// </summary>
-        /// <param name="OriginalImage">
-        /// Imagem original, tipo Image() (Picturebox.Image, Picturebox.BackgroundImage etc.)
-        /// </param>
-        /// <returns>Uma string em formato Base64</returns>
-        /// <summary>
-        /// Converte uma Imagem da WEB para String Base64
-        /// </summary>
-        /// <param name="ImageURL">Caminho da imagem</param>
-        /// <returns>Uma string em formato Base64</returns>
         /// <summary>
         /// Converte uma Imagem da WEB para String Base64
         /// </summary>
@@ -312,6 +306,7 @@ namespace InnerLibs
         /// Largura da nova imagem (não preencher retorna o tamanho original da imagem)
         /// </param>
         /// <returns>Uma imagem (componente Image)</returns>
+
         /// <summary>
         /// Converte um array de bytes para imagem
         /// </summary>
@@ -362,6 +357,8 @@ namespace InnerLibs
 
         #endregion Public Constructors
 
+
+
         #region Public Properties
 
         /// <summary>
@@ -395,6 +392,8 @@ namespace InnerLibs
         public string Mime { get; private set; }
 
         #endregion Public Properties
+
+
 
         #region Public Methods
 
