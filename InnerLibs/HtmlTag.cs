@@ -431,6 +431,8 @@ namespace InnerLibs
         public HtmlTag(HtmlNodeType type) : base()
         {
             this.Type = type;
+            if (this.Type == HtmlNodeType.Element)
+                this.TagName = "div";
             _stl = new CSSStyles(this);
         }
 
@@ -705,7 +707,8 @@ namespace InnerLibs
             return CreateTable(Rows, h, IDProperty, Properties);
         }
 
-        public static HtmlTag CreateTable<TPoco>(IEnumerable<TPoco> Rows) where TPoco : class => CreateTable(Rows, false, null, null);
+        public static HtmlTag CreateTable<TPoco>(IEnumerable<TPoco> Rows) where TPoco : class => CreateTable(Rows, false);
+        public static HtmlTag CreateTable<TPoco>(IEnumerable<TPoco> Rows, bool Header) where TPoco : class => CreateTable(Rows, Header, null, null);
 
         public static HtmlTag CreateTable<TPoco>(IEnumerable<TPoco> Rows, TPoco header, string IDProperty, params string[] properties) where TPoco : class
         {
@@ -786,10 +789,14 @@ namespace InnerLibs
 
         public HtmlTag AddChildren(params HtmlTag[] node) => AddChildren((node ?? Array.Empty<HtmlTag>()).AsEnumerable());
 
-        public HtmlTag AddChildren(IEnumerable<HtmlTag> nodes )
+        public HtmlTag AddChildren(IEnumerable<HtmlTag> nodes)
         {
-            SelfClosing = false;
-            this._children.AddRange(nodes);
+            if (nodes != null)
+            {
+                SelfClosing = false;
+                this._children.AddRange(nodes.Where(x => x != null));
+            }
+
             return this;
         }
 
@@ -902,6 +909,7 @@ namespace InnerLibs
 
         public bool HasClass(params string[] Classes) => (Classes?.Any() ?? false ? Classes?.Any(x => ClassList.Contains(x, StringComparer.CurrentCultureIgnoreCase)) : ClassList.Any()) ?? false;
 
+        public HtmlTag Insert(int Index, string TagName, string InnerHtml = "") => Insert(Index, new HtmlTag(TagName, InnerHtml));
         public HtmlTag Insert(int Index, HtmlTag Tag)
         {
             if (Tag != null && Index >= 0)

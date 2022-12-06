@@ -1382,6 +1382,7 @@ namespace InnerLibs
         public static string FormatTelephoneNumber(this string Number)
         {
             Number = Number ?? Empty;
+            if (Number.IsBlank()) return Number;
             Number = Number.ParseDigits().RemoveAny(",", ".").TrimBetween().GetLastChars(13);
             string mask;
             if (Number.Length <= 4)

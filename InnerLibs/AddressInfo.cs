@@ -501,7 +501,7 @@ namespace InnerLibs.Locations
         /// <param name="Country"></param>
         /// <param name="PostalCode"></param>
         /// <returns></returns>
-        public static string FormatAddress(string Address, string Number = InnerLibs.Text.Empty, string Complement = InnerLibs.Text.Empty, string Neighborhood = InnerLibs.Text.Empty, string City = InnerLibs.Text.Empty, string State = InnerLibs.Text.Empty, string Country = InnerLibs.Text.Empty, string PostalCode = InnerLibs.Text.Empty, params AddressPart[] Parts) => CreateLocation(Address, Number, Complement, Neighborhood, City, State, Country, PostalCode).ToString(Parts);
+        public static string FormatAddress(string Address = null, string Number = InnerLibs.Text.Empty, string Complement = InnerLibs.Text.Empty, string Neighborhood = InnerLibs.Text.Empty, string City = InnerLibs.Text.Empty, string State = InnerLibs.Text.Empty, string Country = InnerLibs.Text.Empty, string PostalCode = InnerLibs.Text.Empty, params AddressPart[] Parts) => CreateLocation(Address, Number, Complement, Neighborhood, City, State, Country, PostalCode).ToString(Parts);
 
         public static string FormatPostalCode(string CEP)
         {

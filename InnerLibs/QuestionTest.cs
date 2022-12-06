@@ -1161,7 +1161,7 @@ namespace InnerLibs.QuestionTest
             return form;
         }
 
-        public override string ToString() => Title;
+        public override string ToString() => ToHTML()?.OuterHtml ?? Text.Empty;
     }
 
     /// <summary>
