@@ -42,6 +42,8 @@ namespace InnerLibs.QuestionTest
 
         #endregion Internal Fields
 
+
+
         #region Internal Constructors
 
         internal Alternative(AlternativeQuestion question)
@@ -50,6 +52,8 @@ namespace InnerLibs.QuestionTest
         }
 
         #endregion Internal Constructors
+
+
 
         #region Public Properties
 
@@ -98,6 +102,8 @@ namespace InnerLibs.QuestionTest
 
         #endregion Public Properties
 
+
+
         #region Public Methods
 
         public override string ToString() => Number.ToRoman().Quote('(') + Text;
@@ -110,6 +116,25 @@ namespace InnerLibs.QuestionTest
     /// </summary>
     public class AlternativeList : ObservableCollection<Alternative>
     {
+        #region Internal Constructors
+
+        internal AlternativeList(AlternativeQuestion l)
+        {
+            Question = l;
+        }
+
+        #endregion Internal Constructors
+
+
+
+        #region Public Properties
+
+        public AlternativeQuestion Question { get; private set; }
+
+        #endregion Public Properties
+
+
+
         #region Protected Methods
 
         protected override sealed void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
@@ -138,23 +163,6 @@ namespace InnerLibs.QuestionTest
 
         #endregion Protected Methods
 
-        #region Internal Constructors
-
-        internal AlternativeList(AlternativeQuestion l)
-        {
-            Question = l;
-        }
-
-        #endregion Internal Constructors
-
-        #region Public Properties
-
-        public AlternativeQuestion Question { get; private set; }
-
-        #endregion Public Properties
-
-        #region Public Methods
-
         /// <summary>
         /// Adiciona uma alternativa a questão. A alternativa é ignorada se já existir na lista
         /// </summary>
@@ -172,8 +180,6 @@ namespace InnerLibs.QuestionTest
         public override string ToString() => ToString("Alternatives");
 
         public string ToString(string AlternativesWord) => $"{Count} {AlternativesWord.QuantifyText(Count)}";
-
-        #endregion Public Methods
     }
 
     /// <summary>
@@ -189,6 +195,8 @@ namespace InnerLibs.QuestionTest
         }
 
         #endregion Internal Constructors
+
+
 
         #region Public Properties
 
@@ -211,6 +219,8 @@ namespace InnerLibs.QuestionTest
         public IEnumerable<Alternative> Answer => Alternatives.Where(p => p.Checked);
 
         #endregion Public Properties
+
+
 
         #region Public Methods
 
@@ -252,6 +262,8 @@ namespace InnerLibs.QuestionTest
 
         #endregion Private Fields
 
+
+
         #region Internal Constructors
 
         internal DissertativeQuestion(QuestionTest Test) : base()
@@ -260,6 +272,8 @@ namespace InnerLibs.QuestionTest
         }
 
         #endregion Internal Constructors
+
+
 
         #region Public Properties
 
@@ -331,6 +345,8 @@ namespace InnerLibs.QuestionTest
 
         #endregion Internal Constructors
 
+
+
         #region Public Properties
 
         /// <summary>
@@ -364,6 +380,8 @@ namespace InnerLibs.QuestionTest
 
         #endregion Private Fields
 
+
+
         #region Internal Constructors
 
         internal NumericQuestion(QuestionTest Test) : base()
@@ -372,6 +390,8 @@ namespace InnerLibs.QuestionTest
         }
 
         #endregion Internal Constructors
+
+
 
         #region Public Properties
 
@@ -433,11 +453,15 @@ namespace InnerLibs.QuestionTest
 
         #endregion Internal Fields
 
+
+
         #region Internal Constructors
 
         internal Question() => _statement = new QuestionStatement() { _question = this };
 
         #endregion Internal Constructors
+
+
 
         #region Public Properties
 
@@ -517,6 +541,8 @@ namespace InnerLibs.QuestionTest
 
         #endregion Public Properties
 
+
+
         #region Public Methods
 
         /// <summary>
@@ -541,11 +567,15 @@ namespace InnerLibs.QuestionTest
 
         #endregion Internal Fields
 
+
+
         #region Internal Constructors
 
         internal QuestionStatement() => this.Images = new StatementImages(this);
 
         #endregion Internal Constructors
+
+
 
         #region Public Properties
 
@@ -571,6 +601,8 @@ namespace InnerLibs.QuestionTest
 
         #endregion Public Properties
 
+
+
         #region Public Methods
 
         public override string ToString() => Text;
@@ -592,64 +624,6 @@ namespace InnerLibs.QuestionTest
         private Dictionary<string, object> personalInfo = new Dictionary<string, object>();
 
         #endregion Private Fields
-
-        #region Protected Methods
-
-        protected override sealed void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
-        {
-            base.OnCollectionChanged(e);
-            switch (e?.Action)
-            {
-                case NotifyCollectionChangedAction.Add:
-                    {
-                        Debug.WriteLine("Question Added");
-                        foreach (var ni in e.NewItems)
-                        {
-                            Question q = (Question)ni;
-                            q._test = this;
-                        }
-
-                        break;
-                    }
-
-                case NotifyCollectionChangedAction.Remove:
-                    {
-                        Debug.WriteLine("Question Removed");
-                        foreach (var ni in e.OldItems)
-                        {
-                            Question q = (Question)ni;
-                            q._test = null;
-                        }
-
-                        break;
-                    }
-
-                case NotifyCollectionChangedAction.Replace:
-                    {
-                        Debug.WriteLine("Question Replaced");
-                        foreach (var ni in e.NewItems)
-                        {
-                            Question q = (Question)ni;
-                            q._test = this;
-                        }
-
-                        foreach (var ni in e.OldItems)
-                        {
-                            Question q = (Question)ni;
-                            q._test = null;
-                        }
-
-                        break;
-                    }
-
-                default:
-                    {
-                        break;
-                    }
-            }
-        }
-
-        #endregion Protected Methods
 
         #region Public Constructors
 
@@ -677,6 +651,8 @@ namespace InnerLibs.QuestionTest
         }
 
         #endregion Public Constructors
+
+
 
         #region Public Properties
 
@@ -770,7 +746,65 @@ namespace InnerLibs.QuestionTest
 
         #endregion Public Properties
 
-        #region Public Methods
+
+
+        #region Protected Methods
+
+        protected override sealed void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
+        {
+            base.OnCollectionChanged(e);
+            switch (e?.Action)
+            {
+                case NotifyCollectionChangedAction.Add:
+                    {
+                        Debug.WriteLine("Question Added");
+                        foreach (var ni in e.NewItems)
+                        {
+                            Question q = (Question)ni;
+                            q._test = this;
+                        }
+
+                        break;
+                    }
+
+                case NotifyCollectionChangedAction.Remove:
+                    {
+                        Debug.WriteLine("Question Removed");
+                        foreach (var ni in e.OldItems)
+                        {
+                            Question q = (Question)ni;
+                            q._test = null;
+                        }
+
+                        break;
+                    }
+
+                case NotifyCollectionChangedAction.Replace:
+                    {
+                        Debug.WriteLine("Question Replaced");
+                        foreach (var ni in e.NewItems)
+                        {
+                            Question q = (Question)ni;
+                            q._test = this;
+                        }
+
+                        foreach (var ni in e.OldItems)
+                        {
+                            Question q = (Question)ni;
+                            q._test = null;
+                        }
+
+                        break;
+                    }
+
+                default:
+                    {
+                        break;
+                    }
+            }
+        }
+
+        #endregion Protected Methods
 
         public static bool operator !=(QuestionTest left, QuestionTest right)
         {
@@ -848,7 +882,12 @@ namespace InnerLibs.QuestionTest
             q.Lines = Lines;
             return q;
         }
-
+        /// <summary>
+        /// Cria uma questão de multiplas alternativas (VERDADEIRO ou FALSO)
+        /// </summary>
+        /// <param name="Statement"></param>
+        /// <param name="Alternatives"></param>
+        /// <returns></returns>
         public MultipleAlternativeQuestion CreateMultipleAlternativeQuestion(string Statement, params string[] Alternatives)
         {
             var q = CreateQuestion<MultipleAlternativeQuestion>(Statement);
@@ -859,7 +898,7 @@ namespace InnerLibs.QuestionTest
             q.Shuffle();
             return q;
         }
-
+        /// <inheritdoc cref="CreateMultipleAlternativeQuestion(string, string[])"/>
         public MultipleAlternativeQuestion CreateMultipleAlternativeQuestion(string Statement, params Alternative[] Alternatives)
         {
             var q = CreateQuestion<MultipleAlternativeQuestion>(Statement);
@@ -868,7 +907,7 @@ namespace InnerLibs.QuestionTest
         }
 
         /// <summary>
-        /// Cria uma questão de
+        /// Cria uma questão de atribuição numérica
         /// </summary>
         /// <param name="Statement"></param>
         /// <param name="MinValue"></param>
@@ -1036,84 +1075,93 @@ namespace InnerLibs.QuestionTest
             return this;
         }
 
+        /// <summary>
+        /// Retorna uma <see cref="HtmlTag" /> contendo um formulário com esta <see cref="QuestionTest" />
+        /// </summary>
+        /// <returns></returns>
         public HtmlTag ToHTML()
         {
-            var str = "";
+            var form = new HtmlTag("form");
+            var header = new HtmlTag("header").InsertInto(form);
 
             if (Title.IsNotBlank())
             {
-                str += Title.WrapInTag("h1");
+                header.AddChildren("h1", Title).AddClass("main-title");
             }
-            if (PersonalInfo.Any())
+            if (PersonalInfo != null && PersonalInfo.Any())
             {
-                str += PersonalInfo.SelectJoinString(inf => new HtmlTag("label", inf.Key) + HtmlTag.CreateInput(inf.Key + "_input", $"{inf.Value}"), "<br>")
-                .WrapInTag("section").AddClass("personal-info");
-            }
-            str = str.WrapInTag("header");
-            str += "<hr>";
+                var section = new HtmlTag("section")
+                .AddClass("personal-info")
+                .InsertInto(header);
 
-            var list = new HtmlTag("section").AddClass("question-list");
+                foreach (var inf in PersonalInfo)
+                {
+                    new HtmlTag("div")
+                    .AddClass("personal-info-item")
+                   .AddChildren("label", inf.Key)
+                   .AddChildren(HtmlTag.CreateInput($"{inf.Key}_personalinfo_input", $"{inf.Value}"))
+                   .AddBreakLine()
+                   .InsertInto(section);
+                }
+            }
+
+            header.AddHorizontalRule();
+
+            var list = new HtmlTag("section").AddClass("question-list").InsertInto(form);
 
             foreach (var quest in this.Questions)
             {
-                var sq = new HtmlTag("article").AddClass($"question-{quest.Number}").SetID(quest.ID);
-
-                sq.InnerHtml += quest.Statement.ToString().WrapInTag("h3").AddClass($"question-text-{quest.Number}");
+                var sq = new HtmlTag("article").AddClass($"question-{quest.Number}").SetID(quest.ID).InsertInto(list)
+                .AddChildren(quest.Statement.ToString().WrapInTag("h3").AddClass($"question-text-{quest.Number}"));
 
                 if (quest.Statement.Images.Any())
                 {
-                    var imgpart = "";
+                    var imgpart = new HtmlTag("div").AddClass($"images-{quest.Number}").InsertInto(sq);
                     foreach (var i in quest.Statement.Images)
                     {
-                        var img = HtmlTag.CreateImage(i.Image).SetAttribute("alt", i.Subtitle).SetID(i.ID).AddClass($"img-{i.Number}");
-                        var caption = new HtmlTag("figcaption", $"{i.Number} - {i.Subtitle}").AddClass($"cap-{i.Number}");
-                        imgpart += new HtmlTag("figure", img + caption);
+                        new HtmlTag("figure")
+                        .AddChildren(HtmlTag.CreateImage(i.Image).SetAttribute("alt", i.Subtitle).SetID(i.ID).AddClass($"img-{i.Number}"))
+                        .AddChildren("figcaption", $"{i.Number} - {i.Subtitle}").AddClass($"cap-{i.Number}")
+                        .InsertInto(imgpart);
                     }
 
-                    sq.InnerHtml += imgpart.ToString().WrapInTag("div").AddClass($"images-{quest.Number}"); ;
                 }
 
                 if (quest is DissertativeQuestion diss)
                 {
-                    sq.InnerHtml += new HtmlTag("textarea", diss.Answer).SetID(diss.ID).SetAttribute("name", diss.ID).SetAttribute("rows", $"{diss.Lines}");
+                    new HtmlTag("textarea", diss.Answer).SetID(diss.ID).SetAttribute("name", diss.ID).SetAttribute("rows", $"{diss.Lines}").InsertInto(sq);
                 }
                 else if (quest is AlternativeQuestion altquest)
                 {
-                    var div = new HtmlTag("div").AddClass("alt-" + altquest.ID);
+                    var alts = new HtmlTag("div").AddClass("alt-" + altquest.ID).InsertInto(sq);
                     foreach (var alt in altquest.Alternatives)
                     {
-                        var lab = new HtmlTag("label").SetAttribute("for", alt.ID);
+                        var lab = new HtmlTag("label").SetAttribute("for", alt.ID).InsertInto(alts);
 
                         if (altquest is MultipleAlternativeQuestion)
                         {
-                            lab.InnerHtml += HtmlTag.CreateInput(alt.Question.ID, alt.ID, "checkbox").SetProp("checked", alt.Checked);
+                            HtmlTag.CreateInput(alt.Question.ID, alt.ID, "checkbox").SetProp("checked", alt.Checked).InsertInto(lab);
                         }
                         else
                         {
-                            lab.InnerHtml += HtmlTag.CreateInput(alt.Question.ID, alt.ID, "radio").SetProp("checked", alt.Checked);
+                            HtmlTag.CreateInput(alt.Question.ID, alt.ID, "radio").SetProp("checked", alt.Checked).InsertInto(lab);
                         }
 
-                        lab.InnerHtml += new HtmlTag("span", alt.Text) + new HtmlTag("br") { SelfClosing = true };
-                        div.InnerHtml += lab;
+                        lab.AddChildren("span", alt.Text).AddBreakLine();
+
                     }
-                    sq.InnerHtml += div;
+
                 }
                 else if (quest is NumericQuestion num)
                 {
-                    sq.InnerHtml += HtmlTag.CreateInput(num.ID, $"{num.Answer}", "number").SetID(num.ID).SetAttribute("min", $"{num.MinValue}").SetAttribute("max", $"{num.MaxValue}");
+                    HtmlTag.CreateInput(num.ID, $"{num.Answer}", "number").SetID(num.ID).SetAttribute("min", $"{num.MinValue}").SetAttribute("max", $"{num.MaxValue}").InsertInto(sq);
                 }
-
-                list.InnerHtml += sq;
             }
 
-            str += list;
-
-            return str.WrapInTag("form");
+            return form;
         }
 
-        public override string ToString() => Title;
-
-        #endregion Public Methods
+        public override string ToString() => ToHTML()?.OuterHtml ?? Text.Empty;
     }
 
     /// <summary>
@@ -1129,6 +1177,8 @@ namespace InnerLibs.QuestionTest
         }
 
         #endregion Internal Constructors
+
+
 
         #region Public Properties
 
@@ -1195,6 +1245,8 @@ namespace InnerLibs.QuestionTest
 
         #endregion Internal Constructors
 
+
+
         #region Public Properties
 
         /// <summary>
@@ -1242,11 +1294,15 @@ namespace InnerLibs.QuestionTest
 
         #endregion Internal Constructors
 
+
+
         #region Public Properties
 
         public QuestionStatement Statement { get; private set; }
 
         #endregion Public Properties
+
+
 
         #region Public Methods
 

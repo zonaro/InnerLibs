@@ -530,7 +530,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static string[] FindTelephoneNumbers(this string Text) => Text.FindByRegex(@"\b[\s()\d-]{6,}\d\b", (RegexOptions)((int)RegexOptions.Singleline + (int)RegexOptions.IgnoreCase)).Select(x => x.MaskTelephoneNumber()).ToArray();
+        public static string[] FindTelephoneNumbers(this string Text) => Text.FindByRegex(@"\b[\s()\d-]{6,}\d\b", (RegexOptions)((int)RegexOptions.Singleline + (int)RegexOptions.IgnoreCase)).Select(x => x.FormatTelephoneNumber()).ToArray();
 
         public static string FixCapitalization(this string Text)
         {
@@ -1379,9 +1379,10 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Number"></param>
         /// <returns></returns>
-        public static string MaskTelephoneNumber(this string Number)
+        public static string FormatTelephoneNumber(this string Number)
         {
             Number = Number ?? Empty;
+            if (Number.IsBlank()) return Number;
             Number = Number.ParseDigits().RemoveAny(",", ".").TrimBetween().GetLastChars(13);
             string mask;
             if (Number.Length <= 4)
@@ -1402,17 +1403,17 @@ namespace InnerLibs
             return string.Format(mask, long.Parse(Number.IfBlank("0")));
         }
 
-        /// <inheritdoc cref="MaskTelephoneNumber(int)"/>
-        public static string MaskTelephoneNumber(this long Number) => MaskTelephoneNumber($"{Number}");
+        /// <inheritdoc cref="FormatTelephoneNumber(int)"/>
+        public static string FormatTelephoneNumber(this long Number) => FormatTelephoneNumber($"{Number}");
 
-        /// <inheritdoc cref="MaskTelephoneNumber(string)"/>
-        public static string MaskTelephoneNumber(this int Number) => MaskTelephoneNumber($"{Number}");
+        /// <inheritdoc cref="FormatTelephoneNumber(string)"/>
+        public static string FormatTelephoneNumber(this int Number) => FormatTelephoneNumber($"{Number}");
 
-        /// <inheritdoc cref="MaskTelephoneNumber(int)"/>
-        public static string MaskTelephoneNumber(this decimal Number) => MaskTelephoneNumber($"{Number}");
+        /// <inheritdoc cref="FormatTelephoneNumber(int)"/>
+        public static string FormatTelephoneNumber(this decimal Number) => FormatTelephoneNumber($"{Number}");
 
-        /// <inheritdoc cref="MaskTelephoneNumber(int)"/>
-        public static string MaskTelephoneNumber(this double Number) => MaskTelephoneNumber($"{Number}");
+        /// <inheritdoc cref="FormatTelephoneNumber(int)"/>
+        public static string FormatTelephoneNumber(this double Number) => FormatTelephoneNumber($"{Number}");
 
         /// <summary>
         /// Adciona caracteres ao inicio e final de uma string enquanto o <see
