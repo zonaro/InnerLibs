@@ -141,12 +141,13 @@ namespace InnerLibs.TimeMachine
     /// </summary>
     public class TimeDemand : DateRange
     {
-        #region Private Fields
+
 
         private List<JourneyDay> _journeys = new List<JourneyDay>();
         private int _quantity = 1;
+        private List<DateTime> _holiDays = new List<DateTime>();
 
-        #endregion Private Fields
+
 
         #region Public Constructors
 
@@ -214,7 +215,15 @@ namespace InnerLibs.TimeMachine
         /// Feriados, pontos facultativos e/ou datas especificas consideradas não relevantes
         /// </summary>
         /// <returns></returns>
-        public List<DateTime> HoliDays { get; set; } = new List<DateTime>();
+        public List<DateTime> HoliDays
+        {
+            get
+            {
+                _holiDays = _holiDays ?? new List<DateTime>();
+                return _holiDays;
+            }
+            set => _holiDays = value ?? new List<DateTime>();
+        }
 
         public string ItemName { get; set; } = "Items";
 
@@ -241,11 +250,7 @@ namespace InnerLibs.TimeMachine
         /// <returns></returns>
         public JourneyDay Monday => GetJourneyDay(DayOfWeek.Monday);
 
-        /// <summary>
-        /// Dias não relevantes (nao letivos e feriados) entre as datas inicial e final
-        /// </summary>
-        /// <returns></returns>
-        public IEnumerable<DateTime> NonRelevantDays => GetWorkDays().ClearTime().Where(x => x.IsNotIn(RelevantDays));
+
 
         /// <summary>
         /// Tempo total de produção de todos os itens
@@ -257,7 +262,14 @@ namespace InnerLibs.TimeMachine
         /// Dias relevantes (letivos) entre as datas inicial e final
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<DateTime> RelevantDays => GetWorkDays(RelevantDaysOfWeek.ToArray()).ClearTime().Where(x => x.IsNotIn(HoliDays.ClearTime()));
+        public IEnumerable<DateTime> RelevantDays => GetDays(RelevantDaysOfWeek.ToArray()).ClearTime().Where(x => x.IsNotIn(HoliDays.ClearTime())).OrderBy(x => x);
+
+        /// <summary>
+        /// Dias não relevantes (não letivos) entre as datas inicial e final
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<DateTime> NonRelevantDays => GetDays(NonRelevantDaysOfWeek.ToArray()).Union(HoliDays.ClearTime()).Distinct().OrderBy(x => x);
+
 
         /// <summary>
         /// Dias da semana relevantes
@@ -368,12 +380,14 @@ namespace InnerLibs.TimeMachine
         /// <returns></returns>
         public decimal GetPercentCompletion(DateTime MidDate) => MidDate.CalculateTimelinePercent(StartDate, EndDate);
 
+        public decimal GetPercentCompletion() => GetPercentCompletion(DateTime.Now);
+
         /// <summary>
         /// Dias especificos da semana entre as datas inicial e final da demanda
         /// </summary>
         /// <param name="DaysOfWeek">Dias da semana</param>
         /// <returns></returns>
-        public IEnumerable<DateTime> GetWorkDays(params DayOfWeek[] DaysOfWeek) => StartDate.GetDaysBetween(EndDate, DaysOfWeek.ToArray());
+        public IEnumerable<DateTime> GetWeekDays(params DayOfWeek[] DaysOfWeek) => StartDate.GetDaysBetween(EndDate, DaysOfWeek.ToArray());
 
         public TimeSpan GetWorkingTimeUntil(DateTime EndDate) => GetWorkTimeBetween(StartDate, EndDate);
 
@@ -435,7 +449,7 @@ namespace InnerLibs.TimeMachine
             base.StartDate = PushDateIntoJourney(StartDate);
             base.EndDate = base.StartDate.Add(ProductionTime);
 
-            foreach (var dia in GetRelevantDays())
+            foreach (var dia in RelevantDays)
             {
                 if (!(dia.Date == base.EndDate.Date))
                 {
@@ -452,9 +466,9 @@ namespace InnerLibs.TimeMachine
                 }
             }
 
-            var nrd = (HoliDays ?? new List<DateTime>()).Union(GetNonRelevantDays()).ClearTime().Distinct().ToArray();
+            var nrd = NonRelevantDays.ToArray();
 
-            base.EndDate = base.EndDate.AddDays(nrd.Count());
+            base.EndDate = base.EndDate.AddDays(nrd.Length);
             var lasthours = new TimeSpan();
             var jeh = JourneyEndHour(base.EndDate);
             if (jeh.HasValue && base.EndDate.TimeOfDay > jeh.Value.TimeOfDay)
@@ -514,7 +528,7 @@ namespace InnerLibs.TimeMachine
         /// Retorna uma string representado a quantidade de itens e o tempo gasto com a produção
         /// </summary>
         /// <returns></returns>
-        public override string ToString() => ItemQuantity.ToString() + " " + ItemQuantity.QuantifyText(ItemName) + " - " + base.ToString();
+        public override string ToString() => $"{ItemQuantity} {ItemQuantity.QuantifyText(ItemName)} - {base.ToString()}";
 
         /// <summary>
         /// Retorna a jornada de trabalho + hora de almoço de uma data de acordo com as

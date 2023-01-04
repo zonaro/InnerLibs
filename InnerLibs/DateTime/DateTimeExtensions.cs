@@ -274,14 +274,6 @@ namespace InnerLibs.TimeMachine
             return (decimal)((MidDate - StartDate).Ticks * 100L / (double)(EndDate - StartDate).Ticks);
         }
 
-        /// <summary>
-        /// Converte uma string de data para outra string de data com formato diferente
-        /// </summary>
-        /// <param name="DateString">String original</param>
-        /// <param name="InputFormat"></param>
-        /// <param name="Culture"></param>
-        /// <returns></returns>
-        public static string ChangeDateFormat(this string DateString, string InputFormat, string OutputFormat, CultureInfo Culture = null) => DateString.ConvertDateString(InputFormat, Culture).ToString(OutputFormat);
 
         /// <summary>
         /// Clear Milliseconds from <see cref="DateTime"/>
@@ -1772,11 +1764,21 @@ namespace InnerLibs.TimeMachine
         public static string ToShortMonthName(this int MonthNumber, CultureInfo Culture = null) => new DateTime(DateTime.Now.Year, MonthNumber.LimitRange(1, 12), 1).GetShortMonthName(Culture);
 
         /// <summary>
+        /// Converte uma string de data para outra string de data com formato diferente
+        /// </summary>
+        /// <param name="DateString">String original</param>
+        /// <param name="InputFormat"></param>
+        /// <param name="Culture"></param>
+        /// <returns></returns>     
+        public static string ChangeDateFormat(this string Date, string FromFormat, string ToFormat) => Date != null && Date.IsDate() ? DateTime.ParseExact(Date, FromFormat, CultureInfo.InvariantCulture).ToString(ToFormat, CultureInfo.InvariantCulture) : Date;
+
+
+        /// <summary>
         /// COnverte um datetime para o formato de string do SQL server ou Mysql
         /// </summary>
         /// <param name="[Date]">Data</param>
         /// <returns></returns>
-        public static string ToSQLDateString(this DateTime Date) => Date.ToString("yyyy-MM-dd HH:mm:ss.fffffff");
+        public static string ToSQLDateString(this DateTime Date) => Date.ToString("yyyy-MM-dd HH:mm:ss.fffffff", CultureInfo.InvariantCulture);
 
         /// <summary>
         /// Converte uma string dd/mm/aaaa hh:mm:ss.llll para o formato de string do SQL server ou Mysql
@@ -1784,7 +1786,9 @@ namespace InnerLibs.TimeMachine
         /// <param name="[Date]">Data</param>
         /// <returns></returns>
         public static string ToSQLDateString(this string Date, string FromCulture = "pt-BR") => Date.ToSQLDateString(new CultureInfo(FromCulture, false));
-
+        /// <summary>
+        /// Converte uma string dd/mm/aaaa hh:mm:ss.llll para o formato de string do SQL server ou Mysql
+        /// </summary>
         public static string ToSQLDateString(this string Date, CultureInfo FromCulture) => Date.IsNotBlank() ? Convert.ToDateTime(Date, (FromCulture ?? CultureInfo.CurrentCulture).DateTimeFormat).ToSQLDateString() : Date;
 
         /// <summary>

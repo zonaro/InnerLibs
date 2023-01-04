@@ -413,15 +413,15 @@ namespace InnerLibs
         /// Verifica se uma String não está em branco
         /// </summary>
         /// <param name="Text">Uma string</param>
-        /// <returns>FALSE se estivar vazia ou em branco, caso contrario TRUE</returns>
+        /// <returns>FALSE se estiver nula, vazia ou em branco, caso contrario TRUE</returns>
         public static bool IsNotBlank(this string Text) => !IsBlank(Text);
 
         /// <summary>
         /// Verifica se uma String não está em branco
         /// </summary>
         /// <param name="Text">Uma string</param>
-        /// <returns>FALSE se estivar vazia ou em branco, caso contrario TRUE</returns>
-        public static bool IsNotBlank(this FormattableString Text) => IsNotBlank(Text?.ToString());
+        /// <returns>FALSE se estiver nula, vazia ou em branco, caso contrario TRUE</returns>
+        public static bool IsNotBlank(this FormattableString Text) => Text != null && IsNotBlank(FormattableString.Invariant(Text));
 
         /// <summary>
         /// Verifica se o valor não é um numero
@@ -439,8 +439,8 @@ namespace InnerLibs
         {
             try
             {
-                Convert.ToDecimal(Value);
-                return !Value.ToString().IsIP() && !(Value.GetType() == typeof(DateTime));
+                Convert.ToDecimal(Value, CultureInfo.InvariantCulture);
+                return Value != null && $"{Value}".IsIP() == false && ((Value.GetType() == typeof(DateTime)) == false);
             }
             catch
             {
@@ -552,7 +552,7 @@ namespace InnerLibs
 
                 int x = v % 11;
                 int vl2 = x >= 10 ? 0 : x - dsc;
-                isValid = ((vl1.ToString() ?? InnerLibs.Text.Empty) + (vl2.ToString() ?? InnerLibs.Text.Empty) ?? InnerLibs.Text.Empty) == (CNH.Substring(CNH.Length - 2, 2) ?? InnerLibs.Text.Empty);
+                isValid = ($"{vl1.ToString() ?? InnerLibs.Text.Empty}{vl2.ToString() ?? InnerLibs.Text.Empty}" ?? InnerLibs.Text.Empty) == (CNH.Substring(CNH.Length - 2, 2) ?? InnerLibs.Text.Empty);
             }
 
             return isValid;
@@ -649,10 +649,10 @@ namespace InnerLibs
                         var loopTo = 9 + (k - 1);
                         for (j = 0; j <= loopTo; j++)
                         {
-                            soma += int.Parse(Text[j].ToString()) * (10 + k - j);
+                            soma += int.Parse($"{Text[j]}", CultureInfo.InvariantCulture) * (10 + k - j);
                         }
 
-                        digito += (soma % 11 == 0 || soma % 11 == 1 ? 0 : 11 - soma % 11).ToString();
+                        digito += $"{(soma % 11 == 0 || soma % 11 == 1 ? 0 : 11 - (soma % 11))}";
                     }
 
                     return digito[0] == Text[9] & digito[1] == Text[10];
@@ -752,7 +752,7 @@ namespace InnerLibs
 
             for (var i = 0; i < 10; i++)
             {
-                soma += int.Parse(PIS[i].ToString()) * multiplicador[i];
+                soma += int.Parse($"{PIS[i]}", CultureInfo.InvariantCulture) * multiplicador[i];
             }
 
             resto = soma % 11;
@@ -775,7 +775,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static T NullIf<T>(this T Value, Func<T, bool> TestExpression)
         {
-            if (TestExpression(Value))
+            if (TestExpression != null && TestExpression.Invoke(Value))
             {
                 return default;
             }
@@ -807,12 +807,9 @@ namespace InnerLibs
         /// <returns></returns>
         public static T? NullIf<T>(this T? Value, T? TestValue) where T : struct
         {
-            if (Value.HasValue)
+            if (Value.HasValue && Value.Equals(TestValue))
             {
-                if (Value.Equals(TestValue))
-                {
-                    Value = default;
-                }
+                Value = default;
             }
 
             return Value;

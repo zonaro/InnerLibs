@@ -391,7 +391,7 @@ namespace InnerLibs.TimeMachine
             {
                 if (_timeSpanBase == null)
                 {
-                    _timeSpanBase = (EndDate - StartDate);
+                    _timeSpanBase = EndDate - StartDate;
                     if (ForceFirstAndLastMoments)
                     {
                         _timeSpanBase = _timeSpanBase.Value.Add(TimeSpan.FromMilliseconds(1));
@@ -486,7 +486,7 @@ namespace InnerLibs.TimeMachine
         /// </summary>
         /// <param name="DateRange">The DateRange.</param>
         /// <returns>The result of the conversion.</returns>
-        public static implicit operator TimeSpan(DateRange DateRange) => DateRange.TimeSpan;
+        public static implicit operator TimeSpan(DateRange DateRange) => DateRange?.TimeSpan ?? TimeSpan.MinValue;
 
         /// <summary>
         /// Overload of the operator -
@@ -869,11 +869,6 @@ namespace InnerLibs.TimeMachine
             }
         }
 
-        /// <summary>
-        /// Dias n�o relevantes entre as datas Inicial e Final
-        /// </summary>
-        /// <returns></returns>
-        public IEnumerable<DateTime> GetNonRelevantDays() => NonRelevantDaysOfWeek.Any() ? GetDays(NonRelevantDaysOfWeek) : Array.Empty<DateTime>().AsEnumerable();
 
         /// <summary>
         /// Retorna o periodo em um total especificado por <see cref="DateRangeInterval"/>
@@ -902,11 +897,7 @@ namespace InnerLibs.TimeMachine
             };
         }
 
-        /// <summary>
-        /// Dias relevantes entre as datas Inicial e Final
-        /// </summary>
-        /// <returns></returns>
-        public IEnumerable<DateTime> GetRelevantDays() => GetDays(RelevantDaysOfWeek);
+
 
         /// <summary>
         /// Agrupa itens de uma lista de acordo com uma propriedade e uma express�o de agrupamento

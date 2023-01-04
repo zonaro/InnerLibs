@@ -11,6 +11,84 @@ using System.Xml;
 
 namespace InnerLibs.Locations
 {
+
+    public static class TspSolver
+    {
+        public static double[,] GetDistanceMatrix(params AddressInfo[] coordinates)
+        {
+            // Generate the distance matrix
+            double[,] distanceMatrix = new double[coordinates.Length, coordinates.Length];
+            for (int i = 0; i < coordinates.Length; i++)
+            {
+                for (int j = 0; j < coordinates.Length; j++)
+                {
+                    // Use the Haversine formula to calculate the distance between the two coordinates
+                    double lat1 = coordinates[i].Latitude.ToDouble();
+                    double lon1 = coordinates[i].Longitude.ToDouble();
+                    double lat2 = coordinates[j].Latitude.ToDouble();
+                    double lon2 = coordinates[j].Longitude.ToDouble();
+                    double dLat = MathExt.DegreesToRadians(lat2 - lat1);
+                    double dLon = MathExt.DegreesToRadians(lon2 - lon1);
+                    double a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
+                               Math.Cos(MathExt.DegreesToRadians(lat1)) * Math.Cos(MathExt.DegreesToRadians(lat2)) *
+                               Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
+                    double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+                    double distance = MathExt.EarthCircumference * c;
+
+                    // Set the distance in the distance matrix
+                    distanceMatrix[i, j] = distance;
+                }
+            }
+            return distanceMatrix;
+        }
+
+
+        public static List<int> Solve(double[,] distanceMatrix)
+        {
+            List<int> tour = new List<int>();
+            if (distanceMatrix == null)
+            {
+
+
+                int numLocations = distanceMatrix.GetLength(0);
+
+                // Start the tour at the first location
+                tour.Add(0);
+
+                int currentLocation = 0;
+                while (tour.Count < numLocations)
+                {
+                    int nextLocation = -1;
+                    double minDistance = double.MaxValue;
+
+                    // Find the nearest unvisited location
+                    for (int i = 0; i < numLocations; i++)
+                    {
+                        if (i == currentLocation || tour.Contains(i))
+                        {
+                            continue;
+                        }
+
+                        double distance = distanceMatrix[currentLocation, i];
+                        if (distance < minDistance)
+                        {
+                            minDistance = distance;
+                            nextLocation = i;
+                        }
+                    }
+
+                    tour.Add(nextLocation);
+                    currentLocation = nextLocation;
+                }
+
+                // Return to the starting location
+                tour.Add(0);
+
+            }
+            return tour;
+        }
+    }
+
     public static class AddressTypes
     {
         #region Public Properties

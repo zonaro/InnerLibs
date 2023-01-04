@@ -24,6 +24,12 @@ namespace InnerLibs
 
         #region Public Methods
 
+
+
+        public static double DegreesToRadians(this double degrees) => degrees * Math.PI / 180;
+
+
+
         /// <summary>
         /// Retorna uma progressão Aritmética com N numeros
         /// </summary>
