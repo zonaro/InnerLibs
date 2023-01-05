@@ -9,24 +9,24 @@ namespace InnerLibs.LINQ
     /// <summary>
     /// Classe para criação de paginação e filtros dinâmicos para listas de classes
     /// </summary>
-    /// <typeparam name="ClassType"></typeparam>
-    public class PaginationFilter<ClassType, RemapType> where ClassType : class
+    /// <typeparam name="TClass"></typeparam>
+    public class PaginationFilter<TClass, TRemap> where TClass : class
     {
         #region Private Fields
 
-        private int? _total = default;
+        private int? _total;
 
         private int pgnumber = 1;
 
         private string pnp, psp, pop;
 
-        private Func<ClassType, RemapType> remapexp;
+        private Func<TClass, TRemap> remapexp;
 
         #endregion Private Fields
 
         #region Private Methods
 
-        private IEnumerable<ClassType> ApplyFilter(IEnumerable<ClassType> FilteredData)
+        private IEnumerable<TClass> ApplyFilter(IEnumerable<TClass> FilteredData)
         {
             FilteredData = FilteredData ?? Data;
             _total = default;
@@ -34,14 +34,14 @@ namespace InnerLibs.LINQ
             {
                 if (LambdaExpression != null)
                 {
-                    if (FilteredData is IOrderedQueryable<ClassType> orderedQuery)
+                    if (FilteredData is IOrderedQueryable<TClass> orderedQuery)
                     {
                         FilteredData = orderedQuery.Where(LambdaExpression);
                         var dq = orderedQuery.Select(x => 0);
                         _total = dq.Count();
                     }
 
-                    if (FilteredData is IQueryable<ClassType> query)
+                    if (FilteredData is IQueryable<TClass> query)
                     {
                         FilteredData = query.Where(LambdaExpression);
                         var dq = query.Select(x => 0);
@@ -64,25 +64,25 @@ namespace InnerLibs.LINQ
             return Data;
         }
 
-        private IEnumerable<ClassType> ApplyPage(IEnumerable<ClassType> FilteredData)
+        private IEnumerable<TClass> ApplyPage(IEnumerable<TClass> FilteredData)
         {
             if (FilteredData != null)
             {
                 if (PageNumber > 0 && PageSize > 0)
                 {
-                    if (FilteredData is IOrderedQueryable<ClassType> orderedQuery)
+                    if (FilteredData is IOrderedQueryable<TClass> orderedQuery)
                     {
                         FilteredData = orderedQuery.Skip((PageNumber - 1) * PageSize).Take(PageSize);
                     }
-                    else if (FilteredData is IQueryable<ClassType> query)
+                    else if (FilteredData is IQueryable<TClass> query)
                     {
                         FilteredData = query.Skip((PageNumber - 1) * PageSize).Take(PageSize);
                     }
-                    else if (FilteredData is IOrderedEnumerable<ClassType> orderedEnum)
+                    else if (FilteredData is IOrderedEnumerable<TClass> orderedEnum)
                     {
                         FilteredData = orderedEnum.Skip((PageNumber - 1) * PageSize).Take(PageSize);
                     }
-                    else if (FilteredData is IEnumerable<ClassType>)
+                    else if (FilteredData is IEnumerable<TClass>)
                     {
                         FilteredData = FilteredData.Skip((PageNumber - 1) * PageSize).Take(PageSize);
                     }
@@ -96,9 +96,9 @@ namespace InnerLibs.LINQ
 
         #region Internal Fields
 
-        internal List<PropertyFilter<ClassType, RemapType>> _filters = new List<PropertyFilter<ClassType, RemapType>>();
+        internal List<PropertyFilter<TClass, TRemap>> _filters = new List<PropertyFilter<TClass, TRemap>>();
 
-        internal ParameterExpression param = LINQExtensions.GenerateParameterExpression<ClassType>();
+        internal ParameterExpression param = LINQExtensions.GenerateParameterExpression<TClass>();
 
         #endregion Internal Fields
 
@@ -111,15 +111,15 @@ namespace InnerLibs.LINQ
         /// <summary>
         /// Cria uma nova instancia e seta a exclusividade de filtro
         /// </summary>
-        public PaginationFilter(Func<ClassType, RemapType> RemapExpression) => this.RemapExpression = RemapExpression;
+        public PaginationFilter(Func<TClass, TRemap> RemapExpression) => this.RemapExpression = RemapExpression;
 
-        public PaginationFilter(Func<ClassType, RemapType> RemapExpression, Action<PaginationFilter<ClassType, RemapType>> Options)
+        public PaginationFilter(Func<TClass, TRemap> RemapExpression, Action<PaginationFilter<TClass, TRemap>> Options)
         {
             this.RemapExpression = RemapExpression;
             Config(Options);
         }
 
-        public PaginationFilter(Action<PaginationFilter<ClassType, RemapType>> Options) => Config(Options);
+        public PaginationFilter(Action<PaginationFilter<TClass, TRemap>> Options) => Config(Options);
 
         #endregion Public Constructors
 
@@ -130,7 +130,7 @@ namespace InnerLibs.LINQ
         /// </summary>
         /// <param name="PageNumber"></param>
         /// <returns></returns>
-        public RemapType[] this[int PageNumber] => GetPage(PageNumber);
+        public TRemap[] this[int PageNumber] => GetPage(PageNumber);
 
         #endregion Public Indexers
 
@@ -140,7 +140,7 @@ namespace InnerLibs.LINQ
         /// Fonte de Dados deste filtro
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<ClassType> Data { get; set; }
+        public IEnumerable<TClass> Data { get; set; }
 
         /// <summary>
         /// Expressão binária contendo todos os filtros
@@ -178,7 +178,7 @@ namespace InnerLibs.LINQ
         /// Filtros
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<PropertyFilter<ClassType, RemapType>> Filters => _filters;
+        public IEnumerable<PropertyFilter<TClass, TRemap>> Filters => _filters;
 
         /// <summary>
         /// Numero da primeira pagina
@@ -244,17 +244,17 @@ namespace InnerLibs.LINQ
         /// Expressão lambda deste filtro
         /// </summary>
         /// <returns></returns>
-        public Expression<Func<ClassType, bool>> LambdaExpression
+        public Expression<Func<TClass, bool>> LambdaExpression
         {
             get
             {
-                Expression<Func<ClassType, bool>> exp = null;
+                Expression<Func<TClass, bool>> exp = null;
                 if (Filter != null)
                 {
-                    exp = Expression.Lambda<Func<ClassType, bool>>(Filter, param);
+                    exp = Expression.Lambda<Func<TClass, bool>>(Filter, param);
                 }
 
-                foreach (var valor in WhereFilters ?? new List<Expression<Func<ClassType, bool>>>())
+                foreach (var valor in WhereFilters ?? new List<Expression<Func<TClass, bool>>>())
                 {
                     if (valor != null)
                     {
@@ -273,7 +273,7 @@ namespace InnerLibs.LINQ
                 {
                     while (exp.CanReduce)
                     {
-                        exp = (Expression<Func<ClassType, bool>>)exp.Reduce();
+                        exp = (Expression<Func<TClass, bool>>)exp.Reduce();
                     }
                 }
 
@@ -427,11 +427,11 @@ namespace InnerLibs.LINQ
         /// Expressão de remapeamento da coleção
         /// </summary>
         /// <returns></returns>
-        public Func<ClassType, RemapType> RemapExpression
+        public Func<TClass, TRemap> RemapExpression
         {
             get
             {
-                if (typeof(ClassType) == typeof(RemapType))
+                if (typeof(TClass) == typeof(TRemap))
                 {
                     return null;
                 }
@@ -443,7 +443,7 @@ namespace InnerLibs.LINQ
 
             set
             {
-                if (typeof(ClassType) == typeof(RemapType))
+                if (typeof(TClass) == typeof(TRemap))
                 {
                     remapexp = null;
                 }
@@ -464,23 +464,23 @@ namespace InnerLibs.LINQ
         /// Expressões adicionadas a clausula where junto com os filtros
         /// </summary>
         /// <returns></returns>
-        public List<Expression<Func<ClassType, bool>>> WhereFilters { get; set; } = new List<Expression<Func<ClassType, bool>>>();
+        public List<Expression<Func<TClass, bool>>> WhereFilters { get; set; } = new List<Expression<Func<TClass, bool>>>();
 
         #endregion Public Properties
 
         #region Public Methods
 
-        public static implicit operator List<RemapType>(PaginationFilter<ClassType, RemapType> obj) => obj.GetPage().ToList();
+        public static implicit operator List<TRemap>(PaginationFilter<TClass, TRemap> obj) => obj.GetPage().ToList();
 
-        public static implicit operator PaginationFilter<ClassType, RemapType>(NameValueCollection NVC) => new PaginationFilter<ClassType, RemapType>().UseNameValueCollection(NVC);
+        public static implicit operator PaginationFilter<TClass, TRemap>(NameValueCollection NVC) => new PaginationFilter<TClass, TRemap>().UseNameValueCollection(NVC);
 
-        public static implicit operator PaginationFilter<ClassType, RemapType>(string QueryString) => new PaginationFilter<ClassType, RemapType>().UseQueryStringExpression(QueryString);
+        public static implicit operator PaginationFilter<TClass, TRemap>(string QueryString) => new PaginationFilter<TClass, TRemap>().UseQueryStringExpression(QueryString);
 
-        public static implicit operator RemapType[](PaginationFilter<ClassType, RemapType> obj) => obj.GetPage();
+        public static implicit operator TRemap[](PaginationFilter<TClass, TRemap> obj) => obj.GetPage();
 
-        public PropertyFilter<ClassType, RemapType> And<T>(string PropertyName, bool Enabled = true) => SetMember(PropertyName, FilterConditional.And, Enabled);
+        public PropertyFilter<TClass, TRemap> And<T>(string PropertyName, bool Enabled = true) => SetMember(PropertyName, FilterConditional.And, Enabled);
 
-        public PropertyFilter<ClassType, RemapType> And<T>(Expression<Func<ClassType, T>> PropertyName, bool Enabled = true) => SetMember(PropertyName, FilterConditional.And, Enabled);
+        public PropertyFilter<TClass, TRemap> And<T>(Expression<Func<TClass, T>> PropertyName, bool Enabled = true) => SetMember(PropertyName, FilterConditional.And, Enabled);
 
         /// <summary>
         /// Quantidade de botões de paginação
@@ -492,7 +492,7 @@ namespace InnerLibs.LINQ
         /// Força o <see cref="IQueryable"/> a executar (sem paginação)
         /// </summary>
         /// <returns></returns>
-        public PaginationFilter<ClassType, RemapType> Compute()
+        public PaginationFilter<TClass, TRemap> Compute()
         {
             Data = Data.ToList().AsEnumerable();
             return this;
@@ -503,7 +503,7 @@ namespace InnerLibs.LINQ
         /// </summary>
         /// <param name="options"></param>
         /// <returns></returns>
-        public PaginationFilter<ClassType, RemapType> Config(Action<PaginationFilter<ClassType, RemapType>> options) => this.With(options);
+        public PaginationFilter<TClass, TRemap> Config(Action<PaginationFilter<TClass, TRemap>> options) => this.With(options);
 
         /// <summary>
         /// Verifica se o <see cref="PageRange"/> contém algumas páginas especificas
@@ -581,9 +581,9 @@ namespace InnerLibs.LINQ
         /// <param name="PropertyValues"></param>
         /// <param name="PropertyNames"></param>
         /// <returns></returns>
-        public PaginationFilter<ClassType, RemapType> CreateSearch<T>(IEnumerable<IComparable> PropertyValues, params Expression<Func<ClassType, T>>[] PropertyNames)
+        public PaginationFilter<TClass, TRemap> CreateSearch<T>(IEnumerable<IComparable> PropertyValues, params Expression<Func<TClass, T>>[] PropertyNames)
         {
-            PropertyNames = (PropertyNames ?? Array.Empty<Expression<Func<ClassType, T>>>()).Where(x => x != null).ToArray();
+            PropertyNames = (PropertyNames ?? Array.Empty<Expression<Func<TClass, T>>>()).Where(x => x != null).ToArray();
             PropertyValues = PropertyValues ?? Array.Empty<IComparable>();
             foreach (var sel in PropertyNames)
             {
@@ -596,7 +596,7 @@ namespace InnerLibs.LINQ
         /// <summary> Seta uma busca usando <see cref="Contains(<paramref name="PropertyValues"/>)"
         /// /> para cada propriedade em <paramref name="PropertyNames"/> </summary> <param
         /// name="PropertyValues"></param> <param name="PropertyNames"></param> <returns></returns>
-        public PaginationFilter<ClassType, RemapType> CreateSearch(IEnumerable<IComparable> PropertyValues, params string[] PropertyNames)
+        public PaginationFilter<TClass, TRemap> CreateSearch(IEnumerable<IComparable> PropertyValues, params string[] PropertyNames)
         {
             PropertyNames = (PropertyNames ?? Array.Empty<string>()).Where(x => x.IsNotBlank()).ToArray();
             PropertyValues = PropertyValues ?? Array.Empty<IComparable>();
@@ -673,14 +673,14 @@ namespace InnerLibs.LINQ
         /// Retorna <see cref="Data"/> com os filtros aplicados
         /// </summary>
         /// <returns></returns>
-        public IQueryable<ClassType> GetEnumerablePage() => (IQueryable<ClassType>)GetEnumerablePage(PageNumber);
+        public IQueryable<TClass> GetEnumerablePage() => (IQueryable<TClass>)GetEnumerablePage(PageNumber);
 
         /// <summary>
         /// Retorna <see cref="Data"/> com os filtros aplicados
         /// </summary>
         /// <param name="PageNumber"></param>
         /// <returns></returns>
-        public IEnumerable<ClassType> GetEnumerablePage(int PageNumber) => GetQueryablePage(PageNumber).AsEnumerable();
+        public IEnumerable<TClass> GetEnumerablePage(int PageNumber) => GetQueryablePage(PageNumber).AsEnumerable();
 
         /// <summary>
         /// Cria uma querystring com os filtros ativos
@@ -693,15 +693,15 @@ namespace InnerLibs.LINQ
         /// </summary>
         /// <param name="PageNumber"></param>
         /// <returns></returns>
-        public RemapType[] GetPage(int PageNumber)
+        public TRemap[] GetPage(int PageNumber)
         {
             if (Data != null)
             {
                 var filtereddata = GetQueryablePage(PageNumber);
 
-                if (RemapExpression is null || typeof(ClassType) == typeof(RemapType))
+                if (RemapExpression is null || typeof(TClass) == typeof(TRemap))
                 {
-                    return filtereddata.Cast<RemapType>().ToArray();
+                    return filtereddata.Cast<TRemap>().ToArray();
                 }
                 else
                 {
@@ -710,7 +710,7 @@ namespace InnerLibs.LINQ
             }
             else
             {
-                return Array.Empty<RemapType>();
+                return Array.Empty<TRemap>();
             }
         }
 
@@ -718,7 +718,7 @@ namespace InnerLibs.LINQ
         /// Retorna a pagina atual
         /// </summary>
         /// <returns></returns>
-        public RemapType[] GetPage() => GetPage(PageNumber);
+        public TRemap[] GetPage() => GetPage(PageNumber);
 
         /// <summary>
         /// Retorna a parte da querystring usada para paginacao
@@ -756,14 +756,14 @@ namespace InnerLibs.LINQ
         /// Retorna <see cref="Data"/> com os filtros aplicados
         /// </summary>
         /// <returns></returns>
-        public IQueryable<ClassType> GetQueryablePage() => GetQueryablePage(PageNumber);
+        public IQueryable<TClass> GetQueryablePage() => GetQueryablePage(PageNumber);
 
         /// <summary>
         /// Retorna <see cref="Data"/> com os filtros aplicados
         /// </summary>
         /// <param name="PageNumber"></param>
         /// <returns></returns>
-        public IQueryable<ClassType> GetQueryablePage(int PageNumber)
+        public IQueryable<TClass> GetQueryablePage(int PageNumber)
         {
             this.PageNumber = PageNumber;
             if (Data != null)
@@ -809,13 +809,13 @@ namespace InnerLibs.LINQ
             }
         }
 
-        public PropertyFilter<ClassType, RemapType> Or<T>(string PropertyName, bool Enabled = true) => SetMember(PropertyName, FilterConditional.Or, Enabled);
+        public PropertyFilter<TClass, TRemap> Or<T>(string PropertyName, bool Enabled = true) => SetMember(PropertyName, FilterConditional.Or, Enabled);
 
-        public PropertyFilter<ClassType, RemapType> Or<T>(Expression<Func<ClassType, T>> PropertyName, bool Enabled = true) => SetMember(PropertyName, FilterConditional.Or, Enabled);
+        public PropertyFilter<TClass, TRemap> Or<T>(Expression<Func<TClass, T>> PropertyName, bool Enabled = true) => SetMember(PropertyName, FilterConditional.Or, Enabled);
 
-        public PaginationFilter<ClassType, RemapType> OrderBy<T>(params Expression<Func<ClassType, T>>[] Selectors)
+        public PaginationFilter<TClass, TRemap> OrderBy<T>(params Expression<Func<TClass, T>>[] Selectors)
         {
-            foreach (var Selector in Selectors ?? Array.Empty<Expression<Func<ClassType, T>>>())
+            foreach (var Selector in Selectors ?? Array.Empty<Expression<Func<TClass, T>>>())
             {
                 if (Selector != null)
                 {
@@ -833,12 +833,12 @@ namespace InnerLibs.LINQ
         /// <param name="Selector"></param>
         /// <param name="Descending"></param>
         /// <returns></returns>
-        public PaginationFilter<ClassType, RemapType> OrderBy<T>(Expression<Func<ClassType, T>> Selector, bool Descending = false)
+        public PaginationFilter<TClass, TRemap> OrderBy<T>(Expression<Func<TClass, T>> Selector, bool Descending = false)
         {
             bool Ascending = !Descending;
             if (Selector != null)
             {
-                if (Data is IOrderedQueryable<ClassType> ordered_queryable)
+                if (Data is IOrderedQueryable<TClass> ordered_queryable)
                 {
                     if (Ascending)
                     {
@@ -852,7 +852,7 @@ namespace InnerLibs.LINQ
                     return this;
                 }
 
-                if (Data is IQueryable<ClassType> queryable)
+                if (Data is IQueryable<TClass> queryable)
                 {
                     if (Ascending)
                     {
@@ -866,7 +866,7 @@ namespace InnerLibs.LINQ
                     return this;
                 }
 
-                if (Data is IOrderedEnumerable<ClassType> ordered_enumerable)
+                if (Data is IOrderedEnumerable<TClass> ordered_enumerable)
                 {
                     if (Ascending)
                     {
@@ -880,7 +880,7 @@ namespace InnerLibs.LINQ
                     return this;
                 }
 
-                if (Data is IEnumerable<ClassType>)
+                if (Data is IEnumerable<TClass>)
                 {
                     if (Ascending)
                     {
@@ -902,18 +902,18 @@ namespace InnerLibs.LINQ
         /// Ordena os resultados da lista
         /// </summary>
         /// <returns></returns>
-        public PaginationFilter<ClassType, RemapType> OrderBy(string[] Selector, bool Descending = false)
+        public PaginationFilter<TClass, TRemap> OrderBy(string[] Selector, bool Descending = false)
         {
             bool Ascending = !Descending;
             if ((Selector ?? Array.Empty<string>()).Any())
             {
-                if (Data is IQueryable<ClassType> q)
+                if (Data is IQueryable<TClass> q)
                 {
                     Data = q.ThenByProperty(Selector, Ascending);
                     return this;
                 }
 
-                if (Data is IEnumerable<ClassType>)
+                if (Data is IEnumerable<TClass>)
                 {
                     Data = Data.ThenByProperty(Selector, Ascending);
                     return this;
@@ -929,9 +929,9 @@ namespace InnerLibs.LINQ
         /// <param name="Selector"></param>
         /// <param name="Descending"></param>
         /// <returns></returns>
-        public PaginationFilter<ClassType, RemapType> OrderBy(string Selector, bool Descending = false) => OrderBy(Selector.IfBlank(InnerLibs.Text.Empty).SplitAny(" ", "/", ","), Descending);
+        public PaginationFilter<TClass, TRemap> OrderBy(string Selector, bool Descending = false) => OrderBy(Selector.IfBlank(InnerLibs.Text.Empty).SplitAny(" ", "/", ","), Descending);
 
-        public PaginationFilter<ClassType, RemapType> OrderByDescending<T>(Expression<Func<ClassType, T>> Selector)
+        public PaginationFilter<TClass, TRemap> OrderByDescending<T>(Expression<Func<TClass, T>> Selector)
         {
             if (Selector != null)
             {
@@ -976,7 +976,7 @@ namespace InnerLibs.LINQ
         /// </summary>
         /// <param name="List"></param>
         /// <returns></returns>
-        public PaginationFilter<ClassType, RemapType> SetData(IEnumerable<ClassType> List)
+        public PaginationFilter<TClass, TRemap> SetData(IEnumerable<TClass> List)
         {
             Data = List.AsEnumerable();
             return this;
@@ -987,7 +987,7 @@ namespace InnerLibs.LINQ
         /// </summary>
         /// <param name="List"></param>
         /// <returns></returns>
-        public PaginationFilter<ClassType, RemapType> SetData(IQueryable<ClassType> List)
+        public PaginationFilter<TClass, TRemap> SetData(IQueryable<TClass> List)
         {
             Data = List.AsQueryable();
             return this;
@@ -998,9 +998,9 @@ namespace InnerLibs.LINQ
         /// </summary>
         /// <param name="PropertyName"></param>
         /// <returns></returns>
-        public PropertyFilter<ClassType, RemapType> SetMember<T>(Expression<Func<ClassType, T>> PropertyName, FilterConditional Conditional = FilterConditional.Or, bool Enabled = true)
+        public PropertyFilter<TClass, TRemap> SetMember<T>(Expression<Func<TClass, T>> PropertyName, FilterConditional Conditional = FilterConditional.Or, bool Enabled = true)
         {
-            var f = new PropertyFilter<ClassType, RemapType>(this);
+            var f = new PropertyFilter<TClass, TRemap>(this);
             f.SetMember(PropertyName, Conditional).SetEnabled(Enabled);
             _filters.Add(f);
             return f;
@@ -1011,9 +1011,9 @@ namespace InnerLibs.LINQ
         /// </summary>
         /// <param name="PropertyName"></param>
         /// <returns></returns>
-        public PropertyFilter<ClassType, RemapType> SetMember(string PropertyName, FilterConditional Conditional = FilterConditional.Or, bool Enabled = true)
+        public PropertyFilter<TClass, TRemap> SetMember(string PropertyName, FilterConditional Conditional = FilterConditional.Or, bool Enabled = true)
         {
-            var f = new PropertyFilter<ClassType, RemapType>(this);
+            var f = new PropertyFilter<TClass, TRemap>(this);
             f.SetMember(PropertyName, Conditional).SetEnabled(Enabled);
             _filters.Add(f);
             return f;
@@ -1024,7 +1024,7 @@ namespace InnerLibs.LINQ
         /// </summary>
         /// <param name="PageNumber"></param>
         /// <returns></returns>
-        public PaginationFilter<ClassType, RemapType> SetPage(int PageNumber)
+        public PaginationFilter<TClass, TRemap> SetPage(int PageNumber)
         {
             this.PageNumber = PageNumber;
             return this;
@@ -1036,7 +1036,7 @@ namespace InnerLibs.LINQ
         /// <param name="PageSize"></param>
         /// <param name="PaginationOffset"></param>
         /// <returns></returns>
-        public PaginationFilter<ClassType, RemapType> SetPagination(int PageSize, int PaginationOffset)
+        public PaginationFilter<TClass, TRemap> SetPagination(int PageSize, int PaginationOffset)
         {
             this.PageSize = PageSize;
             this.PaginationOffset = PaginationOffset;
@@ -1048,7 +1048,7 @@ namespace InnerLibs.LINQ
         /// </summary>
         /// <param name="PageSize"></param>
         /// <returns></returns>
-        public PaginationFilter<ClassType, RemapType> SetPagination(int PageSize)
+        public PaginationFilter<TClass, TRemap> SetPagination(int PageSize)
         {
             this.PageSize = PageSize;
             return this;
@@ -1061,7 +1061,7 @@ namespace InnerLibs.LINQ
         /// <param name="PageSize"></param>
         /// <param name="PaginationOffset"></param>
         /// <returns></returns>
-        public PaginationFilter<ClassType, RemapType> SetPaginationQueryParameters(string PageNumber, string PageSize, string PaginationOffset)
+        public PaginationFilter<TClass, TRemap> SetPaginationQueryParameters(string PageNumber, string PageSize, string PaginationOffset)
         {
             PageNumberQueryParameter = PageNumber.IfBlank(nameof(this.PageNumber));
             PageSizeQueryParameter = PageSize.IfBlank(nameof(this.PageSize));
@@ -1088,12 +1088,12 @@ namespace InnerLibs.LINQ
         /// não existirem na classe serão ignoradas. Valores nulos serão ignorados por padrão
         /// </remarks>
         /// <returns></returns>
-        public PaginationFilter<ClassType, RemapType> UseArrayDictionary(IDictionary<string, IComparable[]> Collection, string DefaultOperator = "=")
+        public PaginationFilter<TClass, TRemap> UseArrayDictionary(IDictionary<string, IComparable[]> Collection, string DefaultOperator = "=")
         {
             Collection = Collection ?? new Dictionary<string, IComparable[]>();
             foreach (var K in Collection.Keys)
             {
-                var t = typeof(ClassType);
+                var t = typeof(TClass);
                 if (t.HasProperty(K) || K == "this")
                 {
                     SetMember(K).SetValues(Collection[K].ToArray()).SetOperator(DefaultOperator);
@@ -1112,12 +1112,12 @@ namespace InnerLibs.LINQ
         /// não existirem na classe serão ignoradas. Valores nulos serão ignorados por padrão
         /// </remarks>
         /// <returns></returns>
-        public PaginationFilter<ClassType, RemapType> UseDictionary(IDictionary<string, IComparable> Collection, string DefaultOperator = "=")
+        public PaginationFilter<TClass, TRemap> UseDictionary(IDictionary<string, IComparable> Collection, string DefaultOperator = "=")
         {
             Collection = Collection ?? new Dictionary<string, IComparable>();
             foreach (var K in Collection.Keys)
             {
-                var t = typeof(ClassType);
+                var t = typeof(TClass);
                 if (t.HasProperty(K) || K == "this")
                 {
                     var item = Collection[K];
@@ -1135,12 +1135,12 @@ namespace InnerLibs.LINQ
         /// <param name="Collection"></param>
         /// <param name="DefaultOperator"></param>
         /// <returns></returns>
-        public PaginationFilter<ClassType, RemapType> UseNameValueCollection(NameValueCollection Collection, string DefaultOperator = "=")
+        public PaginationFilter<TClass, TRemap> UseNameValueCollection(NameValueCollection Collection, string DefaultOperator = "=")
         {
             Collection = Collection ?? new NameValueCollection();
             foreach (var K in Collection.AllKeys)
             {
-                var t = typeof(ClassType);
+                var t = typeof(TClass);
                 var l = t.GetProperties();
                 if (l.Any(x => (x.Name ?? InnerLibs.Text.Empty) == (K ?? InnerLibs.Text.Empty)))
                 {
@@ -1163,7 +1163,7 @@ namespace InnerLibs.LINQ
         /// não existirem na classe serão ignoradas. Valores nulos serão ignorados por padrão
         /// </remarks>
         /// <returns></returns>
-        public PaginationFilter<ClassType, RemapType> UseQueryString(string Query, string DefaultOperator = "=")
+        public PaginationFilter<TClass, TRemap> UseQueryString(string Query, string DefaultOperator = "=")
         {
             if (Query.IsNotBlank())
             {
@@ -1176,13 +1176,13 @@ namespace InnerLibs.LINQ
         /// <summary> Configura este Filtro para utilizar uma querystring com operadores
         /// (&membro=operador:valor) </summary> <param name="QueryExpression"></param> <param
         /// name="Separator"></param> <param name="Conditional"></param> <returns></returns>
-        public PaginationFilter<ClassType, RemapType> UseQueryStringExpression(string QueryExpression, string Separator = ":", FilterConditional Conditional = FilterConditional.And)
+        public PaginationFilter<TClass, TRemap> UseQueryStringExpression(string QueryExpression, string Separator = ":", FilterConditional Conditional = FilterConditional.And)
         {
             var Collection = QueryExpression.ParseQueryString();
             foreach (var K in Collection.AllKeys)
             {
                 string prop = K.UrlDecode();
-                var t = typeof(ClassType);
+                var t = typeof(TClass);
                 if (t.HasProperty(prop) || K == "this")
                 {
                     if (Collection[K].IsNotBlank() && Collection.GetValues(K).Any())
@@ -1204,9 +1204,9 @@ namespace InnerLibs.LINQ
         /// Adciona Expressões a clausula where junto com os filtros
         /// </summary>
         /// <returns></returns>
-        public PaginationFilter<ClassType, RemapType> Where(Expression<Func<ClassType, bool>> predicate)
+        public PaginationFilter<TClass, TRemap> Where(Expression<Func<TClass, bool>> predicate)
         {
-            WhereFilters = WhereFilters ?? new List<Expression<Func<ClassType, bool>>>();
+            WhereFilters = WhereFilters ?? new List<Expression<Func<TClass, bool>>>();
             WhereFilters.Add(predicate);
             return this;
         }
@@ -1215,7 +1215,7 @@ namespace InnerLibs.LINQ
         /// Adciona Expressões a clausula where junto com os filtros se uma condiçao for cumprida
         /// </summary>
         /// <returns></returns>
-        public PaginationFilter<ClassType, RemapType> WhereIf(bool Test, Expression<Func<ClassType, bool>> predicate)
+        public PaginationFilter<TClass, TRemap> WhereIf(bool Test, Expression<Func<TClass, bool>> predicate)
         {
             if (Test)
             {

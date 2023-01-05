@@ -1,5 +1,6 @@
 ﻿using InnerLibs.LINQ;
 using InnerLibs.Mail;
+using InnerLibs.MicroORM;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -471,7 +472,7 @@ namespace InnerLibs
         /// partir de uma string </summary> <typeparam name="T"></typeparam> <returns></returns>
         public static T GetEnumValue<T>(this string Name)
         {
-            if (!typeof(T).IsEnum) throw new ArgumentException("T must be an Enumeration type.");
+            if (!typeof(T).IsEnum) throw new ArgumentException("type must be an Enumeration type.");
             return Name.IsNotBlank() ? ((T[])Enum.GetValues(typeof(T))).FirstOrDefault(x => x.ToString().RemoveAccents().Equals(Name.RemoveAccents(), StringComparison.InvariantCultureIgnoreCase) || (Name.IsNumber() && Name.ToInt() == x.ToInt())) : default;
         }
 
@@ -493,7 +494,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string GetEnumValueAsString<T>(this T Value)
         {
-            if (!typeof(T).IsEnum) throw new ArgumentException("T must be an Enumeration type.", nameof(T));
+            if (!typeof(T).IsEnum) throw new ArgumentException("type must be an Enumeration type.", nameof(T));
             return Enum.GetName(typeof(T), Value);
         }
 
@@ -520,7 +521,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static IEnumerable<T> GetEnumValues<T>()
         {
-            if (!typeof(T).IsEnum) throw new ArgumentException("T must be an Enumeration type.", nameof(T));
+            if (!typeof(T).IsEnum) throw new ArgumentException("type must be an Enumeration type.", nameof(T));
             return Enum.GetValues(typeof(T)).Cast<T>().AsEnumerable();
         }
 
@@ -584,6 +585,30 @@ namespace InnerLibs
         /// <param name="MyObject">Objeto</param>
         /// <returns></returns>
         public static PropertyInfo GetProperty<T>(this T MyObject, string Name) => MyObject.GetTypeOf().GetProperties().SingleOrDefault(x => (x.Name ?? InnerLibs.Text.Empty) == (Name ?? InnerLibs.Text.Empty));
+
+        public static PropertyInfo FindProperty(this Type type, string Name) => FindProperties(type, Name).FirstOrDefault();
+        public static IEnumerable<PropertyInfo> FindProperties(this Type type, params string[] Names)
+        {
+            if (type != null && Names != null)
+            {
+                var propnames = Names.SelectMany(x => x.PropertyNamesFor()).ToList();
+                return type.GetProperties().Where(x => x.GetCustomAttributes<ColumnName>().SelectMany(n => n.Names).Contains(x.Name) || x.Name.IsIn(propnames, StringComparer.InvariantCultureIgnoreCase));
+            }
+            return Array.Empty<PropertyInfo>();
+        }
+
+
+        public static FieldInfo FindField(this Type type, string Name) => FindFields(type, Name).FirstOrDefault();
+        public static IEnumerable<FieldInfo> FindFields(this Type type, params string[] Names)
+        {
+            if (type != null && Names != null)
+            {
+                var propnames = Names.SelectMany(x => x.PropertyNamesFor()).ToList();
+                return type.GetFields().Where(x => x.GetCustomAttributes<ColumnName>().SelectMany(n => n.Names).Contains(x.Name) || x.Name.IsIn(propnames, StringComparer.InvariantCultureIgnoreCase));
+            }
+            return Array.Empty<FieldInfo>();
+        }
+
 
         /// <summary>
         /// Retorna uma <see cref="Hashtable"/> das propriedades de um objeto
@@ -1193,13 +1218,19 @@ namespace InnerLibs
 
         public static IEnumerable<string> PropertyNamesFor(this string Name)
         {
+            var propnames = new List<string>();
+
             if (Name.IsNotBlank())
             {
-                string propname1 = Name?.Trim().Replace(" ", "_").Replace("-", "_").Replace("~", "_");
+                if (Name.StartsWith("_", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    propnames.Add(Name.TrimStart('_'));
+                }
+                string propname1 = Name.Trim().Replace(" ", "_").Replace("-", "_").Replace("~", "_");
                 string propname3 = Name.Trim().Replace(" ", InnerLibs.Text.Empty).Replace("-", InnerLibs.Text.Empty).Replace("~", InnerLibs.Text.Empty);
                 string propname2 = propname1.RemoveAccents();
                 string propname4 = propname3.RemoveAccents();
-                var propnames = new[] { Name, propname1, propname2, propname3, propname4 }.ToList();
+                propnames.AddRange(new[] { Name, propname1, propname2, propname3, propname4 });
                 propnames.AddRange(propnames.Select(x => $"_{x}").ToArray());
                 return propnames.Distinct();
             }
@@ -1623,7 +1654,7 @@ namespace InnerLibs
         /// <summary>
         /// Run a <see cref="Action{T}"/> inside a Try-Catch block and return the same <typeparamref name="T"/>
         /// </summary>
-        /// <typeparam name="T">Object T</typeparam>
+        /// <typeparam name="T">Object type</typeparam>
         /// <param name="Obj">Object</param>
         /// <param name="Callback">The action to execute</param>
         /// <param name="ex">

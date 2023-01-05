@@ -3979,7 +3979,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static string ToNormalCase(this string Text) => Text.PascalCaseAdjust().Replace("_", WhitespaceChar);
+        public static string ToNormalCase(this string Text) => Text.Replace("_", WhitespaceChar).PascalCaseAdjust();
 
         /// <summary>
         /// Retorna um numero com o sinal de porcentagem

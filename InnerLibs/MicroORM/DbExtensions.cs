@@ -775,9 +775,9 @@ namespace InnerLibs.MicroORM
                     }
                     else
                     {
-                        var propnames = name.PropertyNamesFor().ToList();
-                        var PropInfos = Misc.GetTypeOf(d).GetProperties().Where(x => x.GetCustomAttributes<ColumnName>().SelectMany(n => n.Names).Contains(x.Name) || x.Name.IsIn(propnames, StringComparer.InvariantCultureIgnoreCase));
-                        var FieldInfos = Misc.GetTypeOf(d).GetFields().Where(x => x.GetCustomAttributes<ColumnName>().SelectMany(n => n.Names).Contains(x.Name) || x.Name.IsIn(propnames, StringComparer.InvariantCultureIgnoreCase)).Where(x => x.Name.IsNotIn(PropInfos.Select(y => y.Name)));
+
+                        var PropInfos = Misc.GetTypeOf(d).FindProperties(name);
+                        var FieldInfos = Misc.GetTypeOf(d).FindFields(name).Where(x => x.Name.IsNotIn(PropInfos.Select(y => y.Name)));
                         foreach (var info in PropInfos)
                         {
                             if (info.CanWrite)

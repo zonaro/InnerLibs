@@ -1902,27 +1902,20 @@ namespace InnerLibs.LINQ
         /// <returns></returns>
         public static IOrderedQueryable<T> ThenByProperty<T>(this IQueryable<T> source, string[] SortProperty, bool Ascending = true)
         {
-            if (source == null) throw new ArgumentNullException("source");
+            if (source == null) throw new ArgumentNullException(nameof(source));
 
             var type = typeof(T);
             SortProperty = SortProperty ?? Array.Empty<string>();
             foreach (var prop in SortProperty)
             {
-                var property = type.GetProperty(prop);
+                var property = type.FindProperty(prop);
                 var parameter = Expression.Parameter(type, "p");
                 var propertyAccess = Expression.MakeMemberAccess(parameter, property);
                 var orderByExp = Expression.Lambda(propertyAccess, parameter);
                 var typeArguments = new Type[] { type, property.PropertyType };
-                string methodname = "OrderBy";
-                if (!ReferenceEquals(source.GetType(), typeof(IOrderedQueryable<T>)))
-                {
-                    methodname = Array.IndexOf(SortProperty, prop) > 0 ? Ascending ? "ThenBy" : "ThenByDescending" : Ascending ? "OrderBy" : "OrderByDescending";
-                }
-                else
-                {
-                    methodname = Ascending ? "ThenBy" : "ThenByDescending";
-                }
-
+                string methodname = source.GetType() == typeof(IOrderedQueryable<T>)
+                    ? Ascending ? "ThenBy" : "ThenByDescending"
+                    : Ascending ? "OrderBy" : "OrderByDescending";
                 var resultExp = Expression.Call(typeof(Queryable), methodname, typeArguments, source.Expression, Expression.Quote(orderByExp));
                 source = source.Provider.CreateQuery<T>(resultExp);
             }
@@ -1930,8 +1923,6 @@ namespace InnerLibs.LINQ
 
 
         }
-
-
 
         public static IOrderedQueryable<T> OrderByProperty<T>(this IQueryable<T> source, string[] SortProperty, bool Ascending = true) => ThenByProperty(source, SortProperty, Ascending);
         public static IOrderedEnumerable<T> OrderByProperty<T>(this IEnumerable<T> source, string[] SortProperty, bool Ascending = true) => ThenByProperty(source, SortProperty, Ascending);
@@ -1946,20 +1937,26 @@ namespace InnerLibs.LINQ
         /// <returns></returns>
         public static IOrderedEnumerable<T> ThenByProperty<T>(this IEnumerable<T> source, string[] SortProperty, bool Ascending = true)
         {
-            if (source == null) throw new ArgumentNullException("source");
+            if (source == null) throw new ArgumentNullException(nameof(source));
 
             var type = typeof(T);
             SortProperty = SortProperty ?? Array.Empty<string>();
             foreach (var prop in SortProperty)
             {
-                object exp(T x) => x.GetPropertyValue<object, object>(prop);
-                if (source.GetType() != typeof(IOrderedEnumerable<T>))
+
+                var propInfo = Misc.FindProperty(typeof(T), prop);
+
+                if (propInfo != null)
                 {
-                    source = Array.IndexOf(SortProperty, prop) > 0 ? Ascending ? ((IOrderedEnumerable<T>)source).ThenBy(exp) : ((IOrderedEnumerable<T>)source).ThenByDescending(exp) : Ascending ? source.OrderBy(exp) : source.OrderByDescending(exp);
-                }
-                else
-                {
-                    source = Ascending ? ((IOrderedEnumerable<T>)source).ThenBy(exp) : ((IOrderedEnumerable<T>)source).ThenByDescending(exp);
+                    object exp(T x) => propInfo.GetValue(x);
+                    if (source.GetType() == typeof(IOrderedEnumerable<T>))
+                    {
+                        source = Ascending ? ((IOrderedEnumerable<T>)source).ThenBy(exp) : ((IOrderedEnumerable<T>)source).ThenByDescending(exp);
+                    }
+                    else
+                    {
+                        source = Ascending ? source.OrderBy(exp) : source.OrderByDescending(exp);
+                    }
                 }
             }
 
