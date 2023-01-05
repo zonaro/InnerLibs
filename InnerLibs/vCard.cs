@@ -32,10 +32,10 @@ namespace InnerLibs
 
         public override string ToString()
         {
-            string result = $"ADR{Preferred.AsIf(";PREF")};CHARSET=UTF-8;TYPE={AddressType.ToString().ToUpper()}:;;{ToString(AddressPart.FullLocationInfo | AddressPart.Neighborhood)};{City};{StateCode.IfBlank(State)};{ZipCode};{Country}".Replace(Environment.NewLine, "=0D=0A");
+            string result = $"ADR{Preferred.AsIf(";PREF")};CHARSET=UTF-8;TYPE={AddressType.ToString().ToUpperInvariant()}:;;{ToString(AddressPart.FullLocationInfo | AddressPart.Neighborhood)};{City};{StateCode.IfBlank(State)};{ZipCode};{Country}".Replace(Environment.NewLine, "=0D=0A");
             if (AddressLabel.IsNotBlank())
             {
-                result = result.Append($"{Environment.NewLine}LABEL;CHARSET=UTF-8;{Location.ToString().ToUpper()};{AddressType.ToString().ToUpper()}:{AddressLabel.Replace(Environment.NewLine, "=0D=0A")}");
+                result = result.Append($"{Environment.NewLine}LABEL;CHARSET=UTF-8;{Location.ToString().ToUpperInvariant()};{AddressType.ToString().ToUpperInvariant()}:{AddressLabel.Replace(Environment.NewLine, "=0D=0A")}");
             }
 
             if (LatitudeLongitude().IsNotBlank())
@@ -292,7 +292,7 @@ namespace InnerLibs
 
             if (Gender.IsNotBlank())
             {
-                result = result.AppendLine($"GENDER:{Gender.GetFirstChars().ToUpper()}");
+                result = result.AppendLine($"GENDER:{Gender.GetFirstChars().ToUpperInvariant()}");
             }
 
             if (UID.HasValue)
@@ -388,7 +388,7 @@ namespace InnerLibs
 
         public override string ToString()
         {
-            return $"EMAIL{Preferred.AsIf(";PREF")};CHARSET=UTF-8;type={Type.ToUpper()},INTERNET:{EmailAddress}";
+            return $"EMAIL{Preferred.AsIf(";PREF")};CHARSET=UTF-8;type={Type.ToUpperInvariant()},INTERNET:{EmailAddress}";
         }
 
         #endregion Public Methods
@@ -417,7 +417,7 @@ namespace InnerLibs
 
         public override string ToString()
         {
-            return $"X-SOCIALPROFILE;CHARSET=UTF-8;TYPE={Name.ToUpper()}:{URL}";
+            return $"X-SOCIALPROFILE;CHARSET=UTF-8;TYPE={Name.ToUpperInvariant()}:{URL}";
         }
 
         #endregion Public Methods

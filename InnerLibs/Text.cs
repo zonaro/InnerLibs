@@ -534,7 +534,7 @@ namespace InnerLibs
 
         public static string FixCapitalization(this string Text)
         {
-            Text = Text.Trim().GetFirstChars(1).ToUpper() + Text.RemoveFirstChars(1);
+            Text = Text.Trim().GetFirstChars(1).ToUpperInvariant() + Text.RemoveFirstChars(1);
             var dots = new[] { "...", ". ", "? ", "! " };
             List<string> sentences;
             foreach (var dot in dots)
@@ -542,7 +542,7 @@ namespace InnerLibs
                 sentences = Text.Split(dot, StringSplitOptions.None).ToList();
                 for (int index = 0, loopTo = sentences.Count - 1; index <= loopTo; index++)
                 {
-                    sentences[index] = string.Empty + sentences[index].Trim().GetFirstChars(1).ToUpper() + sentences[index].RemoveFirstChars(1);
+                    sentences[index] = string.Empty + sentences[index].Trim().GetFirstChars(1).ToUpperInvariant() + sentences[index].RemoveFirstChars(1);
                 }
 
                 Text = sentences.SelectJoinString(dot);
@@ -555,7 +555,7 @@ namespace InnerLibs
                 string palavra = c;
                 if (palavra.EndsWith(".") && palavra.Length == 2)
                 {
-                    palavra = palavra.ToUpper();
+                    palavra = palavra.ToUpperInvariant();
                     Text += palavra;
                     string proximapalavra = sentences.IfNoIndex(sentences.IndexOf(c) + 1, InnerLibs.Text.Empty);
                     if (!(proximapalavra.EndsWith(".") && palavra.Length == 2))

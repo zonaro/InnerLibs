@@ -14,7 +14,7 @@ namespace InnerLibs
         public static IEnumerable<string> AlphaChars => AlphaUpperChars.Union(AlphaLowerChars).OrderBy(x => x).AsEnumerable();
         public static IEnumerable<string> AlphaLowerChars => LowerConsonants.Union(LowerVowels).OrderBy(x => x).AsEnumerable();
         public static IEnumerable<string> AlphaNumericChars => AlphaChars.Union(NumberChars).AsEnumerable();
-        public static IEnumerable<string> AlphaUpperChars => AlphaLowerChars.Select(x => x.ToUpper());
+        public static IEnumerable<string> AlphaUpperChars => AlphaLowerChars.Select(x => x.ToUpperInvariant());
         public static IEnumerable<string> BreakLineChars => new[] { Environment.NewLine, "\t", "\n", "\r", "\r\n", "<br>", "<br/>", "<br />" }.AsEnumerable();
         public static IEnumerable<string> CloseWrappers => new[] { Text.DoubleQuoteChar, InnerLibs.Text.SingleQuoteChar, ")", "}", "]", ">", "`" }.AsEnumerable();
         public static IEnumerable<string> Consonants => UpperConsonants.Union(LowerConsonants).AsEnumerable();
@@ -35,8 +35,8 @@ namespace InnerLibs
         public static IEnumerable<string> Slashes => new[] { "|", @"\", "/" }.AsEnumerable();
         public static IEnumerable<string> SpecialChars => new[] { "@", "#", "$", "%", "&" }.AsEnumerable();
         public static IEnumerable<DayOfWeek> SundayToSaturday => new[] { 0, 1, 2, 3, 4, 5, 6 }.Cast<DayOfWeek>();
-        public static IEnumerable<string> UpperConsonants => LowerConsonants.Select(x => x.ToUpper()).AsEnumerable();
-        public static IEnumerable<string> UpperVowels => LowerVowels.Select(x => x.ToUpper()).AsEnumerable();
+        public static IEnumerable<string> UpperConsonants => LowerConsonants.Select(x => x.ToUpperInvariant()).AsEnumerable();
+        public static IEnumerable<string> UpperVowels => LowerVowels.Select(x => x.ToUpperInvariant()).AsEnumerable();
         public static IEnumerable<Type> ValueTypes => new[] { typeof(string), typeof(char), typeof(byte), typeof(sbyte), typeof(DateTime), typeof(Guid) }.Union(NumericTypes);
         public static IEnumerable<string> Vowels => UpperVowels.Union(LowerVowels).AsEnumerable();
         public static IEnumerable<string> WhiteSpaceChars => new[] { " ", "&nbsp;" }.AsEnumerable();

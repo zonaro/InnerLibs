@@ -1,5 +1,4 @@
-﻿using InnerLibs.Locations;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -104,43 +103,7 @@ namespace InnerLibs
         /// <inheritdoc cref="CalculateCompoundInterest(double,double,double)"/>
         public static decimal CalculateCompoundInterest(this decimal Capital, decimal Rate, decimal Time) => CalculateCompoundInterest((double)Capital, (double)Rate, (double)Time).ToDecimal();
 
-        /// <summary>
-        /// Calcula a distancia entre 2 locais
-        /// </summary>
-        /// <param name="FirstLocation">Primeiro Local</param>
-        /// <param name="SecondLocation">Segundo Local</param>
-        /// <returns>A distancia em kilometros</returns>
-        public static double CalculateDistance(this AddressInfo FirstLocation, AddressInfo SecondLocation)
-        {
-            double distance = 0.0d;
-            if (FirstLocation?.Latitude != null && FirstLocation?.Longitude != null && SecondLocation?.Latitude != null && SecondLocation?.Longitude != null && (FirstLocation.Latitude != SecondLocation.Latitude || FirstLocation.Longitude != SecondLocation.Longitude))
-            {
-                // Calculate radians
-                double latitude1Rad = FirstLocation.Latitude?.ToDouble().ToRadians() ?? 0;
-                double longitude1Rad = FirstLocation.Longitude?.ToDouble().ToRadians() ?? 0;
-                double latitude2Rad = SecondLocation.Latitude?.ToDouble().ToRadians() ?? 0;
-                double longitude2Rad = SecondLocation.Longitude?.ToDouble().ToRadians() ?? 0;
-                double longitudeDiff = Math.Abs(longitude1Rad - longitude2Rad);
-                if (longitudeDiff > Math.PI)
-                {
-                    longitudeDiff = 2.0d * Math.PI - longitudeDiff;
-                }
 
-                double angleCalculation = Math.Acos(Math.Sin(latitude2Rad) * Math.Sin(latitude1Rad) + Math.Cos(latitude2Rad) * Math.Cos(latitude1Rad) * Math.Cos(longitudeDiff));
-                distance = EarthCircumference * angleCalculation / (2.0d * Math.PI);
-            }
-            return distance;
-        }
-
-        /// <summary>
-        /// Calcula a matriz de distancia entre varios pontos
-        /// </summary>
-        /// <param name="Locations">Localizacoes</param>
-        /// <returns></returns>
-        public static Tuple<AddressInfo, AddressInfo, double> CalculateDistanceMatrix(params AddressInfo[] Locations)
-        {
-            return (Tuple<AddressInfo, AddressInfo, double>)CartesianProduct(Locations, Locations).Select(x => new Tuple<AddressInfo, AddressInfo, double>(x.First(), x.Last(), x.First().CalculateDistance(x.Last())));
-        }
 
         /// <summary>
         /// Calcula a porcentagem de cada valor em um dicionario em relação a sua totalidade

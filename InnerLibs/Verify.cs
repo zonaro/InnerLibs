@@ -55,6 +55,11 @@ namespace InnerLibs
             }
         }
 
+        /// <summary>
+        /// Check the strength of given password
+        /// </summary>
+        /// <param name="Password"></param>
+        /// <returns></returns>
         public static PasswordLevel CheckPassword(this string Password)
         {
             var points = Password.ValidateCount(passwordValidations);
@@ -106,7 +111,7 @@ namespace InnerLibs
             }
             else
             {
-                bool blank_flag;
+                bool blank_flag = false;
                 try
                 {
                     if (typeof(T).IsNumericType())
@@ -129,10 +134,7 @@ namespace InnerLibs
                     {
                         blank_flag = span.Equals(TimeSpan.MinValue);
                     }
-                    else //any other type
-                    {
-                        blank_flag = Value == default;
-                    }
+
                 }
                 catch
                 {
@@ -379,10 +381,7 @@ namespace InnerLibs
                 {
                     using (FileStream fileStream = System.IO.File.Open(File.FullName, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
                     {
-                        if (fileStream != null)
-                        {
-                            fileStream.Close();
-                        }
+                        fileStream?.Close();
                     }
                 }
             }
@@ -518,9 +517,9 @@ namespace InnerLibs
         /// <returns></returns>
         public static bool IsValidCNH(this string CNH)
         {
-            bool isValid = false;
+
             // char firstChar = cnh[0];
-            if (CNH.Length == 11 && (CNH ?? InnerLibs.Text.Empty) != (new string('1', 11) ?? InnerLibs.Text.Empty))
+            if (CNH.IsNotBlank() && CNH.Length == 11 && CNH != new string('1', 11))
             {
                 int dsc = 0;
                 int v = 0;
@@ -552,10 +551,10 @@ namespace InnerLibs
 
                 int x = v % 11;
                 int vl2 = x >= 10 ? 0 : x - dsc;
-                isValid = ($"{vl1.ToString() ?? InnerLibs.Text.Empty}{vl2.ToString() ?? InnerLibs.Text.Empty}" ?? InnerLibs.Text.Empty) == (CNH.Substring(CNH.Length - 2, 2) ?? InnerLibs.Text.Empty);
+                return $"{vl1}{vl2}" == (CNH.Substring(CNH.Length - 2, 2));
             }
 
-            return isValid;
+            return false;
         }
 
         /// <summary>

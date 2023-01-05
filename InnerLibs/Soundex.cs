@@ -22,7 +22,7 @@ namespace InnerLibs
             if (Size > 1)
             {
                 // Convert the word to all uppercase
-                Text = Text.ToUpper();
+                Text = Text.ToUpperInvariant();
                 // Convert to the word to a character array for faster processing
                 var Chars = Text.ToCharArray();
                 // Buffer to build up with character codes
@@ -206,7 +206,7 @@ namespace InnerLibs
             get
             {
                 string text = Word;
-                text = text.Trim().ToUpper();
+                text = text.Trim().ToUpperInvariant();
                 if (text.EndsWith("Z") & text.StartsWith("Z"))
                 {
                     text = "Z" + text.Trim('Z').Replace("Z", "S") + "S";
