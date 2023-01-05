@@ -1564,24 +1564,24 @@ namespace InnerLibs.LINQ
         }
 
         /// <summary>
-        /// Retorna um <see cref="IQueryable(Of ClassType)"/> procurando em varios campos diferentes
+        /// Retorna um <see cref="IQueryable{T}"/> procurando em varios campos diferentes
         /// de uma entidade
         /// </summary>
-        /// <typeparam name="ClassType">Tipo da Entidade</typeparam>
+        /// <typeparam name="T">Tipo da Entidade</typeparam>
         /// <param name="Table">Tabela da Entidade</param>
         /// <param name="SearchTerms">Termos da pesquisa</param>
         /// <param name="Properties">Propriedades onde <paramref name="SearchTerms"/> serão procurados</param>
         /// <returns></returns>
-        public static IQueryable<ClassType> Search<ClassType>(this IQueryable<ClassType> Table, IEnumerable<string> SearchTerms, params Expression<Func<ClassType, string>>[] Properties) where ClassType : class
+        public static IQueryable<T> Search<T>(this IQueryable<T> Table, IEnumerable<string> SearchTerms, params Expression<Func<T, string>>[] Properties) where T : class
         {
-            IQueryable<ClassType> SearchRet = default;
-            Properties = Properties ?? Array.Empty<Expression<Func<ClassType, string>>>();
+            IQueryable<T> SearchRet = default;
+            Properties = Properties ?? Array.Empty<Expression<Func<T, string>>>();
             SearchTerms = SearchTerms ?? Array.Empty<string>().AsEnumerable();
             SearchRet = Table.Where(SearchTerms.SearchExpression(Properties));
             return SearchRet;
         }
 
-        public static IQueryable<ClassType> Search<ClassType>(this IQueryable<ClassType> Table, string SearchTerm, params Expression<Func<ClassType, string>>[] Properties) where ClassType : class => Search(Table, new[] { SearchTerm }, Properties);
+        public static IQueryable<T> Search<T>(this IQueryable<T> Table, string SearchTerm, params Expression<Func<T, string>>[] Properties) where T : class => Search(Table, new[] { SearchTerm }, Properties);
 
         public static Expression<Func<T, bool>> SearchExpression<T>(this IEnumerable<string> Text, params Expression<Func<T, string>>[] Properties)
         {
@@ -1902,6 +1902,8 @@ namespace InnerLibs.LINQ
         /// <returns></returns>
         public static IOrderedQueryable<T> ThenByProperty<T>(this IQueryable<T> source, string[] SortProperty, bool Ascending = true)
         {
+            if (source == null) throw new ArgumentNullException("source");
+
             var type = typeof(T);
             SortProperty = SortProperty ?? Array.Empty<string>();
             foreach (var prop in SortProperty)
@@ -1924,12 +1926,18 @@ namespace InnerLibs.LINQ
                 var resultExp = Expression.Call(typeof(Queryable), methodname, typeArguments, source.Expression, Expression.Quote(orderByExp));
                 source = source.Provider.CreateQuery<T>(resultExp);
             }
+            return source.GetType() != typeof(IOrderedQueryable<T>) ? source.OrderBy(x => true) : (IOrderedQueryable<T>)source;
 
-            return (IOrderedQueryable<T>)source;
+
         }
 
+
+
+        public static IOrderedQueryable<T> OrderByProperty<T>(this IQueryable<T> source, string[] SortProperty, bool Ascending = true) => ThenByProperty(source, SortProperty, Ascending);
+        public static IOrderedEnumerable<T> OrderByProperty<T>(this IEnumerable<T> source, string[] SortProperty, bool Ascending = true) => ThenByProperty(source, SortProperty, Ascending);
+
         /// <summary>
-        /// Ordena um <see cref="IEnumerable(Of T)"/> a partir do nome de uma ou mais propriedades
+        /// Ordena um <see cref="IEnumerable{T}"/> a partir do nome de uma ou mais propriedades
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="source"></param>
@@ -1938,6 +1946,8 @@ namespace InnerLibs.LINQ
         /// <returns></returns>
         public static IOrderedEnumerable<T> ThenByProperty<T>(this IEnumerable<T> source, string[] SortProperty, bool Ascending = true)
         {
+            if (source == null) throw new ArgumentNullException("source");
+
             var type = typeof(T);
             SortProperty = SortProperty ?? Array.Empty<string>();
             foreach (var prop in SortProperty)
@@ -1953,7 +1963,7 @@ namespace InnerLibs.LINQ
                 }
             }
 
-            return (IOrderedEnumerable<T>)source;
+            return source.GetType() != typeof(IOrderedEnumerable<T>) ? source.OrderBy(x => true) : (IOrderedEnumerable<T>)source;
         }
 
         /// <summary>
