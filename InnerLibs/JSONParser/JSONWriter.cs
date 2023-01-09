@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
@@ -13,14 +14,16 @@ namespace InnerLibs.JSONParser
     //- Will only output public fields and property getters on objects
     public static class JSONWriter
     {
-        public static string ToJson(this object item)
+
+        public static string ToJson(this object item, bool IncludeNull = true, CultureInfo culture = null)
         {
+            culture = culture ?? CultureInfo.InvariantCulture;
             StringBuilder stringBuilder = new StringBuilder();
-            AppendValue(stringBuilder, item);
+            AppendValue(stringBuilder, item, IncludeNull, culture);
             return stringBuilder.ToString();
         }
 
-        internal static void AppendValue(StringBuilder stringBuilder, object item)
+        internal static void AppendValue(StringBuilder stringBuilder, object item, bool IncludeNull = true, CultureInfo culture = null)
         {
             if (item == null)
             {
@@ -29,7 +32,7 @@ namespace InnerLibs.JSONParser
             }
 
             Type type = item.GetType();
-            if (type == typeof(string) || type == typeof(char))
+            if (type == typeof(string) || type == typeof(char) || type == typeof(FormattableString))
             {
                 stringBuilder.Append('"');
                 string str = item.ToString();
@@ -41,10 +44,9 @@ namespace InnerLibs.JSONParser
                         if (j >= 0)
                             stringBuilder.Append("\"\\nrtbf"[j]);
                         else
-                            stringBuilder.AppendFormat("u{0:X4}", (UInt32)str[i]);
+                            stringBuilder.AppendFormat(culture, "u{0:X4}", (uint)str[i]);
                     }
-                    else
-                        stringBuilder.Append(str[i]);
+                    else stringBuilder.Append(str[i]);
                 stringBuilder.Append('"');
             }
             else if (type == typeof(byte) || type == typeof(sbyte))
@@ -65,15 +67,15 @@ namespace InnerLibs.JSONParser
             }
             else if (type == typeof(float))
             {
-                stringBuilder.Append(((float)item).ToString(System.Globalization.CultureInfo.InvariantCulture));
+                stringBuilder.Append(((float)item).ToString(culture));
             }
             else if (type == typeof(double))
             {
-                stringBuilder.Append(((double)item).ToString(System.Globalization.CultureInfo.InvariantCulture));
+                stringBuilder.Append(((double)item).ToString(culture));
             }
             else if (type == typeof(decimal))
             {
-                stringBuilder.Append(((decimal)item).ToString(System.Globalization.CultureInfo.InvariantCulture));
+                stringBuilder.Append(((decimal)item).ToString(culture));
             }
             else if (type == typeof(bool))
             {
@@ -82,7 +84,7 @@ namespace InnerLibs.JSONParser
             else if (type == typeof(DateTime))
             {
                 stringBuilder.Append('"');
-                stringBuilder.Append(((DateTime)item).ToString(System.Globalization.CultureInfo.InvariantCulture));
+                stringBuilder.Append(((DateTime)item).ToString(culture));
                 stringBuilder.Append('"');
             }
             else if (type.IsEnum)
@@ -110,8 +112,8 @@ namespace InnerLibs.JSONParser
             {
                 Type keyType = type.GetGenericArguments()[0];
 
-                //Refuse to output dictionary keys that aren't of type string
-                if (keyType != typeof(string))
+                //Refuse to output dictionary keys that aren't compatible json types
+                if (keyType.IsNotIn(new[] { typeof(string), typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(char) }))
                 {
                     stringBuilder.Append("{}");
                     return;
@@ -122,12 +124,9 @@ namespace InnerLibs.JSONParser
                 bool isFirst = true;
                 foreach (object key in dict.Keys)
                 {
-                    if (isFirst)
-                        isFirst = false;
-                    else
-                        stringBuilder.Append(',');
+                    if (isFirst) isFirst = false; else stringBuilder.Append(',');
                     stringBuilder.Append('\"');
-                    stringBuilder.Append((string)key);
+                    stringBuilder.Append($"{key}");
                     stringBuilder.Append("\":");
                     AppendValue(stringBuilder, dict[key]);
                 }
@@ -138,43 +137,38 @@ namespace InnerLibs.JSONParser
                 stringBuilder.Append('{');
 
                 bool isFirst = true;
-                FieldInfo[] fieldInfos = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy);
-                for (int i = 0; i < fieldInfos.Length; i++)
+                foreach (var fieldInfo in type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy))
                 {
-                    if (fieldInfos[i].IsDefined(typeof(IgnoreDataMemberAttribute), true))
+                    if (fieldInfo.IsDefined(typeof(IgnoreDataMemberAttribute), true))
                         continue;
 
-                    object value = fieldInfos[i].GetValue(item);
-                    if (value != null)
+                    object value = fieldInfo.GetValue(item);
+                    if (value != null || IncludeNull)
                     {
-                        if (isFirst)
-                            isFirst = false;
-                        else
-                            stringBuilder.Append(',');
+                        if (isFirst) isFirst = false; else stringBuilder.Append(',');
                         stringBuilder.Append('\"');
-                        stringBuilder.Append(GetMemberName(fieldInfos[i]));
+                        stringBuilder.Append(GetMemberName(fieldInfo));
                         stringBuilder.Append("\":");
                         AppendValue(stringBuilder, value);
                     }
                 }
-                PropertyInfo[] propertyInfo = type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy);
-                for (int i = 0; i < propertyInfo.Length; i++)
+
+                foreach (var propertyInfo in type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy))
                 {
-                    if (!propertyInfo[i].CanRead || propertyInfo[i].IsDefined(typeof(IgnoreDataMemberAttribute), true))
+                    if (!propertyInfo.CanRead || propertyInfo.IsDefined(typeof(IgnoreDataMemberAttribute), true))
                         continue;
 
-                    object value = propertyInfo[i].GetValue(item, null);
-                    if (value != null)
+                    object value = propertyInfo.GetValue(item, null);
+                    if (value != null || IncludeNull)
                     {
-                        if (isFirst)
-                            isFirst = false;
-                        else
-                            stringBuilder.Append(',');
+                        if (isFirst) isFirst = false; else stringBuilder.Append(',');
                         stringBuilder.Append('\"');
-                        stringBuilder.Append(GetMemberName(propertyInfo[i]));
+                        stringBuilder.Append(GetMemberName(propertyInfo));
                         stringBuilder.Append("\":");
                         AppendValue(stringBuilder, value);
                     }
+
+
                 }
 
                 stringBuilder.Append('}');

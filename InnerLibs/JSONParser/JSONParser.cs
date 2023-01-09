@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
@@ -31,11 +32,15 @@ namespace InnerLibs.JSONParser
         [ThreadStatic] static Dictionary<Type, Dictionary<string, FieldInfo>> fieldInfoCache;
         [ThreadStatic] static Dictionary<Type, Dictionary<string, PropertyInfo>> propertyInfoCache;
 
-        public static T FromJson<T>(this string json)
+        public static T FromJson<T>(this string json) => FromJson<T>(json, null);
+        public static object FromJson(this string json) => FromJson(json, null);
+        public static T FromJson<T>(this string json, CultureInfo culture) => (T)FromJson(json, typeof(T), culture);
+        public static object FromJson(this string json, CultureInfo culture) => FromJson(json, typeof(object), culture);
+        public static object FromJson(this string json, Type Type, CultureInfo culture)
         {
-
             if (json == null) return default;
-
+            culture = culture ?? CultureInfo.InvariantCulture;
+            Type = Type ?? typeof(object);
             // Initialize, if needed, the ThreadStatic variables
             if (propertyInfoCache == null) propertyInfoCache = new Dictionary<Type, Dictionary<string, PropertyInfo>>();
             if (fieldInfoCache == null) fieldInfoCache = new Dictionary<Type, Dictionary<string, FieldInfo>>();
@@ -59,7 +64,7 @@ namespace InnerLibs.JSONParser
             }
 
             //Parse the thing!
-            return (T)ParseValue(typeof(T), stringBuilder.ToString());
+            return ParseValue(Type, stringBuilder.ToString(), culture);
         }
 
         internal static int AppendUntilStringEnd(bool appendEscapeCharacter, int startIdx, string json)
@@ -128,8 +133,15 @@ namespace InnerLibs.JSONParser
             return splitArray;
         }
 
-        internal static object ParseValue(Type type, string json)
+        internal static object ParseValue(Type type, string json, CultureInfo culture)
         {
+            culture = culture ?? CultureInfo.InvariantCulture;
+
+            if (json == "null")
+            {
+                return null;
+            }
+
             if (type == typeof(string))
             {
                 if (json.Length <= 2)
@@ -148,8 +160,7 @@ namespace InnerLibs.JSONParser
                         }
                         if (json[i + 1] == 'u' && i + 5 < json.Length - 1)
                         {
-                            uint c = 0;
-                            if (uint.TryParse(json.Substring(i + 2, 4), System.Globalization.NumberStyles.AllowHexSpecifier, null, out c))
+                            if (uint.TryParse(json.Substring(i + 2, 4), NumberStyles.AllowHexSpecifier, null, out uint c))
                             {
                                 parseStringBuilder.Append((char)c);
                                 i += 5;
@@ -163,25 +174,20 @@ namespace InnerLibs.JSONParser
             }
             if (type.IsPrimitive)
             {
-                var result = Convert.ChangeType(json, type, System.Globalization.CultureInfo.InvariantCulture);
+                var result = Convert.ChangeType(json, type, culture);
                 return result;
             }
             if (type == typeof(decimal))
             {
-                decimal result;
-                decimal.TryParse(json, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out result);
+                decimal.TryParse(json, NumberStyles.Float, culture, out decimal result);
                 return result;
             }
             if (type == typeof(DateTime))
             {
-                DateTime result;
-                DateTime.TryParse(json.Replace("\"", ""), System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out result);
+                DateTime.TryParse(json.Replace("\"", ""), culture, DateTimeStyles.None, out DateTime result);
                 return result;
             }
-            if (json == "null")
-            {
-                return null;
-            }
+
             if (type.IsEnum)
             {
                 if (json[0] == '"')
@@ -204,14 +210,14 @@ namespace InnerLibs.JSONParser
                 List<string> elems = Split(json);
                 Array newArray = Array.CreateInstance(arrayType, elems.Count);
                 for (int i = 0; i < elems.Count; i++)
-                    newArray.SetValue(ParseValue(arrayType, elems[i]), i);
+                    newArray.SetValue(ParseValue(arrayType, elems[i], culture), i);
                 splitArrayPool.Push(elems);
                 return newArray;
             }
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
                 Type underlyingType = type.GetGenericArguments()[0];
-                return ParseValue(underlyingType, json);
+                return ParseValue(underlyingType, json, culture);
             }
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
             {
@@ -222,7 +228,7 @@ namespace InnerLibs.JSONParser
                 List<string> elems = Split(json);
                 var list = (IList)type.GetConstructor(new Type[] { typeof(int) }).Invoke(new object[] { elems.Count });
                 for (int i = 0; i < elems.Count; i++)
-                    list.Add(ParseValue(listType, elems[i]));
+                    list.Add(ParseValue(listType, elems[i], culture));
                 splitArrayPool.Push(elems);
                 return list;
             }
@@ -252,25 +258,26 @@ namespace InnerLibs.JSONParser
                     if (elems[i].Length <= 2)
                         continue;
                     string keyValue = elems[i].Substring(1, elems[i].Length - 2);
-                    object val = ParseValue(valueType, elems[i + 1]);
+                    object val = ParseValue(valueType, elems[i + 1], culture);
                     dictionary[keyValue] = val;
                 }
                 return dictionary;
             }
             if (type == typeof(object))
             {
-                return ParseAnonymousValue(json);
+                return ParseAnonymousValue(json, culture);
             }
             if (json[0] == '{' && json[json.Length - 1] == '}')
             {
-                return ParseObject(type, json);
+                return ParseObject(type, json, culture);
             }
 
             return null;
         }
 
-        static object ParseAnonymousValue(string json)
+        internal static object ParseAnonymousValue(string json, CultureInfo culture)
         {
+            culture = culture ?? CultureInfo.InvariantCulture;
             if (json.Length == 0)
                 return null;
             if (json[0] == '{' && json[json.Length - 1] == '}')
@@ -280,7 +287,7 @@ namespace InnerLibs.JSONParser
                     return null;
                 var dict = new Dictionary<string, object>(elems.Count / 2);
                 for (int i = 0; i < elems.Count; i += 2)
-                    dict[elems[i].Substring(1, elems[i].Length - 2)] = ParseAnonymousValue(elems[i + 1]);
+                    dict[elems[i].Substring(1, elems[i].Length - 2)] = ParseAnonymousValue(elems[i + 1], culture);
                 return dict;
             }
             if (json[0] == '[' && json[json.Length - 1] == ']')
@@ -288,7 +295,7 @@ namespace InnerLibs.JSONParser
                 List<string> items = Split(json);
                 var finalList = new List<object>(items.Count);
                 for (int i = 0; i < items.Count; i++)
-                    finalList.Add(ParseAnonymousValue(items[i]));
+                    finalList.Add(ParseAnonymousValue(items[i], culture));
                 return finalList;
             }
             if (json[0] == '"' && json[json.Length - 1] == '"')
@@ -300,14 +307,12 @@ namespace InnerLibs.JSONParser
             {
                 if (json.Contains("."))
                 {
-                    double result;
-                    double.TryParse(json, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out result);
+                    double.TryParse(json, NumberStyles.Float, culture, out double result);
                     return result;
                 }
                 else
                 {
-                    int result;
-                    int.TryParse(json, out result);
+                    int.TryParse(json, out int result);
                     return result;
                 }
             }
@@ -342,7 +347,7 @@ namespace InnerLibs.JSONParser
             return nameToMember;
         }
 
-        internal static object ParseObject(Type type, string json)
+        internal static object ParseObject(Type type, string json, CultureInfo culture)
         {
             object instance = FormatterServices.GetUninitializedObject(type);
 
@@ -351,14 +356,12 @@ namespace InnerLibs.JSONParser
             if (elems.Count % 2 != 0)
                 return instance;
 
-            Dictionary<string, FieldInfo> nameToField;
-            Dictionary<string, PropertyInfo> nameToProperty;
-            if (!fieldInfoCache.TryGetValue(type, out nameToField))
+            if (!fieldInfoCache.TryGetValue(type, out Dictionary<string, FieldInfo> nameToField))
             {
                 nameToField = CreateMemberNameDictionary(type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy));
                 fieldInfoCache.Add(type, nameToField);
             }
-            if (!propertyInfoCache.TryGetValue(type, out nameToProperty))
+            if (!propertyInfoCache.TryGetValue(type, out Dictionary<string, PropertyInfo> nameToProperty))
             {
                 nameToProperty = CreateMemberNameDictionary(type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy));
                 propertyInfoCache.Add(type, nameToProperty);
@@ -371,12 +374,10 @@ namespace InnerLibs.JSONParser
                 string key = elems[i].Substring(1, elems[i].Length - 2);
                 string value = elems[i + 1];
 
-                FieldInfo fieldInfo;
-                PropertyInfo propertyInfo;
-                if (nameToField.TryGetValue(key, out fieldInfo))
-                    fieldInfo.SetValue(instance, ParseValue(fieldInfo.FieldType, value));
-                else if (nameToProperty.TryGetValue(key, out propertyInfo))
-                    propertyInfo.SetValue(instance, ParseValue(propertyInfo.PropertyType, value), null);
+                if (nameToField.TryGetValue(key, out FieldInfo fieldInfo))
+                    fieldInfo.SetValue(instance, ParseValue(fieldInfo.FieldType, value, culture));
+                else if (nameToProperty.TryGetValue(key, out PropertyInfo propertyInfo))
+                    propertyInfo.SetValue(instance, ParseValue(propertyInfo.PropertyType, value, culture), null);
             }
 
             return instance;

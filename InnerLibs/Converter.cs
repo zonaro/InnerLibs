@@ -74,17 +74,17 @@ namespace InnerLibs
         /// <summary>
         /// Converte um tipo para outro. Retorna Nothing (NULL) se a conversão falhar
         /// </summary>
-        /// <typeparam name="ToType">Tipo</typeparam>
+        /// <typeparam name="T">Tipo</typeparam>
         /// <param name="Value">Variavel com valor</param>
         /// <returns>Valor convertido em novo tipo ou null se a conversão falhar</returns>
-        public static ToType ChangeType<ToType>(this object Value)
+        public static T ChangeType<T>(this object Value)
         {
             try
             {
-                var met = Value?.GetType().GetNullableTypeOf().GetMethods().FirstOrDefault(x => x.Name == $"To{typeof(ToType).Name}" && x.ReturnType == typeof(ToType) && x.IsPublic && x.GetParameters().Any() == false);
+                var met = Value?.GetType().GetNullableTypeOf().GetMethods().FirstOrDefault(x => x.Name == $"To{typeof(T).Name}" && x.ReturnType == typeof(T) && x.IsPublic && x.GetParameters().Any() == false);
                 if (met != null)
                 {
-                    return (ToType)met.Invoke(Value, new object[] { });
+                    return (T)met.Invoke(Value, Array.Empty<object>());
                 }
             }
             catch
@@ -93,7 +93,7 @@ namespace InnerLibs
 
             try
             {
-                return (ToType)Value?.ChangeType(typeof(ToType).GetNullableTypeOf());
+                return (T)Value?.ChangeType(typeof(T).GetNullableTypeOf());
             }
             catch
             {
