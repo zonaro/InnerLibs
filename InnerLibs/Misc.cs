@@ -1123,9 +1123,17 @@ namespace InnerLibs
             if (FromList != null)
             {
                 Indexes = Indexes?.Where(x => x.IsBetween(0, FromList.Count)).ToArray() ?? Array.Empty<int>();
-                foreach (var index in Indexes ?? Array.Empty<int>())
+                foreach (var index in Indexes)
                 {
-                    ToList.Add(FromList.Detach(index));
+                    var item = FromList.Detach(index);
+                    try
+                    {
+                        ToList.Insert(index, item);
+                    }
+                    catch
+                    {
+                        ToList.Add(item);
+                    }
                 }
             }
             return ToList;
@@ -1249,14 +1257,14 @@ namespace InnerLibs
         /// Agrupa e conta os itens de uma lista a partir de uma propriedade
         /// </summary>
         /// <typeparam name="Type"></typeparam>
-        /// <typeparam name="Group"></typeparam>
+        /// <typeparam name="T"></typeparam>
         /// <param name="obj"></param>
         /// <param name="GroupSelector"></param>
         /// <returns></returns>
-        public static Dictionary<Group, long> ReduceToTop<Group>(this Dictionary<Group, long> obj, int First, Group OtherLabel)
+        public static Dictionary<T, long> ReduceToTop<T>(this Dictionary<T, long> obj, int First, T OtherLabel)
         {
             var grouped = obj.OrderByDescending(x => x.Value);
-            return grouped.Take(First).Union(new[] { new KeyValuePair<Group, long>(OtherLabel, grouped.Skip(First).Sum(s => s.Value)) }).ToDictionary();
+            return grouped.Take(First).Union(new[] { new KeyValuePair<T, long>(OtherLabel, grouped.Skip(First).Sum(s => s.Value)) }).ToDictionary();
         }
 
         public static Dictionary<TGroup, Dictionary<TCount, long>> ReduceToTop<TGroup, TCount>(this Dictionary<TGroup, Dictionary<TCount, long>> Grouped, int First, TCount OtherLabel)
@@ -1531,19 +1539,34 @@ namespace InnerLibs
             return result;
         }
 
-        public static Attachment ToAttachment(this FileInfo file)
+        public static T[][] ToJaggedArray<T>(this T[,] inputArray)
         {
-            if (file != null && file.Exists)
-                return new Attachment(file.FullName);
-            return null;
+            // Get the number of rows and columns in the input array
+            int rows = inputArray.GetLength(0);
+            int cols = inputArray.GetLength(1);
+
+            // Create the jagged array with the same number of rows as the input array
+            T[][] jaggedArray = new T[rows][];
+
+            // Copy the elements from the input array to the jagged array
+            for (int i = 0; i < rows; i++)
+            {
+                // Create a new sub-array for each row
+                jaggedArray[i] = new T[cols];
+
+                // Copy the elements from the input array to the jagged array
+                for (int j = 0; j < cols; j++)
+                {
+                    jaggedArray[i][j] = inputArray[i, j];
+                }
+            }
+
+            return jaggedArray;
         }
 
-        public static Attachment ToAttachment(this Stream stream, string name)
-        {
-            if (stream != null && stream.Length > 0)
-                return new Attachment(stream, name.IfBlank("untitledFile.bin"));
-            return null;
-        }
+        public static Attachment ToAttachment(this FileInfo file) => file != null && file.Exists ? new Attachment(file.FullName) : null;
+
+        public static Attachment ToAttachment(this Stream stream, string name) => stream != null && stream.Length > 0 ? new Attachment(stream, name.IfBlank("untitledFile.bin")) : null;
 
         public static Attachment ToAttachment(this byte[] bytes, string name)
         {
