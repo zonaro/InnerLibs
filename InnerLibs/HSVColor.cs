@@ -1155,7 +1155,7 @@ namespace InnerLibs
         Happy = 64,
         Love = MostRed | NoGreen | Happy,
         Nature = MostGreen | Happy,
-        Water = ~Red | Medium,
+        Water = ~Red | Medium | MostBlue,
         Cooler = 128,
         Cool = 256,
         Warm = 512,

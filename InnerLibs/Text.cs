@@ -1032,7 +1032,7 @@ namespace InnerLibs
         /// <param name="TextLength"></param>
         /// <param name="Ellipsis"></param>
         /// <returns></returns>
-        public static string GetTextPreview(this string Text, int TextLength = 0, string Ellipsis = "...", bool BeforeNewLine = true)
+        public static string GetTextPreview(this string Text, int TextLength, string Ellipsis = "...", bool BeforeNewLine = true)
         {
             if (Text.IsBlank() || Text?.Length <= TextLength || TextLength <= 0)
             {

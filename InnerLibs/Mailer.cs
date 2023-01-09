@@ -347,6 +347,7 @@ namespace InnerLibs.Mail
             return this;
         }
 
+
         /// <summary>
         /// Adiciona um destinatário a lista de destinatários deta mensagem
         /// </summary>
@@ -699,7 +700,7 @@ namespace InnerLibs.Mail
         public FluentMailMessage<T> WithCredentials(NetworkCredential Credentials)
         {
             if (Smtp == null) throw new ArgumentException("SMTP is null, Define SMTP before defining credentials", nameof(Smtp));
-            Smtp.Credentials = Credentials ?? throw new ArgumentNullException("Credentials is null",nameof(Credentials));
+            Smtp.Credentials = Credentials ?? throw new ArgumentNullException("Credentials is null", nameof(Credentials));
             if (From == null || From.Address.IsBlank())
             {
                 From = new MailAddress(Credentials.UserName);

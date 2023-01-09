@@ -1770,7 +1770,7 @@ namespace InnerLibs.TimeMachine
         /// <param name="InputFormat"></param>
         /// <param name="Culture"></param>
         /// <returns></returns>     
-        public static string ChangeDateFormat(this string Date, string FromFormat, string ToFormat) => Date != null && Date.IsDate() ? DateTime.ParseExact(Date, FromFormat, CultureInfo.InvariantCulture).ToString(ToFormat, CultureInfo.InvariantCulture) : Date;
+        public static string ChangeDateFormat(this string Date, string FromFormat, string ToFormat) => Date.IsNotBlank() && Date.IsDate() ? DateTime.ParseExact(Date, FromFormat, CultureInfo.InvariantCulture).ToString(ToFormat, CultureInfo.InvariantCulture) : Date;
 
 
         /// <summary>

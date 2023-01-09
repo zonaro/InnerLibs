@@ -34,8 +34,8 @@ namespace InnerLibs
                 case "0":
                 case "null":
                 case Text.Empty:
+                case null:
                     return false;
-
                 default:
                     return true;
             }
