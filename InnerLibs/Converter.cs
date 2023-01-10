@@ -385,16 +385,18 @@ namespace InnerLibs
         public static IEnumerable<Dictionary<TKey, TValue>> MergeKeys<TKey, TValue>(this IEnumerable<Dictionary<TKey, TValue>> Dics, params TKey[] AditionalKeys)
         {
             AditionalKeys = AditionalKeys ?? Array.Empty<TKey>();
+            Dics = Dics ?? Array.Empty<Dictionary<TKey, TValue>>();
             var chave = Dics.SelectMany(x => x.Keys).Distinct().Union(AditionalKeys);
             foreach (var dic in Dics)
             {
-                foreach (var key in chave)
-                {
-                    if (!dic.ContainsKey(key))
+                if (dic != null)
+                    foreach (var key in chave)
                     {
-                        dic[key] = default;
+                        if (!dic.ContainsKey(key))
+                        {
+                            dic[key] = default;
+                        }
                     }
-                }
             }
             return Dics.Select(x => x.OrderBy(y => y.Key).ToDictionary());
         }
