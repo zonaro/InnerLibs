@@ -443,42 +443,42 @@ namespace InnerLibs
         /// <summary>
         /// Converte um tipo para Boolean. Retorna Nothing (NULL) se a conversão falhar
         /// </summary>
-        /// <typeparam name="FromType">Tipo de origem</typeparam>
+        /// <typeparam name="T">Tipo de origem</typeparam>
         /// <param name="Value">Variavel com valor</param>
         /// <returns>Valor convertido em novo tipo</returns>
-        public static bool ToBool<FromType>(this FromType Value) => Value.ChangeType<bool>();
+        public static bool ToBool<T>(this T Value) => Value.ChangeType<bool>();
 
         /// <summary>
         /// Converte um tipo para DateTime. Retorna Nothing (NULL) se a conversão falhar
         /// </summary>
-        /// <typeparam name="FromType">Tipo de origem</typeparam>
+        /// <typeparam name="T">Tipo de origem</typeparam>
         /// <param name="Value">Variavel com valor</param>
         /// <returns>Valor convertido em novo tipo</returns>
-        public static DateTime ToDateTime<FromType>(this FromType Value) => Value.ChangeType<DateTime>();
+        public static DateTime ToDateTime<T>(this T Value) => Value.ChangeType<DateTime>();
 
         /// <summary>
         /// Converte um tipo para DateTime. Retorna Nothing (NULL) se a conversão falhar
         /// </summary>
-        /// <typeparam name="FromType">Tipo de origem</typeparam>
+        /// <typeparam name="T">Tipo de origem</typeparam>
         /// <param name="Value">Variavel com valor</param>
         /// <returns>Valor convertido em novo tipo</returns>
-        public static DateTime ToDateTime<FromType>(this FromType Value, string CultureInfoName) => Value.ToDateTime(new CultureInfo(CultureInfoName));
+        public static DateTime ToDateTime<T>(this T Value, string CultureInfoName) => Value.ToDateTime(new CultureInfo(CultureInfoName));
 
         /// <summary>
         /// Converte um tipo para DateTime. Retorna Nothing (NULL) se a conversão falhar
         /// </summary>
-        /// <typeparam name="FromType">Tipo de origem</typeparam>
+        /// <typeparam name="T">Tipo de origem</typeparam>
         /// <param name="Value">Variavel com valor</param>
         /// <returns>Valor convertido em novo tipo</returns>
-        public static DateTime ToDateTime<FromType>(this FromType Value, CultureInfo CultureInfo) => Convert.ToDateTime(Value, CultureInfo);
+        public static DateTime ToDateTime<T>(this T Value, CultureInfo CultureInfo) => Convert.ToDateTime(Value, CultureInfo);
 
         /// <summary>
         /// Converte um tipo para Decimal. Retorna Nothing (NULL) se a conversão falhar
         /// </summary>
-        /// <typeparam name="FromType">Tipo de origem</typeparam>
+        /// <typeparam name="T">Tipo de origem</typeparam>
         /// <param name="Value">Variavel com valor</param>
         /// <returns>Valor convertido em novo tipo</returns>
-        public static decimal ToDecimal<FromType>(this FromType Value) => Value.ChangeType<decimal>();
+        public static decimal ToDecimal<T>(this T Value) => Value.ChangeType<decimal>();
 
         /// <summary>
         /// Retorna um <see cref="Dictionary"/> a partir de um <see cref="IGrouping(Of TKey, TElement)"/>
