@@ -2,13 +2,124 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
 
-namespace InnerLibs.JSONParser
+namespace InnerLibs
 {
-    // Really simple JSON parser in ~300 lines
+
+    /// <summary>
+    /// Class that when inherited by a POCO class implements methods to save the values in an encrypted Json file
+    /// </summary>
+    public abstract class JsonFile
+    {
+        private string file_path;
+        private string encrypt_key;
+        private bool exclude_null;
+        private CultureInfo culture;
+
+        /// <summary>
+        /// Return a <see cref="FileInfo"/> of current JsonFile
+        /// </summary>
+        /// <returns></returns>
+        public FileInfo GetFile() => new FileInfo(file_path.BlankCoalesce(DefaultFileName));
+
+        /// <summary>
+        /// The default path used to save JsonFiles
+        /// </summary>
+        public static string DefaultFileName => $"{Environment.CurrentDirectory}\\config.json";
+
+        /// <summary>
+        /// Load values of a JsonFile into a <typeparamref name="T"/> object
+        /// </summary>
+        /// <typeparam name="T">Object Type</typeparam>
+        /// <param name="FilePath">File Path</param>
+        /// <param name="EncryptKey">Encrypt Key. Leave Null or blank to not encrypt</param>
+        /// <param name="ExcludeNull">When true, exclude properties with null values from serialization</param>
+        /// <returns></returns>
+        public static T Load<T>(FileInfo FilePath, string EncryptKey, bool ExcludeNull = false) where T : JsonFile => Load<T>(FilePath?.FullName, EncryptKey, ExcludeNull);
+
+        /// <inheritdoc cref="Load{T}"/>     
+        public static T Load<T>(FileInfo FilePath) where T : JsonFile => Load<T>(FilePath, null);
+        /// <inheritdoc cref="Load{T}"/>     
+        public static T Load<T>(string FilePath) where T : JsonFile => Load<T>(FilePath, null);
+        /// <inheritdoc cref="Load{T}"/>     
+        public static T Load<T>() where T : JsonFile => Load<T>(DefaultFileName, null);
+        /// <inheritdoc cref="Load{T}"/>     
+        public static T Load<T>(string FilePath, string EncryptKey, bool ExcludeNull = false, CultureInfo culture = null) where T : JsonFile
+        {
+            culture = culture ?? CultureInfo.InvariantCulture;
+            FilePath = FilePath.IfBlank(DefaultFileName).FixPath();
+            T c = Activator.CreateInstance<T>();
+
+            if (File.Exists(c.file_path))
+            {
+                string s = File.ReadAllText(c.file_path);
+                if (EncryptKey.IsNotBlank())
+                {
+                    s = s.Decrypt(EncryptKey);
+                }
+
+                c = s.FromJson<T>(culture);
+            }
+
+            c.SetFilePath(FilePath);
+            c.SetEncryptKey(EncryptKey);
+            c.ExcludeNullValues(ExcludeNull);
+            c.SetCulture(culture);
+            c.Save();
+            return c;
+        }
+
+
+
+        /// <summary>
+        /// Save the current values into a JsonFile
+        /// </summary>
+        /// <returns></returns>     
+        public FileInfo Save()
+        {
+            this.file_path = this.file_path.BlankCoalesce(DefaultFileName).FixPath();
+            var s = this.ToJson(!exclude_null, culture);
+            if (this.encrypt_key.IsNotBlank())
+            {
+                s = s.Encrypt(this.encrypt_key);
+            }
+
+            s.WriteToFile(this.file_path);
+            return new FileInfo(this.file_path);
+        }
+
+        /// <summary>
+        /// Set the <see cref="CultureInfo"/> used during serialization
+        /// </summary>
+        /// <param name="culture"></param>
+        public void SetCulture(CultureInfo culture) => this.culture = culture;
+
+        /// <summary>
+        /// Set the Encrypt key using to encrypt the content of JsonFile after serialization
+        /// </summary>
+        /// <param name="EncryptKey"></param>
+        public void SetEncryptKey(string EncryptKey) => this.encrypt_key = EncryptKey.NullIf(x => x.IsBlank());
+
+        /// <summary>
+        /// Change the filepath used to <see cref="Save"/>
+        /// </summary>
+        /// <param name="FilePath"></param>
+        public void SetFilePath(string FilePath) => this.file_path = FilePath.BlankCoalesce(this.file_path, DefaultFileName);
+
+        /// <summary>
+        /// When true, exclude properties with null values from serialization
+        /// </summary>
+        /// <param name="Exclude"></param>
+        public void ExcludeNullValues(bool Exclude) => this.exclude_null = Exclude;
+
+
+    }
+
+    // Really simple JSON parser/writer
     // - Attempts to parse JSON files with minimal GC allocation
     // - Nice and simple "[1,2,3]".FromJson<List<int>>() API
     // - Classes and structs can be parsed too!
@@ -25,6 +136,10 @@ namespace InnerLibs.JSONParser
     // - No JIT Emit support to parse structures quickly
     // - Limited to parsing <2GB JSON files (due to int.MaxValue)
     // - Parsing of abstract classes or interfaces is NOT supported and will throw an exception.
+    // 
+    // - Outputs JSON structures from an object
+    // - Really simple API (new List<int> { 1, 2, 3 }).ToJson() == "[1,2,3]"
+    // - Will only output public fields and property getters on objects
     public static class JSONParser
     {
         [ThreadStatic] static Stack<List<string>> splitArrayPool;
@@ -32,6 +147,179 @@ namespace InnerLibs.JSONParser
         [ThreadStatic] static Dictionary<Type, Dictionary<string, FieldInfo>> fieldInfoCache;
         [ThreadStatic] static Dictionary<Type, Dictionary<string, PropertyInfo>> propertyInfoCache;
 
+
+        internal static void AppendValue(StringBuilder stringBuilder, object item, bool IncludeNull = true, CultureInfo culture = null)
+        {
+
+            if (item == null)
+            {
+                stringBuilder.Append("null");
+                return;
+            }
+
+            Type type = item.GetType();
+            if (type == typeof(string) || type == typeof(char) || type == typeof(FormattableString))
+            {
+                stringBuilder.Append('"');
+                string str = item.ToString();
+                for (int i = 0; i < str.Length; ++i)
+                    if (str[i] < ' ' || str[i] == '"' || str[i] == '\\')
+                    {
+                        stringBuilder.Append('\\');
+                        int j = "\"\\\n\r\t\b\f".IndexOf(str[i]);
+                        if (j >= 0)
+                            stringBuilder.Append("\"\\nrtbf"[j]);
+                        else
+                            stringBuilder.AppendFormat(culture, "u{0:X4}", (uint)str[i]);
+                    }
+                    else stringBuilder.Append(str[i]);
+                stringBuilder.Append('"');
+            }
+            else if (type == typeof(byte) || type == typeof(sbyte))
+            {
+                stringBuilder.Append(item.ToString());
+            }
+            else if (type == typeof(short) || type == typeof(ushort))
+            {
+                stringBuilder.Append(item.ToString());
+            }
+            else if (type == typeof(int) || type == typeof(uint))
+            {
+                stringBuilder.Append(item.ToString());
+            }
+            else if (type == typeof(long) || type == typeof(ulong))
+            {
+                stringBuilder.Append(item.ToString());
+            }
+            else if (type == typeof(float))
+            {
+                stringBuilder.Append(((float)item).ToString(culture));
+            }
+            else if (type == typeof(double))
+            {
+                stringBuilder.Append(((double)item).ToString(culture));
+            }
+            else if (type == typeof(decimal))
+            {
+                stringBuilder.Append(((decimal)item).ToString(culture));
+            }
+            else if (type == typeof(bool))
+            {
+                stringBuilder.Append(((bool)item) ? "true" : "false");
+            }
+            else if (type == typeof(DateTime))
+            {
+                stringBuilder.Append('"');
+                stringBuilder.Append(((DateTime)item).ToString(culture));
+                stringBuilder.Append('"');
+            }
+            else if (type.IsEnum)
+            {
+                stringBuilder.Append('"');
+                stringBuilder.Append(item.ToString());
+                stringBuilder.Append('"');
+            }
+            else if (item is IList)
+            {
+                stringBuilder.Append('[');
+                bool isFirst = true;
+                IList list = item as IList;
+                for (int i = 0; i < list.Count; i++)
+                {
+                    if (isFirst)
+                        isFirst = false;
+                    else
+                        stringBuilder.Append(',');
+                    AppendValue(stringBuilder, list[i]);
+                }
+                stringBuilder.Append(']');
+            }
+            else if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Dictionary<,>))
+            {
+                Type keyType = type.GetGenericArguments()[0];
+
+                //Refuse to output dictionary keys that aren't compatible json types
+                if (keyType.IsNotIn(new[] { typeof(string), typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(char) }))
+                {
+                    stringBuilder.Append("{}");
+                    return;
+                }
+
+                stringBuilder.Append('{');
+                IDictionary dict = item as IDictionary;
+                bool isFirst = true;
+                foreach (object key in dict.Keys)
+                {
+                    if (isFirst) isFirst = false; else stringBuilder.Append(',');
+                    stringBuilder.Append('\"');
+                    stringBuilder.Append($"{key}");
+                    stringBuilder.Append("\":");
+                    AppendValue(stringBuilder, dict[key]);
+                }
+                stringBuilder.Append('}');
+            }
+            else
+            {
+                stringBuilder.Append('{');
+
+                bool isFirst = true;
+                foreach (var fieldInfo in type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy))
+                {
+                    if (fieldInfo.IsDefined(typeof(IgnoreDataMemberAttribute), true))
+                        continue;
+
+                    object value = fieldInfo.GetValue(item);
+                    if (value != null || IncludeNull)
+                    {
+                        if (isFirst) isFirst = false; else stringBuilder.Append(',');
+                        stringBuilder.Append('\"');
+                        stringBuilder.Append(GetMemberName(fieldInfo));
+                        stringBuilder.Append("\":");
+                        AppendValue(stringBuilder, value);
+                    }
+                }
+
+                foreach (var propertyInfo in type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy))
+                {
+                    if (!propertyInfo.CanRead || propertyInfo.IsDefined(typeof(IgnoreDataMemberAttribute), true))
+                        continue;
+
+                    object value = propertyInfo.GetValue(item, null);
+                    if (value != null || IncludeNull)
+                    {
+                        if (isFirst) isFirst = false; else stringBuilder.Append(',');
+                        stringBuilder.Append('\"');
+                        stringBuilder.Append(GetMemberName(propertyInfo));
+                        stringBuilder.Append("\":");
+                        AppendValue(stringBuilder, value);
+                    }
+
+
+                }
+
+                stringBuilder.Append('}');
+            }
+        }
+
+        internal static string GetMemberName(MemberInfo member)
+        {
+            if (member.IsDefined(typeof(DataMemberAttribute), true))
+            {
+                DataMemberAttribute dataMemberAttribute = (DataMemberAttribute)Attribute.GetCustomAttribute(member, typeof(DataMemberAttribute), true);
+                if (!string.IsNullOrEmpty(dataMemberAttribute.Name))
+                    return dataMemberAttribute.Name;
+            }
+
+            return member.Name;
+        }
+
+        public static string ToJson(this object item, bool IncludeNull = true, CultureInfo culture = null)
+        {
+            culture = culture ?? CultureInfo.InvariantCulture;
+            StringBuilder stringBuilder = new StringBuilder();
+            AppendValue(stringBuilder, item, IncludeNull, culture);
+            return stringBuilder.ToString();
+        }
         public static T FromJson<T>(this string json) => FromJson<T>(json, null);
         public static object FromJson(this string json) => FromJson(json, null);
         public static T FromJson<T>(this string json, CultureInfo culture) => (T)FromJson(json, typeof(T), culture);

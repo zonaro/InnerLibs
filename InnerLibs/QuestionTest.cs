@@ -6,18 +6,24 @@ using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.Serialization;
 
-namespace InnerLibs.QuestionTest
+namespace InnerLibs.QuestionTests
 {
+
+
+
     public static class QuestionTestExtensions
     {
         #region Public Methods
 
-        public static List<QuestionTest> Rank(this List<QuestionTest> Tests)
-        {
-            Tests?.Sort();
-            return Tests;
-        }
+        //public static IEnumerable<QuestionTest> GenerateFor(QuestionTest question, IEnumerable<Dictionary<string, string>> personalInfo)
+        //{
+        //    var l = new List<QuestionTest>();
+
+        //}
+
+        public static IEnumerable<QuestionTest> Rank(this IEnumerable<QuestionTest> Tests) => LINQExtensions.Rank(Tests, x => x.FinalNote, x => x.Rank);
 
         public static TQuestion SetWeight<TQuestion>(this TQuestion Question, decimal Weight) where TQuestion : Question
         {
@@ -92,6 +98,7 @@ namespace InnerLibs.QuestionTest
             set => Question?.Alternatives.Move(Question.Alternatives.IndexOf(this), (value - 1).LimitRange(0, Question.Alternatives.Count - 1));
         }
 
+        [IgnoreDataMember]
         public AlternativeQuestion Question => _question;
 
         /// <summary>
@@ -128,6 +135,8 @@ namespace InnerLibs.QuestionTest
 
 
         #region Public Properties
+
+        [IgnoreDataMember]
 
         public AlternativeQuestion Question { get; private set; }
 
@@ -174,7 +183,7 @@ namespace InnerLibs.QuestionTest
         {
             if (Alternatives != null)
                 foreach (var alt in Alternatives)
-                    Add(alt);
+                    if (alt != null) Add(alt);
         }
 
         public override string ToString() => ToString("Alternatives");
@@ -526,6 +535,8 @@ namespace InnerLibs.QuestionTest
             }
         }
 
+        [IgnoreDataMember]
+
         public QuestionTest Test => _test;
 
         /// <summary>
@@ -614,7 +625,7 @@ namespace InnerLibs.QuestionTest
     /// Classe que representa uma Avaliação de Perguntas e respostas, podendo elas serem
     /// Dissertativas, Multipla Escolha ou de Atribuição de Pontos
     /// </summary>
-    [Serializable]
+
     public class QuestionTest : ObservableCollection<Question>, IComparable<QuestionTest>, IComparable
     {
         #region Private Fields
@@ -685,6 +696,13 @@ namespace InnerLibs.QuestionTest
         /// </summary>
         /// <returns></returns>
         public decimal FinalNote => Average + Bonus;
+
+        /// <summary>
+        /// Posição desta avaliação em relação a outras avaliações
+        /// </summary>
+        /// <remarks>Coloque todas as avaliações em uma <see cref="IEnumerable{QuestionTest}"/> e utilize o metodo <see cref="QuestionTestExtensions.Rank(IEnumerable{QuestionTest})"/></remarks>
+        public int Rank { get; set; }
+
 
         public string Footer { get; set; }
 
@@ -806,40 +824,17 @@ namespace InnerLibs.QuestionTest
 
         #endregion Protected Methods
 
-        public static bool operator !=(QuestionTest left, QuestionTest right)
-        {
-            return !(left == right);
-        }
+        public static bool operator !=(QuestionTest left, QuestionTest right) => !(left == right);
 
-        public static bool operator <(QuestionTest left, QuestionTest right)
-        {
-            return ReferenceEquals(left, null) ? !ReferenceEquals(right, null) : left.CompareTo(right) < 0;
-        }
+        public static bool operator <(QuestionTest left, QuestionTest right) => left == null || right != null && left.CompareTo(right) < 0;
 
-        public static bool operator <=(QuestionTest left, QuestionTest right)
-        {
-            return ReferenceEquals(left, null) || left.CompareTo(right) <= 0;
-        }
+        public static bool operator <=(QuestionTest left, QuestionTest right) => left == right || left < right;
 
-        public static bool operator ==(QuestionTest left, QuestionTest right)
-        {
-            if (ReferenceEquals(left, null))
-            {
-                return ReferenceEquals(right, null);
-            }
+        public static bool operator ==(QuestionTest left, QuestionTest right) => left is null ? right is null : left.Equals(right);
 
-            return left.Equals(right);
-        }
+        public static bool operator >(QuestionTest left, QuestionTest right) => !(left == null) && left.CompareTo(right) > 0;
 
-        public static bool operator >(QuestionTest left, QuestionTest right)
-        {
-            return !ReferenceEquals(left, null) && left.CompareTo(right) > 0;
-        }
-
-        public static bool operator >=(QuestionTest left, QuestionTest right)
-        {
-            return ReferenceEquals(left, null) ? ReferenceEquals(right, null) : left.CompareTo(right) >= 0;
-        }
+        public static bool operator >=(QuestionTest left, QuestionTest right) => left == right || left > right;
 
         public int CompareTo(object obj)
         {
@@ -868,7 +863,7 @@ namespace InnerLibs.QuestionTest
             return pos;
         }
 
-        public int CompareTo(QuestionTest other) => CompareTo(other?.FinalNote);
+        public int CompareTo(QuestionTest other) => CompareTo(other?.FinalNote ?? 0);
 
         /// <summary>
         /// Cria uma questão dissertativa para esta prova
@@ -964,20 +959,7 @@ namespace InnerLibs.QuestionTest
             return q;
         }
 
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-
-            if (ReferenceEquals(obj, null))
-            {
-                return false;
-            }
-
-            throw new NotImplementedException();
-        }
+        public override bool Equals(object obj) => CompareTo(obj) == 0;
 
         /// <summary>
         /// Rodapé da prova. Texto adicional que ficará após as questões
@@ -1012,10 +994,7 @@ namespace InnerLibs.QuestionTest
         /// <returns></returns>
         public Alternative GetAlternative(string ID) => GetQuestion<AlternativeQuestion>(ID.GetFirstChars(2)).Alternatives.FirstOrDefault(a => $"{a.ID}" == $"{ID}");
 
-        public override int GetHashCode()
-        {
-            throw new NotImplementedException();
-        }
+        public override int GetHashCode() => ID.GetHashCode();
 
         /// <summary>
         /// Pega uma questão por ID
@@ -1203,24 +1182,7 @@ namespace InnerLibs.QuestionTest
         /// estiver mal formada (com mais de uma alternativa correta ou nenhuma alternativa correta)
         /// </summary>
         /// <returns></returns>
-        public override bool IsCorrect
-        {
-            get
-            {
-                if (IsValidQuestion)
-                {
-                    foreach (var q in Alternatives)
-                    {
-                        if (!q.IsCorrect)
-                        {
-                            return false;
-                        }
-                    }
-                }
-
-                return true;
-            }
-        }
+        public override bool IsCorrect => !IsValidQuestion || Alternatives.All(x => x.IsCorrect);
 
         /// <summary>
         /// Verifica se as existe apenas uma unica alternativa correta na questão
@@ -1265,7 +1227,11 @@ namespace InnerLibs.QuestionTest
         /// </summary>
         public int Number => Statement.Question.Test.SelectMany(x => x.Statement.Images).GetIndexOf(this);
 
+        [IgnoreDataMember]
+
         public Question Question => Statement.Question;
+
+        [IgnoreDataMember]
         public QuestionStatement Statement => StatementImages.Statement;
         public StatementImages StatementImages { get; private set; }
 
@@ -1274,6 +1240,8 @@ namespace InnerLibs.QuestionTest
         /// </summary>
         /// <returns></returns>
         public string Subtitle { get; set; } = Text.Empty;
+
+        [IgnoreDataMember]
 
         public QuestionTest Test => Question.Test;
 

@@ -15,28 +15,29 @@ namespace InnerLibs.Online
 
         public DateTime DateTime { get; set; }
         public string ID { get; set; }
-        public Dictionary<string, string> LogData { get; set; }
+        public Dictionary<string, string> LogData { get; internal set; }
         public string Message { get; set; }
-        public string Url { get; set; }
+        public Uri Url { get; set; }
         public string UserID { get; set; }
 
         #endregion Public Properties
     }
 
     /// <summary>
-    /// <see cref="Dictionary(Of UserType, IdType)"/> utilizado para controle de usuários que estão
+    /// <see cref="Dictionary{TUser, TID}"/> utilizado para controle de usuários que estão
     /// online/offline em uma aplicação
     /// </summary>
-    /// <typeparam name="UserType">Tipo da Classe do usuário</typeparam>
-    /// <typeparam name="IdType">Tipo do ID do usuário</typeparam>
-    public class OnlineList<UserType, IdType> : Dictionary<IdType, OnlineUser<UserType, IdType>>
-        where UserType : class
-        where IdType : struct
+    /// <typeparam name="TUser">Tipo da Classe do usuário</typeparam>
+    /// <typeparam name="TID">Tipo do ID do usuário</typeparam>
+
+    public class OnlineList<TUser, TID> : Dictionary<TID, OnlineUser<TUser, TID>>
+        where TUser : class
+        where TID : struct
     {
         #region Private Fields
 
         private TimeSpan _tolerancetime = new TimeSpan(0, 1, 0);
-        private Func<UserType, IdType> idgetter;
+        private Func<TUser, TID> idgetter;
 
         #endregion Private Fields
 
@@ -46,14 +47,14 @@ namespace InnerLibs.Online
         /// Cria uma nova instancia de OnlineList apontando a propriedade do ID do usuario e opcionalmente
         /// </summary>
         /// <param name="IdProperty">
-        /// Expressão lambda que indica qual propriedade da classe <see cref="UserType"/> é o ID de
-        /// tipo <see cref="IdType"/>
+        /// Expressão lambda que indica qual propriedade da classe <see cref="TUser"/> é o ID de
+        /// tipo <see cref="TID"/>
         /// </param>
-        public OnlineList(Func<UserType, IdType> IdProperty)
+        public OnlineList(Func<TUser, TID> IdProperty)
         {
             idgetter = IdProperty;
-            Chat = new UserChat<UserType, IdType>(this);
-            Log = new UserLog<UserType, IdType>(this);
+            Chat = new UserChat<TUser, TID>(this);
+            Log = new UserLog<TUser, TID>(this);
         }
 
         #endregion Public Constructors
@@ -65,7 +66,7 @@ namespace InnerLibs.Online
         /// </summary>
         /// <param name="User"></param>
         /// <returns></returns>
-        public OnlineUser<UserType, IdType> this[UserType User]
+        public OnlineUser<TUser, TID> this[TUser User]
         {
             get
             {
@@ -88,7 +89,7 @@ namespace InnerLibs.Online
         /// <returns></returns>
         public DirectoryInfo BackupDirectory { get; set; } = null;
 
-        public UserChat<UserType, IdType> Chat { get; private set; }
+        public UserChat<TUser, TID> Chat { get; private set; }
 
         /// <summary>
         /// Caminho do arquivo XML do Chat
@@ -115,7 +116,7 @@ namespace InnerLibs.Online
         /// Entradas de ações dos usuários
         /// </summary>
         /// <returns></returns>
-        public UserLog<UserType, IdType> Log { get; private set; }
+        public UserLog<TUser, TID> Log { get; private set; }
 
         /// <summary>
         /// Caminho do arquivo XML do Log
@@ -138,9 +139,9 @@ namespace InnerLibs.Online
         /// Função que será executada quando ocorrer uma entrada no log
         /// </summary>
         /// <returns></returns>
-        public Action<UserLogEntry<UserType, IdType>> OnCreateLog { get; set; } = x => Debug.WriteLine("Log entry created for " + x.GetUser().ID.ToString());
+        public Action<UserLogEntry<TUser, TID>> OnCreateLog { get; set; } = x => Debug.WriteLine("Log entry created for " + x.GetUser().ID.ToString());
 
-        public Action<OnlineUser<UserType, IdType>> OnUserOnlineChanged { get; set; } = x => Debug.WriteLine("User Updated -> " + x.ID.ToString());
+        public Action<OnlineUser<TUser, TID>> OnUserOnlineChanged { get; set; } = x => Debug.WriteLine("User Updated -> " + x.ID.ToString());
 
         /// <summary>
         /// Tolerancia que o servidor considera um usuário online ou na mesma atividade
@@ -175,28 +176,28 @@ namespace InnerLibs.Online
         /// </summary>
         /// <param name="User"></param>
         /// <returns></returns>
-        public OnlineUser<UserType, IdType> Add(UserType User) => Add(User, default, null, null);
+        public OnlineUser<TUser, TID> Add(TUser User) => Add(User, default, null, null);
 
         /// <summary>
         /// Adciona varios usuarios a esta lista
         /// </summary>
         /// <param name="Users"></param>
         /// <returns></returns>
-        public IEnumerable<OnlineUser<UserType, IdType>> Add(IEnumerable<UserType> Users) => AddMany(Users.ToArray());
+        public IEnumerable<OnlineUser<TUser, TID>> Add(IEnumerable<TUser> Users) => AddMany(Users.ToArray());
 
         /// <summary>
         /// Adciona um usuario a esta lista
         /// </summary>
         /// <param name="Obj"></param>
         /// <returns></returns>
-        public OnlineUser<UserType, IdType> Add(UserType Obj, bool? Online = default, string Activity = null, string Url = null, Dictionary<string, string> LogData = null, DateTime? DateTime = default)
+        public OnlineUser<TUser, TID> Add(TUser Obj, bool? Online = default, string Activity = null, Uri Url = null, Dictionary<string, string> LogData = null, DateTime? DateTime = default)
         {
             if (Obj != null)
             {
                 var ID = GetID(Obj);
                 if (!ContainsKey(ID))
                 {
-                    base[ID] = new OnlineUser<UserType, IdType>(Obj, this);
+                    base[ID] = new OnlineUser<TUser, TID>(Obj, this);
                 }
 
                 if (Online.HasValue)
@@ -226,9 +227,9 @@ namespace InnerLibs.Online
         /// Adciona varios usuarios a esta lista
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<OnlineUser<UserType, IdType>> AddMany(params UserType[] Users)
+        public IEnumerable<OnlineUser<TUser, TID>> AddMany(params TUser[] Users)
         {
-            var l = new List<OnlineUser<UserType, IdType>>();
+            var l = new List<OnlineUser<TUser, TID>>();
             foreach (var u in Users)
                 l.Add(Add(u, default, null, null));
             return l;
@@ -238,14 +239,14 @@ namespace InnerLibs.Online
         /// Verifica se um usuario está nesta lista
         /// </summary>
         /// <returns></returns>
-        public bool ContainsUser(UserType User) => ContainsKey(GetID(User));
+        public bool ContainsUser(TUser User) => ContainsKey(GetID(User));
 
         /// <summary>
         /// Cria uma entrada no log deste usuário
         /// </summary>
         /// <param name="Logdata"></param>
         /// <returns></returns>
-        public UserLogEntry<UserType, IdType> CreateLog(UserType User, string Message, string URL = null, Dictionary<string, string> LogData = null, DateTime? DateAndTime = default)
+        public UserLogEntry<TUser, TID> CreateLog(TUser User, string Message, Uri URL = null, Dictionary<string, string> LogData = null, DateTime? DateAndTime = default)
         => Log.CreateLog(User, Message, URL, LogData, DateTime.Now);
 
         /// <summary>
@@ -253,50 +254,40 @@ namespace InnerLibs.Online
         /// </summary>
         /// <param name="User"></param>
         /// <returns></returns>
-        public IdType GetID(UserType User) => idgetter(User);
+        public TID GetID(TUser User) => idgetter(User);
 
         /// <summary>
-        /// Retorna um OnlineUser a partir de uma instancia de <typeparamref name="UserType"/>
+        /// Retorna um OnlineUser a partir de uma instancia de <typeparamref name="TUser"/>
         /// </summary>
         /// <param name="User"></param>
         /// <returns></returns>
-        public OnlineUser<UserType, IdType> GetUser(UserType User)
-        {
-            if (ContainsUser(User))
-            {
-                return base[GetID(User)];
-            }
-            else
-            {
-                return Add(User);
-            }
-        }
+        public OnlineUser<TUser, TID> GetUser(TUser User) => ContainsUser(User) ? base[GetID(User)] : Add(User);
 
         /// <summary>
         /// Retorna todo os usuarios
         /// </summary>
         /// <param name="IsOnline">True para online, false para offline, null para todos</param>
         /// <returns></returns>
-        public IEnumerable<UserType> GetUsersData(bool? IsOnline = default) => Users().Where(x => x.IsOnline == (IsOnline ?? x.IsOnline)).Select(x => x.User);
+        public IEnumerable<TUser> GetUsersData(bool? IsOnline = default) => Users().Where(x => x.IsOnline == (IsOnline ?? x.IsOnline)).Select(x => x.User);
 
         /// <summary>
         /// Mantém um usuario online mas não atribui nenhuma nova atividade nem cria entradas no LOG
         /// </summary>
         /// <param name="Obj"></param>
         /// <returns></returns>
-        public OnlineUser<UserType, IdType> KeepOnline(UserType Obj) => Add(Obj, true);
+        public OnlineUser<TUser, TID> KeepOnline(TUser Obj) => Add(Obj, true);
 
         /// <summary>
-        /// Retorna todos os <see cref="OnlineUser(Of UserType, IdType)"/> que estão Offline
+        /// Retorna todos os <see cref="OnlineUser(Of TUser, TID)"/> que estão Offline
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<OnlineUser<UserType, IdType>> OfflineUsers() => Users().Where(x => x.IsOnline == false);
+        public IEnumerable<OnlineUser<TUser, TID>> OfflineUsers() => Users().Where(x => x.IsOnline == false);
 
         /// <summary>
-        /// Retorna todos os <see cref="OnlineUser(Of UserType, IdType)"/> que estão Online no momento
+        /// Retorna todos os <see cref="OnlineUser(Of TUser, TID)"/> que estão Online no momento
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<OnlineUser<UserType, IdType>> OnlineUsers() => Users().Where(x => x.IsOnline == true);
+        public IEnumerable<OnlineUser<TUser, TID>> OnlineUsers() => Users().Where(x => x.IsOnline == true);
 
         public void OpenChatXML()
         {
@@ -307,10 +298,10 @@ namespace InnerLibs.Online
                 {
                     if (ii.ID.IsNotIn(Chat.IDs))
                     {
-                        var cvn = new UserConversation<UserType, IdType>();
+                        var cvn = new UserConversation<TUser, TID>();
                         cvn.chatlist = Chat;
-                        cvn.FromUserID = ii.FromUserID.ChangeType<IdType>();
-                        cvn.ToUserID = ii.ToUserID.ChangeType<IdType>();
+                        cvn.FromUserID = ii.FromUserID.ChangeType<TID>();
+                        cvn.ToUserID = ii.ToUserID.ChangeType<TID>();
                         cvn.SentDate = ii.SentDate;
                         cvn.ViewedDate = ii.ViewedDate;
                         cvn.Message = ii.Message;
@@ -329,12 +320,14 @@ namespace InnerLibs.Online
                 {
                     if (ii.ID.IsNotBlank() && ii.ID.IsNotIn(Log.IDs))
                     {
-                        IdType usu_id = (IdType)TypeDescriptor.GetConverter(typeof(IdType)).ConvertFromInvariantString(ii.UserID);
-                        var log = new UserLogEntry<UserType, IdType>(usu_id, this);
-                        log.Message = ii.Message;
-                        log.DateTime = ii.DateTime;
-                        log.URL = ii.Url;
-                        log.LogData = ii.LogData;
+                        TID usu_id = (TID)TypeDescriptor.GetConverter(typeof(TID)).ConvertFromInvariantString(ii.UserID);
+                        var log = new UserLogEntry<TUser, TID>(usu_id, this)
+                        {
+                            Message = ii.Message,
+                            DateTime = ii.DateTime,
+                            URL = ii.Url,
+                            LogData = ii.LogData
+                        };
                         Log.Add(log);
                     }
                 }
@@ -345,9 +338,9 @@ namespace InnerLibs.Online
         /// Remove um usuário desta lista
         /// </summary>
         /// <param name="Obj"></param>
-        public void Remove(params UserType[] Obj)
+        public void Remove(params TUser[] Obj)
         {
-            Obj = Obj ?? Array.Empty<UserType>();
+            Obj = Obj ?? Array.Empty<TUser>();
             this.RemoveIfExist(Obj.Select(x => GetID(x)).ToArray());
         }
 
@@ -355,7 +348,7 @@ namespace InnerLibs.Online
         /// Remove um usuário desta lista a partir do ID
         /// </summary>
         /// <param name="ID"></param>
-        public new void Remove(IdType ID) => this.RemoveIfExist(ID);
+        public new void Remove(TID ID) => this.RemoveIfExist(ID);
 
         public void SaveChatXML() => Chat.Select(x =>
             {
@@ -384,14 +377,14 @@ namespace InnerLibs.Online
         /// </summary>
         /// <param name="Obj"></param>
         /// <returns></returns>
-        public OnlineUser<UserType, IdType> SetOffline(UserType Obj) => Add(Obj, false, "Offline", null, null, DateTime.Now);
+        public OnlineUser<TUser, TID> SetOffline(TUser Obj) => Add(Obj, false, "Offline", null, null, DateTime.Now);
 
         /// <summary>
         /// Seta um usuario como online e cria uma entrada no Log
         /// </summary>
         /// <param name="Obj"></param>
         /// <returns></returns>
-        public OnlineUser<UserType, IdType> SetOnline(UserType Obj)
+        public OnlineUser<TUser, TID> SetOnline(TUser Obj)
         => Add(Obj, true, "Online", null, null, DateTime.Now);
 
         /// <summary>
@@ -399,14 +392,14 @@ namespace InnerLibs.Online
         /// </summary>
         /// <param name="Obj"></param>
         /// <returns></returns>
-        public OnlineUser<UserType, IdType> SetOnlineActivity(UserType Obj, string Activity, string Url = null, Dictionary<string, string> LogData = null, DateTime? DateTime = default) => Add(Obj, true, Activity, Url, LogData, DateTime);
+        public OnlineUser<TUser, TID> SetOnlineActivity(TUser Obj, string Activity, Uri Url = null, Dictionary<string, string> LogData = null, DateTime? DateTime = default) => Add(Obj, true, Activity, Url, LogData, DateTime);
 
         /// <summary>
         /// Retorna um usuário desta lista a partir do ID
         /// </summary>
         /// <param name="Key"></param>
         /// <returns></returns>
-        public OnlineUser<UserType, IdType> UserById(IdType Key)
+        public OnlineUser<TUser, TID> UserById(TID Key)
         {
             if (ContainsKey(Key))
             {
@@ -421,13 +414,13 @@ namespace InnerLibs.Online
         /// </summary>
         /// <param name="Key"></param>
         /// <returns></returns>
-        public UserType UserDataById(IdType Key) => UserById(Key)?.User;
+        public TUser UserDataById(TID Key) => UserById(Key)?.User;
 
         /// <summary>
-        /// Retorna todos os <see cref="OnlineUser(Of UserType, IdType)"/>
+        /// Retorna todos os <see cref="OnlineUser(Of TUser, TID)"/>
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<OnlineUser<UserType, IdType>> Users() => this.Select(x => x.Value);
+        public IEnumerable<OnlineUser<TUser, TID>> Users() => this.Select(x => x.Value);
 
         #endregion Public Methods
     }
@@ -435,21 +428,21 @@ namespace InnerLibs.Online
     /// <summary>
     /// Usuario Online/Offline
     /// </summary>
-    /// <typeparam name="UserType"></typeparam>
-    /// <typeparam name="IdType"></typeparam>
-    public class OnlineUser<UserType, IdType>
-        where UserType : class
-        where IdType : struct
+    /// <typeparam name="TUser"></typeparam>
+    /// <typeparam name="TID"></typeparam>
+    public class OnlineUser<TUser, TID>
+        where TUser : class
+        where TID : struct
     {
         #region Internal Fields
 
-        internal OnlineList<UserType, IdType> OnlineList;
+        internal OnlineList<TUser, TID> OnlineList;
 
         #endregion Internal Fields
 
         #region Internal Constructors
 
-        internal OnlineUser(UserType Data, OnlineList<UserType, IdType> list)
+        internal OnlineUser(TUser Data, OnlineList<TUser, TID> list)
         {
             User = Data;
             OnlineList = list;
@@ -463,13 +456,13 @@ namespace InnerLibs.Online
         /// Conversas deste usuário
         /// </summary>
         /// <returns></returns>
-        public UserConversation<UserType, IdType>[] Conversations => GetConversations();
+        public UserConversation<TUser, TID>[] Conversations => GetConversations();
 
         /// <summary>
         /// ID deste usuário
         /// </summary>
         /// <returns></returns>
-        public IdType ID => OnlineList.GetID(User);
+        public TID ID => OnlineList.GetID(User);
 
         /// <summary>
         /// Indica se o usuario está online ou não
@@ -498,13 +491,13 @@ namespace InnerLibs.Online
         /// Ultima URL/caminho que o usuário acessou
         /// </summary>
         /// <returns></returns>
-        public string LastUrl => LogEntries().Where(x => x.URL.IsNotBlank()).FirstOrDefault()?.URL;
+        public Uri LastUrl => LogEntries().FirstOrDefault(x => x.URL != null)?.URL;
 
         /// <summary>
-        /// Informações relacionadas do usuário do tipo <typeparamref name="UserType"/>
+        /// Informações relacionadas do usuário do tipo <typeparamref name="TUser"/>
         /// </summary>
         /// <returns></returns>
-        public UserType User { get; private set; }
+        public TUser User { get; private set; }
 
         #endregion Public Properties
 
@@ -515,14 +508,14 @@ namespace InnerLibs.Online
         /// </summary>
         /// <param name="WithUser"></param>
         /// <returns></returns>
-        public UserConversation<UserType, IdType>[] GetConversations(UserType WithUser = null) => (UserConversation<UserType, IdType>[])OnlineList.Chat.GetConversation(User, WithUser);
+        public UserConversation<TUser, TID>[] GetConversations(TUser WithUser = null) => (UserConversation<TUser, TID>[])OnlineList.Chat.GetConversation(User, WithUser);
 
         /// <summary>
         /// Entradas no Log para este usuário
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<UserLogEntry<UserType, IdType>> LogEntries()
-        => OnlineList?.Log?.Where(x => x.UserID.Equals(ID)).OrderByDescending(x => x.DateTime).AsEnumerable() ?? new List<UserLogEntry<UserType, IdType>>().AsEnumerable();
+        public IEnumerable<UserLogEntry<TUser, TID>> LogEntries()
+        => OnlineList?.Log?.Where(x => x.UserID.Equals(ID)).OrderByDescending(x => x.DateTime).AsEnumerable() ?? new List<UserLogEntry<TUser, TID>>().AsEnumerable();
 
         /// <summary>
         /// Envia uma mensagem no chat para outro usuario
@@ -530,7 +523,7 @@ namespace InnerLibs.Online
         /// <param name="ToUser"></param>
         /// <param name="Message"></param>
         /// <returns></returns>
-        public UserConversation<UserType, IdType> SendMessage(UserType ToUser, string Message) => OnlineList.Chat.Send(User, ToUser, Message);
+        public UserConversation<TUser, TID> SendMessage(TUser ToUser, string Message) => OnlineList.Chat.Send(User, ToUser, Message);
 
         public override string ToString() => User.ToString();
 
@@ -540,21 +533,21 @@ namespace InnerLibs.Online
     /// <summary>
     /// Lista de conversas entre usuários
     /// </summary>
-    /// <typeparam name="UserType"></typeparam>
-    /// <typeparam name="IdType"></typeparam>
-    public class UserChat<UserType, IdType> : List<UserConversation<UserType, IdType>>
-        where UserType : class
-        where IdType : struct
+    /// <typeparam name="TUser"></typeparam>
+    /// <typeparam name="TID"></typeparam>
+    public class UserChat<TUser, TID> : List<UserConversation<TUser, TID>>
+        where TUser : class
+        where TID : struct
     {
         #region Internal Fields
 
-        internal OnlineList<UserType, IdType> ChatList;
+        internal OnlineList<TUser, TID> ChatList;
 
         #endregion Internal Fields
 
         #region Internal Constructors
 
-        internal UserChat(OnlineList<UserType, IdType> List) : base()
+        internal UserChat(OnlineList<TUser, TID> List) : base()
         {
             ChatList = List;
         }
@@ -584,10 +577,10 @@ namespace InnerLibs.Online
         /// </summary>
         /// <param name="User"></param>
         /// <param name="WithUser"></param>
-        public void DeleteConversation(UserType User, UserType WithUser = null)
+        public void DeleteConversation(TUser User, TUser WithUser = null)
         {
-            UserConversation<UserType, IdType>[] lista;
-            lista = (UserConversation<UserType, IdType>[])GetConversation(User, WithUser);
+            UserConversation<TUser, TID>[] lista;
+            lista = (UserConversation<TUser, TID>[])GetConversation(User, WithUser);
             foreach (var el in lista)
                 Remove(el);
         }
@@ -598,9 +591,9 @@ namespace InnerLibs.Online
         /// <param name="User"></param>
         /// <param name="WithUser"></param>
         /// <returns></returns>
-        public IEnumerable<UserConversation<UserType, IdType>> GetConversation(UserType User, UserType WithUser = null)
+        public IEnumerable<UserConversation<TUser, TID>> GetConversation(TUser User, TUser WithUser = null)
         {
-            UserConversation<UserType, IdType>[] lista;
+            UserConversation<TUser, TID>[] lista;
             if (WithUser != null)
             {
                 lista = this.Where(x => (ChatList.GetID(User).Equals(x.FromUserID) && ChatList.GetID(WithUser).Equals(ChatList.GetID(x.ToUser().User))) | (ChatList.GetID(User).Equals(x.ToUserID) && ChatList.GetID(WithUser).Equals(x.FromUserID))).ToArray();
@@ -621,9 +614,9 @@ namespace InnerLibs.Online
         /// <param name="ToUser"></param>
         /// <param name="Message"></param>
         /// <returns></returns>
-        public UserConversation<UserType, IdType> Send(UserType FromUser, UserType ToUser, string Message)
+        public UserConversation<TUser, TID> Send(TUser FromUser, TUser ToUser, string Message)
         {
-            var i = new UserConversation<UserType, IdType>(this) { Message = Message, FromUserID = ChatList.GetID(FromUser), ToUserID = ChatList.GetID(ToUser), ViewedDate = default };
+            var i = new UserConversation<TUser, TID>(this) { Message = Message, FromUserID = ChatList.GetID(FromUser), ToUserID = ChatList.GetID(ToUser), ViewedDate = default };
             Add(i);
             return i;
         }
@@ -634,21 +627,21 @@ namespace InnerLibs.Online
     /// <summary>
     /// Mensagem do chat do usuário
     /// </summary>
-    /// <typeparam name="UserType"></typeparam>
-    /// <typeparam name="IdType"></typeparam>
-    public class UserConversation<UserType, IdType>
-        where UserType : class
-        where IdType : struct
+    /// <typeparam name="TUser"></typeparam>
+    /// <typeparam name="TID"></typeparam>
+    public class UserConversation<TUser, TID>
+        where TUser : class
+        where TID : struct
     {
         #region Internal Fields
 
-        internal UserChat<UserType, IdType> chatlist;
+        internal UserChat<TUser, TID> chatlist;
 
         #endregion Internal Fields
 
         #region Internal Constructors
 
-        internal UserConversation(UserChat<UserType, IdType> chatlist)
+        internal UserConversation(UserChat<TUser, TID> chatlist)
         {
             this.chatlist = chatlist;
         }
@@ -669,7 +662,7 @@ namespace InnerLibs.Online
         /// Id do usuário emissor
         /// </summary>
         /// <returns></returns>
-        public IdType FromUserID { get; set; }
+        public TID FromUserID { get; set; }
 
         /// <summary>
         /// Id desta mensagem
@@ -693,7 +686,7 @@ namespace InnerLibs.Online
         /// ID do usuário destinatario
         /// </summary>
         /// <returns></returns>
-        public IdType ToUserID { get; set; }
+        public TID ToUserID { get; set; }
 
         /// <summary>
         /// Inndica se esta conversa foi visualizada
@@ -730,15 +723,15 @@ namespace InnerLibs.Online
         /// Usuario Emissor
         /// </summary>
         /// <returns></returns>
-        public OnlineUser<UserType, IdType> FromUser() => chatlist.ChatList.UserById(FromUserID);
+        public OnlineUser<TUser, TID> FromUser() => chatlist.ChatList.UserById(FromUserID);
 
         /// <summary>
-        /// Retorna a instancia de <see cref="OnlineUser(Of UserType, IdType)"/> (Emissor ou
-        /// destinatário) de um <see cref="UserType"/> especifico
+        /// Retorna a instancia de <see cref="OnlineUser(Of TUser, TID)"/> (Emissor ou
+        /// destinatário) de um <see cref="TUser"/> especifico
         /// </summary>
         /// <param name="Myself">Seu usuário</param>
         /// <returns></returns>
-        public OnlineUser<UserType, IdType> GetMyUser(UserType MySelf)
+        public OnlineUser<TUser, TID> GetMyUser(TUser MySelf)
         {
             if (IsFrom(MySelf))
             {
@@ -754,12 +747,12 @@ namespace InnerLibs.Online
         }
 
         /// <summary>
-        /// Retorna a instancia de <see cref="OnlineUser(Of UserType, IdType)"/> (Emissor ou
-        /// destinatário) de um <see cref="UserType"/> especifico
+        /// Retorna a instancia de <see cref="OnlineUser(Of TUser, TID)"/> (Emissor ou
+        /// destinatário) de um <see cref="TUser"/> especifico
         /// </summary>
         /// <param name="Myself">Seu usuário</param>
         /// <returns></returns>
-        public OnlineUser<UserType, IdType> GetOtherUser(UserType MySelf)
+        public OnlineUser<TUser, TID> GetOtherUser(TUser MySelf)
         {
             if (IsFrom(MySelf))
             {
@@ -779,20 +772,20 @@ namespace InnerLibs.Online
         /// </summary>
         /// <param name="User"></param>
         /// <returns></returns>
-        public bool IsFrom(UserType User) => chatlist.ChatList.GetID(User).Equals(FromUserID);
+        public bool IsFrom(TUser User) => chatlist.ChatList.GetID(User).Equals(FromUserID);
 
         /// <summary>
         /// Retorna true se a mensagem for para <paramref name="User"/>
         /// </summary>
         /// <param name="User"></param>
         /// <returns></returns>
-        public bool IsTo(UserType User) => chatlist.ChatList.GetID(User).Equals(ToUserID);
+        public bool IsTo(TUser User) => chatlist.ChatList.GetID(User).Equals(ToUserID);
 
         /// <summary>
         /// Usuario destinatário
         /// </summary>
         /// <returns></returns>
-        public OnlineUser<UserType, IdType> ToUser() => chatlist.ChatList.UserById(ToUserID);
+        public OnlineUser<TUser, TID> ToUser() => chatlist.ChatList.UserById(ToUserID);
 
         #endregion Public Methods
     }
@@ -811,19 +804,19 @@ namespace InnerLibs.Online
         #endregion Public Properties
     }
 
-    public class UserLog<UserType, IdType> : List<UserLogEntry<UserType, IdType>>
-                     where UserType : class
-        where IdType : struct
+    public class UserLog<TUser, TID> : List<UserLogEntry<TUser, TID>>
+        where TUser : class
+        where TID : struct
     {
         #region Internal Fields
 
-        internal OnlineList<UserType, IdType> OnlineList;
+        internal OnlineList<TUser, TID> OnlineList;
 
         #endregion Internal Fields
 
         #region Internal Constructors
 
-        internal UserLog(OnlineList<UserType, IdType> List) : base()
+        internal UserLog(OnlineList<TUser, TID> List) : base()
         {
             OnlineList = List;
         }
@@ -851,7 +844,7 @@ namespace InnerLibs.Online
         /// </summary>
         /// <param name="Logdata"></param>
         /// <returns></returns>
-        public UserLogEntry<UserType, IdType> CreateLog(UserType User, string Message, string URL = null, Dictionary<string, string> LogData = null, DateTime? DateAndTime = default)
+        public UserLogEntry<TUser, TID> CreateLog(TUser User, string Message, Uri URL = null, Dictionary<string, string> LogData = null, DateTime? DateAndTime = default)
         {
             if (User != null && Message.IsNotBlank())
             {
@@ -865,11 +858,11 @@ namespace InnerLibs.Online
                     }
                 }
 
-                var d = new UserLogEntry<UserType, IdType>(OnlineList.GetID(User), OnlineList);
+                var d = new UserLogEntry<TUser, TID>(OnlineList.GetID(User), OnlineList);
                 d.DateTime = (DateTime)DateAndTime;
                 d.Message = Message;
                 d.LogData = LogData;
-                d.URL = URL.NullIf(Convert.ToString(URL.IsBlank()));
+                d.URL = URL;
                 OnlineList.Log.Add(d);
                 if (OnlineList.OnCreateLog != null)
                 {
@@ -888,21 +881,21 @@ namespace InnerLibs.Online
     /// <summary>
     /// Entrada de ação do usuário no sistema
     /// </summary>
-    /// <typeparam name="UserType"></typeparam>
-    /// <typeparam name="IdType"></typeparam>
-    public class UserLogEntry<UserType, IdType>
-        where UserType : class
-        where IdType : struct
+    /// <typeparam name="TUser"></typeparam>
+    /// <typeparam name="TID"></typeparam>
+    public class UserLogEntry<TUser, TID>
+        where TUser : class
+        where TID : struct
     {
         #region Internal Fields
 
-        internal OnlineList<UserType, IdType> list;
+        internal OnlineList<TUser, TID> list;
 
         #endregion Internal Fields
 
         #region Internal Constructors
 
-        internal UserLogEntry(IdType ID, OnlineList<UserType, IdType> list) : base()
+        internal UserLogEntry(TID ID, OnlineList<TUser, TID> list) : base()
         {
             UserID = ID;
             this.list = list;
@@ -940,13 +933,13 @@ namespace InnerLibs.Online
         /// Ultima URL da ocorrencia
         /// </summary>
         /// <returns></returns>
-        public string URL { get; set; }
+        public Uri URL { get; set; }
 
         /// <summary>
         /// ID do Usuário
         /// </summary>
         /// <returns></returns>
-        public IdType UserID { get; set; }
+        public TID UserID { get; set; }
 
         #endregion Public Properties
 
@@ -956,7 +949,7 @@ namespace InnerLibs.Online
         /// Usuário
         /// </summary>
         /// <returns></returns>
-        public OnlineUser<UserType, IdType> GetUser() => list.UserById(UserID);
+        public OnlineUser<TUser, TID> GetUser() => list.UserById(UserID);
 
         #endregion Public Methods
     }
