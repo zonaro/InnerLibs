@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.Serialization;
 
 namespace InnerLibs
 {
@@ -636,6 +637,7 @@ namespace InnerLibs
 
         public HtmlNodeType Type { get; private set; }
 
+        [IgnoreDataMember]
         public HtmlTag this[string ID]
         {
             get => Children.FirstOrDefault(x => x.ID == ID);

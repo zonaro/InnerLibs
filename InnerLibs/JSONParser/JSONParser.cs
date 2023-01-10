@@ -146,10 +146,20 @@ namespace InnerLibs
         [ThreadStatic] static StringBuilder stringBuilder;
         [ThreadStatic] static Dictionary<Type, Dictionary<string, FieldInfo>> fieldInfoCache;
         [ThreadStatic] static Dictionary<Type, Dictionary<string, PropertyInfo>> propertyInfoCache;
+        [ThreadStatic] static List<object> previousSerialized;
 
-
-        internal static void AppendValue(StringBuilder stringBuilder, object item, bool IncludeNull = true, CultureInfo culture = null)
+        internal static void AppendValue(StringBuilder stringBuilder, object item, bool IncludeNull, CultureInfo culture)
         {
+            if (!item.GetTypeOf().IsValueType)
+            {
+                if (item != null)
+                    previousSerialized.Add(item);
+            }
+
+            if (item != null && previousSerialized.Contains(item) == false)
+            {
+                return;
+            }
 
             if (item == null)
             {
@@ -157,7 +167,7 @@ namespace InnerLibs
                 return;
             }
 
-            Type type = item.GetType();
+            Type type = item.GetTypeOf();
             if (type == typeof(string) || type == typeof(char) || type == typeof(FormattableString))
             {
                 stringBuilder.Append('"');
@@ -216,23 +226,8 @@ namespace InnerLibs
             else if (type.IsEnum)
             {
                 stringBuilder.Append('"');
-                stringBuilder.Append(item.ToString());
+                stringBuilder.Append(item.ToInt().ToString(culture));
                 stringBuilder.Append('"');
-            }
-            else if (item is IList)
-            {
-                stringBuilder.Append('[');
-                bool isFirst = true;
-                IList list = item as IList;
-                for (int i = 0; i < list.Count; i++)
-                {
-                    if (isFirst)
-                        isFirst = false;
-                    else
-                        stringBuilder.Append(',');
-                    AppendValue(stringBuilder, list[i]);
-                }
-                stringBuilder.Append(']');
             }
             else if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Dictionary<,>))
             {
@@ -254,9 +249,24 @@ namespace InnerLibs
                     stringBuilder.Append('\"');
                     stringBuilder.Append($"{key}");
                     stringBuilder.Append("\":");
-                    AppendValue(stringBuilder, dict[key]);
+                    AppendValue(stringBuilder, dict[key], IncludeNull, culture);
                 }
                 stringBuilder.Append('}');
+            }
+            else if (item is IList)
+            {
+                stringBuilder.Append('[');
+                bool isFirst = true;
+                IList list = item as IList;
+                for (int i = 0; i < list.Count; i++)
+                {
+                    if (isFirst)
+                        isFirst = false;
+                    else
+                        stringBuilder.Append(',');
+                    AppendValue(stringBuilder, list[i], IncludeNull, culture);
+                }
+                stringBuilder.Append(']');
             }
             else
             {
@@ -275,7 +285,7 @@ namespace InnerLibs
                         stringBuilder.Append('\"');
                         stringBuilder.Append(Misc.GetMemberName(fieldInfo));
                         stringBuilder.Append("\":");
-                        AppendValue(stringBuilder, value);
+                        AppendValue(stringBuilder, value, IncludeNull, culture);
                     }
                 }
 
@@ -291,7 +301,7 @@ namespace InnerLibs
                         stringBuilder.Append('\"');
                         stringBuilder.Append(Misc.GetMemberName(propertyInfo));
                         stringBuilder.Append("\":");
-                        AppendValue(stringBuilder, value);
+                        AppendValue(stringBuilder, value, IncludeNull, culture);
                     }
 
 
@@ -305,8 +315,16 @@ namespace InnerLibs
 
         public static string ToJson(this object item, bool IncludeNull = true, CultureInfo culture = null)
         {
+            if (previousSerialized == null) previousSerialized = new List<object>();
+
+            if (item == null)
+            {
+                return null;
+            }
+
             culture = culture ?? CultureInfo.InvariantCulture;
             StringBuilder stringBuilder = new StringBuilder();
+
             AppendValue(stringBuilder, item, IncludeNull, culture);
             return stringBuilder.ToString();
         }
