@@ -11,6 +11,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Net.Mail;
 using System.Reflection;
+using System.Runtime.Serialization;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -20,6 +21,21 @@ namespace InnerLibs
     {
         #region Public Methods
 
+        public static string GetMemberName(MemberInfo member)
+        {
+            if (member != null)
+            {
+                if (member.IsDefined(typeof(DataMemberAttribute), true))
+                {
+                    DataMemberAttribute dataMemberAttribute = (DataMemberAttribute)Attribute.GetCustomAttribute(member, typeof(DataMemberAttribute), true);
+                    if (!string.IsNullOrEmpty(dataMemberAttribute.Name))
+                        return dataMemberAttribute.Name;
+                }
+
+                return member.Name;
+            }
+            return null;
+        }
         public static IEnumerable<TemplateMailAddress<T>> AddAttachmentFromData<T>(this IEnumerable<TemplateMailAddress<T>> recipients, Expression<Func<T, IEnumerable<System.Net.Mail.Attachment>>> AttachmentSelector) where T : class
         {
             if (AttachmentSelector != null)

@@ -273,7 +273,7 @@ namespace InnerLibs
                     {
                         if (isFirst) isFirst = false; else stringBuilder.Append(',');
                         stringBuilder.Append('\"');
-                        stringBuilder.Append(GetMemberName(fieldInfo));
+                        stringBuilder.Append(Misc.GetMemberName(fieldInfo));
                         stringBuilder.Append("\":");
                         AppendValue(stringBuilder, value);
                     }
@@ -289,7 +289,7 @@ namespace InnerLibs
                     {
                         if (isFirst) isFirst = false; else stringBuilder.Append(',');
                         stringBuilder.Append('\"');
-                        stringBuilder.Append(GetMemberName(propertyInfo));
+                        stringBuilder.Append(Misc.GetMemberName(propertyInfo));
                         stringBuilder.Append("\":");
                         AppendValue(stringBuilder, value);
                     }
@@ -301,17 +301,7 @@ namespace InnerLibs
             }
         }
 
-        internal static string GetMemberName(MemberInfo member)
-        {
-            if (member.IsDefined(typeof(DataMemberAttribute), true))
-            {
-                DataMemberAttribute dataMemberAttribute = (DataMemberAttribute)Attribute.GetCustomAttribute(member, typeof(DataMemberAttribute), true);
-                if (!string.IsNullOrEmpty(dataMemberAttribute.Name))
-                    return dataMemberAttribute.Name;
-            }
 
-            return member.Name;
-        }
 
         public static string ToJson(this object item, bool IncludeNull = true, CultureInfo culture = null)
         {
