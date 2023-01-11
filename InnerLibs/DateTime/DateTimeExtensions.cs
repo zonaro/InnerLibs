@@ -324,7 +324,7 @@ namespace InnerLibs.TimeMachine
 
             if (EndDate.HasValue)
             {
-                Period.StartDate = EndDate.Value;
+                Period.EndDate = EndDate.Value;
             }
 
             return Period;
@@ -450,6 +450,7 @@ namespace InnerLibs.TimeMachine
         /// 2011-12-24T06:40:20.005 =&gt; 2011-12-25T23:59:59.999
         /// </summary>
         public static DateTime EndOfWeek(this DateTime date) => date.LastDayOfWeek().EndOfDay();
+        public static DateTime EndOfWeek(this DateTime date, CultureInfo culture) => date.LastDayOfWeek(culture).EndOfDay();
 
         public static DateTime EndOfWeek(this DateTime date, DayOfWeek FirstDayOfWeek) => date.LastDayOfWeek(FirstDayOfWeek).EndOfDay();
 
@@ -775,7 +776,7 @@ namespace InnerLibs.TimeMachine
 
                     default:
                         {
-                            key = i.ToString();
+                            key = i.ToString(Culture);
                             break;
                         }
                 }
@@ -797,7 +798,7 @@ namespace InnerLibs.TimeMachine
 
                     default:
                         {
-                            value = i.ToString();
+                            value = i.ToString(Culture);
                             break;
                         }
                 }
@@ -858,6 +859,10 @@ namespace InnerLibs.TimeMachine
         /// <returns></returns>
         public static string GetShortMonthName(this DateTime Date, CultureInfo Culture = null) => Date.ToString("MMM", Culture ?? CultureInfo.CurrentCulture);
 
+
+        public static string GetWeekDay(this DateTime DateTime, CalendarFormat Type = CalendarFormat.LongName, CultureInfo Culture = default) => GetWeekDay(DateTime.DayOfWeek.ToInt(), Type, Culture);
+
+
         public static string GetWeekDay(this int WeekDay, CalendarFormat Type = CalendarFormat.LongName, CultureInfo Culture = default)
         {
             Culture = Culture ?? CultureInfo.CurrentCulture;
@@ -866,7 +871,7 @@ namespace InnerLibs.TimeMachine
             {
                 case CalendarFormat.LongName: return WeekDay.ToLongDayOfWeekName(Culture);
                 case CalendarFormat.ShortName: return WeekDay.ToShortDayOfWeekName(Culture);
-                default: return WeekDay.ToString();
+                default: return WeekDay.ToString(Culture);
             }
         }
 
@@ -1692,7 +1697,7 @@ namespace InnerLibs.TimeMachine
         /// Returns a new <see cref="DateTime"/> that subtracts the value of the specified <see
         /// cref="DateRange"/> to the value of this instance.
         /// </summary>
-        public static DateTime SubtractDateRange(this DateTime dateTime, DateRange timeSpan) => dateTime.AddTicks(timeSpan.Ticks);
+        public static DateTime SubtractDateRange(this DateTime dateTime, DateRange timeSpan) => dateTime.Add(-timeSpan.TimeSpan);
 
         /// <summary>
         /// Subtracts the given <see cref="DateRange"/> from a <see cref="TimeSpan"/> and returns
@@ -1736,8 +1741,7 @@ namespace InnerLibs.TimeMachine
         /// <summary>
         /// Transforma um DateTime em uma saudação (Bom dia, Boa tarde, Boa noite)
         /// </summary>
-        /// <param name="Time">Horario</param>
-        /// <param name="Language">Idioma da saudação (pt, en, es)</param>
+        /// <param name="Time">Horario</param> 
         /// <returns>Uma string com a saudação</returns>
         public static string ToGreeting(this DateTime Time, string Morning, string Afternoon, string EveningOrNight)
         {
@@ -1767,10 +1771,20 @@ namespace InnerLibs.TimeMachine
         /// Converte uma string de data para outra string de data com formato diferente
         /// </summary>
         /// <param name="DateString">String original</param>
-        /// <param name="InputFormat"></param>
-        /// <param name="Culture"></param>
+        /// <param name="InputFormat"></param>     
         /// <returns></returns>     
-        public static string ChangeDateFormat(this string Date, string FromFormat, string ToFormat) => Date.IsNotBlank() && Date.IsDate() ? DateTime.ParseExact(Date, FromFormat, CultureInfo.InvariantCulture).ToString(ToFormat, CultureInfo.InvariantCulture) : Date;
+        public static string ChangeDateFormat(this string Date, string FromFormat, string ToFormat)
+        {
+            try
+            {
+                return DateTime.ParseExact(Date, FromFormat, CultureInfo.InvariantCulture).ToString(ToFormat, CultureInfo.InvariantCulture);
+
+            }
+            catch
+            {
+                return Date;
+            }
+        }
 
 
         /// <summary>
