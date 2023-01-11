@@ -56,29 +56,42 @@ namespace InnerLibs
         /// <returns></returns>
         public static Uri AddParameter(this Uri Url, string Key, params string[] Values) => Url.AddParameter(Key, true, Values);
 
-        public static byte[] DownloadFile(this string URL)
+        public static byte[] DownloadFile(string URL)
         {
-            byte[] s;
+            byte[] s = null;
             using (var c = new WebClient())
             {
-                s = c.DownloadData(URL);
+                if (URL.IsURL())
+                    s = c.DownloadData(URL);
             }
 
             return s;
         }
 
-        public static System.Drawing.Image DownloadImage(this string URL) => DownloadFile(URL).ToImage();
+        public static System.Drawing.Image DownloadImage(string URL) => DownloadFile(URL).ToImage();
 
-        public static string DownloadString(this string URL)
+        public static string DownloadString(string URL)
         {
-            string s = InnerLibs.Text.Empty;
+            string s = Text.Empty;
             using (var c = new WebClient())
             {
-                s = $"{c.DownloadString(URL)}";
+                if (URL.IsURL())
+                    s = $"{c.DownloadString(URL)}";
             }
 
             return s;
         }
+
+        public static T DownloadJson<T>(string URL) => DownloadString(URL).FromJson<T>();
+        public static object DownloadJson(string URL) => DownloadString(URL).FromJson();
+
+        public static T DownloadJson<T>(this Uri URL) => DownloadJson<T>($"{URL}");
+        public static object DownloadJson(this Uri URL) => DownloadJson($"{URL}");
+        public static string DownloadString(this Uri URL) => DownloadString($"{URL}");
+        public static byte[] DownloadFile(this Uri URL) => DownloadFile($"{URL}");
+        public static System.Drawing.Image DownloadImage(this Uri URL) => DownloadImage($"{URL}");
+
+
 
         /// <summary>
         /// Retorna o Titulo do arquivo a partir do nome do arquivo
