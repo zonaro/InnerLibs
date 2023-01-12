@@ -142,6 +142,9 @@ namespace InnerLibs
 
         }
 
+
+
+
         /// <summary>
         /// Get the Json String representation of this file
         /// </summary>
@@ -175,6 +178,15 @@ namespace InnerLibs
         [ThreadStatic] static StringBuilder stringBuilder;
         [ThreadStatic] static Dictionary<Type, Dictionary<string, FieldInfo>> fieldInfoCache;
         [ThreadStatic] static Dictionary<Type, Dictionary<string, PropertyInfo>> propertyInfoCache;
+
+
+        /// <summary>
+        /// Return a new <see cref="JsonFile"/> with latest saved values of the <paramref name="current"/> <see cref="JsonFile"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="current"></param>
+        /// <returns></returns>
+        public static T GetLatestSavedValues<T>(this T current) where T : JsonFile => current != null ? JsonFile.Load<T>(current.FilePath, current.EncryptKey, current.ExcludeNull, current.Culture) : null;
 
 
         internal static void AppendValue(StringBuilder stringBuilder, object item, bool IncludeNull, CultureInfo culture)
