@@ -14,64 +14,113 @@ namespace InnerLibs
     /// <summary>
     /// Class that when inherited by a POCO class implements methods to save the values in an encrypted Json file
     /// </summary>
+    /// <remarks>Your POCO class nedd a public, parameterless constructor</remarks>
     public abstract class JsonFile
     {
-        private string file_path;
-        private string encrypt_key;
-        private bool exclude_null;
-        private CultureInfo culture;
+        private string filePath;
 
         /// <summary>
-        /// Return a <see cref="FileInfo"/> of current JsonFile
+        /// The current Path of this JsonFile
+        /// </summary>
+        [IgnoreDataMember]
+        public string FilePath
+        {
+            get
+            {
+
+                filePath = filePath.NullIf(x => !x.IsFilePath() && !x.IsDirectoryPath()).BlankCoalesce(filePath, DefaultFilePath).FixPath();
+                if (filePath.IsDirectoryPath())
+                {
+                    filePath = Path.Combine(filePath, DefaultFileName);
+                }
+
+                return filePath;
+
+            }
+            set => filePath = value;
+        }
+
+        /// <summary>
+        /// When not blank, encrypt the json file using this string as Key
+        /// </summary>
+        [IgnoreDataMember] public string EncryptKey { get; set; }
+
+        /// <summary>
+        /// When true, exclude properties and fields with null values from serialization
+        /// </summary>
+        [IgnoreDataMember] public bool ExcludeNull { get; set; }
+
+        /// <summary>
+        /// The <see cref="CultureInfo"/> used to serialize/deserialize json
+        /// </summary>
+        [IgnoreDataMember] public CultureInfo Culture { get; set; } = CultureInfo.InvariantCulture;
+
+        /// <summary>
+        /// <see cref="FileInfo"/> of current JsonFile
         /// </summary>
         /// <returns></returns>
-        public FileInfo GetFile() => new FileInfo(file_path.BlankCoalesce(DefaultFileName));
+
+        [IgnoreDataMember] public FileInfo File => new FileInfo(FilePath);
+
+        /// <summary>
+        /// The default file name used to save JsonFiles
+        /// </summary>
+        [IgnoreDataMember] public string DefaultFileName => $"{this.GetType().Name}.json";
 
         /// <summary>
         /// The default path used to save JsonFiles
         /// </summary>
-        public static string DefaultFileName => $"{Environment.CurrentDirectory}\\config.json";
+        [IgnoreDataMember] public string DefaultFilePath => $"{Environment.CurrentDirectory}\\{DefaultFileName}";
 
         /// <summary>
         /// Load values of a JsonFile into a <typeparamref name="T"/> object
         /// </summary>
         /// <typeparam name="T">Object Type</typeparam>
-        /// <param name="FilePath">File Path</param>
+        /// <param name="File">File Path</param>
         /// <param name="EncryptKey">Encrypt Key. Leave Null or blank to not encrypt</param>
         /// <param name="ExcludeNull">When true, exclude properties with null values from serialization</param>
         /// <returns></returns>
-        public static T Load<T>(FileInfo FilePath, string EncryptKey, bool ExcludeNull = false) where T : JsonFile => Load<T>(FilePath?.FullName, EncryptKey, ExcludeNull);
+        public static T Load<T>(FileInfo File, string EncryptKey, bool ExcludeNull = false) where T : JsonFile => Load<T>(File?.FullName, EncryptKey, ExcludeNull);
+        /// <inheritdoc cref="Load{T}"/>     
+        public static T Load<T>(DirectoryInfo Directory, string EncryptKey, bool ExcludeNull = false) where T : JsonFile => Load<T>(Directory?.FullName, EncryptKey, ExcludeNull);
 
         /// <inheritdoc cref="Load{T}"/>     
-        public static T Load<T>(FileInfo FilePath) where T : JsonFile => Load<T>(FilePath, null);
+        public static T Load<T>(FileInfo File, bool ExcludeNull = false) where T : JsonFile => Load<T>(File, null, ExcludeNull);
         /// <inheritdoc cref="Load{T}"/>     
-        public static T Load<T>(string FilePath) where T : JsonFile => Load<T>(FilePath, null);
+        public static T Load<T>(DirectoryInfo Directory, bool ExcludeNull = false) where T : JsonFile => Load<T>(Directory, null, ExcludeNull);
         /// <inheritdoc cref="Load{T}"/>     
-        public static T Load<T>() where T : JsonFile => Load<T>(DefaultFileName, null);
+        public static T Load<T>(string FileOrDirectoryPath, bool ExcludeNull = false) where T : JsonFile => Load<T>(FileOrDirectoryPath, null, ExcludeNull);
         /// <inheritdoc cref="Load{T}"/>     
-        public static T Load<T>(string FilePath, string EncryptKey, bool ExcludeNull = false, CultureInfo culture = null) where T : JsonFile
+        public static T Load<T>() where T : JsonFile => Load<T>(Text.Empty, null);
+        /// <inheritdoc cref="Load{T}"/>     
+        public static T Load<T>(string FileOrDirectoryPath, string EncryptKey, bool ExcludeNull = false, CultureInfo culture = null) where T : JsonFile
         {
-            culture = culture ?? CultureInfo.InvariantCulture;
-            FilePath = FilePath.IfBlank(DefaultFileName).FixPath();
-            T c = Activator.CreateInstance<T>();
-
-            if (File.Exists(c.file_path))
+            try
             {
-                string s = File.ReadAllText(c.file_path);
-                if (EncryptKey.IsNotBlank())
+                T c = Activator.CreateInstance<T>();
+
+
+                c.FilePath = FileOrDirectoryPath;
+                c.EncryptKey = EncryptKey;
+                c.ExcludeNull = ExcludeNull;
+                c.Culture = culture ?? CultureInfo.InvariantCulture;
+
+                if (c.File.Exists)
                 {
-                    s = s.Decrypt(EncryptKey);
+                    string s = c.File.ReadAllText();
+                    if (EncryptKey.IsNotBlank())
+                    {
+                        s = s.Decrypt(EncryptKey);
+                    }
+
+                    c = s.FromJson<T>(culture);
                 }
-
-                c = s.FromJson<T>(culture);
+                return c;
             }
-
-            c.SetFilePath(FilePath);
-            c.SetEncryptKey(EncryptKey);
-            c.ExcludeNullValues(ExcludeNull);
-            c.SetCulture(culture);
-            c.Save();
-            return c;
+            catch (Exception ex)
+            {
+                throw new NotSupportedException("Your POCO class need a public, parameterless contructor", ex);
+            }
         }
 
 
@@ -82,85 +131,54 @@ namespace InnerLibs
         /// <returns></returns>     
         public FileInfo Save()
         {
-            this.file_path = this.file_path.BlankCoalesce(DefaultFileName).FixPath();
-            var s = this.ToJson(!exclude_null, culture);
-            if (this.encrypt_key.IsNotBlank())
+            Culture = Culture ?? CultureInfo.InvariantCulture;
+            var s = GetJson();
+            if (this.EncryptKey.IsNotBlank())
             {
-                s = s.Encrypt(this.encrypt_key);
+                s = s.Encrypt(this.EncryptKey);
             }
 
-            s.WriteToFile(this.file_path);
-            return new FileInfo(this.file_path);
+            return s.WriteToFile(this.FilePath);
+
         }
 
         /// <summary>
-        /// Set the <see cref="CultureInfo"/> used during serialization
+        /// Get the Json String representation of this file
         /// </summary>
-        /// <param name="culture"></param>
-        public void SetCulture(CultureInfo culture) => this.culture = culture;
-
-        /// <summary>
-        /// Set the Encrypt key using to encrypt the content of JsonFile after serialization
-        /// </summary>
-        /// <param name="EncryptKey"></param>
-        public void SetEncryptKey(string EncryptKey) => this.encrypt_key = EncryptKey.NullIf(x => x.IsBlank());
-
-        /// <summary>
-        /// Change the filepath used to <see cref="Save"/>
-        /// </summary>
-        /// <param name="FilePath"></param>
-        public void SetFilePath(string FilePath) => this.file_path = FilePath.BlankCoalesce(this.file_path, DefaultFileName);
-
-        /// <summary>
-        /// When true, exclude properties with null values from serialization
-        /// </summary>
-        /// <param name="Exclude"></param>
-        public void ExcludeNullValues(bool Exclude) => this.exclude_null = Exclude;
-
-
+        /// <returns></returns>
+        public string GetJson() => this.ToJson(!ExcludeNull, Culture);
     }
 
-    // Really simple JSON parser/writer
-    // - Attempts to parse JSON files with minimal GC allocation
-    // - Nice and simple "[1,2,3]".FromJson<List<int>>() API
-    // - Classes and structs can be parsed too!
-    //      class Foo { public int Value; }
-    //      "{\"Value\":10}".FromJson<Foo>()
-    // - Can parse JSON without type information into Dictionary<string,object> and List<object> e.g.
-    //      "[1,2,3]".FromJson<object>().GetType() == typeof(List<object>)
-    //      "{\"Value\":10}".FromJson<object>().GetType() == typeof(Dictionary<string,object>)
-    // - No JIT Emit support to support AOT compilation on iOS
-    // - Attempts are made to NOT throw an exception if the JSON is corrupted or invalid: returns null instead.
-    // - Only public fields and property setters on classes/structs will be written to
-    //
-    // Limitations:
-    // - No JIT Emit support to parse structures quickly
-    // - Limited to parsing <2GB JSON files (due to int.MaxValue)
-    // - Parsing of abstract classes or interfaces is NOT supported and will throw an exception.
-    // 
-    // - Outputs JSON structures from an object
-    // - Really simple API (new List<int> { 1, 2, 3 }).ToJson() == "[1,2,3]"
-    // - Will only output public fields and property getters on objects
+
+    /// <summary>Really simple JSON parser/writer</summary>
+    /// <remarks>
+    /// <listheader>Features and Limitations:</listheader>
+    /// <list type="bullet">
+    ///  <item>Attempts to parse JSON files with minimal GC allocation</item>
+    ///  <item>Nice and simple <see cref="FromJson(string)"/> and <see cref="ToJson(object, bool, CultureInfo)"/> API</item> 
+    ///  <item>Classes and structs can be parsed too!</item>
+    ///  <item>Can parse JSON without type information into <see cref="Dictionary{string, object}"/></item>
+    ///  <item>No JIT Emit support to support AOT compilation on iOS</item>
+    ///  <item>No JIT Emit support to parse structures quickly</item>
+    ///  <item>Attempts are made to NOT throw an exception if the JSON is corrupted or invalid: returns null instead.</item>
+    ///  <item>Only public fields and property setters on classes/structs will be written to</item>
+    ///  <item>Circular references will throw a <see cref="StackOverflowException"/> </item>
+    ///  <item>Limited to parsing  2GB JSON files (due to <see cref="int.MaxValue"/>)</item>
+    ///  <item>Parsing of abstract classes or interfaces is NOT supported and will throw an <see cref="Exception"/>.</item>
+    ///  <item>Outputs JSON structures from an object</item>
+    ///  <item>Will only output public fields and property getters on objects</item>
+    /// </list> 
+    /// </remarks>
     public static class JSONParser
     {
         [ThreadStatic] static Stack<List<string>> splitArrayPool;
         [ThreadStatic] static StringBuilder stringBuilder;
         [ThreadStatic] static Dictionary<Type, Dictionary<string, FieldInfo>> fieldInfoCache;
         [ThreadStatic] static Dictionary<Type, Dictionary<string, PropertyInfo>> propertyInfoCache;
-        [ThreadStatic] static List<object> previousSerialized;
+
 
         internal static void AppendValue(StringBuilder stringBuilder, object item, bool IncludeNull, CultureInfo culture)
         {
-            if (!item.GetTypeOf().IsValueType)
-            {
-                if (item != null)
-                    previousSerialized.Add(item);
-            }
-
-            if (item != null && previousSerialized.Contains(item) == false)
-            {
-                return;
-            }
 
             if (item == null)
             {
@@ -169,6 +187,7 @@ namespace InnerLibs
             }
 
             Type type = item.GetTypeOf();
+
             if (type == typeof(string) || type == typeof(char) || type == typeof(FormattableString))
             {
                 stringBuilder.Append('"');
@@ -311,13 +330,8 @@ namespace InnerLibs
                 stringBuilder.Append('}');
             }
         }
-
-
-
         public static string ToJson(this object item, bool IncludeNull = true, CultureInfo culture = null)
         {
-            if (previousSerialized == null) previousSerialized = new List<object>();
-
             if (item == null)
             {
                 return null;
@@ -472,7 +486,8 @@ namespace InnerLibs
             }
             if (type.IsPrimitive)
             {
-                return Convert.ChangeType(json, type, culture);
+                var result = Convert.ChangeType(json, type, culture);
+                return result;
 
             }
             if (type == typeof(decimal))
