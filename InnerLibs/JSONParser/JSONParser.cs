@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
@@ -435,13 +436,14 @@ namespace InnerLibs
 
             if (json == "null")
             {
-                return null;
+                return default;
             }
 
             if (type == typeof(string))
             {
-                if (json.Length <= 2)
-                    return string.Empty;
+                if (json.IsBlank()) return string.Empty;
+                if (json.IsNumber() || json.IsAny(StringComparison.InvariantCultureIgnoreCase, "true", "false")) return json;
+
                 StringBuilder parseStringBuilder = new StringBuilder(json.Length);
                 for (int i = 1; i < json.Length - 1; ++i)
                 {
@@ -470,8 +472,8 @@ namespace InnerLibs
             }
             if (type.IsPrimitive)
             {
-                var result = Convert.ChangeType(json, type, culture);
-                return result;
+                return Convert.ChangeType(json, type, culture);
+
             }
             if (type == typeof(decimal))
             {
@@ -480,27 +482,34 @@ namespace InnerLibs
             }
             if (type == typeof(DateTime))
             {
-                DateTime.TryParse(json.Replace("\"", ""), culture, DateTimeStyles.None, out DateTime result);
+                DateTime.TryParse(json.RemoveAny("\""), culture, DateTimeStyles.None, out DateTime result);
                 return result;
             }
 
             if (type.IsEnum)
             {
-                if (json[0] == '"')
-                    json = json.Substring(1, json.Length - 2);
-                try
+                if (json.FirstOrDefault() == '"') json = json.UnWrap("\"");
+                if (json.IsNumber())
                 {
-                    return Enum.Parse(type, json, false);
+                    return Convert.ChangeType(json.ToInt(), type, culture);
                 }
-                catch
+                else
                 {
-                    return 0;
+                    try
+                    {
+                        return Enum.Parse(type, json, false);
+                    }
+                    catch
+                    {
+                        return 0;
+                    }
                 }
+
             }
             if (type.IsArray)
             {
                 Type arrayType = type.GetElementType();
-                if (json[0] != '[' || json[json.Length - 1] != ']')
+                if (json.FirstOrDefault() != '[' || json.LastOrDefault() != ']')
                     return null;
 
                 List<string> elems = Split(json);
@@ -512,13 +521,13 @@ namespace InnerLibs
             }
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
-                Type underlyingType = type.GetGenericArguments()[0];
+                Type underlyingType = type.GetGenericArguments().FirstOrDefault();
                 return ParseValue(underlyingType, json, culture);
             }
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
             {
                 Type listType = type.GetGenericArguments()[0];
-                if (json[0] != '[' || json[json.Length - 1] != ']')
+                if (json.FirstOrDefault() != '[' || json.LastOrDefault() != ']')
                     return null;
 
                 List<string> elems = Split(json);
@@ -541,7 +550,7 @@ namespace InnerLibs
                 if (keyType != typeof(string))
                     return null;
                 //Must be a valid dictionary element
-                if (json[0] != '{' || json[json.Length - 1] != '}')
+                if (json.FirstOrDefault() != '{' || json.LastOrDefault() != '}')
                     return null;
                 //The list is split into key/value pairs only, this means the split must be divisible by 2 to be valid JSON
                 List<string> elems = Split(json);
@@ -563,7 +572,7 @@ namespace InnerLibs
             {
                 return ParseAnonymousValue(json, culture);
             }
-            if (json[0] == '{' && json[json.Length - 1] == '}')
+            if (json.FirstOrDefault() == '{' && json.LastOrDefault() == '}')
             {
                 return ParseObject(type, json, culture);
             }

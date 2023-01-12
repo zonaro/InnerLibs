@@ -201,7 +201,7 @@ namespace InnerLibs
         {
             if (ImageURL != null)
             {
-                var imagem = Web.DownloadImage(ImageURL?.AbsoluteUri);
+                var imagem = WebExtensions.DownloadImage(ImageURL?.AbsoluteUri);
                 using (var m = new MemoryStream())
                 {
                     imagem.Save(m, imagem.RawFormat);

@@ -753,7 +753,7 @@ namespace InnerLibs
         {
             if (HtmlStringOrURL.IsURL())
             {
-                HtmlStringOrURL = Web.DownloadString(HtmlStringOrURL);
+                HtmlStringOrURL = WebExtensions.DownloadString(HtmlStringOrURL);
             }
             return HtmlStringOrURL.IsNotBlank() ? HtmlParser.Instance.Parse(HtmlStringOrURL) : Array.Empty<HtmlTag>();
         }

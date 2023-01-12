@@ -677,7 +677,7 @@ namespace InnerLibs.Mail
 
             if (TemplateOrFilePathOrUrl.IsURL())
             {
-                TemplateOrFilePathOrUrl = Web.DownloadString(TemplateOrFilePathOrUrl);
+                TemplateOrFilePathOrUrl = WebExtensions.DownloadString(TemplateOrFilePathOrUrl);
             }
 
             if (MessageTemplate != null)
