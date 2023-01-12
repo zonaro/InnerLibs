@@ -61,7 +61,8 @@ namespace InnerLibs
             byte[] s = null;
             using (var c = new WebClient())
             {
-                c.Headers.Add(Headers);
+                if (Headers != null)
+                    c.Headers.Add(Headers);
                 if (URL.IsURL()) s = c.DownloadData(URL);
             }
 
@@ -75,7 +76,8 @@ namespace InnerLibs
             string s = Text.Empty;
             using (var c = new WebClient())
             {
-                c.Headers.Add(Headers);
+                if (Headers != null)
+                    c.Headers.Add(Headers);
 
                 if (URL.IsURL()) s = $"{c.DownloadString(URL)}";
             }
