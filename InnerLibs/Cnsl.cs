@@ -262,10 +262,10 @@ namespace InnerLibs.Console
         /// Le o proximo caractere inserido no console pelo usuário
         /// </summary>
         /// <returns></returns>
-        public static char ReadChar(this ref char Char)
+        public static char ReadChar(this ref char c)
         {
-            Char = System.Console.ReadKey().KeyChar;
-            return Char;
+            c = System.Console.ReadKey().KeyChar;
+            return c;
         }
 
         /// <summary>
