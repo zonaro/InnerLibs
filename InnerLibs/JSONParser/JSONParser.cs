@@ -459,16 +459,12 @@ namespace InnerLibs
         internal static object ParseValue(Type type, string json, CultureInfo culture)
         {
             culture = culture ?? CultureInfo.InvariantCulture;
+            json = json ?? "null";
 
-            if (json == "null")
+            if (json.Equals("null", StringComparison.OrdinalIgnoreCase)) return default;
+            else if (type == typeof(string))
             {
-                return default;
-            }
-
-            if (type == typeof(string))
-            {
-                if (json.IsBlank()) return string.Empty;
-                if (json.IsNumber() || json.IsAny(StringComparison.InvariantCultureIgnoreCase, "true", "false")) return json;
+                if (json.IsBlank() || json.IsNumber() || json.IsAny(StringComparison.InvariantCultureIgnoreCase, "true", "false")) return json;
 
                 StringBuilder parseStringBuilder = new StringBuilder(json.Length);
                 for (int i = 1; i < json.Length - 1; ++i)
@@ -496,26 +492,26 @@ namespace InnerLibs
                 }
                 return parseStringBuilder.ToString();
             }
-            if (type.IsPrimitive)
+            else if (type.IsPrimitive)
             {
                 var result = Convert.ChangeType(json, type, culture);
                 return result;
 
             }
-            if (type == typeof(decimal))
+            else if (type == typeof(decimal))
             {
                 decimal.TryParse(json, NumberStyles.Float, culture, out decimal result);
                 return result;
             }
-            if (type == typeof(DateTime))
+            else if (type == typeof(DateTime))
             {
                 DateTime.TryParse(json.RemoveAny("\""), culture, DateTimeStyles.None, out DateTime result);
                 return result;
             }
 
-            if (type.IsEnum)
+            else if (type.IsEnum)
             {
-                if (json.FirstOrDefault() == '"') json = json.UnWrap("\"");
+                json = json.IsWrapped('"') ? json.UnWrap("\"") : json;
                 if (json.IsNumber())
                 {
                     return Convert.ChangeType(json.ToInt(), type, culture);
@@ -524,16 +520,16 @@ namespace InnerLibs
                 {
                     try
                     {
-                        return Enum.Parse(type, json, false);
+                        return Enum.Parse(type, json, true);
                     }
                     catch
                     {
-                        return 0;
+                        return default;
                     }
                 }
 
             }
-            if (type.IsArray)
+            else if (type.IsArray)
             {
                 Type arrayType = type.GetElementType();
                 if (!json.IsWrapped('[')) return null;
@@ -545,12 +541,12 @@ namespace InnerLibs
                 splitArrayPool.Push(elems);
                 return newArray;
             }
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+            else if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
                 Type underlyingType = type.GetGenericArguments().FirstOrDefault();
                 return ParseValue(underlyingType, json, culture);
             }
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
+            else if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
             {
                 Type listType = type.GetGenericArguments()[0];
                 if (!json.IsWrapped('[')) return null;
@@ -562,7 +558,7 @@ namespace InnerLibs
                 splitArrayPool.Push(elems);
                 return list;
             }
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Dictionary<,>))
+            else if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Dictionary<,>))
             {
                 Type keyType, valueType;
                 {
@@ -593,11 +589,11 @@ namespace InnerLibs
                 }
                 return dictionary;
             }
-            if (type == typeof(object))
+            else if (type == typeof(object))
             {
                 return ParseAnonymousValue(json, culture);
             }
-            if (json.IsWrapped('{'))
+            else if (json.IsWrapped('{'))
             {
                 return ParseObject(type, json, culture);
             }
@@ -613,29 +609,24 @@ namespace InnerLibs
             if (json.IsWrapped('{'))
             {
                 List<string> elems = Split(json);
-                if (elems.Count % 2 != 0)
-                    return null;
+                if (elems.Count % 2 != 0) elems.Add(null); //or return null?
+
                 var dict = new Dictionary<string, object>(elems.Count / 2);
                 for (int i = 0; i < elems.Count; i += 2)
-                    dict[elems[i].Substring(1, elems[i].Length - 2)] = ParseAnonymousValue(elems[i + 1], culture);
+                    dict.SetOrRemove(elems[i].Substring(1, elems[i].Length - 2), ParseAnonymousValue(elems[i + 1], culture));
                 return dict;
             }
             if (json.IsWrapped('['))
             {
-                List<string> items = Split(json);
-                var finalList = new List<object>(items.Count);
-                for (int i = 0; i < items.Count; i++)
-                    finalList.Add(ParseAnonymousValue(items[i], culture));
-                return finalList;
+                return Split(json).Select(x => ParseAnonymousValue(x, culture)).ToList();
             }
             if (json.IsWrapped('"'))
             {
-                string str = json.Substring(1, json.Length - 2);
-                return str.Replace("\\", string.Empty);
+                return json.Substring(1, json.Length - 2).Replace("\\", string.Empty);
             }
-            if (char.IsDigit(json[0]) || json[0] == '-')
+            if (char.IsDigit(json.FirstOrDefault()) || json.FirstOrDefault() == '-')
             {
-                if (json.Contains("."))
+                if (json.Contains(culture.NumberFormat.NumberDecimalSeparator))
                 {
                     double.TryParse(json, NumberStyles.Float, culture, out double result);
                     return result;
