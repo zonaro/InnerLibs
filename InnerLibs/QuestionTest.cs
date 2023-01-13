@@ -88,7 +88,7 @@ namespace InnerLibs.QuestionTests
         public bool IsCorrect => Checked != null && Checked == Correct;
 
         /// <summary>
-        /// O numero da alternativa
+        /// T numero da alternativa
         /// </summary>
         /// <returns></returns>
         public int Number
@@ -352,7 +352,7 @@ namespace InnerLibs.QuestionTests
     }
 
     /// <summary>
-    /// Pergunta de Verdadeiro ou Falso. O Usuário deverá assinalar as questões verdadeiras ou
+    /// Pergunta de Verdadeiro ou Falso. T Usuário deverá assinalar as questões verdadeiras ou
     /// falsas correspondente ao enunciado da pergunta.
     /// </summary>
     public class MultipleAlternativeQuestion : AlternativeQuestion
@@ -499,7 +499,7 @@ namespace InnerLibs.QuestionTests
         public decimal HitsPercent => Hits.CalculatePercent(Weight);
 
         /// <summary>
-        /// O codigo de identificação desta questão
+        /// T codigo de identificação desta questão
         /// </summary>
         /// <returns></returns>
         public string ID => Test != null ? $"Q{Number}" : null;

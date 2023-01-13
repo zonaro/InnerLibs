@@ -841,9 +841,9 @@ namespace InnerLibs
         /// <summary>
         /// Retorna todas as ocorrencias de um texto entre dois textos
         /// </summary>
-        /// <param name="Text">O texto correspondente</param>
-        /// <param name="Before">O texto Anterior</param>
-        /// <param name="After">O texto Posterior</param>
+        /// <param name="Text">T texto correspondente</param>
+        /// <param name="Before">T texto Anterior</param>
+        /// <param name="After">T texto Posterior</param>
         /// <returns>Uma String com o texto entre o texto anterior e posterior</returns>
         public static string[] GetAllBetween(this string Text, string Before, string After = Empty)
         {
@@ -873,9 +873,9 @@ namespace InnerLibs
         /// <summary>
         /// Retorna o texto entre dois textos
         /// </summary>
-        /// <param name="Text">O texto correspondente</param>
-        /// <param name="Before">O texto Anterior</param>
-        /// <param name="After">O texto Posterior</param>
+        /// <param name="Text">T texto correspondente</param>
+        /// <param name="Before">T texto Anterior</param>
+        /// <param name="After">T texto Posterior</param>
         /// <returns>Uma String com o texto entre o texto anterior e posterior</returns>
         public static string GetBetween(this string Text, string Before, string After)
         {

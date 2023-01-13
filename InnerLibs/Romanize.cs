@@ -71,7 +71,7 @@ namespace InnerLibs
                 int digito = Convert.ToInt32(Enum.Parse(typeof(RomanDigit), numeral.ToString()));
 
                 // Um numeral de pequena valor pode ser colocado à esquerda de um valor maior Quando
-                // isto ocorre, por exemplo IX, o menor número é subtraído do maior O dígito
+                // isto ocorre, por exemplo IX, o menor número é subtraído do maior T dígito
                 // subtraído deve ser de pelo menos um décimo do valor do maior numeral e deve ser
                 // ou I, X ou C Valores como MCMD ou CMC não são permitidos
                 if (digito > digitoMaximo)
@@ -104,7 +104,7 @@ namespace InnerLibs
             }
 
             // Outra regra é a que compara o tamanho do valor de cada numeral lido a partir da
-            // esquerda para a direita. O valor nunca deve aumentar a partir de uma letra para a
+            // esquerda para a direita. T valor nunca deve aumentar a partir de uma letra para a
             // próxima. Onde houver um numeral subtrativo, esta regra se aplica ao valor combinado
             // dos dois algarismos envolvidos na subtração quando comparado com a letra anterior.
             // Isto significa que XIX é aceitável, mas XIM e IIV não são.

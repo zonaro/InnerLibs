@@ -281,7 +281,7 @@ namespace InnerLibs
                     tam = sb.Length - 2;
                     if (tam > -1)
                     {
-                        if (Convert.ToString(sb[tam]) == "A" && Convert.ToString(sb[tam + 1]) == "O")
+                        if (Convert.ToString(sb[tam]) == "A" && Convert.ToString(sb[tam + 1]) == "T")
                         {
                             sb.Remove(tam, 2);
                         }

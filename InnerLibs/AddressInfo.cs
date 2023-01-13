@@ -462,7 +462,7 @@ namespace InnerLibs.Locations
         }
 
         /// <summary>
-        /// O nome do endereço
+        /// T nome do endereço
         /// </summary>
         /// <value></value>
         /// <returns></returns>

@@ -21,6 +21,8 @@ namespace InnerLibs
     {
         #region Public Methods
 
+        public static bool IsAny<T>(this T obj, params T[] others) => others?.Any(x => x.Equals(obj)) ?? false;
+
         public static string GetMemberName(MemberInfo member)
         {
             if (member != null)
@@ -362,7 +364,7 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// O primeiro valor não nulo de acordo com uma lista de predicados executados nesta lista
+        /// T primeiro valor não nulo de acordo com uma lista de predicados executados nesta lista
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="source"></param>
@@ -384,7 +386,7 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// O primeiro valor não nulo de acordo com uma lista de predicados executados nesta lista
+        /// T primeiro valor não nulo de acordo com uma lista de predicados executados nesta lista
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="source"></param>
@@ -706,19 +708,24 @@ namespace InnerLibs
         /// <summary>
         /// Retorna o <see cref="Type"/> do objeto mesmo se ele for nulo
         /// </summary>
-        /// <typeparam name="O"></typeparam>
+        /// <typeparam name="T"></typeparam>
         /// <param name="Obj"></param>
         /// <returns>o tipo do objeto ou o prorio objeto se ele for um <see cref="Type"/></returns>
-        public static Type GetTypeOf<O>(this O Obj)
+        public static Type GetTypeOf<T>(this T Obj)
         {
-            if (typeof(O) == typeof(Type))
+            if (Obj is Type istype)
             {
-                return (Type)(object)Obj;
+                return istype;
             }
             else
             {
-                return Obj?.GetType() ?? typeof(O);
+                try
+                {
+                    return Obj.GetType();
+                }
+                catch { }
             }
+            return typeof(T);
         }
 
         /// <summary>
@@ -951,14 +958,35 @@ namespace InnerLibs
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public static bool IsDictionary(this object obj) => obj.GetTypeOf().IsGenericOf(typeof(Dictionary<,>));
+        public static bool IsDictionary(this object obj) => IsGenericOf(obj, typeof(IDictionary<,>));
+
 
         /// <summary>
-        /// Verifica se o objeto é uma lista
+        /// Verifica se o objeto é um enumeravel (lista)
         /// </summary>
         /// <param name="obj"></param>
+        /// <remarks>NÃO considera strings (IEnumerable{char}) como true</remarks>
         /// <returns></returns>
-        public static bool IsEnumerable(this object obj) => obj.GetTypeOf().IsGenericOf(typeof(IEnumerable<>));
+        public static bool IsEnumerable(this object obj) => IsGenericOf(obj, typeof(IEnumerable<>));
+
+
+        public static bool IsGenericOf(this object obj, Type GenericType)
+        {
+            var type = obj.GetTypeOf();
+
+            if (type == null || GenericType == null) return false;
+            var sametype = type == GenericType;
+            var checkgeneric = type.IsGenericType && type.GetGenericTypeDefinition() == GenericType;
+            var assignablefromgen = GenericType.GetGenericTypeDefinition().IsAssignableFrom(type);
+            var assignable = GenericType.IsAssignableFrom(type);
+            var testInterfaces = type.GetInterfaces().Append(type).Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == GenericType);
+
+            return (sametype || assignablefromgen || assignable || checkgeneric || testInterfaces);
+
+
+        }
+
+        public static bool IsArrayOrEnumerable(this object obj) => GetTypeOf(obj).IsArray || obj.IsEnumerable();
 
         public static bool IsEqual<T>(this T Value, T EqualsToValue) where T : IComparable => Value.Equals(EqualsToValue);
 
@@ -968,7 +996,7 @@ namespace InnerLibs
         /// <param name="MainType"></param>
         /// <param name="Type"></param>
         /// <returns></returns>
-        public static bool IsGenericOf(this Type MainType, Type Type) => MainType.IsGenericType && MainType.GetGenericTypeDefinition().IsAssignableFrom(Type);
+
 
         public static bool IsGreaterThan<T>(this T Value, T MinValue) where T : IComparable => Value.CompareTo(MinValue) > 0;
 
@@ -1014,7 +1042,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public static bool IsList(this object obj) => obj.GetTypeOf().IsGenericOf(typeof(List<>));
+        public static bool IsList(this object obj) => IsGenericOf(obj, typeof(List<>));
 
         /// <summary>
         /// Verifica se o não objeto existe dentro de uma Lista, coleção ou array.

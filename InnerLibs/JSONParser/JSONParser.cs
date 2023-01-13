@@ -529,34 +529,11 @@ namespace InnerLibs
                 }
 
             }
-            else if (type.IsArray)
-            {
-                Type arrayType = type.GetElementType();
-                if (!json.IsWrapped('[')) return null;
 
-                List<string> elems = Split(json);
-                Array newArray = Array.CreateInstance(arrayType, elems.Count);
-                for (int i = 0; i < elems.Count; i++)
-                    newArray.SetValue(ParseValue(arrayType, elems[i], culture), i);
-                splitArrayPool.Push(elems);
-                return newArray;
-            }
             else if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
                 Type underlyingType = type.GetGenericArguments().FirstOrDefault();
                 return ParseValue(underlyingType, json, culture);
-            }
-            else if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
-            {
-                Type listType = type.GetGenericArguments()[0];
-                if (!json.IsWrapped('[')) return null;
-
-                List<string> elems = Split(json);
-                var list = (IList)type.GetConstructor(new Type[] { typeof(int) }).Invoke(new object[] { elems.Count });
-                for (int i = 0; i < elems.Count; i++)
-                    list.Add(ParseValue(listType, elems[i], culture));
-                splitArrayPool.Push(elems);
-                return list;
             }
             else if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Dictionary<,>))
             {
@@ -576,19 +553,49 @@ namespace InnerLibs
                 //The list is split into key/value pairs only, this means the split must be divisible by 2 to be valid JSON
                 List<string> elems = Split(json);
                 if (elems.Count % 2 != 0)
-                    return null;
+                    elems.Add(null);
 
                 var dictionary = (IDictionary)type.GetConstructor(new Type[] { typeof(int) }).Invoke(new object[] { elems.Count / 2 });
                 for (int i = 0; i < elems.Count; i += 2)
                 {
-                    if (elems[i].Length <= 2)
-                        continue;
+                    if (elems[i].Length <= 2) continue;
                     string keyValue = elems[i].Substring(1, elems[i].Length - 2);
                     object val = ParseValue(valueType, elems[i + 1], culture);
                     dictionary[keyValue] = val;
                 }
                 return dictionary;
             }
+
+            else if (type.IsArrayOrEnumerable())
+            {
+                object[] elems = null;
+                if (!json.IsWrapped('[')) json = json.Quote('[');
+                Type listType = null;
+                if (type.IsArray)
+                {
+                    listType = type.GetElementType();
+                }
+                else
+                {
+                    listType = type.GetGenericArguments().FirstOrDefault();
+
+                }
+
+                elems = Split(json).Select(x => ParseValue(listType, x, culture)).ToArray();
+
+                var arr = Array.CreateInstance(listType, elems.Length);
+
+                elems.CopyTo(arr, 0);
+
+                if (type.IsArray) return arr;
+
+                Type concreteListType = typeof(List<>).MakeGenericType(listType);
+
+                return Activator.CreateInstance(concreteListType, new object[] { arr });
+
+
+            }
+
             else if (type == typeof(object))
             {
                 return ParseAnonymousValue(json, culture);
