@@ -1295,7 +1295,36 @@ namespace InnerLibs
         /// <returns></returns>
         public static bool IsOpenWrapChar(this string Text) => Text.GetFirstChars().IsIn(PredefinedArrays.OpenWrappers);
 
-        public static bool IsOpenWrapChar(this char Char) => IsOpenWrapChar($"{Char}");
+        public static bool IsOpenWrapChar(this char c) => IsOpenWrapChar($"{c}");
+
+
+        public static bool IsWrapped(this string Text) => PredefinedArrays.OpenWrappers.Any(x => IsWrapped(Text, x.FirstOrDefault()));
+        public static bool IsWrapped(this string Text, string OpenWrapText, string CloseWrapText = null) => IsWrapped(Text, StringComparison.CurrentCultureIgnoreCase, OpenWrapText, CloseWrapText);
+        public static bool IsWrapped(this string Text, StringComparison stringComparison, string OpenWrapText, string CloseWrapText = null)
+        {
+            if (Text.IsNotBlank())
+            {
+                OpenWrapText = OpenWrapText.IfBlank("");
+                CloseWrapText = CloseWrapText.IfBlank("");
+                if (OpenWrapText.Length == 1 && (CloseWrapText.IsBlank() || CloseWrapText.Length == 1))
+                {
+                    return CloseWrapText.IsBlank()
+                        ? IsWrapped(Text, OpenWrapText.FirstOrDefault())
+                        : IsWrapped(Text, OpenWrapText.FirstOrDefault(), CloseWrapText.FirstOrDefault());
+                }
+                else
+                    return Text.StartsWith(OpenWrapText, stringComparison) && Text.EndsWith(CloseWrapText, stringComparison);
+            }
+            return false;
+        }
+
+        public static bool IsWrapped(this string Text, char OpenWrapChar) => IsWrapped(Text, OpenWrapChar, OpenWrapChar.GetOppositeWrapChar());
+        public static bool IsWrapped(this string Text, char OpenWrapChar, char CloseWrapChar)
+        {
+            Text = Text?.Trim() ?? "";
+            OpenWrapChar = OpenWrapChar.IsCloseWrapChar() ? OpenWrapChar.GetOppositeWrapChar() : OpenWrapChar;
+            return Text.FirstOrDefault() == OpenWrapChar && Text.LastOrDefault() == CloseWrapChar;
+        }
 
         /// <summary>
         /// Verifica se uma palavra ou frase é idêntica da direita para a esqueda bem como da
@@ -1306,7 +1335,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static bool IsPalindrome(this string Text, bool IgnoreWhiteSpaces = true)
         {
-            Text = Text ?? InnerLibs.Text.Empty;
+            Text = Text ?? Empty;
             if (IgnoreWhiteSpaces)
             {
                 Text = Text.RemoveAny(WhitespaceChar);

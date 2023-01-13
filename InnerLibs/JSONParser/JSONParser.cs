@@ -536,8 +536,7 @@ namespace InnerLibs
             if (type.IsArray)
             {
                 Type arrayType = type.GetElementType();
-                if (json.FirstOrDefault() != '[' || json.LastOrDefault() != ']')
-                    return null;
+                if (!json.IsWrapped('[')) return null;
 
                 List<string> elems = Split(json);
                 Array newArray = Array.CreateInstance(arrayType, elems.Count);
@@ -554,8 +553,7 @@ namespace InnerLibs
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
             {
                 Type listType = type.GetGenericArguments()[0];
-                if (json.FirstOrDefault() != '[' || json.LastOrDefault() != ']')
-                    return null;
+                if (!json.IsWrapped('[')) return null;
 
                 List<string> elems = Split(json);
                 var list = (IList)type.GetConstructor(new Type[] { typeof(int) }).Invoke(new object[] { elems.Count });
@@ -577,7 +575,7 @@ namespace InnerLibs
                 if (keyType != typeof(string))
                     return null;
                 //Must be a valid dictionary element
-                if (json.FirstOrDefault() != '{' || json.LastOrDefault() != '}')
+                if (!json.IsWrapped('{'))
                     return null;
                 //The list is split into key/value pairs only, this means the split must be divisible by 2 to be valid JSON
                 List<string> elems = Split(json);
@@ -599,7 +597,7 @@ namespace InnerLibs
             {
                 return ParseAnonymousValue(json, culture);
             }
-            if (json.FirstOrDefault() == '{' && json.LastOrDefault() == '}')
+            if (json.IsWrapped('{'))
             {
                 return ParseObject(type, json, culture);
             }
@@ -612,7 +610,7 @@ namespace InnerLibs
             culture = culture ?? CultureInfo.InvariantCulture;
             if (json.Length == 0)
                 return null;
-            if (json[0] == '{' && json[json.Length - 1] == '}')
+            if (json.IsWrapped('{'))
             {
                 List<string> elems = Split(json);
                 if (elems.Count % 2 != 0)
@@ -622,7 +620,7 @@ namespace InnerLibs
                     dict[elems[i].Substring(1, elems[i].Length - 2)] = ParseAnonymousValue(elems[i + 1], culture);
                 return dict;
             }
-            if (json[0] == '[' && json[json.Length - 1] == ']')
+            if (json.IsWrapped('['))
             {
                 List<string> items = Split(json);
                 var finalList = new List<object>(items.Count);
@@ -630,7 +628,7 @@ namespace InnerLibs
                     finalList.Add(ParseAnonymousValue(items[i], culture));
                 return finalList;
             }
-            if (json[0] == '"' && json[json.Length - 1] == '"')
+            if (json.IsWrapped('"'))
             {
                 string str = json.Substring(1, json.Length - 2);
                 return str.Replace("\\", string.Empty);
@@ -644,15 +642,12 @@ namespace InnerLibs
                 }
                 else
                 {
-                    int.TryParse(json, out int result);
+                    _ = int.TryParse(json, out int result);
                     return result;
                 }
             }
-            if (json == "true")
-                return true;
-            if (json == "false")
-                return false;
-            // handles json == "null" as well as invalid JSON
+            if (json.IsAny("true", "false")) return json.AsBool();
+
             return null;
         }
 
