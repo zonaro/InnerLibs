@@ -276,10 +276,6 @@ namespace InnerLibs.Locations
                             {
                                 return Type;
                             }
-                        case "description":
-                            {
-                                return Description;
-                            }
 
                         default:
                             {
@@ -770,7 +766,7 @@ namespace InnerLibs.Locations
         /// </summary>
         /// <param name="PostalCode"></param>
         /// <param name="Number">Numero da casa</param>
-        public static AddressInfo FromViaCEP(int PostalCode, string Number = null, string Complement = null) => FromViaCEP<AddressInfo>(PostalCode, Number, Complement);
+        public static AddressInfo FromViaCEP(int PostalCode, string Number = null, string Complement = null) => FromViaCEP<AddressInfo>($"{PostalCode}", Number, Complement);
 
         /// <summary>
         /// Cria um objeto de localização e imadiatamente pesquisa as informações de um local
@@ -786,7 +782,7 @@ namespace InnerLibs.Locations
         /// </summary>
         /// <param name="PostalCode"></param>
         /// <param name="Number">Numero da casa</param>
-        public static T FromViaCEP<T>(int PostalCode, string Number = null, string Complement = null) where T : AddressInfo => FromViaCEP<T>(PostalCode.ToString().PadLeft(8, '0'), Number, Complement);
+        public static T FromViaCEP<T>(int PostalCode, string Number = null, string Complement = null) where T : AddressInfo => FromViaCEP<T>($"{PostalCode}", Number, Complement);
 
         /// <summary>
         /// Cria um objeto de localização e imadiatamente pesquisa as informações de um local
@@ -796,6 +792,7 @@ namespace InnerLibs.Locations
         /// <param name="Number">Numero da casa</param>
         public static T FromViaCEP<T>(string PostalCode, string Number = null, string Complement = null) where T : AddressInfo
         {
+            PostalCode = $"{PostalCode}".PadLeft(8, '0');
             var d = Activator.CreateInstance<T>();
             d["original_string"] = PostalCode;
             d.PostalCode = PostalCode;
@@ -811,32 +808,27 @@ namespace InnerLibs.Locations
 
             try
             {
-                string url = "https://viacep.com.br/ws/" + d.PostalCode.RemoveAny("-") + "/xml/";
-                d["search_url"] = url;
-                using (var c = new WebClient())
+                var url = new Uri("https://viacep.com.br/ws/" + d.PostalCode.RemoveAny("-") + "/json/");
+                d["search_url"] = url.ToString();
+                var x = url.DownloadJson() as Dictionary<string, object>;
+                d.Country = "Brasil";
+                d.CountryCode = "BR";
+                d.Neighborhood = x.GetValueOr("bairro") as string;
+                d.City = x.GetValueOr("localidade") as string;
+                d.Street = x.GetValueOr("logradouro") as string;
+                d.Complement = Complement.IfBlank(x.GetValueOr("complemento", d.Complement)) as string;
+                d.StateCode = x.GetValueOr("uf") as string;
+                if (d.StateCode.IsNotBlank())
                 {
-                    var x = new XmlDocument();
-                    x.LoadXml(c.DownloadString(url));
-                    var cep = x["xmlcep"];
-                    d.Neighborhood = cep["bairro"]?.InnerText;
-                    d.City = cep["localidade"]?.InnerText;
-                    d.StateCode = cep["uf"]?.InnerText;
                     d.State = Brasil.GetNameOf(d.StateCode);
                     d.Region = Brasil.GetRegionOf(d.StateCode);
-                    d.Street = cep["logradouro"]?.InnerText;
-
-                    Misc.TryExecute(() => d["DDD"] = cep["ddd"]?.InnerText);
-                    Misc.TryExecute(() => d["IBGE"] = cep["ibge"]?.InnerText);
-                    Misc.TryExecute(() => d["GIA"] = cep["gia"]?.InnerText);
-                    Misc.TryExecute(() => d["SIAFI"] = cep["SIAFI"]?.InnerText);
-
-                    d.Country = "Brasil";
-                    d.CountryCode = "BR";
+                }
+                foreach (var item in new[] { "ddd", "ibge", "gia", "siafi" })
+                {
+                    Misc.TryExecute(() => d[item.ToUpperInvariant()] = x.GetValueOr(item) as string);
                 }
             }
-            catch
-            {
-            }
+            catch { }
 
             return d;
         }

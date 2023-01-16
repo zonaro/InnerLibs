@@ -256,7 +256,7 @@ namespace InnerLibs
         public static string ToDataURL(this Image Image) => $"data:{Image.GetFileType().First().ToLowerInvariant().Replace("application/octet-stream", FileTypeExtensions.GetFileType(".png").First())};base64,{Image.ToBase64()}";
 
         /// <summary>
-        /// Converte uma imagem para DataURI trocando o MIME Type
+        /// Converte uma imagem para DataURI trocando o MIME T
         /// </summary>
         /// <param name="OriginalImage">Imagem</param>
         /// <param name="OriginalImageFormat">Formato da Imagem</param>

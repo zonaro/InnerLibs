@@ -75,7 +75,7 @@ namespace InnerLibs
         /// <summary>
         /// Load values of a JsonFile into a <typeparamref name="T"/> object
         /// </summary>
-        /// <typeparam name="T">Object Type</typeparam>
+        /// <typeparam name="T">Object T</typeparam>
         /// <param name="File">File Path</param>
         /// <param name="EncryptKey">Encrypt Key. Leave Null or blank to not encrypt</param>
         /// <param name="ExcludeNull">When true, exclude properties with null values from serialization</param>
@@ -186,7 +186,7 @@ namespace InnerLibs
         /// <typeparam name="T"></typeparam>
         /// <param name="current"></param>
         /// <returns></returns>
-        public static T GetLatestSavedValues<T>(this T current) where T : JsonFile => current != null ? JsonFile.Load<T>(current.FilePath, current.EncryptKey, current.ExcludeNull, current.Culture) : null;
+        public static T Load<T>(this T current) where T : JsonFile => current != null ? JsonFile.Load<T>(current.FilePath, current.EncryptKey, current.ExcludeNull, current.Culture) : null;
 
 
         internal static void AppendValue(StringBuilder stringBuilder, object item, bool IncludeNull, CultureInfo culture)
@@ -566,7 +566,7 @@ namespace InnerLibs
                 return dictionary;
             }
 
-            else if (type.IsArrayOrEnumerable())
+            else if (type.IsEnumerable())
             {
                 object[] elems = null;
                 if (!json.IsWrapped('[')) json = json.Quote('[');

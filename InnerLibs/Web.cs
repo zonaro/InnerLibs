@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace InnerLibs
@@ -56,11 +57,13 @@ namespace InnerLibs
         /// <returns></returns>
         public static Uri AddParameter(this Uri Url, string Key, params string[] Values) => Url.AddParameter(Key, true, Values);
 
-        public static byte[] DownloadFile(string URL, NameValueCollection Headers = null)
+        public static byte[] DownloadFile(string URL, NameValueCollection Headers = null, Encoding Encoding = null)
         {
             byte[] s = null;
             using (var c = new WebClient())
             {
+                c.Encoding = Encoding ?? new UTF8Encoding(false);
+
                 if (Headers != null)
                     c.Headers.Add(Headers);
                 if (URL.IsURL()) s = c.DownloadData(URL);
@@ -69,13 +72,15 @@ namespace InnerLibs
             return s;
         }
 
-        public static System.Drawing.Image DownloadImage(string URL, NameValueCollection Headers = null) => DownloadFile(URL, Headers).ToImage();
+        public static System.Drawing.Image DownloadImage(string URL, NameValueCollection Headers = null, Encoding Encoding = null) => DownloadFile(URL, Headers, Encoding).ToImage();
 
-        public static string DownloadString(string URL, NameValueCollection Headers = null)
+        public static string DownloadString(string URL, NameValueCollection Headers = null, Encoding Encoding = null)
         {
             string s = Text.Empty;
             using (var c = new WebClient())
             {
+                c.Encoding = Encoding ?? new UTF8Encoding(false);
+
                 if (Headers != null)
                     c.Headers.Add(Headers);
 
@@ -85,14 +90,14 @@ namespace InnerLibs
             return s;
         }
 
-        public static T DownloadJson<T>(string URL, NameValueCollection Headers = null) => DownloadString(URL, Headers).FromJson<T>();
-        public static object DownloadJson(string URL, NameValueCollection Headers = null) => DownloadString(URL, Headers).FromJson();
+        public static T DownloadJson<T>(string URL, NameValueCollection Headers = null, Encoding Encoding = null) => DownloadString(URL, Headers, Encoding).FromJson<T>();
+        public static object DownloadJson(string URL, NameValueCollection Headers = null, Encoding Encoding = null) => DownloadString(URL, Headers, Encoding).FromJson();
 
-        public static T DownloadJson<T>(this Uri URL, NameValueCollection Headers = null) => DownloadJson<T>($"{URL}", Headers);
-        public static object DownloadJson(this Uri URL, NameValueCollection Headers = null) => DownloadJson($"{URL}", Headers);
-        public static string DownloadString(this Uri URL, NameValueCollection Headers = null) => DownloadString($"{URL}", Headers);
-        public static byte[] DownloadFile(this Uri URL, NameValueCollection Headers = null) => DownloadFile($"{URL}", Headers);
-        public static System.Drawing.Image DownloadImage(this Uri URL, NameValueCollection Headers = null) => DownloadImage($"{URL}", Headers);
+        public static T DownloadJson<T>(this Uri URL, NameValueCollection Headers = null, Encoding Encoding = null) => DownloadJson<T>($"{URL}", Headers, Encoding);
+        public static object DownloadJson(this Uri URL, NameValueCollection Headers = null, Encoding Encoding = null) => DownloadJson($"{URL}", Headers, Encoding);
+        public static string DownloadString(this Uri URL, NameValueCollection Headers = null, Encoding Encoding = null) => DownloadString($"{URL}", Headers, Encoding);
+        public static byte[] DownloadFile(this Uri URL, NameValueCollection Headers = null, Encoding Encoding = null) => DownloadFile($"{URL}", Headers, Encoding);
+        public static System.Drawing.Image DownloadImage(this Uri URL, NameValueCollection Headers = null, Encoding Encoding = null) => DownloadImage($"{URL}", Headers, Encoding);
 
 
 
