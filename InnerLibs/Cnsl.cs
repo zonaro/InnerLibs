@@ -236,18 +236,26 @@ namespace InnerLibs.Console
         /// <param name="ArgName"></param>
         /// <param name="ValueIfNull"></param>
         /// <returns></returns>
-        public static string GetArgumentValue(this string[] args, string ArgName, string ValueIfNull = null)
+        public static T GetArgumentValue<T>(this string[] args, string ArgName, T ValueIfNull = default)
         {
+            if (ArgName.IsBlank())
+            {
+                return ValueIfNull;
+            }
+
             if (args.Contains(ArgName, StringComparer.InvariantCultureIgnoreCase))
             {
-                var index = args.Select(x => x.ToLowerInvariant()).GetIndexOf(ArgName.ToLowerInvariant());
+                var index = args.Select(x => x.ToUpperInvariant()).GetIndexOf(ArgName?.ToUpperInvariant());
                 if (index > -1)
                 {
-                    return args.IfBlankOrNoIndex(index + 1, ValueIfNull);
+                    var s = args.IfBlankOrNoIndex(index + 1, default);
+                    return s.IsBlank() ? ValueIfNull : s.ChangeType<T>();
                 }
             }
             return ValueIfNull;
         }
+
+
 
         /// <summary>
         /// Retorna o valor de um argumento de uma linha de comando
@@ -256,7 +264,7 @@ namespace InnerLibs.Console
         /// <param name="ArgName"></param>
         /// <param name="ValueIfNull"></param>
         /// <returns></returns>
-        public static T GetArgumentValue<T>(this string[] args, string ArgName, T ValueIfNull = default) => GetArgumentValue(args, ArgName, $"{ValueIfNull}").ChangeType<T>();
+        public static string GetArgumentValue(this string[] args, string ArgName, string ValueIfNull = default) => GetArgumentValue<string>(args, ArgName, ValueIfNull);
 
         /// <summary>
         /// Le o proximo caractere inserido no console pelo usuário

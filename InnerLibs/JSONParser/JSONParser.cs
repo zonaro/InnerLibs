@@ -98,13 +98,7 @@ namespace InnerLibs
             try
             {
                 T c = Activator.CreateInstance<T>();
-
-
                 c.FilePath = FileOrDirectoryPath;
-                c.EncryptKey = EncryptKey;
-                c.ExcludeNull = ExcludeNull;
-                c.Culture = culture ?? CultureInfo.InvariantCulture;
-
                 if (c.File.Exists)
                 {
                     string s = c.File.ReadAllText();
@@ -115,6 +109,11 @@ namespace InnerLibs
 
                     c = s.FromJson<T>(culture);
                 }
+
+                c.FilePath = FileOrDirectoryPath; //need to re-set after deserialize
+                c.EncryptKey = EncryptKey;
+                c.ExcludeNull = ExcludeNull;
+                c.Culture = culture ?? CultureInfo.InvariantCulture;
                 return c;
             }
             catch (Exception ex)
