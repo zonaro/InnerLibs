@@ -56,7 +56,7 @@ namespace InnerLibs.Console
             return Text;
         }
 
-        public static string ConsoleBreakLine(this int BreakLines) => ConsoleBreakLine(InnerLibs.Text.Empty, BreakLines);
+        public static string ConsoleBreakLine(this int BreakLines) => ConsoleBreakLine(Text.Empty, BreakLines);
 
         public static string ConsoleBreakLine() => ConsoleBreakLine(1);
 
