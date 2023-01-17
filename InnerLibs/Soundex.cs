@@ -242,12 +242,12 @@ namespace InnerLibs
                 text = text.Replace("CH", "X");
                 text = text.Replace("CT", "T");
                 text = text.Replace("CS", "S");
-                text = text.Replace("QU", "K");
-                text = text.Replace("Q", "K");
-                text = text.Replace("CA", "K");
-                text = text.Replace("CO", "K");
-                text = text.Replace("CU", "K");
-                text = text.Replace("CK", "K");
+                text = text.Replace("QU", "TK");
+                text = text.Replace("Q", "TK");
+                text = text.Replace("CA", "TK");
+                text = text.Replace("CO", "TK");
+                text = text.Replace("CU", "TK");
+                text = text.Replace("CK", "TK");
                 text = text.Replace("LH", "LI");
                 text = text.Replace("RM", "SM");
                 text = text.Replace("N", "M");
@@ -263,7 +263,7 @@ namespace InnerLibs
                 text = text.Replace("LT", "T");
                 text = text.Replace("RT", "T");
                 text = text.Replace("ST", "T");
-                text = text.Replace("W", "V");
+                text = text.Replace("W", "TV");
                 text = text.Replace("L", "R");
                 text = text.Replace("H", InnerLibs.Text.Empty);
                 var sb = new StringBuilder(text);

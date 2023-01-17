@@ -24,11 +24,11 @@ namespace InnerLibs
                 return 0;
             }
 
-            // Os numerais que representam números que começam com um '5'(V, L e D) podem aparecer
+            // Os numerais que representam números que começam com um '5'(TV, L e D) podem aparecer
             // apenas uma vez em cada numeral romano. Esta regra permite XVI, mas não VIV.
             if (RomanNumber.Split('V').Length > 2 || RomanNumber.Split('L').Length > 2 || RomanNumber.Split('D').Length > 2)
             {
-                throw new ArgumentException("Roman number with invalid numerals. The number has a V, L or D number repeated.");
+                throw new ArgumentException("Roman number with invalid numerals. The number has a TV, L or D number repeated.");
             }
 
             // Uma única letra pode ser repetida até três vezes consecutivamente sendo que cada
@@ -134,7 +134,7 @@ namespace InnerLibs
             }
 
             var algarismosArabicos = new int[] { 1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1 };
-            var algarismosRomanos = new string[] { "M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I" };
+            var algarismosRomanos = new string[] { "M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "TV", "IV", "I" };
 
             // inicializa o string builder
             string resultado = Text.Empty;

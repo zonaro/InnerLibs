@@ -1,6 +1,7 @@
 ﻿using InnerLibs.LINQ;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 namespace InnerLibs.Console
@@ -70,11 +71,12 @@ namespace InnerLibs.Console
         {
             DateFormat = DateFormat.IfBlank("yyyy-MM-dd HH: mm:ss");
             LogDateTime = LogDateTime ?? DateTime.Now;
-            DateColor = DateColor ?? System.Console.ForegroundColor;
+            DateColor = DateColor ?? MessageColor ?? System.Console.ForegroundColor;
             MessageColor = MessageColor ?? DateColor;
-            ConsoleWrite($"{LogDateTime}", DateColor.Value);
+            var timestring = LogDateTime.Value.ToString(DateFormat, CultureInfo.InvariantCulture);
+            ConsoleWrite($"{timestring}", DateColor.Value);
             ConsoleWriteLine($" - {Text}", MessageColor.Value, BreakLines);
-            return $"{LogDateTime.Value.ToString(DateFormat)} - {Text}";
+            return $"{timestring} - {Text}";
         }
 
         public static string ConsoleLog(this DateTime LogDateTime, string Text, ConsoleColor? DateColor = null, ConsoleColor? MessageColor = null, string DateFormat = default, int BreakLines = 1) => ConsoleLog(Text, LogDateTime, DateColor, MessageColor, DateFormat, BreakLines);
