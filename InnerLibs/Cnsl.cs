@@ -174,13 +174,14 @@ namespace InnerLibs.Console
         /// </summary>
         public static T ConsoleWriteError<T>(this T Exception, int BreakLines) where T : Exception => Exception.ConsoleWriteError(" >> ", ConsoleColor.Red, BreakLines);
 
-        public static string ConsoleWriteLine(this string Text, Dictionary<string, ConsoleColor> CustomColoredWords, int BreakLines = 1) => Text.ConsoleWrite(CustomColoredWords, BreakLines.SetMinValue(1));
-
         /// <summary>
         /// Escreve uma linha no console colorindo palavras especificas
         /// </summary>
         /// <param name="Text">Texto</param>
         /// <param name="CustomColoredWords">Lista com as palavras e suas respectivas cores</param>
+        public static string ConsoleWriteLine(this string Text, Dictionary<string, ConsoleColor> CustomColoredWords, int BreakLines = 1) => Text.ConsoleWrite(CustomColoredWords, BreakLines.SetMinValue(1));
+
+
         /// <summary>
         /// Escreve uma linha no console usando uma cor especifica
         /// </summary>
