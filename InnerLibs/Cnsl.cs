@@ -7,7 +7,7 @@ using System.Linq;
 namespace InnerLibs.Console
 {
     /// <summary>
-    /// Métodos para manipulação de aplicações baseadas em Console (System.Console)
+    /// Métodos para manipulação de aplicações baseadas em <see cref="System.Console"/>
     /// </summary>
     public static class Cnsl
     {
