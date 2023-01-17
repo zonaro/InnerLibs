@@ -20,24 +20,27 @@ namespace InnerLibs
         /// <param name="TopDirectory">Diretorio da operação</param>
         public static DirectoryInfo CleanDirectory(this DirectoryInfo TopDirectory, bool DeleteTopDirectoryIfEmpty = true)
         {
-            foreach (var diretorio in TopDirectory.GetDirectories("*", SearchOption.TopDirectoryOnly))
+            if (TopDirectory != null)
             {
-                diretorio.GetDirectories().Each(subdiretorio => subdiretorio.CleanDirectory(true));
-
-                if (diretorio.HasDirectories())
+                foreach (var diretorio in TopDirectory.GetDirectories("*", SearchOption.TopDirectoryOnly))
                 {
-                    diretorio.CleanDirectory(true);
+                    diretorio.GetDirectories().Each(subdiretorio => subdiretorio.CleanDirectory(true));
+
+                    if (diretorio.HasDirectories())
+                    {
+                        diretorio.CleanDirectory(true);
+                    }
+
+                    if (diretorio.IsEmpty())
+                    {
+                        diretorio.Delete();
+                    }
                 }
 
-                if (diretorio.IsEmpty())
+                if (DeleteTopDirectoryIfEmpty && TopDirectory.Exists && TopDirectory.IsEmpty())
                 {
-                    diretorio.Delete();
+                    TopDirectory.Delete();
                 }
-            }
-
-            if (DeleteTopDirectoryIfEmpty && TopDirectory.Exists && TopDirectory.IsEmpty())
-            {
-                TopDirectory.Delete();
             }
             return TopDirectory;
         }
@@ -51,12 +54,12 @@ namespace InnerLibs
         public static IEnumerable<FileInfo> CopyTo(this IEnumerable<FileInfo> List, DirectoryInfo DestinationDirectory)
         {
             var lista = new List<FileInfo>();
-            if (!DestinationDirectory.Exists)
+            if (!DestinationDirectory?.Exists ?? false)
             {
                 DestinationDirectory.Create();
             }
 
-            foreach (var file in List)
+            foreach (var file in List ?? new List<FileInfo>())
             {
                 lista.Add(file.CopyTo(DestinationDirectory.FullName + Path.DirectorySeparatorChar + file.Name));
             }
@@ -175,23 +178,23 @@ namespace InnerLibs
         /// Deleta um arquivo ou diretório se o mesmo existir e retorna TRUE se o arquivo puder ser
         /// criado novamente
         /// </summary>
-        /// <param name="Path">Camingo</param>
+        /// <param name="Path">Caminho</param>
         /// <returns></returns>
-        public static bool DeleteIfExist(this FileSystemInfo Path) => Path.FullName.DeleteIfExist();
+        public static bool DeleteIfExist(this FileSystemInfo Path) => Path?.FullName.DeleteIfExist() ?? false;
 
         /// <summary>
         /// Verifica se um diretório possui subdiretórios
         /// </summary>
         /// <param name="Directory">Diretório</param>
         /// <returns></returns>
-        public static bool HasDirectories(this DirectoryInfo Directory) => Directory.GetDirectories().Any();
+        public static bool HasDirectories(this DirectoryInfo Directory) => Directory?.GetDirectories().Any() ?? false;
 
         /// <summary>
         /// Verifica se um diretório possui arquivos
         /// </summary>
         /// <param name="Directory">Diretório</param>
         /// <returns></returns>
-        public static bool HasFiles(this DirectoryInfo Directory) => Directory.GetFiles().Any();
+        public static bool HasFiles(this DirectoryInfo Directory) => Directory?.GetFiles().Any() ?? false;
 
         public static T Hide<T>(this T dir) where T : FileSystemInfo
         {
@@ -239,7 +242,8 @@ namespace InnerLibs
             var FilteredList = new List<FileSystemInfo>();
             foreach (string pattern in (Searches ?? Array.Empty<string>()).SelectMany(z => z.SplitAny(":", "|")).Where(x => x.IsNotBlank()).DefaultIfEmpty("*"))
             {
-                FilteredList.AddRange(Directory.GetFileSystemInfos(pattern.Trim(), SearchOption));
+                if (Directory != null)
+                    FilteredList.AddRange(Directory.GetFileSystemInfos(pattern.Trim(), SearchOption));
             }
 
             return FilteredList;
@@ -277,7 +281,8 @@ namespace InnerLibs
             var FilteredList = new List<DirectoryInfo>();
             foreach (string pattern in (Searches ?? Array.Empty<string>()).Where(x => x.IsNotBlank()).DefaultIfEmpty("*"))
             {
-                FilteredList.AddRange(Directory.GetDirectories(pattern.Trim(), SearchOption));
+                if (Directory != null)
+                    FilteredList.AddRange(Directory.GetDirectories(pattern.Trim(), SearchOption));
             }
 
             return FilteredList;
@@ -353,25 +358,19 @@ namespace InnerLibs
         /// Indica se apenas o diretorio atual ou todos os subdiretorios devem ser percorridos pela busca
         /// </param>
         /// <returns></returns>
-        public static IEnumerable<FindType> Where<FindType>(this DirectoryInfo Directory, Func<FindType, bool> predicate, SearchOption SearchOption = SearchOption.AllDirectories) where FindType : FileSystemInfo
+        public static IEnumerable<T> Where<T>(this DirectoryInfo Directory, Func<T, bool> predicate, SearchOption SearchOption = SearchOption.AllDirectories) where T : FileSystemInfo
         {
-            switch (typeof(FindType))
-            {
-                case var @case when @case == typeof(FileInfo):
-                    {
-                        return (IEnumerable<FindType>)Directory.GetFiles("*", SearchOption).Where((Func<FileInfo, bool>)predicate);
-                    }
+            if (Directory != null && Directory.Exists && predicate != null)
 
-                case var case1 when case1 == typeof(DirectoryInfo):
-                    {
-                        return (IEnumerable<FindType>)Directory.GetDirectories("*", SearchOption).Where((Func<DirectoryInfo, bool>)predicate);
-                    }
+                if (typeof(T) == typeof(FileInfo))
+                    return Directory.GetFiles("*", SearchOption).Where((Func<FileInfo, bool>)predicate) as IEnumerable<T>;
+                else if (typeof(T) == typeof(DirectoryInfo))
+                    return Directory.GetDirectories("*", SearchOption).Where((Func<DirectoryInfo, bool>)predicate) as IEnumerable<T>;
 
-                default:
-                    {
-                        return (IEnumerable<FindType>)Directory.GetFileSystemInfos("*", SearchOption).Where((Func<FileSystemInfo, bool>)predicate);
-                    }
-            }
+                else
+                    return Directory.GetFileSystemInfos("*", SearchOption).Where((Func<FileSystemInfo, bool>)predicate) as IEnumerable<T>;
+
+            return Array.Empty<T>();
         }
 
         #endregion Public Methods
