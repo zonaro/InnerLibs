@@ -88,7 +88,7 @@ namespace InnerLibs
             }
         }
 
-        public DateTime? Birthday { get; set; } = default;
+        public DateTime? Birthday { get; set; };
 
         public string Company
         {
