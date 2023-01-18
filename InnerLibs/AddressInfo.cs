@@ -302,7 +302,7 @@ namespace InnerLibs.Locations
 
                         case "geolocation":
                             {
-                                return LatitudeLongitude();
+                                return GeoLocation();
                             }
 
                         case "fulladdress":
@@ -373,7 +373,18 @@ namespace InnerLibs.Locations
 
             set
             {
-                _globalformat = value;
+                if (value < 0)
+                {
+                    _globalformat &= value;
+                }
+                else if (value > 0)
+                {
+                    _globalformat = value;
+                }
+                else
+                {
+                    _globalformat = AddressPart.FullAddress;
+                };
             }
         }
 
@@ -425,7 +436,14 @@ namespace InnerLibs.Locations
 
             set
             {
-                _format = value;
+                if (value < 0)
+                {
+                    _format &= value;
+                }
+                else
+                {
+                    _format = value;
+                }
             }
         }
 
@@ -1001,7 +1019,7 @@ namespace InnerLibs.Locations
         /// <returns></returns>
         public Dictionary<string, string> GetDetails() => details.ToDictionary();
 
-        public string LatitudeLongitude() => Latitude.HasValue && Longitude.HasValue ? $"{Latitude?.ToString(new CultureInfo("en-US"))}, {Longitude?.ToString(new CultureInfo("en-US"))}" : null;
+        public string GeoLocation() => Latitude.HasValue && Longitude.HasValue ? $"{Latitude?.ToString(CultureInfo.InvariantCulture)}, {Longitude?.ToString(CultureInfo.InvariantCulture)}" : null;
 
         public AddressInfo Remove(string key)
         {
@@ -1026,7 +1044,7 @@ namespace InnerLibs.Locations
         /// Retorna uma String contendo as informações do Local
         /// </summary>
         /// <returns>string</returns>
-        public override string ToString() => ToString(Format);
+        public override string ToString() => ToString(Array.Empty<AddressPart>());
 
         /// <summary>
         /// Retorna uma string com as partes dos endereço especificas
@@ -1035,17 +1053,25 @@ namespace InnerLibs.Locations
         /// <returns></returns>
         public string ToString(IEnumerable<AddressPart> Parts) => ToString(Parts.ToArray());
 
+
         /// <summary>
-        /// Retorna uma string com as partes dos endereço especificas
+        /// Retorna um <see cref="AddressPart"/> combinando varios <see cref="AddressPart"/>
         /// </summary>
         /// <param name="Parts"></param>
         /// <returns></returns>
-        public string ToString(params AddressPart[] Parts)
-        {
-            string retorno = Text.Empty;
 
-            Parts = Parts ?? new[] { Format };
-            AddressPart p = Parts.IfNoIndex(0, Format);
+        public static AddressPart GetAddressPart(params AddressPart[] Parts)
+        {
+            Parts = Parts ?? Array.Empty<AddressPart>();
+
+            if (Parts.Length == 0 || Parts.Sum(x => x.ToInt()) < 0)
+            {
+                Parts = new[] { GlobalFormat }.Union(Parts).ToArray();
+            }
+
+            Parts = Parts.Where(x => x > 0).OrderBy(x => x).Union(Parts.Where(x => x < 0).OrderByDescending(x => x)).ToArray();
+
+            AddressPart p = Parts.IfNoIndex(0, GlobalFormat);
             Parts = Parts.Skip(1).ToArray();
             for (int i = 0; i < Parts.Length; i++)
             {
@@ -1059,12 +1085,37 @@ namespace InnerLibs.Locations
                 }
             }
 
-            if (p == 0) p = Format;
+            if (p == 0) p = GlobalFormat;
 
             if (p < 0)
             {
-                p = Format & p;
+                p = GlobalFormat & p;
             }
+            return p;
+        }
+
+        /// <summary>
+        /// Retorna uma string com as partes dos endereço especificas
+        /// </summary>
+        /// <param name="Parts"></param>
+        /// <returns></returns>
+        public string ToString(params AddressPart[] Parts)
+        {
+            string retorno = Text.Empty;
+
+            Parts = Parts ?? Array.Empty<AddressPart>();
+
+            if (Parts.Length == 0)
+            {
+                Parts = new[] { Format };
+            }
+
+            var p = GetAddressPart(Parts);
+
+
+
+            retorno = retorno.AppendIf($"{Label}:", Label.IsNotBlank() && p.HasFlag(AddressPart.Label));
+
 
 
             if (p.HasFlag(AddressPart.Street))
@@ -1080,7 +1131,7 @@ namespace InnerLibs.Locations
 
             retorno = retorno.AppendIf($", {Number}", Number.IsNotBlank() && p.HasFlag(AddressPart.Number))
             .AppendIf($", {Complement}", Complement.IsNotBlank() && p.HasFlag(AddressPart.Complement))
-            .AppendIf($" - {Neighborhood}", Neighborhood.IsNotBlank() && p.HasFlag(AddressPart.Neighborhood))
+            .AppendIf($" - {Neighborhood.FixText()}", Neighborhood.IsNotBlank() && p.HasFlag(AddressPart.Neighborhood))
             .AppendIf($" - {City}", City.IsNotBlank() && p.HasFlag(AddressPart.City));
 
             if (p.HasFlag(AddressPart.State) && State.IsNotBlank())
@@ -1091,6 +1142,7 @@ namespace InnerLibs.Locations
             {
                 retorno = retorno.AppendIf($" - {StateCode}", StateCode.IsNotBlank() && p.HasFlag(AddressPart.StateCode));
             }
+
 
             retorno = retorno.AppendIf($" - {PostalCode}", PostalCode.IsNotBlank() && p.HasFlag(AddressPart.PostalCode));
 
@@ -1103,7 +1155,20 @@ namespace InnerLibs.Locations
                 retorno = retorno.AppendIf($" - {CountryCode}", CountryCode.IsNotBlank() && p.HasFlag(AddressPart.CountryCode));
             }
 
-            return retorno.FixText().TrimAny(".", " ", ",", " ", "-");
+            retorno = retorno.FixText().TrimAny(".", " ", ",", " ", "-"); //fix antes de processar latlong
+
+            if (p.HasFlag(AddressPart.GeoLocation))
+            {
+                retorno = retorno.AppendIf($" / {this.GeoLocation().Quote('(')}", GeoLocation().IsNotBlank());
+            }
+            else
+            {
+                retorno = retorno.AppendIf($" / {Latitude?.ToString(CultureInfo.InvariantCulture).Quote('(')}", Latitude != null && p.HasFlag(AddressPart.Latitude));
+                retorno = retorno.AppendIf($" / {Longitude?.ToString(CultureInfo.InvariantCulture).Quote('(')}", Longitude != null && p.HasFlag(AddressPart.Longitude));
+
+            }
+
+            return retorno.TrimAny(".", " ", ",", " ", "-");
         }
 
         #endregion Public Methods
@@ -1124,85 +1189,120 @@ namespace InnerLibs.Locations
         /// Tipo do Lograoduro
         /// </summary>
         StreetType = 1,
+        OmmitStreetType = ~StreetType,
 
         /// <summary>
         /// Nome do Logradouro
         /// </summary>
         StreetName = 2,
+        OmmitStreetName = ~StreetName,
 
         /// <summary>
         /// Logradouro
         /// </summary>
         Street = StreetType + StreetName,
+        OmmitStreet = ~Street,
 
         /// <summary>
         /// Numero do local
         /// </summary>
         Number = 4,
+        OmmitNumber = ~Number,
 
         /// <summary>
         /// Complemento do local
         /// </summary>
         Complement = 8,
+        OmmitComplement = ~Complement,
 
         /// <summary>
         /// Numero e complemento
         /// </summary>
         BuildingInfo = Number + Complement,
+        OmmitBuildingInfo = ~BuildingInfo,
 
         /// <summary>
         /// Logradouro, Numero e complemento
         /// </summary>
         FullBuildingInfo = Street + Number + Complement,
+        OmmitFullBuildingInfo = ~FullBuildingInfo,
 
         /// <summary>
         /// Bairro
         /// </summary>
         Neighborhood = 16,
+        OmmitNeighborhood = ~Neighborhood,
 
         /// <summary>
         /// Cidade
         /// </summary>
         City = 32,
+        OmmitCity = ~City,
 
         /// <summary>
         /// Estado
         /// </summary>
         State = 64,
+        OmmitState = ~State,
 
         /// <summary>
         /// Cidade e Estado
         /// </summary>
         CityState = City + State,
+        OmmitCityState = ~CityState,
 
         /// <summary>
         /// UF
         /// </summary>
         StateCode = 128,
+        OmmitStateCode = ~StateCode,
 
         /// <summary>
         /// Cidade e UF
         /// </summary>
         CityStateCode = City + StateCode,
+        OmmitCityStateCode = ~CityStateCode,
 
         /// <summary>
         /// País
         /// </summary>
         Country = 256,
+        OmmitCountry = ~Country,
 
         /// <summary>
         /// País
         /// </summary>
         CountryCode = 512,
+        OmmitCountryCode = ~CountryCode,
 
         /// <summary>
         /// CEP
         /// </summary>
         PostalCode = 1024,
+        OmmitPostalCode = ~PostalCode,
 
         /// <summary>
         /// Endereço completo
         /// </summary>
-        FullAddress = Street + BuildingInfo + Neighborhood + CityStateCode + Country + PostalCode
+        FullAddress = Street + BuildingInfo + Neighborhood + CityStateCode + Country + PostalCode,
+
+        Latitude = 2048,
+        OmmitLatitude = ~Latitude,
+
+        Longitude = 4096,
+        OmmitLongitude = ~Longitude,
+
+        GeoLocation = Latitude + Longitude,
+        OmmitGeoLocation = ~GeoLocation,
+
+        All = FullAddress + GeoLocation,
+
+        Label = 8192,
+        OmmitLabel = ~Label,
+
+        LabelAddress = Label + FullAddress
+
+
+
     }
 }

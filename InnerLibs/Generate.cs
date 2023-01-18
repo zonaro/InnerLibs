@@ -417,25 +417,9 @@ namespace InnerLibs
         /// <param name="local">
         /// Uma variavel do tipo InnerLibs.Location onde estão as informações como endereço e as
         /// coordenadas geográficas
-        /// </param>
-        /// <param name="LatLong">
-        /// Gerar URL baseado na latitude e Longitude. Padrão FALSE retorna a URL baseada no Logradouro
-        /// </param>
+        /// </param> 
         /// <returns>Uma URI do Google Maps</returns>
-        public static Uri ToGoogleMapsURL(this AddressInfo local, bool LatLong = false)
-        {
-            string s;
-            if (LatLong == true && local.Latitude.HasValue && local.Longitude.HasValue)
-            {
-                s = Uri.EscapeUriString(local.LatitudeLongitude().TrimBetween());
-            }
-            else
-            {
-                s = Uri.EscapeUriString(local.FullAddress.FixText());
-            }
-
-            return new Uri("https://www.google.com.br/maps/search/" + s);
-        }
+        public static Uri ToGoogleMapsURL(this AddressInfo local, params AddressPart[] Parts) => local != null ? new Uri($"https://www.google.com.br/maps/search/{Uri.EscapeUriString(local.ToString(Parts))}") : null;
 
         #endregion Public Methods
     }

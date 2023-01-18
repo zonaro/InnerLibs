@@ -38,7 +38,7 @@ namespace InnerLibs
                 result = result.Append($"{Environment.NewLine}LABEL;CHARSET=UTF-8;{Location.ToString().ToUpperInvariant()};{AddressType.GetEnumValueAsString().ToUpperInvariant()}:{Label.Replace(Environment.NewLine, "=0D=0A")}");
             }
 
-            if (LatitudeLongitude().IsNotBlank())
+            if (GeoLocation().IsNotBlank())
             {
                 result = result.Append($"GEO:{Latitude?.ToString(CultureInfo.InvariantCulture)};{Longitude?.ToString(CultureInfo.InvariantCulture)}");
             }
