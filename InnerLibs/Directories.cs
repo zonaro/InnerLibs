@@ -14,6 +14,29 @@ namespace InnerLibs
     {
         #region Public Methods
 
+
+        public static DirectoryInfo ToDirectoryInfo(this string[] paths)
+        {
+            var x = ToFileSystemInfo(paths);
+            return x is FileInfo info ? info.Directory : x as DirectoryInfo;
+        }
+        public static FileInfo ToFileInfo(this string[] paths)
+        {
+            var x = ToFileSystemInfo(paths);
+            if (x is DirectoryInfo)
+            {
+                throw new Exception("Path is directory");
+            }
+            return x as FileInfo;
+        }
+        public static FileSystemInfo ToFileSystemInfo(this string[] paths)
+        {
+            var path = Path.Combine(paths).FixPath();
+            if (path.IsFilePath()) return new FileInfo(path);
+            else if (path.IsDirectoryPath()) return new DirectoryInfo(path);
+            else throw new ArgumentException("Can't create path from array", nameof(paths));
+        }
+
         /// <summary>
         /// Remove todos os subdiretorios vazios
         /// </summary>
@@ -237,7 +260,7 @@ namespace InnerLibs
         /// </param>
         /// <param name="Searches">Padrões de pesquisa (*.txt, arquivo.*, *)</param>
         /// <returns></returns>
-        public static List<FileSystemInfo> Search(this DirectoryInfo Directory, SearchOption SearchOption, params string[] Searches)
+        public static IEnumerable<FileSystemInfo> Search(this DirectoryInfo Directory, SearchOption SearchOption, params string[] Searches)
         {
             var FilteredList = new List<FileSystemInfo>();
             foreach (string pattern in (Searches ?? Array.Empty<string>()).SelectMany(z => z.SplitAny(":", "|")).Where(x => x.IsNotBlank()).DefaultIfEmpty("*"))
@@ -261,7 +284,7 @@ namespace InnerLibs
         /// <param name="FirstDate">Data Inicial</param>
         /// <param name="SecondDate">Data Final</param>
         /// <returns></returns>
-        public static List<FileSystemInfo> SearchBetween(this DirectoryInfo Directory, DateTime FirstDate, DateTime SecondDate, SearchOption SearchOption, params string[] Searches)
+        public static IEnumerable<FileSystemInfo> SearchBetween(this DirectoryInfo Directory, DateTime FirstDate, DateTime SecondDate, SearchOption SearchOption, params string[] Searches)
         {
             Misc.FixOrder(ref FirstDate, ref SecondDate);
             return Directory.Search(SearchOption, Searches).Where(file => file.LastWriteTime >= FirstDate && file.LastWriteTime <= SecondDate).OrderByDescending(f => f.LastWriteTime.Year <= 1601 ? f.CreationTime : f.LastWriteTime).ToList();
@@ -276,7 +299,7 @@ namespace InnerLibs
         /// </param>
         /// <param name="Searches">Padrões de pesquisa (*.txt, arquivo.*, *)</param>
         /// <returns></returns>
-        public static List<DirectoryInfo> SearchDirectories(this DirectoryInfo Directory, SearchOption SearchOption, params string[] Searches)
+        public static IEnumerable<DirectoryInfo> SearchDirectories(this DirectoryInfo Directory, SearchOption SearchOption, params string[] Searches)
         {
             var FilteredList = new List<DirectoryInfo>();
             foreach (string pattern in (Searches ?? Array.Empty<string>()).Where(x => x.IsNotBlank()).DefaultIfEmpty("*"))
@@ -300,7 +323,7 @@ namespace InnerLibs
         /// <param name="FirstDate">Data Inicial</param>
         /// <param name="SecondDate">Data Final</param>
         /// <returns></returns>
-        public static List<DirectoryInfo> SearchDirectoriesBetween(this DirectoryInfo Directory, DateTime FirstDate, DateTime SecondDate, SearchOption SearchOption, params string[] Searches)
+        public static IEnumerable<DirectoryInfo> SearchDirectoriesBetween(this DirectoryInfo Directory, DateTime FirstDate, DateTime SecondDate, SearchOption SearchOption, params string[] Searches)
         {
             Misc.FixOrder(ref FirstDate, ref SecondDate);
             return Directory.SearchDirectories(SearchOption, Searches).Where(file => file.LastWriteTime >= FirstDate && file.LastWriteTime <= SecondDate).OrderByDescending(f => f.LastWriteTime.Year <= 1601 ? f.CreationTime : f.LastWriteTime).ToList();
@@ -329,7 +352,7 @@ namespace InnerLibs
         /// <param name="FirstDate">Data Inicial</param>
         /// <param name="SecondDate">Data Final</param>
         /// <returns></returns>
-        public static List<FileInfo> SearchFilesBetween(this DirectoryInfo Directory, DateTime FirstDate, DateTime SecondDate, SearchOption SearchOption, params string[] Searches)
+        public static IEnumerable<FileInfo> SearchFilesBetween(this DirectoryInfo Directory, DateTime FirstDate, DateTime SecondDate, SearchOption SearchOption, params string[] Searches)
         {
             Misc.FixOrder(ref FirstDate, ref SecondDate);
             return Directory.SearchFiles(SearchOption, Searches).Where(file => file.LastWriteTime.IsBetween(FirstDate, SecondDate)).OrderByDescending(f => f.LastWriteTime.Year <= 1601 ? f.CreationTime : f.LastWriteTime).ToList();
