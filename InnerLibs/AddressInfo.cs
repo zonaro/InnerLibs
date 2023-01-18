@@ -122,7 +122,7 @@ namespace InnerLibs.Locations
         #endregion Public Methods
     }
 
-    internal static class AddressTypes
+    public static class AddressTypes
     {
         #region Public Properties
 
