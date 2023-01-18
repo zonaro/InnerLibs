@@ -23,8 +23,8 @@ namespace InnerLibs
         public string AddressName { get; set; } = InnerLibs.Text.Empty;
         public vAddressTypes AddressType { get; set; } = vAddressTypes.INT;
         public vLocations Location { get; set; } = vLocations.HOME;
-        public bool Preferred { get; set; } = false;
-        public string StreetAddress { get; set; } = InnerLibs.Text.Empty;
+        public bool Preferred { get; set; }
+        public string StreetAddress { get; set; } = Text.Empty;
 
         #endregion Public Properties
 
@@ -32,7 +32,7 @@ namespace InnerLibs
 
         public override string ToString()
         {
-            string result = $"ADR{Preferred.AsIf(";PREF")};CHARSET=UTF-8;TYPE={AddressType.ToString().ToUpperInvariant()}:;;{ToString(AddressPart.FullLocationInfo | AddressPart.Neighborhood)};{City};{StateCode.IfBlank(State)};{ZipCode};{Country}".Replace(Environment.NewLine, "=0D=0A");
+            string result = $"ADR{Preferred.AsIf(";PREF")};CHARSET=UTF-8;TYPE={AddressType.ToString().ToUpperInvariant()}:;;{ToString(AddressPart.FullBuildingInfo | AddressPart.Neighborhood)};{City};{StateCode.IfBlank(State)};{ZipCode};{Country}".Replace(Environment.NewLine, "=0D=0A");
             if (AddressLabel.IsNotBlank())
             {
                 result = result.Append($"{Environment.NewLine}LABEL;CHARSET=UTF-8;{Location.ToString().ToUpperInvariant()};{AddressType.ToString().ToUpperInvariant()}:{AddressLabel.Replace(Environment.NewLine, "=0D=0A")}");

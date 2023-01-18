@@ -1613,7 +1613,7 @@ namespace InnerLibs.LINQ
         {
             if (CompareWith == false)
             {
-                Operator = Operator.TrimFirstAny(false, "!");
+                Operator = Operator.TrimStartAny(false, "!");
             }
             else
             {

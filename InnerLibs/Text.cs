@@ -598,7 +598,7 @@ namespace InnerLibs
                 }
 
                 return x.ToFriendlyPathName();
-            }).SelectJoinString(AlternativeChar.AsIf(Path.AltDirectorySeparatorChar.ToString(), Path.DirectorySeparatorChar.ToString())).TrimLastAny(Path.DirectorySeparatorChar.ToString(), Path.AltDirectorySeparatorChar.ToString());
+            }).SelectJoinString(AlternativeChar.AsIf(Path.AltDirectorySeparatorChar.ToString(), Path.DirectorySeparatorChar.ToString())).TrimEndAny(Path.DirectorySeparatorChar.ToString(), Path.AltDirectorySeparatorChar.ToString());
         }
 
         /// <summary>
@@ -611,11 +611,11 @@ namespace InnerLibs
         /// <returns>Frase corretamente pontuada</returns>
         public static string FixPunctuation(this string Text, string Punctuation = ".", bool ForceSpecificPunctuation = false)
         {
-            Text = Text.TrimLastAny(true, ",", WhitespaceChar);
+            Text = Text.TrimEndAny(true, ",", WhitespaceChar);
             var pts = new[] { ".", "!", "?", ":", ";" };
             if (ForceSpecificPunctuation)
             {
-                Text = Text.TrimLastAny(true, pts).Trim() + Punctuation;
+                Text = Text.TrimEndAny(true, pts).Trim() + Punctuation;
             }
             else if (!Text.EndsWithAny(pts))
             {
@@ -638,13 +638,13 @@ namespace InnerLibs
             Text = new TextStructure(Text) { Ident = Ident, BreakLinesBetweenParagraph = BreakLinesBetweenParagraph }.ToString();
             if (removedot)
             {
-                Text = Text.TrimEnd().TrimLastAny(".");
+                Text = Text.TrimEnd().TrimEndAny(".");
             }
             if (addComma)
             {
-                Text = Text.TrimEnd().TrimLastAny(".").Append(",");
+                Text = Text.TrimEnd().TrimEndAny(".").Append(",");
             }
-            return Text.Trim();
+            return Text.Trim().TrimBetween();
         }
 
         /// <summary>
@@ -664,7 +664,7 @@ namespace InnerLibs
         }
 
         /// <inheritdoc cref="FormatCEP(string)"/>
-        public static string FormatCEP(this int CEP) => FormatCEP(CEP.ToString());
+        public static string FormatCEP(this int CEP) => FormatCEP(CEP.ToString(CultureInfo.InvariantCulture));
 
         /// <summary>
         /// Formata um numero para CEP
@@ -673,7 +673,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string FormatCEP(this string CEP)
         {
-            CEP = CEP.RemoveAny(".", "-").GetBefore(",") ?? InnerLibs.Text.Empty;
+            CEP = CEP.RemoveAny(".", "-").GetBefore(",") ?? Empty;
             CEP = CEP.PadLeft(8, '0');
             CEP = CEP.Insert(5, "-");
             if (CEP.IsValidCEP())
@@ -751,17 +751,17 @@ namespace InnerLibs
         /// <returns></returns>
         public static string FormatCPFOrCNPJ(this long Document)
         {
-            if (Document.ToString().IsValidCPF())
+            if (Document.ToString(CultureInfo.InvariantCulture).IsValidCPF())
             {
                 return Document.FormatCPF();
             }
-            else if (Document.ToString().IsValidCNPJ())
+            else if (Document.ToString(CultureInfo.InvariantCulture).IsValidCNPJ())
             {
                 return Document.FormatCNPJ();
             }
             else
             {
-                return Document.ToString();
+                return Document.ToString(CultureInfo.InvariantCulture);
             }
         }
 
@@ -798,7 +798,7 @@ namespace InnerLibs
             {
                 PIS = PIS.RemoveAny(".", "-");
                 PIS = PIS.PadLeft(11, '0');
-                PIS = PIS.ToLong().ToString(@"000\.00000\.00-0");
+                PIS = PIS.ToLong().ToString(@"000\.00000\.00-0", CultureInfo.InvariantCulture);
                 return PIS;
             }
             else
@@ -813,7 +813,7 @@ namespace InnerLibs
         /// <param name="PIS">PIS a ser formatado</param>
         /// <param name="returnOnlyNumbers">Se verdadeiro, retorna apenas os números sem formatação</param>
         /// <returns>PIS formatado</returns>
-        public static string FormatPIS(this long PIS) => FormatPIS(PIS.ToString());
+        public static string FormatPIS(this long PIS) => FormatPIS(PIS.ToString(CultureInfo.InvariantCulture));
 
         /// <summary>
         /// Extension Method para <see cref="String.Format(String,Object())"/>
@@ -834,7 +834,7 @@ namespace InnerLibs
             Value = Value.IfBlank(InnerLibs.Text.Empty);
 
             return Text.IsBlank() || Text.IndexOf(Value) == -1
-                ? WhiteIfNotFound ? InnerLibs.Text.Empty : $"{Text}"
+                ? WhiteIfNotFound ? Empty : $"{Text}"
                 : Text.Substring(Text.IndexOf(Value) + Value.Length);
         }
 
@@ -1547,7 +1547,7 @@ namespace InnerLibs
                     var parts = segment.Split('=');
                     if (parts.Any())
                     {
-                        string key = parts.First().TrimFirstAny(WhitespaceChar, "?");
+                        string key = parts.First().TrimStartAny(WhitespaceChar, "?");
                         string val = Empty;
                         if (parts.Skip(1).Any())
                         {
@@ -1630,7 +1630,7 @@ namespace InnerLibs
                     l = l.ToInt() - 1;
                 }
 
-                p.Add(Text.GetFirstChars((int)Math.Round(l)).Trim() + Text.GetFirstChars((int)Math.Round(l)).Reverse().ToList().SelectJoinString().ToLowerInvariant().Trim() + Text.RemoveFirstChars((int)Math.Round(l)).TrimFirstAny(PredefinedArrays.LowerConsonants.ToArray()));
+                p.Add(Text.GetFirstChars((int)Math.Round(l)).Trim() + Text.GetFirstChars((int)Math.Round(l)).Reverse().ToList().SelectJoinString().ToLowerInvariant().Trim() + Text.RemoveFirstChars((int)Math.Round(l)).TrimStartAny(PredefinedArrays.LowerConsonants.ToArray()));
             }
 
             return p.ToArray();
@@ -1948,11 +1948,11 @@ namespace InnerLibs
 
             if (BreakAt.IsNotBlank())
             {
-                arr = arr.Select(x => FromStart ? x.TrimFirstAny(false, BreakAt) : x.TrimLastAny(false, BreakAt)).ToArray();
+                arr = arr.Select(x => FromStart ? x.TrimStartAny(false, BreakAt) : x.TrimEndAny(false, BreakAt)).ToArray();
                 //Difference = FromStart ? Difference.Prepend(BreakAt) : Difference.Append(BreakAt);
             }
 
-            RemovedPart = FromStart ? RemovedPart.Prepend(Texts.FirstOrDefault().TrimLastAny(arr.FirstOrDefault())) : RemovedPart.Append(Texts.FirstOrDefault().TrimFirstAny(arr.FirstOrDefault()));
+            RemovedPart = FromStart ? RemovedPart.Prepend(Texts.FirstOrDefault().TrimEndAny(arr.FirstOrDefault())) : RemovedPart.Append(Texts.FirstOrDefault().TrimStartAny(arr.FirstOrDefault()));
 
             return arr;
         }
@@ -4261,8 +4261,8 @@ namespace InnerLibs
         {
             if (Text.IsNotBlank())
             {
-                Text = Text.TrimFirstAny(ContinuouslyRemove, StringTest);
-                Text = Text.TrimLastAny(ContinuouslyRemove, StringTest);
+                Text = Text.TrimStartAny(ContinuouslyRemove, StringTest);
+                Text = Text.TrimEndAny(ContinuouslyRemove, StringTest);
             }
 
             return Text;
@@ -4280,7 +4280,7 @@ namespace InnerLibs
 
         public static string TrimBetween(this string Text)
         {
-            Text = Text.IfBlank(InnerLibs.Text.Empty);
+            Text = Text.IfBlank(Empty);
             if (Text.IsNotBlank())
             {
                 var arr = Text.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
@@ -4288,6 +4288,10 @@ namespace InnerLibs
                 arr = Text.Split(new string[] { WhitespaceChar }, StringSplitOptions.RemoveEmptyEntries);
                 Text = arr.SelectJoinString(WhitespaceChar);
                 Text = Text.TrimAny(WhitespaceChar, Environment.NewLine).Trim();
+
+
+
+
             }
 
             return Text;
@@ -4310,7 +4314,7 @@ namespace InnerLibs
         /// </param>
         /// <param name="StartStringTest">Conjunto de textos que serão comparados</param>
         /// <returns></returns>
-        public static string TrimFirstAny(this string Text, bool ContinuouslyRemove, StringComparison comparison, params string[] StartStringTest)
+        public static string TrimStartAny(this string Text, bool ContinuouslyRemove, StringComparison comparison, params string[] StartStringTest)
         {
             Text = Text ?? "";
             StartStringTest = StartStringTest ?? Array.Empty<string>();
@@ -4339,7 +4343,7 @@ namespace InnerLibs
         /// <param name="StartStringTest">Conjunto de textos que serão comparados</param>
         /// <param name="comparison"></param>
         /// <returns></returns>
-        public static string TrimFirstAny(this string Text, StringComparison comparison, params string[] StartStringTest) => Text.TrimFirstAny(true, comparison, StartStringTest);
+        public static string TrimStartAny(this string Text, StringComparison comparison, params string[] StartStringTest) => Text.TrimStartAny(true, comparison, StartStringTest);
 
         /// <summary>
         /// Remove continuamente o começo de uma string se ela for igual a qualquer um dos valores correspondentes
@@ -4347,7 +4351,7 @@ namespace InnerLibs
         /// <param name="Text">Texto</param>
         /// <param name="StartStringTest">Conjunto de textos que serão comparados</param>
         /// <returns></returns>
-        public static string TrimFirstAny(this string Text, params string[] StartStringTest) => Text.TrimFirstAny(true, default, StartStringTest);
+        public static string TrimStartAny(this string Text, params string[] StartStringTest) => Text.TrimStartAny(true, default, StartStringTest);
 
         /// <summary>
         /// Remove continuamente o começo de uma string se ela for igual a qualquer um dos valores correspondentes
@@ -4355,7 +4359,7 @@ namespace InnerLibs
         /// <param name="Text">Texto</param>
         /// <param name="StartStringTest">Conjunto de textos que serão comparados</param>
         /// <returns></returns>
-        public static string TrimFirstAny(this string Text, bool ContinuouslyRemove, params string[] StartStringTest) => Text.TrimFirstAny(ContinuouslyRemove, default, StartStringTest);
+        public static string TrimStartAny(this string Text, bool ContinuouslyRemove, params string[] StartStringTest) => Text.TrimStartAny(ContinuouslyRemove, default, StartStringTest);
 
         /// <summary>
         /// Remove um texto do inicio de uma string se ele for um outro texto especificado
@@ -4384,7 +4388,7 @@ namespace InnerLibs
         /// </param>
         /// <param name="EndStringTest">Conjunto de textos que serão comparados</param>
         /// <returns></returns>
-        public static string TrimLastAny(this string Text, bool ContinuouslyRemove, StringComparison comparison, params string[] EndStringTest)
+        public static string TrimEndAny(this string Text, bool ContinuouslyRemove, StringComparison comparison, params string[] EndStringTest)
         {
             Text = Text ?? "";
             EndStringTest = EndStringTest ?? Array.Empty<string>();
@@ -4412,7 +4416,7 @@ namespace InnerLibs
         /// <param name="Text">Texto</param>
         /// <param name="EndStringTest">Conjunto de textos que serão comparados</param>
         /// <returns></returns>
-        public static string TrimLastAny(this string Text, params string[] EndStringTest) => Text.TrimLastAny(true, default, EndStringTest);
+        public static string TrimEndAny(this string Text, params string[] EndStringTest) => Text.TrimEndAny(true, default, EndStringTest);
 
         /// <summary>
         /// Remove continuamente o final de uma string se ela for igual a qualquer um dos valores correspondentes
@@ -4421,7 +4425,7 @@ namespace InnerLibs
         /// <param name="EndStringTest">Conjunto de textos que serão comparados</param>
         /// <param name="ContinuouslyRemove">Remove continuamente as strings</param>
         /// <returns></returns>
-        public static string TrimLastAny(this string Text, bool ContinuouslyRemove, params string[] EndStringTest) => Text.TrimLastAny(ContinuouslyRemove, default, EndStringTest);
+        public static string TrimEndAny(this string Text, bool ContinuouslyRemove, params string[] EndStringTest) => Text.TrimEndAny(ContinuouslyRemove, default, EndStringTest);
 
         /// <summary>
         /// Remove continuamente o final de uma string se ela for igual a qualquer um dos valores correspondentes
@@ -4429,7 +4433,7 @@ namespace InnerLibs
         /// <param name="Text">Texto</param>
         /// <param name="EndStringTest">Conjunto de textos que serão comparados</param>
         /// <returns></returns>
-        public static string TrimLastAny(this string Text, StringComparison comparison, params string[] EndStringTest) => Text.TrimLastAny(true, comparison, EndStringTest);
+        public static string TrimEndAny(this string Text, StringComparison comparison, params string[] EndStringTest) => Text.TrimEndAny(true, comparison, EndStringTest);
 
         /// <summary>
         /// Remove um texto do final de uma string se ele for um outro texto

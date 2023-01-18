@@ -213,7 +213,7 @@ namespace InnerLibs
                 }
                 else if (text.StartsWith("Z"))
                 {
-                    text = "Z" + text.TrimFirstAny("Z").Replace("Z", "S");
+                    text = "Z" + text.TrimStartAny("Z").Replace("Z", "S");
                 }
                 else
                 {

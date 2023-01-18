@@ -1625,7 +1625,7 @@ namespace InnerLibs.MicroORM
             {
                 if (SQL.ArgumentCount > 0)
                 {
-                    string CommandText = SQL.Format.TrimBetween();
+                    string CommandText = SQL.Format.Trim();
                     for (int index = 0, loopTo = SQL.ArgumentCount - 1; index <= loopTo; index++)
                     {
                         var valores = SQL.GetArgument(index);
@@ -1649,11 +1649,11 @@ namespace InnerLibs.MicroORM
                             }
                             else if (Verify.IsDate(x))
                             {
-                                return Convert.ToDateTime(x).ToSQLDateString().EscapeQuotesToQuery(true);
+                                return x.ToDateTime().ToSQLDateString().EscapeQuotesToQuery(true);
                             }
                             else if (Verify.IsBool(x))
                             {
-                                return Convert.ToBoolean(x).AsIf(1, 0).ToString();
+                                return x.ToBool().AsIf("1", "0");
                             }
                             else if (x.IsTypeOf<Select>())
                             {
