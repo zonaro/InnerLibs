@@ -427,7 +427,7 @@ namespace InnerLibs.Locations
         /// Retorna o Logradouro e numero
         /// </summary>
         /// <returns>Uma String com o endereço completo devidamente formatado</returns>
-        public string BuildingInfo => ToString(AddressPart.BuildingInfo);
+        public string BuildingInfo => ToString(AddressPart.BuildingInfo).NullIf(x => x.IsBlank());
 
         /// <summary>
         /// Coordenada geográfica LONGITUDE
