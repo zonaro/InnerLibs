@@ -19,8 +19,8 @@ namespace InnerLibs
 
         #region Public Properties
 
-        public string AddressLabel { get; set; } = InnerLibs.Text.Empty;
-        public string AddressName { get; set; } = InnerLibs.Text.Empty;
+        public string AddressLabel { get; set; } = Text.Empty;
+        public string AddressName { get; set; } = Text.Empty;
         public vAddressTypes AddressType { get; set; } = vAddressTypes.INT;
         public vLocations Location { get; set; } = vLocations.HOME;
         public bool Preferred { get; set; }
