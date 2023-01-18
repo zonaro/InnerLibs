@@ -533,7 +533,7 @@ namespace InnerLibs.Locations
         public string ZipCode
         {
             get => this[nameof(ZipCode)];
-            set => this[nameof(ZipCode)] = (PropCleaner(value));
+            set => this[nameof(ZipCode)] = PropCleaner(value);
         }
 
         #endregion Public Properties
