@@ -130,7 +130,7 @@ namespace InnerLibs
             }
         }
 
-        public string FirstName { get; set; } = InnerLibs.Text.Empty;
+        public string FirstName { get; set; } = Text.Empty;
 
         public string FormattedName
         {
