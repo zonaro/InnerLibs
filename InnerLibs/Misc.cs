@@ -296,7 +296,11 @@ namespace InnerLibs
         /// <param name="List"></param>
         /// <param name="Indexes"></param>
         /// <returns></returns>
-        public static IEnumerable<T> DetachMany<T>(this List<T> List, params int[] Indexes) => List.MoveItems(null, Indexes);
+        public static IEnumerable<T> DetachMany<T>(this List<T> List, params int[] Indexes)
+        {
+            var l = new List<T>();
+            return List.MoveItems(ref l, Indexes);
+        }
 
         /// <summary>
         /// Conta de maneira distinta items de uma coleçao
@@ -1048,11 +1052,11 @@ namespace InnerLibs
         /// <summary>
         /// Verifica se o objeto não existe dentro de um texto
         /// </summary>
-        /// <typeparam name="Type">Tipo do objeto</typeparam>
+        /// <typeparam name="T">Tipo do objeto</typeparam>
         /// <param name="Obj">objeto</param>
         /// <param name="TExt">Texto</param>
         /// <returns></returns>
-        public static bool IsNotIn<Type>(this Type Obj, string Text, StringComparison? Comparer = null) => !Obj.IsIn(Text, Comparer);
+        public static bool IsNotIn<T>(this T Obj, string Text, StringComparison? Comparer = null) => !Obj.IsIn(Text, Comparer);
 
         /// <summary>
         /// Checks if a <paramref name="List"/> is not <b>null</b> and contains at least one item
@@ -1062,9 +1066,9 @@ namespace InnerLibs
         /// <returns></returns>
         public static bool IsNotNullOrEmpty<T>(this IEnumerable<T> List) => (List ?? Array.Empty<T>()).Any();
 
-        public static bool IsNullableType(this Type t) => t.IsGenericType && Nullable.GetUnderlyingType(t) != null;
+        public static bool IsNullableType(this Type t) => t != null && t.IsGenericType && Nullable.GetUnderlyingType(t) != null;
 
-        public static bool IsNullableType<O>(this O Obj) => IsNullableType(Obj.GetTypeOf());
+        public static bool IsNullableType<T>(this T Obj) => IsNullableType(Obj.GetTypeOf());
 
         /// <summary>
         /// Verifica se um objeto é de um determinado tipo
@@ -1077,10 +1081,10 @@ namespace InnerLibs
         /// <summary>
         /// Verifica se um objeto é de um determinado tipo
         /// </summary>
-        /// <typeparam name="O"></typeparam>
+        /// <typeparam name="T"></typeparam>
         /// <param name="Obj"></param>
         /// <returns></returns>
-        public static bool IsNullableTypeOf<O>(this O Obj, Type Type) => Obj.GetNullableTypeOf() == Type.GetNullableTypeOf();
+        public static bool IsNullableTypeOf<T>(this T Obj, Type Type) => Obj.GetNullableTypeOf() == Type.GetNullableTypeOf();
 
         /// <summary>
         /// Checks if a <paramref name="List"/> is <b>null</b> or empty
@@ -1107,10 +1111,10 @@ namespace InnerLibs
         /// <summary>
         /// Verifica se um objeto é de um determinado tipo
         /// </summary>
-        /// <typeparam name="O"></typeparam>
+        /// <typeparam name="T"></typeparam>
         /// <param name="Obj"></param>
         /// <returns></returns>
-        public static bool IsTypeOf<O>(this O Obj, Type Type) => Obj.GetTypeOf() == Type.GetTypeOf();
+        public static bool IsTypeOf<T>(this T Obj, Type Type) => Obj.GetTypeOf() == Type.GetTypeOf();
 
         public static bool IsValueType(this Type T) => T.IsIn(PredefinedArrays.ValueTypes);
 
@@ -1153,7 +1157,7 @@ namespace InnerLibs
         /// <param name="ToList"></param>
         /// <param name="Indexes"></param>
         /// <returns></returns>
-        public static List<T> MoveItems<T>(this List<T> FromList, List<T> ToList, params int[] Indexes)
+        public static List<T> MoveItems<T>(this List<T> FromList, ref List<T> ToList, params int[] Indexes)
         {
             ToList = ToList ?? new List<T>();
             if (FromList != null)

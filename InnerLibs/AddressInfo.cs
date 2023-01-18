@@ -225,11 +225,51 @@ namespace InnerLibs.Locations
         {
         }
 
-        public AddressInfo(string Description, decimal Latitude, decimal Longitude) : this()
+        public AddressInfo(string Label, decimal Latitude, decimal Longitude) : this()
         {
             this.Latitude = Latitude;
             this.Longitude = Longitude;
-            this.Description = Description;
+            this.Label = Label;
+        }
+
+        public AddressInfo(string Address, string Number = Text.Empty, string Complement = Text.Empty, string Neighborhood = Text.Empty, string City = Text.Empty, string State = Text.Empty, string Country = Text.Empty, string PostalCode = Text.Empty) : this()
+        {
+            this.Street = Address;
+            this.Neighborhood = Neighborhood;
+            this.Complement = Complement;
+            this.Number = Number;
+            this.City = City;
+            this.PostalCode = PostalCode;
+            var st = Brasil.GetState(State);
+            if (st != null)
+            {
+                this.State = st.Name;
+                this.StateCode = st.StateCode;
+                this.Region = st.Region;
+                this.Country = "Brasil";
+                this.CountryCode = "BR";
+            }
+            else
+            {
+                if ((State?.Length) == 2)
+                {
+                    this.StateCode = State;
+                }
+                else
+                {
+                    this.State = State;
+                }
+
+                if ((Country?.Length) == 2)
+                {
+                    this.CountryCode = Country.ToUpperInvariant();
+                }
+                else
+                {
+                    this.Country = Country;
+                }
+            }
+
         }
 
         #endregion Public Constructors
@@ -255,6 +295,11 @@ namespace InnerLibs.Locations
                 {
                     switch (key)
                     {
+                        case "description":
+                            {
+                                return Label;
+                            }
+
                         case "geolocation":
                             {
                                 return LatitudeLongitude();
@@ -356,10 +401,10 @@ namespace InnerLibs.Locations
             set => this[nameof(CountryCode)] = PropCleaner(value)?.ToUpperInvariant();
         }
 
-        public string Description
+        public string Label
         {
-            get => this[nameof(Description)];
-            set => this[nameof(Description)] = value; //Description is a plain text, no need to propclean
+            get => this[nameof(Label)];
+            set => this[nameof(Label)] = value; //Label is a plain text, no need to propclean
         }
 
         /// <summary>
@@ -568,44 +613,13 @@ namespace InnerLibs.Locations
         /// <returns></returns>
         public static T CreateLocation<T>(string Address, string Number = Text.Empty, string Complement = Text.Empty, string Neighborhood = Text.Empty, string City = Text.Empty, string State = Text.Empty, string Country = Text.Empty, string PostalCode = Text.Empty) where T : AddressInfo
         {
-            var l = Activator.CreateInstance<T>();
-            l.Street = Address;
-            l.Neighborhood = Neighborhood;
-            l.Complement = Complement;
-            l.Number = Number;
-            l.City = City;
-            l.PostalCode = PostalCode;
-            var st = Brasil.GetState(State);
-            if (st != null)
+            T r = Activator.CreateInstance<T>();
+            var temp = new AddressInfo(Address, Number, Complement, Neighborhood, City, State, Country, PostalCode);
+            foreach (var x in temp.GetDetails())
             {
-                l.State = st.Name;
-                l.StateCode = st.StateCode;
-                l.Region = st.Region;
-                l.Country = "Brasil";
-                l.CountryCode = "BR";
+                r.Add(x.Key, x.Value);
             }
-            else
-            {
-                if ((State?.Length) == 2)
-                {
-                    l.StateCode = State;
-                }
-                else
-                {
-                    l.State = State;
-                }
-
-                if ((Country?.Length) == 2)
-                {
-                    l.CountryCode = Country.ToUpperInvariant();
-                }
-                else
-                {
-                    l.Country = Country;
-                }
-            }
-
-            return l;
+            return r;
         }
 
         /// <summary>
