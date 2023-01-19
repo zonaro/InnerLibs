@@ -2724,7 +2724,7 @@ namespace InnerLibs
             }
             // StringBuilder to store result.
             var sb = new StringBuilder();
-            foreach (char c in Text)
+            foreach (char c in Text.AsEnumerable())
             {
                 switch (Degree)
                 {
