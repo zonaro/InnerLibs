@@ -4082,11 +4082,11 @@ namespace InnerLibs
         public static string ToPhrase<TSource>(this IEnumerable<TSource> Texts, string PhraseStart = Empty, string And = "and", string EmptyValue = null, char Separator = ',')
         {
             Separator = Separator.IfBlank(',');
-            PhraseStart = PhraseStart.IfBlank(InnerLibs.Text.Empty);
+            PhraseStart = PhraseStart.IfBlank(Text.Empty);
 
             Texts = (Texts ?? Array.Empty<TSource>()).WhereNotBlank();
 
-            if (PhraseStart.IsNotBlank() && !PhraseStart.EndsWith(WhitespaceChar))
+            if (PhraseStart.IsNotBlank() && !PhraseStart.EndsWith(WhitespaceChar, StringComparison.InvariantCultureIgnoreCase))
             {
                 PhraseStart += WhitespaceChar;
             }
@@ -4100,7 +4100,7 @@ namespace InnerLibs
                     }
                     else
                     {
-                        PhraseStart = InnerLibs.Text.Empty;
+                        PhraseStart = Text.Empty;
                     }
                     break;
 
@@ -4150,7 +4150,7 @@ namespace InnerLibs
                         char c = pal.First();
                         if (!char.IsUpper(c))
                         {
-                            pal = char.ToUpper(c) + pal.RemoveFirstChars(1);
+                            pal = char.ToUpper(c, CultureInfo.InvariantCulture) + pal.RemoveFirstChars(1);
                         }
 
                         l[index] = pal;
@@ -4176,11 +4176,11 @@ namespace InnerLibs
                 int newindex = Generate.RandomNumber(0, ch.Length - 1);
                 if (char.IsUpper(ch[newindex]))
                 {
-                    ch[newindex] = char.ToLower(ch[newindex]);
+                    ch[newindex] = char.ToLower(ch[newindex], CultureInfo.InvariantCulture);
                 }
                 else
                 {
-                    ch[newindex] = char.ToUpper(ch[newindex]);
+                    ch[newindex] = char.ToUpper(ch[newindex], CultureInfo.InvariantCulture);
                 }
             }
 
