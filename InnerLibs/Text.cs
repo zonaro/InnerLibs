@@ -633,6 +633,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string FixText(this string Text, int Ident = 0, int BreakLinesBetweenParagraph = 0)
         {
+            Text = Text.IfBlank("");
             var removedot = !Text.Trim().EndsWith(".");
             var addComma = Text.Trim().EndsWith(",");
             Text = new TextStructure(Text) { Ident = Ident, BreakLinesBetweenParagraph = BreakLinesBetweenParagraph }.ToString();
@@ -691,7 +692,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="CNPJ"></param>
         /// <returns></returns>
-        public static string FormatCNPJ(this long CNPJ) => string.Format(@"{0:00\.000\.000\/0000\-00}", CNPJ);
+        public static string FormatCNPJ(this long CNPJ) => string.Format(CultureInfo.InvariantCulture, @"{0:00\.000\.000\/0000\-00}", CNPJ);
 
         /// <summary>
         /// Formata um numero para CNPJ
@@ -720,7 +721,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="CPF"></param>
         /// <returns></returns>
-        public static string FormatCPF(this long CPF) => string.Format(@"{0:000\.000\.000\-00}", CPF);
+        public static string FormatCPF(this long CPF) => string.Format(CultureInfo.InvariantCulture, @"{0:000\.000\.000\-00}", CPF);
 
         /// <summary>
         /// Formata um numero para CPF
