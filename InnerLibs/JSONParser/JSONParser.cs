@@ -1,4 +1,5 @@
-﻿using System;
+﻿using InnerLibs.LINQ;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
@@ -518,6 +519,83 @@ namespace InnerLibs
 
         #region Public Methods
 
+        /// <summary>
+        /// Format a json string
+        /// </summary>
+        /// <param name="jsonString"></param>
+        /// <param name="identSize"></param>
+        /// <returns></returns>
+        public static string FormatJson(this string jsonString, int identSize = 4)
+        {
+            jsonString = jsonString ?? Text.Empty;
+
+            if (identSize < 1)
+            {
+                return jsonString;
+            }
+
+            string INDENT_STRING = " ".Repeat(identSize);
+            var indent = 0;
+            var quoted = false;
+            var sb = new StringBuilder();
+            for (var i = 0; i < jsonString.Length; i++)
+            {
+                var ch = jsonString[i];
+                switch (ch)
+                {
+                    case '{':
+                    case '[':
+                        sb.Append(ch);
+                        if (!quoted)
+                        {
+                            sb.AppendLine();
+                            Enumerable.Range(0, ++indent).Each(item => sb.Append(INDENT_STRING));
+                        }
+                        break;
+
+                    case '}':
+                    case ']':
+                        if (!quoted)
+                        {
+                            sb.AppendLine();
+                            Enumerable.Range(0, --indent).Each(item => sb.Append(INDENT_STRING));
+                        }
+                        sb.Append(ch);
+                        break;
+
+                    case '"':
+                        sb.Append(ch);
+                        bool escaped = false;
+                        var index = i;
+                        while (index > 0 && jsonString[--index] == '\\')
+                            escaped = !escaped;
+                        if (!escaped)
+                            quoted = !quoted;
+                        break;
+
+                    case ',':
+                        sb.Append(ch);
+                        if (!quoted)
+                        {
+                            sb.AppendLine();
+                            Enumerable.Range(0, indent).Each(item => sb.Append(INDENT_STRING));
+                        }
+                        break;
+
+                    case ':':
+                        sb.Append(ch);
+                        if (!quoted)
+                            sb.Append(Text.WhitespaceChar);
+                        break;
+
+                    default:
+                        sb.Append(ch);
+                        break;
+                }
+            }
+            return sb.ToString();
+        }
+
         public static T FromJson<T>(this string json) => FromJson<T>(json, null);
 
         public static object FromJson(this string json) => FromJson(json, null);
@@ -566,7 +644,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static T Load<T>(this T current) where T : JsonFile => current != null ? JsonFile.Load<T>(current.FilePath, current.EncryptKey, current.ExcludeNull, current.Culture) : null;
 
-        public static string ToJson(this object item, bool IncludeNull = true, CultureInfo culture = null)
+        public static string ToJson(this object item, bool IncludeNull = true, CultureInfo culture = null, int formatJsonIdent = 0)
         {
             if (item == null)
             {
@@ -577,7 +655,7 @@ namespace InnerLibs
             StringBuilder stringBuilder = new StringBuilder();
 
             AppendValue(stringBuilder, item, IncludeNull, culture);
-            return stringBuilder.ToString();
+            return stringBuilder.ToString().FormatJson(formatJsonIdent);
         }
 
         #endregion Public Methods
@@ -592,6 +670,7 @@ namespace InnerLibs
     {
         #region Private Fields
 
+        private int _ident = 4;
         private string filePath;
 
         #endregion Private Fields
@@ -606,11 +685,13 @@ namespace InnerLibs
         /// <summary>
         /// The default file name used to save JsonFiles
         /// </summary>
-        [IgnoreDataMember] public string DefaultFileName => $"{this.GetType().Name}.json";
+        /// <remarks>When <see cref="IsEncrypted"/>, assumes the <see cref="Assembly.Name"/> of current executing application, otherwise use the default ".json" extension</remarks>
+        [IgnoreDataMember] public string DefaultFileName => $"{this.GetType().Name}.{(IsEncrypted ? this.GetType().Assembly.GetName().Name.ToLower(Culture) : "json")}";
 
         /// <summary>
         /// The default path used to save JsonFiles
         /// </summary>
+        /// <remarks>Uses <see cref="Environment.CurrentDirectory"/> and <see cref="DefaultFileName"/></remarks>
         [IgnoreDataMember] public string DefaultFilePath => $"{Environment.CurrentDirectory}\\{DefaultFileName}";
 
         /// <summary>
@@ -648,10 +729,53 @@ namespace InnerLibs
             set => filePath = value;
         }
 
+        /// <summary>
+        /// Return the number of spaces used to ident the JsonFile
+        /// </summary>
+        /// <remarks>When <see cref="IsEncrypted"/> is true, always return 0.</remarks>
+        [IgnoreDataMember]
+        public int IdentSize
+        {
+            get => IsEncrypted ? 0 : _ident;
+            set => _ident = value.SetMinValue(0);
+        }
+
+        /// <summary>
+        /// When true, the final json string will be minified
+        /// </summary>
+        [IgnoreDataMember]
+        public bool IsMinified
+        {
+            get => IdentSize <= 0;
+            set
+            {
+                if (value)
+                {
+                    IdentSize = 0;
+                }
+                else
+                {
+                    if (_ident > 0)
+                    {
+                        IdentSize = _ident;
+                    }
+                    else
+                    {
+                        IdentSize = 4;
+                    }
+
+                }
+            }
+        }
+
+        /// <summary>
+        /// Return if this JsonFile will be encrypted using <see cref="EncryptKey"/>
+        /// </summary>
+        [IgnoreDataMember] public bool IsEncrypted => EncryptKey.IsNotBlank();
+
         #endregion Public Properties
 
         #region Public Methods
-
 
         /// <summary>
         /// Load values of a JsonFile into a <typeparamref name="T"/> object
@@ -709,10 +833,16 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Get the Json String representation of this file
+        /// Delete the file and return TRUE if file can be re-created
         /// </summary>
         /// <returns></returns>
-        public string GetJson() => this.ToJson(!ExcludeNull, Culture);
+        public bool Delete() => this.File.DeleteIfExist();
+
+        /// <summary>
+        /// Get the Json String representation of this file.
+        /// </summary>
+        /// <returns></returns>
+        public string GetJson() => this.ToJson(!ExcludeNull, Culture, IdentSize);
 
         /// <summary>
         /// Save the current values into a JsonFile
@@ -722,7 +852,7 @@ namespace InnerLibs
         {
             Culture = Culture ?? CultureInfo.InvariantCulture;
             var s = GetJson();
-            if (this.EncryptKey.IsNotBlank())
+            if (IsEncrypted)
             {
                 s = s.Encrypt(this.EncryptKey);
             }
