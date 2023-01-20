@@ -750,21 +750,11 @@ namespace InnerLibs
             set
             {
                 if (value)
-                {
                     IdentSize = 0;
-                }
+                else if (_ident > 0)
+                    IdentSize = _ident;
                 else
-                {
-                    if (_ident > 0)
-                    {
-                        IdentSize = _ident;
-                    }
-                    else
-                    {
-                        IdentSize = 4;
-                    }
-
-                }
+                    IdentSize = 4;
             }
         }
 
