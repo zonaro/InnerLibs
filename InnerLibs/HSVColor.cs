@@ -372,6 +372,20 @@ namespace InnerLibs
         /// <returns></returns>
         public double Luminance => 0.2126d * Red + 0.7152d * Green + 0.0722d * Blue;
 
+
+        public bool IsMostRed => Red >= Blue && Red >= Green;
+        public bool IsMostGreen => Green >= Red && Green >= Blue;
+        public bool IsMostBlue => Blue >= Red && Blue >= Green;
+
+        public bool IsLowRed => Red < Blue && Red < Green;
+        public bool IsLowGreen => Green < Red && Green < Blue;
+        public bool IsLowBlue => Blue < Red && Blue < Green;
+
+        public bool IsLowLuminance => Luminance >= 250d;
+
+        public bool IsHighLuminance => Luminance <= 15d;
+
+
         /// <summary>
         /// Mood da cor
         /// </summary>
@@ -403,25 +417,10 @@ namespace InnerLibs
                     m |= ColorMood.MediumLight;
                 }
 
-                if (IsWarmer())
-                {
-                    m |= ColorMood.Warmer;
-                }
 
-                if (IsWarm())
-                {
-                    m |= ColorMood.Warm;
-                }
+                m |= Temperature;
+                m |= Visibility;
 
-                if (IsCool())
-                {
-                    m |= ColorMood.Cool;
-                }
-
-                if (IsCooler())
-                {
-                    m |= ColorMood.Cooler;
-                }
 
                 if (IsSad())
                 {
@@ -432,24 +431,13 @@ namespace InnerLibs
                     m |= ColorMood.Happy;
                 }
 
-                if (Opacity < 15m)
-                {
-                    m |= ColorMood.Invisible;
-                }
-                else if (Opacity < 60m)
-                {
-                    m |= ColorMood.SemiVisible;
-                }
-                else
-                {
-                    m |= ColorMood.Visible;
-                }
 
-                if (Luminance >= 250d)
+
+                if (IsLowLuminance)
                 {
                     m |= ColorMood.LowLuminance;
                 }
-                else if (Luminance <= 15d)
+                else if (IsHighLuminance)
                 {
                     m |= ColorMood.HighLuminance;
                 }
@@ -484,24 +472,42 @@ namespace InnerLibs
                     m |= ColorMood.NoBlue;
                 }
 
-                if (Red > Blue && Red > Green)
+                if (IsMostRed)
                 {
                     m |= ColorMood.MostRed;
                 }
 
-                if (Green > Red && Green > Blue)
+                if (IsMostGreen)
                 {
                     m |= ColorMood.MostGreen;
                 }
 
-                if (Blue > Red && Blue > Green)
+                if (IsMostBlue)
                 {
                     m |= ColorMood.MostBlue;
+                }
+
+                if (IsLowRed)
+                {
+                    m |= ColorMood.LowRed;
+                }
+
+                if (IsLowGreen)
+                {
+                    m |= ColorMood.LowGreen;
+                }
+
+                if (IsLowBlue)
+                {
+                    m |= ColorMood.LowBlue;
                 }
 
                 return m;
             }
         }
+
+
+
 
         /// <summary>
         /// Nome atribuido a esta cor
@@ -930,9 +936,9 @@ namespace InnerLibs
 
         public bool HasMood(params ColorMood[] Mood) => Mood?.All(x => this.Mood.HasFlag(x)) == true;
 
-        public bool IsCool() => !IsWarm();
+        public bool IsCold() => HasMood(ColorMood.Cold);
 
-        public bool IsCooler() => Hue.IsLessThan(225.0d) || Hue.IsGreaterThan(135.0d);
+        public bool IsVeryCold() => HasMood(ColorMood.VeryCold);
 
         /// <summary>
         /// Verifica se uma cor e considerada escura
@@ -976,9 +982,58 @@ namespace InnerLibs
 
         public bool IssHappy() => !IsSad();
 
-        public bool IsWarm() => Hue.IsLessThan(90.0d) || Hue.IsGreaterThan(270.0d);
+        public bool IsHot() => Temperature.HasFlag(ColorMood.Hot);
 
-        public bool IsWarmer() => Hue.IsLessThan(45.0d) || Hue.IsGreaterThan(315.0d);
+        public bool IsVeryHot() => Temperature.HasFlag(ColorMood.VeryHot);
+
+
+        public ColorMood Visibility
+        {
+            get
+            {
+                var m = ColorMood.None;
+
+                if (Opacity < 15m)
+                {
+                    m |= ColorMood.Invisible;
+                }
+                else if (Opacity < 60m)
+                {
+                    m |= ColorMood.SemiVisible;
+                }
+                else
+                {
+                    m |= ColorMood.Visible;
+                }
+                return m;
+            }
+        }
+        public ColorMood Temperature
+        {
+            get
+            {
+                ColorMood c = ColorMood.None;
+
+                if (Hue >= 0 && Hue <= 10)
+                {
+                    c |= ColorMood.Hot | ColorMood.VeryHot;
+                }
+                else if (Hue > 10 && Hue <= 45)
+                {
+                    c |= ColorMood.Hot;
+                }
+                else if (Hue > 45 && Hue <= 160)
+                {
+                    c |= ColorMood.Cold;
+                }
+                else if (Hue > 160 && Hue <= 270)
+                {
+                    c |= ColorMood.Cold | ColorMood.VeryCold;
+                }
+                return c;
+
+            }
+        }
 
         /// <summary>
         /// Retorna uma cor mais escura a partir desta cor
@@ -1059,9 +1114,9 @@ namespace InnerLibs
         public HSVColor Sepia()
         {
             var c = CreateCopy();
-            c.Red = (int)Math.Round(Math.Round(Red * 0.393d + Green * 0.769d + Blue * 0.189d));
-            c.Green = (int)Math.Round(Math.Round(Red * 0.349d + Green * 0.686d + Blue * 0.168d));
-            c.Blue = (int)Math.Round(Math.Round(Red * 0.272d + Green * 0.534d + Blue * 0.131d));
+            c.Red = MathExt.RoundInt(Red * 0.393d + Green * 0.769d + Blue * 0.189d);
+            c.Green = MathExt.RoundInt(Red * 0.349d + Green * 0.686d + Blue * 0.168d);
+            c.Blue = MathExt.RoundInt(Red * 0.272d + Green * 0.534d + Blue * 0.131d);
             return c;
         }
 
@@ -1146,38 +1201,52 @@ namespace InnerLibs
     [Flags]
     public enum ColorMood
     {
+        None = 0,
         Dark = 1,
         MediumDark = 2,
         Medium = 4,
         MediumLight = 8,
         Light = 16,
+
         Sad = 32,
         Happy = 64,
-        Love = MostRed | NoGreen | Happy,
-        Nature = MostGreen | Happy,
-        Water = ~Red | Medium | MostBlue,
-        Cooler = 128,
-        Cool = 256,
-        Warm = 512,
-        Warmer = 1024,
-        Ice = Blue | NoRed | Cooler,
-        Fire = Red | NoBlue | Warmer,
+
+        VeryCold = 128,
+        Cold = 256,
+        Hot = 512,
+        VeryHot = 1024,
+
         Invisible = 2048,
         SemiVisible = 4096,
         Visible = 8192,
+
         LowLuminance = 16384,
         HighLuminance = 32768,
+
         Red = 65536,
         Green = 131072,
         Blue = 262144,
+
         MostRed = 524288,
         MostGreen = 1048576,
         MostBlue = 2097152,
-        NoRed = 4194304,
-        NoGreen = 8388608,
-        NoBlue = 16777216,
+
+        LowRed = 4194304,
+        LowGreen = 8388608,
+        LowBlue = 16777216,
+
+        NoRed = ~Red,
+        NoGreen = ~Green,
+        NoBlue = ~Blue,
+
         FullRed = NoGreen | NoBlue,
         FullGreen = NoRed | NoBlue,
         FullBlue = NoRed | NoGreen,
+
+        Love = MostRed | NoGreen | Happy,
+        Nature = MostGreen | LowBlue | Happy,
+        Water = NoRed | Medium | MostBlue,
+        Ice = Blue | NoRed | VeryCold,
+        Fire = Red | NoBlue | VeryHot,
     }
 }

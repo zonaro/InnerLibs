@@ -372,7 +372,7 @@ namespace InnerLibs
             string word = InnerLibs.Text.Empty;
             if (Length == 1)
             {
-                return Text.RandomItem(PredefinedArrays.AlphaLowerChars.ToArray());
+                return Text.RandomItem(PredefinedArrays.Vowels.ToArray());
             }
 
             // Generate the word in consonant / vowel pairs
