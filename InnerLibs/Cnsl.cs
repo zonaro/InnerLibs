@@ -1,13 +1,13 @@
 ﻿using InnerLibs.LINQ;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
+using System.Globalization;
 using System.Linq;
 
 namespace InnerLibs.Console
 {
     /// <summary>
-    /// Métodos para manipulação de aplicações baseadas em Console (System.Console)
+    /// Métodos para manipulação de aplicações baseadas em <see cref="System.Console"/>
     /// </summary>
     public static class Cnsl
     {
@@ -56,7 +56,7 @@ namespace InnerLibs.Console
             return Text;
         }
 
-        public static string ConsoleBreakLine(this int BreakLines) => ConsoleBreakLine(InnerLibs.Text.Empty, BreakLines);
+        public static string ConsoleBreakLine(this int BreakLines) => ConsoleBreakLine(Text.Empty, BreakLines);
 
         public static string ConsoleBreakLine() => ConsoleBreakLine(1);
 
@@ -71,11 +71,12 @@ namespace InnerLibs.Console
         {
             DateFormat = DateFormat.IfBlank("yyyy-MM-dd HH: mm:ss");
             LogDateTime = LogDateTime ?? DateTime.Now;
-            DateColor = DateColor ?? System.Console.ForegroundColor;
+            DateColor = DateColor ?? MessageColor ?? System.Console.ForegroundColor;
             MessageColor = MessageColor ?? DateColor;
-            ConsoleWrite($"{LogDateTime}", DateColor.Value);
+            var timestring = LogDateTime.Value.ToString(DateFormat, CultureInfo.InvariantCulture);
+            ConsoleWrite($"{timestring}", DateColor.Value);
             ConsoleWriteLine($" - {Text}", MessageColor.Value, BreakLines);
-            return $"{LogDateTime.Value.ToString(DateFormat)} - {Text}";
+            return $"{timestring} - {Text}";
         }
 
         public static string ConsoleLog(this DateTime LogDateTime, string Text, ConsoleColor? DateColor = null, ConsoleColor? MessageColor = null, string DateFormat = default, int BreakLines = 1) => ConsoleLog(Text, LogDateTime, DateColor, MessageColor, DateFormat, BreakLines);
@@ -173,13 +174,14 @@ namespace InnerLibs.Console
         /// </summary>
         public static T ConsoleWriteError<T>(this T Exception, int BreakLines) where T : Exception => Exception.ConsoleWriteError(" >> ", ConsoleColor.Red, BreakLines);
 
-        public static string ConsoleWriteLine(this string Text, Dictionary<string, ConsoleColor> CustomColoredWords, int BreakLines = 1) => Text.ConsoleWrite(CustomColoredWords, BreakLines.SetMinValue(1));
-
         /// <summary>
         /// Escreve uma linha no console colorindo palavras especificas
         /// </summary>
         /// <param name="Text">Texto</param>
         /// <param name="CustomColoredWords">Lista com as palavras e suas respectivas cores</param>
+        public static string ConsoleWriteLine(this string Text, Dictionary<string, ConsoleColor> CustomColoredWords, int BreakLines = 1) => Text.ConsoleWrite(CustomColoredWords, BreakLines.SetMinValue(1));
+
+
         /// <summary>
         /// Escreve uma linha no console usando uma cor especifica
         /// </summary>
@@ -222,18 +224,6 @@ namespace InnerLibs.Console
 
         public static string ConsoleWriteTitle(this string Text, ConsoleColor? Color = null, int BreakLines = 1) => ConsoleWriteSeparator(Text, ' ', Color, BreakLines);
 
-
-        public static string ConsoleWriteTitlePanel(this string Text, ConsoleColor? Color = null, int BreakLines = 1, char BarChar = '=')
-        {
-            ConsoleBreakLine();
-            ConsoleWriteSeparator(BarChar, Color);
-            ConsoleWriteTitle(Text, Color);
-            ConsoleWriteSeparator(BarChar, Color);
-            return Text;
-
-        }
-
-
         public static string ConsoleWriteTitleBar(this string Text, ConsoleColor? Color = null, int BreakLines = 1, char BarChar = '-')
         {
             ConsoleWriteSeparator(BarChar, Color);
@@ -249,18 +239,26 @@ namespace InnerLibs.Console
         /// <param name="ArgName"></param>
         /// <param name="ValueIfNull"></param>
         /// <returns></returns>
-        public static string GetArgumentValue(this string[] args, string ArgName, String ValueIfNull = null)
+        public static T GetArgumentValue<T>(this string[] args, string ArgName, T ValueIfNull = default)
         {
+            if (ArgName.IsBlank())
+            {
+                return ValueIfNull;
+            }
+
             if (args.Contains(ArgName, StringComparer.InvariantCultureIgnoreCase))
             {
-                var index = args.Select(x => x.ToLowerInvariant()).GetIndexOf(ArgName.ToLowerInvariant());
+                var index = args.Select(x => x.ToUpperInvariant()).GetIndexOf(ArgName?.ToUpperInvariant());
                 if (index > -1)
                 {
-                    return args.IfBlankOrNoIndex(index + 1, ValueIfNull);
+                    var s = args.IfBlankOrNoIndex(index + 1, default);
+                    return s.IsBlank() ? ValueIfNull : s.ChangeType<T>();
                 }
             }
             return ValueIfNull;
         }
+
+
 
         /// <summary>
         /// Retorna o valor de um argumento de uma linha de comando
@@ -269,67 +267,26 @@ namespace InnerLibs.Console
         /// <param name="ArgName"></param>
         /// <param name="ValueIfNull"></param>
         /// <returns></returns>
-        public static T GetArgumentValue<T>(this string[] args, string ArgName, T ValueIfNull = default) => GetArgumentValue(args, ArgName, ValueIfNull.ChangeType<T>()).ChangeType<T>();
+        public static string GetArgumentValue(this string[] args, string ArgName, string ValueIfNull = default) => GetArgumentValue<string>(args, ArgName, ValueIfNull);
 
         /// <summary>
         /// Le o proximo caractere inserido no console pelo usuário
         /// </summary>
         /// <returns></returns>
-        public static char ReadChar() => System.Console.ReadKey().KeyChar;
+        public static char ReadChar(this ref char c)
+        {
+            c = System.Console.ReadKey().KeyChar;
+            return c;
+        }
 
         /// <summary>
         /// Le a proxima tecla pressionada pelo usuário
         /// </summary>
         /// <returns></returns>
-        public static ConsoleKey ReadConsoleKey() => System.Console.ReadKey().Key;
-
-        public static ConsoleKey AskConsoleKey(string Text)
+        public static ConsoleKey ReadConsoleKey(this ref ConsoleKey Key)
         {
-            ConsoleWrite(Text);
-            return ReadConsoleKey();
-        }
-        public static ConsoleKey AskConsoleKey(string Text, ConsoleColor Color)
-        {
-            ConsoleWriteLine(Text, Color);
-            return ReadConsoleKey();
-        }
-
-        public static char AskConsoleChar(string Text, int BreakLines = 1)
-        {
-            ConsoleWriteLine(Text, BreakLines);
-            return ReadChar();
-        }
-        public static char AskConsoleChar(string Text, ConsoleColor Color, int BreakLines = 1)
-        {
-            ConsoleWriteLine(Text, Color, BreakLines);
-            return ReadChar();
-        }
-
-        public static bool ConsoleAskYesNo(this string Text, ConsoleKey YesKey = ConsoleKey.Y, ConsoleKey NoKey = ConsoleKey.N) => ConsoleAskYesNoCancel(Text, YesKey, NoKey, NoKey) ?? false;
-
-        public static bool? ConsoleAskYesNoCancel(string Text, ConsoleKey YesKey = ConsoleKey.Y, ConsoleKey NoKey = ConsoleKey.N, ConsoleKey CancelKey = ConsoleKey.Escape)
-        {
-            ConsoleKey k;
-            do
-            {
-                k = AskConsoleKey($"{Text} ({YesKey}/{NoKey}): ");
-            }
-            while (k.IsNotIn(new[] { YesKey, NoKey, CancelKey }));
-
-            ConsoleBreakLine();
-            if (k == YesKey)
-            {
-                return true;
-            }
-            else if (k == NoKey)
-            {
-                return false;
-            }
-            else
-            {
-                return null;
-            }
-
+            Key = System.Console.ReadKey().Key;
+            return Key;
         }
 
         #endregion Public Methods

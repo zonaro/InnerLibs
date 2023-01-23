@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Data;
 using System.Data.Common;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
@@ -171,14 +172,7 @@ namespace InnerLibs.MicroORM
         /// <param name="Connection"></param>
         /// <param name="SQL"></param>
         /// <returns></returns>
-        public static DbCommand CreateCommand(this DbConnection Connection, FileInfo SQLFile, Dictionary<string, object> Parameters, DbTransaction Transaction = null)
-        {
-            if (SQLFile != null && SQLFile.Exists)
-            {
-                return CreateCommand(Connection, SQLFile.ReadAllText(), Parameters, Transaction);
-            }
-            return null;
-        }
+        public static DbCommand CreateCommand(this DbConnection Connection, FileInfo SQLFile, Dictionary<string, object> Parameters, DbTransaction Transaction = null) => SQLFile != null && SQLFile.Exists ? CreateCommand(Connection, SQLFile.ReadAllText(), Parameters, Transaction) : null;
 
         /// <summary>
         /// Cria um <see cref="DbCommand"/> a partir de uma string SQL e um <see
@@ -362,7 +356,7 @@ namespace InnerLibs.MicroORM
                 dic = obj.CreateDictionary();
 
                 var cmd = Connection.CreateCommand();
-                cmd.CommandText = string.Format($"INSERT INTO " + TableName.IfBlank(d.Name) + " ({0}) values ({1})", dic.Keys.SelectJoinString(","), dic.Keys.SelectJoinString(x => $"@__{x}", ","));
+                cmd.CommandText = string.Format($"INSERT INTO {TableName.IfBlank(d.Name)} ({{0}}) values ({{1}})", dic.Keys.SelectJoinString(","), dic.Keys.SelectJoinString(x => $"@__{x}", ","));
                 foreach (var k in dic.Keys)
                 {
                     var param = cmd.CreateParameter();
@@ -532,28 +526,14 @@ namespace InnerLibs.MicroORM
 
         public static DataRow GetFirstRow(this DataSet Data) => Data.GetFirstTable()?.GetFirstRow();
 
-        public static DataRow GetFirstRow(this DataTable Table)
-        {
-            if (Table != null && Table.Rows.Count > 0)
-                return Table.Rows[0];
-            else
-                return null;
-        }
+        public static DataRow GetFirstRow(this DataTable Table) => Table != null && Table.Rows.Count > 0 ? Table.Rows[0] : null;
 
-        public static DataTable GetFirstTable(this DataSet Data)
-        {
-            if (Data != null && Data.Tables.Count > 0)
-                return Data.Tables[0];
-            else
-                return null;
-        }
+        public static DataTable GetFirstTable(this DataSet Data) => Data != null && Data.Tables.Count > 0 ? Data.Tables[0] : null;
 
         public static T GetSingleValue<T>(this DataSet data, string ColumnNameOrIndex)
         {
             var row = data?.GetFirstRow();
-            if (row != null)
-                return row.GetValue<T>(ColumnNameOrIndex);
-            return default;
+            return row != null ? row.GetValue<T>(ColumnNameOrIndex) : default;
         }
 
         public static T GetSingleValue<T>(this DataSet data, int ColumnIndex = 0)
@@ -651,7 +631,7 @@ namespace InnerLibs.MicroORM
 
                 if (v == null || v == DBNull.Value)
                 {
-                    throw new Exception("Value is null");
+                    return default;
                 }
 
                 if (valueParser != null)
@@ -659,14 +639,7 @@ namespace InnerLibs.MicroORM
                     v = valueParser.Compile().Invoke(v);
                 }
 
-                if (typeof(T).IsEnum)
-                {
-                    return v.ToString().GetEnumValue<T>();
-                }
-                else
-                {
-                    return v.ChangeType<T>();
-                }
+                return typeof(T).IsEnum ? v.ToString().GetEnumValue<T>() : v.ChangeType<T>();
             }
             catch (Exception ex)
             {
@@ -709,40 +682,35 @@ namespace InnerLibs.MicroORM
         /// <returns></returns>
         public static DbCommand LogCommand(this DbCommand Command, TextWriter LogWriter = null)
         {
-            LogWriter = LogWriter ?? DbExtensions.LogWriter ?? new DebugTextWriter();
-            if (LogWriter != null)
+            DbExtensions.LogWriter = DbExtensions.LogWriter ?? new DebugTextWriter();
+            LogWriter = LogWriter ?? DbExtensions.LogWriter;
+            LogWriter.WriteLine(Environment.NewLine);
+            LogWriter.WriteLine("=".Repeat(10));
+            if (Command != null)
             {
-                LogWriter.WriteLine(Environment.NewLine);
-                LogWriter.WriteLine("=".Repeat(10));
-                if (Command != null)
+                foreach (DbParameter item in Command.Parameters)
                 {
-                    foreach (DbParameter item in Command.Parameters)
-                    {
-                        string bx = $"Parameter: @{item.ParameterName}{Environment.NewLine}Value: {item.Value}{Environment.NewLine}T: {item.DbType}{Environment.NewLine}Precision/Scale: {item.Precision}/{item.Scale}";
-                        LogWriter.WriteLine(bx);
-                        LogWriter.WriteLine("-".Repeat(10));
-                    }
+                    string bx = $"Parameter: @{item.ParameterName}{Environment.NewLine}Value: {item.Value}{Environment.NewLine}T: {item.DbType}{Environment.NewLine}Precision/Scale: {item.Precision}/{item.Scale}";
+                    LogWriter.WriteLine(bx);
+                    LogWriter.WriteLine("-".Repeat(10));
+                }
 
-                    LogWriter.WriteLine($"Command: {Command.CommandText}");
-                    LogWriter.WriteLine("/".Repeat(10));
+                LogWriter.WriteLine($"Command: {Command.CommandText}");
+                LogWriter.WriteLine("/".Repeat(10));
 
-                    if (Command.Transaction != null)
-                    {
-                        LogWriter.WriteLine($"Transaction Isolation Level: {Command.Transaction.IsolationLevel}");
-                    }
-                    else
-                    {
-                        LogWriter.WriteLine($"No transaction specified");
-                    }
+                if (Command.Transaction != null)
+                {
+                    LogWriter.WriteLine($"Transaction Isolation Level: {Command.Transaction.IsolationLevel}");
                 }
                 else
                 {
-                    LogWriter.WriteLine("Command is NULL");
+                    LogWriter.WriteLine($"No transaction specified");
                 }
-
-                LogWriter.WriteLine("=".Repeat(10));
-                LogWriter.WriteLine(Environment.NewLine);
             }
+            else LogWriter.WriteLine("Command is NULL");
+            LogWriter.WriteLine("=".Repeat(10));
+            LogWriter.WriteLine(Environment.NewLine);
+
 
             return Command;
         }
@@ -775,9 +743,9 @@ namespace InnerLibs.MicroORM
                     }
                     else
                     {
-                        var propnames = name.PropertyNamesFor().ToList();
-                        var PropInfos = Misc.GetTypeOf(d).GetProperties().Where(x => x.GetCustomAttributes<ColumnName>().SelectMany(n => n.Names).Contains(x.Name) || x.Name.IsIn(propnames, StringComparer.InvariantCultureIgnoreCase));
-                        var FieldInfos = Misc.GetTypeOf(d).GetFields().Where(x => x.GetCustomAttributes<ColumnName>().SelectMany(n => n.Names).Contains(x.Name) || x.Name.IsIn(propnames, StringComparer.InvariantCultureIgnoreCase)).Where(x => x.Name.IsNotIn(PropInfos.Select(y => y.Name)));
+
+                        var PropInfos = Misc.GetTypeOf(d).FindProperties(name);
+                        var FieldInfos = Misc.GetTypeOf(d).FindFields(name).Where(x => x.Name.IsNotIn(PropInfos.Select(y => y.Name)));
                         foreach (var info in PropInfos)
                         {
                             if (info.CanWrite)
@@ -922,7 +890,7 @@ namespace InnerLibs.MicroORM
                 {
                     l.Add(Reader.Map<Dictionary<string, object>>());
                 }
-                while (Reader != null && Reader.NextResult());
+                while (Reader.NextResult());
             }
 
             return l.AsEnumerable();
@@ -1062,12 +1030,16 @@ namespace InnerLibs.MicroORM
             return Tuple.Create(o1, o2);
         }
 
-        public static ConnectionType OpenConnection<ConnectionType>(this ConnectionStringParser connection) where ConnectionType : DbConnection
+        public static TConnection OpenConnection<TConnection>(this ConnectionStringParser connection) where TConnection : DbConnection
         {
-            ConnectionType dbcon = Activator.CreateInstance<ConnectionType>();
-            dbcon.ConnectionString = connection.ConnectionString;
-            dbcon.Open();
-            return dbcon;
+            if (connection != null)
+            {
+                TConnection dbcon = Activator.CreateInstance<TConnection>();
+                dbcon.ConnectionString = connection.ConnectionString;
+                dbcon.Open();
+                return dbcon;
+            }
+            return null;
         }
 
         /// <summary>
@@ -1096,12 +1068,11 @@ namespace InnerLibs.MicroORM
                     {
                         IList baselist = (IList)Activator.CreateInstance(prop.PropertyType);
                         var eltipo = prop.PropertyType.GetGenericArguments().FirstOrDefault();
-                        Connection.RunSQLSet(Sql.ToFormattableString())
-                        .Select<Dictionary<string, object>, T>(x =>
-                         {
-                             baselist.Add(x.CreateOrSetObject(null, eltipo));
-                             return default;
-                         });
+                        foreach (var x in Connection.RunSQLSet(Sql.ToFormattableString()))
+                        {
+                            baselist.Add(x.CreateOrSetObject(null, eltipo));
+                        }
+
                         prop.SetValue(d, baselist);
                         if (Recursive)
                         {
@@ -1384,13 +1355,13 @@ namespace InnerLibs.MicroORM
         /// Retorna os resultado das primeiras e ultimas colunas de uma consulta SQL como pares em
         /// um <see cref="Dictionary{K, V}"/>
         /// </summary>
-        public static Dictionary<K, V> RunSQLPairs<K, V>(this DbConnection Connection, DbCommand SQL) => Connection.RunSQLPairs(SQL).ToDictionary(x => x.Key.ChangeType<K>(), x => x.Value.ChangeType<V>());
+        public static Dictionary<TK, TV> RunSQLPairs<TK, TV>(this DbConnection Connection, DbCommand SQL) => Connection.RunSQLPairs(SQL).ToDictionary(x => x.Key.ChangeType<TK>(), x => x.Value.ChangeType<TV>());
 
         /// <summary>
         /// Retorna os resultado das primeiras e ultimas colunas de uma consulta SQL como pares em
         /// um <see cref="Dictionary{K, V}"/>
         /// </summary>
-        public static Dictionary<K, V> RunSQLPairs<K, V>(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLPairs<K, V>(Connection.CreateCommand(SQL, Transaction));
+        public static Dictionary<TK, TV> RunSQLPairs<TK, TV>(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLPairs<TK, TV>(Connection.CreateCommand(SQL, Transaction));
 
         /// <summary>
         /// Executa um comando SQL e retorna o <see cref="DbDataReader"/> com os resultados
@@ -1523,23 +1494,23 @@ namespace InnerLibs.MicroORM
 
         /// <summary>
         /// Retorna o valor da primeira coluna da primeira linha uma consulta SQL como um tipo
-        /// <typeparamref name="V"/>
+        /// <typeparamref name="T"/>
         /// </summary>
-        public static V RunSQLValue<V>(this DbConnection Connection, DbCommand Command)
+        public static T RunSQLValue<T>(this DbConnection Connection, DbCommand Command)
         {
-            if (!typeof(V).IsValueType())
+            if (!typeof(T).IsValueType())
             {
-                throw new ArgumentException("The type param V is not a value type or string");
+                throw new ArgumentException("The type param T is not a value type or string");
             }
             var vv = Connection.RunSQLValue(Command);
-            return vv != null && vv != DBNull.Value ? vv.ChangeType<V>() : default;
+            return vv != null && vv != DBNull.Value ? vv.ChangeType<T>() : default;
         }
 
         /// <summary>
         /// Retorna o valor da primeira coluna da primeira linha uma consulta SQL como um tipo
-        /// <typeparamref name="V"/>
+        /// <typeparamref name="T"/>
         /// </summary>
-        public static V RunSQLValue<V>(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLValue<V>(Connection.CreateCommand(SQL, Transaction));
+        public static T RunSQLValue<T>(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLValue<T>(Connection.CreateCommand(SQL, Transaction));
 
         /// <summary>
         /// Monta um Comando SQL para executar uma procedure especifica para cada item em uma
@@ -1626,7 +1597,7 @@ namespace InnerLibs.MicroORM
 
         /// <summary>
         /// Monta um Comando SQL para executar um SELECT com filtros a partir de um <see
-        /// cref="Dictionary(Of String, Object)"/>
+        /// cref="Dictionary{string, object}"/>
         /// </summary>
         /// <param name="Dic">Dicionario</param>
         /// <param name="TableName">Nome da Tabela</param>
@@ -1654,14 +1625,14 @@ namespace InnerLibs.MicroORM
             {
                 if (SQL.ArgumentCount > 0)
                 {
-                    string CommandText = SQL.Format.TrimBetween();
+                    string CommandText = SQL.Format.Trim();
                     for (int index = 0, loopTo = SQL.ArgumentCount - 1; index <= loopTo; index++)
                     {
                         var valores = SQL.GetArgument(index);
                         var v = Converter.ForceArray(valores, typeof(object));
                         var paramvalues = new List<object>();
 
-                        for (int v_index = 0, loopTo1 = v.Count() - 1; v_index <= loopTo1; v_index++)
+                        for (int v_index = 0, loopTo1 = v.Length - 1; v_index <= loopTo1; v_index++)
                         {
                             paramvalues.Add(v[v_index]);
                         }
@@ -1678,11 +1649,11 @@ namespace InnerLibs.MicroORM
                             }
                             else if (Verify.IsDate(x))
                             {
-                                return Convert.ToDateTime(x).ToSQLDateString().EscapeQuotesToQuery(true);
+                                return x.ToDateTime().ToSQLDateString().EscapeQuotesToQuery(true);
                             }
                             else if (Verify.IsBool(x))
                             {
-                                return Convert.ToBoolean(x).AsIf(1, 0).ToString();
+                                return x.ToBool().AsIf("1", "0");
                             }
                             else if (x.IsTypeOf<Select>())
                             {
@@ -1700,7 +1671,7 @@ namespace InnerLibs.MicroORM
                 }
                 else
                 {
-                    return SQL.ToString();
+                    return SQL.ToString(CultureInfo.InvariantCulture);
                 }
             }
 

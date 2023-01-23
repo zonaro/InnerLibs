@@ -6,15 +6,16 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace InnerLibs
 {
     /// <summary>
-    /// Modulo Web
+    /// Modulo WebExtensions
     /// </summary>
     /// <remarks></remarks>
-    public static class Web
+    public static class WebExtensions
     {
         #region Public Methods
 
@@ -56,36 +57,56 @@ namespace InnerLibs
         /// <returns></returns>
         public static Uri AddParameter(this Uri Url, string Key, params string[] Values) => Url.AddParameter(Key, true, Values);
 
-        public static byte[] DownloadFile(this string URL)
+        public static byte[] DownloadFile(string URL, NameValueCollection Headers = null, Encoding Encoding = null)
         {
-            byte[] s;
+            byte[] s = null;
             using (var c = new WebClient())
             {
-                s = c.DownloadData(URL);
+                c.Encoding = Encoding ?? new UTF8Encoding(false);
+
+                if (Headers != null)
+                    c.Headers.Add(Headers);
+                if (URL.IsURL()) s = c.DownloadData(URL);
             }
 
             return s;
         }
 
-        public static System.Drawing.Image DownloadImage(this string URL) => DownloadFile(URL).ToImage();
+        public static System.Drawing.Image DownloadImage(string URL, NameValueCollection Headers = null, Encoding Encoding = null) => DownloadFile(URL, Headers, Encoding).ToImage();
 
-        public static string DownloadString(this string URL)
+        public static string DownloadString(string URL, NameValueCollection Headers = null, Encoding Encoding = null)
         {
-            string s = InnerLibs.Text.Empty;
+            string s = Text.Empty;
             using (var c = new WebClient())
             {
-                s = $"{c.DownloadString(URL)}";
+                c.Encoding = Encoding ?? new UTF8Encoding(false);
+
+                if (Headers != null)
+                    c.Headers.Add(Headers);
+
+                if (URL.IsURL()) s = $"{c.DownloadString(URL)}";
             }
 
             return s;
         }
+
+        public static T DownloadJson<T>(string URL, NameValueCollection Headers = null, Encoding Encoding = null) => DownloadString(URL, Headers, Encoding).FromJson<T>();
+        public static object DownloadJson(string URL, NameValueCollection Headers = null, Encoding Encoding = null) => DownloadString(URL, Headers, Encoding).FromJson();
+
+        public static T DownloadJson<T>(this Uri URL, NameValueCollection Headers = null, Encoding Encoding = null) => DownloadJson<T>($"{URL}", Headers, Encoding);
+        public static object DownloadJson(this Uri URL, NameValueCollection Headers = null, Encoding Encoding = null) => DownloadJson($"{URL}", Headers, Encoding);
+        public static string DownloadString(this Uri URL, NameValueCollection Headers = null, Encoding Encoding = null) => DownloadString($"{URL}", Headers, Encoding);
+        public static byte[] DownloadFile(this Uri URL, NameValueCollection Headers = null, Encoding Encoding = null) => DownloadFile($"{URL}", Headers, Encoding);
+        public static System.Drawing.Image DownloadImage(this Uri URL, NameValueCollection Headers = null, Encoding Encoding = null) => DownloadImage($"{URL}", Headers, Encoding);
+
+
 
         /// <summary>
         /// Retorna o Titulo do arquivo a partir do nome do arquivo
         /// </summary>
         /// <param name="Info">Arquivo ou Diretório</param>
         /// <returns></returns>
-        public static string FileNameAsTitle(this FileSystemInfo Info) => Path.GetFileNameWithoutExtension(Info.Name).ToNormalCase().ToTitle();
+        public static string FileNameAsTitle(this FileSystemInfo Info) => Path.GetFileNameWithoutExtension(Info?.Name).ToNormalCase().ToTitle();
 
         /// <summary>
         /// Retorna o Titulo do arquivo a partir do nome do arquivo
@@ -101,14 +122,14 @@ namespace InnerLibs
         /// <returns></returns>
         public static string GetFacebookUsername(this string URL) => URL.IsURL() && URL.GetDomain().ToLowerInvariant().IsAny("facebook.com", "fb.com")
                ? Regex.Match(URL, @"(?:(?:http|https):\/\/)?(?:www.)?facebook.com\/(?:(?:\w)*#!\/)?(?:pages\/)?(?:[?\w\-]*\/)?(?:profile.php\?id=(?=\d.*))?([\w\-]*)?").Groups[1].Value
-                 : throw new Exception("Invalid Facebook URL");
+                 : throw new ArgumentException("Invalid Facebook URL", nameof(URL));
 
         /// <summary>
         /// Captura o Username ou UserID de uma URL do Facebook
         /// </summary>
         /// <param name="URL">URL do Facebook</param>
         /// <returns></returns>
-        public static string GetFacebookUsername(this Uri URL) => URL.AbsoluteUri.GetFacebookUsername();
+        public static string GetFacebookUsername(this Uri URL) => URL?.AbsoluteUri.GetFacebookUsername();
 
         public static IEnumerable<string> GetIPs() => GetLocalIP().Union(new[] { GetPublicIP() });
 
@@ -128,6 +149,7 @@ namespace InnerLibs
         {
             var IP = InnerLibs.Text.Empty;
             Misc.TryExecute(() => IP = DownloadString("https://ipv4.icanhazip.com/")).ConsoleWriteError();
+            IP = IP.Trim().NullIf(x => !x.IsIP());
             return IP.Trim();
         }
 
@@ -154,13 +176,14 @@ namespace InnerLibs
         /// </summary>
         /// <param name="URL">URL do video</param>
         /// <returns>ID do video do youtube ou Vimeo</returns>
+
+        public static string GetVideoID(this Uri URL) => GetVideoID(URL.AbsoluteUri);
+
         /// <summary>
         /// Captura o ID de um video do youtube em uma URL
         /// </summary>
         /// <param name="URL">URL do video</param>
         /// <returns>ID do video do youtube</returns>
-        public static string GetVideoId(this Uri URL) => GetVideoID(URL.AbsoluteUri);
-
         public static string GetVideoID(this string URL)
         {
             if (URL.IsURL())
@@ -175,7 +198,7 @@ namespace InnerLibs
                 }
             }
 
-            throw new Exception("Invalid Youtube or Vimeo URL");
+            throw new ArgumentException("Invalid Youtube or Vimeo URL", nameof(URL));
         }
 
         /// <summary>
@@ -183,14 +206,15 @@ namespace InnerLibs
         /// </summary>
         /// <param name="URL">Url do Youtube</param>
         /// <returns></returns>
-        public static byte[] GetYoutubeThumbnail(string URL) => DownloadFile("http://img.youtube.com/vi/" + GetVideoID(URL) + "/hqdefault.jpg");
+        public static byte[] GetYoutubeThumbnail(string URL) => DownloadFile($"http://img.youtube.com/vi/{GetVideoID(URL)}/hqdefault.jpg");
+
 
         /// <summary>
         /// Captura a Thumbnail de um video do youtube
         /// </summary>
         /// <param name="URL">Url do Youtube</param>
         /// <returns></returns>
-        public static byte[] GetYoutubeThumbnail(this Uri URL) => GetYoutubeThumbnail(URL.AbsoluteUri);
+        public static byte[] GetYoutubeThumbnail(this Uri URL) => GetYoutubeThumbnail(URL?.AbsoluteUri);
 
         /// <summary>
         /// Verifica se o computador está conectado com a internet
@@ -239,7 +263,7 @@ namespace InnerLibs
             return CSS;
         }
 
-        public static NameValueCollection ParseQueryString(this Uri URL) => URL.Query.ParseQueryString();
+        public static NameValueCollection ParseQueryString(this Uri URL) => URL?.Query.ParseQueryString();
 
         /// <summary>
         /// Remove um parametro da Query String de uma URL
@@ -268,10 +292,14 @@ namespace InnerLibs
             return UriBuilder.Uri;
         }
 
-        public static string RemoveUrlParameters(this string UrlPattern)
+        public static string RemoveUrlParameters(this string URL)
         {
-            UrlPattern = Regex.Replace(UrlPattern, @"{([^:]+)\s*:\s*(.+?)(?<!\\)}", InnerLibs.Text.Empty);
-            return UrlPattern.TrimLastEqual("/");
+            if ((URL.IsURL()))
+            {
+                URL = Regex.Replace(URL, @"{([^:]+)\s*:\s*(.+?)(?<!\\)}", InnerLibs.Text.Empty);
+                URL = URL.TrimLastEqual("/");
+            }
+            return URL;
         }
 
         /// <summary>
@@ -279,18 +307,28 @@ namespace InnerLibs
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="obj"></param>
-        /// <param name="UrlPattern"></param>
+        /// <param name="URL"></param>
         /// <returns></returns>
-        public static string ReplaceUrlParameters<T>(this string UrlPattern, T obj)
+        public static string ReplaceUrlParameters<T>(this string URL, T obj)
         {
-            UrlPattern = Regex.Replace(UrlPattern, @"{([^:]+)\s*:\s*(.+?)(?<!\\)}", "{$1}");
-            if (obj != null)
+            if (URL.IsURL())
             {
-                UrlPattern = UrlPattern.Inject(obj);
-            }
+                URL = Regex.Replace(URL, @"{([^:]+)\s*:\s*(.+?)(?<!\\)}", "{$1}");
+                if (obj != null)
+                {
+                    URL = URL.Inject(obj);
+                }
 
-            return UrlPattern.TrimLastEqual("/");
+                URL = URL.TrimLastEqual("/");
+            }
+            return URL;
         }
+
+        public static string RemoveUrlParameters(Uri URL) => RemoveUrlParameters(URL?.ToString());
+
+        public static string ReplaceUrlParameters<T>(Uri URL, T obj) => ReplaceUrlParameters(URL?.ToString(), obj);
+
+
 
         #endregion Public Methods
     }

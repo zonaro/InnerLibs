@@ -33,8 +33,10 @@ namespace InnerLibs.TimeMachine
 
             WeekOfYear = culture.Calendar.GetWeekOfYear(DateAndTime.Value, culture.DateTimeFormat.CalendarWeekRule, culture.DateTimeFormat.FirstDayOfWeek);
 
-            WeekString = stringFormat.Inject(new { weekofyear = WeekOfYear, weekofmonth = WeekOfMonth, monthordinal = WeekOfMonth.GetOrdinal(), yearordinal = Year.GetOrdinal(), year = Year, month = FirstDayOfWeek.Month, monthname = FirstDayOfWeek.Month.ToLongMonthName(culture), shortmonthname = FirstDayOfWeek.Month.ToShortMonthName(culture), shortyear = FirstDayOfWeek.Year.ToString().GetLastChars(2) });
+            WeekString = stringFormat.Inject(new { weekofyear = WeekOfYear, weekofmonth = WeekOfMonth, monthordinal = WeekOfMonth.GetOrdinal(), yearordinal = WeekOfYear.GetOrdinal(), year = Year, month = FirstDayOfWeek.Month, monthname = FirstDayOfWeek.Month.ToLongMonthName(culture), shortmonthname = FirstDayOfWeek.Month.ToShortMonthName(culture), shortyear = FirstDayOfWeek.Year.ToString(culture).GetLastChars(2) });
         }
+
+
 
         #endregion Public Constructors
 
@@ -71,7 +73,7 @@ namespace InnerLibs.TimeMachine
 
         #region Public Methods
 
-        public static implicit operator int[](WeekInfo Info) => new int[] { Info.WeekOfMonth, Info.Month, Info.Year, Info.WeekOfYear };
+        public static implicit operator int[](WeekInfo Info) => Info.ToInt32Array();
 
         public static implicit operator string(WeekInfo Info) => Info.ToString();
 
@@ -107,6 +109,8 @@ namespace InnerLibs.TimeMachine
         public override int GetHashCode() => ((int[])this).GetHashCode();
 
         public override string ToString() => WeekString;
+
+        public int[] ToInt32Array() => new int[] { this.WeekOfMonth, this.Month, this.Year, this.WeekOfYear };
 
         #endregion Public Methods
     }

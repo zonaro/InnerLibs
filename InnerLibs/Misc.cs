@@ -1,5 +1,6 @@
 ﻿using InnerLibs.LINQ;
 using InnerLibs.Mail;
+using InnerLibs.MicroORM;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -10,6 +11,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Net.Mail;
 using System.Reflection;
+using System.Runtime.Serialization;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -294,7 +296,11 @@ namespace InnerLibs
         /// <param name="List"></param>
         /// <param name="Indexes"></param>
         /// <returns></returns>
-        public static IEnumerable<T> DetachMany<T>(this List<T> List, params int[] Indexes) => List.MoveItems(null, Indexes);
+        public static IEnumerable<T> DetachMany<T>(this List<T> List, params int[] Indexes)
+        {
+            var l = new List<T>();
+            return List.MoveItems(ref l, Indexes);
+        }
 
         /// <summary>
         /// Conta de maneira distinta items de uma coleçao
@@ -344,8 +350,32 @@ namespace InnerLibs
             return topN;
         }
 
+        public static FieldInfo FindField(this Type type, string Name) => FindFields(type, Name).FirstOrDefault();
+
+        public static IEnumerable<FieldInfo> FindFields(this Type type, params string[] Names)
+        {
+            if (type != null && Names != null)
+            {
+                var propnames = Names.SelectMany(x => x.PropertyNamesFor()).ToList();
+                return type.GetFields().Where(x => x.GetCustomAttributes<ColumnName>().SelectMany(n => n.Names).Contains(x.Name) || x.Name.IsIn(propnames, StringComparer.InvariantCultureIgnoreCase));
+            }
+            return Array.Empty<FieldInfo>();
+        }
+
+        public static IEnumerable<PropertyInfo> FindProperties(this Type type, params string[] Names)
+        {
+            if (type != null && Names != null)
+            {
+                var propnames = Names.SelectMany(x => x.PropertyNamesFor()).ToList();
+                return type.GetProperties().Where(x => x.GetCustomAttributes<ColumnName>().SelectMany(n => n.Names).Contains(x.Name) || x.Name.IsIn(propnames, StringComparer.InvariantCultureIgnoreCase));
+            }
+            return Array.Empty<PropertyInfo>();
+        }
+
+        public static PropertyInfo FindProperty(this Type type, string Name) => FindProperties(type, Name).FirstOrDefault();
+
         /// <summary>
-        /// O primeiro valor não nulo de acordo com uma lista de predicados executados nesta lista
+        /// T primeiro valor não nulo de acordo com uma lista de predicados executados nesta lista
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="source"></param>
@@ -367,7 +397,7 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// O primeiro valor não nulo de acordo com uma lista de predicados executados nesta lista
+        /// T primeiro valor não nulo de acordo com uma lista de predicados executados nesta lista
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="source"></param>
@@ -471,7 +501,7 @@ namespace InnerLibs
         /// partir de uma string </summary> <typeparam name="T"></typeparam> <returns></returns>
         public static T GetEnumValue<T>(this string Name)
         {
-            if (!typeof(T).IsEnum) throw new ArgumentException("T must be an Enumeration type.");
+            if (!typeof(T).IsEnum) throw new ArgumentException("type must be an Enumeration type.");
             return Name.IsNotBlank() ? ((T[])Enum.GetValues(typeof(T))).FirstOrDefault(x => x.ToString().RemoveAccents().Equals(Name.RemoveAccents(), StringComparison.InvariantCultureIgnoreCase) || (Name.IsNumber() && Name.ToInt() == x.ToInt())) : default;
         }
 
@@ -493,7 +523,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string GetEnumValueAsString<T>(this T Value)
         {
-            if (!typeof(T).IsEnum) throw new ArgumentException("T must be an Enumeration type.", nameof(T));
+            if (!typeof(T).IsEnum) throw new ArgumentException("type must be an Enumeration type.", nameof(T));
             return Enum.GetName(typeof(T), Value);
         }
 
@@ -520,7 +550,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static IEnumerable<T> GetEnumValues<T>()
         {
-            if (!typeof(T).IsEnum) throw new ArgumentException("T must be an Enumeration type.", nameof(T));
+            if (!typeof(T).IsEnum) throw new ArgumentException("type must be an Enumeration type.", nameof(T));
             return Enum.GetValues(typeof(T)).Cast<T>().AsEnumerable();
         }
 
@@ -546,6 +576,22 @@ namespace InnerLibs
         {
             //if you want the abstract classes drop the !TheType.IsAbstract but it is probably to instance so its a good idea to keep it.
             return Assembly.GetAssembly(MyType).GetTypes().Where(TheType => TheType.IsClass && !TheType.IsAbstract && TheType.IsSubclassOf(MyType));
+        }
+
+        public static string GetMemberName(MemberInfo member)
+        {
+            if (member != null)
+            {
+                if (member.IsDefined(typeof(DataMemberAttribute), true))
+                {
+                    DataMemberAttribute dataMemberAttribute = (DataMemberAttribute)Attribute.GetCustomAttribute(member, typeof(DataMemberAttribute), true);
+                    if (!string.IsNullOrEmpty(dataMemberAttribute.Name))
+                        return dataMemberAttribute.Name;
+                }
+
+                return member.Name;
+            }
+            return null;
         }
 
         /// <summary>
@@ -665,19 +711,24 @@ namespace InnerLibs
         /// <summary>
         /// Retorna o <see cref="Type"/> do objeto mesmo se ele for nulo
         /// </summary>
-        /// <typeparam name="O"></typeparam>
+        /// <typeparam name="T"></typeparam>
         /// <param name="Obj"></param>
         /// <returns>o tipo do objeto ou o prorio objeto se ele for um <see cref="Type"/></returns>
-        public static Type GetTypeOf<O>(this O Obj)
+        public static Type GetTypeOf<T>(this T Obj)
         {
-            if (typeof(O) == typeof(Type))
+            if (Obj is Type istype)
             {
-                return (Type)(object)Obj;
+                return istype;
             }
             else
             {
-                return Obj?.GetType() ?? typeof(O);
+                try
+                {
+                    return Obj.GetType();
+                }
+                catch { }
             }
+            return typeof(T);
         }
 
         /// <summary>
@@ -766,16 +817,16 @@ namespace InnerLibs
         /// <returns></returns>
         public static bool HasProperty(this Type Type, string PropertyName, bool GetPrivate = false)
         {
-            if (PropertyName.IsNotBlank())
+            if (Type != null && PropertyName.IsNotBlank())
             {
                 var parts = new List<string>();
                 bool stop = false;
-                string current = InnerLibs.Text.Empty;
+                string current = Text.Empty;
                 for (int i = 0, loopTo = PropertyName.Length - 1; i <= loopTo; i++)
                 {
                     if (PropertyName[i] != '.')
                     {
-                        current += Convert.ToString(PropertyName[i]);
+                        current += $"{PropertyName[i]}";
                     }
 
                     if (PropertyName[i] == '[')
@@ -791,7 +842,7 @@ namespace InnerLibs
                     if (PropertyName[i] == '.' && !stop || i == PropertyName.Length - 1)
                     {
                         parts.Add(current.ToString());
-                        current = InnerLibs.Text.Empty;
+                        current = Text.Empty;
                     }
                 }
 
@@ -826,6 +877,8 @@ namespace InnerLibs
         /// <param name="Name"></param>
         /// <returns></returns>
         public static bool HasProperty(this object Obj, string Name) => Obj?.GetType().HasProperty(Name, true) ?? false;
+
+        public static bool IsAny<T>(this T obj, params T[] others) => others?.Any(x => x.Equals(obj)) ?? false;
 
         /// <summary>
         /// Verifica se o tipo é um array de um objeto especifico
@@ -910,16 +963,30 @@ namespace InnerLibs
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public static bool IsDictionary(this object obj) => obj.GetTypeOf().IsGenericOf(typeof(Dictionary<,>));
+        public static bool IsDictionary(this object obj) => IsGenericOf(obj, typeof(IDictionary<,>)) || IsGenericOf(obj, typeof(IDictionary));
 
         /// <summary>
-        /// Verifica se o objeto é uma lista
+        /// Verifica se o objeto é um enumeravel (lista)
         /// </summary>
         /// <param name="obj"></param>
+        /// <remarks>NÃO considera strings (IEnumerable{char}) como true</remarks>
         /// <returns></returns>
-        public static bool IsEnumerable(this object obj) => obj.GetTypeOf().IsGenericOf(typeof(IEnumerable<>));
+        public static bool IsEnumerable(this object obj) => IsGenericOf(obj, typeof(IEnumerable<>)) || IsGenericOf(obj, typeof(IEnumerable));
 
         public static bool IsEqual<T>(this T Value, T EqualsToValue) where T : IComparable => Value.Equals(EqualsToValue);
+
+        public static bool IsGenericOf(this object obj, Type GenericType)
+        {
+            var type = obj.GetTypeOf();
+
+            if (type == null || GenericType == null) return false;
+            if (type == GenericType) return true;
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == GenericType) return true;
+            if (GenericType.IsGenericType && GenericType.GetGenericTypeDefinition().IsAssignableFrom(type)) return true;
+            if (GenericType.IsAssignableFrom(type)) return true;
+            if (type.GetInterfaces().Append(type).Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == GenericType)) return true;
+            return false;
+        }
 
         /// <summary>
         /// Verifica se um tipo e generico de outro
@@ -927,8 +994,6 @@ namespace InnerLibs
         /// <param name="MainType"></param>
         /// <param name="Type"></param>
         /// <returns></returns>
-        public static bool IsGenericOf(this Type MainType, Type Type) => MainType.IsGenericType && MainType.GetGenericTypeDefinition().IsAssignableFrom(Type);
-
         public static bool IsGreaterThan<T>(this T Value, T MinValue) where T : IComparable => Value.CompareTo(MinValue) > 0;
 
         public static bool IsGreaterThanOrEqual<T>(this T Value, T MinValue) where T : IComparable => Value.IsGreaterThan(MinValue) || Value.IsEqual(MinValue);
@@ -936,13 +1001,13 @@ namespace InnerLibs
         /// <summary>
         /// Verifica se o objeto existe dentro de uma Lista, coleção ou array.
         /// </summary>
-        /// <typeparam name="Type">Tipo do objeto</typeparam>
+        /// <typeparam name="T">Tipo do objeto</typeparam>
         /// <param name="Obj">objeto</param>
         /// <param name="List">Lista</param>
         /// <returns></returns>
-        public static bool IsIn<Type>(this Type Obj, params Type[] List) => Obj.IsIn((List ?? Array.Empty<Type>()).ToList());
+        public static bool IsIn<T>(this T Obj, params T[] List) => Obj.IsIn((List ?? Array.Empty<T>()).ToList());
 
-        public static bool IsIn<Type>(this Type Obj, IEqualityComparer<Type> Comparer = null, params Type[] List) => Obj.IsIn((List ?? Array.Empty<Type>()).ToList(), Comparer);
+        public static bool IsIn<T>(this T Obj, IEqualityComparer<T> Comparer = null, params T[] List) => Obj.IsIn((List ?? Array.Empty<T>()).ToList(), Comparer);
 
         /// <summary>
         /// Verifica se o objeto existe dentro de uma Lista, coleção ou array.
@@ -973,7 +1038,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public static bool IsList(this object obj) => obj.GetTypeOf().IsGenericOf(typeof(List<>));
+        public static bool IsList(this object obj) => IsGenericOf(obj, typeof(List<>));
 
         /// <summary>
         /// Verifica se o não objeto existe dentro de uma Lista, coleção ou array.
@@ -987,11 +1052,11 @@ namespace InnerLibs
         /// <summary>
         /// Verifica se o objeto não existe dentro de um texto
         /// </summary>
-        /// <typeparam name="Type">Tipo do objeto</typeparam>
+        /// <typeparam name="T">Tipo do objeto</typeparam>
         /// <param name="Obj">objeto</param>
         /// <param name="TExt">Texto</param>
         /// <returns></returns>
-        public static bool IsNotIn<Type>(this Type Obj, string Text, StringComparison? Comparer = null) => !Obj.IsIn(Text, Comparer);
+        public static bool IsNotIn<T>(this T Obj, string Text, StringComparison? Comparer = null) => !Obj.IsIn(Text, Comparer);
 
         /// <summary>
         /// Checks if a <paramref name="List"/> is not <b>null</b> and contains at least one item
@@ -1001,9 +1066,9 @@ namespace InnerLibs
         /// <returns></returns>
         public static bool IsNotNullOrEmpty<T>(this IEnumerable<T> List) => (List ?? Array.Empty<T>()).Any();
 
-        public static bool IsNullableType(this Type t) => t.IsGenericType && Nullable.GetUnderlyingType(t) != null;
+        public static bool IsNullableType(this Type t) => t != null && t.IsGenericType && Nullable.GetUnderlyingType(t) != null;
 
-        public static bool IsNullableType<O>(this O Obj) => IsNullableType(Obj.GetTypeOf());
+        public static bool IsNullableType<T>(this T Obj) => IsNullableType(Obj.GetTypeOf());
 
         /// <summary>
         /// Verifica se um objeto é de um determinado tipo
@@ -1016,10 +1081,10 @@ namespace InnerLibs
         /// <summary>
         /// Verifica se um objeto é de um determinado tipo
         /// </summary>
-        /// <typeparam name="O"></typeparam>
+        /// <typeparam name="T"></typeparam>
         /// <param name="Obj"></param>
         /// <returns></returns>
-        public static bool IsNullableTypeOf<O>(this O Obj, Type Type) => Obj.GetNullableTypeOf() == Type.GetNullableTypeOf();
+        public static bool IsNullableTypeOf<T>(this T Obj, Type Type) => Obj.GetNullableTypeOf() == Type.GetNullableTypeOf();
 
         /// <summary>
         /// Checks if a <paramref name="List"/> is <b>null</b> or empty
@@ -1046,10 +1111,10 @@ namespace InnerLibs
         /// <summary>
         /// Verifica se um objeto é de um determinado tipo
         /// </summary>
-        /// <typeparam name="O"></typeparam>
+        /// <typeparam name="T"></typeparam>
         /// <param name="Obj"></param>
         /// <returns></returns>
-        public static bool IsTypeOf<O>(this O Obj, Type Type) => Obj.GetTypeOf() == Type.GetTypeOf();
+        public static bool IsTypeOf<T>(this T Obj, Type Type) => Obj.GetTypeOf() == Type.GetTypeOf();
 
         public static bool IsValueType(this Type T) => T.IsIn(PredefinedArrays.ValueTypes);
 
@@ -1092,15 +1157,23 @@ namespace InnerLibs
         /// <param name="ToList"></param>
         /// <param name="Indexes"></param>
         /// <returns></returns>
-        public static List<T> MoveItems<T>(this List<T> FromList, List<T> ToList, params int[] Indexes)
+        public static List<T> MoveItems<T>(this List<T> FromList, ref List<T> ToList, params int[] Indexes)
         {
             ToList = ToList ?? new List<T>();
             if (FromList != null)
             {
                 Indexes = Indexes?.Where(x => x.IsBetween(0, FromList.Count)).ToArray() ?? Array.Empty<int>();
-                foreach (var index in Indexes ?? Array.Empty<int>())
+                foreach (var index in Indexes)
                 {
-                    ToList.Add(FromList.Detach(index));
+                    var item = FromList.Detach(index);
+                    try
+                    {
+                        ToList.Insert(index, item);
+                    }
+                    catch
+                    {
+                        ToList.Add(item);
+                    }
                 }
             }
             return ToList;
@@ -1193,13 +1266,19 @@ namespace InnerLibs
 
         public static IEnumerable<string> PropertyNamesFor(this string Name)
         {
+            var propnames = new List<string>();
+
             if (Name.IsNotBlank())
             {
-                string propname1 = Name?.Trim().Replace(" ", "_").Replace("-", "_").Replace("~", "_");
+                if (Name.StartsWith("_", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    propnames.Add(Name.TrimStart('_'));
+                }
+                string propname1 = Name.Trim().Replace(" ", "_").Replace("-", "_").Replace("~", "_");
                 string propname3 = Name.Trim().Replace(" ", InnerLibs.Text.Empty).Replace("-", InnerLibs.Text.Empty).Replace("~", InnerLibs.Text.Empty);
                 string propname2 = propname1.RemoveAccents();
                 string propname4 = propname3.RemoveAccents();
-                var propnames = new[] { Name, propname1, propname2, propname3, propname4 }.ToList();
+                propnames.AddRange(new[] { Name, propname1, propname2, propname3, propname4 });
                 propnames.AddRange(propnames.Select(x => $"_{x}").ToArray());
                 return propnames.Distinct();
             }
@@ -1218,14 +1297,14 @@ namespace InnerLibs
         /// Agrupa e conta os itens de uma lista a partir de uma propriedade
         /// </summary>
         /// <typeparam name="Type"></typeparam>
-        /// <typeparam name="Group"></typeparam>
+        /// <typeparam name="T"></typeparam>
         /// <param name="obj"></param>
         /// <param name="GroupSelector"></param>
         /// <returns></returns>
-        public static Dictionary<Group, long> ReduceToTop<Group>(this Dictionary<Group, long> obj, int First, Group OtherLabel)
+        public static Dictionary<T, long> ReduceToTop<T>(this Dictionary<T, long> obj, int First, T OtherLabel)
         {
             var grouped = obj.OrderByDescending(x => x.Value);
-            return grouped.Take(First).Union(new[] { new KeyValuePair<Group, long>(OtherLabel, grouped.Skip(First).Sum(s => s.Value)) }).ToDictionary();
+            return grouped.Take(First).Union(new[] { new KeyValuePair<T, long>(OtherLabel, grouped.Skip(First).Sum(s => s.Value)) }).ToDictionary();
         }
 
         public static Dictionary<TGroup, Dictionary<TCount, long>> ReduceToTop<TGroup, TCount>(this Dictionary<TGroup, Dictionary<TCount, long>> Grouped, int First, TCount OtherLabel)
@@ -1500,19 +1579,9 @@ namespace InnerLibs
             return result;
         }
 
-        public static Attachment ToAttachment(this FileInfo file)
-        {
-            if (file != null && file.Exists)
-                return new Attachment(file.FullName);
-            return null;
-        }
+        public static Attachment ToAttachment(this FileInfo file) => file != null && file.Exists ? new Attachment(file.FullName) : null;
 
-        public static Attachment ToAttachment(this Stream stream, string name)
-        {
-            if (stream != null && stream.Length > 0)
-                return new Attachment(stream, name.IfBlank("untitledFile.bin"));
-            return null;
-        }
+        public static Attachment ToAttachment(this Stream stream, string name) => stream != null && stream.Length > 0 ? new Attachment(stream, name.IfBlank("untitledFile.bin")) : null;
 
         public static Attachment ToAttachment(this byte[] bytes, string name)
         {
@@ -1536,6 +1605,31 @@ namespace InnerLibs
         /// <param name="TrueValue">Primeiro valor</param>
         /// <param name="FalseValue">Segundo Valor</param>
         public static T Toggle<T>(this T Current, T TrueValue, T FalseValue = default) => Current.Equals(TrueValue) ? FalseValue : TrueValue;
+
+        public static T[][] ToJaggedArray<T>(this T[,] inputArray)
+        {
+            // Get the number of rows and columns in the input array
+            int rows = inputArray.GetLength(0);
+            int cols = inputArray.GetLength(1);
+
+            // Create the jagged array with the same number of rows as the input array
+            T[][] jaggedArray = new T[rows][];
+
+            // Copy the elements from the input array to the jagged array
+            for (int i = 0; i < rows; i++)
+            {
+                // Create a new sub-array for each row
+                jaggedArray[i] = new T[cols];
+
+                // Copy the elements from the input array to the jagged array
+                for (int j = 0; j < cols; j++)
+                {
+                    jaggedArray[i][j] = inputArray[i, j];
+                }
+            }
+
+            return jaggedArray;
+        }
 
         /// <summary>
         /// Retorna um dicionário em QueryString
@@ -1623,7 +1717,7 @@ namespace InnerLibs
         /// <summary>
         /// Run a <see cref="Action{T}"/> inside a Try-Catch block and return the same <typeparamref name="T"/>
         /// </summary>
-        /// <typeparam name="T">Object T</typeparam>
+        /// <typeparam name="T">Object type</typeparam>
         /// <param name="Obj">Object</param>
         /// <param name="Callback">The action to execute</param>
         /// <param name="ex">

@@ -212,7 +212,7 @@ namespace InnerLibs
         /// <summary>
         /// Salva um array de bytes em um arquivo
         /// </summary>
-        /// <param name="File">O arquivo a ser convertido</param>
+        /// <param name="File">T arquivo a ser convertido</param>
         /// <returns>Um array do tipo Byte()</returns>
         /// <summary>
         /// Salva um texto em um arquivo
@@ -222,17 +222,30 @@ namespace InnerLibs
         /// <returns>Um Fileinfo contendo as informações do arquivo criado</returns>
         public static FileInfo WriteToFile(this string Text, string FilePath, bool Append = false, Encoding Enconding = null, DateTime? DateAndTime = null)
         {
-            DateAndTime = DateAndTime ?? DateTime.Now;
-            FilePath = DateAndTime.FormatPath(FilePath);
-            FilePath.CreateDirectoryIfNotExists();
-            using (var s = new StreamWriter(FilePath, Append, Enconding ?? new UTF8Encoding(false)))
+            var s = new StreamWriter(FilePath, Append, Enconding ?? new UTF8Encoding(false));
+            try
             {
+                DateAndTime = DateAndTime ?? DateTime.Now;
+                FilePath = DateAndTime.FormatPath(FilePath);
+                FilePath.CreateDirectoryIfNotExists();
                 s.Write(Text);
                 s.Close();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Can't write to file:", ex);
+            }
+            finally
+            {
+                s.Dispose();
             }
 
             return new FileInfo(FilePath);
         }
+
+
+
+
 
         /// <summary>
         /// Salva um texto em um arquivo
@@ -244,7 +257,7 @@ namespace InnerLibs
 
         public static FileInfo WriteToFile(this string Text, DirectoryInfo Directory, string FileName, bool Append = false, Encoding Enconding = null, DateTime? DateAndTime = null) => Text.WriteToFile(Path.Combine(Directory?.FullName, Path.GetFileName(FileName)), Append, Enconding, DateAndTime);
 
-        public static FileInfo WriteToFile(this string Text, DirectoryInfo Directory, string SubDirecotry, string FileName, bool Append = false, Encoding Enconding = null, DateTime? DateAndTime = null) => Text.WriteToFile(Path.Combine(Directory?.FullName, SubDirecotry, Path.GetFileName(FileName)), Append, Enconding, DateAndTime);
+        public static FileInfo WriteToFile(this string Text, DirectoryInfo Directory, string SubDirectory, string FileName, bool Append = false, Encoding Enconding = null, DateTime? DateAndTime = null) => Text.WriteToFile(Path.Combine(Directory?.FullName, SubDirectory, Path.GetFileName(FileName)), Append, Enconding, DateAndTime);
 
         #endregion Public Methods
     }

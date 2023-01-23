@@ -534,7 +534,7 @@ namespace InnerLibs
 
         public static string FixCapitalization(this string Text)
         {
-            Text = Text.Trim().GetFirstChars(1).ToUpper() + Text.RemoveFirstChars(1);
+            Text = Text.Trim().GetFirstChars(1).ToUpperInvariant() + Text.RemoveFirstChars(1);
             var dots = new[] { "...", ". ", "? ", "! " };
             List<string> sentences;
             foreach (var dot in dots)
@@ -542,7 +542,7 @@ namespace InnerLibs
                 sentences = Text.Split(dot, StringSplitOptions.None).ToList();
                 for (int index = 0, loopTo = sentences.Count - 1; index <= loopTo; index++)
                 {
-                    sentences[index] = string.Empty + sentences[index].Trim().GetFirstChars(1).ToUpper() + sentences[index].RemoveFirstChars(1);
+                    sentences[index] = string.Empty + sentences[index].Trim().GetFirstChars(1).ToUpperInvariant() + sentences[index].RemoveFirstChars(1);
                 }
 
                 Text = sentences.SelectJoinString(dot);
@@ -555,7 +555,7 @@ namespace InnerLibs
                 string palavra = c;
                 if (palavra.EndsWith(".") && palavra.Length == 2)
                 {
-                    palavra = palavra.ToUpper();
+                    palavra = palavra.ToUpperInvariant();
                     Text += palavra;
                     string proximapalavra = sentences.IfNoIndex(sentences.IndexOf(c) + 1, InnerLibs.Text.Empty);
                     if (!(proximapalavra.EndsWith(".") && palavra.Length == 2))
@@ -598,7 +598,7 @@ namespace InnerLibs
                 }
 
                 return x.ToFriendlyPathName();
-            }).SelectJoinString(AlternativeChar.AsIf(Path.AltDirectorySeparatorChar.ToString(), Path.DirectorySeparatorChar.ToString())).TrimLastAny(Path.DirectorySeparatorChar.ToString(), Path.AltDirectorySeparatorChar.ToString());
+            }).SelectJoinString(AlternativeChar.AsIf(Path.AltDirectorySeparatorChar.ToString(), Path.DirectorySeparatorChar.ToString())).TrimEndAny(Path.DirectorySeparatorChar.ToString(), Path.AltDirectorySeparatorChar.ToString());
         }
 
         /// <summary>
@@ -611,11 +611,11 @@ namespace InnerLibs
         /// <returns>Frase corretamente pontuada</returns>
         public static string FixPunctuation(this string Text, string Punctuation = ".", bool ForceSpecificPunctuation = false)
         {
-            Text = Text.TrimLastAny(true, ",", WhitespaceChar);
+            Text = Text.TrimEndAny(true, ",", WhitespaceChar);
             var pts = new[] { ".", "!", "?", ":", ";" };
             if (ForceSpecificPunctuation)
             {
-                Text = Text.TrimLastAny(true, pts).Trim() + Punctuation;
+                Text = Text.TrimEndAny(true, pts).Trim() + Punctuation;
             }
             else if (!Text.EndsWithAny(pts))
             {
@@ -633,18 +633,19 @@ namespace InnerLibs
         /// <returns></returns>
         public static string FixText(this string Text, int Ident = 0, int BreakLinesBetweenParagraph = 0)
         {
+            Text = Text.IfBlank("");
             var removedot = !Text.Trim().EndsWith(".");
             var addComma = Text.Trim().EndsWith(",");
             Text = new TextStructure(Text) { Ident = Ident, BreakLinesBetweenParagraph = BreakLinesBetweenParagraph }.ToString();
             if (removedot)
             {
-                Text = Text.TrimEnd().TrimLastAny(".");
+                Text = Text.TrimEnd().TrimEndAny(".");
             }
             if (addComma)
             {
-                Text = Text.TrimEnd().TrimLastAny(".").Append(",");
+                Text = Text.TrimEnd().TrimEndAny(".").Append(",");
             }
-            return Text.Trim();
+            return Text.Trim().TrimBetween();
         }
 
         /// <summary>
@@ -664,7 +665,7 @@ namespace InnerLibs
         }
 
         /// <inheritdoc cref="FormatCEP(string)"/>
-        public static string FormatCEP(this int CEP) => FormatCEP(CEP.ToString());
+        public static string FormatCEP(this int CEP) => FormatCEP(CEP.ToString(CultureInfo.InvariantCulture));
 
         /// <summary>
         /// Formata um numero para CEP
@@ -673,7 +674,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string FormatCEP(this string CEP)
         {
-            CEP = CEP.RemoveAny(".", "-").GetBefore(",") ?? InnerLibs.Text.Empty;
+            CEP = CEP.RemoveAny(".", "-").GetBefore(",") ?? Empty;
             CEP = CEP.PadLeft(8, '0');
             CEP = CEP.Insert(5, "-");
             if (CEP.IsValidCEP())
@@ -691,7 +692,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="CNPJ"></param>
         /// <returns></returns>
-        public static string FormatCNPJ(this long CNPJ) => string.Format(@"{0:00\.000\.000\/0000\-00}", CNPJ);
+        public static string FormatCNPJ(this long CNPJ) => string.Format(CultureInfo.InvariantCulture, @"{0:00\.000\.000\/0000\-00}", CNPJ);
 
         /// <summary>
         /// Formata um numero para CNPJ
@@ -720,7 +721,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="CPF"></param>
         /// <returns></returns>
-        public static string FormatCPF(this long CPF) => string.Format(@"{0:000\.000\.000\-00}", CPF);
+        public static string FormatCPF(this long CPF) => string.Format(CultureInfo.InvariantCulture, @"{0:000\.000\.000\-00}", CPF);
 
         /// <summary>
         /// Formata um numero para CPF
@@ -751,17 +752,17 @@ namespace InnerLibs
         /// <returns></returns>
         public static string FormatCPFOrCNPJ(this long Document)
         {
-            if (Document.ToString().IsValidCPF())
+            if (Document.ToString(CultureInfo.InvariantCulture).IsValidCPF())
             {
                 return Document.FormatCPF();
             }
-            else if (Document.ToString().IsValidCNPJ())
+            else if (Document.ToString(CultureInfo.InvariantCulture).IsValidCNPJ())
             {
                 return Document.FormatCNPJ();
             }
             else
             {
-                return Document.ToString();
+                return Document.ToString(CultureInfo.InvariantCulture);
             }
         }
 
@@ -798,7 +799,7 @@ namespace InnerLibs
             {
                 PIS = PIS.RemoveAny(".", "-");
                 PIS = PIS.PadLeft(11, '0');
-                PIS = PIS.ToLong().ToString(@"000\.00000\.00-0");
+                PIS = PIS.ToLong().ToString(@"000\.00000\.00-0", CultureInfo.InvariantCulture);
                 return PIS;
             }
             else
@@ -813,7 +814,7 @@ namespace InnerLibs
         /// <param name="PIS">PIS a ser formatado</param>
         /// <param name="returnOnlyNumbers">Se verdadeiro, retorna apenas os números sem formatação</param>
         /// <returns>PIS formatado</returns>
-        public static string FormatPIS(this long PIS) => FormatPIS(PIS.ToString());
+        public static string FormatPIS(this long PIS) => FormatPIS(PIS.ToString(CultureInfo.InvariantCulture));
 
         /// <summary>
         /// Extension Method para <see cref="String.Format(String,Object())"/>
@@ -834,16 +835,16 @@ namespace InnerLibs
             Value = Value.IfBlank(InnerLibs.Text.Empty);
 
             return Text.IsBlank() || Text.IndexOf(Value) == -1
-                ? WhiteIfNotFound ? InnerLibs.Text.Empty : $"{Text}"
+                ? WhiteIfNotFound ? Empty : $"{Text}"
                 : Text.Substring(Text.IndexOf(Value) + Value.Length);
         }
 
         /// <summary>
         /// Retorna todas as ocorrencias de um texto entre dois textos
         /// </summary>
-        /// <param name="Text">O texto correspondente</param>
-        /// <param name="Before">O texto Anterior</param>
-        /// <param name="After">O texto Posterior</param>
+        /// <param name="Text">T texto correspondente</param>
+        /// <param name="Before">T texto Anterior</param>
+        /// <param name="After">T texto Posterior</param>
         /// <returns>Uma String com o texto entre o texto anterior e posterior</returns>
         public static string[] GetAllBetween(this string Text, string Before, string After = Empty)
         {
@@ -873,9 +874,9 @@ namespace InnerLibs
         /// <summary>
         /// Retorna o texto entre dois textos
         /// </summary>
-        /// <param name="Text">O texto correspondente</param>
-        /// <param name="Before">O texto Anterior</param>
-        /// <param name="After">O texto Posterior</param>
+        /// <param name="Text">T texto correspondente</param>
+        /// <param name="Before">T texto Anterior</param>
+        /// <param name="After">T texto Posterior</param>
         /// <returns>Uma String com o texto entre o texto anterior e posterior</returns>
         public static string GetBetween(this string Text, string Before, string After)
         {
@@ -1032,7 +1033,7 @@ namespace InnerLibs
         /// <param name="TextLength"></param>
         /// <param name="Ellipsis"></param>
         /// <returns></returns>
-        public static string GetTextPreview(this string Text, int TextLength = 0, string Ellipsis = "...", bool BeforeNewLine = true)
+        public static string GetTextPreview(this string Text, int TextLength, string Ellipsis = "...", bool BeforeNewLine = true)
         {
             if (Text.IsBlank() || Text?.Length <= TextLength || TextLength <= 0)
             {
@@ -1295,7 +1296,36 @@ namespace InnerLibs
         /// <returns></returns>
         public static bool IsOpenWrapChar(this string Text) => Text.GetFirstChars().IsIn(PredefinedArrays.OpenWrappers);
 
-        public static bool IsOpenWrapChar(this char Char) => IsOpenWrapChar($"{Char}");
+        public static bool IsOpenWrapChar(this char c) => IsOpenWrapChar($"{c}");
+
+
+        public static bool IsWrapped(this string Text) => PredefinedArrays.OpenWrappers.Any(x => IsWrapped(Text, x.FirstOrDefault()));
+        public static bool IsWrapped(this string Text, string OpenWrapText, string CloseWrapText = null) => IsWrapped(Text, StringComparison.CurrentCultureIgnoreCase, OpenWrapText, CloseWrapText);
+        public static bool IsWrapped(this string Text, StringComparison stringComparison, string OpenWrapText, string CloseWrapText = null)
+        {
+            if (Text.IsNotBlank())
+            {
+                OpenWrapText = OpenWrapText.IfBlank("");
+                CloseWrapText = CloseWrapText.IfBlank("");
+                if (OpenWrapText.Length == 1 && (CloseWrapText.IsBlank() || CloseWrapText.Length == 1))
+                {
+                    return CloseWrapText.IsBlank()
+                        ? IsWrapped(Text, OpenWrapText.FirstOrDefault())
+                        : IsWrapped(Text, OpenWrapText.FirstOrDefault(), CloseWrapText.FirstOrDefault());
+                }
+                else
+                    return Text.StartsWith(OpenWrapText, stringComparison) && Text.EndsWith(CloseWrapText, stringComparison);
+            }
+            return false;
+        }
+
+        public static bool IsWrapped(this string Text, char OpenWrapChar) => IsWrapped(Text, OpenWrapChar, OpenWrapChar.GetOppositeWrapChar());
+        public static bool IsWrapped(this string Text, char OpenWrapChar, char CloseWrapChar)
+        {
+            Text = Text?.Trim() ?? "";
+            OpenWrapChar = OpenWrapChar.IsCloseWrapChar() ? OpenWrapChar.GetOppositeWrapChar() : OpenWrapChar;
+            return Text.FirstOrDefault() == OpenWrapChar && Text.LastOrDefault() == CloseWrapChar;
+        }
 
         /// <summary>
         /// Verifica se uma palavra ou frase é idêntica da direita para a esqueda bem como da
@@ -1306,7 +1336,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static bool IsPalindrome(this string Text, bool IgnoreWhiteSpaces = true)
         {
-            Text = Text ?? InnerLibs.Text.Empty;
+            Text = Text ?? Empty;
             if (IgnoreWhiteSpaces)
             {
                 Text = Text.RemoveAny(WhitespaceChar);
@@ -1518,7 +1548,7 @@ namespace InnerLibs
                     var parts = segment.Split('=');
                     if (parts.Any())
                     {
-                        string key = parts.First().TrimFirstAny(WhitespaceChar, "?");
+                        string key = parts.First().TrimStartAny(WhitespaceChar, "?");
                         string val = Empty;
                         if (parts.Skip(1).Any())
                         {
@@ -1601,7 +1631,7 @@ namespace InnerLibs
                     l = l.ToInt() - 1;
                 }
 
-                p.Add(Text.GetFirstChars((int)Math.Round(l)).Trim() + Text.GetFirstChars((int)Math.Round(l)).Reverse().ToList().SelectJoinString().ToLowerInvariant().Trim() + Text.RemoveFirstChars((int)Math.Round(l)).TrimFirstAny(PredefinedArrays.LowerConsonants.ToArray()));
+                p.Add(Text.GetFirstChars((int)Math.Round(l)).Trim() + Text.GetFirstChars((int)Math.Round(l)).Reverse().ToList().SelectJoinString().ToLowerInvariant().Trim() + Text.RemoveFirstChars((int)Math.Round(l)).TrimStartAny(PredefinedArrays.LowerConsonants.ToArray()));
             }
 
             return p.ToArray();
@@ -1919,11 +1949,11 @@ namespace InnerLibs
 
             if (BreakAt.IsNotBlank())
             {
-                arr = arr.Select(x => FromStart ? x.TrimFirstAny(false, BreakAt) : x.TrimLastAny(false, BreakAt)).ToArray();
+                arr = arr.Select(x => FromStart ? x.TrimStartAny(false, BreakAt) : x.TrimEndAny(false, BreakAt)).ToArray();
                 //Difference = FromStart ? Difference.Prepend(BreakAt) : Difference.Append(BreakAt);
             }
 
-            RemovedPart = FromStart ? RemovedPart.Prepend(Texts.FirstOrDefault().TrimLastAny(arr.FirstOrDefault())) : RemovedPart.Append(Texts.FirstOrDefault().TrimFirstAny(arr.FirstOrDefault()));
+            RemovedPart = FromStart ? RemovedPart.Prepend(Texts.FirstOrDefault().TrimEndAny(arr.FirstOrDefault())) : RemovedPart.Append(Texts.FirstOrDefault().TrimStartAny(arr.FirstOrDefault()));
 
             return arr;
         }
@@ -2694,7 +2724,7 @@ namespace InnerLibs
             }
             // StringBuilder to store result.
             var sb = new StringBuilder();
-            foreach (char c in Text)
+            foreach (char c in Text.AsEnumerable())
             {
                 switch (Degree)
                 {
@@ -2703,13 +2733,13 @@ namespace InnerLibs
                         {
                             case 'e':
                                 {
-                                    sb.Append("3");
+                                    sb.Append('3');
                                     break;
                                 }
 
                             case 'E':
                                 {
-                                    sb.Append("3");
+                                    sb.Append('3');
                                     break;
                                 }
 
@@ -2726,49 +2756,49 @@ namespace InnerLibs
                         {
                             case 'a':
                                 {
-                                    sb.Append("4");
+                                    sb.Append('4');
                                     break;
                                 }
 
                             case 'e':
                                 {
-                                    sb.Append("3");
+                                    sb.Append('3');
                                     break;
                                 }
 
                             case 'i':
                                 {
-                                    sb.Append("1");
+                                    sb.Append('1');
                                     break;
                                 }
 
                             case 'o':
                                 {
-                                    sb.Append("0");
+                                    sb.Append('0');
                                     break;
                                 }
 
                             case 'A':
                                 {
-                                    sb.Append("4");
+                                    sb.Append('4');
                                     break;
                                 }
 
                             case 'E':
                                 {
-                                    sb.Append("3");
+                                    sb.Append('3');
                                     break;
                                 }
 
                             case 'I':
                                 {
-                                    sb.Append("1");
+                                    sb.Append('1');
                                     break;
                                 }
 
                             case 'O':
                                 {
-                                    sb.Append("0");
+                                    sb.Append('0');
                                     break;
                                 }
 
@@ -2785,121 +2815,121 @@ namespace InnerLibs
                         {
                             case 'a':
                                 {
-                                    sb.Append("4");
+                                    sb.Append('4');
                                     break;
                                 }
 
                             case 'e':
                                 {
-                                    sb.Append("3");
+                                    sb.Append('3');
                                     break;
                                 }
 
                             case 'i':
                                 {
-                                    sb.Append("1");
+                                    sb.Append('1');
                                     break;
                                 }
 
                             case 'o':
                                 {
-                                    sb.Append("0");
+                                    sb.Append('0');
                                     break;
                                 }
 
                             case 'A':
                                 {
-                                    sb.Append("4");
+                                    sb.Append('4');
                                     break;
                                 }
 
                             case 'E':
                                 {
-                                    sb.Append("3");
+                                    sb.Append('3');
                                     break;
                                 }
 
                             case 'I':
                                 {
-                                    sb.Append("1");
+                                    sb.Append('1');
                                     break;
                                 }
 
                             case 'O':
                                 {
-                                    sb.Append("0");
+                                    sb.Append('0');
                                     break;
                                 }
 
                             case 's':
                                 {
-                                    sb.Append("$");
+                                    sb.Append('$');
                                     break;
                                 }
 
                             case 'S':
                                 {
-                                    sb.Append("$");
+                                    sb.Append('$');
                                     break;
                                 }
 
                             case 'l':
                                 {
-                                    sb.Append("£");
+                                    sb.Append('£');
                                     break;
                                 }
 
                             case 'L':
                                 {
-                                    sb.Append("£");
+                                    sb.Append('£');
                                     break;
                                 }
 
                             case 'c':
                                 {
-                                    sb.Append("(");
+                                    sb.Append('(');
                                     break;
                                 }
 
                             case 'C':
                                 {
-                                    sb.Append("(");
+                                    sb.Append('(');
                                     break;
                                 }
 
                             case 'y':
                                 {
-                                    sb.Append("¥");
+                                    sb.Append('¥');
                                     break;
                                 }
 
                             case 'Y':
                                 {
-                                    sb.Append("¥");
+                                    sb.Append('¥');
                                     break;
                                 }
 
                             case 'U':
                                 {
-                                    sb.Append("µ");
+                                    sb.Append('µ');
                                     break;
                                 }
 
                             case 'u':
                                 {
-                                    sb.Append("µ");
+                                    sb.Append('µ');
                                     break;
                                 }
 
                             case 'd':
                                 {
-                                    sb.Append("Ð");
+                                    sb.Append('Ð');
                                     break;
                                 }
 
                             case 'D':
                                 {
-                                    sb.Append("Ð");
+                                    sb.Append('Ð');
                                     break;
                                 }
 
@@ -2916,49 +2946,49 @@ namespace InnerLibs
                         {
                             case 'a':
                                 {
-                                    sb.Append("4");
+                                    sb.Append('4');
                                     break;
                                 }
 
                             case 'e':
                                 {
-                                    sb.Append("3");
+                                    sb.Append('3');
                                     break;
                                 }
 
                             case 'i':
                                 {
-                                    sb.Append("1");
+                                    sb.Append('1');
                                     break;
                                 }
 
                             case 'o':
                                 {
-                                    sb.Append("0");
+                                    sb.Append('0');
                                     break;
                                 }
 
                             case 'A':
                                 {
-                                    sb.Append("4");
+                                    sb.Append('4');
                                     break;
                                 }
 
                             case 'E':
                                 {
-                                    sb.Append("3");
+                                    sb.Append('3');
                                     break;
                                 }
 
                             case 'I':
                                 {
-                                    sb.Append("1");
+                                    sb.Append('1');
                                     break;
                                 }
 
                             case 'O':
                                 {
-                                    sb.Append("0");
+                                    sb.Append('0');
                                     break;
                                 }
 
@@ -2976,121 +3006,121 @@ namespace InnerLibs
 
                             case 's':
                                 {
-                                    sb.Append("$");
+                                    sb.Append('$');
                                     break;
                                 }
 
                             case 'S':
                                 {
-                                    sb.Append("$");
+                                    sb.Append('$');
                                     break;
                                 }
 
                             case 'g':
                                 {
-                                    sb.Append("9");
+                                    sb.Append('9');
                                     break;
                                 }
 
                             case 'G':
                                 {
-                                    sb.Append("9");
+                                    sb.Append('9');
                                     break;
                                 }
 
                             case 'l':
                                 {
-                                    sb.Append("£");
+                                    sb.Append('£');
                                     break;
                                 }
 
                             case 'L':
                                 {
-                                    sb.Append("£");
+                                    sb.Append('£');
                                     break;
                                 }
 
                             case 'c':
                                 {
-                                    sb.Append("(");
+                                    sb.Append('(');
                                     break;
                                 }
 
                             case 'C':
                                 {
-                                    sb.Append("(");
+                                    sb.Append('(');
                                     break;
                                 }
 
                             case 't':
                                 {
-                                    sb.Append("7");
+                                    sb.Append('7');
                                     break;
                                 }
 
                             case 'T':
                                 {
-                                    sb.Append("7");
+                                    sb.Append('7');
                                     break;
                                 }
 
                             case 'z':
                                 {
-                                    sb.Append("2");
+                                    sb.Append('2');
                                     break;
                                 }
 
                             case 'Z':
                                 {
-                                    sb.Append("2");
+                                    sb.Append('2');
                                     break;
                                 }
 
                             case 'y':
                                 {
-                                    sb.Append("¥");
+                                    sb.Append('¥');
                                     break;
                                 }
 
                             case 'Y':
                                 {
-                                    sb.Append("¥");
+                                    sb.Append('¥');
                                     break;
                                 }
 
                             case 'U':
                                 {
-                                    sb.Append("µ");
+                                    sb.Append('µ');
                                     break;
                                 }
 
                             case 'u':
                                 {
-                                    sb.Append("µ");
+                                    sb.Append('µ');
                                     break;
                                 }
 
                             case 'f':
                                 {
-                                    sb.Append("ƒ");
+                                    sb.Append('ƒ');
                                     break;
                                 }
 
                             case 'F':
                                 {
-                                    sb.Append("ƒ");
+                                    sb.Append('ƒ');
                                     break;
                                 }
 
                             case 'd':
                                 {
-                                    sb.Append("Ð");
+                                    sb.Append('Ð');
                                     break;
                                 }
 
                             case 'D':
                                 {
-                                    sb.Append("Ð");
+                                    sb.Append('Ð');
                                     break;
                                 }
 
@@ -3107,49 +3137,49 @@ namespace InnerLibs
                         {
                             case 'a':
                                 {
-                                    sb.Append("4");
+                                    sb.Append('4');
                                     break;
                                 }
 
                             case 'e':
                                 {
-                                    sb.Append("3");
+                                    sb.Append('3');
                                     break;
                                 }
 
                             case 'i':
                                 {
-                                    sb.Append("1");
+                                    sb.Append('1');
                                     break;
                                 }
 
                             case 'o':
                                 {
-                                    sb.Append("0");
+                                    sb.Append('0');
                                     break;
                                 }
 
                             case 'A':
                                 {
-                                    sb.Append("4");
+                                    sb.Append('4');
                                     break;
                                 }
 
                             case 'E':
                                 {
-                                    sb.Append("3");
+                                    sb.Append('3');
                                     break;
                                 }
 
                             case 'I':
                                 {
-                                    sb.Append("1");
+                                    sb.Append('1');
                                     break;
                                 }
 
                             case 'O':
                                 {
-                                    sb.Append("0");
+                                    sb.Append('0');
                                     break;
                                 }
 
@@ -3167,121 +3197,121 @@ namespace InnerLibs
 
                             case 's':
                                 {
-                                    sb.Append("$");
+                                    sb.Append('$');
                                     break;
                                 }
 
                             case 'S':
                                 {
-                                    sb.Append("$");
+                                    sb.Append('$');
                                     break;
                                 }
 
                             case 'g':
                                 {
-                                    sb.Append("9");
+                                    sb.Append('9');
                                     break;
                                 }
 
                             case 'G':
                                 {
-                                    sb.Append("6");
+                                    sb.Append('6');
                                     break;
                                 }
 
                             case 'l':
                                 {
-                                    sb.Append("£");
+                                    sb.Append('£');
                                     break;
                                 }
 
                             case 'L':
                                 {
-                                    sb.Append("£");
+                                    sb.Append('£');
                                     break;
                                 }
 
                             case 'c':
                                 {
-                                    sb.Append("(");
+                                    sb.Append('(');
                                     break;
                                 }
 
                             case 'C':
                                 {
-                                    sb.Append("(");
+                                    sb.Append('(');
                                     break;
                                 }
 
                             case 't':
                                 {
-                                    sb.Append("7");
+                                    sb.Append('7');
                                     break;
                                 }
 
                             case 'T':
                                 {
-                                    sb.Append("7");
+                                    sb.Append('7');
                                     break;
                                 }
 
                             case 'z':
                                 {
-                                    sb.Append("2");
+                                    sb.Append('2');
                                     break;
                                 }
 
                             case 'Z':
                                 {
-                                    sb.Append("2");
+                                    sb.Append('2');
                                     break;
                                 }
 
                             case 'y':
                                 {
-                                    sb.Append("¥");
+                                    sb.Append('¥');
                                     break;
                                 }
 
                             case 'Y':
                                 {
-                                    sb.Append("¥");
+                                    sb.Append('¥');
                                     break;
                                 }
 
                             case 'U':
                                 {
-                                    sb.Append("µ");
+                                    sb.Append('µ');
                                     break;
                                 }
 
                             case 'u':
                                 {
-                                    sb.Append("µ");
+                                    sb.Append('µ');
                                     break;
                                 }
 
                             case 'f':
                                 {
-                                    sb.Append("ƒ");
+                                    sb.Append('ƒ');
                                     break;
                                 }
 
                             case 'F':
                                 {
-                                    sb.Append("ƒ");
+                                    sb.Append('ƒ');
                                     break;
                                 }
 
                             case 'd':
                                 {
-                                    sb.Append("Ð");
+                                    sb.Append('Ð');
                                     break;
                                 }
 
                             case 'D':
                                 {
-                                    sb.Append("Ð");
+                                    sb.Append('Ð');
                                     break;
                                 }
 
@@ -3358,169 +3388,169 @@ namespace InnerLibs
                         {
                             case 'a':
                                 {
-                                    sb.Append("4");
+                                    sb.Append('4');
                                     break;
                                 }
 
                             case 'e':
                                 {
-                                    sb.Append("3");
+                                    sb.Append('3');
                                     break;
                                 }
 
                             case 'i':
                                 {
-                                    sb.Append("1");
+                                    sb.Append('1');
                                     break;
                                 }
 
                             case 'o':
                                 {
-                                    sb.Append("0");
+                                    sb.Append('0');
                                     break;
                                 }
 
                             case 'A':
                                 {
-                                    sb.Append("4");
+                                    sb.Append('4');
                                     break;
                                 }
 
                             case 'E':
                                 {
-                                    sb.Append("3");
+                                    sb.Append('3');
                                     break;
                                 }
 
                             case 'I':
                                 {
-                                    sb.Append("1");
+                                    sb.Append('1');
                                     break;
                                 }
 
                             case 'O':
                                 {
-                                    sb.Append("0");
+                                    sb.Append('0');
                                     break;
                                 }
 
                             case 's':
                                 {
-                                    sb.Append("$");
+                                    sb.Append('$');
                                     break;
                                 }
 
                             case 'S':
                                 {
-                                    sb.Append("$");
+                                    sb.Append('$');
                                     break;
                                 }
 
                             case 'g':
                                 {
-                                    sb.Append("9");
+                                    sb.Append('9');
                                     break;
                                 }
 
                             case 'G':
                                 {
-                                    sb.Append("6");
+                                    sb.Append('6');
                                     break;
                                 }
 
                             case 'l':
                                 {
-                                    sb.Append("£");
+                                    sb.Append('£');
                                     break;
                                 }
 
                             case 'L':
                                 {
-                                    sb.Append("£");
+                                    sb.Append('£');
                                     break;
                                 }
 
                             case 'c':
                                 {
-                                    sb.Append("(");
+                                    sb.Append('(');
                                     break;
                                 }
 
                             case 'C':
                                 {
-                                    sb.Append("(");
+                                    sb.Append('(');
                                     break;
                                 }
 
                             case 't':
                                 {
-                                    sb.Append("7");
+                                    sb.Append('7');
                                     break;
                                 }
 
                             case 'T':
                                 {
-                                    sb.Append("7");
+                                    sb.Append('7');
                                     break;
                                 }
 
                             case 'z':
                                 {
-                                    sb.Append("2");
+                                    sb.Append('2');
                                     break;
                                 }
 
                             case 'Z':
                                 {
-                                    sb.Append("2");
+                                    sb.Append('2');
                                     break;
                                 }
 
                             case 'y':
                                 {
-                                    sb.Append("¥");
+                                    sb.Append('¥');
                                     break;
                                 }
 
                             case 'Y':
                                 {
-                                    sb.Append("¥");
+                                    sb.Append('¥');
                                     break;
                                 }
 
                             case 'U':
                                 {
-                                    sb.Append("µ");
+                                    sb.Append('µ');
                                     break;
                                 }
 
                             case 'u':
                                 {
-                                    sb.Append("µ");
+                                    sb.Append('µ');
                                     break;
                                 }
 
                             case 'f':
                                 {
-                                    sb.Append("ƒ");
+                                    sb.Append('ƒ');
                                     break;
                                 }
 
                             case 'F':
                                 {
-                                    sb.Append("ƒ");
+                                    sb.Append('ƒ');
                                     break;
                                 }
 
                             case 'd':
                                 {
-                                    sb.Append("Ð");
+                                    sb.Append('Ð');
                                     break;
                                 }
 
                             case 'D':
                                 {
-                                    sb.Append("Ð");
+                                    sb.Append('Ð');
                                     break;
                                 }
 
@@ -3586,13 +3616,13 @@ namespace InnerLibs
 
                             case 'r':
                                 {
-                                    sb.Append("®");
+                                    sb.Append('®');
                                     break;
                                 }
 
                             case 'R':
                                 {
-                                    sb.Append("®");
+                                    sb.Append('®');
                                     break;
                                 }
 
@@ -3610,19 +3640,19 @@ namespace InnerLibs
 
                             case 'b':
                                 {
-                                    sb.Append("ß");
+                                    sb.Append('ß');
                                     break;
                                 }
 
                             case 'B':
                                 {
-                                    sb.Append("ß");
+                                    sb.Append('ß');
                                     break;
                                 }
 
                             case 'q':
                                 {
-                                    sb.Append("Q");
+                                    sb.Append('Q');
                                     break;
                                 }
 
@@ -3657,169 +3687,169 @@ namespace InnerLibs
                         {
                             case 'a':
                                 {
-                                    sb.Append("4");
+                                    sb.Append('4');
                                     break;
                                 }
 
                             case 'e':
                                 {
-                                    sb.Append("3");
+                                    sb.Append('3');
                                     break;
                                 }
 
                             case 'i':
                                 {
-                                    sb.Append("1");
+                                    sb.Append('1');
                                     break;
                                 }
 
                             case 'o':
                                 {
-                                    sb.Append("0");
+                                    sb.Append('0');
                                     break;
                                 }
 
                             case 'A':
                                 {
-                                    sb.Append("4");
+                                    sb.Append('4');
                                     break;
                                 }
 
                             case 'E':
                                 {
-                                    sb.Append("3");
+                                    sb.Append('3');
                                     break;
                                 }
 
                             case 'I':
                                 {
-                                    sb.Append("1");
+                                    sb.Append('1');
                                     break;
                                 }
 
                             case 'O':
                                 {
-                                    sb.Append("0");
+                                    sb.Append('0');
                                     break;
                                 }
 
                             case 's':
                                 {
-                                    sb.Append("$");
+                                    sb.Append('$');
                                     break;
                                 }
 
                             case 'S':
                                 {
-                                    sb.Append("$");
+                                    sb.Append('$');
                                     break;
                                 }
 
                             case 'g':
                                 {
-                                    sb.Append("9");
+                                    sb.Append('9');
                                     break;
                                 }
 
                             case 'G':
                                 {
-                                    sb.Append("6");
+                                    sb.Append('6');
                                     break;
                                 }
 
                             case 'l':
                                 {
-                                    sb.Append("£");
+                                    sb.Append('£');
                                     break;
                                 }
 
                             case 'L':
                                 {
-                                    sb.Append("£");
+                                    sb.Append('£');
                                     break;
                                 }
 
                             case 'c':
                                 {
-                                    sb.Append("(");
+                                    sb.Append('(');
                                     break;
                                 }
 
                             case 'C':
                                 {
-                                    sb.Append("(");
+                                    sb.Append('(');
                                     break;
                                 }
 
                             case 't':
                                 {
-                                    sb.Append("7");
+                                    sb.Append('7');
                                     break;
                                 }
 
                             case 'T':
                                 {
-                                    sb.Append("7");
+                                    sb.Append('7');
                                     break;
                                 }
 
                             case 'z':
                                 {
-                                    sb.Append("2");
+                                    sb.Append('2');
                                     break;
                                 }
 
                             case 'Z':
                                 {
-                                    sb.Append("2");
+                                    sb.Append('2');
                                     break;
                                 }
 
                             case 'y':
                                 {
-                                    sb.Append("¥");
+                                    sb.Append('¥');
                                     break;
                                 }
 
                             case 'Y':
                                 {
-                                    sb.Append("¥");
+                                    sb.Append('¥');
                                     break;
                                 }
 
                             case 'U':
                                 {
-                                    sb.Append("µ");
+                                    sb.Append('µ');
                                     break;
                                 }
 
                             case 'u':
                                 {
-                                    sb.Append("µ");
+                                    sb.Append('µ');
                                     break;
                                 }
 
                             case 'f':
                                 {
-                                    sb.Append("ƒ");
+                                    sb.Append('ƒ');
                                     break;
                                 }
 
                             case 'F':
                                 {
-                                    sb.Append("ƒ");
+                                    sb.Append('ƒ');
                                     break;
                                 }
 
                             case 'd':
                                 {
-                                    sb.Append("Ð");
+                                    sb.Append('Ð');
                                     break;
                                 }
 
                             case 'D':
                                 {
-                                    sb.Append("Ð");
+                                    sb.Append('Ð');
                                     break;
                                 }
 
@@ -3885,13 +3915,13 @@ namespace InnerLibs
 
                             case 'r':
                                 {
-                                    sb.Append("®");
+                                    sb.Append('®');
                                     break;
                                 }
 
                             case 'R':
                                 {
-                                    sb.Append("®");
+                                    sb.Append('®');
                                     break;
                                 }
 
@@ -3909,13 +3939,13 @@ namespace InnerLibs
 
                             case 'b':
                                 {
-                                    sb.Append("ß");
+                                    sb.Append('ß');
                                     break;
                                 }
 
                             case 'B':
                                 {
-                                    sb.Append("ß");
+                                    sb.Append('ß');
                                     break;
                                 }
 
@@ -3939,7 +3969,7 @@ namespace InnerLibs
 
                             case 'q':
                                 {
-                                    sb.Append("¶");
+                                    sb.Append('¶');
                                     break;
                                 }
 
@@ -3979,7 +4009,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static string ToNormalCase(this string Text) => Text.PascalCaseAdjust().Replace("_", WhitespaceChar);
+        public static string ToNormalCase(this string Text) => Text.Replace("_", WhitespaceChar).PascalCaseAdjust();
 
         /// <summary>
         /// Retorna um numero com o sinal de porcentagem
@@ -4052,11 +4082,11 @@ namespace InnerLibs
         public static string ToPhrase<TSource>(this IEnumerable<TSource> Texts, string PhraseStart = Empty, string And = "and", string EmptyValue = null, char Separator = ',')
         {
             Separator = Separator.IfBlank(',');
-            PhraseStart = PhraseStart.IfBlank(InnerLibs.Text.Empty);
+            PhraseStart = PhraseStart.IfBlank(Text.Empty);
 
             Texts = (Texts ?? Array.Empty<TSource>()).WhereNotBlank();
 
-            if (PhraseStart.IsNotBlank() && !PhraseStart.EndsWith(WhitespaceChar))
+            if (PhraseStart.IsNotBlank() && !PhraseStart.EndsWith(WhitespaceChar, StringComparison.InvariantCultureIgnoreCase))
             {
                 PhraseStart += WhitespaceChar;
             }
@@ -4070,7 +4100,7 @@ namespace InnerLibs
                     }
                     else
                     {
-                        PhraseStart = InnerLibs.Text.Empty;
+                        PhraseStart = Text.Empty;
                     }
                     break;
 
@@ -4120,7 +4150,7 @@ namespace InnerLibs
                         char c = pal.First();
                         if (!char.IsUpper(c))
                         {
-                            pal = char.ToUpper(c) + pal.RemoveFirstChars(1);
+                            pal = char.ToUpper(c, CultureInfo.InvariantCulture) + pal.RemoveFirstChars(1);
                         }
 
                         l[index] = pal;
@@ -4146,11 +4176,11 @@ namespace InnerLibs
                 int newindex = Generate.RandomNumber(0, ch.Length - 1);
                 if (char.IsUpper(ch[newindex]))
                 {
-                    ch[newindex] = char.ToLower(ch[newindex]);
+                    ch[newindex] = char.ToLower(ch[newindex], CultureInfo.InvariantCulture);
                 }
                 else
                 {
-                    ch[newindex] = char.ToUpper(ch[newindex]);
+                    ch[newindex] = char.ToUpper(ch[newindex], CultureInfo.InvariantCulture);
                 }
             }
 
@@ -4232,8 +4262,8 @@ namespace InnerLibs
         {
             if (Text.IsNotBlank())
             {
-                Text = Text.TrimFirstAny(ContinuouslyRemove, StringTest);
-                Text = Text.TrimLastAny(ContinuouslyRemove, StringTest);
+                Text = Text.TrimStartAny(ContinuouslyRemove, StringTest);
+                Text = Text.TrimEndAny(ContinuouslyRemove, StringTest);
             }
 
             return Text;
@@ -4251,7 +4281,7 @@ namespace InnerLibs
 
         public static string TrimBetween(this string Text)
         {
-            Text = Text.IfBlank(InnerLibs.Text.Empty);
+            Text = Text.IfBlank(Empty);
             if (Text.IsNotBlank())
             {
                 var arr = Text.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
@@ -4259,6 +4289,10 @@ namespace InnerLibs
                 arr = Text.Split(new string[] { WhitespaceChar }, StringSplitOptions.RemoveEmptyEntries);
                 Text = arr.SelectJoinString(WhitespaceChar);
                 Text = Text.TrimAny(WhitespaceChar, Environment.NewLine).Trim();
+
+
+
+
             }
 
             return Text;
@@ -4281,7 +4315,7 @@ namespace InnerLibs
         /// </param>
         /// <param name="StartStringTest">Conjunto de textos que serão comparados</param>
         /// <returns></returns>
-        public static string TrimFirstAny(this string Text, bool ContinuouslyRemove, StringComparison comparison, params string[] StartStringTest)
+        public static string TrimStartAny(this string Text, bool ContinuouslyRemove, StringComparison comparison, params string[] StartStringTest)
         {
             Text = Text ?? "";
             StartStringTest = StartStringTest ?? Array.Empty<string>();
@@ -4310,7 +4344,7 @@ namespace InnerLibs
         /// <param name="StartStringTest">Conjunto de textos que serão comparados</param>
         /// <param name="comparison"></param>
         /// <returns></returns>
-        public static string TrimFirstAny(this string Text, StringComparison comparison, params string[] StartStringTest) => Text.TrimFirstAny(true, comparison, StartStringTest);
+        public static string TrimStartAny(this string Text, StringComparison comparison, params string[] StartStringTest) => Text.TrimStartAny(true, comparison, StartStringTest);
 
         /// <summary>
         /// Remove continuamente o começo de uma string se ela for igual a qualquer um dos valores correspondentes
@@ -4318,7 +4352,7 @@ namespace InnerLibs
         /// <param name="Text">Texto</param>
         /// <param name="StartStringTest">Conjunto de textos que serão comparados</param>
         /// <returns></returns>
-        public static string TrimFirstAny(this string Text, params string[] StartStringTest) => Text.TrimFirstAny(true, default, StartStringTest);
+        public static string TrimStartAny(this string Text, params string[] StartStringTest) => Text.TrimStartAny(true, default, StartStringTest);
 
         /// <summary>
         /// Remove continuamente o começo de uma string se ela for igual a qualquer um dos valores correspondentes
@@ -4326,7 +4360,7 @@ namespace InnerLibs
         /// <param name="Text">Texto</param>
         /// <param name="StartStringTest">Conjunto de textos que serão comparados</param>
         /// <returns></returns>
-        public static string TrimFirstAny(this string Text, bool ContinuouslyRemove, params string[] StartStringTest) => Text.TrimFirstAny(ContinuouslyRemove, default, StartStringTest);
+        public static string TrimStartAny(this string Text, bool ContinuouslyRemove, params string[] StartStringTest) => Text.TrimStartAny(ContinuouslyRemove, default, StartStringTest);
 
         /// <summary>
         /// Remove um texto do inicio de uma string se ele for um outro texto especificado
@@ -4355,7 +4389,7 @@ namespace InnerLibs
         /// </param>
         /// <param name="EndStringTest">Conjunto de textos que serão comparados</param>
         /// <returns></returns>
-        public static string TrimLastAny(this string Text, bool ContinuouslyRemove, StringComparison comparison, params string[] EndStringTest)
+        public static string TrimEndAny(this string Text, bool ContinuouslyRemove, StringComparison comparison, params string[] EndStringTest)
         {
             Text = Text ?? "";
             EndStringTest = EndStringTest ?? Array.Empty<string>();
@@ -4383,7 +4417,7 @@ namespace InnerLibs
         /// <param name="Text">Texto</param>
         /// <param name="EndStringTest">Conjunto de textos que serão comparados</param>
         /// <returns></returns>
-        public static string TrimLastAny(this string Text, params string[] EndStringTest) => Text.TrimLastAny(true, default, EndStringTest);
+        public static string TrimEndAny(this string Text, params string[] EndStringTest) => Text.TrimEndAny(true, default, EndStringTest);
 
         /// <summary>
         /// Remove continuamente o final de uma string se ela for igual a qualquer um dos valores correspondentes
@@ -4392,7 +4426,7 @@ namespace InnerLibs
         /// <param name="EndStringTest">Conjunto de textos que serão comparados</param>
         /// <param name="ContinuouslyRemove">Remove continuamente as strings</param>
         /// <returns></returns>
-        public static string TrimLastAny(this string Text, bool ContinuouslyRemove, params string[] EndStringTest) => Text.TrimLastAny(ContinuouslyRemove, default, EndStringTest);
+        public static string TrimEndAny(this string Text, bool ContinuouslyRemove, params string[] EndStringTest) => Text.TrimEndAny(ContinuouslyRemove, default, EndStringTest);
 
         /// <summary>
         /// Remove continuamente o final de uma string se ela for igual a qualquer um dos valores correspondentes
@@ -4400,7 +4434,7 @@ namespace InnerLibs
         /// <param name="Text">Texto</param>
         /// <param name="EndStringTest">Conjunto de textos que serão comparados</param>
         /// <returns></returns>
-        public static string TrimLastAny(this string Text, StringComparison comparison, params string[] EndStringTest) => Text.TrimLastAny(true, comparison, EndStringTest);
+        public static string TrimEndAny(this string Text, StringComparison comparison, params string[] EndStringTest) => Text.TrimEndAny(true, comparison, EndStringTest);
 
         /// <summary>
         /// Remove um texto do final de uma string se ele for um outro texto

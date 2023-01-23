@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.Serialization;
 
 namespace InnerLibs
 {
@@ -636,6 +637,7 @@ namespace InnerLibs
 
         public HtmlNodeType Type { get; private set; }
 
+        [IgnoreDataMember]
         public HtmlTag this[string ID]
         {
             get => Children.FirstOrDefault(x => x.ID == ID);
@@ -751,7 +753,7 @@ namespace InnerLibs
         {
             if (HtmlStringOrURL.IsURL())
             {
-                HtmlStringOrURL = Web.DownloadString(HtmlStringOrURL);
+                HtmlStringOrURL = WebExtensions.DownloadString(HtmlStringOrURL);
             }
             return HtmlStringOrURL.IsNotBlank() ? HtmlParser.Instance.Parse(HtmlStringOrURL) : Array.Empty<HtmlTag>();
         }

@@ -141,25 +141,21 @@ namespace InnerLibs
 
         public void CopyTo(Array array, int index)
         {
-            if (array == null)
+
+            if (array != null && array is TClass[] ppArray)
             {
-                throw new ArgumentNullException("array");
+                ((ICollection<TClass>)this).CopyTo(ppArray, index);
+            }
+            else
+            {
+                throw new ArgumentNullException(nameof(array));
             }
 
-            TClass[] ppArray = array as TClass[];
-            if (ppArray == null)
-            {
-                throw new ArgumentException();
-            } ((ICollection<TClass>)this).CopyTo(ppArray, index);
         }
 
         public IEnumerator<KeyValuePair<TK, TClass>> GetEnumerator() => collection.Select(x => new KeyValuePair<TK, TClass>(keyselector(x), x)).GetEnumerator();
 
-        public bool Remove(TK key)
-        {
-            if (ContainsKey(key))
-            {
-                var success = Misc.TryExecute(() =>
+        public bool Remove(TK key) => ContainsKey(key) && Misc.TryExecute(() =>
                     {
                         var ii = collection.FirstOrDefault(x => keyselector(x).Equals(key));
 
@@ -168,12 +164,6 @@ namespace InnerLibs
                             collection.Remove(ii);
                         }
                     }) == null;
-
-                return success;
-            }
-
-            return false;
-        }
 
         public bool Remove(TClass Value) => Remove(keyselector(Value));
 

@@ -290,7 +290,7 @@ namespace InnerLibs
         /// <param name="MinWordCount"></param>
         /// <param name="MaxWordCount"></param>
         /// <returns></returns>
-        public static TextStructure RandomIpsum(int ParagraphCount = 5, int SentenceCount = 3, int MinWordCount = 10, int MaxWordCount = 50, int IdentSize = 0, int BreakLinesBetweenParagraph = 0) => new TextStructure(Enumerable.Range(1, ParagraphCount.SetMinValue(1)).SelectJoinString(pp => Enumerable.Range(1, SentenceCount.SetMinValue(1)).SelectJoinString(s => Enumerable.Range(1, RandomNumber(MinWordCount.SetMinValue(1), MaxWordCount.SetMinValue(1))).SelectJoinString(p => RandomBool(20).AsIf(RandomWord(RandomNumber(2, 6)).ToUpper(), RandomWord()) + RandomBool(30).AsIf(","), " "), PredefinedArrays.EndOfSentencePunctuation.TakeRandom() + " "), Environment.NewLine)) { Ident = IdentSize, BreakLinesBetweenParagraph = BreakLinesBetweenParagraph };
+        public static TextStructure RandomIpsum(int ParagraphCount = 5, int SentenceCount = 3, int MinWordCount = 10, int MaxWordCount = 50, int IdentSize = 0, int BreakLinesBetweenParagraph = 0) => new TextStructure(Enumerable.Range(1, ParagraphCount.SetMinValue(1)).SelectJoinString(pp => Enumerable.Range(1, SentenceCount.SetMinValue(1)).SelectJoinString(s => Enumerable.Range(1, RandomNumber(MinWordCount.SetMinValue(1), MaxWordCount.SetMinValue(1))).SelectJoinString(p => RandomBool(20).AsIf(RandomWord(RandomNumber(2, 6)).ToUpperInvariant(), RandomWord()) + RandomBool(30).AsIf(","), " "), PredefinedArrays.EndOfSentencePunctuation.TakeRandom() + " "), Environment.NewLine)) { Ident = IdentSize, BreakLinesBetweenParagraph = BreakLinesBetweenParagraph };
 
         /// <summary>
         /// Gera um numero Aleatório entre 2 números
@@ -372,7 +372,7 @@ namespace InnerLibs
             string word = InnerLibs.Text.Empty;
             if (Length == 1)
             {
-                return Text.RandomItem(PredefinedArrays.AlphaLowerChars.ToArray());
+                return Text.RandomItem(PredefinedArrays.Vowels.ToArray());
             }
 
             // Generate the word in consonant / vowel pairs
@@ -417,25 +417,9 @@ namespace InnerLibs
         /// <param name="local">
         /// Uma variavel do tipo InnerLibs.Location onde estão as informações como endereço e as
         /// coordenadas geográficas
-        /// </param>
-        /// <param name="LatLong">
-        /// Gerar URL baseado na latitude e Longitude. Padrão FALSE retorna a URL baseada no Logradouro
-        /// </param>
+        /// </param> 
         /// <returns>Uma URI do Google Maps</returns>
-        public static Uri ToGoogleMapsURL(this AddressInfo local, bool LatLong = false)
-        {
-            string s;
-            if (LatLong == true && local.Latitude.HasValue && local.Longitude.HasValue)
-            {
-                s = Uri.EscapeUriString(local.LatitudeLongitude().TrimBetween());
-            }
-            else
-            {
-                s = Uri.EscapeUriString(local.FullAddress.FixText());
-            }
-
-            return new Uri("https://www.google.com.br/maps/search/" + s);
-        }
+        public static Uri ToGoogleMapsURL(this AddressInfo local, params AddressPart[] Parts) => local != null ? new Uri($"https://www.google.com.br/maps/search/{Uri.EscapeUriString(local.ToString(Parts))}") : null;
 
         #endregion Public Methods
     }

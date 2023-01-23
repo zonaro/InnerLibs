@@ -394,7 +394,7 @@ namespace InnerLibs.LINQ
             bool comparewith = !Operator.StartsWithAny("!");
             if (comparewith == false)
             {
-                Operator = Operator.TrimFirstAny(false, "!");
+                Operator = Operator.TrimStartAny(false, "!");
             }
 
             BinaryExpression body = null;
@@ -1304,27 +1304,13 @@ namespace InnerLibs.LINQ
             {
                 if (Selector != null)
                 {
-                    if (Data is IOrderedEnumerable<T>)
+                    if (Data is IOrderedEnumerable<T> datav)
                     {
-                        if (Ascending)
-                        {
-                            Data = ((IOrderedEnumerable<T>)Data).ThenBy(Selector.Compile());
-                        }
-                        else
-                        {
-                            Data = ((IOrderedEnumerable<T>)Data).ThenByDescending(Selector.Compile());
-                        }
+                        Data = Ascending ? datav.ThenBy(Selector.Compile()) : (IEnumerable<T>)datav.ThenByDescending(Selector.Compile());
                     }
                     else if (Data is IEnumerable<T>)
                     {
-                        if (Ascending)
-                        {
-                            Data = Data.OrderBy(Selector.Compile());
-                        }
-                        else
-                        {
-                            Data = Data.OrderByDescending(Selector.Compile());
-                        }
+                        Data = Ascending ? Data.OrderBy(Selector.Compile()) : (IEnumerable<T>)Data.OrderByDescending(Selector.Compile());
                     }
                 }
             }
@@ -1346,27 +1332,13 @@ namespace InnerLibs.LINQ
             {
                 if (Selector != null)
                 {
-                    if (Data is IOrderedQueryable<T>)
+                    if (Data is IOrderedQueryable<T> datav)
                     {
-                        if (Ascending)
-                        {
-                            Data = ((IOrderedQueryable<T>)Data).ThenBy(Selector);
-                        }
-                        else
-                        {
-                            Data = ((IOrderedQueryable<T>)Data).ThenByDescending(Selector);
-                        }
+                        Data = Ascending ? datav.ThenBy(Selector) : (IQueryable<T>)datav.ThenByDescending(Selector);
                     }
                     else if (Data is IQueryable<T>)
                     {
-                        if (Ascending)
-                        {
-                            Data = Data.OrderBy(Selector);
-                        }
-                        else
-                        {
-                            Data = Data.OrderByDescending(Selector);
-                        }
+                        Data = Ascending ? Data.OrderBy(Selector) : (IQueryable<T>)Data.OrderByDescending(Selector);
                     }
                 }
             }
@@ -1525,18 +1497,27 @@ namespace InnerLibs.LINQ
         /// <returns></returns>
         public static IOrderedEnumerable<TObject> Rank<TObject, TValue, TRank>(this IEnumerable<TObject> values, Expression<Func<TObject, TValue>> ValueSelector, Expression<Func<TObject, TRank>> RankSelector) where TObject : class where TValue : IComparable where TRank : IComparable
         {
-            if (values != null && ValueSelector != null && RankSelector != null)
+            if (values != null)
             {
-                var filtered = values.OrderByDescending(ValueSelector.Compile()).Select(ValueSelector.Compile()).Distinct().ToList();
-
-                foreach (TObject item in values)
+                if (ValueSelector != null)
                 {
-                    item.SetPropertyValue(RankSelector, (filtered.IndexOf((ValueSelector.Compile().Invoke(item))) + 1).ChangeType<TRank>());
-                }
-                return values.OrderBy(RankSelector.Compile());
-            }
+                    values = values.OrderByDescending(ValueSelector.Compile());
 
-            return values.OrderBy(x => true);
+                    if (RankSelector != null)
+                    {
+                        var filtered = values.Select(ValueSelector.Compile()).Distinct().ToList();
+                        foreach (TObject item in values)
+                        {
+                            item.SetPropertyValue(RankSelector, (filtered.IndexOf((ValueSelector.Compile().Invoke(item))) + 1).ChangeType<TRank>());
+                        }
+                        return values.OrderBy(RankSelector.Compile());
+                    }
+                    return values as IOrderedEnumerable<TObject>;
+                }
+                return values.OrderBy(x => 0);
+            }
+            return null;
+
         }
 
         public static List<T> RemoveWhere<T>(this List<T> list, Expression<Func<T, bool>> predicate)
@@ -1545,6 +1526,7 @@ namespace InnerLibs.LINQ
             {
                 if (predicate != null)
                 {
+
                     while (true)
                     {
                         var obj = list.FirstOrDefault(predicate.Compile());
@@ -1564,24 +1546,23 @@ namespace InnerLibs.LINQ
         }
 
         /// <summary>
-        /// Retorna um <see cref="IQueryable(Of ClassType)"/> procurando em varios campos diferentes
+        /// Retorna um <see cref="IQueryable{T}"/> procurando em varios campos diferentes
         /// de uma entidade
         /// </summary>
-        /// <typeparam name="ClassType">Tipo da Entidade</typeparam>
+        /// <typeparam name="T">Tipo da Entidade</typeparam>
         /// <param name="Table">Tabela da Entidade</param>
         /// <param name="SearchTerms">Termos da pesquisa</param>
         /// <param name="Properties">Propriedades onde <paramref name="SearchTerms"/> serão procurados</param>
         /// <returns></returns>
-        public static IQueryable<ClassType> Search<ClassType>(this IQueryable<ClassType> Table, IEnumerable<string> SearchTerms, params Expression<Func<ClassType, string>>[] Properties) where ClassType : class
+        public static IQueryable<T> Search<T>(this IQueryable<T> Table, IEnumerable<string> SearchTerms, params Expression<Func<T, string>>[] Properties) where T : class
         {
-            IQueryable<ClassType> SearchRet = default;
-            Properties = Properties ?? Array.Empty<Expression<Func<ClassType, string>>>();
+            Properties = Properties ?? Array.Empty<Expression<Func<T, string>>>();
             SearchTerms = SearchTerms ?? Array.Empty<string>().AsEnumerable();
-            SearchRet = Table.Where(SearchTerms.SearchExpression(Properties));
-            return SearchRet;
+            return Table.Where(SearchTerms.SearchExpression(Properties));
+
         }
 
-        public static IQueryable<ClassType> Search<ClassType>(this IQueryable<ClassType> Table, string SearchTerm, params Expression<Func<ClassType, string>>[] Properties) where ClassType : class => Search(Table, new[] { SearchTerm }, Properties);
+        public static IQueryable<T> Search<T>(this IQueryable<T> Table, string SearchTerm, params Expression<Func<T, string>>[] Properties) where T : class => Search(Table, new[] { SearchTerm }, Properties);
 
         public static Expression<Func<T, bool>> SearchExpression<T>(this IEnumerable<string> Text, params Expression<Func<T, string>>[] Properties)
         {
@@ -1615,27 +1596,27 @@ namespace InnerLibs.LINQ
         /// Retorna um <see cref="IQueryable(Of ClassType)"/> procurando em varios campos diferentes
         /// de uma entidade
         /// </summary>
-        /// <typeparam name="ClassType">Tipo da Entidade</typeparam>
+        /// <typeparam name="TClass">Tipo da Entidade</typeparam>
         /// <param name="Table">Tabela da Entidade</param>
         /// <param name="SearchTerms">Termos da pesquisa</param>
         /// <param name="Properties">Propriedades onde <paramref name="SearchTerms"/> serão procurados</param>
         /// <returns></returns>
-        public static IOrderedEnumerable<ClassType> SearchInOrder<ClassType>(this IEnumerable<ClassType> Table, IEnumerable<string> SearchTerms, params Expression<Func<ClassType, string>>[] Properties) where ClassType : class
+        public static IOrderedEnumerable<TClass> SearchInOrder<TClass>(this IEnumerable<TClass> Table, IEnumerable<string> SearchTerms, bool Ascending, params Expression<Func<TClass, string>>[] Properties) where TClass : class
         {
-            IOrderedEnumerable<ClassType> SearchRet = default;
-            Properties = Properties ?? Array.Empty<Expression<Func<ClassType, string>>>();
+            IOrderedEnumerable<TClass> SearchRet = default;
+            Properties = Properties ?? Array.Empty<Expression<Func<TClass, string>>>();
             SearchTerms = SearchTerms ?? Array.Empty<string>().AsEnumerable();
             SearchRet = null;
             Table = Table.Where(SearchTerms.SearchExpression(Properties).Compile());
             foreach (var prop in Properties)
             {
-                SearchRet = (SearchRet ?? Table.OrderBy(x => true)).ThenByLike(prop.Compile(), true, SearchTerms.ToArray());
+                SearchRet = (SearchRet ?? Table.OrderBy(x => true)).ThenByLike(prop.Compile(), Ascending, SearchTerms.ToArray());
             }
 
             return SearchRet;
         }
-
-        public static IOrderedQueryable<ClassType> SearchInOrder<ClassType>(this IQueryable<ClassType> Table, IEnumerable<string> SearchTerms, params Expression<Func<ClassType, string>>[] Properties) where ClassType : class
+        public static IOrderedEnumerable<TClass> SearchInOrder<TClass>(this IEnumerable<TClass> Table, IEnumerable<string> SearchTerms, params Expression<Func<TClass, string>>[] Properties) where TClass : class => SearchInOrder(Table, SearchTerms, true, Properties);
+        public static IOrderedQueryable<TClass> SearchInOrder<TClass>(this IQueryable<TClass> Table, IEnumerable<string> SearchTerms, params Expression<Func<TClass, string>>[] Properties) where TClass : class
         {
             var SearchRet = Table.Search(SearchTerms, Properties).OrderBy(x => true);
             foreach (var prop in Properties)
@@ -1787,47 +1768,50 @@ namespace InnerLibs.LINQ
         {
             var type = typeof(T);
             Searches = Searches ?? Array.Empty<string>();
-            if (Searches.Any())
+            if (items != null)
             {
-                foreach (var t in Searches)
+                if (Searches.Any() && SortProperty != null)
                 {
-                    MemberExpression mem = (MemberExpression)SortProperty.Body;
-                    var property = mem.Member;
-                    var parameter = SortProperty.Parameters.First();
-                    var propertyAccess = Expression.MakeMemberAccess(parameter, property);
-                    var orderByExp = Expression.Lambda(propertyAccess, parameter);
-                    var tests = new[] { Expression.Call(propertyAccess, equalMethod, Expression.Constant(t)), Expression.Call(propertyAccess, startsWithMethod, Expression.Constant(t)), Expression.Call(propertyAccess, containsMethod, Expression.Constant(t)), Expression.Call(propertyAccess, endsWithMethod, Expression.Constant(t)) };
-                    foreach (var exp in tests)
+                    foreach (var t in Searches)
                     {
-                        var nv = Expression.Lambda<Func<T, bool>>(exp, parameter);
-                        if (Ascending)
+                        MemberExpression mem = SortProperty.Body as MemberExpression;
+                        var property = mem.Member;
+                        var parameter = SortProperty.Parameters.First();
+                        var propertyAccess = Expression.MakeMemberAccess(parameter, property);
+                        var orderByExp = Expression.Lambda(propertyAccess, parameter);
+                        var tests = new[] { Expression.Call(propertyAccess, equalMethod, Expression.Constant(t)), Expression.Call(propertyAccess, startsWithMethod, Expression.Constant(t)), Expression.Call(propertyAccess, containsMethod, Expression.Constant(t)), Expression.Call(propertyAccess, endsWithMethod, Expression.Constant(t)) };
+                        foreach (var exp in tests)
                         {
-                            if (!ReferenceEquals(items.GetType(), typeof(IOrderedQueryable<T>)))
+                            var nv = Expression.Lambda<Func<T, bool>>(exp, parameter);
+                            if (Ascending)
                             {
-                                items = items.OrderByDescending(nv);
+                                if (!ReferenceEquals(items.GetType(), typeof(IOrderedQueryable<T>)))
+                                {
+                                    items = items.OrderByDescending(nv);
+                                }
+                                else
+                                {
+                                    items = ((IOrderedQueryable<T>)items).ThenByDescending(nv);
+                                }
+                            }
+                            else if (!ReferenceEquals(items.GetType(), typeof(IOrderedQueryable<T>)))
+                            {
+                                items = items.OrderBy(nv);
                             }
                             else
                             {
-                                items = ((IOrderedQueryable<T>)items).ThenByDescending(nv);
+                                items = ((IOrderedQueryable<T>)items).ThenBy(nv);
                             }
-                        }
-                        else if (!ReferenceEquals(items.GetType(), typeof(IOrderedQueryable<T>)))
-                        {
-                            items = items.OrderBy(nv);
-                        }
-                        else
-                        {
-                            items = ((IOrderedQueryable<T>)items).ThenBy(nv);
                         }
                     }
                 }
+                else
+                {
+                    items = items.OrderBy(x => 0);
+                }
+                return (IOrderedQueryable<T>)items;
             }
-            else
-            {
-                items = items.OrderBy(x => 0);
-            }
-
-            return (IOrderedQueryable<T>)items;
+            throw new ArgumentNullException(nameof(items));
         }
 
         /// <summary>
@@ -1840,46 +1824,33 @@ namespace InnerLibs.LINQ
         /// <param name="Ascending"></param>
         /// <param name="Searches"></param>
         /// <returns></returns>
-        public static IOrderedEnumerable<T> ThenByLike<T>(this IEnumerable<T> items, Func<T, string> PropertySelector, bool Ascending, params string[] Searches) where T : class
+        public static IOrderedEnumerable<T> ThenByLike<T>(this IEnumerable<T> items, Func<T, string> PropertySelector, bool Ascending, params string[] Searches) where T : class => ThenByLike(items, PropertySelector, Ascending, StringComparison.InvariantCultureIgnoreCase, Searches);
+        public static IOrderedEnumerable<T> ThenByLike<T>(this IEnumerable<T> items, Func<T, string> PropertySelector, bool Ascending, StringComparison Comparison, params string[] Searches) where T : class
         {
-            IOrderedEnumerable<T> newitems = null;
+
             Searches = Searches ?? Array.Empty<string>();
-            if (items.GetType() != typeof(IOrderedEnumerable<T>))
+            if (items != null)
             {
-                items = items.OrderBy(x => 0);
-            }
-            else
-            {
-                newitems = (IOrderedEnumerable<T>)items;
-            }
+                IOrderedEnumerable<T> newitems = items is IOrderedEnumerable<T> oitems ? oitems : items.OrderBy(x => 0);
 
-            if (Searches.Any())
-            {
-                foreach (var t in Searches)
+                if (Searches.Any())
                 {
-                    var arr = new[]
+                    Searches.Each(s =>
                     {
-                        new Func<T, bool>(x => (PropertySelector(x) ?? InnerLibs.Text.Empty) == (t ?? InnerLibs.Text.Empty)),
-                        new Func<T, bool>(x => PropertySelector(x).StartsWith(t)),
-                        new Func<T, bool>(x => PropertySelector(x).Contains(t)),
-                        new Func<T, bool>(x => PropertySelector(x).EndsWith(t))
-                    };
+                        bool func(T x) => PropertySelector.Invoke(x).Equals(s, Comparison);
+                        newitems = Ascending ? newitems.ThenByDescending(func) : newitems.ThenBy(func);
+                    });
 
-                    foreach (var exp in arr)
+                    Searches.Each(s =>
                     {
-                        if (Ascending)
-                        {
-                            newitems = newitems.ThenByDescending(exp);
-                        }
-                        else
-                        {
-                            newitems = newitems.ThenBy(exp);
-                        }
-                    }
+                        int func(T x) => PropertySelector.Invoke(x).IndexOf(s, Comparison);
+                        newitems = Ascending ? newitems.ThenBy(func) : newitems.ThenByDescending(func);
+                    });
                 }
-            }
 
-            return newitems;
+                return newitems;
+            }
+            throw new ArgumentNullException(nameof(items));
         }
 
         /// <summary>
@@ -1902,34 +1873,33 @@ namespace InnerLibs.LINQ
         /// <returns></returns>
         public static IOrderedQueryable<T> ThenByProperty<T>(this IQueryable<T> source, string[] SortProperty, bool Ascending = true)
         {
+            if (source == null) throw new ArgumentNullException(nameof(source));
+
             var type = typeof(T);
             SortProperty = SortProperty ?? Array.Empty<string>();
             foreach (var prop in SortProperty)
             {
-                var property = type.GetProperty(prop);
+                var property = type.FindProperty(prop);
                 var parameter = Expression.Parameter(type, "p");
                 var propertyAccess = Expression.MakeMemberAccess(parameter, property);
                 var orderByExp = Expression.Lambda(propertyAccess, parameter);
                 var typeArguments = new Type[] { type, property.PropertyType };
-                string methodname = "OrderBy";
-                if (!ReferenceEquals(source.GetType(), typeof(IOrderedQueryable<T>)))
-                {
-                    methodname = Array.IndexOf(SortProperty, prop) > 0 ? Ascending ? "ThenBy" : "ThenByDescending" : Ascending ? "OrderBy" : "OrderByDescending";
-                }
-                else
-                {
-                    methodname = Ascending ? "ThenBy" : "ThenByDescending";
-                }
-
+                string methodname = source.GetType() == typeof(IOrderedQueryable<T>)
+                    ? Ascending ? "ThenBy" : "ThenByDescending"
+                    : Ascending ? "OrderBy" : "OrderByDescending";
                 var resultExp = Expression.Call(typeof(Queryable), methodname, typeArguments, source.Expression, Expression.Quote(orderByExp));
                 source = source.Provider.CreateQuery<T>(resultExp);
             }
+            return source.GetType() != typeof(IOrderedQueryable<T>) ? source.OrderBy(x => true) : (IOrderedQueryable<T>)source;
 
-            return (IOrderedQueryable<T>)source;
+
         }
 
+        public static IOrderedQueryable<T> OrderByProperty<T>(this IQueryable<T> source, string[] SortProperty, bool Ascending = true) => ThenByProperty(source, SortProperty, Ascending);
+        public static IOrderedEnumerable<T> OrderByProperty<T>(this IEnumerable<T> source, string[] SortProperty, bool Ascending = true) => ThenByProperty(source, SortProperty, Ascending);
+
         /// <summary>
-        /// Ordena um <see cref="IEnumerable(Of T)"/> a partir do nome de uma ou mais propriedades
+        /// Ordena um <see cref="IEnumerable{T}"/> a partir do nome de uma ou mais propriedades
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="source"></param>
@@ -1938,22 +1908,30 @@ namespace InnerLibs.LINQ
         /// <returns></returns>
         public static IOrderedEnumerable<T> ThenByProperty<T>(this IEnumerable<T> source, string[] SortProperty, bool Ascending = true)
         {
+            if (source == null) throw new ArgumentNullException(nameof(source));
+
             var type = typeof(T);
             SortProperty = SortProperty ?? Array.Empty<string>();
             foreach (var prop in SortProperty)
             {
-                object exp(T x) => x.GetPropertyValue<object, object>(prop);
-                if (source.GetType() != typeof(IOrderedEnumerable<T>))
+
+                var propInfo = Misc.FindProperty(typeof(T), prop);
+
+                if (propInfo != null)
                 {
-                    source = Array.IndexOf(SortProperty, prop) > 0 ? Ascending ? ((IOrderedEnumerable<T>)source).ThenBy(exp) : ((IOrderedEnumerable<T>)source).ThenByDescending(exp) : Ascending ? source.OrderBy(exp) : source.OrderByDescending(exp);
-                }
-                else
-                {
-                    source = Ascending ? ((IOrderedEnumerable<T>)source).ThenBy(exp) : ((IOrderedEnumerable<T>)source).ThenByDescending(exp);
+                    object exp(T x) => propInfo.GetValue(x);
+                    if (source.GetType() == typeof(IOrderedEnumerable<T>))
+                    {
+                        source = Ascending ? ((IOrderedEnumerable<T>)source).ThenBy(exp) : ((IOrderedEnumerable<T>)source).ThenByDescending(exp);
+                    }
+                    else
+                    {
+                        source = Ascending ? source.OrderBy(exp) : source.OrderByDescending(exp);
+                    }
                 }
             }
 
-            return (IOrderedEnumerable<T>)source;
+            return source.GetType() != typeof(IOrderedEnumerable<T>) ? source.OrderBy(x => true) : (IOrderedEnumerable<T>)source;
         }
 
         /// <summary>

@@ -6,18 +6,24 @@ using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.Serialization;
 
-namespace InnerLibs.QuestionTest
+namespace InnerLibs.QuestionTests
 {
+
+
+
     public static class QuestionTestExtensions
     {
         #region Public Methods
 
-        public static List<QuestionTest> Rank(this List<QuestionTest> Tests)
-        {
-            Tests?.Sort();
-            return Tests;
-        }
+        //public static IEnumerable<QuestionTest> GenerateFor(QuestionTest question, IEnumerable<Dictionary<string, string>> personalInfo)
+        //{
+        //    var l = new List<QuestionTest>();
+
+        //}
+
+        public static IEnumerable<QuestionTest> Rank(this IEnumerable<QuestionTest> Tests) => LINQExtensions.Rank(Tests, x => x.FinalNote, x => x.Rank);
 
         public static TQuestion SetWeight<TQuestion>(this TQuestion Question, decimal Weight) where TQuestion : Question
         {
@@ -61,7 +67,7 @@ namespace InnerLibs.QuestionTest
         /// Valor que indica se esta alternativa foi assinalada
         /// </summary>
         /// <returns></returns>
-        public bool Checked { get; set; }
+        public bool? Checked { get; set; } = null;
 
         /// <summary>
         /// Valor que indica se a alternativa está correta ou verdadeira
@@ -79,19 +85,32 @@ namespace InnerLibs.QuestionTest
         /// Verifica se a resposta do usuário é correta para esta alternativa
         /// </summary>
         /// <returns></returns>
-        public bool IsCorrect => Checked == Correct;
+        public bool IsCorrect => Checked != null && Checked == Correct;
 
         /// <summary>
-        /// O numero da alternativa
+        /// T numero da alternativa
         /// </summary>
         /// <returns></returns>
         public int Number
         {
             get => Question != null ? Question.Alternatives.IndexOf(this) + 1 : -1;
 
-            set => Question?.Alternatives.Move(Question.Alternatives.IndexOf(this), (value - 1).LimitRange(0, Question.Alternatives.Count - 1));
+            set
+            {
+                value = (value - 1).LimitRange(0, Question.Alternatives.Count - 1);
+                if (Question != null)
+                {
+                    var oldindex = Question.Alternatives.IndexOf(this);
+                    if (oldindex >= 0)
+                        Question.Alternatives.Move(oldindex, value);
+                    else
+                        Question.Alternatives.Insert(value, this);
+
+                }
+            }
         }
 
+        [IgnoreDataMember]
         public AlternativeQuestion Question => _question;
 
         /// <summary>
@@ -128,6 +147,8 @@ namespace InnerLibs.QuestionTest
 
 
         #region Public Properties
+
+        [IgnoreDataMember]
 
         public AlternativeQuestion Question { get; private set; }
 
@@ -174,7 +195,7 @@ namespace InnerLibs.QuestionTest
         {
             if (Alternatives != null)
                 foreach (var alt in Alternatives)
-                    Add(alt);
+                    if (alt != null) Add(alt);
         }
 
         public override string ToString() => ToString("Alternatives");
@@ -189,7 +210,7 @@ namespace InnerLibs.QuestionTest
     {
         #region Internal Constructors
 
-        internal AlternativeQuestion() : base()
+        internal AlternativeQuestion(QuestionTest test) : base(test)
         {
             Alternatives = new AlternativeList(this);
         }
@@ -216,7 +237,7 @@ namespace InnerLibs.QuestionTest
         /// Retorna as alternativas marcadas pelo usuário
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<Alternative> Answer => Alternatives.Where(p => p.Checked);
+        public IEnumerable<Alternative> Answer => Alternatives.Where(p => p.Checked ?? false);
 
         #endregion Public Properties
 
@@ -266,9 +287,9 @@ namespace InnerLibs.QuestionTest
 
         #region Internal Constructors
 
-        internal DissertativeQuestion(QuestionTest Test) : base()
+        internal DissertativeQuestion(QuestionTest Test) : base(Test)
         {
-            _test = Test;
+
         }
 
         #endregion Internal Constructors
@@ -331,16 +352,16 @@ namespace InnerLibs.QuestionTest
     }
 
     /// <summary>
-    /// Pergunta de Verdadeiro ou Falso. O Usuário deverá assinalar as questões verdadeiras ou
+    /// Pergunta de Verdadeiro ou Falso. T Usuário deverá assinalar as questões verdadeiras ou
     /// falsas correspondente ao enunciado da pergunta.
     /// </summary>
     public class MultipleAlternativeQuestion : AlternativeQuestion
     {
         #region Internal Constructors
 
-        internal MultipleAlternativeQuestion(QuestionTest Test) : base()
+        internal MultipleAlternativeQuestion(QuestionTest Test) : base(Test)
         {
-            this._test = Test;
+
         }
 
         #endregion Internal Constructors
@@ -384,9 +405,9 @@ namespace InnerLibs.QuestionTest
 
         #region Internal Constructors
 
-        internal NumericQuestion(QuestionTest Test) : base()
+        internal NumericQuestion(QuestionTest Test) : base(Test)
         {
-            _test = Test;
+
         }
 
         #endregion Internal Constructors
@@ -457,7 +478,11 @@ namespace InnerLibs.QuestionTest
 
         #region Internal Constructors
 
-        internal Question() => _statement = new QuestionStatement() { _question = this };
+        internal Question(QuestionTest Test)
+        {
+            _statement = new QuestionStatement() { _question = this };
+            _test = Test;
+        }
 
         #endregion Internal Constructors
 
@@ -474,7 +499,7 @@ namespace InnerLibs.QuestionTest
         public decimal HitsPercent => Hits.CalculatePercent(Weight);
 
         /// <summary>
-        /// O codigo de identificação desta questão
+        /// T codigo de identificação desta questão
         /// </summary>
         /// <returns></returns>
         public string ID => Test != null ? $"Q{Number}" : null;
@@ -491,9 +516,25 @@ namespace InnerLibs.QuestionTest
         /// <returns></returns>
         public int Number
         {
-            get => Test != null ? Test.IndexOf(this) + 1 : -1;
+            get
+            {
+                return Test.IndexOf(this) + 1;
 
-            set => Test?.Move(Test.IndexOf(this), (value - 1).LimitRange(0, Test.Count - 1));
+            }
+
+            set
+            {
+                value = (value - 1).LimitRange(0, Test.Count - 1);
+                if (Test != null)
+                {
+                    var oldindex = Test.IndexOf(this);
+                    if (oldindex >= 0)
+                        Test.Move(oldindex, value);
+                    else
+                        Test.Insert(value, this);
+
+                }
+            }
         }
 
         /// <summary>
@@ -525,6 +566,7 @@ namespace InnerLibs.QuestionTest
                 }
             }
         }
+
 
         public QuestionTest Test => _test;
 
@@ -614,7 +656,7 @@ namespace InnerLibs.QuestionTest
     /// Classe que representa uma Avaliação de Perguntas e respostas, podendo elas serem
     /// Dissertativas, Multipla Escolha ou de Atribuição de Pontos
     /// </summary>
-    [Serializable]
+
     public class QuestionTest : ObservableCollection<Question>, IComparable<QuestionTest>, IComparable
     {
         #region Private Fields
@@ -685,6 +727,13 @@ namespace InnerLibs.QuestionTest
         /// </summary>
         /// <returns></returns>
         public decimal FinalNote => Average + Bonus;
+
+        /// <summary>
+        /// Posição desta avaliação em relação a outras avaliações
+        /// </summary>
+        /// <remarks>Coloque todas as avaliações em uma <see cref="IEnumerable{QuestionTest}"/> e utilize o metodo <see cref="QuestionTestExtensions.Rank(IEnumerable{QuestionTest})"/></remarks>
+        public int Rank { get; set; }
+
 
         public string Footer { get; set; }
 
@@ -806,40 +855,17 @@ namespace InnerLibs.QuestionTest
 
         #endregion Protected Methods
 
-        public static bool operator !=(QuestionTest left, QuestionTest right)
-        {
-            return !(left == right);
-        }
+        public static bool operator !=(QuestionTest left, QuestionTest right) => !(left == right);
 
-        public static bool operator <(QuestionTest left, QuestionTest right)
-        {
-            return ReferenceEquals(left, null) ? !ReferenceEquals(right, null) : left.CompareTo(right) < 0;
-        }
+        public static bool operator <(QuestionTest left, QuestionTest right) => left == null || right != null && left.CompareTo(right) < 0;
 
-        public static bool operator <=(QuestionTest left, QuestionTest right)
-        {
-            return ReferenceEquals(left, null) || left.CompareTo(right) <= 0;
-        }
+        public static bool operator <=(QuestionTest left, QuestionTest right) => left == right || left < right;
 
-        public static bool operator ==(QuestionTest left, QuestionTest right)
-        {
-            if (ReferenceEquals(left, null))
-            {
-                return ReferenceEquals(right, null);
-            }
+        public static bool operator ==(QuestionTest left, QuestionTest right) => left is null ? right is null : left.Equals(right);
 
-            return left.Equals(right);
-        }
+        public static bool operator >(QuestionTest left, QuestionTest right) => !(left == null) && left.CompareTo(right) > 0;
 
-        public static bool operator >(QuestionTest left, QuestionTest right)
-        {
-            return !ReferenceEquals(left, null) && left.CompareTo(right) > 0;
-        }
-
-        public static bool operator >=(QuestionTest left, QuestionTest right)
-        {
-            return ReferenceEquals(left, null) ? ReferenceEquals(right, null) : left.CompareTo(right) >= 0;
-        }
+        public static bool operator >=(QuestionTest left, QuestionTest right) => left == right || left > right;
 
         public int CompareTo(object obj)
         {
@@ -868,7 +894,7 @@ namespace InnerLibs.QuestionTest
             return pos;
         }
 
-        public int CompareTo(QuestionTest other) => CompareTo(other?.FinalNote);
+        public int CompareTo(QuestionTest other) => CompareTo(other?.FinalNote ?? 0);
 
         /// <summary>
         /// Cria uma questão dissertativa para esta prova
@@ -878,8 +904,10 @@ namespace InnerLibs.QuestionTest
         /// <returns></returns>
         public DissertativeQuestion CreateDissertativeQuestion(string Statement, int Lines = 3)
         {
-            var q = CreateQuestion<DissertativeQuestion>(Statement);
+            var q = new DissertativeQuestion(this);
+            q.Statement.Text = Statement;
             q.Lines = Lines;
+            this.Add(q);
             return q;
         }
         /// <summary>
@@ -890,19 +918,23 @@ namespace InnerLibs.QuestionTest
         /// <returns></returns>
         public MultipleAlternativeQuestion CreateMultipleAlternativeQuestion(string Statement, params string[] Alternatives)
         {
-            var q = CreateQuestion<MultipleAlternativeQuestion>(Statement);
+            var q = new MultipleAlternativeQuestion(this);
+            q.Statement.Text = Statement;
             foreach (var item in Alternatives ?? Array.Empty<string>())
             {
                 q.CreateAlternative(item, Alternatives.GetIndexOf(item) == 0);
             }
             q.Shuffle();
+            this.Add(q);
             return q;
         }
         /// <inheritdoc cref="CreateMultipleAlternativeQuestion(string, string[])"/>
         public MultipleAlternativeQuestion CreateMultipleAlternativeQuestion(string Statement, params Alternative[] Alternatives)
         {
-            var q = CreateQuestion<MultipleAlternativeQuestion>(Statement);
+            var q = new MultipleAlternativeQuestion(this);
+            q.Statement.Text = Statement;
             q.Alternatives.AddRange(Alternatives);
+            this.Add(q);
             return q;
         }
 
@@ -915,69 +947,43 @@ namespace InnerLibs.QuestionTest
         /// <returns></returns>
         public NumericQuestion CreateNumericQuestion(string Statement, decimal MinValue = 1, decimal MaxValue = 10)
         {
-            var q = CreateQuestion<NumericQuestion>(Statement);
+            var q = new NumericQuestion(this);
+            q.Statement.Text = Statement;
             Misc.FixOrder(ref MinValue, ref MaxValue);
             q.MinValue = MinValue;
             q.MaxValue = MaxValue;
+            this.Add(q);
+
             return q;
         }
 
-        /// <summary>
-        /// Adiciona uma nova questão a avaliação.
-        /// </summary>
-        public TQuestion CreateQuestion<TQuestion>(string Statement = null) where TQuestion : Question => (TQuestion)CreateQuestion(typeof(TQuestion), Statement);
 
-        /// <summary>
-        /// Adiciona uma nova questão a avaliação.
-        /// </summary>
-        public Question CreateQuestion(Type QuestionType, string Statement = null)
-        {
-            if (QuestionType != null && QuestionType.IsSubclassOf(typeof(Question)))
-            {
-                Question Question = (Question)Activator.CreateInstance(QuestionType, System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance, null, new object[] { this }, null);
-                if (Statement.IsNotBlank()) Question.Statement.Text = Statement;
-                if (!Contains(Question))
-                {
-                    Add(Question);
-                }
 
-                return Question;
-            }
-            return null;
-        }
 
         public SingleAlternativeQuestion CreateSingleAlternativeQuestion(string Statement, params string[] Alternatives)
         {
-            var q = CreateQuestion<SingleAlternativeQuestion>(Statement);
+            var q = new SingleAlternativeQuestion(this);
+            q.Statement.Text = Statement;
             foreach (var item in Alternatives ?? Array.Empty<string>())
             {
                 q.CreateAlternative(item, Alternatives.GetIndexOf(item) == 0);
             }
             q.Shuffle();
+            this.Add(q);
+
             return q;
         }
 
         public SingleAlternativeQuestion CreateSingleAlternativeQuestion(string Statement, params Alternative[] Alternatives)
         {
-            var q = CreateQuestion<SingleAlternativeQuestion>(Statement);
+            var q = new SingleAlternativeQuestion(this);
+            q.Statement.Text = Statement;
             q.Alternatives.AddRange(Alternatives);
+            this.Add(q);
             return q;
         }
 
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-
-            if (ReferenceEquals(obj, null))
-            {
-                return false;
-            }
-
-            throw new NotImplementedException();
-        }
+        public override bool Equals(object obj) => CompareTo(obj) == 0;
 
         /// <summary>
         /// Rodapé da prova. Texto adicional que ficará após as questões
@@ -1012,10 +1018,7 @@ namespace InnerLibs.QuestionTest
         /// <returns></returns>
         public Alternative GetAlternative(string ID) => GetQuestion<AlternativeQuestion>(ID.GetFirstChars(2)).Alternatives.FirstOrDefault(a => $"{a.ID}" == $"{ID}");
 
-        public override int GetHashCode()
-        {
-            throw new NotImplementedException();
-        }
+        public override int GetHashCode() => ID.GetHashCode();
 
         /// <summary>
         /// Pega uma questão por ID
@@ -1140,11 +1143,11 @@ namespace InnerLibs.QuestionTest
 
                         if (altquest is MultipleAlternativeQuestion)
                         {
-                            HtmlTag.CreateInput(alt.Question.ID, alt.ID, "checkbox").SetProp("checked", alt.Checked).InsertInto(lab);
+                            HtmlTag.CreateInput(alt.Question.ID, alt.ID, "checkbox").SetProp("checked", alt.Checked ?? false).InsertInto(lab);
                         }
                         else
                         {
-                            HtmlTag.CreateInput(alt.Question.ID, alt.ID, "radio").SetProp("checked", alt.Checked).InsertInto(lab);
+                            HtmlTag.CreateInput(alt.Question.ID, alt.ID, "radio").SetProp("checked", alt.Checked ?? false).InsertInto(lab);
                         }
 
                         lab.AddChildren("span", alt.Text).AddBreakLine();
@@ -1171,7 +1174,7 @@ namespace InnerLibs.QuestionTest
     {
         #region Internal Constructors
 
-        internal SingleAlternativeQuestion(QuestionTest Test) : base()
+        internal SingleAlternativeQuestion(QuestionTest Test) : base(Test)
         {
             this._test = Test;
         }
@@ -1203,24 +1206,7 @@ namespace InnerLibs.QuestionTest
         /// estiver mal formada (com mais de uma alternativa correta ou nenhuma alternativa correta)
         /// </summary>
         /// <returns></returns>
-        public override bool IsCorrect
-        {
-            get
-            {
-                if (IsValidQuestion)
-                {
-                    foreach (var q in Alternatives)
-                    {
-                        if (!q.IsCorrect)
-                        {
-                            return false;
-                        }
-                    }
-                }
-
-                return true;
-            }
-        }
+        public override bool IsCorrect => !IsValidQuestion || Alternatives.All(x => x.IsCorrect);
 
         /// <summary>
         /// Verifica se as existe apenas uma unica alternativa correta na questão
@@ -1265,7 +1251,11 @@ namespace InnerLibs.QuestionTest
         /// </summary>
         public int Number => Statement.Question.Test.SelectMany(x => x.Statement.Images).GetIndexOf(this);
 
+        [IgnoreDataMember]
+
         public Question Question => Statement.Question;
+
+        [IgnoreDataMember]
         public QuestionStatement Statement => StatementImages.Statement;
         public StatementImages StatementImages { get; private set; }
 
@@ -1274,6 +1264,8 @@ namespace InnerLibs.QuestionTest
         /// </summary>
         /// <returns></returns>
         public string Subtitle { get; set; } = Text.Empty;
+
+        [IgnoreDataMember]
 
         public QuestionTest Test => Question.Test;
 

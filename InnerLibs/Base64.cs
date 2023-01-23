@@ -25,10 +25,10 @@ namespace InnerLibs
         {
             if (Base.IsNotBlank())
             {
-                return (Encoding ?? new UTF8Encoding(false)).GetString(Convert.FromBase64String(Base));
+                Base = (Encoding ?? new UTF8Encoding(false)).GetString(Convert.FromBase64String(Base));
             }
 
-            return null;
+            return Base;
         }
 
         /// <summary>
@@ -36,10 +36,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Base64StringOrDataURL">Base64 String ou DataURL</param>
         /// <returns></returns>
-        public static byte[] Base64ToBytes(this string Base64StringOrDataURL)
-        {
-            return Convert.FromBase64String(Base64StringOrDataURL.FixBase64());
-        }
+        public static byte[] Base64ToBytes(this string Base64StringOrDataURL) => Convert.FromBase64String(Base64StringOrDataURL.FixBase64());
 
         public static Image Base64ToImage(this string DataUrlOrBase64String, int Width = 0, int Height = 0)
         {
@@ -58,7 +55,7 @@ namespace InnerLibs
                 var imageBytes = Convert.FromBase64String(DataUrlOrBase64String.FixBase64());
                 var ms = new MemoryStream(imageBytes, 0, imageBytes.Length);
                 ms.Write(imageBytes, 0, imageBytes.Length);
-                if (Width > 0 & Height > 0)
+                if (Width > 0 && Height > 0)
                 {
                     return Image.FromStream(ms, true).Resize(Width, Height, false);
                 }
@@ -83,10 +80,10 @@ namespace InnerLibs
         {
             if (Text.IsNotBlank())
             {
-                return Convert.ToBase64String((Encoding ?? new UTF8Encoding(false)).GetBytes(Text));
+                Text = Convert.ToBase64String((Encoding ?? new UTF8Encoding(false)).GetBytes(Text));
             }
 
-            return null;
+            return Text;
         }
 
         /// <summary>
@@ -95,10 +92,7 @@ namespace InnerLibs
         /// <param name="Base64StringOrDataURL"></param>
         /// <param name="FilePath"></param>
         /// <returns></returns>
-        public static FileInfo CreateFileFromDataURL(this string Base64StringOrDataURL, string FilePath)
-        {
-            return Base64StringOrDataURL.Base64ToBytes().WriteToFile(FilePath);
-        }
+        public static FileInfo CreateFileFromDataURL(this string Base64StringOrDataURL, string FilePath) => Base64StringOrDataURL.Base64ToBytes().WriteToFile(FilePath);
 
         /// <summary>
         /// Arruma os caracteres de uma string Base64
@@ -169,10 +163,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Bytes">Array de Bytes</param>
         /// <returns></returns>
-        public static string ToBase64(this byte[] Bytes)
-        {
-            return Convert.ToBase64String(Bytes);
-        }
+        public static string ToBase64(this byte[] Bytes) => Convert.ToBase64String(Bytes);
 
         public static string ToBase64(this Image OriginalImage, System.Drawing.Imaging.ImageFormat OriginalImageFormat)
         {
@@ -210,7 +201,7 @@ namespace InnerLibs
         {
             if (ImageURL != null)
             {
-                var imagem = Web.DownloadImage(ImageURL?.AbsoluteUri);
+                var imagem = WebExtensions.DownloadImage(ImageURL?.AbsoluteUri);
                 using (var m = new MemoryStream())
                 {
                     imagem.Save(m, imagem.RawFormat);
@@ -240,10 +231,7 @@ namespace InnerLibs
         /// <param name="Bytes">Array de Bytes</param>
         /// <param name="Type">Tipo de arquivo</param>
         /// <returns></returns>
-        public static string ToDataURL(this byte[] Bytes, FileType Type = null)
-        {
-            return "data:" + (Type ?? new FileType()).ToString() + ";base64," + Bytes.ToBase64();
-        }
+        public static string ToDataURL(this byte[] Bytes, FileType Type = null) => "data:" + (Type ?? new FileType()).ToString() + ";base64," + Bytes.ToBase64();
 
         /// <summary>
         /// Converte um Array de Bytes em uma DATA URL Completa
@@ -251,61 +239,31 @@ namespace InnerLibs
         /// <param name="Bytes">Array de Bytes</param>
         /// <param name="MimeType">Tipo de arquivo</param>
         /// <returns></returns>
-        public static string ToDataURL(this byte[] Bytes, string MimeType)
-        {
-            return "data:" + MimeType + ";base64," + Bytes.ToBase64();
-        }
+        public static string ToDataURL(this byte[] Bytes, string MimeType) => "data:" + MimeType + ";base64," + Bytes.ToBase64();
 
         /// <summary>
         /// Converte um arquivo uma DATA URL Completa
         /// </summary>
         /// <param name="File">Arquivo</param>
         /// <returns></returns>
-        public static string ToDataURL(this FileInfo File)
-        {
-            return File.ToBytes().ToDataURL(new FileType(File.Extension));
-        }
+        public static string ToDataURL(this FileInfo File) => File.ToBytes().ToDataURL(new FileType(File.Extension));
 
         /// <summary>
         /// Transforma uma imagem em uma URL Base64
         /// </summary>
         /// <param name="Image">Imagem</param>
         /// <returns>Uma DataURI em string</returns>
-        public static string ToDataURL(this Image Image)
-        {
-            return "data:" + Image.GetFileType().First().ToLowerInvariant().Replace("application/octet-stream", FileTypeExtensions.GetFileType(".png").First()) + ";base64," + Image.ToBase64();
-        }
+        public static string ToDataURL(this Image Image) => $"data:{Image.GetFileType().First().ToLowerInvariant().Replace("application/octet-stream", FileTypeExtensions.GetFileType(".png").First())};base64,{Image.ToBase64()}";
 
         /// <summary>
-        /// Converte uma imagem para DataURI trocando o MIME Type
+        /// Converte uma imagem para DataURI trocando o MIME T
         /// </summary>
         /// <param name="OriginalImage">Imagem</param>
         /// <param name="OriginalImageFormat">Formato da Imagem</param>
         /// <returns>Uma data URI com a imagem convertida</returns>
-        public static string ToDataURL(this Image OriginalImage, System.Drawing.Imaging.ImageFormat OriginalImageFormat)
-        {
-            return OriginalImage.ToBase64(OriginalImageFormat).Base64ToImage().ToDataURL();
-        }
+        public static string ToDataURL(this Image OriginalImage, System.Drawing.Imaging.ImageFormat OriginalImageFormat) => OriginalImage.ToBase64(OriginalImageFormat).Base64ToImage().ToDataURL();
 
-        /// <summary>
-        /// Converte uma Imagem da WEB para String Base64
-        /// </summary>
-        /// <param name="ImageURL">Caminho da imagem</param>
-        /// <param name="OriginalImageFormat">
-        /// Formato da imagem de acordo com sua extensão (JPG, PNG, GIF etc.)
-        /// </param>
-        /// <returns>Uma string em formato Base64</returns>
-        /// <summary>
-        /// Converte uma String DataURL ou Base64 para Imagem
-        /// </summary>
-        /// <param name="DataUrlOrBase64String">A string Base64 a ser convertida</param>
-        /// <param name="Width">
-        /// Altura da nova imagem (não preencher retorna o tamanho original da imagem)
-        /// </param>
-        /// <param name="Height">
-        /// Largura da nova imagem (não preencher retorna o tamanho original da imagem)
-        /// </param>
-        /// <returns>Uma imagem (componente Image)</returns>
+
 
         /// <summary>
         /// Converte um array de bytes para imagem
