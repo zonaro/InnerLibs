@@ -308,10 +308,10 @@ namespace InnerLibs
         /// </remarks>
         public static bool ContainsAny(this string Text, StringComparison ComparisonType, params string[] Values)
         {
-            Values = Values ?? Array.Empty<string>();
+            Values = (Values ?? Array.Empty<string>()).Where(x => x != null && x != string.Empty).ToArray();
             if (Values.Any())
             {
-                foreach (string value in Values ?? Array.Empty<string>())
+                foreach (string value in Values)
                 {
                     if (Text != null && Text.IndexOf(value, ComparisonType) != -1)
                     {

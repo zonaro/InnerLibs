@@ -1,6 +1,7 @@
 ﻿using InnerLibs.LINQ;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 
 namespace InnerLibs.Console
@@ -221,6 +222,18 @@ namespace InnerLibs.Console
 
         public static string ConsoleWriteTitle(this string Text, ConsoleColor? Color = null, int BreakLines = 1) => ConsoleWriteSeparator(Text, ' ', Color, BreakLines);
 
+
+        public static string ConsoleWriteTitlePanel(this string Text, ConsoleColor? Color = null, int BreakLines = 1, char BarChar = '=')
+        {
+            ConsoleBreakLine();
+            ConsoleWriteSeparator(BarChar, Color);
+            ConsoleWriteTitle(Text, Color);
+            ConsoleWriteSeparator(BarChar, Color);
+            return Text;
+
+        }
+
+
         public static string ConsoleWriteTitleBar(this string Text, ConsoleColor? Color = null, int BreakLines = 1, char BarChar = '-')
         {
             ConsoleWriteSeparator(BarChar, Color);
@@ -262,20 +275,61 @@ namespace InnerLibs.Console
         /// Le o proximo caractere inserido no console pelo usuário
         /// </summary>
         /// <returns></returns>
-        public static char ReadChar(this ref char Char)
-        {
-            Char = System.Console.ReadKey().KeyChar;
-            return Char;
-        }
+        public static char ReadChar() => System.Console.ReadKey().KeyChar;
 
         /// <summary>
         /// Le a proxima tecla pressionada pelo usuário
         /// </summary>
         /// <returns></returns>
-        public static ConsoleKey ReadConsoleKey(this ref ConsoleKey Key)
+        public static ConsoleKey ReadConsoleKey() => System.Console.ReadKey().Key;
+
+        public static ConsoleKey AskConsoleKey(string Text)
         {
-            Key = System.Console.ReadKey().Key;
-            return Key;
+            ConsoleWrite(Text);
+            return ReadConsoleKey();
+        }
+        public static ConsoleKey AskConsoleKey(string Text, ConsoleColor Color)
+        {
+            ConsoleWriteLine(Text, Color);
+            return ReadConsoleKey();
+        }
+
+        public static char AskConsoleChar(string Text, int BreakLines = 1)
+        {
+            ConsoleWriteLine(Text, BreakLines);
+            return ReadChar();
+        }
+        public static char AskConsoleChar(string Text, ConsoleColor Color, int BreakLines = 1)
+        {
+            ConsoleWriteLine(Text, Color, BreakLines);
+            return ReadChar();
+        }
+
+        public static bool ConsoleAskYesNo(this string Text, ConsoleKey YesKey = ConsoleKey.Y, ConsoleKey NoKey = ConsoleKey.N) => ConsoleAskYesNoCancel(Text, YesKey, NoKey, NoKey) ?? false;
+
+        public static bool? ConsoleAskYesNoCancel(string Text, ConsoleKey YesKey = ConsoleKey.Y, ConsoleKey NoKey = ConsoleKey.N, ConsoleKey CancelKey = ConsoleKey.Escape)
+        {
+            ConsoleKey k;
+            do
+            {
+                k = AskConsoleKey($"{Text} ({YesKey}/{NoKey}): ");
+            }
+            while (k.IsNotIn(new[] { YesKey, NoKey, CancelKey }));
+
+            ConsoleBreakLine();
+            if (k == YesKey)
+            {
+                return true;
+            }
+            else if (k == NoKey)
+            {
+                return false;
+            }
+            else
+            {
+                return null;
+            }
+
         }
 
         #endregion Public Methods

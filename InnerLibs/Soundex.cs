@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Text;
 
 namespace InnerLibs
@@ -14,6 +15,8 @@ namespace InnerLibs
         /// <returns>Um código soundex</returns>
         private static string SoundEx(string Text, int Length)
         {
+            Text = Text ?? string.Empty;
+
             // Value to return
             string Value = string.Empty;
             // Size of the word to process
@@ -174,11 +177,11 @@ namespace InnerLibs
         {
             try
             {
-                this.Word = Word.Split(" ")[0];
+                this.Word = Word.Split(" ")[0] ?? string.Empty;
             }
             catch
             {
-                this.Word = Word;
+                this.Word = Word ?? string.Empty;
             }
         }
 
