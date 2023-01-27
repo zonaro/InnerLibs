@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -23,15 +24,15 @@ namespace InnerLibs
         private const int ERROR_SHARING_VIOLATION = 32;
 
         private static readonly Expression<Func<string, bool>>[] passwordValidations = new Expression<Func<string, bool>>[]
-            {
-                x => x.ToLowerInvariant().ToArray().Distinct().Count() >= 4,
-                x => x.ToLowerInvariant().ToArray().Distinct().Count() >= 6,
-                x => x.Length >= 8,
-                x => x.ContainsAny(StringComparison.InvariantCulture, PredefinedArrays.PasswordSpecialChars.ToArray()),
-                x => x.ContainsAny(StringComparison.InvariantCulture, PredefinedArrays.NumberChars.ToArray()),
-                x => x.ContainsAny(StringComparison.InvariantCulture, PredefinedArrays.AlphaUpperChars.ToArray()),
-                x => x.ContainsAny(StringComparison.InvariantCulture, PredefinedArrays.AlphaLowerChars.ToArray())
-            };
+        {
+            x => x.ToUpperInvariant().ToArray().Distinct().Count() >= 4,
+            x => x.ToUpperInvariant().ToArray().Distinct().Count() >= 6,
+            x => x.Length >= 8,
+            x => x.ContainsAny(StringComparison.InvariantCulture, PredefinedArrays.PasswordSpecialChars.ToArray()),
+            x => x.ContainsAny(StringComparison.InvariantCulture, PredefinedArrays.NumberChars.ToArray()),
+            x => x.ContainsAny(StringComparison.InvariantCulture, PredefinedArrays.AlphaUpperChars.ToArray()),
+            x => x.ContainsAny(StringComparison.InvariantCulture, PredefinedArrays.AlphaLowerChars.ToArray())
+        };
 
         #endregion Private Fields
 
@@ -103,47 +104,7 @@ namespace InnerLibs
         /// <param name="Value">Valor</param>
         /// <param name="ValueIfBlank">Valor se estiver em branco</param>
         /// <returns></returns>
-        public static T IfBlank<T>(this object Value, T ValueIfBlank = default)
-        {
-            if (Value == null)
-            {
-                return ValueIfBlank;
-            }
-            else
-            {
-                bool blank_flag = false;
-                try
-                {
-                    if (typeof(T).IsNumericType())
-                    {
-                        blank_flag = Value.ChangeType<decimal>() == 0;
-                    }
-                    else if (Value is string s)
-                    {
-                        blank_flag = s.IsBlank();
-                    }
-                    else if (Value is char c)
-                    {
-                        blank_flag = $"{c}".IsBlank();
-                    }
-                    else if (Value is DateTime time)
-                    {
-                        blank_flag = time.Equals(DateTime.MinValue);
-                    }
-                    else if (Value is TimeSpan span)
-                    {
-                        blank_flag = span.Equals(TimeSpan.MinValue);
-                    }
-
-                }
-                catch
-                {
-                    blank_flag = false;
-                }
-
-                return blank_flag ? ValueIfBlank : Value.ChangeType<T>();
-            }
-        }
+        public static T IfBlank<T>(this object Value, T ValueIfBlank = default) => Value.IsBlank() ? ValueIfBlank : Converter.ChangeType<T>(Value);
 
         /// <summary>
         /// Tenta retornar um valor de um IEnumerable a partir de um Index especifico. retorna um
@@ -169,6 +130,29 @@ namespace InnerLibs
         {
             var item = (Arr ?? Array.Empty<T>()).ElementAtOrDefault(Index);
             return item == null ? ValueIfNoIndex : item;
+        }
+
+        /// <summary>
+        /// Executa uma função para uma variavel se a mesma nao estiver em branco ( <see cref="IsBlank{T}())"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Value"></param>
+        /// <param name="ExpressionIfBlank"></param>
+        /// <returns></returns>
+        public static T IfNotBlank<T>(this T Value, Expression<Func<T, T>> ExpressionIfBlank)
+        {
+            if (Value.IsNotBlank())
+            {
+                if (ExpressionIfBlank != null)
+                {
+                    try
+                    {
+                        return ExpressionIfBlank.Compile().Invoke(Value);
+                    }
+                    catch { }
+                }
+            }
+            return Value;
         }
 
         /// <summary>
@@ -212,20 +196,76 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Verifica se uma String está em branco
+        /// Verifica se uma variavel está em branco. (nula, vazia ou somente brancos para string, null ou 0 para tipos primitivos, null ou ToString() em branco para tipos de referencia. Null ou vazio para arrays)
         /// </summary>
-        /// <param name="Text">Uma string</param>
-        /// <returns>TRUE se estivar vazia ou em branco, caso contrario FALSE</returns>
-        public static bool IsBlank(this string Text) => string.IsNullOrWhiteSpace(Text.RemoveAny(PredefinedArrays.BreakLineChars.ToArray()));
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Value"></param>
+        /// <returns></returns>
+        public static bool IsBlank(this object Value)
+        {
+            try
+            {
+                if (Value != null)
+                {
+                    var tipo = Value.GetTypeOf();
+
+                    if (tipo.IsNumericType())
+                    {
+                        return Value.ChangeType<decimal>() == 0;
+                    }
+                    else if (Value is FormattableString fs)
+                    {
+                        return IsBlank($"{fs}".ToUpperInvariant());
+                    }
+                    else if (Value is bool b)
+                    {
+                        return !b;
+                    }
+                    else if (Value is string s)
+                    {
+                        return string.IsNullOrWhiteSpace($"{s}".RemoveAny(PredefinedArrays.BreakLineChars.ToArray()));
+                    }
+                    else if (Value is char c)
+                    {
+                        return string.IsNullOrWhiteSpace($"{c}".RemoveAny(PredefinedArrays.BreakLineChars.ToArray()));
+                    }
+                    else if (Value is DateTime time)
+                    {
+                        return time.Equals(DateTime.MinValue);
+                    }
+                    else if (Value is TimeSpan span)
+                    {
+                        return span.Equals(TimeSpan.MinValue);
+                    }
+                    else if (Value.IsEnumerable())
+                    {
+                        IEnumerable enumerable = (IEnumerable)Value;
+                        foreach (object item in enumerable)
+                        {
+                            if (item.IsNotBlank())
+                            {
+                                return false;
+                            }
+
+                        }
+                    }
+
+                }
+            }
+            catch
+            {
+            }
+            return true;
+        }
 
         /// <summary>
         /// Verifica se uma String está em branco
         /// </summary>
         /// <param name="Text">Uma string</param>
         /// <returns>TRUE se estivar vazia ou em branco, caso contrario FALSE</returns>
-        public static bool IsBlank(this FormattableString Text) => Text == null || Text.ToString().IsBlank();
+        public static bool IsBlank(this FormattableString Text) => Text == null || $"{Text}".IsBlank();
 
-        public static bool IsBool<T>(this T Obj) => Misc.GetNullableTypeOf(Obj) == typeof(bool) || Obj?.ToString().ToLowerInvariant().IsIn("true", "false") == true;
+        public static bool IsBool<T>(this T Obj) => Misc.GetNullableTypeOf(Obj) == typeof(bool) || $"{Obj}".ToLowerInvariant().IsIn("true", "false");
 
         public static bool IsDate(this string Obj)
         {
@@ -272,7 +312,7 @@ namespace InnerLibs
             {
                 // if has trailing slash then it's a directory
 
-                if (new string[] { Convert.ToString(Path.DirectorySeparatorChar), Convert.ToString(Path.AltDirectorySeparatorChar) }.Any(x => Text.EndsWith(x)))
+                if (new string[] { Convert.ToString(Path.DirectorySeparatorChar, CultureInfo.InvariantCulture), Convert.ToString(Path.AltDirectorySeparatorChar, CultureInfo.InvariantCulture) }.Any(x => Text.EndsWith(x, StringComparison.InvariantCultureIgnoreCase)))
                 {
                     return true;
                 }
@@ -367,7 +407,7 @@ namespace InnerLibs
             try
             {
                 // if has extension then its a file; directory otherwise
-                return !Text.EndsWith(Convert.ToString(Path.DirectorySeparatorChar)) && Path.GetExtension(Text).IsNotBlank();
+                return !Text.EndsWith(Convert.ToString(Path.DirectorySeparatorChar, CultureInfo.InvariantCulture), StringComparison.InvariantCultureIgnoreCase) && Path.GetExtension(Text).IsNotBlank();
             }
             catch { return false; }
         }
@@ -413,7 +453,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text">Uma string</param>
         /// <returns>FALSE se estiver nula, vazia ou em branco, caso contrario TRUE</returns>
-        public static bool IsNotBlank(this string Text) => !IsBlank(Text);
+        public static bool IsNotBlank(this object Value) => !IsBlank(Value);
 
         /// <summary>
         /// Verifica se uma String não está em branco
@@ -517,7 +557,6 @@ namespace InnerLibs
         /// <returns></returns>
         public static bool IsValidCNH(this string CNH)
         {
-
             // char firstChar = cnh[0];
             if (CNH.IsNotBlank() && CNH.Length == 11 && CNH != new string('1', 11))
             {

@@ -15,7 +15,7 @@ namespace InnerLibs
         public static IEnumerable<string> AlphaLowerChars => LowerConsonants.Union(LowerVowels).OrderBy(x => x).AsEnumerable();
         public static IEnumerable<string> AlphaNumericChars => AlphaChars.Union(NumberChars).AsEnumerable();
         public static IEnumerable<string> AlphaUpperChars => AlphaLowerChars.Select(x => x.ToUpperInvariant());
-        public static IEnumerable<string> BreakLineChars => new[] { Environment.NewLine, "\t", "\n", "\r", "\r\n", "<br>", "<br/>", "<br />" }.AsEnumerable();
+        public static IEnumerable<string> BreakLineChars => new[] { Environment.NewLine, "\t", "\n", "\r", "\r\n" }.AsEnumerable();
         public static IEnumerable<string> CloseWrappers => new[] { Text.DoubleQuoteChar, InnerLibs.Text.SingleQuoteChar, ")", "}", "]", ">", "`" }.AsEnumerable();
         public static IEnumerable<string> Consonants => UpperConsonants.Union(LowerConsonants).AsEnumerable();
         public static IEnumerable<string> EndOfSentencePunctuation => new[] { ".", "?", "!" }.AsEnumerable();

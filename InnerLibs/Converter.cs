@@ -81,18 +81,6 @@ namespace InnerLibs
         {
             try
             {
-                var met = Value?.GetType().GetNullableTypeOf().GetMethods().FirstOrDefault(x => x.Name == $"To{typeof(T).Name}" && x.ReturnType == typeof(T) && x.IsPublic && x.GetParameters().Any() == false);
-                if (met != null)
-                {
-                    return (T)met.Invoke(Value, Array.Empty<object>());
-                }
-            }
-            catch
-            {
-            }
-
-            try
-            {
                 return (T)Value?.ChangeType(typeof(T).GetNullableTypeOf());
             }
             catch
@@ -109,6 +97,20 @@ namespace InnerLibs
         /// <returns>Valor convertido em novo tipo ou null (ou default) se a conversão falhar</returns>
         public static object ChangeType<TFrom>(this TFrom Value, Type ToType)
         {
+
+            try
+            {
+                var met = Value?.GetType().GetNullableTypeOf().GetMethods().FirstOrDefault(x => x.Name == $"To{ToType.Name}" && x.ReturnType == ToType && x.IsPublic && x.GetParameters().Any() == false);
+                if (met != null)
+                {
+                    return met.Invoke(Value, Array.Empty<object>());
+                }
+            }
+            catch
+            {
+            }
+
+
             try
             {
                 var tipo = Misc.GetNullableTypeOf(ToType);

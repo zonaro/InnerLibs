@@ -115,7 +115,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="N">Itens</param>
         /// <returns></returns>
-        public static string BlankCoalesce(params string[] N) => (N ?? Array.Empty<string>()).FirstOr(x => x.IsNotBlank(), InnerLibs.Text.Empty);
+        public static string BlankCoalesce(params string[] N) => (N ?? Array.Empty<string>()).FirstOr(x => x.IsNotBlank(), Text.Empty);
 
         /// <summary>
         /// Verifica se uma lista, coleção ou array contem todos os itens de outra lista, coleção ou array.
@@ -457,7 +457,7 @@ namespace InnerLibs
                 SecondValue = default;
             }
 
-            return Misc.FixOrder(ref FirstValue, ref SecondValue);
+            return FixOrder(ref FirstValue, ref SecondValue);
         }
 
         public static TValue GetAttributeValue<TAttribute, TValue>(this MemberInfo prop, Expression<Func<TAttribute, TValue>> ValueSelector) where TAttribute : Attribute
@@ -559,7 +559,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="MyObject">Objeto</param>
         /// <returns></returns>
-        public static FieldInfo GetField<T>(this T MyObject, string Name) => MyObject.GetTypeOf().GetFields().SingleOrDefault(x => (x.Name ?? InnerLibs.Text.Empty) == (Name ?? InnerLibs.Text.Empty));
+        public static FieldInfo GetField<T>(this T MyObject, string Name) => MyObject.GetTypeOf().GetFields().SingleOrDefault(x => (x.Name ?? Text.Empty) == (Name ?? Text.Empty));
 
         public static IEnumerable<FieldInfo> GetFields<T>(this T MyObject, BindingFlags BindAttr) => MyObject.GetTypeOf().GetFields(BindAttr).ToList();
 
@@ -629,7 +629,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="MyObject">Objeto</param>
         /// <returns></returns>
-        public static PropertyInfo GetProperty<T>(this T MyObject, string Name) => MyObject.GetTypeOf().GetProperties().SingleOrDefault(x => (x.Name ?? InnerLibs.Text.Empty) == (Name ?? InnerLibs.Text.Empty));
+        public static PropertyInfo GetProperty<T>(this T MyObject, string Name) => MyObject.GetTypeOf().GetProperties().SingleOrDefault(x => (x.Name ?? Text.Empty) == (Name ?? Text.Empty));
 
         /// <summary>
         /// Retorna uma <see cref="Hashtable"/> das propriedades de um objeto
@@ -915,7 +915,7 @@ namespace InnerLibs
         public static bool IsBetween(this IComparable Value, IComparable MinValue, IComparable MaxValue)
         {
             FixOrder(ref MinValue, ref MaxValue);
-            return MinValue == MaxValue ? Value == MinValue : Value.IsGreaterThanOrEqual(MinValue) && Value.IsLessThan(MaxValue);
+            return MinValue.Equals(MaxValue) ? Value.Equals(MinValue) : Value.IsGreaterThanOrEqual(MinValue) && Value.IsLessThan(MaxValue);
         }
 
         /// <summary>
@@ -1012,22 +1012,22 @@ namespace InnerLibs
         /// <summary>
         /// Verifica se o objeto existe dentro de uma Lista, coleção ou array.
         /// </summary>
-        /// <typeparam name="Type">Tipo do objeto</typeparam>
+        /// <typeparam name="T">Tipo do objeto</typeparam>
         /// <param name="Obj">objeto</param>
         /// <param name="List">Lista</param>
         /// <returns></returns>
-        public static bool IsIn<Type>(this Type Obj, IEnumerable<Type> List, IEqualityComparer<Type> Comparer = null) => Comparer is null ? List.Contains(Obj) : List.Contains(Obj, Comparer);
+        public static bool IsIn<T>(this T Obj, IEnumerable<T> List, IEqualityComparer<T> Comparer = null) => Comparer is null ? List.Contains(Obj) : List.Contains(Obj, Comparer);
 
-        public static bool IsIn<Type>(this Type Obj, string Text, StringComparison? Comparer = null) => Comparer == null ? Text.Contains(Obj.ToString()) : Text.Contains(Obj.ToString(), Comparer.Value);
+        public static bool IsIn<T>(this T Obj, string Text, StringComparison? Comparer = null) => Comparer == null ? Text?.Contains(Obj.ToString()) ?? false : Text?.Contains(Obj.ToString(), Comparer.Value) ?? false;
 
         /// <summary>
         /// Verifica se o objeto existe dentro de uma ou mais Listas, coleções ou arrays.
         /// </summary>
-        /// <typeparam name="Type">Tipo do objeto</typeparam>
+        /// <typeparam name="T">Tipo do objeto</typeparam>
         /// <param name="Obj">objeto</param>
         /// <param name="List">Lista</param>
         /// <returns></returns>
-        public static bool IsInAny<Type>(this Type Obj, IEnumerable<Type>[] List, IEqualityComparer<Type> Comparer = null) => (List ?? Array.Empty<IEnumerable<Type>>()).Any(x => Obj.IsIn(x, Comparer));
+        public static bool IsInAny<T>(this T Obj, IEnumerable<T>[] List, IEqualityComparer<T> Comparer = null) => (List ?? Array.Empty<IEnumerable<T>>()).Any(x => Obj.IsIn(x, Comparer));
 
         public static bool IsLessThan<T>(this T Value, T MaxValue) where T : IComparable => Value.CompareTo(MaxValue) < 0;
 
@@ -1043,11 +1043,11 @@ namespace InnerLibs
         /// <summary>
         /// Verifica se o não objeto existe dentro de uma Lista, coleção ou array.
         /// </summary>
-        /// <typeparam name="Type">Tipo do objeto</typeparam>
+        /// <typeparam name="T">Tipo do objeto</typeparam>
         /// <param name="Obj">objeto</param>
         /// <param name="List">Lista</param>
         /// <returns></returns>
-        public static bool IsNotIn<Type>(this Type Obj, IEnumerable<Type> List, IEqualityComparer<Type> Comparer = null) => !Obj.IsIn(List, Comparer);
+        public static bool IsNotIn<T>(this T Obj, IEnumerable<T> List, IEqualityComparer<T> Comparer = null) => !Obj.IsIn(List, Comparer);
 
         /// <summary>
         /// Verifica se o objeto não existe dentro de um texto
@@ -1231,7 +1231,7 @@ namespace InnerLibs
                         {
                             case var @case when @case == typeof(string):
                                 {
-                                    item.SetValue(Obj, InnerLibs.Text.Empty);
+                                    item.SetValue(Obj, Text.Empty);
                                     break;
                                 }
 
@@ -1275,7 +1275,7 @@ namespace InnerLibs
                     propnames.Add(Name.TrimStart('_'));
                 }
                 string propname1 = Name.Trim().Replace(" ", "_").Replace("-", "_").Replace("~", "_");
-                string propname3 = Name.Trim().Replace(" ", InnerLibs.Text.Empty).Replace("-", InnerLibs.Text.Empty).Replace("~", InnerLibs.Text.Empty);
+                string propname3 = Name.Trim().Replace(" ", Text.Empty).Replace("-", Text.Empty).Replace("~", Text.Empty);
                 string propname2 = propname1.RemoveAccents();
                 string propname4 = propname3.RemoveAccents();
                 propnames.AddRange(new[] { Name, propname1, propname2, propname3, propname4 });
@@ -1289,7 +1289,7 @@ namespace InnerLibs
 
         public static HtmlTag QueryLinq(this IEnumerable<HtmlTag> tags, Func<HtmlTag, bool> query) => QueryLinqAll(tags, query).FirstOrDefault();
 
-        public static IEnumerable<HtmlTag> QueryLinqAll(this HtmlTag tags, Func<HtmlTag, bool> query) => QueryLinqAll(tags.Children, query);
+        public static IEnumerable<HtmlTag> QueryLinqAll(this HtmlTag tags, Func<HtmlTag, bool> query) => QueryLinqAll(tags?.Children ?? Array.Empty<HtmlTag>(), query);
 
         public static IEnumerable<HtmlTag> QueryLinqAll(this IEnumerable<HtmlTag> tags, Func<HtmlTag, bool> query) => tags.Traverse(ht => ht.Children).Where(query);
 
@@ -1608,6 +1608,11 @@ namespace InnerLibs
 
         public static T[][] ToJaggedArray<T>(this T[,] inputArray)
         {
+            if (inputArray == null || inputArray.Length == 0)
+            {
+                return Array.Empty<T[]>();
+            }
+
             // Get the number of rows and columns in the input array
             int rows = inputArray.GetLength(0);
             int cols = inputArray.GetLength(1);
@@ -1636,7 +1641,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Dic"></param>
         /// <returns></returns>
-        public static string ToQueryString(this Dictionary<string, string> Dic) => Dic?.Where(x => x.Key.IsNotBlank()).SelectJoinString(x => new[] { x.Key, (x.Value ?? InnerLibs.Text.Empty).UrlEncode() }.SelectJoinString("="), "&") ?? InnerLibs.Text.Empty;
+        public static string ToQueryString(this Dictionary<string, string> Dic) => Dic?.Where(x => x.Key.IsNotBlank()).SelectJoinString(x => new[] { x.Key, (x.Value ?? Text.Empty).UrlEncode() }.SelectJoinString("="), "&") ?? Text.Empty;
 
         /// <summary>
         /// Retorna um <see cref="NameValueCollection"/> em QueryString
@@ -1658,9 +1663,10 @@ namespace InnerLibs
             var lista = new List<object>();
             var header = new List<object>
             {
-                HeaderProp.Method.GetParameters().First().Name
+                HeaderProp?.Method.GetParameters().First().Name
             };
-            Groups.Values.MergeKeys();
+
+            Groups?.Values.MergeKeys();
             foreach (var h in Groups.SelectMany(x => x.Value.Keys.ToArray()).Distinct().OrderBy(x => x))
             {
                 header.Add(HeaderProp(h));
