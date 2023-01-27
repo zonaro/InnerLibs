@@ -44,10 +44,7 @@ namespace InnerLibs
 
         #region Public Methods
 
-        public static explicit operator Like(String Source)
-        {
-            return new Like(Source);
-        }
+        public static explicit operator Like(String Source) => new Like(Source);
 
         public static bool operator !=(string First, Like second) => !(First == second);
 

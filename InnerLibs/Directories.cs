@@ -90,6 +90,31 @@ namespace InnerLibs
             return lista;
         }
 
+
+
+        public static DirectoryInfo MoveDirectory(string SourcePath, string TargetPath)
+        {
+            var sourcePath = SourcePath.FixPath();
+            var targetPath = TargetPath.FixPath();
+            var files = Directory.EnumerateFiles(sourcePath, "*", SearchOption.AllDirectories)
+                                 .GroupBy(s => Path.GetDirectoryName(s));
+            foreach (var folder in files)
+            {
+                var targetFolder = folder.Key.Replace(sourcePath, targetPath);
+                Directory.CreateDirectory(targetFolder);
+                foreach (var file in folder)
+                {
+                    var targetFile = Path.Combine(targetFolder, Path.GetFileName(file));
+                    if (File.Exists(targetFile)) File.Delete(targetFile);
+                    File.Move(file, targetFile);
+                }
+            }
+            Directory.Delete(SourcePath, true);
+            return new DirectoryInfo(targetPath);
+        }
+
+
+
         /// <summary>
         /// Cria um diretório se o mesmo nao existir e retorna um <see cref="DirectoryInfo"/> deste diretório
         /// </summary>
