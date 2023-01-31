@@ -143,9 +143,7 @@ namespace InnerLibs
             }
             else if (type.IsEnum)
             {
-                stringBuilder.Append('"');
                 stringBuilder.Append(item.ToInt().ToString(culture));
-                stringBuilder.Append('"');
             }
             else if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Dictionary<,>))
             {
@@ -321,7 +319,8 @@ namespace InnerLibs
                 if (nameToField.TryGetValue(key, out FieldInfo fieldInfo))
                     fieldInfo.SetValue(instance, ParseValue(fieldInfo.FieldType, value, culture));
                 else if (nameToProperty.TryGetValue(key, out PropertyInfo propertyInfo))
-                    propertyInfo.SetValue(instance, ParseValue(propertyInfo.PropertyType, value, culture), null);
+                    if (propertyInfo.CanWrite)
+                        propertyInfo.SetValue(instance, ParseValue(propertyInfo.PropertyType, value, culture), null);
             }
 
             return instance;
@@ -375,27 +374,14 @@ namespace InnerLibs
             }
             else if (type == typeof(DateTime))
             {
-                DateTime.TryParse(json.RemoveAny("\""), culture, DateTimeStyles.None, out DateTime result);
+                DateTime.TryParse(json.RemoveAny(Text.DoubleQuoteChar), culture, DateTimeStyles.None, out DateTime result);
                 return result;
             }
             else if (type.IsEnum)
             {
-                json = json.IsWrapped('"') ? json.UnWrap("\"") : json;
-                if (json.IsNumber())
-                {
-                    return Convert.ChangeType(json.ToInt(), type, culture);
-                }
-                else
-                {
-                    try
-                    {
-                        return Enum.Parse(type, json, true);
-                    }
-                    catch
-                    {
-                        return default;
-                    }
-                }
+                json = json.IsWrapped(Text.DoubleQuoteChar) ? json.UnWrap(Text.DoubleQuoteChar) : json;
+
+                return json.GetEnumValue(type);
             }
             else if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
@@ -685,7 +671,10 @@ namespace InnerLibs
         /// <summary>
         /// The default file name used to save JsonFiles
         /// </summary>
-        /// <remarks>When <see cref="IsEncrypted"/>, assumes the <see cref="Assembly.Name"/> of current executing application, otherwise use the default ".json" extension</remarks>
+        /// <remarks>
+        /// When <see cref="IsEncrypted"/>, assumes the <see cref="Assembly.Name"/> of current
+        /// executing application, otherwise use the default ".json" extension
+        /// </remarks>
         [IgnoreDataMember] public string DefaultFileName => $"{this.GetType().Name}.{(IsEncrypted ? this.GetType().Assembly.GetName().Name.ToLower(Culture) : "json")}";
 
         /// <summary>
@@ -741,6 +730,11 @@ namespace InnerLibs
         }
 
         /// <summary>
+        /// Return if this JsonFile will be encrypted using <see cref="EncryptKey"/>
+        /// </summary>
+        [IgnoreDataMember] public bool IsEncrypted => EncryptKey.IsNotBlank();
+
+        /// <summary>
         /// When true, the final json string will be minified
         /// </summary>
         [IgnoreDataMember]
@@ -757,11 +751,6 @@ namespace InnerLibs
                     IdentSize = 4;
             }
         }
-
-        /// <summary>
-        /// Return if this JsonFile will be encrypted using <see cref="EncryptKey"/>
-        /// </summary>
-        [IgnoreDataMember] public bool IsEncrypted => EncryptKey.IsNotBlank();
 
         #endregion Public Properties
 

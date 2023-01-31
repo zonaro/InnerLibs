@@ -12,6 +12,15 @@ namespace InnerLibs
 {
     public class CSSStyles
     {
+        #region Private Methods
+
+        private void ParseStyle()
+        {
+            dic = _tag.GetAttribute("style").Split(";").ToDictionary(x => x.GetBefore(":"), x => x.GetAfter(":"));
+        }
+
+        #endregion Private Methods
+
         #region Internal Fields
 
         internal HtmlTag _tag;
@@ -19,8 +28,6 @@ namespace InnerLibs
         internal Dictionary<string, string> dic = new Dictionary<string, string>();
 
         #endregion Internal Fields
-
-
 
         #region Public Constructors
 
@@ -30,8 +37,6 @@ namespace InnerLibs
         }
 
         #endregion Public Constructors
-
-
 
         #region Public Properties
 
@@ -373,16 +378,7 @@ namespace InnerLibs
 
         #endregion Public Properties
 
-
-
-        #region Private Methods
-
-        private void ParseStyle()
-        {
-            dic = _tag.GetAttribute("style").Split(";").ToDictionary(x => x.GetBefore(":"), x => x.GetAfter(":"));
-        }
-
-        #endregion Private Methods
+        #region Public Methods
 
         public string GetStyle(string name)
         {
@@ -407,6 +403,8 @@ namespace InnerLibs
         }
 
         public override string ToString() => dic.SelectJoinString(x => $"{x.Key.ToLowerInvariant()}:{x.Value}", ";");
+
+        #endregion Public Methods
     }
 
     /// <summary>
@@ -417,13 +415,21 @@ namespace InnerLibs
         #region Private Fields
 
         private readonly CSSStyles _stl;
+        private HtmlTag _parent;
         private string _tagname = "div";
         private Dictionary<string, string> attrs = new Dictionary<string, string>();
 
+        #endregion Private Fields
+
+        #region Internal Fields
+
         internal List<HtmlTag> _children = new List<HtmlTag>();
         internal string _content;
+        private bool _selfClosing;
 
-        #endregion Private Fields
+        #endregion Internal Fields
+
+        #region Public Constructors
 
         public HtmlTag() : this(HtmlNodeType.Element)
         {
@@ -450,7 +456,6 @@ namespace InnerLibs
 
             foreach (var Attr in Attributes.CreateDictionary())
                 this.Attributes.SetOrRemove(Attr.Key, Attr.Value);
-
         }
 
         public HtmlTag(bool selfClosing, HtmlNodeType type)
@@ -458,6 +463,24 @@ namespace InnerLibs
             this.SelfClosing = selfClosing;
             this.Type = type;
         }
+
+        #endregion Public Constructors
+
+        #region Public Indexers
+
+        [IgnoreDataMember]
+        public HtmlTag this[string ID]
+        {
+            get => Children.FirstOrDefault(x => x.ID == ID);
+            set
+            {
+                if (value != null) AddChildren(value.SetID(ID));
+            }
+        }
+
+        #endregion Public Indexers
+
+        #region Public Properties
 
         /// <summary>
         /// atributos desta tag
@@ -469,9 +492,13 @@ namespace InnerLibs
                 attrs = attrs ?? new Dictionary<string, string>();
                 return attrs;
             }
+            set
+            {
+                attrs = value ?? attrs;
+            }
         }
 
-
+        [IgnoreDataMember]
         public string AttributeString => Attributes.SelectJoinString(x => $"{x.Key.Replace(" ", "-")}={x.Value.Quote()}", " ");
 
         /// <summary>
@@ -484,15 +511,22 @@ namespace InnerLibs
                 _children = _children ?? new List<HtmlTag>();
                 return _children;
             }
+            set
+            {
+                ClearChildren();
+                _children = value?.ToList() ?? new List<HtmlTag>();
+            }
         }
 
+        [IgnoreDataMember]
         public string Class
         {
-            get => Attributes.GetValueOr("class", Text.Empty);
+            get => Attributes.GetValueOr("class") ?? Text.Empty;
 
             set => Attributes["class"] = value;
         }
 
+        [IgnoreDataMember]
         public IEnumerable<string> ClassList
         {
             get => Class.Split(" ");
@@ -500,6 +534,7 @@ namespace InnerLibs
             set => Class = (value ?? Array.Empty<string>().AsEnumerable()).SelectJoinString(" ");
         }
 
+        //[IgnoreDataMember]
         public string Content
         {
             get
@@ -511,7 +546,7 @@ namespace InnerLibs
 
                     case HtmlNodeType.Text:
                     case HtmlNodeType.Comment:
-                        return _content;
+                        return _content?.HtmlDecode();
 
                     default:
                         return "";
@@ -537,8 +572,13 @@ namespace InnerLibs
             }
         }
 
+        [IgnoreDataMember]
         public string ID { get => GetAttribute("id").IfBlank(GetAttribute("ID")); set => SetAttribute("id", value, true); }
 
+        [IgnoreDataMember]
+        public int Index => Parent?.Children.GetIndexOf(this) ?? -1;
+
+        [IgnoreDataMember]
         public string InnerHtml
         {
             get
@@ -571,6 +611,7 @@ namespace InnerLibs
             }
         }
 
+        [IgnoreDataMember]
         public string InnerText
         {
             get => this.Type == HtmlNodeType.Element ? Children.Traverse(x => x.Children).Where(x => x.Type == HtmlNodeType.Text).SelectJoinString() : _content;
@@ -578,10 +619,11 @@ namespace InnerLibs
             {
                 ClearChildren();
                 if (value.IsNotBlank())
-                    this.AddChildren(new HtmlTag(HtmlNodeType.Text) { Content = value });
+                    this.AddChildren(new HtmlTag(HtmlNodeType.Text) { Content = value, _parent = this });
             }
         }
 
+        [IgnoreDataMember]
         public string OuterHtml
         {
             get
@@ -628,34 +670,42 @@ namespace InnerLibs
             }
         }
 
-        public bool SelfClosing { get; set; }
+        [IgnoreDataMember]
+        public HtmlTag Parent => _parent;
+        public bool SelfClosing
+        {
+            get => !this.Children.Any() || _selfClosing;
 
+            set
+            {
+                if (value)
+                {
+                    ClearChildren();
+                }
+                _selfClosing = value;
+            }
+        }
+
+        [IgnoreDataMember]
         public CSSStyles Styles => _stl;
 
         public string TagName
         {
-            get => this.Type == HtmlNodeType.Element ? _tagname : "";
+            get => this.Type == HtmlNodeType.Element ? _tagname : Enum.GetName(typeof(HtmlNodeType), this.Type).Quote('[');
             set => _tagname = value.IfBlank("div");
         }
 
         public HtmlNodeType Type { get; private set; }
 
-        [IgnoreDataMember]
-        public HtmlTag this[string ID]
-        {
-            get => Children.FirstOrDefault(x => x.ID == ID);
-            set
-            {
-                if (value != null) AddChildren(value.SetID(ID));
-            }
-        }
+        #endregion Public Properties
+
+        #region Public Methods
 
         public static HtmlTag CreateAnchor(string URL, string Text, string Target = "_self", object htmlAttributes = null) => new HtmlTag("a", htmlAttributes, Text).SetAttribute("href", URL, true).SetAttribute("target", Target, true);
 
         public static HtmlTag CreateBreakLine() => new HtmlTag("br") { SelfClosing = true };
 
         public static HtmlTag CreateComment(string Comment) => new HtmlTag(HtmlNodeType.Comment).With(x => x.Content = Comment);
-        public static HtmlTag CreateText(string Text) => new HtmlTag(HtmlNodeType.Text).With(x => x.Content = Text);
 
         public static HtmlTag CreateHorizontalRule() => new HtmlTag("hr") { SelfClosing = true };
 
@@ -713,6 +763,7 @@ namespace InnerLibs
         }
 
         public static HtmlTag CreateTable<TPoco>(IEnumerable<TPoco> Rows) where TPoco : class => CreateTable(Rows, false);
+
         public static HtmlTag CreateTable<TPoco>(IEnumerable<TPoco> Rows, bool Header) where TPoco : class => CreateTable(Rows, Header, null, null);
 
         public static HtmlTag CreateTable<TPoco>(IEnumerable<TPoco> Rows, TPoco header, string IDProperty, params string[] properties) where TPoco : class
@@ -745,6 +796,8 @@ namespace InnerLibs
 
             return tag;
         }
+
+        public static HtmlTag CreateText(string Text) => new HtmlTag(HtmlNodeType.Text).With(x => x.Content = Text);
 
         public static HtmlTag CreateWhiteSpace() => new HtmlTag(HtmlNodeType.Text).With(x => x._content = "&nbsp;");
 
@@ -798,13 +851,12 @@ namespace InnerLibs
         {
             if (nodes != null)
             {
-                SelfClosing = false;
-                this._children.AddRange(nodes.Where(x => x != null));
+                _selfClosing = false;
+                this._children.AddRange(nodes.Where(x => x != null).Each(x => x._parent = this));
             }
 
             return this;
         }
-
 
         public HtmlTag AddClass(params string[] ClassName)
         {
@@ -817,8 +869,6 @@ namespace InnerLibs
         }
 
         public HtmlTag AddComment(string Comment) => AddChildren(CreateComment(Comment));
-
-        public HtmlTag AddText(string Text) => AddChildren(CreateText(Text));
 
         public HtmlTag AddHorizontalRule() => AddChildren(CreateHorizontalRule());
 
@@ -863,6 +913,8 @@ namespace InnerLibs
             return this;
         }
 
+        public HtmlTag AddText(string Text) => AddChildren(CreateText(Text));
+
         /// <summary>
         /// Add a new <see cref="HtmlTag"/> containing a whitespace
         /// </summary>
@@ -875,6 +927,8 @@ namespace InnerLibs
         /// <returns></returns>
         public HtmlTag ClearChildren()
         {
+            _children = _children ?? (new List<HtmlTag>());
+            _children.Each(x => x._parent = null);
             _children.Clear();
             return this;
         }
@@ -888,13 +942,19 @@ namespace InnerLibs
         /// <returns></returns>
         public HtmlTag CloneTag() => ParseTag(OuterHtml);
 
+        public HtmlTag Detach()
+        {
+            this.Parent?.RemoveChildren(this);
+            return this;
+        }
+
         /// <summary>
         /// Return the first child
         /// </summary>
         /// <returns></returns>
         public HtmlTag FirstChild() => Children.FirstOrDefault();
 
-        public HtmlTag FirstChild(Expression<Func<HtmlTag, bool>> predicate) => Children.FirstOrDefault(predicate?.Compile());
+        public HtmlTag FirstChild(Expression<Func<HtmlTag, bool>> predicate) => predicate != null ? Children.FirstOrDefault(predicate.Compile()) : FirstChild();
 
         public string GetAttribute(string key) => Attributes.GetValueOr(key, Text.Empty);
 
@@ -911,15 +971,20 @@ namespace InnerLibs
         /// </summary>
         /// <returns>Returns true if children property has items, otherwise false.</returns>
         public bool HasChildren() => this.Children?.Any() ?? false;
-        public bool HasChildren(Expression<Func<HtmlTag, bool>> predicate) => this.Children?.Any(predicate?.Compile()) ?? false;
+
+        public bool HasChildren(Expression<Func<HtmlTag, bool>> predicate) => this.Children?.Any(predicate?.Compile() ?? (x => false)) ?? false;
 
         public bool HasClass(params string[] Classes) => (Classes?.Any() ?? false ? Classes?.Any(x => ClassList.Contains(x, StringComparer.CurrentCultureIgnoreCase)) : ClassList.Any()) ?? false;
 
         public HtmlTag Insert(int Index, string TagName, string InnerHtml = "") => Insert(Index, new HtmlTag(TagName, InnerHtml));
+
         public HtmlTag Insert(int Index, HtmlTag Tag)
         {
             if (Tag != null && Index >= 0)
+            {
+                Tag._parent = this;
                 _children.Insert(Index, Tag);
+            }
             return this;
         }
 
@@ -931,7 +996,7 @@ namespace InnerLibs
 
         public HtmlTag LastChild() => Children.LastOrDefault();
 
-        public HtmlTag LastChild(Expression<Func<HtmlTag, bool>> predicate) => Children.LastOrDefault(predicate?.Compile());
+        public HtmlTag LastChild(Expression<Func<HtmlTag, bool>> predicate) => predicate != null ? Children.LastOrDefault(predicate.Compile()) : LastChild();
 
         public HtmlTag RemoveAttribute(string AttrName)
         {
@@ -945,13 +1010,18 @@ namespace InnerLibs
             return this;
         }
 
-        public HtmlTag RemoveChildren(params HtmlTag[] Children)
+        public HtmlTag RemoveChildren(Expression<Func<HtmlTag, bool>> predicate) => RemoveChildren(this.Children?.Where(predicate?.Compile() ?? (x => false)) ?? Array.Empty<HtmlTag>());
+
+        public HtmlTag RemoveChildren(params string[] IDs) => RemoveChildren(x => IDs.Any(y => x.ID.Equals(y, StringComparison.Ordinal)));
+
+        public HtmlTag RemoveChildren(IEnumerable<HtmlTag> Children)
         {
             foreach (var item in Children ?? Array.Empty<HtmlTag>())
             {
                 if (_children.Contains(item))
                 {
                     _children.Remove(item);
+                    item._parent = null;
                 }
             }
             return this;
@@ -994,5 +1064,7 @@ namespace InnerLibs
         public HtmlTag SetProp(string AttrName, bool Value = true) => Value ? SetAttribute(AttrName, AttrName) : RemoveAttribute(AttrName);
 
         public override string ToString() => OuterHtml;
+
+        #endregion Public Methods
     }
 }

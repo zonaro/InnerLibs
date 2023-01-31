@@ -499,11 +499,28 @@ namespace InnerLibs
 
         /// <summary> Traz o valor de uma <see cref="Enum"> do tipo <typeparamref name="T"/> a
         /// partir de uma string </summary> <typeparam name="T"></typeparam> <returns></returns>
-        public static T GetEnumValue<T>(this string Name)
+        public static T GetEnumValue<T>(this string Name) => (T)GetEnumValue(Name, typeof(T));
+
+        public static object GetEnumValue(this string Name, Type EnumType)
         {
-            if (!typeof(T).IsEnum) throw new ArgumentException("type must be an Enumeration type.");
-            return Name.IsNotBlank() ? ((T[])Enum.GetValues(typeof(T))).FirstOrDefault(x => x.ToString().RemoveAccents().Equals(Name.RemoveAccents(), StringComparison.InvariantCultureIgnoreCase) || (Name.IsNumber() && Name.ToInt() == x.ToInt())) : default;
+            if (EnumType == null || !EnumType.IsEnum) throw new ArgumentException("type must be an Enumeration type.");
+            if (Name.IsNotBlank())
+            {
+                foreach (var x in Enum.GetValues(EnumType))
+                {
+                    if ($"{x}".RemoveAccents().Equals(Name.RemoveAccents(), StringComparison.InvariantCultureIgnoreCase) || (Name.IsNumber() && Name.ToInt() == x.ToInt()))
+                    {
+                        return x.ChangeType(EnumType);
+                    }
+                }
+
+            }
+
+            return default;
+
+
         }
+
 
         /// <summary> Traz o valor de uma <see cref="Enum"> do tipo <typeparamref name="T"/> a
         /// partir de um <paramref name="Value"/> inteiro </summary> <typeparam

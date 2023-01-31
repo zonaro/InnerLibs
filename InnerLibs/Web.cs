@@ -72,7 +72,19 @@ namespace InnerLibs
             return s;
         }
 
+        public static byte[] DownloadFile(this Uri URL, NameValueCollection Headers = null, Encoding Encoding = null) => DownloadFile($"{URL}", Headers, Encoding);
+
         public static System.Drawing.Image DownloadImage(string URL, NameValueCollection Headers = null, Encoding Encoding = null) => DownloadFile(URL, Headers, Encoding).ToImage();
+
+        public static System.Drawing.Image DownloadImage(this Uri URL, NameValueCollection Headers = null, Encoding Encoding = null) => DownloadImage($"{URL}", Headers, Encoding);
+
+        public static T DownloadJson<T>(string URL, NameValueCollection Headers = null, Encoding Encoding = null) => DownloadString(URL, Headers, Encoding).FromJson<T>();
+
+        public static object DownloadJson(string URL, NameValueCollection Headers = null, Encoding Encoding = null) => DownloadString(URL, Headers, Encoding).FromJson();
+
+        public static T DownloadJson<T>(this Uri URL, NameValueCollection Headers = null, Encoding Encoding = null) => DownloadJson<T>($"{URL}", Headers, Encoding);
+
+        public static object DownloadJson(this Uri URL, NameValueCollection Headers = null, Encoding Encoding = null) => DownloadJson($"{URL}", Headers, Encoding);
 
         public static string DownloadString(string URL, NameValueCollection Headers = null, Encoding Encoding = null)
         {
@@ -90,30 +102,21 @@ namespace InnerLibs
             return s;
         }
 
-        public static T DownloadJson<T>(string URL, NameValueCollection Headers = null, Encoding Encoding = null) => DownloadString(URL, Headers, Encoding).FromJson<T>();
-        public static object DownloadJson(string URL, NameValueCollection Headers = null, Encoding Encoding = null) => DownloadString(URL, Headers, Encoding).FromJson();
-
-        public static T DownloadJson<T>(this Uri URL, NameValueCollection Headers = null, Encoding Encoding = null) => DownloadJson<T>($"{URL}", Headers, Encoding);
-        public static object DownloadJson(this Uri URL, NameValueCollection Headers = null, Encoding Encoding = null) => DownloadJson($"{URL}", Headers, Encoding);
         public static string DownloadString(this Uri URL, NameValueCollection Headers = null, Encoding Encoding = null) => DownloadString($"{URL}", Headers, Encoding);
-        public static byte[] DownloadFile(this Uri URL, NameValueCollection Headers = null, Encoding Encoding = null) => DownloadFile($"{URL}", Headers, Encoding);
-        public static System.Drawing.Image DownloadImage(this Uri URL, NameValueCollection Headers = null, Encoding Encoding = null) => DownloadImage($"{URL}", Headers, Encoding);
-
-
 
         /// <summary>
         /// Retorna o Titulo do arquivo a partir do nome do arquivo
         /// </summary>
         /// <param name="Info">Arquivo ou Diretório</param>
         /// <returns></returns>
-        public static string FileNameAsTitle(this FileSystemInfo Info) => Path.GetFileNameWithoutExtension(Info?.Name).ToNormalCase().ToTitle();
+        public static string FileNameAsTitle(this FileSystemInfo Info, bool ForceCase = false) => Path.GetFileNameWithoutExtension(Info?.Name).ToNormalCase().ToTitle(ForceCase);
 
         /// <summary>
         /// Retorna o Titulo do arquivo a partir do nome do arquivo
         /// </summary>
-        /// <param name="FileName">Arquivo ou Diretório</param>
+        /// <param name="FilePath">Arquivo ou Diretório</param>
         /// <returns></returns>
-        public static string FileNameAsTitle(this string FileName) => Path.GetFileNameWithoutExtension(FileName).ToNormalCase().ToTitle();
+        public static string FileNameAsTitle(this string FilePath, bool ForceCase = false) => Path.GetFileNameWithoutExtension(FilePath).ToNormalCase().ToTitle(ForceCase);
 
         /// <summary>
         /// Captura o Username ou UserID de uma URL do Facebook
@@ -121,7 +124,7 @@ namespace InnerLibs
         /// <param name="URL">URL do Facebook</param>
         /// <returns></returns>
         public static string GetFacebookUsername(this string URL) => URL.IsURL() && URL.GetDomain().ToLowerInvariant().IsAny("facebook.com", "fb.com")
-               ? Regex.Match(URL, @"(?:(?:http|https):\/\/)?(?:www.)?facebook.com\/(?:(?:\w)*#!\/)?(?:pages\/)?(?:[?\w\-]*\/)?(?:profile.php\?id=(?=\d.*))?([\w\-]*)?").Groups[1].Value
+               ? Regex.Match(URL.Replace("fb.com", "facebook.com"), @"(?:(?:http|https):\/\/)?(?:www.)?facebook.com\/(?:(?:\w)*#!\/)?(?:pages\/)?(?:[?\w\-]*\/)?(?:profile.php\?id=(?=\d.*))?([\w\-]*)?").Groups[1].Value
                  : throw new ArgumentException("Invalid Facebook URL", nameof(URL));
 
         /// <summary>
@@ -130,6 +133,21 @@ namespace InnerLibs
         /// <param name="URL">URL do Facebook</param>
         /// <returns></returns>
         public static string GetFacebookUsername(this Uri URL) => URL?.AbsoluteUri.GetFacebookUsername();
+
+        public static string GetFileNameWithoutExtension(this FileInfo Info) => Info != null ? Path.GetFileNameWithoutExtension(Info.Name) : Text.Empty;
+
+        /// <summary>
+        /// Retorna um novo <see cref="FileInfo"/> substituindo a extensão original por <paramref name="Extension"/>
+        /// </summary>
+        /// <param name="Info"></param>
+        /// <param name="Extension"></param>
+        /// <returns></returns>
+        public static FileInfo ReplaceExtension(this FileInfo Info, string Extension)
+        {
+            if (Info != null)
+                return new FileInfo(Path.Combine(Info.DirectoryName, Info.GetFileNameWithoutExtension() + "." + Extension.IfBlank("bin").TrimStart('.')).FixPath());
+            return null;
+        }
 
         public static IEnumerable<string> GetIPs() => GetLocalIP().Union(new[] { GetPublicIP() });
 
@@ -176,7 +194,6 @@ namespace InnerLibs
         /// </summary>
         /// <param name="URL">URL do video</param>
         /// <returns>ID do video do youtube ou Vimeo</returns>
-
         public static string GetVideoID(this Uri URL) => GetVideoID(URL.AbsoluteUri);
 
         /// <summary>
@@ -207,7 +224,6 @@ namespace InnerLibs
         /// <param name="URL">Url do Youtube</param>
         /// <returns></returns>
         public static byte[] GetYoutubeThumbnail(string URL) => DownloadFile($"http://img.youtube.com/vi/{GetVideoID(URL)}/hqdefault.jpg");
-
 
         /// <summary>
         /// Captura a Thumbnail de um video do youtube
@@ -302,6 +318,8 @@ namespace InnerLibs
             return URL;
         }
 
+        public static string RemoveUrlParameters(Uri URL) => RemoveUrlParameters(URL?.ToString());
+
         /// <summary>
         /// Substitui os parametros de rota de uma URL por valores de um objeto
         /// </summary>
@@ -324,11 +342,7 @@ namespace InnerLibs
             return URL;
         }
 
-        public static string RemoveUrlParameters(Uri URL) => RemoveUrlParameters(URL?.ToString());
-
         public static string ReplaceUrlParameters<T>(Uri URL, T obj) => ReplaceUrlParameters(URL?.ToString(), obj);
-
-
 
         #endregion Public Methods
     }
