@@ -471,6 +471,9 @@ namespace InnerLibs
             }
         }
 
+
+        public string AttributeString => Attributes.SelectJoinString(x => $"{x.Key.Replace(" ", "-")}={x.Value.Quote()}", " ");
+
         /// <summary>
         /// Filhos desta tag
         /// </summary>
@@ -586,7 +589,7 @@ namespace InnerLibs
                 switch (this.Type)
                 {
                     case HtmlNodeType.Element:
-                        return $"<{TagName.IfBlank("div")}{Attributes.SelectJoinString(x => x.Key == x.Value ? x.Key : $"{x.Key}={x.Value.Wrap()}", " ").PrependIf(" ", b => b.IsNotBlank())}" + (SelfClosing ? " />" : $">{InnerHtml}</{TagName.IfBlank("div")}>");
+                        return $"<{TagName.IfBlank("div")}{AttributeString.PrependIf(" ", b => b.IsNotBlank())}" + (SelfClosing ? " />" : $">{InnerHtml}</{TagName.IfBlank("div")}>");
 
                     case HtmlNodeType.Text:
                         return Content;
