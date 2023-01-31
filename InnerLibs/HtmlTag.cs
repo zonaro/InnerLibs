@@ -743,7 +743,7 @@ namespace InnerLibs
             return tag;
         }
 
-        public static HtmlTag CreateWithespace() => new HtmlTag(HtmlNodeType.Text).With(x => x._content = "&nbsp;");
+        public static HtmlTag CreateWhiteSpace() => new HtmlTag(HtmlNodeType.Text).With(x => x._content = "&nbsp;");
 
         public static IEnumerable<HtmlTag> FromFile(FileInfo file) => file != null && file.Exists ? Parse(file.ReadAllText()) : Array.Empty<HtmlTag>();
 
@@ -787,7 +787,7 @@ namespace InnerLibs
 
         public HtmlTag AddBreakLine() => AddChildren(CreateBreakLine());
 
-        public HtmlTag AddChildren(string TagName, string InnerHtml = "", Action<HtmlTag> WithTag = null) => AddChildren(new HtmlTag(TagName, InnerHtml).With(WithTag));
+        public HtmlTag AddChildren(string TagName, string InnerHtml = "", Action<HtmlTag> OtherActions = null) => AddChildren(new HtmlTag(TagName, InnerHtml).With(OtherActions));
 
         public HtmlTag AddChildren(params HtmlTag[] node) => AddChildren((node ?? Array.Empty<HtmlTag>()).AsEnumerable());
 
@@ -831,13 +831,13 @@ namespace InnerLibs
             return this;
         }
 
+        ///<inheritdoc cref="AddTable{TPoco}(IEnumerable{TPoco}, TPoco, string, string[])"/>
         public HtmlTag AddTable<TPoco>(IEnumerable<TPoco> Rows, bool header, string IDProperty, params string[] Properties) where TPoco : class
         {
             _children.Add(CreateTable(Rows, header, IDProperty, Properties));
             return this;
         }
 
-        ///<inheritdoc cref="AddTable{TPoco}(IEnumerable{TPoco}, TPoco, string, string[])"/>
         ///<inheritdoc cref="AddTable{TPoco}(IEnumerable{TPoco}, TPoco, string, string[])"/>
         public HtmlTag AddTable<TPoco>(IEnumerable<TPoco> Rows) where TPoco : class
         {
@@ -846,7 +846,7 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Generate a table from <typeparamref name="TPoco"/> classes as a childre of this <see cref="HtmlTag"/>
+        /// Generate a table from <typeparamref name="TPoco"/> classes as a children of this <see cref="HtmlTag"/>
         /// </summary>
         /// <typeparam name="TPoco"></typeparam>
         /// <param name="Rows"></param>
@@ -861,10 +861,10 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Add a new <see cref="HtmlTag"/> containing a witespace
+        /// Add a new <see cref="HtmlTag"/> containing a whitespace
         /// </summary>
         /// <returns></returns>
-        public HtmlTag AddWhiteSpace() => AddChildren(CreateWithespace());
+        public HtmlTag AddWhiteSpace() => AddChildren(CreateWhiteSpace());
 
         /// <summary>
         /// Clear all children
@@ -908,6 +908,7 @@ namespace InnerLibs
         /// </summary>
         /// <returns>Returns true if children property has items, otherwise false.</returns>
         public bool HasChildren() => this.Children?.Any() ?? false;
+        public bool HasChildren(Expression<Func<HtmlTag, bool>> predicate) => this.Children?.Any(predicate?.Compile()) ?? false;
 
         public bool HasClass(params string[] Classes) => (Classes?.Any() ?? false ? Classes?.Any(x => ClassList.Contains(x, StringComparer.CurrentCultureIgnoreCase)) : ClassList.Any()) ?? false;
 
@@ -929,7 +930,7 @@ namespace InnerLibs
 
         public HtmlTag LastChild(Expression<Func<HtmlTag, bool>> predicate) => Children.LastOrDefault(predicate?.Compile());
 
-        public HtmlTag RemoveAttr(string AttrName)
+        public HtmlTag RemoveAttribute(string AttrName)
         {
             Attributes.SetOrRemove(AttrName, null, true);
             return this;
@@ -987,7 +988,7 @@ namespace InnerLibs
             return this;
         }
 
-        public HtmlTag SetProp(string AttrName, bool Value = true) => Value ? SetAttribute(AttrName, AttrName) : RemoveAttr(AttrName);
+        public HtmlTag SetProp(string AttrName, bool Value = true) => Value ? SetAttribute(AttrName, AttrName) : RemoveAttribute(AttrName);
 
         public override string ToString() => OuterHtml;
     }
