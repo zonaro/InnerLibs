@@ -425,7 +425,7 @@ namespace InnerLibs
 
         internal List<HtmlTag> _children = new List<HtmlTag>();
         internal string _content;
-        private bool _selfClosing;
+        internal bool _selfClosing;
 
         #endregion Internal Fields
 
@@ -460,7 +460,7 @@ namespace InnerLibs
 
         public HtmlTag(bool selfClosing, HtmlNodeType type)
         {
-            this.SelfClosing = selfClosing;
+            this._selfClosing = selfClosing;
             this.Type = type;
         }
 
@@ -534,7 +534,7 @@ namespace InnerLibs
             set => Class = (value ?? Array.Empty<string>().AsEnumerable()).SelectJoinString(" ");
         }
 
-        //[IgnoreDataMember]
+        [IgnoreDataMember]
         public string Content
         {
             get
@@ -578,7 +578,7 @@ namespace InnerLibs
         [IgnoreDataMember]
         public int Index => Parent?.Children.GetIndexOf(this) ?? -1;
 
-        [IgnoreDataMember]
+        //   [IgnoreDataMember]
         public string InnerHtml
         {
             get
@@ -601,7 +601,7 @@ namespace InnerLibs
             {
                 if (value.IsNotBlank())
                 {
-                    SelfClosing = false;
+                    _selfClosing = false;
                 }
 
                 this.ClearChildren();
@@ -617,6 +617,11 @@ namespace InnerLibs
             get => this.Type == HtmlNodeType.Element ? Children.Traverse(x => x.Children).Where(x => x.Type == HtmlNodeType.Text).SelectJoinString() : _content;
             set
             {
+                if (value.IsNotBlank())
+                {
+                    _selfClosing = false;
+                }
+
                 ClearChildren();
                 if (value.IsNotBlank())
                     this.AddChildren(new HtmlTag(HtmlNodeType.Text) { Content = value, _parent = this });

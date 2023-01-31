@@ -39,49 +39,51 @@ namespace InnerLibs
 
             do
             {
-                attrs.SetOrRemove(GetAttribute());
+                var att = GetAttribute();
+                attrs[att.Key] = att.Value;
                 SkipSpace();
             } while (q.Any() && q.Peek() != '>' && q.Peek(2) != "/>");
 
             return attrs;
 
-            KeyValuePair<string, string> GetAttribute()
-            {
-                var name = GetUpTo('=', ' ', '>');
-
-                if (q.Peek() == ' ' || q.Peek() == '>') return new KeyValuePair<string, string>(name, null);
-
-                Dequeue();
-
-                if (q.Peek() == '>') return new KeyValuePair<string, string>(name, null);
-
-                if (q.Peek(2) == "''" || q.Peek(2) == "\"\"" || q.Peek(2) == "``")
-                {
-                    Dequeue(2);
-                    return new KeyValuePair<string, string>(name, string.Empty);
-                }
-
-                if (q.Any())
-                {
-                    // attr=value is valid so check for the scenerio
-                    if (q.Peek() == '\'' || q.Peek() == '"' || q.Peek() == '`')
-                    {
-                        var del = Dequeue();
-                        var value = GetUpTo(del);
-                        Dequeue();
-                        return new KeyValuePair<string, string>(name, value);
-                    }
-                    else
-                    {
-                        var value = GetUpTo(' ', '>', '<', '\'', '"', '=', '`');
-                        return new KeyValuePair<string, string>(name, value);
-                    }
-                }
-
-                return new KeyValuePair<string, string>(name, null);
-            }
         }
 
+
+        internal KeyValuePair<string, string> GetAttribute()
+        {
+            var name = GetUpTo('=', ' ', '>');
+
+            if (q.Peek() == ' ' || q.Peek() == '>') return new KeyValuePair<string, string>(name, null);
+
+            Dequeue();
+
+            if (q.Peek() == '>') return new KeyValuePair<string, string>(name, null);
+
+            if (q.Peek(2) == "''" || q.Peek(2) == "\"\"" || q.Peek(2) == "``")
+            {
+                Dequeue(2);
+                return new KeyValuePair<string, string>(name, string.Empty);
+            }
+
+            if (q.Any())
+            {
+                // attr=value is valid so check for the scenerio
+                if (q.Peek() == '\'' || q.Peek() == '"' || q.Peek() == '`')
+                {
+                    var del = Dequeue();
+                    var value = GetUpTo(del);
+                    Dequeue();
+                    return new KeyValuePair<string, string>(name, value);
+                }
+                else
+                {
+                    var value = GetUpTo(' ', '>', '<', '\'', '"', '=', '`');
+                    return new KeyValuePair<string, string>(name, value);
+                }
+            }
+
+            return new KeyValuePair<string, string>(name, null);
+        }
         private string GetComment()
         {
             this.Dequeue(4);
@@ -163,15 +165,14 @@ namespace InnerLibs
                     else if (q.Peek(2) == "/>")
                     {
                         Dequeue(2);
-                        node.SelfClosing = true;
-
+                        node._selfClosing = true;
                         list.Add(node);
                     }
                     // self closing tags that don't have '/>' ie: <br>
                     else if (q.Peek() == '>' && SelfClosingTags.Contains(node.TagName))
                     {
                         Dequeue();
-                        node.SelfClosing = true;
+                        node._selfClosing = true;
                         list.Add(node);
                     }
                     else if (node.TagName.Equals("script", StringComparison.OrdinalIgnoreCase))

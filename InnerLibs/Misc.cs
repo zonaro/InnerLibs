@@ -499,28 +499,35 @@ namespace InnerLibs
 
         /// <summary> Traz o valor de uma <see cref="Enum"> do tipo <typeparamref name="T"/> a
         /// partir de uma string </summary> <typeparam name="T"></typeparam> <returns></returns>
-        public static T GetEnumValue<T>(this string Name) => (T)GetEnumValue(Name, typeof(T));
+        public static T GetEnumValue<T>(this string Name)
+        {
+            var v = GetEnumValue(Name, typeof(T));
+            return v != null ? v.ChangeType<T>() : default;
+        }
 
         public static object GetEnumValue(this string Name, Type EnumType)
         {
-            if (EnumType == null || !EnumType.IsEnum) throw new ArgumentException("type must be an Enumeration type.");
-            if (Name.IsNotBlank())
+            if (EnumType != null && EnumType.IsEnum)
             {
-                foreach (var x in Enum.GetValues(EnumType))
+                if (Name.IsNotBlank())
                 {
-                    if ($"{x}".RemoveAccents().Equals(Name.RemoveAccents(), StringComparison.InvariantCultureIgnoreCase) || (Name.IsNumber() && Name.ToInt() == x.ToInt()))
+                    Name = Name.RemoveAccents().ToUpperInvariant();
+                    foreach (var x in Enum.GetValues(EnumType))
                     {
-                        return x.ChangeType(EnumType);
+                        var entryName = Enum.GetName(EnumType, x)?.RemoveAccents().ToUpperInvariant();
+                        var entryValue = $"{(int)x}";
+
+                        if (Name == entryName || Name == entryValue)
+                        {
+                            return x;
+                        }
                     }
                 }
 
+                return Activator.CreateInstance(EnumType);
             }
-
             return default;
-
-
         }
-
 
         /// <summary> Traz o valor de uma <see cref="Enum"> do tipo <typeparamref name="T"/> a
         /// partir de um <paramref name="Value"/> inteiro </summary> <typeparam
