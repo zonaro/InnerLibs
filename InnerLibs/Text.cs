@@ -1783,6 +1783,27 @@ namespace InnerLibs
             return $"{PluralText}";
         }
 
+        public static int RemoveMaskInt(this string MaskedText, params char[] AllowCharacters) => RemoveMask(MaskedText, AllowCharacters).ToInt();
+
+        public static long RemoveMaskLong(this string MaskedText, params char[] AllowCharacters) => RemoveMask(MaskedText, AllowCharacters).ToLong();
+        public static string RemoveMask(this string MaskedText, params char[] AllowCharacters)
+        {
+            if (MaskedText.IsNotBlank())
+            {
+                AllowCharacters = "".ToArray();
+                string ns = "";
+                foreach (char c in MaskedText)
+                {
+                    if (c.ToString().IsNumber()|| c.IsIn(AllowCharacters))
+                    {
+                        ns += c;
+                    }
+                }
+                return ns;
+            }
+            return MaskedText;
+        }
+
         /// <summary>
         /// Retorna o texto a na sua forma singular ou plural de acordo com uma quantidade
         /// determinada em uma lista ou um valor numérico.

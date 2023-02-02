@@ -15,26 +15,27 @@ namespace InnerLibs
         #region Public Methods
 
         /// <summary>
-        /// Retorna true se <paramref name="Value"/> não estiver em branco, for diferente de NULL,
-        /// zero ou 'false'
+        /// Retorna true se <paramref name="Value"/> não estiver em branco, for diferente de NULL, 'null'
+        /// '0', 'not', 'nao', '!' ou 'false'
         /// </summary>
         /// <param name="Value"></param>
         /// <returns></returns>
         public static bool AsBool(this string Value)
         {
-            if (Value == null)
+            if (Value == null || Value.IsBlank())
             {
                 return false;
             }
 
-            Value = Value.TrimBetween().ToLowerInvariant();
+            Value = Value.TrimBetween().ToUpperInvariant().RemoveAccents();
             switch (Value)
             {
-                case "false":
+                case "!":
                 case "0":
-                case "null":
-                case Text.Empty:
-                case null:
+                case "FALSE":
+                case "NULL":
+                case "NOT":
+                case "NAO":
                     return false;
                 default:
                     return true;
@@ -42,46 +43,51 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Converte um array de um tipo para outro
+        /// Converte um array de um ToType para outro
         /// </summary>
         /// <typeparam name="TTo">Tipo do array</typeparam>
         /// <param name="Value">Array com elementos</param>
-        /// <returns>Array convertido em novo tipo</returns>
+        /// <returns>Array convertido em novo ToType</returns>
         public static TTo[] ChangeArrayType<TTo, TFrom>(this TFrom[] Value) => Value.AsEnumerable().ChangeIEnumerableType<TTo, TFrom>().ToArray();
 
         /// <summary>
-        /// Converte um array de um tipo para outro
+        /// Converte um array de um ToType para outro
         /// </summary>
         /// <param name="Value">Array com elementos</param>
-        /// <returns>Array convertido em novo tipo</returns>
+        /// <returns>Array convertido em novo ToType</returns>
         public static object[] ChangeArrayType<TFrom>(this TFrom[] Value, Type Type) => Value.ChangeIEnumerableType(Type).ToArray();
 
         /// <summary>
-        /// Converte um IEnumerable de um tipo para outro
+        /// Converte um IEnumerable de um ToType para outro
         /// </summary>
         /// <typeparam name="TTo">Tipo do array</typeparam>
         /// <param name="Value">Array com elementos</param>
-        /// <returns>Array convertido em novo tipo</returns>
+        /// <returns>Array convertido em novo ToType</returns>
         public static IEnumerable<TTo> ChangeIEnumerableType<TTo, TFrom>(this IEnumerable<TFrom> Value) => (IEnumerable<TTo>)Value.ChangeIEnumerableType(typeof(TTo));
 
         /// <summary>
-        /// Converte um IEnumerable de um tipo para outro
+        /// Converte um IEnumerable de um ToType para outro
         /// </summary>
         /// <param name="Value">Array com elementos</param>
-        /// <returns>Array convertido em novo tipo</returns>
+        /// <returns>Array convertido em novo ToType</returns>
         public static IEnumerable<object> ChangeIEnumerableType<TFrom>(this IEnumerable<TFrom> Value, Type ToType) => (Value ?? Array.Empty<TFrom>()).Select(el => el.ChangeType(ToType));
 
         /// <summary>
-        /// Converte um tipo para outro. Retorna Nothing (NULL) se a conversão falhar
+        /// Converte um ToType para outro. Retorna Nothing (NULL) se a conversão falhar
         /// </summary>
         /// <typeparam name="T">Tipo</typeparam>
         /// <param name="Value">Variavel com valor</param>
-        /// <returns>Valor convertido em novo tipo ou null se a conversão falhar</returns>
+        /// <returns>Valor convertido em novo ToType ou null se a conversão falhar</returns>
         public static T ChangeType<T>(this object Value)
         {
             try
             {
-                return (T)Value?.ChangeType(typeof(T).GetNullableTypeOf());
+                var tp = typeof(T).GetNullableTypeOf() ?? typeof(T);
+                if (Value != null)
+                {
+                    return (T)Value.ChangeType(tp);
+                }
+                return default;
             }
             catch
             {
@@ -90,13 +96,16 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Converte um tipo para outro. Retorna Nothing (NULL) ou DEFAULT se a conversão falhar
+        /// Converte um ToType para outro. Retorna Nothing (NULL) ou DEFAULT se a conversão falhar
         /// </summary>
         /// <typeparam name="TFrom">Tipo de origem</typeparam>
         /// <param name="Value">Variavel com valor</param>
-        /// <returns>Valor convertido em novo tipo ou null (ou default) se a conversão falhar</returns>
+        /// <returns>Valor convertido em novo ToType ou null (ou default) se a conversão falhar</returns>
         public static object ChangeType<TFrom>(this TFrom Value, Type ToType)
         {
+            ToType = ToType ?? typeof(object);
+
+            Debug.WriteLine($"Try Changing from {typeof(TFrom).Name} to {ToType.Name}");
 
             try
             {
@@ -113,10 +122,10 @@ namespace InnerLibs
 
             try
             {
-                var tipo = Misc.GetNullableTypeOf(ToType);
+                ToType = Misc.GetNullableTypeOf(ToType);
                 if (Value == null)
                 {
-                    if (!tipo.IsValueType() || ToType.IsNullableType())
+                    if (!ToType.IsValueType() || ToType.IsNullableType())
                     {
                         return null;
                     }
@@ -126,28 +135,47 @@ namespace InnerLibs
                     }
                 }
 
-                if (tipo == typeof(Guid))
+                if (ToType == typeof(Guid))
                 {
                     return Guid.Parse(Value.ToString());
                 }
 
-                if (tipo.IsValueType())
+                if (ToType.IsEnum)
                 {
-                    var Converter = TypeDescriptor.GetConverter(tipo);
+                    if (Value is string Name && Name.IsNotBlank())
+                    {
+                        Name = Name.RemoveAccents().ToUpperInvariant();
+                        foreach (var x in Enum.GetValues(ToType))
+                        {
+                            var entryName = Enum.GetName(ToType, x)?.RemoveAccents().ToUpperInvariant();
+                            var entryValue = $"{(int)x}";
+
+                            if (Name == entryName || Name == entryValue)
+                            {
+                                return Convert.ChangeType(x, ToType);
+                            }
+                        }
+                        return Activator.CreateInstance(ToType);
+                    }
+                }
+
+                if (ToType.IsValueType())
+                {
+                    var Converter = TypeDescriptor.GetConverter(ToType);
                     if (Converter.CanConvertFrom(typeof(TFrom)))
                     {
                         try
                         {
-                            return Converter.ConvertTo(Value, tipo);
+                            return Converter.ConvertTo(Value, ToType);
                         }
                         catch
                         {
-                            return Convert.ChangeType(Value, tipo);
+                            return Convert.ChangeType(Value, ToType);
                         }
                     }
                     else
                     {
-                        return Convert.ChangeType(Value, tipo);
+                        return Convert.ChangeType(Value, ToType);
                     }
                 }
                 else
@@ -247,10 +275,10 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Cria uma lista vazia usando um objeto como o tipo da lista. Util para tipos anonimos
+        /// Cria uma lista vazia usando um objeto como o ToType da lista. Util para tipos anonimos
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="ObjectForDefinition">Objeto que definirá o tipo da lista</param>
+        /// <param name="ObjectForDefinition">Objeto que definirá o ToType da lista</param>
         /// <returns></returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remover o parâmetro não utilizado", Justification = "<Pendente>")]
         public static List<T> DefineEmptyList<T>(this T ObjectForDefinition) => new List<T>();
@@ -443,43 +471,43 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Converte um tipo para Boolean. Retorna Nothing (NULL) se a conversão falhar
+        /// Converte um ToType para Boolean. Retorna Nothing (NULL) se a conversão falhar
         /// </summary>
         /// <typeparam name="T">Tipo de origem</typeparam>
         /// <param name="Value">Variavel com valor</param>
-        /// <returns>Valor convertido em novo tipo</returns>
+        /// <returns>Valor convertido em novo ToType</returns>
         public static bool ToBool<T>(this T Value) => Value.ChangeType<bool>();
 
         /// <summary>
-        /// Converte um tipo para DateTime. Retorna Nothing (NULL) se a conversão falhar
+        /// Converte um ToType para DateTime. Retorna Nothing (NULL) se a conversão falhar
         /// </summary>
         /// <typeparam name="T">Tipo de origem</typeparam>
         /// <param name="Value">Variavel com valor</param>
-        /// <returns>Valor convertido em novo tipo</returns>
+        /// <returns>Valor convertido em novo ToType</returns>
         public static DateTime ToDateTime<T>(this T Value) => Value.ChangeType<DateTime>();
 
         /// <summary>
-        /// Converte um tipo para DateTime. Retorna Nothing (NULL) se a conversão falhar
+        /// Converte um ToType para DateTime. Retorna Nothing (NULL) se a conversão falhar
         /// </summary>
         /// <typeparam name="T">Tipo de origem</typeparam>
         /// <param name="Value">Variavel com valor</param>
-        /// <returns>Valor convertido em novo tipo</returns>
+        /// <returns>Valor convertido em novo ToType</returns>
         public static DateTime ToDateTime<T>(this T Value, string CultureInfoName) => Value.ToDateTime(new CultureInfo(CultureInfoName));
 
         /// <summary>
-        /// Converte um tipo para DateTime. Retorna Nothing (NULL) se a conversão falhar
+        /// Converte um ToType para DateTime. Retorna Nothing (NULL) se a conversão falhar
         /// </summary>
         /// <typeparam name="T">Tipo de origem</typeparam>
         /// <param name="Value">Variavel com valor</param>
-        /// <returns>Valor convertido em novo tipo</returns>
+        /// <returns>Valor convertido em novo ToType</returns>
         public static DateTime ToDateTime<T>(this T Value, CultureInfo CultureInfo) => Convert.ToDateTime(Value, CultureInfo);
 
         /// <summary>
-        /// Converte um tipo para Decimal. Retorna Nothing (NULL) se a conversão falhar
+        /// Converte um ToType para Decimal. Retorna Nothing (NULL) se a conversão falhar
         /// </summary>
         /// <typeparam name="T">Tipo de origem</typeparam>
         /// <param name="Value">Variavel com valor</param>
-        /// <returns>Valor convertido em novo tipo</returns>
+        /// <returns>Valor convertido em novo ToType</returns>
         public static decimal ToDecimal<T>(this T Value) => Value.ChangeType<decimal>();
 
         /// <summary>
@@ -640,43 +668,43 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Converte um tipo para Double. Retorna Nothing (NULL) se a conversão falhar
+        /// Converte um ToType para Double. Retorna Nothing (NULL) se a conversão falhar
         /// </summary>
         /// <typeparam name="FromType">Tipo de origem</typeparam>
         /// <param name="Value">Variavel com valor</param>
-        /// <returns>Valor convertido em novo tipo</returns>
+        /// <returns>Valor convertido em novo ToType</returns>
         public static double ToDouble<FromType>(this FromType Value) => Value.ChangeType<double>();
 
         /// <summary>
-        /// Converte um tipo para Integer. Retorna Nothing (NULL) se a conversão falhar
+        /// Converte um ToType para Integer. Retorna Nothing (NULL) se a conversão falhar
         /// </summary>
         /// <typeparam name="FromType">Tipo de origem</typeparam>
         /// <param name="Value">Variavel com valor</param>
-        /// <returns>Valor convertido em novo tipo</returns>
+        /// <returns>Valor convertido em novo ToType</returns>
         public static int ToInt<FromType>(this FromType Value) => Value.ChangeType<int>();
 
         /// <summary>
-        /// Converte um tipo para Integer. Retorna Nothing (NULL) se a conversão falhar
+        /// Converte um ToType para Integer. Retorna Nothing (NULL) se a conversão falhar
         /// </summary>
         /// <typeparam name="FromType">Tipo de origem</typeparam>
         /// <param name="Value">Variavel com valor</param>
-        /// <returns>Valor convertido em novo tipo</returns>
+        /// <returns>Valor convertido em novo ToType</returns>
         public static long ToLong<FromType>(this FromType Value) => Value.ChangeType<long>();
 
         /// <summary>
-        /// Converte um tipo para short. Retorna Nothing (NULL) se a conversão falhar
+        /// Converte um ToType para short. Retorna Nothing (NULL) se a conversão falhar
         /// </summary>
         /// <typeparam name="FromType">Tipo de origem</typeparam>
         /// <param name="Value">Variavel com valor</param>
-        /// <returns>Valor convertido em novo tipo</returns>
+        /// <returns>Valor convertido em novo ToType</returns>
         public static double ToShort<FromType>(this FromType Value) => Value.ChangeType<short>();
 
         /// <summary>
-        /// Converte um tipo para Single. Retorna Nothing (NULL) se a conversão falhar
+        /// Converte um ToType para Single. Retorna Nothing (NULL) se a conversão falhar
         /// </summary>
         /// <typeparam name="FromType">Tipo de origem</typeparam>
         /// <param name="Value">Variavel com valor</param>
-        /// <returns>Valor convertido em novo tipo</returns>
+        /// <returns>Valor convertido em novo ToType</returns>
         public static float ToSingle<FromType>(this FromType Value) => Value.ChangeType<float>();
 
         #endregion Public Methods

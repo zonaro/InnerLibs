@@ -12,6 +12,7 @@ using System.Linq.Expressions;
 using System.Net.Mail;
 using System.Reflection;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -499,34 +500,13 @@ namespace InnerLibs
 
         /// <summary> Traz o valor de uma <see cref="Enum"> do tipo <typeparamref name="T"/> a
         /// partir de uma string </summary> <typeparam name="T"></typeparam> <returns></returns>
-        public static T GetEnumValue<T>(this string Name)
-        {
-            var v = GetEnumValue(Name, typeof(T));
-            return v != null ? v.ChangeType<T>() : default;
-        }
+        public static T GetEnumValue<T>(this string Name) => (T)GetEnumValue(Name, typeof(T));
 
         public static object GetEnumValue(this string Name, Type EnumType)
         {
             if (EnumType != null && EnumType.IsEnum)
-            {
-                if (Name.IsNotBlank())
-                {
-                    Name = Name.RemoveAccents().ToUpperInvariant();
-                    foreach (var x in Enum.GetValues(EnumType))
-                    {
-                        var entryName = Enum.GetName(EnumType, x)?.RemoveAccents().ToUpperInvariant();
-                        var entryValue = $"{(int)x}";
-
-                        if (Name == entryName || Name == entryValue)
-                        {
-                            return x;
-                        }
-                    }
-                }
-
-                return Activator.CreateInstance(EnumType);
-            }
-            return default;
+                return Name.ChangeType(EnumType);
+            throw new ArgumentException("EnumType is not Enum", nameof(EnumType));
         }
 
         /// <summary> Traz o valor de uma <see cref="Enum"> do tipo <typeparamref name="T"/> a
@@ -1473,6 +1453,15 @@ namespace InnerLibs
         {
             obj?.SetPropertyValue(obj.GetPropertyInfo(Selector).Name, Value);
             return obj;
+        }
+
+        public static Task SetTimeout(int milliseconds, Action action)
+        {
+            return Task.Delay(milliseconds).ContinueWith(async (t) =>
+               {
+                   Misc.TryExecute(action);
+                   t.Dispose();
+               });
         }
 
         public static Dictionary<TGroup, Dictionary<TCount, long>> SkipZero<TGroup, TCount>(this Dictionary<TGroup, Dictionary<TCount, long>> Grouped)
