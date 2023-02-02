@@ -76,7 +76,7 @@ namespace InnerLibs.DOTLanguage
         {
             get => ParentNode.ID.ToSlugCase(true) + (Oriented ? " -> " : " -- ") + ChildNode.ID.ToSlugCase(true);
 
-            set => Debug.Write("Cannot change ID of a relation");
+            set => Misc.WriteDebug("Cannot change ID of a relation");
         }
 
         /// <summary>

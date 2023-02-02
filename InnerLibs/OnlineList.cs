@@ -139,9 +139,9 @@ namespace InnerLibs.Online
         /// Função que será executada quando ocorrer uma entrada no log
         /// </summary>
         /// <returns></returns>
-        public Action<UserLogEntry<TUser, TID>> OnCreateLog { get; set; } = x => Debug.WriteLine("Log entry created for " + x.GetUser().ID.ToString());
+        public Action<UserLogEntry<TUser, TID>> OnCreateLog { get; set; } = x => Misc.WriteDebug("Log entry created for " + x.GetUser().ID.ToString());
 
-        public Action<OnlineUser<TUser, TID>> OnUserOnlineChanged { get; set; } = x => Debug.WriteLine("User Updated -> " + x.ID.ToString());
+        public Action<OnlineUser<TUser, TID>> OnUserOnlineChanged { get; set; } = x => Misc.WriteDebug("User Updated -> " + x.ID.ToString());
 
         /// <summary>
         /// Tolerancia que o servidor considera um usuário online ou na mesma atividade

@@ -194,11 +194,11 @@ namespace InnerLibs
                 if (Bytes.Any())
                 {
                     File.WriteAllBytes(FilePath, Bytes);
-                    Debug.WriteLine(FilePath, "File Written");
+                    Misc.WriteDebug(FilePath, "File Written");
                 }
                 else
                 {
-                    Debug.WriteLine("Bytes array is empty", "File not Written");
+                    Misc.WriteDebug("Bytes array is empty", "File not Written");
                 }
 
                 return new FileInfo(FilePath).With(x => { x.LastWriteTime = DateAndTime.Value; });

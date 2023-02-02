@@ -713,7 +713,7 @@ namespace InnerLibs.Printer
                         }
                         else if (!RawPrinterHelper.SendBytesToPrinter(PrinterName, DocumentBuffer.ToArray()))
                         {
-                            Debug.WriteLine("Não foi possível acessar a impressora: " + PrinterName);
+                            Misc.WriteDebug("Não foi possível acessar a impressora: " + PrinterName);
                         }
                     }
                 }

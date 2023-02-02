@@ -1,6 +1,7 @@
 ﻿using InnerLibs.LINQ;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -125,13 +126,13 @@ namespace InnerLibs
         /// Constroi um File T a partir de um Arquivo (FileInfo)
         /// </summary>
         /// <param name="File">Fileinfo com o Arquivo</param>
-        public FileType(FileInfo File, FileTypeList FileTypeList = null) => Build(File.Extension, FileTypeList);
+        public FileType(FileInfo File, FileTypeList FileTypeList = null) => Build(File?.Extension ?? ".bin", FileTypeList);
 
         /// <summary>
         /// Constroi um File T a partir da extensão ou MIME T de um Arquivo
         /// </summary>
         /// <param name="MimeTypeOrExtensionOrPathOrDataURI">Extensão do arquivo</param>
-        public FileType(string MimeTypeOrExtensionOrPathOrDataURI, FileTypeList FileTypeList = null) => Build(MimeTypeOrExtensionOrPathOrDataURI.ToLowerInvariant(), FileTypeList);
+        public FileType(string MimeTypeOrExtensionOrPathOrDataURI, FileTypeList FileTypeList = null) => Build(MimeTypeOrExtensionOrPathOrDataURI?.ToLowerInvariant(), FileTypeList);
 
         #endregion Public Constructors
 
@@ -176,7 +177,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="MIME">MIME T String</param>
         /// <returns></returns>
-        public static List<string> GetExtensions(string MIME, FileTypeList FileTypeList = null)
+        public static IEnumerable<string> GetExtensions(string MIME, FileTypeList FileTypeList = null)
         {
             foreach (FileType item in FileTypeList ?? GetFileTypeList())
             {
@@ -376,7 +377,7 @@ namespace InnerLibs
         /// Cria uma nova lista a partir de uma lista de tipos de arquivos
         /// </summary>
         /// <param name="FileTypeList">Tipos de Arquivos</param>
-        public FileTypeList(List<FileType> FileTypeList) : this((FileTypeList ?? new List<FileType>()).ToArray())
+        public FileTypeList(IEnumerable<FileType> FileTypeList) : this((FileTypeList ?? new List<FileType>()).ToArray())
         {
         }
 

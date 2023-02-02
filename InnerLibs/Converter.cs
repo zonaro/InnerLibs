@@ -103,15 +103,21 @@ namespace InnerLibs
         /// <returns>Valor convertido em novo ToType ou null (ou default) se a conversão falhar</returns>
         public static object ChangeType<TFrom>(this TFrom Value, Type ToType)
         {
-            ToType = ToType ?? typeof(object);
 
-            Debug.WriteLine($"Try Changing from {typeof(TFrom).Name} to {ToType.Name}");
+            if (ToType == null)
+            {
+                Misc.WriteDebug($"ToType is null, using {typeof(TFrom).Name}");
+                return Value;
+            }
+
+            Misc.WriteDebug($"Try changing from {typeof(TFrom).Name} to {ToType.Name}");
 
             try
             {
                 var met = Value?.GetType().GetNullableTypeOf().GetMethods().FirstOrDefault(x => x.Name == $"To{ToType.Name}" && x.ReturnType == ToType && x.IsPublic && x.GetParameters().Any() == false);
                 if (met != null)
                 {
+                    Misc.WriteDebug($"Trying internal method {met.Name}");
                     return met.Invoke(Value, Array.Empty<object>());
                 }
             }
@@ -125,6 +131,7 @@ namespace InnerLibs
                 ToType = Misc.GetNullableTypeOf(ToType);
                 if (Value == null)
                 {
+                    Misc.WriteDebug($"Value is null");
                     if (!ToType.IsValueType() || ToType.IsNullableType())
                     {
                         return null;
@@ -137,6 +144,7 @@ namespace InnerLibs
 
                 if (ToType == typeof(Guid))
                 {
+                    Misc.WriteDebug($"Parsing Guid");
                     return Guid.Parse(Value.ToString());
                 }
 
@@ -152,15 +160,19 @@ namespace InnerLibs
 
                             if (Name == entryName || Name == entryValue)
                             {
+                                Misc.WriteDebug($"{ToType.Name} value ({Name}) found ({entryName})");
                                 return Convert.ChangeType(x, ToType);
                             }
                         }
+
+                        Misc.WriteDebug($"{ToType.Name} value ({Name}) not found");
                         return Activator.CreateInstance(ToType);
                     }
                 }
 
                 if (ToType.IsValueType())
                 {
+                        Misc.WriteDebug($"{ToType.Name} is value type");
                     var Converter = TypeDescriptor.GetConverter(ToType);
                     if (Converter.CanConvertFrom(typeof(TFrom)))
                     {
@@ -185,7 +197,8 @@ namespace InnerLibs
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex, "Error on change type");
+                Misc.WriteDebug(ex.ToFullExceptionString(), "Error on change type");
+                Misc.WriteDebug("Returning null");
                 return null;
             }
         }

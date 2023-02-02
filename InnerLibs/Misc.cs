@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
@@ -20,6 +21,37 @@ namespace InnerLibs
 {
     public static class Misc
     {
+
+        /// <summary>
+        /// Set this flag to true to show InnerLibs Debug messages
+        /// </summary>
+        public static bool EnableDebugMessages { get; set; }
+
+        /// <summary>
+        /// Write a message using <see cref="Debug.WriteLine(value,category)" /> when <see cref="Misc.EnableDebugMessages" /> is true
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="value"></param>
+        /// <param name="category"></param>
+        public static T WriteDebug<T>(this T value, string category = null)
+        {
+            if (EnableDebugMessages)
+            {
+                category = category.IfBlank("InnerLibs Debug");
+                if (value is string s && category is null)
+                {
+                    Debug.WriteLine(s, category);
+                }
+                else
+                {
+                    Debug.WriteLine((object)value, category);
+                }
+
+            }
+            return value;
+        }
+
+
         #region Public Methods
 
         public static IEnumerable<TemplateMailAddress<T>> AddAttachmentFromData<T>(this IEnumerable<TemplateMailAddress<T>> recipients, Expression<Func<T, IEnumerable<System.Net.Mail.Attachment>>> AttachmentSelector) where T : class
@@ -32,8 +64,7 @@ namespace InnerLibs
                         var att = AttachmentSelector.Compile().Invoke(rec.TemplateData);
                         if (att != null)
                         {
-                            if (rec.Attachments == null) rec.Attachments = new List<Attachment>();
-                            rec.Attachments.AddRange(att.Where(x => x != null));
+                            rec.AddAttachment(att);
                         }
                     }
                 }
@@ -54,8 +85,8 @@ namespace InnerLibs
                         var att = AttachmentSelector.Compile().Invoke(rec.TemplateData);
                         if (att != null)
                         {
-                            if (rec.Attachments == null) rec.Attachments = new List<Attachment>();
-                            rec.Attachments.Add(att);
+                            rec.AddAttachment(att);
+                            
                         }
                     }
                 }
@@ -210,10 +241,10 @@ namespace InnerLibs
         /// <summary>
         /// Converte uma classe para um <see cref="Dictionary"/>
         /// </summary>
-        /// <typeparam name="Type">Tipo da classe</typeparam>
+        /// <typeparam name="T">Tipo da classe</typeparam>
         /// <param name="Obj">Object</param>
         /// <returns></returns>
-        public static IEnumerable<Dictionary<string, object>> CreateDictionaryEnumerable<Type>(this IEnumerable<Type> Obj) => (Obj ?? Array.Empty<Type>()).Select(x => x.CreateDictionary());
+        public static IEnumerable<Dictionary<string, object>> CreateDictionaryEnumerable<T>(this IEnumerable<T> Obj) => (Obj ?? Array.Empty<T>()).Select(x => x.CreateDictionary());
 
         /// <summary>
         /// Cria um <see cref="Guid"/> a partir de uma string ou um novo <see cref="Guid"/> se a
@@ -976,6 +1007,7 @@ namespace InnerLibs
         /// <remarks>NÃO considera strings (IEnumerable{char}) como true</remarks>
         /// <returns></returns>
         public static bool IsEnumerable(this object obj) => IsGenericOf(obj, typeof(IEnumerable<>)) || IsGenericOf(obj, typeof(IEnumerable));
+        public static bool IsEnumerableNotString(this object obj) => IsEnumerable(obj) && GetTypeOf(obj) != typeof(string);
 
         public static bool IsEqual<T>(this T Value, T EqualsToValue) where T : IComparable => Value.Equals(EqualsToValue);
 

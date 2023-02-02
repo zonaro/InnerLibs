@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using   System.IO.Compression ;
 
 namespace InnerLibs
 {
@@ -15,26 +16,29 @@ namespace InnerLibs
         #region Public Methods
 
 
-        public static DirectoryInfo ToDirectoryInfo(this string[] paths)
+        
+
+
+        public static DirectoryInfo ToDirectoryInfo(this string[] PathParts)
         {
-            var x = ToFileSystemInfo(paths);
+            var x = ToFileSystemInfo(PathParts);
             return x is FileInfo info ? info.Directory : x as DirectoryInfo;
         }
-        public static FileInfo ToFileInfo(this string[] paths)
+        public static FileInfo ToFileInfo(this string[] PathParts)
         {
-            var x = ToFileSystemInfo(paths);
+            var x = ToFileSystemInfo(PathParts);
             if (x is DirectoryInfo)
             {
                 throw new Exception("Path is directory");
             }
             return x as FileInfo;
         }
-        public static FileSystemInfo ToFileSystemInfo(this string[] paths)
+        public static FileSystemInfo ToFileSystemInfo(this string[] PathParts)
         {
-            var path = Path.Combine(paths).FixPath();
+            var path = Path.Combine(PathParts).FixPath();
             if (path.IsFilePath()) return new FileInfo(path);
             else if (path.IsDirectoryPath()) return new DirectoryInfo(path);
-            else throw new ArgumentException("Can't create path from array", nameof(paths));
+            else throw new ArgumentException("Can't create path from array", nameof(PathParts));
         }
 
         /// <summary>

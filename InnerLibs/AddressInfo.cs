@@ -185,7 +185,7 @@ namespace InnerLibs.Locations
             if (tp.IsNotBlank())
             {
                 var df = typeof(AddressTypes);
-                return df.GetProperties(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy).FirstOrDefault(x => x.Name == tp || Misc.IsIn(tp, (string[])x.GetValue(null)));
+                return df.GetProperties(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy).FirstOrDefault(x => x.Name == tp || Misc.IsIn(tp,  x.GetValue(null) as string[]));
             }
 
             return null;
@@ -585,7 +585,7 @@ namespace InnerLibs.Locations
             }
         }
 
-        public string FixedStreet => $"{Type} {Name}".Trim();
+        public string FixedStreet => $"{Type} {Name}".TrimBetween();
 
         /// <summary>
         /// Tipo do Endereço

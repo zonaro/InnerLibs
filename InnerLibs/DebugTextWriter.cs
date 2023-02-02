@@ -16,9 +16,9 @@ namespace InnerLibs
 
         #endregion Public Constructors
 
-        #region Public Classes
-
-        public sealed class DebugOutStream : Stream
+      
+    }
+      public sealed class DebugOutStream : Stream
         {
             #region Private Properties
 
@@ -60,6 +60,4 @@ namespace InnerLibs
             #endregion Public Methods
         }
 
-        #endregion Public Classes
-    }
 }

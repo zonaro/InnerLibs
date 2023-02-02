@@ -163,7 +163,7 @@ namespace InnerLibs.QuestionTests
             base.OnCollectionChanged(e);
             if (e?.Action == NotifyCollectionChangedAction.Add)
             {
-                Debug.WriteLine("Alternative Added");
+                Misc.WriteDebug("Alternative Added");
                 foreach (var ni in e.NewItems)
                 {
                     Alternative i = (Alternative)ni;
@@ -377,7 +377,7 @@ namespace InnerLibs.QuestionTests
         public override decimal Hits
         {
             get => Alternatives.Count > 0 ? Alternatives.Count(x => x.IsCorrect) * Weight / Alternatives.Count : 0;
-            set => Debug.WriteLine($"Can't set hits on {nameof(MultipleAlternativeQuestion)}");
+            set => Misc.WriteDebug($"Can't set hits on {nameof(MultipleAlternativeQuestion)}");
         }
 
         /// <summary>
@@ -806,7 +806,7 @@ namespace InnerLibs.QuestionTests
             {
                 case NotifyCollectionChangedAction.Add:
                     {
-                        Debug.WriteLine("Question Added");
+                        Misc.WriteDebug("Question Added");
                         foreach (var ni in e.NewItems)
                         {
                             Question q = (Question)ni;
@@ -818,7 +818,7 @@ namespace InnerLibs.QuestionTests
 
                 case NotifyCollectionChangedAction.Remove:
                     {
-                        Debug.WriteLine("Question Removed");
+                        Misc.WriteDebug("Question Removed");
                         foreach (var ni in e.OldItems)
                         {
                             Question q = (Question)ni;
@@ -830,7 +830,7 @@ namespace InnerLibs.QuestionTests
 
                 case NotifyCollectionChangedAction.Replace:
                     {
-                        Debug.WriteLine("Question Replaced");
+                        Misc.WriteDebug("Question Replaced");
                         foreach (var ni in e.NewItems)
                         {
                             Question q = (Question)ni;
