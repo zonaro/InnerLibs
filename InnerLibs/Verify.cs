@@ -596,6 +596,22 @@ namespace InnerLibs
             return false;
         }
 
+
+
+        public static string GetDocumentLabel(this string Input, string DefaultLabel = Text.Empty)
+        {
+            if (Input.IsValidCPF()) return "CPF";
+            if (Input.IsValidCNPJ()) return "CNPJ";
+            if (Input.IsValidCEP()) return "CEP";
+            if (Input.IsValidEAN()) return "EAN";
+            if (Input.IsValidPIS()) return "PIS";
+            if (Input.IsValidCNH()) return "CNH";
+            if (Input.IsEmail()) return "Email";
+            if (Input.IsTelephone()) return "Tel";
+            if (Input.IsIP()) return "IP";
+            return DefaultLabel;
+        }
+
         /// <summary>
         /// Verifica se a string é um CNPJ válido
         /// </summary>

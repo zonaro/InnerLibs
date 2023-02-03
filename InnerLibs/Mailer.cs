@@ -25,7 +25,9 @@ namespace InnerLibs.Mail
         /// <param name="EmailSelector">seletor de email</param>
         /// <param name="NameSelector">seletor de nome</param>
         /// <returns></returns>
-        public static FluentMailMessage<T> CreateWithRecipients<T>(IEnumerable<T> Recipients, Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector = null) where T : class => new FluentMailMessage<T>().AddRecipient(Recipients, EmailSelector, NameSelector);
+        public static FluentMailMessage<T> FromData<T>(Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector, params T[] Recipients) where T : class => new FluentMailMessage<T>().AddRecipient(EmailSelector, NameSelector, Recipients);
+
+        public static FluentMailMessage<T> FromData<T>(Expression<Func<T, string>> EmailSelector, params T[] Recipients) where T : class => new FluentMailMessage<T>().AddRecipient(EmailSelector, Recipients);
 
         /// <summary>
         /// Cria um <see cref="FluentMailMessage{T}"/> com destinatários a partir de um objeto do
@@ -35,7 +37,9 @@ namespace InnerLibs.Mail
         /// <param name="EmailSelector"></param>
         /// <param name="NameSelector"></param>
         /// <returns></returns>
-        public static FluentMailMessage<T> CreateWithRecipients<T>(T Recipient, Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector = null) where T : class => CreateWithRecipients(new[] { Recipient }, EmailSelector, NameSelector);
+        public static FluentMailMessage<T> FromData<T>(T Recipient, Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector) where T : class => FromData(EmailSelector, NameSelector, new[] { Recipient });
+
+        public static FluentMailMessage<T> FromData<T>(T Recipient, Expression<Func<T, string>> EmailSelector) where T : class => FromData(EmailSelector, new[] { Recipient });
 
         /// <summary>
         /// SMTP do Gmail
@@ -321,21 +325,7 @@ namespace InnerLibs.Mail
         /// <returns></returns>
         public FluentMailMessage<T> AddRecipient(string Email, T TemplateData)
         {
-            To.Add(new TemplateMailAddress<T>(Email, TemplateData));
-            return this;
-        }
-
-        /// <summary>
-        /// Adiciona um destinatário a lista de destinatários deta mensagem
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="Email"></param>
-        /// <param name="DisplayName"></param>
-        /// <param name="TemplateData"></param>
-        /// <returns></returns>
-        public FluentMailMessage<T> AddRecipient(T TemplateData, Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector = null)
-        {
-            To.Add(new TemplateMailAddress<T>(TemplateData, EmailSelector, NameSelector));
+            AddRecipient(new TemplateMailAddress<T>(Email, TemplateData));
             return this;
         }
 
@@ -349,16 +339,19 @@ namespace InnerLibs.Mail
         /// <returns></returns>
         public FluentMailMessage<T> AddRecipient(string Email, string DisplayName, T TemplateData)
         {
-            To.Add(new TemplateMailAddress<T>(Email, DisplayName, TemplateData));
+            AddRecipient(new TemplateMailAddress<T>(Email, DisplayName, TemplateData));
             return this;
         }
 
         /// <summary>
         /// Adiciona um destinatário a lista de destinatários deta mensagem
         /// </summary>
-        public FluentMailMessage<T> AddRecipient(IEnumerable<T> Data, Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector = null)
+        public FluentMailMessage<T> AddRecipient(Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector, params T[] Data)
         {
-            foreach (var m in TemplateMailAddress<T>.FromList(Data, EmailSelector, NameSelector)) To.Add(m);
+            foreach (var x in Data ?? Array.Empty<T>())
+
+                AddRecipient(new TemplateMailAddress<T>(x, EmailSelector, NameSelector));
+
             return this;
         }
 
@@ -367,13 +360,23 @@ namespace InnerLibs.Mail
         /// </summary>
         public FluentMailMessage<T> AddRecipient(params string[] Emails)
         {
-            foreach (var email in (Emails ?? Array.Empty<string>()).SelectMany(x => x.ExtractEmails()).ToArray()) To.Add(new TemplateMailAddress<T>(email));
+            foreach (var email in (Emails ?? Array.Empty<string>()).SelectMany(x => x.ExtractEmails()).ToArray()) AddRecipient(new TemplateMailAddress<T>(email));
             return this;
         }
 
         public FluentMailMessage<T> AddRecipient(params TemplateMailAddress<T>[] Emails)
         {
-            foreach (var email in Emails ?? Array.Empty<TemplateMailAddress<T>>()) To.Add(email);
+            foreach (var email in Emails ?? Array.Empty<TemplateMailAddress<T>>())
+                To.Add(email);
+            return this;
+        }
+
+        public FluentMailMessage<T> AddRecipient(Expression<Func<T, string>> EmailSelector, T[] Data)
+        {
+            foreach (var x in Data ?? Array.Empty<T>())
+            {
+                AddRecipient(new TemplateMailAddress<T>(x, EmailSelector));
+            }
             return this;
         }
 
@@ -994,13 +997,9 @@ namespace InnerLibs.Mail
         /// <param name="EmailSelector"></param>
         /// <param name="NameSelector"></param>
         /// <returns></returns>
-        public static TemplateMailAddress<T> FromObject(T Data, Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector) => new TemplateMailAddress<T>(Data, EmailSelector, NameSelector);
-        public static TemplateMailAddress<T> FromObject(T Data, Expression<Func<T, string>> EmailSelector) => new TemplateMailAddress<T>(Data, EmailSelector);
-        public static IEnumerable<TemplateMailAddress<T>> FromList(Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector, params T[] Datas) => FromList((Datas ?? Array.Empty<T>()).AsEnumerable(), EmailSelector, NameSelector);
-        public static IEnumerable<TemplateMailAddress<T>> FromList(Expression<Func<T, string>> EmailSelector, params T[] Datas) => FromList((Datas ?? Array.Empty<T>()).AsEnumerable(), EmailSelector);
-        public static IEnumerable<TemplateMailAddress<T>> FromList(IEnumerable<T> Data, Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector) => (Data ?? Array.Empty<T>()).AsEnumerable().Select(x => new TemplateMailAddress<T>(x, EmailSelector, NameSelector)).Where(x => x != null);
+        public static IEnumerable<TemplateMailAddress<T>> FromData(Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector, params T[] Data) => (Data ?? Array.Empty<T>()).AsEnumerable().Select(x => new TemplateMailAddress<T>(x, EmailSelector, NameSelector)).Where(x => x != null);
 
-        public static IEnumerable<TemplateMailAddress<T>> FromList(IEnumerable<T> Data, Expression<Func<T, string>> EmailSelector) => (Data ?? Array.Empty<T>()).AsEnumerable().Select(x => new TemplateMailAddress<T>(x, EmailSelector)).Where(x => x != null);
+        public static IEnumerable<TemplateMailAddress<T>> FromData(Expression<Func<T, string>> EmailSelector, params T[] Data) => (Data ?? Array.Empty<T>()).AsEnumerable().Select(x => new TemplateMailAddress<T>(x, EmailSelector)).Where(x => x != null);
 
         /// <inheritdoc cref="AddAttachment(Attachment)"/>
         public TemplateMailAddress<T> AddAttachment(params string[] files) => AddAttachment(files.Select(file => new Attachment(file)));
