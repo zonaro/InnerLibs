@@ -74,7 +74,7 @@ namespace InnerLibs.Mail
         /// <param name="Message">Corpo da Mensagem</param>
         /// <returns></returns>
         public static SentStatus QuickSend(string Email, string Password, string Recipient, string Subject, string Message, Dictionary<string, object> TemplateData = null) => QuickSend<Dictionary<string, object>>(Email, Password, Recipient, Subject, Message, TemplateData);
-       
+
         /// <inheritdoc cref="QuickSend" />    
         public static SentStatus QuickSend<T>(string Email, string Password, string Recipient, string Subject, string Message, T TemplateData) where T : class => new FluentMailMessage<T>().WithQuickConfig(Email, Password).AddRecipient(Recipient, TemplateData).WithSubject(Subject).WithMessage(Message).OnError((m, a, ex) => Misc.WriteDebug(ex.ToFullExceptionString())).SendAndDispose();
 
@@ -341,7 +341,7 @@ namespace InnerLibs.Mail
         /// <returns></returns>
         public FluentMailMessage<T> AddRecipient(T TemplateData, Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector = null)
         {
-            To.Add(TemplateMailAddress<T>.FromObject(TemplateData, EmailSelector, NameSelector));
+            To.Add(new TemplateMailAddress<T>(TemplateData, EmailSelector, NameSelector));
             return this;
         }
 
@@ -849,6 +849,8 @@ namespace InnerLibs.Mail
         {
         }
 
+
+
         #endregion Public Constructors
     }
 
@@ -872,6 +874,16 @@ namespace InnerLibs.Mail
         public TemplateMailAddress(string address, string displayName, Encoding displayNameEncoding, T TemplateData = null) : base(address, displayName, displayNameEncoding)
         {
             this.TemplateData = TemplateData;
+        }
+
+        public TemplateMailAddress(T Data, Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector) : this(Data == null ? throw new ArgumentException("Data is null", nameof(Data)) : EmailSelector?.Compile().Invoke(Data) ?? throw new ArgumentException("EmailSelector is null", nameof(EmailSelector)), (NameSelector ?? EmailSelector)?.Compile().Invoke(Data), Data)
+        {
+
+        }
+
+        public TemplateMailAddress(T Data, Expression<Func<T, string>> EmailSelector) : this(Data == null ? throw new ArgumentException("Data is null", nameof(Data)) : EmailSelector?.Compile().Invoke(Data) ?? throw new ArgumentException("EmailSelector is null", nameof(EmailSelector)), Data)
+        {
+
         }
 
         #endregion Public Constructors
@@ -993,50 +1005,9 @@ namespace InnerLibs.Mail
         /// <param name="EmailSelector"></param>
         /// <param name="NameSelector"></param>
         /// <returns></returns>
-        public static IEnumerable<TemplateMailAddress<T>> FromList(IEnumerable<T> Data, Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector = null) => (Data ?? Array.Empty<T>()).AsEnumerable().Select(x => FromObject(x, EmailSelector, NameSelector)).Where(x => x != null);
+        public static IEnumerable<TemplateMailAddress<T>> FromList(IEnumerable<T> Data, Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector) => (Data ?? Array.Empty<T>()).AsEnumerable().Select(x => new TemplateMailAddress<T>(x, EmailSelector, NameSelector)).Where(x => x != null);
+        public static IEnumerable<TemplateMailAddress<T>> FromList(IEnumerable<T> Data, Expression<Func<T, string>> EmailSelector) => (Data ?? Array.Empty<T>()).AsEnumerable().Select(x => new TemplateMailAddress<T>(x, EmailSelector)).Where(x => x != null);
 
-        /// <summary>
-        /// Cria um <see cref="TemplateMailAddress{T}"/> a partir de um objeto de template
-        /// </summary>
-        /// <param name="Data"></param>
-        /// <param name="EmailSelector"></param>
-        /// <param name="NameSelector"></param>
-        /// <returns></returns>
-        public static TemplateMailAddress<T> FromObject(T Data, Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector = null)
-        {
-            if (Data != null)
-            {
-                var name = Text.Empty;
-                var email = Text.Empty;
-
-                if (EmailSelector != null)
-                {
-                    email = EmailSelector.Compile().Invoke(Data);
-                }
-
-                if (email.IsEmail() == false)
-                {
-                    Misc.WriteDebug($"{email.IfBlank("NULL").Quote()} is not a valid email");
-                    return null;
-                }
-
-                if (NameSelector != null)
-                {
-                    name = NameSelector.Compile().Invoke(Data);
-                }
-
-                if (name.IsBlank())
-                {
-                    Misc.WriteDebug("Name is blank");
-                    return new TemplateMailAddress<T>(email, Data);
-                }
-                else
-                {
-                    return new TemplateMailAddress<T>(email, name, Data);
-                }
-            }
-            return null;
-        }
 
         /// <inheritdoc cref="AddAttachment(Attachment)"/>
         public TemplateMailAddress<T> AddAttachment(params string[] files) => AddAttachment(files.Select(file => new Attachment(file)));
