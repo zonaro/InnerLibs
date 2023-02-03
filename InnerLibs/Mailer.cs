@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Net;
 using System.Net.Mail;
+using System.Runtime.Remoting.Messaging;
 using System.Text;
 using InnerLibs.LINQ;
 
@@ -72,7 +73,10 @@ namespace InnerLibs.Mail
         /// <param name="Subject">Assunto do Email</param>
         /// <param name="Message">Corpo da Mensagem</param>
         /// <returns></returns>
-        public static SentStatus QuickSend(string Email, string Password, string Recipient, string Subject, string Message) => new FluentMailMessage().WithQuickConfig(Email, Password).AddRecipient(Recipient).WithSubject(Subject).WithMessage(Message).OnError((m, a, ex) => Misc.WriteDebug(ex.ToFullExceptionString())).SendAndDispose();
+        public static SentStatus QuickSend(string Email, string Password, string Recipient, string Subject, string Message, Dictionary<string, object> TemplateData = null) => QuickSend<Dictionary<string, object>>(Email, Password, Recipient, Subject, Message, TemplateData);
+       
+        /// <inheritdoc cref="QuickSend" />    
+        public static SentStatus QuickSend<T>(string Email, string Password, string Recipient, string Subject, string Message, T TemplateData) where T : class => new FluentMailMessage<T>().WithQuickConfig(Email, Password).AddRecipient(Recipient, TemplateData).WithSubject(Subject).WithMessage(Message).OnError((m, a, ex) => Misc.WriteDebug(ex.ToFullExceptionString())).SendAndDispose();
 
         /// <summary>
         /// Cria e dispara rapidamente uma <see cref="FluentMailMessage"/>
@@ -86,7 +90,10 @@ namespace InnerLibs.Mail
         /// <param name="Subject">Assunto do Email</param>
         /// <param name="Message">Corpo da Mensagem</param>
         /// <returns></returns>
-        public static SentStatus QuickSend(string Email, string Password, string SmtpHost, int SmtpPort, bool UseSSL, string Recipient, string Subject, string Message) => new FluentMailMessage().WithSmtp(SmtpHost, SmtpPort, UseSSL).WithCredentials(Email, Password).AddRecipient(Recipient).WithSubject(Subject).WithMessage(Message).OnError((m, a, ex) => Misc.WriteDebug(ex.ToFullExceptionString())).SendAndDispose();
+        public static SentStatus QuickSend(string Email, string Password, string SmtpHost, int SmtpPort, bool UseSSL, string Recipient, string Subject, string Message, Dictionary<string, object> TemplateData = null) => QuickSend<Dictionary<string, object>>(Email, Password, SmtpHost, SmtpPort, UseSSL, Recipient, Subject, Message, TemplateData);
+
+        /// <inheritdoc cref="QuickSend" />
+        public static SentStatus QuickSend<T>(string Email, string Password, string SmtpHost, int SmtpPort, bool UseSSL, string Recipient, string Subject, string Message, T TemplateData) where T : class => new FluentMailMessage<T>().WithSmtp(SmtpHost, SmtpPort, UseSSL).WithCredentials(Email, Password).AddRecipient(Recipient, TemplateData).WithSubject(Subject).WithMessage(Message).OnError((m, a, ex) => Misc.WriteDebug(ex.ToFullExceptionString())).SendAndDispose();
 
         #endregion Public Methods
     }
@@ -153,7 +160,7 @@ namespace InnerLibs.Mail
             }
             else
             {
-                throw new ArgumentException("SmtpHost is null", nameof(Smtp));
+                throw new Exception("SmtpHost is null");
             }
 
             return this;
@@ -263,33 +270,7 @@ namespace InnerLibs.Mail
             return this;
         }
 
-        /// <summary>
-        /// Adiciona anexos individuais a cada destinatário a partir de uma propriedade do template
-        /// </summary>
-        /// <param name="AttachmentSelector"></param>
-        /// <returns></returns>
-        /// <remarks>
-        /// É necessario que o template ja tenha sido carregado previamente nesta <see cref="FluentMailMessage{T}"/>
-        /// </remarks>
-        public FluentMailMessage<T> AddAttachmentFromData(Expression<Func<T, IEnumerable<Attachment>>> AttachmentSelector)
-        {
-            Misc.AddAttachmentFromData(To.Where(x => x is TemplateMailAddress<T>).Cast<TemplateMailAddress<T>>(), AttachmentSelector);
-            return this;
-        }
 
-        /// <summary>
-        /// Adiciona anexos individuais a cada destinatário a partir de uma propriedade do template
-        /// </summary>
-        /// <param name="AttachmentSelector"></param>
-        /// <returns></returns>
-        /// <remarks>
-        /// É necessario que o template ja tenha sido carregado previamente nesta <see cref="FluentMailMessage{T}"/>
-        /// </remarks>
-        public FluentMailMessage<T> AddAttachmentFromData(Expression<Func<T, Attachment>> AttachmentSelector)
-        {
-            Misc.AddAttachmentFromData(To.Where(x => x is TemplateMailAddress<T>).Cast<TemplateMailAddress<T>>(), AttachmentSelector);
-            return this;
-        }
 
         /// <summary>
         /// Adiciona endereços ao BCC do email
@@ -358,20 +339,27 @@ namespace InnerLibs.Mail
         /// <param name="DisplayName"></param>
         /// <param name="TemplateData"></param>
         /// <returns></returns>
-        public FluentMailMessage<T> AddRecipient(string Email, string DisplayName, T TemplateData)
+        public FluentMailMessage<T> AddRecipient(T TemplateData, Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector = null)
         {
-            To.Add(new TemplateMailAddress<T>(Email, DisplayName, TemplateData));
+            To.Add(TemplateMailAddress<T>.FromObject(TemplateData, EmailSelector, NameSelector));
             return this;
         }
 
         /// <summary>
         /// Adiciona um destinatário a lista de destinatários deta mensagem
         /// </summary>
-        public FluentMailMessage<T> AddRecipient(T Data, Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector = null)
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Email"></param>
+        /// <param name="DisplayName"></param>
+        /// <param name="TemplateData"></param>
+        /// <returns></returns>
+        public FluentMailMessage<T> AddRecipient(string Email, string DisplayName, T TemplateData)
         {
-            To.Add(TemplateMailAddress<T>.FromObject(Data, EmailSelector, NameSelector));
+            To.Add(new TemplateMailAddress<T>(Email, DisplayName, TemplateData));
             return this;
         }
+
+
 
         /// <summary>
         /// Adiciona um destinatário a lista de destinatários deta mensagem
@@ -445,14 +433,12 @@ namespace InnerLibs.Mail
 
                         if (item is TemplateMailAddress<T> templateMail)
                         {
-                            var data = templateMail.TemplateData;
-                            if (data != null)
+                            if (templateMail.TemplateData != null)
                             {
-                                msg = msg.Inject(data);
-                                subj = subj.Inject(data);
+                                msg = msg.Inject(templateMail.TemplateData);
+                                subj = subj.Inject(templateMail.TemplateData);
                             }
-                            foreach (var att in templateMail.Attachments)
-                                msgIndiv.Attachments.Add(att);
+                            foreach (var att in templateMail.Attachments) msgIndiv.Attachments.Add(att);
                         }
 
                         msgIndiv.To.Add(item);
@@ -908,79 +894,80 @@ namespace InnerLibs.Mail
             get
             {
                 var l = new List<Attachment>();
-                foreach (var p in TemplateData.CreateDictionary())
-                {
-                    if (p.Value != null)
+                if (TemplateData != null)
+                    foreach (var p in TemplateData.CreateDictionary())
                     {
-                        p.WriteDebug();
-
-                        var tipo = p.Value.GetTypeOf();
-
-                        if (p.Value is Attachment att1)
+                        if (p.Value != null)
                         {
-                            l.Add(att1.WriteDebug($"{att1.Name} from Attachment property {p.Key}"));
-                        }
+                            p.WriteDebug();
 
-                        if (p.Value is FileInfo f)
-                        {
-                            var af = f.ToAttachment();
-                            if (af != null)
+                            var tipo = p.Value.GetTypeOf();
+
+                            if (p.Value is Attachment att1)
                             {
-                                l.Add(af.WriteDebug($"{f.Name} from FileInfo property {p.Key}"));
+                                l.Add(att1.WriteDebug($"{att1.Name} from Attachment property {p.Key}"));
                             }
-                        }
 
-                        if (p.Value is DirectoryInfo d)
-                        {
-                            Misc.WriteDebug($"Searching files into {d.FullName}");
-
-                            foreach (var ff in d.GetFiles("*", SearchOption.AllDirectories))
+                            if (p.Value is FileInfo f)
                             {
-                                var af = ff.ToAttachment();
+                                var af = f.ToAttachment();
                                 if (af != null)
-                                    l.Add(af.WriteDebug($"{ff.Name} from FileInfo in {ff.Directory.FullName} from property {p.Key}"));
+                                {
+                                    l.Add(af.WriteDebug($"{f.Name} from FileInfo property {p.Key}"));
+                                }
                             }
 
-                        }
-
-                        if (p.IsEnumerableNotString())
-                        {
-                            tipo.WriteDebug("Traversing");
-
-                            foreach (var oo in (object[])p.Value)
+                            if (p.Value is DirectoryInfo d)
                             {
-                                if (oo is Attachment att3)
-                                {
-                                    l.Add(att3.WriteDebug($"{att3.Name} from Attachment from {p.Key} in {tipo.Name} type property"));
-                                    continue;
-                                }
+                                Misc.WriteDebug($"Searching files into {d.FullName}");
 
-
-                                if (oo is FileInfo f2)
+                                foreach (var ff in d.GetFiles("*", SearchOption.AllDirectories))
                                 {
-                                    var af = f2.ToAttachment();
+                                    var af = ff.ToAttachment();
                                     if (af != null)
-                                        l.Add(af.WriteDebug($"{f2.Name} from FileInfo from {p.Key} in {tipo.Name} type property"));
-                                    continue;
+                                        l.Add(af.WriteDebug($"{ff.Name} from FileInfo in {ff.Directory.FullName} from property {p.Key}"));
                                 }
 
-                                if (oo is DirectoryInfo d2)
-                                {
-                                    Misc.WriteDebug($"Searching files into {d2.FullName}");
-                                    foreach (var ff in d2.GetFiles("*", SearchOption.AllDirectories))
-                                    {
-                                        var af = ff.ToAttachment();
-                                        if (af != null)
-                                            l.Add(af.WriteDebug($"{ff.Name} from FileInfo in {ff.Directory.FullName} from {p.Key} in {tipo.Name} type property"));
-                                    }
-                                    continue;
-                                }
                             }
 
+                            if (p.IsEnumerableNotString())
+                            {
+                                tipo.WriteDebug("Traversing");
 
+                                foreach (var oo in (object[])p.Value)
+                                {
+                                    if (oo is Attachment att3)
+                                    {
+                                        l.Add(att3.WriteDebug($"{att3.Name} from Attachment from {p.Key} in {tipo.Name} type property"));
+                                        continue;
+                                    }
+
+
+                                    if (oo is FileInfo f2)
+                                    {
+                                        var af = f2.ToAttachment();
+                                        if (af != null)
+                                            l.Add(af.WriteDebug($"{f2.Name} from FileInfo from {p.Key} in {tipo.Name} type property"));
+                                        continue;
+                                    }
+
+                                    if (oo is DirectoryInfo d2)
+                                    {
+                                        Misc.WriteDebug($"Searching files into {d2.FullName}");
+                                        foreach (var ff in d2.GetFiles("*", SearchOption.AllDirectories))
+                                        {
+                                            var af = ff.ToAttachment();
+                                            if (af != null)
+                                                l.Add(af.WriteDebug($"{ff.Name} from FileInfo in {ff.Directory.FullName} from {p.Key} in {tipo.Name} type property"));
+                                        }
+                                        continue;
+                                    }
+                                }
+
+
+                            }
                         }
                     }
-                }
 
                 l.AddRange(anexos ?? new List<Attachment>());
 
@@ -1052,47 +1039,52 @@ namespace InnerLibs.Mail
         }
 
         /// <inheritdoc cref="AddAttachment(Attachment)"/>
-        public TemplateMailAddress<T> AddAttachment(string fileName) => AddAttachment(new Attachment(fileName));
+        public TemplateMailAddress<T> AddAttachment(params string[] files) => AddAttachment(files.Select(file => new Attachment(file)));
 
         /// <inheritdoc cref="AddAttachment(Attachment)"/>
-        public TemplateMailAddress<T> AddAttachment(FileInfo file) => AddAttachment(file?.FullName);
+        public TemplateMailAddress<T> AddAttachment(params FileInfo[] files) => AddAttachment(files.Select(file => file.ToAttachment()));
 
         /// <summary>
         /// Adiciona um anexo a este email
         /// </summary>
         /// <param name="attachment"></param>
         /// <returns></returns>
-        public TemplateMailAddress<T> AddAttachment(Attachment attachment)
+        public TemplateMailAddress<T> AddAttachment(params Attachment[] attachments)
         {
             anexos = anexos ?? new List<Attachment>();
-            anexos.Add(attachment);
-            return this;
-        }
-        public TemplateMailAddress<T> AddAttachment(IEnumerable<Attachment> attachments)
-        {
-            foreach (var att in attachments ?? Array.Empty<Attachment>())
+            foreach (var attachment in attachments ?? Array.Empty<Attachment>())
             {
-                AddAttachment(att);
+                if (attachment != null && anexos.Contains(attachment))
+                    anexos.Add(attachment);
             }
             return this;
         }
+        public TemplateMailAddress<T> AddAttachment(IEnumerable<Attachment> attachments) => AddAttachment(attachments.ToArray());
 
-        public TemplateMailAddress<T> RemoveAttachment(Attachment attachment)
+        public TemplateMailAddress<T> RemoveAttachment(IEnumerable<Attachment> attachments) => RemoveAttachment(attachments?.ToArray());
+
+        public TemplateMailAddress<T> RemoveAttachment(params Attachment[] attachments)
         {
             anexos = anexos ?? new List<Attachment>();
-            if (attachment != null && anexos.Contains(attachment))
-                anexos.Remove(attachment);
+            foreach (var attachment in attachments ?? Array.Empty<Attachment>())
+            {
+                if (attachment != null && anexos.Contains(attachment))
+                    anexos.Remove(attachment);
+            }
             return this;
         }
 
         public TemplateMailAddress<T> RemoveAttachment(Expression<Func<Attachment, bool>> predicade)
         {
-            anexos = anexos ?? new List<Attachment>();
-            anexos.RemoveWhere(predicade);
+            if (predicade != null)
+            {
+                anexos = anexos ?? new List<Attachment>();
+                anexos.RemoveWhere(predicade);
+            }
             return this;
         }
 
-        public TemplateMailAddress<T> RemoveAttachment(int Index) => RemoveAttachment(anexos.IfNoIndex(Index));
+        public TemplateMailAddress<T> RemoveAttachment(params int[] Indexes) => RemoveAttachment(Indexes?.Select(Index => anexos.IfNoIndex(Index)));
 
 
         #endregion Public Methods
