@@ -1,15 +1,12 @@
-﻿using System;
+﻿using InnerLibs.LINQ;
+using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Net;
 using System.Net.Mail;
-using System.Runtime.Remoting.Messaging;
 using System.Text;
-using InnerLibs.LINQ;
 
 namespace InnerLibs.Mail
 {
@@ -75,7 +72,7 @@ namespace InnerLibs.Mail
         /// <returns></returns>
         public static SentStatus QuickSend(string Email, string Password, string Recipient, string Subject, string Message, Dictionary<string, object> TemplateData = null) => QuickSend<Dictionary<string, object>>(Email, Password, Recipient, Subject, Message, TemplateData);
 
-        /// <inheritdoc cref="QuickSend" />    
+        /// <inheritdoc cref="QuickSend"/>
         public static SentStatus QuickSend<T>(string Email, string Password, string Recipient, string Subject, string Message, T TemplateData) where T : class => new FluentMailMessage<T>().WithQuickConfig(Email, Password).AddRecipient(Recipient, TemplateData).WithSubject(Subject).WithMessage(Message).OnError((m, a, ex) => Misc.WriteDebug(ex.ToFullExceptionString())).SendAndDispose();
 
         /// <summary>
@@ -92,7 +89,7 @@ namespace InnerLibs.Mail
         /// <returns></returns>
         public static SentStatus QuickSend(string Email, string Password, string SmtpHost, int SmtpPort, bool UseSSL, string Recipient, string Subject, string Message, Dictionary<string, object> TemplateData = null) => QuickSend<Dictionary<string, object>>(Email, Password, SmtpHost, SmtpPort, UseSSL, Recipient, Subject, Message, TemplateData);
 
-        /// <inheritdoc cref="QuickSend" />
+        /// <inheritdoc cref="QuickSend"/>
         public static SentStatus QuickSend<T>(string Email, string Password, string SmtpHost, int SmtpPort, bool UseSSL, string Recipient, string Subject, string Message, T TemplateData) where T : class => new FluentMailMessage<T>().WithSmtp(SmtpHost, SmtpPort, UseSSL).WithCredentials(Email, Password).AddRecipient(Recipient, TemplateData).WithSubject(Subject).WithMessage(Message).OnError((m, a, ex) => Misc.WriteDebug(ex.ToFullExceptionString())).SendAndDispose();
 
         #endregion Public Methods
@@ -270,8 +267,6 @@ namespace InnerLibs.Mail
             return this;
         }
 
-
-
         /// <summary>
         /// Adiciona endereços ao BCC do email
         /// </summary>
@@ -330,7 +325,6 @@ namespace InnerLibs.Mail
             return this;
         }
 
-
         /// <summary>
         /// Adiciona um destinatário a lista de destinatários deta mensagem
         /// </summary>
@@ -358,8 +352,6 @@ namespace InnerLibs.Mail
             To.Add(new TemplateMailAddress<T>(Email, DisplayName, TemplateData));
             return this;
         }
-
-
 
         /// <summary>
         /// Adiciona um destinatário a lista de destinatários deta mensagem
@@ -849,8 +841,6 @@ namespace InnerLibs.Mail
         {
         }
 
-
-
         #endregion Public Constructors
     }
 
@@ -859,6 +849,15 @@ namespace InnerLibs.Mail
     /// </summary>
     public class TemplateMailAddress<T> : MailAddress where T : class
     {
+        #region Internal Fields
+
+        /// <summary>
+        /// Lista de anexos exclusivos deste destinatário
+        /// </summary>
+        internal List<Attachment> anexos = new List<Attachment>();
+
+        #endregion Internal Fields
+
         #region Public Constructors
 
         public TemplateMailAddress(string address, T TemplateData = null) : base(address)
@@ -878,12 +877,10 @@ namespace InnerLibs.Mail
 
         public TemplateMailAddress(T Data, Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector) : this(Data == null ? throw new ArgumentException("Data is null", nameof(Data)) : EmailSelector?.Compile().Invoke(Data) ?? throw new ArgumentException("EmailSelector is null", nameof(EmailSelector)), (NameSelector ?? EmailSelector)?.Compile().Invoke(Data), Data)
         {
-
         }
 
         public TemplateMailAddress(T Data, Expression<Func<T, string>> EmailSelector) : this(Data == null ? throw new ArgumentException("Data is null", nameof(Data)) : EmailSelector?.Compile().Invoke(Data) ?? throw new ArgumentException("EmailSelector is null", nameof(EmailSelector)), Data)
         {
-
         }
 
         #endregion Public Constructors
@@ -891,16 +888,13 @@ namespace InnerLibs.Mail
         #region Public Properties
 
         /// <summary>
-        /// Lista de anexos exclusivos deste destinatário
-        /// </summary>
-        internal List<Attachment> anexos = new List<Attachment>();
-
-
-        /// <summary>
-        /// Procura anexos em <see cref="TemplateData"/> e <see cref="OtherAttachments" /> 
+        /// Procura anexos em <see cref="TemplateData"/> e <see cref="OtherAttachments"/>
         /// </summary>
         /// <returns></returns>
-        /// <remarks>Busca por propriedades  <see cref="FileInfo" /> e <see cref="Attachment" />. Arrays destes mesmos tipos serão percorridos. <see cref="DirectoryInfo" /> serão percorridos recursivamente </remarks>
+        /// <remarks>
+        /// Busca por propriedades <see cref="FileInfo"/> e <see cref="Attachment"/>. Arrays destes
+        /// mesmos tipos serão percorridos. <see cref="DirectoryInfo"/> serão percorridos recursivamente
+        /// </remarks>
         public IEnumerable<Attachment> Attachments
         {
             get
@@ -939,7 +933,6 @@ namespace InnerLibs.Mail
                                     if (af != null)
                                         l.Add(af.WriteDebug($"{ff.Name} from FileInfo in {ff.Directory.FullName} from property {p.Key}"));
                                 }
-
                             }
 
                             if (p.IsEnumerableNotString())
@@ -953,7 +946,6 @@ namespace InnerLibs.Mail
                                         l.Add(att3.WriteDebug($"{att3.Name} from Attachment from {p.Key} in {tipo.Name} type property"));
                                         continue;
                                     }
-
 
                                     if (oo is FileInfo f2)
                                     {
@@ -975,8 +967,6 @@ namespace InnerLibs.Mail
                                         continue;
                                     }
                                 }
-
-
                             }
                         }
                     }
@@ -986,7 +976,6 @@ namespace InnerLibs.Mail
                 return l.RemoveWhere(x => x == null || x.ContentStream.Length <= 0);
             }
         }
-
 
         /// <summary>
         /// Objeto com as informações deste destinatário que serão aplicados ao template
@@ -1005,9 +994,13 @@ namespace InnerLibs.Mail
         /// <param name="EmailSelector"></param>
         /// <param name="NameSelector"></param>
         /// <returns></returns>
+        public static TemplateMailAddress<T> FromObject(T Data, Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector) => new TemplateMailAddress<T>(Data, EmailSelector, NameSelector);
+        public static TemplateMailAddress<T> FromObject(T Data, Expression<Func<T, string>> EmailSelector) => new TemplateMailAddress<T>(Data, EmailSelector);
+        public static IEnumerable<TemplateMailAddress<T>> FromList(Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector, params T[] Datas) => FromList((Datas ?? Array.Empty<T>()).AsEnumerable(), EmailSelector, NameSelector);
+        public static IEnumerable<TemplateMailAddress<T>> FromList(Expression<Func<T, string>> EmailSelector, params T[] Datas) => FromList((Datas ?? Array.Empty<T>()).AsEnumerable(), EmailSelector);
         public static IEnumerable<TemplateMailAddress<T>> FromList(IEnumerable<T> Data, Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector) => (Data ?? Array.Empty<T>()).AsEnumerable().Select(x => new TemplateMailAddress<T>(x, EmailSelector, NameSelector)).Where(x => x != null);
-        public static IEnumerable<TemplateMailAddress<T>> FromList(IEnumerable<T> Data, Expression<Func<T, string>> EmailSelector) => (Data ?? Array.Empty<T>()).AsEnumerable().Select(x => new TemplateMailAddress<T>(x, EmailSelector)).Where(x => x != null);
 
+        public static IEnumerable<TemplateMailAddress<T>> FromList(IEnumerable<T> Data, Expression<Func<T, string>> EmailSelector) => (Data ?? Array.Empty<T>()).AsEnumerable().Select(x => new TemplateMailAddress<T>(x, EmailSelector)).Where(x => x != null);
 
         /// <inheritdoc cref="AddAttachment(Attachment)"/>
         public TemplateMailAddress<T> AddAttachment(params string[] files) => AddAttachment(files.Select(file => new Attachment(file)));
@@ -1030,6 +1023,7 @@ namespace InnerLibs.Mail
             }
             return this;
         }
+
         public TemplateMailAddress<T> AddAttachment(IEnumerable<Attachment> attachments) => AddAttachment(attachments.ToArray());
 
         public TemplateMailAddress<T> RemoveAttachment(IEnumerable<Attachment> attachments) => RemoveAttachment(attachments?.ToArray());
@@ -1056,7 +1050,6 @@ namespace InnerLibs.Mail
         }
 
         public TemplateMailAddress<T> RemoveAttachment(params int[] Indexes) => RemoveAttachment(Indexes?.Select(Index => anexos.IfNoIndex(Index)));
-
 
         #endregion Public Methods
     }
