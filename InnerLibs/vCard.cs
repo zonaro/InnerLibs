@@ -1,4 +1,4 @@
-﻿using InnerLibs.LINQ;
+﻿
 using InnerLibs.Locations;
 using System;
 using System.Collections.Generic;
@@ -197,7 +197,7 @@ namespace InnerLibs
 
         public override string ToString()
         {
-            string result = Text.Empty;
+            string result = Util.Empty;
             result = result.AppendLine("BEGIN:VCARD");
             result = result.AppendLine("VERSION:3.0");
             result = result.AppendLine($"FN;CHARSET=UTF-8:{FormattedName}");

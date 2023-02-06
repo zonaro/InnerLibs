@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
 
-namespace InnerLibs.TimeMachine
+namespace InnerLibs
 {
     public partial class DateRange
     {

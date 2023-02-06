@@ -10,7 +10,7 @@ namespace InnerLibs
     /// Módulo para calculos
     /// </summary>
     /// <remarks></remarks>
-    public static class MathExt
+    public static partial class Util
     {
         #region Public Fields
 

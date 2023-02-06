@@ -1,4 +1,4 @@
-﻿namespace InnerLibs.TimeMachine
+﻿namespace InnerLibs
 {
     /// <summary>
     /// Intervals used <see cref="DateRange.AddInterval(DateRangeInterval, double)(DateRangeInterval)"/>

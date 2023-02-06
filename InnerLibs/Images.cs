@@ -1,5 +1,4 @@
-﻿using InnerLibs.LINQ;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -13,7 +12,7 @@ namespace InnerLibs
     /// Modulo de Imagem
     /// </summary>
     /// <remarks></remarks>
-    public static class Images
+    public static partial class Util
     {
         #region Private Methods
 

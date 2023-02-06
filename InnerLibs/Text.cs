@@ -1,5 +1,4 @@
-﻿using InnerLibs.LINQ;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -18,7 +17,7 @@ namespace InnerLibs
     /// Modulo de manipulação de Texto
     /// </summary>
     /// <remarks></remarks>
-    public static class Text
+    public static partial class Util
     {
         #region Public Fields
 
@@ -61,7 +60,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Code"></param>
         /// <returns></returns>
-        public static string AppendBarcodeCheckSum(this string Code) => Code.Append(Generate.BarcodeCheckSum(Code));
+        public static string AppendBarcodeCheckSum(this string Code) => Code.Append(Util.BarcodeCheckSum(Code));
 
         /// <summary>
         /// Adiciona texto ao final de uma string se um criterio for cumprido
@@ -366,7 +365,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static bool ContainsUpper(this string Text) => (Text ?? InnerLibs.Text.Empty).ToArray().Any(char.IsUpper);
+        public static bool ContainsUpper(this string Text) => (Text ?? InnerLibs.Util.Empty).ToArray().Any(char.IsUpper);
 
         /// <summary>
         /// Conta os caracters especificos de uma string
@@ -473,7 +472,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text">Texto a ser tratado</param>
         /// <returns>String pronta para a query</returns>
-        public static string EscapeQuotesToQuery(this string Text, bool AlsoQuoteText = false) => Text.Replace(InnerLibs.Text.SingleQuoteChar, "''").QuoteIf(AlsoQuoteText, '\'');
+        public static string EscapeQuotesToQuery(this string Text, bool AlsoQuoteText = false) => Text.Replace(InnerLibs.Util.SingleQuoteChar, "''").QuoteIf(AlsoQuoteText, '\'');
 
         /// <summary>
         /// Extrai emails de uma string
@@ -549,7 +548,7 @@ namespace InnerLibs
             }
 
             sentences = Text.Split(WhitespaceChar).ToList();
-            Text = InnerLibs.Text.Empty;
+            Text = InnerLibs.Util.Empty;
             foreach (var c in sentences)
             {
                 string palavra = c;
@@ -557,7 +556,7 @@ namespace InnerLibs
                 {
                     palavra = palavra.ToUpperInvariant();
                     Text += palavra;
-                    string proximapalavra = sentences.IfNoIndex(sentences.IndexOf(c) + 1, InnerLibs.Text.Empty);
+                    string proximapalavra = sentences.IfNoIndex(sentences.IndexOf(c) + 1, InnerLibs.Util.Empty);
                     if (!(proximapalavra.EndsWith(".") && palavra.Length == 2))
                     {
                         Text += WhitespaceChar;
@@ -832,7 +831,7 @@ namespace InnerLibs
         /// <returns>Uma string com o valor posterior ao valor especificado.</returns>
         public static string GetAfter(this string Text, string Value, bool WhiteIfNotFound = false)
         {
-            Value = Value.IfBlank(InnerLibs.Text.Empty);
+            Value = Value.IfBlank(InnerLibs.Util.Empty);
 
             return Text.IsBlank() || Text.IndexOf(Value) == -1
                 ? WhiteIfNotFound ? Empty : $"{Text}"
@@ -867,8 +866,8 @@ namespace InnerLibs
         /// <returns>Uma string com o valor anterior ao valor especificado.</returns>
         public static string GetBefore(this string Text, string Value, bool WhiteIfNotFound = false)
         {
-            Value = Value.IfBlank(InnerLibs.Text.Empty);
-            return Text.IsBlank() || Text.IndexOf(Value) == -1 ? WhiteIfNotFound ? InnerLibs.Text.Empty : $"{Text}" : Text.Substring(0, Text.IndexOf(Value));
+            Value = Value.IfBlank(InnerLibs.Util.Empty);
+            return Text.IsBlank() || Text.IndexOf(Value) == -1 ? WhiteIfNotFound ? InnerLibs.Util.Empty : $"{Text}" : Text.Substring(0, Text.IndexOf(Value));
         }
 
         /// <summary>
@@ -887,7 +886,7 @@ namespace InnerLibs
                 int afterStartIndex = Text.IndexOf(After, startIndex);
                 return beforeStartIndex < 0 || afterStartIndex < 0 ? Text : Text.Substring(startIndex, afterStartIndex - startIndex);
             }
-            return InnerLibs.Text.Empty;
+            return InnerLibs.Util.Empty;
         }
 
         /// <summary>
@@ -933,9 +932,9 @@ namespace InnerLibs
         /// <returns>nome do dominio</returns>
         public static string GetDomainAndProtocol(this string URL) => $"{new Uri(URL.PrependIf("http://", x => x.IsURL() == false)).GetLeftPart(UriPartial.Authority)}";
 
-        public static string GetFirstChars(this string Text, int Number = 1) => Text.IsNotBlank() ? Text.Length < Number || Number < 0 ? Text : Text.Substring(0, Number) : InnerLibs.Text.Empty;
+        public static string GetFirstChars(this string Text, int Number = 1) => Text.IsNotBlank() ? Text.Length < Number || Number < 0 ? Text : Text.Substring(0, Number) : InnerLibs.Util.Empty;
 
-        public static string GetLastChars(this string Text, int Number = 1) => Text.IsNotBlank() ? Text.Length < Number || Number < 0 ? Text : Text.Substring(Text.Length - Number) : InnerLibs.Text.Empty;
+        public static string GetLastChars(this string Text, int Number = 1) => Text.IsNotBlank() ? Text.Length < Number || Number < 0 ? Text : Text.Substring(Text.Length - Number) : InnerLibs.Util.Empty;
 
         /// <summary>
         /// Retorna N caracteres de uma string a partir do caractere encontrado no centro
@@ -945,7 +944,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string GetMiddleChars(this string Text, int Length)
         {
-            Text = Text.IfBlank(InnerLibs.Text.Empty);
+            Text = Text.IfBlank(InnerLibs.Util.Empty);
             if (Text.Length >= Length)
             {
                 if (Text.Length % 2 != 0)
@@ -1010,7 +1009,7 @@ namespace InnerLibs
         /// <typeparam name="T">Tipo da Matriz</typeparam>
         /// <param name="Array">Matriz</param>
         /// <returns>Um valor do tipo especificado</returns>
-        public static T GetRandomItem<T>(this T[] Array) => Array == null || Array.Length == 0 ? default(T) : Array[Generate.RandomNumber(0, Array.Length - 1)];
+        public static T GetRandomItem<T>(this T[] Array) => Array == null || Array.Length == 0 ? default(T) : Array[Util.RandomNumber(0, Array.Length - 1)];
 
         /// <summary>
         /// Retorna o caminho relativo da url
@@ -1105,14 +1104,14 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text">string HTML</param>
         /// <returns>String HTML corrigido</returns>
-        public static string HtmlDecode(this string Text) => System.Net.WebUtility.HtmlDecode(InnerLibs.Text.Empty + Text).ReplaceMany(Environment.NewLine, "<br/>", "<br />", "<br>");
+        public static string HtmlDecode(this string Text) => System.Net.WebUtility.HtmlDecode(InnerLibs.Util.Empty + Text).ReplaceMany(Environment.NewLine, "<br/>", "<br />", "<br>");
 
         /// <summary>
         /// Escapa o texto HTML
         /// </summary>
         /// <param name="Text">string HTML</param>
         /// <returns>String HTML corrigido</returns>
-        public static string HtmlEncode(this string Text) => System.Net.WebUtility.HtmlEncode(InnerLibs.Text.Empty + Text.ReplaceMany("<br>", PredefinedArrays.BreakLineChars.ToArray()));
+        public static string HtmlEncode(this string Text) => System.Net.WebUtility.HtmlEncode(InnerLibs.Util.Empty + Text.ReplaceMany("<br>", PredefinedArrays.BreakLineChars.ToArray()));
 
         /// <summary>
         /// Inject the property values of <typeparamref name="T"/> into <paramref name="TemplatedString"/>
@@ -1121,7 +1120,7 @@ namespace InnerLibs
         /// <param name="formatString"></param>
         /// <param name="injectionObject"></param>
         /// <returns></returns>
-        public static string Inject<T>(this T Obj, string TemplatedString, bool IsSQL = false) => TemplatedString.IfBlank(InnerLibs.Text.Empty).Inject(Obj, IsSQL);
+        public static string Inject<T>(this T Obj, string TemplatedString, bool IsSQL = false) => TemplatedString.IfBlank(InnerLibs.Util.Empty).Inject(Obj, IsSQL);
 
         /// <summary>
         /// Inject the property values of <typeparamref name="T"/> into <see cref="String"/>
@@ -1136,7 +1135,7 @@ namespace InnerLibs
             {
                 return injectionObject.IsDictionary()
                     ? formatString.Inject(new Hashtable((IDictionary)injectionObject), IsSQL)
-                    : formatString.Inject(Misc.GetPropertyHash(injectionObject), IsSQL);
+                    : formatString.Inject(Util.GetPropertyHash(injectionObject), IsSQL);
             }
 
             return formatString;
@@ -1188,7 +1187,7 @@ namespace InnerLibs
 
                 if (IsSQL)
                 {
-                    replacement = MicroORM.DbExtensions.ToSQLString(replacement);
+                    replacement = Util.ToSQLString(replacement);
                 }
 
                 result = result.Replace(m.ToString(), replacement);
@@ -1199,13 +1198,13 @@ namespace InnerLibs
 
         public static string Interpolate(this string Text, params string[] Texts)
         {
-            Text = Text.IfBlank(InnerLibs.Text.Empty);
+            Text = Text.IfBlank(InnerLibs.Util.Empty);
             Texts = Texts ?? Array.Empty<string>();
 
             var s = Texts.ToList();
             s.Insert(0, Text);
 
-            var ns = @InnerLibs.Text.Empty;
+            var ns = @InnerLibs.Util.Empty;
             var len = s.Max(x => x.Length);
             for (int i = 0; i < len; i++)
             {
@@ -1255,7 +1254,7 @@ namespace InnerLibs
 
         public static bool IsCloseWrapChar(this char c) => IsCloseWrapChar($"{c}");
 
-        public static bool IsCrossLikeAny(this string Text, IEnumerable<string> Patterns) => (Patterns ?? Array.Empty<string>()).Any(x => Text.IfBlank(InnerLibs.Text.Empty).Like(x) || x.Like(Text));
+        public static bool IsCrossLikeAny(this string Text, IEnumerable<string> Patterns) => (Patterns ?? Array.Empty<string>()).Any((Func<string, bool>)(x => Util.Like(Text.IfBlank(InnerLibs.Util.Empty), x) || Util.Like(x, Text)));
 
         /// <summary>
         /// Verifica se um texto existe em uma determinada lista usando comparação com caratere curinga
@@ -1263,7 +1262,7 @@ namespace InnerLibs
         /// <param name="Text"></param>
         /// <param name="Patterns"></param>
         /// <returns></returns>
-        public static bool IsLikeAny(this string Text, IEnumerable<string> Patterns) => (Patterns ?? Array.Empty<string>()).Any(x => Text.IfBlank(InnerLibs.Text.Empty).Like(x));
+        public static bool IsLikeAny(this string Text, IEnumerable<string> Patterns) => (Patterns ?? Array.Empty<string>()).Any((Func<string, bool>)(x => Util.Like(Text.IfBlank(InnerLibs.Util.Empty), x)));
 
         /// <summary>
         /// Verifica se um texto existe em uma determinada lista usando comparação com caratere curinga
@@ -1352,8 +1351,8 @@ namespace InnerLibs
         /// </summary>
         public static int LevenshteinDistance(this string Text1, string Text2)
         {
-            Text1 = Text1 ?? InnerLibs.Text.Empty;
-            Text2 = Text2 ?? InnerLibs.Text.Empty;
+            Text1 = Text1 ?? InnerLibs.Util.Empty;
+            Text2 = Text2 ?? InnerLibs.Util.Empty;
             int n = Text1.Length;
             int m = Text2.Length;
             var d = new int[n + 1 + 1, m + 1 + 1];
@@ -1651,7 +1650,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string PreetyPrint(this XmlDocument Document)
         {
-            string Result = InnerLibs.Text.Empty;
+            string Result = InnerLibs.Util.Empty;
             var mStream = new MemoryStream();
             var writer = new XmlTextWriter(mStream, Encoding.Unicode);
             try
@@ -1693,8 +1692,8 @@ namespace InnerLibs
         /// <param name="PrependText">Texto adicional</param>
         public static string Prepend(this string Text, string PrependText)
         {
-            Text = Text ?? InnerLibs.Text.Empty;
-            PrependText = PrependText ?? InnerLibs.Text.Empty;
+            Text = Text ?? InnerLibs.Util.Empty;
+            PrependText = PrependText ?? InnerLibs.Util.Empty;
             Text = PrependText + Text;
             return Text;
         }
@@ -1707,8 +1706,8 @@ namespace InnerLibs
         /// <param name="Test">Teste</param>
         public static string PrependIf(this string Text, string PrependText, Func<string, bool> Test = null)
         {
-            Text = Text ?? InnerLibs.Text.Empty;
-            PrependText = PrependText ?? InnerLibs.Text.Empty;
+            Text = Text ?? InnerLibs.Util.Empty;
+            PrependText = PrependText ?? InnerLibs.Util.Empty;
             return Text.PrependIf(PrependText, (Test ?? (x => false))(Text));
         }
 
@@ -1720,8 +1719,8 @@ namespace InnerLibs
         /// <param name="Test">Teste</param>
         public static string PrependIf(this string Text, string PrependText, bool Test)
         {
-            Text = Text ?? InnerLibs.Text.Empty;
-            PrependText = PrependText ?? InnerLibs.Text.Empty;
+            Text = Text ?? InnerLibs.Util.Empty;
+            PrependText = PrependText ?? InnerLibs.Util.Empty;
             return Test ? Text.Prepend(PrependText) : Text;
         }
 
@@ -1756,7 +1755,7 @@ namespace InnerLibs
         /// <param name="Text"></param>
         /// <param name="BooleanValue"></param>
         /// <returns></returns>
-        public static string PrintIf(this string Text, bool BooleanValue) => BooleanValue ? Text : InnerLibs.Text.Empty;
+        public static string PrintIf(this string Text, bool BooleanValue) => BooleanValue ? Text : InnerLibs.Util.Empty;
 
         /// <summary>
         /// Retorna o texto a na sua forma singular ou plural de acordo com uma quantidade
@@ -1794,7 +1793,7 @@ namespace InnerLibs
                 string ns = "";
                 foreach (char c in MaskedText)
                 {
-                    if (c.ToString().IsNumber()|| c.IsIn(AllowCharacters))
+                    if (c.ToString().IsNumber() || c.IsIn(AllowCharacters))
                     {
                         ns += c;
                     }
@@ -1837,7 +1836,7 @@ namespace InnerLibs
 
                 case object _ when QuantityOrListOrBoolean.GetType() == typeof(bool):
                     {
-                        OutQuantity = Converter.ToDecimal(QuantityOrListOrBoolean);
+                        OutQuantity = Util.ToDecimal(QuantityOrListOrBoolean);
                         return PluralText.Singularize(); // de acordo com as normas do portugues, quando a quantidade esperada maxima for 1, zero também é singular.
                     }
 
@@ -1960,7 +1959,7 @@ namespace InnerLibs
 
         public static IEnumerable<string> ReduceToDifference(this IEnumerable<string> Texts, out string RemovedPart, bool FromStart = false, string BreakAt = null)
         {
-            RemovedPart = InnerLibs.Text.Empty;
+            RemovedPart = InnerLibs.Util.Empty;
             Texts = Texts ?? Array.Empty<string>();
             var arr = Texts.WhereNotBlank().ToArray();
             while (arr.Distinct().Count() > 1 && !arr.Any(x => BreakAt.IsNotBlank() && (FromStart ? x.StartsWith(BreakAt) : x.EndsWith(BreakAt))) && arr.All(x => FromStart ? x.StartsWith(arr.FirstOrDefault().GetFirstChars()) : x.EndsWith(arr.FirstOrDefault().GetLastChars())))
@@ -1986,7 +1985,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string RegexEscape(this string Text)
         {
-            string newstring = InnerLibs.Text.Empty;
+            string newstring = InnerLibs.Util.Empty;
             foreach (var c in Text.ToArray())
             {
                 if (c.IsIn(PredefinedArrays.RegexChars))
@@ -2037,7 +2036,7 @@ namespace InnerLibs
         /// <param name="Text">Texto</param>
         /// <param name="Values">Strings a serem removidas</param>
         /// <returns>Uma string com os valores removidos</returns>
-        public static string RemoveAny(this string Text, params string[] Values) => Text.ReplaceMany(InnerLibs.Text.Empty, Values ?? Array.Empty<string>());
+        public static string RemoveAny(this string Text, params string[] Values) => Text.ReplaceMany(InnerLibs.Util.Empty, Values ?? Array.Empty<string>());
 
         public static string RemoveAny(this string Text, params char[] Values) => Text.RemoveAny(Values.Select(x => x.ToString()).ToArray());
 
@@ -2054,13 +2053,13 @@ namespace InnerLibs
         /// <param name="Text">Texto</param>
         /// <param name="Quantity">Quantidade de Caracteres</param>
         /// <returns></returns>
-        public static string RemoveFirstChars(this string Text, int Quantity = 1) => Text.IsNotBlank() && Text.Length > Quantity && Quantity > 0 ? Text.Remove(0, Quantity) : InnerLibs.Text.Empty;
+        public static string RemoveFirstChars(this string Text, int Quantity = 1) => Text.IsNotBlank() && Text.Length > Quantity && Quantity > 0 ? Text.Remove(0, Quantity) : InnerLibs.Util.Empty;
 
         public static string RemoveHTML(this string Text)
         {
             if (Text.IsNotBlank())
             {
-                return Regex.Replace(Text.ReplaceMany(Environment.NewLine, "<br/>", "<br>", "<br />"), "<.*?>", InnerLibs.Text.Empty).HtmlDecode();
+                return Regex.Replace(Text.ReplaceMany(Environment.NewLine, "<br/>", "<br>", "<br />"), "<.*?>", InnerLibs.Util.Empty).HtmlDecode();
             }
 
             return Text;
@@ -2072,7 +2071,7 @@ namespace InnerLibs
         /// <param name="Text">Texto</param>
         /// <param name="Quantity">Quantidade de Caracteres</param>
         /// <returns></returns>
-        public static string RemoveLastChars(this string Text, int Quantity = 1) => Text.IsNotBlank() && Text.Length > Quantity && Quantity > 0 ? Text.Substring(0, Text.Length - Quantity) : InnerLibs.Text.Empty;
+        public static string RemoveLastChars(this string Text, int Quantity = 1) => Text.IsNotBlank() && Text.Length > Quantity && Quantity > 0 ? Text.Substring(0, Text.Length - Quantity) : InnerLibs.Util.Empty;
 
         /// <summary>
         /// Remove caracteres não prantáveis de uma string
@@ -2100,7 +2099,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string Repeat(this string Text, int Times = 2)
         {
-            var ns = InnerLibs.Text.Empty;
+            var ns = InnerLibs.Util.Empty;
             while (Times > 0)
             {
                 ns += Text;
@@ -2127,7 +2126,7 @@ namespace InnerLibs
             {
                 if (ReplaceIfEquals)
                 {
-                    if ((NewArray[index] ?? InnerLibs.Text.Empty) == (OldValue ?? InnerLibs.Text.Empty))
+                    if ((NewArray[index] ?? InnerLibs.Util.Empty) == (OldValue ?? InnerLibs.Util.Empty))
                     {
                         NewArray[index] = NewValue;
                     }
@@ -2207,9 +2206,9 @@ namespace InnerLibs
 
                         case object _ when typeof(T).IsAssignableFrom(typeof(Array)):
                             {
-                                foreach (var item in Converter.ForceArray(p.Value, typeof(T)))
+                                foreach (var item in Util.ForceArray(p.Value, typeof(T)))
                                 {
-                                    Text = Text.ReplaceMany(p.Key, Converter.ForceArray(p.Value, typeof(T)).Cast<string>().ToArray());
+                                    Text = Text.ReplaceMany(p.Key, Util.ForceArray(p.Value, typeof(T)).Cast<string>().ToArray());
                                 }
 
                                 break;
@@ -2272,7 +2271,7 @@ namespace InnerLibs
                     var tos = p.Value.ToList();
                     while (froms.Count > tos.Count)
                     {
-                        tos.Add(InnerLibs.Text.Empty);
+                        tos.Add(InnerLibs.Util.Empty);
                     }
 
                     for (int i = 0, loopTo = froms.Count - 1; i <= loopTo; i++)
@@ -2314,7 +2313,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string ReplaceMany(this string Text, string NewValue, params string[] OldValues)
         {
-            Text = Text ?? InnerLibs.Text.Empty;
+            Text = Text ?? InnerLibs.Util.Empty;
             foreach (var word in (OldValues ?? Array.Empty<string>()).Where(x => x.Length > 0))
             {
                 Text = Text.Replace(word, NewValue);
@@ -2330,7 +2329,7 @@ namespace InnerLibs
         /// <param name="Text">Texto</param>
         /// <param name="OldValue">Valor a ser substituido por vazio</param>
         /// <returns>String corrigida</returns>
-        public static string ReplaceNone(this string Text, string OldValue) => Text.Replace(OldValue, InnerLibs.Text.Empty);
+        public static string ReplaceNone(this string Text, string OldValue) => Text.Replace(OldValue, InnerLibs.Util.Empty);
 
         /// <summary>
         /// Une todos os valores de um objeto em uma unica string
@@ -2372,9 +2371,9 @@ namespace InnerLibs
         {
             if (Text.IsNotBlank())
             {
-                foreach (var oldvalue in OldValues ?? new[] { InnerLibs.Text.Empty })
+                foreach (var oldvalue in OldValues ?? new[] { InnerLibs.Util.Empty })
                 {
-                    NewValue = NewValue ?? InnerLibs.Text.Empty;
+                    NewValue = NewValue ?? InnerLibs.Util.Empty;
                     if (!oldvalue.Equals(NewValue, ComparisonType))
                     {
                         int foundAt;
@@ -2536,7 +2535,7 @@ namespace InnerLibs
         /// <param name="Text">Texto</param>
         /// <param name="Separator">Texto utilizado como separador</param>
         /// <returns></returns>
-        public static string[] Split(this string Text, string Separator, StringSplitOptions Options = StringSplitOptions.RemoveEmptyEntries) => (Text ?? InnerLibs.Text.Empty).Split(new[] { Separator }, Options);
+        public static string[] Split(this string Text, string Separator, StringSplitOptions Options = StringSplitOptions.RemoveEmptyEntries) => (Text ?? InnerLibs.Util.Empty).Split(new[] { Separator }, Options);
 
         /// <summary>
         /// Separa uma string em varias partes a partir de varias strings removendo as entradas em branco
@@ -2576,7 +2575,7 @@ namespace InnerLibs
         /// <param name="Text"></param>
         /// <param name="Words"></param>
         /// <returns></returns>
-        public static bool StartsWithAny(this string Text, StringComparison comparison, params string[] Words) => Words.Any(p => Text.IfBlank(InnerLibs.Text.Empty).StartsWith(p, comparison));
+        public static bool StartsWithAny(this string Text, StringComparison comparison, params string[] Words) => Words.Any(p => Text.IfBlank(InnerLibs.Util.Empty).StartsWith(p, comparison));
 
         public static bool StartsWithAny(this string Text, params string[] Words) => StartsWithAny(Text, StringComparison.InvariantCultureIgnoreCase, Words);
 
@@ -4103,7 +4102,7 @@ namespace InnerLibs
         public static string ToPhrase<TSource>(this IEnumerable<TSource> Texts, string PhraseStart = Empty, string And = "and", string EmptyValue = null, char Separator = ',')
         {
             Separator = Separator.IfBlank(',');
-            PhraseStart = PhraseStart.IfBlank(Text.Empty);
+            PhraseStart = PhraseStart.IfBlank(Util.Empty);
 
             Texts = (Texts ?? Array.Empty<TSource>()).WhereNotBlank();
 
@@ -4121,7 +4120,7 @@ namespace InnerLibs
                     }
                     else
                     {
-                        PhraseStart = Text.Empty;
+                        PhraseStart = Util.Empty;
                     }
                     break;
 
@@ -4140,7 +4139,7 @@ namespace InnerLibs
         }
 
         ///<inheritdoc cref="ToPhrase{TSource}(IEnumerable{TSource}, string, string, string, char)"/>
-        public static string ToPhrase(string And, params string[] Texts) => (Texts ?? Array.Empty<string>()).ToPhrase(InnerLibs.Text.Empty, And);
+        public static string ToPhrase(string And, params string[] Texts) => (Texts ?? Array.Empty<string>()).ToPhrase(InnerLibs.Util.Empty, And);
 
         /// <summary>
         /// Coloca o texto em TitleCase
@@ -4163,7 +4162,7 @@ namespace InnerLibs
             for (int index = 0, loopTo = l.Count - 1; index <= loopTo; index++)
             {
                 string pal = l[index];
-                bool artigo = index > 0 && Misc.IsIn(pal, "o", "a", "os", "as", "um", "uma", "uns", "umas", "de", "do", "dos", "das", "e", "ou");
+                bool artigo = index > 0 && Util.IsIn(pal, "o", "a", "os", "as", "um", "uma", "uns", "umas", "de", "do", "dos", "das", "e", "ou");
                 if (pal.IsNotBlank())
                 {
                     if (ForceCase || artigo == false)
@@ -4194,7 +4193,7 @@ namespace InnerLibs
             Times = Times.SetMinValue(ch.Length);
             for (int index = 1, loopTo = Times; index <= loopTo; index++)
             {
-                int newindex = Generate.RandomNumber(0, ch.Length - 1);
+                int newindex = Util.RandomNumber(0, ch.Length - 1);
                 if (char.IsUpper(ch[newindex]))
                 {
                     ch[newindex] = char.ToLower(ch[newindex], CultureInfo.InvariantCulture);

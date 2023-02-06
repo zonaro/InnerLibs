@@ -1,6 +1,6 @@
 ﻿namespace InnerLibs
 {
-    public class Emoji
+    public static class Emoji
     {
         #region Public Fields
 

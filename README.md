@@ -5,12 +5,12 @@ O projeto nasceu a partir da nescessidade de repetir os códigos em diversos pro
  
 ### Veja algumas de nossas funções:
 
- - Conexão com Bancos de Dados simplificada utilizando `InnerLibs.MicroORM`
+ - Conexão com Bancos de Dados simplificada utilizando `InnerLibs`
  - Classe de representação geográfica/Endereço `InnerLibs.AddressInfo` com integração a API dos Correios;
  - Conversão de números para algarismos romanos e vice versa;
  - Conversão de números para sua forma extensa;
  - Classe para criação e edição de vCards;
- - Calculo de prazo de entrega baseado em jornada de trabalho utilizando `InnerLibs.TimeMachine`;
+ - Calculo de prazo de entrega baseado em jornada de trabalho utilizando `InnerLibs`;
  - Vários manipuladores e validadores de texto;
  - Identificação de MIME Type a partir da extensão de arquivos;
  - Geradores de expressões lambda para filtros compativel com `EntityFramework` e `LINQ to SQL`;

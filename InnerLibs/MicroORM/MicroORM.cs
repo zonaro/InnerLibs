@@ -1,4 +1,4 @@
-﻿using InnerLibs.LINQ;
+﻿
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -8,7 +8,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 
-namespace InnerLibs.MicroORM
+namespace InnerLibs
 {
     internal class Join
     {
@@ -200,7 +200,7 @@ namespace InnerLibs.MicroORM
                     }
                 }
 
-                _tokens.Add($"{Column} {Operator.IfBlank("=")} {DbExtensions.ToSQLString(Value)}");
+                _tokens.Add($"{Column} {Operator.IfBlank("=")} {Util.ToSQLString(Value)}");
             }
         }
 
@@ -604,7 +604,7 @@ namespace InnerLibs.MicroORM
             return this;
         }
 
-        public Select<T> AndIn<TO>(string Column, params TO[] Items) => And(Text.ToFormattableString(Column + " in " + Items.ToSQLString()));
+        public Select<T> AndIn<TO>(string Column, params TO[] Items) => And(Util.ToFormattableString(Column + " in " + Items.ToSQLString()));
 
         public Select<T> AndObject<TO>(TO Obj) where TO : class => WhereObject(Obj, "AND");
 
@@ -627,7 +627,7 @@ namespace InnerLibs.MicroORM
                 var c = item;
                 if (item != "*")
                 {
-                    c = item.UnQuote().Split(".", StringSplitOptions.RemoveEmptyEntries).SelectJoinString(x => DbExtensions.FormatSQLColumn(this.QuoteChar, WithTableName.AsIf(this.GetTableOrSubQuery()), x.UnQuote()));
+                    c = item.UnQuote().Split(".", StringSplitOptions.RemoveEmptyEntries).SelectJoinString(x => Util.FormatSQLColumn(this.QuoteChar, WithTableName.AsIf(this.GetTableOrSubQuery()), x.UnQuote()));
                 }
                 _nova.Add(c);
             }
@@ -660,7 +660,7 @@ namespace InnerLibs.MicroORM
         /// <param name="ColumnName"></param>
         /// <param name="QuoteChar"></param>
         /// <returns></returns>
-        public string FormatColumnName(string ColumnName) => DbExtensions.FormatSQLColumn(this.QuoteChar, GetTableOrSubQuery(), ColumnName);
+        public string FormatColumnName(string ColumnName) => Util.FormatSQLColumn(this.QuoteChar, GetTableOrSubQuery(), ColumnName);
 
         /// <summary>
         /// Sets the FROM clause in the SELECT being built.
@@ -754,7 +754,7 @@ namespace InnerLibs.MicroORM
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
         public Select<T> FullOuterJoin(string table, Condition on) => Join(JoinType.FullOuterJoin, table, on);
 
-        public Select<T> FullOuterJoin(string table, string ThisColumn, string ForeignColumn) => FullOuterJoin(table, Text.ToFormattableString(DbExtensions.FormatSQLColumn(QuoteChar, GetTableOrSubQuery(), ThisColumn) + " = " + DbExtensions.FormatSQLColumn(QuoteChar, table, ForeignColumn.IfBlank(ThisColumn))));
+        public Select<T> FullOuterJoin(string table, string ThisColumn, string ForeignColumn) => FullOuterJoin(table, Util.ToFormattableString(Util.FormatSQLColumn(QuoteChar, GetTableOrSubQuery(), ThisColumn) + " = " + Util.FormatSQLColumn(QuoteChar, table, ForeignColumn.IfBlank(ThisColumn))));
 
         /// <summary>
         /// Get the table name or subquery alias used in this select
@@ -805,7 +805,7 @@ namespace InnerLibs.MicroORM
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
         public Select<T> InnerJoin(string table, FormattableString on) => InnerJoin(table, new Condition(on));
 
-        public Select<T> InnerJoin(string table, string ThisColumn, string ForeignColumn) => InnerJoin(table, Text.ToFormattableString(DbExtensions.FormatSQLColumn(QuoteChar, GetTableOrSubQuery(), ThisColumn) + " = " + DbExtensions.FormatSQLColumn(QuoteChar, table, ForeignColumn.IfBlank(ThisColumn))));
+        public Select<T> InnerJoin(string table, string ThisColumn, string ForeignColumn) => InnerJoin(table, Util.ToFormattableString(Util.FormatSQLColumn(QuoteChar, GetTableOrSubQuery(), ThisColumn) + " = " + Util.FormatSQLColumn(QuoteChar, table, ForeignColumn.IfBlank(ThisColumn))));
 
         /// <summary>
         /// Sets a INNER JOIN clause in the SELECT being built.
@@ -855,7 +855,7 @@ namespace InnerLibs.MicroORM
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
         public Select<T> LeftOuterJoin(string table, FormattableString on) => LeftOuterJoin(table, new Condition(on));
 
-        public Select<T> LeftOuterJoin(string table, string ThisColumn, string ForeignColumn) => LeftOuterJoin(table, Text.ToFormattableString(DbExtensions.FormatSQLColumn(QuoteChar, GetTableOrSubQuery(), ThisColumn) + " = " + DbExtensions.FormatSQLColumn(QuoteChar, table, ForeignColumn.IfBlank(ThisColumn))));
+        public Select<T> LeftOuterJoin(string table, string ThisColumn, string ForeignColumn) => LeftOuterJoin(table, Util.ToFormattableString(Util.FormatSQLColumn(QuoteChar, GetTableOrSubQuery(), ThisColumn) + " = " + Util.FormatSQLColumn(QuoteChar, table, ForeignColumn.IfBlank(ThisColumn))));
 
         /// <summary>
         /// Sets a LEFT OUTER JOIN clause in the SELECT being built.
@@ -986,7 +986,7 @@ namespace InnerLibs.MicroORM
             return this;
         }
 
-        public Select<T> OrIn<TO>(string Column, params TO[] Items) => Or(Text.ToFormattableString(Column + " in " + Items.ToSQLString()));
+        public Select<T> OrIn<TO>(string Column, params TO[] Items) => Or(Util.ToFormattableString(Column + " in " + Items.ToSQLString()));
 
         public Select<T> OrObject<TO>(TO Obj) where TO : class => WhereObject(Obj, "OR");
 
@@ -1004,7 +1004,7 @@ namespace InnerLibs.MicroORM
             return this;
         }
 
-        public Select<T> RightOuterJoin(string table, string ThisColumn, string ForeignColumn) => RightOuterJoin(table, Text.ToFormattableString(DbExtensions.FormatSQLColumn(QuoteChar, GetTableOrSubQuery(), ThisColumn) + " = " + DbExtensions.FormatSQLColumn(QuoteChar, table, ForeignColumn.IfBlank(ThisColumn))));
+        public Select<T> RightOuterJoin(string table, string ThisColumn, string ForeignColumn) => RightOuterJoin(table, Util.ToFormattableString(Util.FormatSQLColumn(QuoteChar, GetTableOrSubQuery(), ThisColumn) + " = " + Util.FormatSQLColumn(QuoteChar, table, ForeignColumn.IfBlank(ThisColumn))));
 
         /// <summary>
         /// Sets a RIGHT OUTER JOIN clause in the SELECT being built.
@@ -1074,7 +1074,7 @@ namespace InnerLibs.MicroORM
             {
                 sql.Append($"{_top}");
             }
-            var cols = (_columns?.Distinct().SelectJoinString(",") ?? InnerLibs.Text.Empty).IfBlank(" * ");
+            var cols = (_columns?.Distinct().SelectJoinString(",") ?? InnerLibs.Util.Empty).IfBlank(" * ");
             sql.Append(cols);
             if (_fromsub != null && _fromsub.ToString().IsNotBlank())
             {
@@ -1214,7 +1214,7 @@ namespace InnerLibs.MicroORM
 
                 var rp = new Dictionary<string, string>()
                 {
-                    { $"{pName.Name}.", InnerLibs.Text.Empty},
+                    { $"{pName.Name}.", InnerLibs.Util.Empty},
                     {"==", "="},
                     {"!=", "<>"},
                     {"AndAlso", " AND "},
@@ -1228,7 +1228,7 @@ namespace InnerLibs.MicroORM
                     {".Like", " LIKE "},
                     {".Equal", " = "},
                     {".IsIn", " in "},
-                    {Text.DoubleQuoteChar, InnerLibs.Text.SingleQuoteChar}
+                    {Util.DoubleQuoteChar, InnerLibs.Util.SingleQuoteChar}
                 };
                 Where(p.ReplaceFrom(rp).ToFormattableString());
             }
@@ -1284,7 +1284,7 @@ namespace InnerLibs.MicroORM
         /// <param name="Dic"></param>
         /// <param name="FilterKeys"></param>
         /// <returns></returns>
-        public object Where(Dictionary<string, object> Dic, DbExtensions.LogicConcatenationOperator LogicConcatenation, params string[] FilterKeys)
+        public object Where(Dictionary<string, object> Dic, Util.LogicConcatenationOperator LogicConcatenation, params string[] FilterKeys)
         {
             FilterKeys = FilterKeys ?? Array.Empty<string>();
             if (FilterKeys.Any())
@@ -1301,7 +1301,7 @@ namespace InnerLibs.MicroORM
             {
                 foreach (var f in FilterKeys)
                 {
-                    if (LogicConcatenation == DbExtensions.LogicConcatenationOperator.OR)
+                    if (LogicConcatenation == Util.LogicConcatenationOperator.OR)
                     {
                         Or(f, Dic[f]);
                     }
@@ -1361,7 +1361,7 @@ namespace InnerLibs.MicroORM
 
         public Select<T> WhereObject<TO>(TO Obj) where TO : class => AndObject(Obj);
 
-        public Select<T> WhereObject<TO>(TO Obj, DbExtensions.LogicConcatenationOperator LogicOperator) where TO : class => WhereObject(Obj, LogicOperator.GetEnumValueAsString());
+        public Select<T> WhereObject<TO>(TO Obj, Util.LogicConcatenationOperator LogicOperator) where TO : class => WhereObject(Obj, LogicOperator.GetEnumValueAsString());
 
         public Select<T> WhereObject<TO>(TO Obj, string LogicOperator) where TO : class
         {

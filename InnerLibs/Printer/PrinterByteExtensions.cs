@@ -17,18 +17,18 @@ namespace InnerLibs.Printer
             var bmp = new Bitmap(image);
 
             // Set character line spacing to n dotlines
-            string send = InnerLibs.Text.Empty + '\u001b' + '3' + '\0';
+            string send = InnerLibs.Util.Empty + '\u001b' + '3' + '\0';
             var data = new byte[send.Length];
             for (int i = 0, loopTo = send.Length - 1; i <= loopTo; i++)
-                data[i] = (byte)Text.ToAsc(send[i]);
+                data[i] = (byte)Util.ToAsc(send[i]);
             list.AddRange(data);
-            data[0] = Text.ToAscByte('\0');
-            data[1] = Text.ToAscByte('\0');
-            data[2] = Text.ToAscByte('\0'); // Clear
+            data[0] = Util.ToAscByte('\0');
+            data[1] = Util.ToAscByte('\0');
+            data[2] = Util.ToAscByte('\0'); // Clear
 
             // ESC * m nL nH d1…dk Select bitmap mode
             var escBmp = new[] { (byte)0x1B, (byte)0x2A, (byte)0x0, (byte)0x0, (byte)0x0 };
-            escBmp[2] = Text.ToAscByte('!');
+            escBmp[2] = Util.ToAscByte('!');
             // nL, nH
             escBmp[3] = (byte)(bmp.Width % 256);
             escBmp[4] = (byte)Math.Round(bmp.Width / 256d);
@@ -58,9 +58,9 @@ namespace InnerLibs.Printer
 
                     // Write data，24dots
                     list.AddRange(data);
-                    data[0] = Text.ToAscByte('\0');
-                    data[1] = Text.ToAscByte('\0');
-                    data[2] = Text.ToAscByte('\0'); // Clear
+                    data[0] = Util.ToAscByte('\0');
+                    data[1] = Util.ToAscByte('\0');
+                    data[2] = Util.ToAscByte('\0'); // Clear
                 }
 
                 var data2 = new[] { (byte)0xA };

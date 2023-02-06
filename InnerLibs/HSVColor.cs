@@ -1,4 +1,4 @@
-﻿using InnerLibs.LINQ;
+﻿
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -578,7 +578,7 @@ namespace InnerLibs
         /// <param name="Img"></param>
         /// <param name="Reduce"></param>
         /// <returns></returns>
-        public static HSVColor FromImage(Image Img, int Reduce = 16) => Images.ColorPallette(Img, Reduce).Keys.FirstOr(new HSVColor());
+        public static HSVColor FromImage(Image Img, int Reduce = 16) => Util.ColorPallette(Img, Reduce).Keys.FirstOr(new HSVColor());
 
         public static implicit operator Color(HSVColor Value) => Value.ToDrawingColor();
 
@@ -730,7 +730,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Name"></param>
         /// <returns></returns>
-        public static HSVColor RandomTransparentColor(string Name = null) => RandomColor().With(x => x.Opacity = Generate.RandomNumber(0, 100)).With(x => x.Name = Name);
+        public static HSVColor RandomTransparentColor(string Name = null) => RandomColor().With(x => x.Opacity = Util.RandomNumber(0, 100)).With(x => x.Name = Name);
 
         /// <summary>
         /// Retorna uma nova cor a partir da mistura aditiva de 2 cores
@@ -845,7 +845,7 @@ namespace InnerLibs
 
         public Bitmap CreateSolidImage(int Width, int Height) => new Bitmap(_scolor.CreateSolidImage(Width, Height));
 
-        public Bitmap CreateSolidImage(string Size = InnerLibs.Text.Empty)
+        public Bitmap CreateSolidImage(string Size = InnerLibs.Util.Empty)
         {
             var s = Size.IfBlank("100").ParseSize();
             return CreateSolidImage(s.Width, s.Height);
@@ -1114,9 +1114,9 @@ namespace InnerLibs
         public HSVColor Sepia()
         {
             var c = CreateCopy();
-            c.Red = MathExt.RoundInt(Red * 0.393d + Green * 0.769d + Blue * 0.189d);
-            c.Green = MathExt.RoundInt(Red * 0.349d + Green * 0.686d + Blue * 0.168d);
-            c.Blue = MathExt.RoundInt(Red * 0.272d + Green * 0.534d + Blue * 0.131d);
+            c.Red = Util.RoundInt(Red * 0.393d + Green * 0.769d + Blue * 0.189d);
+            c.Green = Util.RoundInt(Red * 0.349d + Green * 0.686d + Blue * 0.168d);
+            c.Blue = Util.RoundInt(Red * 0.272d + Green * 0.534d + Blue * 0.131d);
             return c;
         }
 

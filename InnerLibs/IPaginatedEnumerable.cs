@@ -4,7 +4,7 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace InnerLibs.LINQ
+namespace InnerLibs
 {
     /// <summary>
     /// Classe para criação de paginação e filtros dinâmicos para listas de classes
@@ -98,7 +98,7 @@ namespace InnerLibs.LINQ
 
         internal List<PropertyFilter<TClass, TRemap>> _filters = new List<PropertyFilter<TClass, TRemap>>();
 
-        internal ParameterExpression param = LINQExtensions.GenerateParameterExpression<TClass>();
+        internal ParameterExpression param = Util.GenerateParameterExpression<TClass>();
 
         #endregion Internal Fields
 
@@ -571,7 +571,7 @@ namespace InnerLibs.LINQ
                 GetFilterQueryString(ForceEnabled),
                 GetPaginationQueryString(PageNumber ?? this.PageNumber, IncludePageSize, IncludePaginationOffset)
             };
-            return LINQExtensions.SelectJoinString(l.Where(x => x.IsNotBlank()), "&");
+            return Util.SelectJoinString(l.Where(x => x.IsNotBlank()), "&");
         }
 
         /// <summary>
@@ -624,7 +624,7 @@ namespace InnerLibs.LINQ
             {
                 var u = new Uri(Url);
                 Url = u.GetLeftPart(UriPartial.Path);
-                qs = LINQExtensions.SelectJoinString(new[] { u.Query, qs }, "&");
+                qs = Util.SelectJoinString(new[] { u.Query, qs }, "&");
             }
 
             return Url + "?" + qs;
@@ -641,21 +641,21 @@ namespace InnerLibs.LINQ
             var parametros = UrlPattern.GetAllBetween("{", "}").Select(x => x.GetBefore(":"));
             var dic = ToDictionary(PageNumber, ForceEnabled, IncludePageSize, IncludePaginationOffset);
             UrlPattern = UrlPattern.ReplaceUrlParameters(dic);
-            string querystring = InnerLibs.Text.Empty;
+            string querystring = InnerLibs.Util.Empty;
             foreach (var q in dic)
             {
-                var v = Converter.ForceArray<string>(q.Value).ToList();
+                var v = Util.ForceArray<string>(q.Value).ToList();
                 if (v.Any())
                 {
                     if (parametros.Contains(q.Key, StringComparer.InvariantCultureIgnoreCase))
                     {
-                        UrlPattern = UrlPattern.Replace($"{{{q.Key}}}", v.FirstOrDefault().IfBlank(InnerLibs.Text.Empty));
+                        UrlPattern = UrlPattern.Replace($"{{{q.Key}}}", v.FirstOrDefault().IfBlank(InnerLibs.Util.Empty));
                         v.RemoveAt(0);
                     }
 
                     if (v.Any())
                     {
-                        querystring = new[] { querystring, v.SelectJoinString(x => q.Key + "=" + x.IfBlank(InnerLibs.Text.Empty).ToString().UrlDecode(), "&") }.Where(x => x.IsNotBlank()).SelectJoinString("&");
+                        querystring = new[] { querystring, v.SelectJoinString(x => q.Key + "=" + x.IfBlank(InnerLibs.Util.Empty).ToString().UrlDecode(), "&") }.Where(x => x.IsNotBlank()).SelectJoinString("&");
                     }
                 }
             }
@@ -686,7 +686,7 @@ namespace InnerLibs.LINQ
         /// Cria uma querystring com os filtros ativos
         /// </summary>
         /// <returns></returns>
-        public string GetFilterQueryString(bool ForceEnabled = false) => LINQExtensions.SelectJoinString(Filters.Select(x => x.CreateQueryParameter(ForceEnabled)).Where(x => x.IsNotBlank()), "&");
+        public string GetFilterQueryString(bool ForceEnabled = false) => Util.SelectJoinString(Filters.Select(x => x.CreateQueryParameter(ForceEnabled)).Where(x => x.IsNotBlank()), "&");
 
         /// <summary>
         /// Executa o Filtro e retorna os dados paginados
@@ -746,10 +746,10 @@ namespace InnerLibs.LINQ
                     l.Add($"{PaginationOffsetQueryParameter}={PaginationOffset}");
                 }
 
-                return LINQExtensions.SelectJoinString(l, "&");
+                return Util.SelectJoinString(l, "&");
             }
 
-            return InnerLibs.Text.Empty;
+            return InnerLibs.Util.Empty;
         }
 
         /// <summary>
@@ -929,7 +929,7 @@ namespace InnerLibs.LINQ
         /// <param name="Selector"></param>
         /// <param name="Descending"></param>
         /// <returns></returns>
-        public PaginationFilter<TClass, TRemap> OrderBy(string Selector, bool Descending = false) => OrderBy(Selector.IfBlank(InnerLibs.Text.Empty).SplitAny(" ", "/", ","), Descending);
+        public PaginationFilter<TClass, TRemap> OrderBy(string Selector, bool Descending = false) => OrderBy(Selector.IfBlank(InnerLibs.Util.Empty).SplitAny(" ", "/", ","), Descending);
 
         public PaginationFilter<TClass, TRemap> OrderByDescending<T>(Expression<Func<TClass, T>> Selector)
         {
@@ -948,28 +948,28 @@ namespace InnerLibs.LINQ
         /// <param name="TraillingTemplate">emplate de botoes de reticencias</param>
         /// <param name="Trailling">botao de reticencias</param>
         /// <returns></returns>
-        public string PageButtonsFromTemplate(string Template, string TraillingTemplate, string SeparatorTemplate = InnerLibs.Text.Empty, string Trailling = "...") => Template.IsNotBlank() ? TraillingTemplate.IsBlank() || Trailling.IsBlank() ? PageButtonsFromTemplate(Template, SeparatorTemplate) : LINQExtensions.SelectJoinString(CreatePaginationButtons(Trailling).Select(x =>
+        public string PageButtonsFromTemplate(string Template, string TraillingTemplate, string SeparatorTemplate = InnerLibs.Util.Empty, string Trailling = "...") => Template.IsNotBlank() ? TraillingTemplate.IsBlank() || Trailling.IsBlank() ? PageButtonsFromTemplate(Template, SeparatorTemplate) : Util.SelectJoinString(CreatePaginationButtons(Trailling).Select(x =>
         {
             if (x.IsNumber())
             {
                 return Template.Inject(new { Page = x });
             }
-            else if ((x ?? InnerLibs.Text.Empty) == (Trailling ?? InnerLibs.Text.Empty))
+            else if ((x ?? InnerLibs.Util.Empty) == (Trailling ?? InnerLibs.Util.Empty))
             {
                 return TraillingTemplate.Inject(new { Page = x, Trailling });
             }
             else
             {
-                return InnerLibs.Text.Empty;
+                return InnerLibs.Util.Empty;
             }
-        }), SeparatorTemplate.IfBlank(InnerLibs.Text.Empty)) : InnerLibs.Text.Empty;
+        }), SeparatorTemplate.IfBlank(InnerLibs.Util.Empty)) : InnerLibs.Util.Empty;
 
         /// <summary>
         /// Aplica a paginação a um template
         /// </summary>
         /// <param name="Template">Template de pagina</param>
         /// <returns></returns>
-        public string PageButtonsFromTemplate(string Template, string SeparatorTemplate = InnerLibs.Text.Empty) => Template.IsNotBlank() ? LINQExtensions.SelectJoinString(CreatePaginationButtons(InnerLibs.Text.Empty).Select(x => Template.Inject(new { Page = x })), SeparatorTemplate.IfBlank(InnerLibs.Text.Empty)) : InnerLibs.Text.Empty;
+        public string PageButtonsFromTemplate(string Template, string SeparatorTemplate = InnerLibs.Util.Empty) => Template.IsNotBlank() ? Util.SelectJoinString(CreatePaginationButtons(InnerLibs.Util.Empty).Select(x => Template.Inject(new { Page = x })), SeparatorTemplate.IfBlank(InnerLibs.Util.Empty)) : InnerLibs.Util.Empty;
 
         /// <summary>
         /// Seta a lista com os dados a serem filtrados nesse filtro
@@ -1142,7 +1142,7 @@ namespace InnerLibs.LINQ
             {
                 var t = typeof(TClass);
                 var l = t.GetProperties();
-                if (l.Any(x => (x.Name ?? InnerLibs.Text.Empty) == (K ?? InnerLibs.Text.Empty)))
+                if (l.Any(x => (x.Name ?? InnerLibs.Util.Empty) == (K ?? InnerLibs.Util.Empty)))
                 {
                     if (Collection[K].IsNotBlank() && Collection.GetValues(K).Any())
                     {
@@ -1228,7 +1228,7 @@ namespace InnerLibs.LINQ
         #endregion Public Methods
     }
 
-    public class PaginationFilter<ClassType> : PaginationFilter<ClassType, ClassType> where ClassType : class
+    public class PaginationFilter<TClass> : PaginationFilter<TClass, TClass> where TClass : class
     {
         #region Public Constructors
 
@@ -1239,22 +1239,22 @@ namespace InnerLibs.LINQ
         /// <summary>
         /// Cria uma nova instancia e seta a exclusividade de filtro
         /// </summary>
-        public PaginationFilter(Action<PaginationFilter<ClassType>> Options) : base() => Config(Options);
+        public PaginationFilter(Action<PaginationFilter<TClass>> Options) : base() => Config(Options);
 
         #endregion Public Constructors
 
         #region Public Methods
 
-        public PaginationFilter<ClassType> Config(Action<PaginationFilter<ClassType>> options) => this.With(options);
+        public PaginationFilter<TClass> Config(Action<PaginationFilter<TClass>> options) => this.With(options);
 
         #endregion Public Methods
     }
 
-    public class PropertyFilter<ClassType, RemapType> where ClassType : class
+    public class PropertyFilter<TClassFrom, TClassTo> where TClassFrom : class
     {
         #region Public Constructors
 
-        public PropertyFilter(PaginationFilter<ClassType, RemapType> LB) => PaginationFilter = LB;
+        public PropertyFilter(PaginationFilter<TClassFrom, TClassTo> LB) => PaginationFilter = LB;
 
         #endregion Public Constructors
 
@@ -1280,7 +1280,7 @@ namespace InnerLibs.LINQ
         /// Expressão binaria deste filtro, se ativo
         /// </summary>
         /// <returns></returns>
-        public BinaryExpression Filter => Enabled ? LINQExtensions.GetOperatorExpression(Member, Operator.IfBlank(InnerLibs.Text.Empty), ValidValues(), ValuesConditional) : null;
+        public BinaryExpression Filter => Enabled ? Util.GetOperatorExpression(Member, Operator.IfBlank(InnerLibs.Util.Empty), ValidValues(), ValuesConditional) : null;
 
         /// <summary>
         /// Comparara o valor do filtro com TRUE ou FALSE
@@ -1300,7 +1300,7 @@ namespace InnerLibs.LINQ
         /// <returns></returns>
         public string Operator { get; set; } = "=";
 
-        public PaginationFilter<ClassType, RemapType> PaginationFilter { get; private set; }
+        public PaginationFilter<TClassFrom, TClassTo> PaginationFilter { get; private set; }
 
         /// <summary>
         /// Parametro da expressão lambda
@@ -1334,7 +1334,7 @@ namespace InnerLibs.LINQ
         /// </summary>
         /// <param name="Values"></param>
         /// <returns></returns>
-        public PropertyFilter<ClassType, RemapType> AddValues<T>(params T?[] Values) where T : struct
+        public PropertyFilter<TClassFrom, TClassTo> AddValues<T>(params T?[] Values) where T : struct
         {
             PropertyValues = (PropertyValues ?? Array.Empty<IComparable>());
             PropertyValues = PropertyValues.Union((IEnumerable<IComparable>)(Values?.AsEnumerable() ?? Array.Empty<T?>()));
@@ -1345,7 +1345,7 @@ namespace InnerLibs.LINQ
         /// Permite que valores nulos sejam adcionados ao filtro
         /// </summary>
         /// <returns></returns>
-        public PropertyFilter<ClassType, RemapType> AllowNull()
+        public PropertyFilter<TClassFrom, TClassTo> AllowNull()
         {
             AcceptNullValues = true;
             return this;
@@ -1355,7 +1355,7 @@ namespace InnerLibs.LINQ
         /// Força uma comparação negativa para este filtro
         /// </summary>
         /// <returns></returns>
-        public PropertyFilter<ClassType, RemapType> CompareFalse()
+        public PropertyFilter<TClassFrom, TClassTo> CompareFalse()
         {
             if (CompareWith)
             {
@@ -1369,7 +1369,7 @@ namespace InnerLibs.LINQ
         /// Força uma comparação positiva para este filtro
         /// </summary>
         /// <returns></returns>
-        public PropertyFilter<ClassType, RemapType> CompareTrue()
+        public PropertyFilter<TClassFrom, TClassTo> CompareTrue()
         {
             if (CompareWith == false)
             {
@@ -1383,7 +1383,7 @@ namespace InnerLibs.LINQ
         /// Seta o operador para Contains e o Valor para este filtro
         /// </summary>
         /// <returns></returns>
-        public PaginationFilter<ClassType, RemapType> Contains<T>(T? Value) where T : struct
+        public PaginationFilter<TClassFrom, TClassTo> Contains<T>(T? Value) where T : struct
         {
             SetValue(Value);
             SetOperator("contains");
@@ -1394,7 +1394,7 @@ namespace InnerLibs.LINQ
         /// Seta o operador para Contains e os Valores para este filtro
         /// </summary>
         /// <returns></returns>
-        public PaginationFilter<ClassType, RemapType> Contains<T>(IEnumerable<T> Values) where T : IComparable
+        public PaginationFilter<TClassFrom, TClassTo> Contains<T>(IEnumerable<T> Values) where T : IComparable
         {
             SetValues(Values);
             SetOperator("contains");
@@ -1405,7 +1405,7 @@ namespace InnerLibs.LINQ
         /// Seta o operador para Contains e o Valor para este filtro
         /// </summary>
         /// <returns></returns>
-        public PaginationFilter<ClassType, RemapType> ContainsAll<T>(T? Value) where T : struct
+        public PaginationFilter<TClassFrom, TClassTo> ContainsAll<T>(T? Value) where T : struct
         {
             SetValue(Value);
             SetOperator("contains");
@@ -1417,7 +1417,7 @@ namespace InnerLibs.LINQ
         /// Seta o operador para Contains e os Valores para este filtro
         /// </summary>
         /// <returns></returns>
-        public PaginationFilter<ClassType, RemapType> ContainsAll<T>(IEnumerable<T> Values) where T : IComparable
+        public PaginationFilter<TClassFrom, TClassTo> ContainsAll<T>(IEnumerable<T> Values) where T : IComparable
         {
             SetValues(Values);
             SetOperator("contains");
@@ -1434,18 +1434,18 @@ namespace InnerLibs.LINQ
         {
             if (Enabled || ForceEnabled)
             {
-                string xx = Operator.AppendIf(QueryStringSeparator, QueryStringSeparator.IsNotBlank() && Operator.ToLowerInvariant().IsNotAny(InnerLibs.Text.Empty, "=", "==", "===")).UrlEncode();
+                string xx = Operator.AppendIf(QueryStringSeparator, QueryStringSeparator.IsNotBlank() && Operator.ToLowerInvariant().IsNotAny(InnerLibs.Util.Empty, "=", "==", "===")).UrlEncode();
                 return (OnlyValid ? ValidValues() : PropertyValues).Where(x => x != null && x.ToString().IsNotBlank()).SelectJoinString(x => $"{PropertyName}={xx}{x.ToString().UrlEncode()}");
             }
 
-            return InnerLibs.Text.Empty;
+            return InnerLibs.Util.Empty;
         }
 
         /// <summary>
         /// Seta o operador para CrossContains e o Valor para este filtro
         /// </summary>
         /// <returns></returns>
-        public PaginationFilter<ClassType, RemapType> CrossContains<T>(T? Value) where T : struct
+        public PaginationFilter<TClassFrom, TClassTo> CrossContains<T>(T? Value) where T : struct
         {
             SetValue(Value);
             SetOperator("crosscontains");
@@ -1456,7 +1456,7 @@ namespace InnerLibs.LINQ
         /// Seta o operador para CrossContains e os Valores para este filtro
         /// </summary>
         /// <returns></returns>
-        public PaginationFilter<ClassType, RemapType> CrossContains<T>(IEnumerable<T> Values) where T : IComparable
+        public PaginationFilter<TClassFrom, TClassTo> CrossContains<T>(IEnumerable<T> Values) where T : IComparable
         {
             SetValues(Values.Cast<IComparable>());
             SetOperator("crosscontains");
@@ -1467,7 +1467,7 @@ namespace InnerLibs.LINQ
         /// Seta o operador para EndsWith e o Valor para este filtro
         /// </summary>
         /// <returns></returns>
-        public PaginationFilter<ClassType, RemapType> EndsWith<T>(T? Value) where T : struct
+        public PaginationFilter<TClassFrom, TClassTo> EndsWith<T>(T? Value) where T : struct
         {
             SetValue(Value);
             SetOperator("EndsWith");
@@ -1478,7 +1478,7 @@ namespace InnerLibs.LINQ
         /// Seta o operador para EndsWith e os Valores para este filtro
         /// </summary>
         /// <returns></returns>
-        public PaginationFilter<ClassType, RemapType> EndsWith<T>(IEnumerable<T> Values) where T : IComparable
+        public PaginationFilter<TClassFrom, TClassTo> EndsWith<T>(IEnumerable<T> Values) where T : IComparable
         {
             SetValues(Values.Cast<IComparable>());
             SetOperator("EndsWith");
@@ -1489,7 +1489,7 @@ namespace InnerLibs.LINQ
         /// Seta o operador para = e o Valor para este filtro
         /// </summary>
         /// <returns></returns>
-        public PaginationFilter<ClassType, RemapType> Equal<T>(T? Value) where T : struct
+        public PaginationFilter<TClassFrom, TClassTo> Equal<T>(T? Value) where T : struct
         {
             SetValue(Value);
             SetOperator("=");
@@ -1500,7 +1500,7 @@ namespace InnerLibs.LINQ
         /// Seta o operador para = e os Valores para este filtro
         /// </summary>
         /// <returns></returns>
-        public PaginationFilter<ClassType, RemapType> Equal<T>(IEnumerable<T> Values) where T : IComparable
+        public PaginationFilter<TClassFrom, TClassTo> Equal<T>(IEnumerable<T> Values) where T : IComparable
         {
             SetValues(Values.Cast<IComparable>());
             SetOperator("=");
@@ -1511,7 +1511,7 @@ namespace InnerLibs.LINQ
         /// Seta o operador para &gt; e o Valor para este filtro
         /// </summary>
         /// <returns></returns>
-        public PaginationFilter<ClassType, RemapType> GreaterThan<T>(T? Value) where T : struct
+        public PaginationFilter<TClassFrom, TClassTo> GreaterThan<T>(T? Value) where T : struct
         {
             SetValue(Value);
             SetOperator(">");
@@ -1522,7 +1522,7 @@ namespace InnerLibs.LINQ
         /// Seta o operador para &gt; e os Valores para este filtro
         /// </summary>
         /// <returns></returns>
-        public PaginationFilter<ClassType, RemapType> GreaterThan<T>(IEnumerable<T> Values) where T : struct
+        public PaginationFilter<TClassFrom, TClassTo> GreaterThan<T>(IEnumerable<T> Values) where T : struct
         {
             SetValues(Values.Cast<IComparable>());
             SetOperator(">");
@@ -1533,7 +1533,7 @@ namespace InnerLibs.LINQ
         /// Seta o operador para &gt;= e o Valor para este filtro
         /// </summary>
         /// <returns></returns>
-        public PaginationFilter<ClassType, RemapType> GreaterThanOrEqual<T>(T? Value) where T : struct
+        public PaginationFilter<TClassFrom, TClassTo> GreaterThanOrEqual<T>(T? Value) where T : struct
         {
             SetValue(Value);
             SetOperator(">=");
@@ -1544,7 +1544,7 @@ namespace InnerLibs.LINQ
         /// Seta o operador para &gt;= e os Valores para este filtro
         /// </summary>
         /// <returns></returns>
-        public PaginationFilter<ClassType, RemapType> GreaterThanOrEqual<T>(IEnumerable<T> Values) where T : IComparable
+        public PaginationFilter<TClassFrom, TClassTo> GreaterThanOrEqual<T>(IEnumerable<T> Values) where T : IComparable
         {
             SetValues(Values.Cast<IComparable>());
             SetOperator(">=");
@@ -1555,7 +1555,7 @@ namespace InnerLibs.LINQ
         /// Impede que valores nulos sejam adcionados ao filtro
         /// </summary>
         /// <returns></returns>
-        public PropertyFilter<ClassType, RemapType> IgnoreNull()
+        public PropertyFilter<TClassFrom, TClassTo> IgnoreNull()
         {
             AcceptNullValues = false;
             return this;
@@ -1565,7 +1565,7 @@ namespace InnerLibs.LINQ
         /// Seta o operador para &lt; e o Valor para este filtro
         /// </summary>
         /// <returns></returns>
-        public PaginationFilter<ClassType, RemapType> LessThan<T>(T? Value) where T : struct
+        public PaginationFilter<TClassFrom, TClassTo> LessThan<T>(T? Value) where T : struct
         {
             SetValue(Value);
             SetOperator("<");
@@ -1576,7 +1576,7 @@ namespace InnerLibs.LINQ
         /// Seta o operador para &lt; e os Valores para este filtro
         /// </summary>
         /// <returns></returns>
-        public PaginationFilter<ClassType, RemapType> LessThan<T>(IEnumerable<T> Values) where T : IComparable
+        public PaginationFilter<TClassFrom, TClassTo> LessThan<T>(IEnumerable<T> Values) where T : IComparable
         {
             SetValues(Values.Cast<IComparable>());
             SetOperator("<");
@@ -1587,7 +1587,7 @@ namespace InnerLibs.LINQ
         /// Seta o operador para &lt;= e o Valor para este filtro
         /// </summary>
         /// <returns></returns>
-        public PaginationFilter<ClassType, RemapType> LessThanOrEqual<T>(T? Value) where T : struct
+        public PaginationFilter<TClassFrom, TClassTo> LessThanOrEqual<T>(T? Value) where T : struct
         {
             SetValue(Value);
             SetOperator("<=");
@@ -1598,7 +1598,7 @@ namespace InnerLibs.LINQ
         /// Seta o operador para &lt; e os Valores para este filtro
         /// </summary>
         /// <returns></returns>
-        public PaginationFilter<ClassType, RemapType> LessThanOrEqual<T>(IEnumerable<T> Values) where T : IComparable
+        public PaginationFilter<TClassFrom, TClassTo> LessThanOrEqual<T>(IEnumerable<T> Values) where T : IComparable
         {
             SetValues(Values.Cast<IComparable>());
             SetOperator("<=");
@@ -1609,7 +1609,7 @@ namespace InnerLibs.LINQ
         /// Nega o filtro atual
         /// </summary>
         /// <returns></returns>
-        public PropertyFilter<ClassType, RemapType> Negate()
+        public PropertyFilter<TClassFrom, TClassTo> Negate()
         {
             if (CompareWith == false)
             {
@@ -1627,7 +1627,7 @@ namespace InnerLibs.LINQ
         /// Seta o operador para != e o Valor para este filtro
         /// </summary>
         /// <returns></returns>
-        public PaginationFilter<ClassType, RemapType> NotEqual<T>(T? Value) where T : struct
+        public PaginationFilter<TClassFrom, TClassTo> NotEqual<T>(T? Value) where T : struct
         {
             SetValue(Value);
             SetOperator("<>");
@@ -1638,7 +1638,7 @@ namespace InnerLibs.LINQ
         /// Seta o operador para != e os Valores para este filtro
         /// </summary>
         /// <returns></returns>
-        public PaginationFilter<ClassType, RemapType> NotEqual<T>(IEnumerable<T> Values) where T : IComparable
+        public PaginationFilter<TClassFrom, TClassTo> NotEqual<T>(IEnumerable<T> Values) where T : IComparable
         {
             SetValues(Values.Cast<IComparable>());
             SetOperator("<>");
@@ -1650,7 +1650,7 @@ namespace InnerLibs.LINQ
         /// </summary>
         /// <param name="Enabled"></param>
         /// <returns></returns>
-        public PropertyFilter<ClassType, RemapType> SetEnabled(bool Enabled = true)
+        public PropertyFilter<TClassFrom, TClassTo> SetEnabled(bool Enabled = true)
         {
             this.Enabled = Enabled;
             return this;
@@ -1662,7 +1662,7 @@ namespace InnerLibs.LINQ
         /// </summary>
         /// <param name="PropertySelector"></param>
         /// <returns></returns>
-        public PropertyFilter<ClassType, RemapType> SetMember<T>(Expression<Func<ClassType, T>> PropertySelector, FilterConditional Conditional = FilterConditional.Or) => SetMember(LINQExtensions.SelectJoinString(PropertySelector.Body.ToString().Split(".").Skip(1), "."), Conditional);
+        public PropertyFilter<TClassFrom, TClassTo> SetMember<T>(Expression<Func<TClassFrom, T>> PropertySelector, FilterConditional Conditional = FilterConditional.Or) => SetMember(Util.SelectJoinString(PropertySelector.Body.ToString().Split(".").Skip(1), "."), Conditional);
 
         /// <summary>
         /// Sete um membro para ser utilizado neste filtro. É ignorado quando seus Values estão
@@ -1670,7 +1670,7 @@ namespace InnerLibs.LINQ
         /// </summary>
         /// <param name="PropertyName"></param>
         /// <returns></returns>
-        public PropertyFilter<ClassType, RemapType> SetMember(string PropertyName, FilterConditional Conditional = FilterConditional.Or)
+        public PropertyFilter<TClassFrom, TClassTo> SetMember(string PropertyName, FilterConditional Conditional = FilterConditional.Or)
         {
             this.Conditional = Conditional;
             Member = Parameter.PropertyExpression(PropertyName);
@@ -1682,7 +1682,7 @@ namespace InnerLibs.LINQ
         /// </summary>
         /// <param name="[Operator]"></param>
         /// <returns></returns>
-        public PropertyFilter<ClassType, RemapType> SetOperator(string Operator)
+        public PropertyFilter<TClassFrom, TClassTo> SetOperator(string Operator)
         {
             this.Operator = Operator.IfBlank("=").ToLowerInvariant();
             return this;
@@ -1693,7 +1693,7 @@ namespace InnerLibs.LINQ
         /// </summary>
         /// <param name="Value"></param>
         /// <returns></returns>
-        public PropertyFilter<ClassType, RemapType> SetValue<T>(T Value) where T : IComparable
+        public PropertyFilter<TClassFrom, TClassTo> SetValue<T>(T Value) where T : IComparable
         {
             PropertyValues = new[] { (IComparable)Value };
             return this;
@@ -1704,7 +1704,7 @@ namespace InnerLibs.LINQ
         /// </summary>
         /// <param name="Value"></param>
         /// <returns></returns>
-        public PropertyFilter<ClassType, RemapType> SetValue<T>(T? Value) where T : struct
+        public PropertyFilter<TClassFrom, TClassTo> SetValue<T>(T? Value) where T : struct
         {
             PropertyValues = Value.HasValue
                 ? (IEnumerable<IComparable>)new T[] { Value.Value }.AsEnumerable()
@@ -1717,7 +1717,7 @@ namespace InnerLibs.LINQ
         /// </summary>
         /// <param name="Values"></param>
         /// <returns></returns>
-        public PropertyFilter<ClassType, RemapType> SetValues<T>(params T[] Values) where T : IComparable
+        public PropertyFilter<TClassFrom, TClassTo> SetValues<T>(params T[] Values) where T : IComparable
         {
             PropertyValues = (IEnumerable<IComparable>)(Values?.AsEnumerable() ?? Array.Empty<T>().AsEnumerable());
             return this;
@@ -1728,7 +1728,7 @@ namespace InnerLibs.LINQ
         /// </summary>
         /// <param name="Values"></param>
         /// <returns></returns>
-        public PropertyFilter<ClassType, RemapType> SetValues<T>(IEnumerable<T> Values) where T : IComparable
+        public PropertyFilter<TClassFrom, TClassTo> SetValues<T>(IEnumerable<T> Values) where T : IComparable
         {
             PropertyValues = (IEnumerable<IComparable>)(Values ?? Array.Empty<T>());
             return this;
@@ -1738,7 +1738,7 @@ namespace InnerLibs.LINQ
         /// Seta o operador para StartsWith e o Valor para este filtro
         /// </summary>
         /// <returns></returns>
-        public PaginationFilter<ClassType, RemapType> StartsWith<T>(T? Value) where T : struct
+        public PaginationFilter<TClassFrom, TClassTo> StartsWith<T>(T? Value) where T : struct
         {
             SetValue(Value);
             SetOperator("StartsWith");
@@ -1749,7 +1749,7 @@ namespace InnerLibs.LINQ
         /// Seta o operador para StartsWith e os Valores para este filtro
         /// </summary>
         /// <returns></returns>
-        public PaginationFilter<ClassType, RemapType> StartsWith<T>(IEnumerable<T> Values) where T : IComparable
+        public PaginationFilter<TClassFrom, TClassTo> StartsWith<T>(IEnumerable<T> Values) where T : IComparable
         {
             SetValues(Values);
             SetOperator("StartsWith");

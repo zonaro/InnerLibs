@@ -144,16 +144,16 @@ namespace InnerLibs.EscDarumaCommands
         {
             var list = new List<byte>();
             var bmp = new Bitmap(image);
-            string send = InnerLibs.Text.Empty + '\u001b' + '3' + '\0';
+            string send = InnerLibs.Util.Empty + '\u001b' + '3' + '\0';
             var data = new byte[send.Length];
             for (int i = 0, loopTo = send.Length - 1; i <= loopTo; i++)
-                data[i] = Text.ToAscByte(send[i]);
+                data[i] = Util.ToAscByte(send[i]);
             list.AddRange(data);
-            data[0] = Text.ToAscByte('\0');
-            data[1] = Text.ToAscByte('\0');
-            data[2] = Text.ToAscByte('\0');
+            data[0] = Util.ToAscByte('\0');
+            data[1] = Util.ToAscByte('\0');
+            data[2] = Util.ToAscByte('\0');
             var escBmp = new[] { (byte)0x1B, (byte)0x2A, (byte)0x0, (byte)0x0, (byte)0x0 };
-            escBmp[2] = Text.ToAscByte('!');
+            escBmp[2] = Util.ToAscByte('!');
             escBmp[3] = (byte)(bmp.Width % 256);
             escBmp[4] = (byte)Math.Round(bmp.Width / 256d);
             for (double i = 0d, loopTo1 = bmp.Height / 24d + 1d - 1d; i <= loopTo1; i++)
@@ -176,9 +176,9 @@ namespace InnerLibs.EscDarumaCommands
                     }
 
                     list.AddRange(data);
-                    data[0] = Text.ToAscByte('\0');
-                    data[1] = Text.ToAscByte('\0');
-                    data[2] = Text.ToAscByte('\0');
+                    data[0] = Util.ToAscByte('\0');
+                    data[1] = Util.ToAscByte('\0');
+                    data[2] = Util.ToAscByte('\0');
                 }
             }
 

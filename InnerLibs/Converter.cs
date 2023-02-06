@@ -1,16 +1,14 @@
-﻿using InnerLibs.LINQ;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 
 namespace InnerLibs
 {
-    public static class Converter
+    public static partial class Util
     {
         #region Public Methods
 
@@ -106,18 +104,18 @@ namespace InnerLibs
 
             if (ToType == null)
             {
-                Misc.WriteDebug($"ToType is null, using {typeof(TFrom).Name}");
+                Util.WriteDebug($"ToType is null, using {typeof(TFrom).Name}");
                 return Value;
             }
 
-            Misc.WriteDebug($"Try changing from {typeof(TFrom).Name} to {ToType.Name}");
+            Util.WriteDebug($"Try changing from {typeof(TFrom).Name} to {ToType.Name}");
 
             try
             {
                 var met = Value?.GetType().GetNullableTypeOf().GetMethods().FirstOrDefault(x => x.Name == $"To{ToType.Name}" && x.ReturnType == ToType && x.IsPublic && x.GetParameters().Any() == false);
                 if (met != null)
                 {
-                    Misc.WriteDebug($"Trying internal method {met.Name}");
+                    Util.WriteDebug($"Trying internal method {met.Name}");
                     return met.Invoke(Value, Array.Empty<object>());
                 }
             }
@@ -128,10 +126,10 @@ namespace InnerLibs
 
             try
             {
-                ToType = Misc.GetNullableTypeOf(ToType);
+                ToType = Util.GetNullableTypeOf(ToType);
                 if (Value == null)
                 {
-                    Misc.WriteDebug($"Value is null");
+                    Util.WriteDebug($"Value is null");
                     if (!ToType.IsValueType() || ToType.IsNullableType())
                     {
                         return null;
@@ -144,7 +142,7 @@ namespace InnerLibs
 
                 if (ToType == typeof(Guid))
                 {
-                    Misc.WriteDebug($"Parsing Guid");
+                    Util.WriteDebug($"Parsing Guid");
                     return Guid.Parse(Value.ToString());
                 }
 
@@ -160,19 +158,19 @@ namespace InnerLibs
 
                             if (Name == entryName || Name == entryValue)
                             {
-                                Misc.WriteDebug($"{ToType.Name} value ({Name}) found ({entryName})");
+                                Util.WriteDebug($"{ToType.Name} value ({Name}) found ({entryName})");
                                 return Convert.ChangeType(x, ToType);
                             }
                         }
 
-                        Misc.WriteDebug($"{ToType.Name} value ({Name}) not found");
+                        Util.WriteDebug($"{ToType.Name} value ({Name}) not found");
                         return Activator.CreateInstance(ToType);
                     }
                 }
 
                 if (ToType.IsValueType())
                 {
-                        Misc.WriteDebug($"{ToType.Name} is value type");
+                    Util.WriteDebug($"{ToType.Name} is value type");
                     var Converter = TypeDescriptor.GetConverter(ToType);
                     if (Converter.CanConvertFrom(typeof(TFrom)))
                     {
@@ -197,8 +195,8 @@ namespace InnerLibs
             }
             catch (Exception ex)
             {
-                Misc.WriteDebug(ex.ToFullExceptionString(), "Error on change type");
-                Misc.WriteDebug("Returning null");
+                Util.WriteDebug(ex.ToFullExceptionString(), "Error on change type");
+                Util.WriteDebug("Returning null");
                 return null;
             }
         }
@@ -248,10 +246,10 @@ namespace InnerLibs
                 {
                     k.Key.PropertyNamesFor();
                     string propname1 = k.Key.Trim().Replace(" ", "_").Replace("-", "_").Replace("~", "_");
-                    string propname3 = k.Key.Trim().Replace(" ", InnerLibs.Text.Empty).Replace("-", InnerLibs.Text.Empty).Replace("~", InnerLibs.Text.Empty);
+                    string propname3 = k.Key.Trim().Replace(" ", InnerLibs.Util.Empty).Replace("-", InnerLibs.Util.Empty).Replace("~", InnerLibs.Util.Empty);
                     string propname2 = propname1.RemoveAccents();
                     string propname4 = propname3.RemoveAccents();
-                    var prop = Misc.NullCoalesce(tipo.GetProperty(propname1), tipo.GetProperty(propname2), tipo.GetProperty(propname3), tipo.GetProperty(propname4));
+                    var prop = Util.NullCoalesce(tipo.GetProperty(propname1), tipo.GetProperty(propname2), tipo.GetProperty(propname3), tipo.GetProperty(propname4));
                     if (prop != null)
                     {
                         if (prop.CanWrite)
@@ -268,7 +266,7 @@ namespace InnerLibs
                     }
                     else
                     {
-                        var fiif = Misc.NullCoalesce(tipo.GetField(propname1), tipo.GetField(propname2), tipo.GetField(propname3), tipo.GetField(propname4));
+                        var fiif = Util.NullCoalesce(tipo.GetField(propname1), tipo.GetField(propname2), tipo.GetField(propname3), tipo.GetField(propname4));
                         if (fiif != null)
                         {
                             if (k.Value.GetType() == typeof(DBNull))
@@ -308,15 +306,15 @@ namespace InnerLibs
             Type = Type ?? typeof(object);
             if (Obj != null)
             {
-                if (Verify.IsArray(Obj))
+                if (Util.IsArray(Obj))
                 {
                     var aobj = ((Array)Obj).Cast<object>().ToArray();
-                    return Converter.ChangeArrayType(aobj, Type).ToArray();
+                    return Util.ChangeArrayType(aobj, Type).ToArray();
                 }
                 else if (!Obj.IsTypeOf<string>() && Obj.IsEnumerable())
                 {
                     var aobj = (IEnumerable<object>)Obj;
-                    return Converter.ChangeIEnumerableType(aobj, Type).ToArray();
+                    return Util.ChangeIEnumerableType(aobj, Type).ToArray();
                 }
                 else
                 {
@@ -370,7 +368,7 @@ namespace InnerLibs
                             var lista = new List<object>();
 
                             // chave do resultado é um array?
-                            if (Verify.IsArray(result[key]))
+                            if (Util.IsArray(result[key]))
                             {
                                 lista.AddRange((IEnumerable<object>)result[key]);
                             }
@@ -379,7 +377,7 @@ namespace InnerLibs
                                 lista.Add(result[key]);
                             }
                             // chave do dicionario é um array?
-                            if (Verify.IsArray(dic[key]))
+                            if (Util.IsArray(dic[key]))
                             {
                                 lista.AddRange((IEnumerable<object>)dic[key]);
                             }
@@ -401,7 +399,7 @@ namespace InnerLibs
                                 }
                             }
                         }
-                        else if (dic[key].GetType() != typeof(string) && (Verify.IsArray(dic[key]) || dic[key].IsList()))
+                        else if (dic[key].GetType() != typeof(string) && (Util.IsArray(dic[key]) || dic[key].IsList()))
                         {
                             result.Add(key, dic[key].ChangeType<object[]>());
                         }
@@ -563,7 +561,7 @@ namespace InnerLibs
                     if (result.ContainsKey(key))
                     {
                         var l = new List<object>();
-                        if (Verify.IsArray(result[key]))
+                        if (Util.IsArray(result[key]))
                         {
                             foreach (var v in (IEnumerable)result[key])
                             {
@@ -575,7 +573,7 @@ namespace InnerLibs
                                             break;
                                         }
 
-                                    case object _ when Verify.IsDate(v):
+                                    case object _ when Util.IsDate(v):
                                         {
                                             l.Add(Convert.ToDateTime(v));
                                             break;
@@ -599,7 +597,7 @@ namespace InnerLibs
                                         break;
                                     }
 
-                                case object _ when Verify.IsDate(result[key]):
+                                case object _ when Util.IsDate(result[key]):
                                     {
                                         l.Add(Convert.ToDateTime(result[key]));
                                         break;

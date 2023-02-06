@@ -1,10 +1,9 @@
-﻿using InnerLibs.LINQ;
-using System;
+﻿using System;
 using System.IO;
 
-namespace InnerLibs.FontAwesome
+namespace InnerLibs
 {
-    public static class FontAwesomeExtensions
+    public static partial class Util
     {
         #region Public Methods
 
@@ -13,8 +12,8 @@ namespace InnerLibs.FontAwesome
         /// </summary>
         /// <param name="Extension">Arquivo</param>
         /// <returns></returns>
-        public static string GetIconByFileExtension(this string Extension) => GetIconByFileExtension(new[] { Extension });
-        public static string GetIconByFileExtension(this string[] Extensions)
+        public static string GetFontAwesomeIconByFileExtension(this string Extension) => GetFontAwesomeIconByFileExtension(new[] { Extension });
+        public static string GetFontAwesomeIconByFileExtension(this string[] Extensions)
         {
             foreach (var Extension in Extensions ?? Array.Empty<string>())
                 if (Extension.IsNotBlank())
@@ -254,7 +253,7 @@ namespace InnerLibs.FontAwesome
             }
             else
             {
-                return GetIconByFileExtension(File?.Extension);
+                return GetFontAwesomeIconByFileExtension(File?.Extension);
             }
         }
 
@@ -263,7 +262,7 @@ namespace InnerLibs.FontAwesome
         /// </summary>
         /// <param name="MIME">MIME T do Arquivo</param>
         /// <returns></returns>
-        public static string GetIconByFileType(this FileType MIME) => GetIconByFileExtension(MIME?.Extensions.ToArray() ?? Array.Empty<string>());
+        public static string GetIconByFileType(this FileType MIME) => GetFontAwesomeIconByFileExtension(MIME?.Extensions.ToArray() ?? Array.Empty<string>());
 
         #endregion Public Methods
     }

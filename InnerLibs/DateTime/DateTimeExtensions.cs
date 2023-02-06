@@ -5,7 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace InnerLibs.TimeMachine
+namespace InnerLibs
 {
     /// <summary>
     /// Static class containing <see cref="DateTime"/> extension methods.
@@ -260,7 +260,7 @@ namespace InnerLibs.TimeMachine
         /// <returns></returns>
         public static decimal CalculateTimelinePercent(this DateTime MidDate, DateTime StartDate, DateTime EndDate)
         {
-            Misc.FixOrder(ref StartDate, ref EndDate);
+            Util.FixOrder(ref StartDate, ref EndDate);
             if (MidDate < StartDate)
             {
                 return 0m;
@@ -1035,13 +1035,13 @@ namespace InnerLibs.TimeMachine
         /// <param name="Date"></param>
         /// <param name="TimeBegin"></param>
         /// <param name="TimeEnd"></param>
-        /// <remarks><inheritdoc cref="Misc.IsBetween(IComparable, IComparable, IComparable)"/></remarks>
+        /// <remarks><inheritdoc cref="Util.IsBetween(IComparable, IComparable, IComparable)"/></remarks>
         /// <returns></returns>
         public static bool IsTimeBetween(this DateTime Date, TimeSpan TimeBegin, TimeSpan TimeEnd)
         {
             TimeBegin = TimeBegin.TimePart();
             TimeEnd = TimeEnd.TimePart();
-            Misc.FixOrder(ref TimeBegin, ref TimeEnd);
+            Util.FixOrder(ref TimeBegin, ref TimeEnd);
             return Date.TimeOfDay.IsBetween(TimeBegin, TimeEnd);
         }
 
@@ -1333,7 +1333,7 @@ namespace InnerLibs.TimeMachine
         public static DateRange PeriodRange(this DateTime StartDate, DateTime? EndDate, string Group, DayOfWeek FirstDayOfWeek)
         {
             var end = EndDate ?? StartDate;
-            (StartDate, EndDate) = Misc.FixOrder(ref StartDate, ref end);
+            (StartDate, EndDate) = Util.FixOrder(ref StartDate, ref end);
             switch (Group.ToLowerInvariant().RemoveAccents())
             {
                 case "month":
@@ -1898,7 +1898,7 @@ namespace InnerLibs.TimeMachine
 
         public string Format(DateTime StartDate, DateTime EndDate, string Group, string format, bool simplify = false)
         {
-            Misc.FixOrder(ref StartDate, ref EndDate);
+            Util.FixOrder(ref StartDate, ref EndDate);
             var labels = new string[] { Format(StartDate, Group), Format(EndDate, Group) };
             if (simplify) { labels = labels.ReduceToDifference().DefaultIfEmpty(Group).ToArray(); }
             var oo = new { start = labels.FirstOrDefault(), end = labels.LastOrDefault() };

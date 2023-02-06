@@ -1,8 +1,6 @@
-﻿using InnerLibs.LINQ;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -30,6 +28,7 @@ namespace InnerLibs.Online
     /// <typeparam name="TUser">Tipo da Classe do usuário</typeparam>
     /// <typeparam name="TID">Tipo do ID do usuário</typeparam>
 
+    [Serializable]
     public class OnlineList<TUser, TID> : Dictionary<TID, OnlineUser<TUser, TID>>
         where TUser : class
         where TID : struct
@@ -139,9 +138,9 @@ namespace InnerLibs.Online
         /// Função que será executada quando ocorrer uma entrada no log
         /// </summary>
         /// <returns></returns>
-        public Action<UserLogEntry<TUser, TID>> OnCreateLog { get; set; } = x => Misc.WriteDebug("Log entry created for " + x.GetUser().ID.ToString());
+        public Action<UserLogEntry<TUser, TID>> OnCreateLog { get; set; } = x => Util.WriteDebug("Log entry created for " + x.GetUser().ID.ToString());
 
-        public Action<OnlineUser<TUser, TID>> OnUserOnlineChanged { get; set; } = x => Misc.WriteDebug("User Updated -> " + x.ID.ToString());
+        public Action<OnlineUser<TUser, TID>> OnUserOnlineChanged { get; set; } = x => Util.WriteDebug("User Updated -> " + x.ID.ToString());
 
         /// <summary>
         /// Tolerancia que o servidor considera um usuário online ou na mesma atividade
@@ -668,7 +667,7 @@ namespace InnerLibs.Online
         /// Id desta mensagem
         /// </summary>
         /// <returns></returns>
-        public string ID => new[] { "F[", FromUserID.ToString(), "]T[", ToUserID.ToString(), "]@", (object)SentDate.Ticks }.SelectJoinString(InnerLibs.Text.Empty);
+        public string ID => new[] { "F[", FromUserID.ToString(), "]T[", ToUserID.ToString(), "]@", (object)SentDate.Ticks }.SelectJoinString(InnerLibs.Util.Empty);
 
         /// <summary>
         /// Mensagem
@@ -849,7 +848,7 @@ namespace InnerLibs.Online
             if (User != null && Message.IsNotBlank())
             {
                 DateAndTime = DateAndTime ?? DateTime.Now;
-                if ((OnlineList[User].LastActivity ?? InnerLibs.Text.Empty) == (Message ?? InnerLibs.Text.Empty))
+                if ((OnlineList[User].LastActivity ?? InnerLibs.Util.Empty) == (Message ?? InnerLibs.Util.Empty))
                 {
                     var lo = OnlineList[User].LastOnline; // nao cria log para locais repedidos dentro do tempo de N minutos
                     if (lo.HasValue && lo.Value.Add(OnlineList.ToleranceTime) >= DateAndTime == true)
@@ -915,7 +914,7 @@ namespace InnerLibs.Online
         /// ID desta entrada
         /// </summary>
         /// <returns></returns>
-        public string ID => new string[] { GetUser().OnlineList.Log.IndexOf(this).ToString(), "-", GetUser().ID.ToString() }.SelectJoinString(InnerLibs.Text.Empty);
+        public string ID => new string[] { GetUser().OnlineList.Log.IndexOf(this).ToString(), "-", GetUser().ID.ToString() }.SelectJoinString(InnerLibs.Util.Empty);
 
         /// <summary>
         /// Informações adicionais

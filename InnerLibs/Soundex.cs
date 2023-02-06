@@ -156,7 +156,7 @@ namespace InnerLibs
         /// <returns>TRUE se possuirem o mesmo fonema</returns>
         public static bool SoundsLike(this string FirstText, string SecondText)
         {
-            return (FirstText.SoundEx() ?? InnerLibs.Text.Empty) == (SecondText.SoundEx() ?? InnerLibs.Text.Empty);
+            return (FirstText.SoundEx() ?? InnerLibs.Util.Empty) == (SecondText.SoundEx() ?? InnerLibs.Util.Empty);
         }
 
         #endregion Public Methods
@@ -194,7 +194,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Word">Palavra para comparar</param>
         /// <returns></returns>
-        public bool this[string Word] => (new Phonetic(Word).SoundExCode ?? InnerLibs.Text.Empty) == (SoundExCode ?? InnerLibs.Text.Empty) | (Word ?? InnerLibs.Text.Empty) == (this.Word ?? InnerLibs.Text.Empty);
+        public bool this[string Word] => (new Phonetic(Word).SoundExCode ?? InnerLibs.Util.Empty) == (SoundExCode ?? InnerLibs.Util.Empty) | (Word ?? InnerLibs.Util.Empty) == (this.Word ?? InnerLibs.Util.Empty);
 
         #endregion Public Indexers
 
@@ -268,7 +268,7 @@ namespace InnerLibs
                 text = text.Replace("ST", "T");
                 text = text.Replace("W", "TV");
                 text = text.Replace("L", "R");
-                text = text.Replace("H", InnerLibs.Text.Empty);
+                text = text.Replace("H", InnerLibs.Util.Empty);
                 var sb = new StringBuilder(text);
                 if (text.IsNotBlank())
                 {
@@ -290,7 +290,7 @@ namespace InnerLibs
                         }
                     }
 
-                    string frasesaida = InnerLibs.Text.Empty;
+                    string frasesaida = InnerLibs.Util.Empty;
                     try
                     {
                         frasesaida += Convert.ToString(sb[0]);
@@ -311,7 +311,7 @@ namespace InnerLibs
                 }
                 else
                 {
-                    return InnerLibs.Text.Empty;
+                    return InnerLibs.Util.Empty;
                 }
             }
         }

@@ -1,4 +1,4 @@
-﻿namespace InnerLibs.TimeMachine
+﻿namespace InnerLibs
 {
     public enum CalendarFormat
     {

@@ -1,4 +1,4 @@
-﻿using InnerLibs.LINQ;
+﻿
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -77,7 +77,7 @@ namespace InnerLibs.Mail
         public static SentStatus QuickSend(string Email, string Password, string Recipient, string Subject, string Message, Dictionary<string, object> TemplateData = null) => QuickSend<Dictionary<string, object>>(Email, Password, Recipient, Subject, Message, TemplateData);
 
         /// <inheritdoc cref="QuickSend"/>
-        public static SentStatus QuickSend<T>(string Email, string Password, string Recipient, string Subject, string Message, T TemplateData) where T : class => new FluentMailMessage<T>().WithQuickConfig(Email, Password).AddRecipient(Recipient, TemplateData).WithSubject(Subject).WithMessage(Message).OnError((m, a, ex) => Misc.WriteDebug(ex.ToFullExceptionString())).SendAndDispose();
+        public static SentStatus QuickSend<T>(string Email, string Password, string Recipient, string Subject, string Message, T TemplateData) where T : class => new FluentMailMessage<T>().WithQuickConfig(Email, Password).AddRecipient(Recipient, TemplateData).WithSubject(Subject).WithMessage(Message).OnError((m, a, ex) => Util.WriteDebug(ex.ToFullExceptionString())).SendAndDispose();
 
         /// <summary>
         /// Cria e dispara rapidamente uma <see cref="FluentMailMessage"/>
@@ -94,7 +94,7 @@ namespace InnerLibs.Mail
         public static SentStatus QuickSend(string Email, string Password, string SmtpHost, int SmtpPort, bool UseSSL, string Recipient, string Subject, string Message, Dictionary<string, object> TemplateData = null) => QuickSend<Dictionary<string, object>>(Email, Password, SmtpHost, SmtpPort, UseSSL, Recipient, Subject, Message, TemplateData);
 
         /// <inheritdoc cref="QuickSend"/>
-        public static SentStatus QuickSend<T>(string Email, string Password, string SmtpHost, int SmtpPort, bool UseSSL, string Recipient, string Subject, string Message, T TemplateData) where T : class => new FluentMailMessage<T>().WithSmtp(SmtpHost, SmtpPort, UseSSL).WithCredentials(Email, Password).AddRecipient(Recipient, TemplateData).WithSubject(Subject).WithMessage(Message).OnError((m, a, ex) => Misc.WriteDebug(ex.ToFullExceptionString())).SendAndDispose();
+        public static SentStatus QuickSend<T>(string Email, string Password, string SmtpHost, int SmtpPort, bool UseSSL, string Recipient, string Subject, string Message, T TemplateData) where T : class => new FluentMailMessage<T>().WithSmtp(SmtpHost, SmtpPort, UseSSL).WithCredentials(Email, Password).AddRecipient(Recipient, TemplateData).WithSubject(Subject).WithMessage(Message).OnError((m, a, ex) => Util.WriteDebug(ex.ToFullExceptionString())).SendAndDispose();
 
         #endregion Public Methods
     }
@@ -423,8 +423,8 @@ namespace InnerLibs.Mail
                     {
                         var msgIndiv = new FluentMailMessage<T>();
 
-                        string msg = Body.IfBlank(Text.Empty);
-                        string subj = Subject.IfBlank(Text.Empty);
+                        string msg = Body.IfBlank(Util.Empty);
+                        string subj = Subject.IfBlank(Util.Empty);
 
                         if (item is TemplateMailAddress<T> templateMail)
                         {
@@ -591,7 +591,7 @@ namespace InnerLibs.Mail
         /// </summary>
         /// <param name="TemplateOrFilePathOrUrl"></param>
         /// <returns></returns>
-        public FluentMailMessage<T> UseTemplate(string TemplateOrFilePathOrUrl) => UseTemplate(TemplateOrFilePathOrUrl, Text.Empty);
+        public FluentMailMessage<T> UseTemplate(string TemplateOrFilePathOrUrl) => UseTemplate(TemplateOrFilePathOrUrl, Util.Empty);
 
         /// <summary>
         /// Utiliza um template para o corpo da mensagem
@@ -603,22 +603,22 @@ namespace InnerLibs.Mail
         /// <summary>
         /// Utiliza um template para o corpo da mensagem
         /// </summary>
-        public FluentMailMessage<T> UseTemplate(HtmlTag Template, string MessageTemplate) => UseTemplate(Template?.OuterHtml ?? Text.Empty, new { BodyText = MessageTemplate }).With(x => x.IsBodyHtml = true);
+        public FluentMailMessage<T> UseTemplate(HtmlTag Template, string MessageTemplate) => UseTemplate(Template?.OuterHtml ?? Util.Empty, new { BodyText = MessageTemplate }).With(x => x.IsBodyHtml = true);
 
         /// <summary>
         /// Utiliza um template para o corpo da mensagem
         /// </summary>
-        public FluentMailMessage<T> UseTemplate(HtmlTag Template) => UseTemplate(Template?.OuterHtml ?? Text.Empty, Text.Empty).With(x => x.IsBodyHtml = true);
+        public FluentMailMessage<T> UseTemplate(HtmlTag Template) => UseTemplate(Template?.OuterHtml ?? Util.Empty, Util.Empty).With(x => x.IsBodyHtml = true);
 
         /// <summary>
         /// Utiliza um template para o corpo da mensagem
         /// </summary>
-        public FluentMailMessage<T> UseTemplate<TMessage>(HtmlTag Template, TMessage MessageTemplate) => UseTemplate(Template?.OuterHtml ?? Text.Empty, MessageTemplate).With(x => x.IsBodyHtml = true);
+        public FluentMailMessage<T> UseTemplate<TMessage>(HtmlTag Template, TMessage MessageTemplate) => UseTemplate(Template?.OuterHtml ?? Util.Empty, MessageTemplate).With(x => x.IsBodyHtml = true);
 
         /// <summary>
         /// Utiliza um template para o corpo da mensagem
         /// </summary>
-        public FluentMailMessage<T> UseTemplate(FileInfo Template) => UseTemplate(Template?.FullName ?? Text.Empty, Text.Empty);
+        public FluentMailMessage<T> UseTemplate(FileInfo Template) => UseTemplate(Template?.FullName ?? Util.Empty, Util.Empty);
 
         /// <summary>
         /// Utiliza um template para o corpo da mensagem
@@ -628,22 +628,22 @@ namespace InnerLibs.Mail
         /// <summary>
         /// Utiliza um template para o corpo da mensagem
         /// </summary>
-        public FluentMailMessage<T> UseTemplate<TMessage>(FileInfo Template, TMessage MessageTemplate) => UseTemplate(Template?.FullName ?? Text.Empty, MessageTemplate);
+        public FluentMailMessage<T> UseTemplate<TMessage>(FileInfo Template, TMessage MessageTemplate) => UseTemplate(Template?.FullName ?? Util.Empty, MessageTemplate);
 
         /// <summary>
         /// Utiliza um template para o corpo da mensagem
         /// </summary>
-        public FluentMailMessage<T> UseTemplate(DirectoryInfo TemplateDirectory, string TemplateFileName) => UseTemplate(Path.Combine(TemplateDirectory?.FullName ?? Text.Empty, TemplateFileName ?? Text.Empty), Text.Empty);
+        public FluentMailMessage<T> UseTemplate(DirectoryInfo TemplateDirectory, string TemplateFileName) => UseTemplate(Path.Combine(TemplateDirectory?.FullName ?? Util.Empty, TemplateFileName ?? Util.Empty), Util.Empty);
 
         /// <summary>
         /// Utiliza um template para o corpo da mensagem
         /// </summary>
-        public FluentMailMessage<T> UseTemplate(DirectoryInfo TemplateDirectory, string TemplateFileName, string MessageTemplate) => UseTemplate(Path.Combine(TemplateDirectory?.FullName ?? Text.Empty, TemplateFileName ?? Text.Empty), MessageTemplate);
+        public FluentMailMessage<T> UseTemplate(DirectoryInfo TemplateDirectory, string TemplateFileName, string MessageTemplate) => UseTemplate(Path.Combine(TemplateDirectory?.FullName ?? Util.Empty, TemplateFileName ?? Util.Empty), MessageTemplate);
 
         /// <summary>
         /// Utiliza um template para o corpo da mensagem
         /// </summary>
-        public FluentMailMessage<T> UseTemplate<TMessage>(DirectoryInfo TemplateDirectory, string TemplateFileName, TMessage MessageTemplate) => UseTemplate(Path.Combine(TemplateDirectory?.FullName ?? Text.Empty, TemplateFileName ?? Text.Empty), MessageTemplate);
+        public FluentMailMessage<T> UseTemplate<TMessage>(DirectoryInfo TemplateDirectory, string TemplateFileName, TMessage MessageTemplate) => UseTemplate(Path.Combine(TemplateDirectory?.FullName ?? Util.Empty, TemplateFileName ?? Util.Empty), MessageTemplate);
 
         /// <summary>
         /// Utiliza um template para o corpo da mensagem
@@ -659,7 +659,7 @@ namespace InnerLibs.Mail
 
             if (TemplateOrFilePathOrUrl.IsURL())
             {
-                TemplateOrFilePathOrUrl = WebExtensions.DownloadString(TemplateOrFilePathOrUrl);
+                TemplateOrFilePathOrUrl = Util.DownloadString(TemplateOrFilePathOrUrl);
             }
 
             if (MessageTemplate != null)
@@ -780,7 +780,7 @@ namespace InnerLibs.Mail
                     break;
             }
 
-            Misc.WriteDebug($"Using {Smtp.Host}");
+            Util.WriteDebug($"Using {Smtp.Host}");
 
             WithCredentials(Email, Password);
 
@@ -928,7 +928,7 @@ namespace InnerLibs.Mail
 
                             if (p.Value is DirectoryInfo d)
                             {
-                                Misc.WriteDebug($"Searching files into {d.FullName}");
+                                Util.WriteDebug($"Searching files into {d.FullName}");
 
                                 foreach (var ff in d.GetFiles("*", SearchOption.AllDirectories))
                                 {
@@ -960,7 +960,7 @@ namespace InnerLibs.Mail
 
                                     if (oo is DirectoryInfo d2)
                                     {
-                                        Misc.WriteDebug($"Searching files into {d2.FullName}");
+                                        Util.WriteDebug($"Searching files into {d2.FullName}");
                                         foreach (var ff in d2.GetFiles("*", SearchOption.AllDirectories))
                                         {
                                             var af = ff.ToAttachment();

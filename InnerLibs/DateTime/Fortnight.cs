@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
 
-namespace InnerLibs.TimeMachine
+namespace InnerLibs
 {
     public class Fortnight : DateRange
     {
@@ -122,7 +122,7 @@ namespace InnerLibs.TimeMachine
         public string FormatName(string Format = null, CultureInfo Culture = null)
         {
             Culture = Culture ?? CultureInfo.CurrentCulture;
-            Format = Format.IfBlank(TimeMachine.Fortnight.Format);
+            Format = Format.IfBlank(InnerLibs.Fortnight.Format);
 
             int dia_inicio = StartDate.Day;
             int dia_fim = EndDate.Day;

@@ -1,9 +1,7 @@
-﻿using InnerLibs.LINQ;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -23,7 +21,7 @@ namespace InnerLibs.QuestionTests
 
         //}
 
-        public static IEnumerable<QuestionTest> Rank(this IEnumerable<QuestionTest> Tests) => LINQExtensions.Rank(Tests, x => x.FinalNote, x => x.Rank);
+        public static IEnumerable<QuestionTest> Rank(this IEnumerable<QuestionTest> Tests) => Util.Rank(Tests, x => x.FinalNote, x => x.Rank);
 
         public static TQuestion SetWeight<TQuestion>(this TQuestion Question, decimal Weight) where TQuestion : Question
         {
@@ -163,7 +161,7 @@ namespace InnerLibs.QuestionTests
             base.OnCollectionChanged(e);
             if (e?.Action == NotifyCollectionChangedAction.Add)
             {
-                Misc.WriteDebug("Alternative Added");
+                Util.WriteDebug("Alternative Added");
                 foreach (var ni in e.NewItems)
                 {
                     Alternative i = (Alternative)ni;
@@ -261,8 +259,8 @@ namespace InnerLibs.QuestionTests
                 var num2 = 0;
                 while (num1 == num2)
                 {
-                    num1 = Generate.RandomNumber(0, Alternatives.Count - 1);
-                    num2 = Generate.RandomNumber(0, Alternatives.Count - 1);
+                    num1 = Util.RandomNumber(0, Alternatives.Count - 1);
+                    num2 = Util.RandomNumber(0, Alternatives.Count - 1);
                 }
 
                 this.Alternatives.Move(num1, num2);
@@ -377,7 +375,7 @@ namespace InnerLibs.QuestionTests
         public override decimal Hits
         {
             get => Alternatives.Count > 0 ? Alternatives.Count(x => x.IsCorrect) * Weight / Alternatives.Count : 0;
-            set => Misc.WriteDebug($"Can't set hits on {nameof(MultipleAlternativeQuestion)}");
+            set => Util.WriteDebug($"Can't set hits on {nameof(MultipleAlternativeQuestion)}");
         }
 
         /// <summary>
@@ -605,7 +603,7 @@ namespace InnerLibs.QuestionTests
 
         internal Question _question;
 
-        internal string _text = InnerLibs.Text.Empty;
+        internal string _text = InnerLibs.Util.Empty;
 
         #endregion Internal Fields
 
@@ -661,7 +659,7 @@ namespace InnerLibs.QuestionTests
     {
         #region Private Fields
 
-        private string _title = Text.Empty;
+        private string _title = Util.Empty;
 
         private Dictionary<string, object> personalInfo = new Dictionary<string, object>();
 
@@ -806,7 +804,7 @@ namespace InnerLibs.QuestionTests
             {
                 case NotifyCollectionChangedAction.Add:
                     {
-                        Misc.WriteDebug("Question Added");
+                        Util.WriteDebug("Question Added");
                         foreach (var ni in e.NewItems)
                         {
                             Question q = (Question)ni;
@@ -818,7 +816,7 @@ namespace InnerLibs.QuestionTests
 
                 case NotifyCollectionChangedAction.Remove:
                     {
-                        Misc.WriteDebug("Question Removed");
+                        Util.WriteDebug("Question Removed");
                         foreach (var ni in e.OldItems)
                         {
                             Question q = (Question)ni;
@@ -830,7 +828,7 @@ namespace InnerLibs.QuestionTests
 
                 case NotifyCollectionChangedAction.Replace:
                     {
-                        Misc.WriteDebug("Question Replaced");
+                        Util.WriteDebug("Question Replaced");
                         foreach (var ni in e.NewItems)
                         {
                             Question q = (Question)ni;
@@ -949,7 +947,7 @@ namespace InnerLibs.QuestionTests
         {
             var q = new NumericQuestion(this);
             q.Statement.Text = Statement;
-            Misc.FixOrder(ref MinValue, ref MaxValue);
+            Util.FixOrder(ref MinValue, ref MaxValue);
             q.MinValue = MinValue;
             q.MaxValue = MaxValue;
             this.Add(q);
@@ -1069,8 +1067,8 @@ namespace InnerLibs.QuestionTests
                 var num2 = 0;
                 while (num1 == num2)
                 {
-                    num1 = Generate.RandomNumber(0, Count - 1);
-                    num2 = Generate.RandomNumber(0, Count - 1);
+                    num1 = Util.RandomNumber(0, Count - 1);
+                    num2 = Util.RandomNumber(0, Count - 1);
                 }
 
                 this.Move(num1, num2);
@@ -1164,7 +1162,7 @@ namespace InnerLibs.QuestionTests
             return form;
         }
 
-        public override string ToString() => ToHTML()?.OuterHtml ?? Text.Empty;
+        public override string ToString() => ToHTML()?.OuterHtml ?? Util.Empty;
     }
 
     /// <summary>
@@ -1263,7 +1261,7 @@ namespace InnerLibs.QuestionTests
         /// Legenda da Imagem
         /// </summary>
         /// <returns></returns>
-        public string Subtitle { get; set; } = Text.Empty;
+        public string Subtitle { get; set; } = Util.Empty;
 
         [IgnoreDataMember]
 
@@ -1298,7 +1296,7 @@ namespace InnerLibs.QuestionTests
 
         #region Public Methods
 
-        public StatementImages Add(Image Image, string Subtitle = Text.Empty)
+        public StatementImages Add(Image Image, string Subtitle = Util.Empty)
         {
             var i = new StatementImage(this)
             {
@@ -1309,7 +1307,7 @@ namespace InnerLibs.QuestionTests
             return this;
         }
 
-        public StatementImages Add(string ImagePath, string Subtitle = Text.Empty)
+        public StatementImages Add(string ImagePath, string Subtitle = Util.Empty)
         {
             var i = new StatementImage(this)
             {

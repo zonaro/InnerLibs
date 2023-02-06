@@ -1,7 +1,5 @@
-﻿using InnerLibs.LINQ;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -14,7 +12,7 @@ namespace InnerLibs
     /// <summary>
     /// Módulo de manipulaçao de MIME Types
     /// </summary>
-    public static class FileTypeExtensions
+    public static partial class Util
     {
         #region Public Methods
 
@@ -237,7 +235,7 @@ namespace InnerLibs
         {
             if (Reset || BaseList == null || BaseList.Any() == false)
             {
-                string r = Misc.GetResourceFileText(Assembly.GetExecutingAssembly(), "InnerLibs.mimes.xml");
+                string r = Util.GetResourceFileText(Assembly.GetExecutingAssembly(), "InnerLibs.mimes.xml");
                 if (r.IsNotBlank())
                 {
                     var doc = new XmlDocument();
@@ -245,7 +243,7 @@ namespace InnerLibs
                     BaseList = new FileTypeList();
                     foreach (XmlNode node in doc["mimes"].ChildNodes)
                     {
-                        var ft = BaseList.FirstOr(x => (x.Description ?? InnerLibs.Text.Empty) == (node["Label"].InnerText.TrimBetween() ?? InnerLibs.Text.Empty), new FileType());
+                        var ft = BaseList.FirstOr(x => (x.Description ?? InnerLibs.Util.Empty) == (node["Label"].InnerText.TrimBetween() ?? InnerLibs.Util.Empty), new FileType());
                         ft.Description = node["Label"].InnerText.TrimBetween();
 
                         foreach (XmlNode item in node["MimeTypes"].ChildNodes)

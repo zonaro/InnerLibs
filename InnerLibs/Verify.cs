@@ -15,7 +15,7 @@ namespace InnerLibs
     /// Verifica determinados valores como Arquivos, Numeros e URLs
     /// </summary>
     /// <remarks></remarks>
-    public static class Verify
+    public static partial class Util
     {
         #region Private Fields
 
@@ -78,24 +78,6 @@ namespace InnerLibs
             }
         }
 
-        /// <summary>
-        /// Tenta retornar um index de um IEnumerable a partir de um valor especifico. retorna -1 se
-        /// o index nao existir
-        /// </summary>
-        /// <typeparam name="T">Tipo do IEnumerable e do valor</typeparam>
-        /// <param name="Arr">Array</param>
-        /// <returns></returns>
-        public static int GetIndexOf<T>(this IEnumerable<T> Arr, T item)
-        {
-            try
-            {
-                return Arr.ToList().IndexOf(item);
-            }
-            catch
-            {
-                return -1;
-            }
-        }
 
         /// <summary>
         /// Verifica se uma variavel está vazia, em branco ou nula e retorna um outro valor caso TRUE
@@ -104,7 +86,7 @@ namespace InnerLibs
         /// <param name="Value">Valor</param>
         /// <param name="ValueIfBlank">Valor se estiver em branco</param>
         /// <returns></returns>
-        public static T IfBlank<T>(this object Value, T ValueIfBlank = default) => Value.IsBlank() ? ValueIfBlank : Converter.ChangeType<T>(Value);
+        public static T IfBlank<T>(this object Value, T ValueIfBlank = default) => Value.IsBlank() ? ValueIfBlank : Util.ChangeType<T>(Value);
 
         /// <summary>
         /// Tenta retornar um valor de um IEnumerable a partir de um Index especifico. retorna um
@@ -237,6 +219,10 @@ namespace InnerLibs
                     {
                         return span.Equals(TimeSpan.MinValue);
                     }
+                    else if (Value is DateTimeOffset off)
+                    {
+                        return off.Equals(DateTimeOffset.MinValue);
+                    }
                     else if (Value.IsEnumerable())
                     {
                         IEnumerable enumerable = (IEnumerable)Value;
@@ -252,8 +238,9 @@ namespace InnerLibs
 
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                Util.WriteDebug(ex);
             }
             return true;
         }
@@ -265,7 +252,7 @@ namespace InnerLibs
         /// <returns>TRUE se estivar vazia ou em branco, caso contrario FALSE</returns>
         public static bool IsBlank(this FormattableString Text) => Text == null || $"{Text}".IsBlank();
 
-        public static bool IsBool<T>(this T Obj) => Misc.GetNullableTypeOf(Obj) == typeof(bool) || $"{Obj}".ToLowerInvariant().IsIn("true", "false");
+        public static bool IsBool<T>(this T Obj) => Util.GetNullableTypeOf(Obj) == typeof(bool) || $"{Obj}".ToLowerInvariant().IsIn("true", "false");
 
         public static bool IsDate(this string Obj)
         {
@@ -279,7 +266,7 @@ namespace InnerLibs
             }
         }
 
-        public static bool IsDate<T>(this T Obj) => Misc.GetNullableTypeOf(Obj) == typeof(DateTime) || $"{Obj}".IsDate();
+        public static bool IsDate<T>(this T Obj) => Util.GetNullableTypeOf(Obj) == typeof(DateTime) || $"{Obj}".IsDate();
 
         /// <summary>
         /// Verifica se uma string é um caminho de diretório válido
@@ -332,7 +319,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text">Texto a ser validado</param>
         /// <returns>TRUE se for um email, FALSE se não for email</returns>
-        public static bool IsEmail(this string Text) => Text.IsNotBlank() && new Regex(@"(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|InnerLibs.Text.Empty(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*InnerLibs.Text.Empty)@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])").IsMatch(Text);
+        public static bool IsEmail(this string Text) => Text.IsNotBlank() && new Regex(@"(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|Util.Empty(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*Util.Empty)@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])").IsMatch(Text);
 
         /// <summary>
         /// Verifica se um numero é par
@@ -529,12 +516,6 @@ namespace InnerLibs
         /// <returns>TRUE se o caminho for válido</returns>
         public static bool IsPath(this string Text) => Text.IsDirectoryPath() || Text.IsFilePath();
 
-        /// <summary>
-        /// Valida se a string é um telefone
-        /// </summary>
-        /// <param name="Text"></param>
-        /// <returns></returns>
-        public static bool IsTelephone(this string Text) => new Regex(@"\(?\+[0-9]{1,3}\)? ?-?[0-9]{1,3} ?-?[0-9]{3,5} ?-?[0-9]{4}( ?-?[0-9]{3})? ?(\w{1,10}\s?\d{1,6})?", (RegexOptions)((int)RegexOptions.Singleline + (int)RegexOptions.IgnoreCase)).IsMatch(Text.RemoveAny("(", ")"));
 
         /// <summary>
         /// Verifica se um determinado texto é uma URL válida
@@ -542,189 +523,6 @@ namespace InnerLibs
         /// <param name="Text">Texto a ser verificado</param>
         /// <returns>TRUE se for uma URL, FALSE se não for uma URL válida</returns>
         public static bool IsURL(this string Text) => Text.IsNotBlank() && Uri.TryCreate(Text.Trim(), UriKind.Absolute, out _) && !Text.Trim().Contains(" ");
-
-        /// <summary>
-        /// Verifica se uma string é um cep válido
-        /// </summary>
-        /// <param name="CEP"></param>
-        /// <returns></returns>
-        public static bool IsValidCEP(this string CEP) => new Regex(@"^\d{5}-\d{3}$").IsMatch(CEP) || (CEP.RemoveAny("-").IsNumber() && CEP.RemoveAny("-").Length == 8);
-
-        /// <summary>
-        /// Verifica se a string é um CNH válido
-        /// </summary>
-        /// <param name="Text">CNH</param>
-        /// <returns></returns>
-        public static bool IsValidCNH(this string CNH)
-        {
-            // char firstChar = cnh[0];
-            if (CNH.IsNotBlank() && CNH.Length == 11 && CNH != new string('1', 11))
-            {
-                int dsc = 0;
-                int v = 0;
-                int i = 0;
-                int j = 9;
-                while (i < 9)
-                {
-                    v += Convert.ToInt32(CNH[i].ToString()) * j;
-                    i += 1;
-                    j -= 1;
-                }
-
-                int vl1 = v % 11;
-                if (vl1 >= 10)
-                {
-                    vl1 = 0;
-                    dsc = 2;
-                }
-
-                v = 0;
-                i = 0;
-                j = 1;
-                while (i < 9)
-                {
-                    v += Convert.ToInt32(CNH[i].ToString()) * j;
-                    i += 1;
-                    j += 1;
-                }
-
-                int x = v % 11;
-                int vl2 = x >= 10 ? 0 : x - dsc;
-                return $"{vl1}{vl2}" == (CNH.Substring(CNH.Length - 2, 2));
-            }
-
-            return false;
-        }
-
-
-
-        public static string GetDocumentLabel(this string Input, string DefaultLabel = Text.Empty)
-        {
-            if (Input.IsValidCPF()) return "CPF";
-            if (Input.IsValidCNPJ()) return "CNPJ";
-            if (Input.IsValidCEP()) return "CEP";
-            if (Input.IsValidEAN()) return "EAN";
-            if (Input.IsValidPIS()) return "PIS";
-            if (Input.IsValidCNH()) return "CNH";
-            if (Input.IsEmail()) return "Email";
-            if (Input.IsTelephone()) return "Tel";
-            if (Input.IsIP()) return "IP";
-            return DefaultLabel;
-        }
-
-        /// <summary>
-        /// Verifica se a string é um CNPJ válido
-        /// </summary>
-        /// <param name="Text">CPF</param>
-        /// <returns></returns>
-        public static bool IsValidCNPJ(this string Text)
-        {
-            try
-            {
-                if (Text.IsNotBlank())
-                {
-                    var multiplicador1 = new int[12] { 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
-                    var multiplicador2 = new int[13] { 6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
-                    int soma;
-                    int resto;
-                    string digito;
-                    string tempCnpj;
-                    Text = Text.Trim();
-                    Text = Text.Replace(".", InnerLibs.Text.Empty).Replace("-", InnerLibs.Text.Empty).Replace("/", InnerLibs.Text.Empty);
-                    if (Text.Length != 14)
-                    {
-                        return false;
-                    }
-
-                    tempCnpj = Text.Substring(0, 12);
-                    soma = 0;
-                    for (int i = 0; i <= 12 - 1; i++)
-                    {
-                        soma += int.Parse(tempCnpj[i].ToString()) * multiplicador1[i];
-                    }
-
-                    resto = soma % 11;
-                    if (resto < 2)
-                    {
-                        resto = 0;
-                    }
-                    else
-                    {
-                        resto = 11 - resto;
-                    }
-
-                    digito = resto.ToString();
-                    tempCnpj += digito;
-                    soma = 0;
-                    for (int i = 0; i <= 13 - 1; i++)
-                    {
-                        soma += int.Parse(tempCnpj[i].ToString()) * multiplicador2[i];
-                    }
-
-                    resto = soma % 11;
-                    if (resto < 2)
-                    {
-                        resto = 0;
-                    }
-                    else
-                    {
-                        resto = 11 - resto;
-                    }
-
-                    digito += resto.ToString();
-                    return Text.EndsWith(digito);
-                }
-            }
-            catch
-            {
-            }
-            return false;
-        }
-
-        /// <summary>
-        /// Verifica se a string é um CPF válido
-        /// </summary>
-        /// <param name="Text">CPF</param>
-        /// <returns></returns>
-        public static bool IsValidCPF(this string Text)
-        {
-            try
-            {
-                if (Text.IsNotBlank())
-                {
-                    Text = Text.RemoveAny(".", "-");
-                    string digito = InnerLibs.Text.Empty;
-                    int k;
-                    int j;
-                    int soma;
-                    for (k = 0; k <= 1; k++)
-                    {
-                        soma = 0;
-                        var loopTo = 9 + (k - 1);
-                        for (j = 0; j <= loopTo; j++)
-                        {
-                            soma += int.Parse($"{Text[j]}", CultureInfo.InvariantCulture) * (10 + k - j);
-                        }
-
-                        digito += $"{(soma % 11 == 0 || soma % 11 == 1 ? 0 : 11 - (soma % 11))}";
-                    }
-
-                    return digito[0] == Text[9] & digito[1] == Text[10];
-                }
-            }
-            catch
-            {
-            }
-            return false;
-        }
-
-        /// <summary>
-        /// Verifica se a string é um CPF ou CNPJ válido
-        /// </summary>
-        /// <param name="Text">CPF ou CNPJ</param>
-        /// <returns></returns>
-        public static bool IsValidCPFOrCNPJ(this string Text) => Text.IsValidCPF() || Text.IsValidCNPJ();
-
         /// <summary>
         /// Verifica se o dominio é válido (existe) em uma URL ou email
         /// </summary>
@@ -744,7 +542,7 @@ namespace InnerLibs
                 {
                     string HostName = new Uri(DomainOrEmail).Host;
                     ObjHost = System.Net.Dns.GetHostEntry(HostName);
-                    return (ObjHost.HostName ?? InnerLibs.Text.Empty) == (HostName ?? InnerLibs.Text.Empty);
+                    return (ObjHost.HostName ?? InnerLibs.Util.Empty) == (HostName ?? InnerLibs.Util.Empty);
                 }
                 catch
                 {
@@ -761,65 +559,18 @@ namespace InnerLibs
         /// <exception cref="FormatException"></exception>
         public static bool IsValidEAN(this string Code)
         {
-            if (Code.IsNotNumber() || Code.Length < 3)
+            if (Code == null || Code.IsNotNumber() || Code.Length < 3)
             {
                 return false;
             }
 
             var bar = Code.RemoveLastChars();
             var ver = Code.GetLastChars();
-            return Generate.BarcodeCheckSum(bar) == ver;
+            return Util.BarcodeCheckSum(bar) == ver;
         }
 
         public static bool IsValidEAN(this int Code) => Code.ToString(CultureInfo.InvariantCulture).PadLeft(12, '0').ToString().IsValidEAN();
 
-        /// <summary>
-        /// Verifica se uma string é um PIS válido
-        /// </summary>
-        /// <param name="CEP"></param>
-        /// <returns></returns>
-        public static bool IsValidPIS(this string PIS)
-        {
-            if (PIS.IsBlank())
-            {
-                return false;
-            }
-
-            PIS = Regex.Replace(PIS, "[^0-9]", InnerLibs.Text.Empty).ToString();
-
-            if (PIS.Length != 11)
-            {
-                return false;
-            }
-
-            var count = PIS[0];
-            if (PIS.Count(w => w == count) == PIS.Length)
-            {
-                return false;
-            }
-
-            var multiplicador = new int[10] { 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
-            int soma;
-            int resto;
-
-            soma = 0;
-
-            for (var i = 0; i < 10; i++)
-            {
-                soma += int.Parse($"{PIS[i]}", CultureInfo.InvariantCulture) * multiplicador[i];
-            }
-
-            resto = soma % 11;
-
-            resto = resto < 2 ? 0 : 11 - resto;
-
-            if (PIS.EndsWith(resto.ToString()))
-            {
-                return true;
-            }
-
-            return false;
-        }
 
         /// <summary>
         /// Anula o valor de um objeto se ele for igual a outro objeto
@@ -933,15 +684,15 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Lança uma <see cref="Exception"/> do tipo <typeparamref name="E"/> se um teste falhar
+        /// Lança uma <see cref="Exception"/> do tipo <typeparamref name="TE"/> se um teste falhar
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <typeparam name="E"></typeparam>
+        /// <typeparam name="TE"></typeparam>
         /// <param name="Value"></param>
         /// <param name="Test"></param>
         /// <param name="Message"></param>
         /// <returns></returns>
-        public static T ValidateOr<T, E>(this T Value, Expression<Func<T, bool>> Test, E Exception) where E : Exception
+        public static T ValidateOr<T, TE>(this T Value, Expression<Func<T, bool>> Test, TE Exception) where TE : Exception
         {
             if (Test != null)
             {

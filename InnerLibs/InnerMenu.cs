@@ -20,7 +20,7 @@ namespace InnerLibs.MenuBuilder
         /// <param name="URL">URL do menu</param>
         /// <param name="Target">Alvo do menu, nomralmente _self</param>
         /// <param name="Icon">icone do menu</param>
-        public MenuItem(string Title, string URL, string Target = "_self", string Icon = Text.Empty)
+        public MenuItem(string Title, string URL, string Target = "_self", string Icon = Util.Empty)
         {
             this.Title = Title;
             this.URL = URL;
@@ -33,7 +33,7 @@ namespace InnerLibs.MenuBuilder
         /// </summary>
         /// <param name="Title">Titulo do Menu</param>
         /// <param name="SubItems">Subitens do menu</param>
-        public MenuItem(string Title, IEnumerable<MenuItem<T>> SubItems, string Icon = Text.Empty)
+        public MenuItem(string Title, IEnumerable<MenuItem<T>> SubItems, string Icon = Util.Empty)
         {
             this.Title = Title;
             this.SubItems = (MenuList<T>)SubItems;

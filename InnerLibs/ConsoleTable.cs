@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace InnerLibs.ConsoleTables
+namespace InnerLibs.Console
 {
     public class ConsoleTable
     {
@@ -34,13 +34,13 @@ namespace InnerLibs.ConsoleTables
         private string Format(List<int> columnLengths, char delimiter = '|')
         {
             var columnAlignment = Enumerable.Range(0, Columns.Count).Select(x => GetNumberAlignment(x)).ToList();
-            string delimiterStr = delimiter == char.MinValue ? InnerLibs.Text.Empty : delimiter.ToString();
+            string delimiterStr = delimiter == char.MinValue ? InnerLibs.Util.Empty : delimiter.ToString();
             return (Enumerable.Range(0, Columns.Count).Select(i => " " + delimiterStr + " {" + i + "," + columnAlignment[i] + columnLengths[i] + "}").Aggregate((s, a) => s + a) + " " + delimiterStr).Trim();
         }
 
         private string GetNumberAlignment(int i)
         {
-            return Options.NumberAlignment == Alignment.Right && ColumnTypes != null && PredefinedArrays.NumericTypes.Contains(ColumnTypes[i]) ? InnerLibs.Text.Empty : "-";
+            return Options.NumberAlignment == Alignment.Right && ColumnTypes != null && PredefinedArrays.NumericTypes.Contains(ColumnTypes[i]) ? InnerLibs.Util.Empty : "-";
         }
 
         private string ToMarkDownString(char delimiter)
@@ -125,7 +125,7 @@ namespace InnerLibs.ConsoleTables
             }
 
             while (v.Count < Columns.Count)
-                v.Add(InnerLibs.Text.Empty);
+                v.Add(InnerLibs.Util.Empty);
             Rows.Add(v.Take(Columns.Count).ToArray());
             return this;
         }
@@ -137,13 +137,13 @@ namespace InnerLibs.ConsoleTables
                 var l = new List<object>();
                 foreach (var item in Columns)
                 {
-                    if ((item ?? InnerLibs.Text.Empty) == (Key ?? InnerLibs.Text.Empty))
+                    if ((item ?? InnerLibs.Util.Empty) == (Key ?? InnerLibs.Util.Empty))
                     {
                         l.Add(obj);
                     }
                     else
                     {
-                        l.Add(InnerLibs.Text.Empty);
+                        l.Add(InnerLibs.Util.Empty);
                     }
                 }
 
@@ -173,17 +173,17 @@ namespace InnerLibs.ConsoleTables
         {
             switch (format)
             {
-                case ConsoleTables.Format.MarkDown:
+                case Console.Format.MarkDown:
                     {
                         return ToMarkDownString();
                     }
 
-                case ConsoleTables.Format.Alternative:
+                case Console.Format.Alternative:
                     {
                         return ToStringAlternative();
                     }
 
-                case ConsoleTables.Format.Minimal:
+                case Console.Format.Minimal:
                     {
                         return ToMinimalString();
                     }
@@ -205,7 +205,7 @@ namespace InnerLibs.ConsoleTables
             string columnHeaders = string.Format(format, Columns.ToArray());
             int longestLine = Math.Max(maxRowLength, columnHeaders.Length);
             var results = Rows.Select(row => string.Format(format, row)).ToList();
-            string divider = " " + string.Join(InnerLibs.Text.Empty, Enumerable.Repeat("-", longestLine - 1)) + " ";
+            string divider = " " + string.Join(InnerLibs.Util.Empty, Enumerable.Repeat("-", longestLine - 1)) + " ";
             builder.AppendLine(divider);
             builder.AppendLine(columnHeaders);
             foreach (var row in results)
@@ -217,7 +217,7 @@ namespace InnerLibs.ConsoleTables
             builder.AppendLine(divider);
             if (Options.EnableCount)
             {
-                builder.AppendLine(InnerLibs.Text.Empty);
+                builder.AppendLine(InnerLibs.Util.Empty);
                 builder.AppendFormat(" Count: {0}", Rows.Count);
             }
 
@@ -245,7 +245,7 @@ namespace InnerLibs.ConsoleTables
             return builder.ToString();
         }
 
-        public void Write(Format format = ConsoleTables.Format.Default)
+        public void Write(Format format = Console.Format.Default)
         {
             Options.OutputTo.WriteLine(ToString(format));
         }

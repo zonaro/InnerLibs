@@ -1,4 +1,4 @@
-﻿using InnerLibs.LINQ;
+﻿
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -199,7 +199,7 @@ namespace InnerLibs
                     {
                         if (isFirst) isFirst = false; else stringBuilder.Append(',');
                         stringBuilder.Append('\"');
-                        stringBuilder.Append(Misc.GetMemberName(fieldInfo));
+                        stringBuilder.Append(Util.GetMemberName(fieldInfo));
                         stringBuilder.Append("\":");
                         AppendValue(stringBuilder, value, IncludeNull, culture);
                     }
@@ -215,7 +215,7 @@ namespace InnerLibs
                     {
                         if (isFirst) isFirst = false; else stringBuilder.Append(',');
                         stringBuilder.Append('\"');
-                        stringBuilder.Append(Misc.GetMemberName(propertyInfo));
+                        stringBuilder.Append(Util.GetMemberName(propertyInfo));
                         stringBuilder.Append("\":");
                         AppendValue(stringBuilder, value, IncludeNull, culture);
                     }
@@ -374,12 +374,12 @@ namespace InnerLibs
             }
             else if (type == typeof(DateTime))
             {
-                DateTime.TryParse(json.RemoveAny(Text.DoubleQuoteChar), culture, DateTimeStyles.None, out DateTime result);
+                DateTime.TryParse(json.RemoveAny(Util.DoubleQuoteChar), culture, DateTimeStyles.None, out DateTime result);
                 return result;
             }
             else if (type.IsEnum)
             {
-                json = json.IsWrapped(Text.DoubleQuoteChar) ? json.UnWrap(Text.DoubleQuoteChar) : json;
+                json = json.IsWrapped(Util.DoubleQuoteChar) ? json.UnWrap(Util.DoubleQuoteChar) : json;
 
                 return json.GetEnumValue(type);
             }
@@ -513,7 +513,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string FormatJson(this string jsonString, int identSize = 4)
         {
-            jsonString = jsonString ?? Text.Empty;
+            jsonString = jsonString ?? Util.Empty;
 
             if (identSize < 1)
             {
@@ -571,7 +571,7 @@ namespace InnerLibs
                     case ':':
                         sb.Append(ch);
                         if (!quoted)
-                            sb.Append(Text.WhitespaceChar);
+                            sb.Append(Util.WhitespaceChar);
                         break;
 
                     default:
@@ -779,7 +779,7 @@ namespace InnerLibs
         public static T Load<T>(string FileOrDirectoryPath, bool ExcludeNull = false) where T : JsonFile => Load<T>(FileOrDirectoryPath, null, ExcludeNull);
 
         /// <inheritdoc cref="Load{T}"/>
-        public static T Load<T>() where T : JsonFile => Load<T>(Text.Empty, null);
+        public static T Load<T>() where T : JsonFile => Load<T>(Util.Empty, null);
 
         /// <inheritdoc cref="Load{T}"/>
         public static T Load<T>(string FileOrDirectoryPath, string EncryptKey, bool ExcludeNull = false, CultureInfo culture = null) where T : JsonFile

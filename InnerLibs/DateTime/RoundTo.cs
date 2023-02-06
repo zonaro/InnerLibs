@@ -1,4 +1,4 @@
-﻿namespace InnerLibs.TimeMachine
+﻿namespace InnerLibs
 {
     /// <summary>
     /// Used for rounding precision

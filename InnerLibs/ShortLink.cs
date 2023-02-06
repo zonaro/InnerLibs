@@ -1,4 +1,4 @@
-﻿using InnerLibs.LINQ;
+﻿
 using System;
 using System.Linq;
 using System.Text;
@@ -26,7 +26,7 @@ namespace InnerLibs
 
         #region Public Constructors
 
-        public ShortLinkGenerator() : this(null) => Seed = InnerLibs.Text.Empty;
+        public ShortLinkGenerator() : this(null) => Seed = InnerLibs.Util.Empty;
 
         public ShortLinkGenerator(string Seed, string UrlPattern) : this(Seed) => this.UrlPattern = UrlPattern;
 
@@ -102,7 +102,7 @@ namespace InnerLibs
                 return Token[0].ToString();
             }
 
-            string s = InnerLibs.Text.Empty;
+            string s = InnerLibs.Util.Empty;
             while (i > 0)
             {
                 s += Convert.ToString(Token[i % Token.Length]);
@@ -114,12 +114,12 @@ namespace InnerLibs
                 s += "0";
             }
 
-            return string.Join(InnerLibs.Text.Empty, s.Reverse());
+            return string.Join(InnerLibs.Util.Empty, s.Reverse());
         }
 
-        public string RandomHash() => Encode(Generate.RandomNumber());
+        public string RandomHash() => Encode(Util.RandomNumber());
 
-        public string RandomHash(int Min, int Max) => Encode(Generate.RandomNumber(Min, Max));
+        public string RandomHash(int Min, int Max) => Encode(Util.RandomNumber(Min, Max));
 
         public override string ToString() => Token;
 

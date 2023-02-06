@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -10,7 +9,7 @@ namespace InnerLibs
     /// Módulo para criação de arquivos baseados em Array de Bytes()
     /// </summary>
     /// <remarks></remarks>
-    public static class Files
+    public static partial class Util
     {
         #region Public Methods
 
@@ -57,7 +56,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="File">Arquivo</param>
         /// <returns></returns>
-        public static string ReadAllText(this FileInfo File, Encoding encoding = null) => File != null && File.Exists ? System.IO.File.ReadAllText(File.FullName, encoding ?? Encoding.UTF8) : InnerLibs.Text.Empty;
+        public static string ReadAllText(this FileInfo File, Encoding encoding = null) => File != null && File.Exists ? System.IO.File.ReadAllText(File.FullName, encoding ?? Encoding.UTF8) : InnerLibs.Util.Empty;
 
         /// <summary>
         /// Renomeia um arquivo e retorna um <see cref="FileInfo"/> do arquivo renomeado
@@ -194,11 +193,11 @@ namespace InnerLibs
                 if (Bytes.Any())
                 {
                     File.WriteAllBytes(FilePath, Bytes);
-                    Misc.WriteDebug(FilePath, "File Written");
+                    Util.WriteDebug(FilePath, "File Written");
                 }
                 else
                 {
-                    Misc.WriteDebug("Bytes array is empty", "File not Written");
+                    Util.WriteDebug("Bytes array is empty", "File not Written");
                 }
 
                 return new FileInfo(FilePath).With(x => { x.LastWriteTime = DateAndTime.Value; });

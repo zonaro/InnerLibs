@@ -1,9 +1,66 @@
 using System;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 
 namespace InnerLibs
 {
+    /// <summary>
+    /// Representa um Par X,Y para operaçoes matemáticas
+    /// </summary>
+    public class EquationPair<T> where T : struct
+    {
+        #region Public Constructors
+
+        public EquationPair(T? X, T? Y)
+        {
+            this.X = X;
+            this.Y = Y;
+        }
+
+        #endregion Public Constructors
+
+        #region Public Properties
+
+        public bool IsComplete => X.HasValue && Y.HasValue;
+        public bool IsNotComplete => !IsComplete;
+        public bool MissX => !X.HasValue;
+        public bool MissY => !Y.HasValue;
+        public T? X { get; set; }
+        public T? Y { get; set; }
+
+        #endregion Public Properties
+
+        #region Public Methods
+
+        public static explicit operator EquationPair<T>(Tuple<T?, T?> Equation) => new EquationPair<T>(Equation.Item1, Equation.Item2);
+
+        public static explicit operator Tuple<T?, T?>(EquationPair<T> Equation) => new Tuple<T?, T?>(Equation.X, Equation.Y);
+
+        public PropertyInfo GetMissing()
+        {
+            if (MissX)
+            {
+                return this.GetProperty("X");
+            }
+
+            if (MissY)
+            {
+                return this.GetProperty("Y");
+            }
+
+            return null;
+        }
+
+        public void SetMissing(T value)
+        {
+            GetMissing()?.SetValue(this, value);
+        }
+
+        public T?[] ToArray() => new[] { X, Y };
+
+        #endregion Public Methods
+    }
     public class RuleOfThree : RuleOfThree<decimal>
     {
     }
@@ -126,22 +183,22 @@ namespace InnerLibs
             string e2ys = e2.LastOrDefault()?.TrimBetween();
             T? e1x = default;
             if (e1xs.IsNumber())
-                e1x = Converter.ChangeType<T>(e1xs);
+                e1x = Util.ChangeType<T>(e1xs);
             else
                 custom_param_name = e1xs;
             T? e1y = default;
             if (e1ys.IsNumber())
-                e1y = Converter.ChangeType<T>(e1ys);
+                e1y = Util.ChangeType<T>(e1ys);
             else
                 custom_param_name = e1ys;
             T? e2x = default;
             if (e2xs.IsNumber())
-                e2x = Converter.ChangeType<T>(e2xs);
+                e2x = Util.ChangeType<T>(e2xs);
             else
                 custom_param_name = e2xs;
             T? e2y = default;
             if (e2ys.IsNumber())
-                e2y = Converter.ChangeType<T>(e2ys);
+                e2y = Util.ChangeType<T>(e2ys);
             else
                 custom_param_name = e2ys;
             RuleExpression(e1x, e1y, e2x, e2y);

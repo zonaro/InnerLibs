@@ -1,4 +1,4 @@
-﻿using InnerLibs.LINQ;
+﻿
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -443,13 +443,13 @@ namespace InnerLibs
             _stl = new CSSStyles(this);
         }
 
-        public HtmlTag(string TagName, string InnerHtml = Text.Empty) : this()
+        public HtmlTag(string TagName, string InnerHtml = Util.Empty) : this()
         {
             this.TagName = TagName;
             this.InnerHtml = InnerHtml;
         }
 
-        public HtmlTag(string TagName, object Attributes, string InnerHtml = Text.Empty) : this()
+        public HtmlTag(string TagName, object Attributes, string InnerHtml = Util.Empty) : this()
         {
             this.TagName = TagName;
             this.InnerHtml = InnerHtml;
@@ -521,7 +521,7 @@ namespace InnerLibs
         [IgnoreDataMember]
         public string Class
         {
-            get => Attributes.GetValueOr("class") ?? Text.Empty;
+            get => Attributes.GetValueOr("class") ?? Util.Empty;
 
             set => Attributes["class"] = value;
         }
@@ -814,7 +814,7 @@ namespace InnerLibs
         {
             if (HtmlStringOrURL.IsURL())
             {
-                HtmlStringOrURL = WebExtensions.DownloadString(HtmlStringOrURL);
+                HtmlStringOrURL = Util.DownloadString(HtmlStringOrURL);
             }
             return HtmlStringOrURL.IsNotBlank() ? HtmlParser.Instance.Parse(HtmlStringOrURL) : Array.Empty<HtmlTag>();
         }
@@ -904,7 +904,7 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Generate a table from <typeparamref name="TPoco"/> classes as a children of this <see cref="HtmlTag"/>
+        /// Util a table from <typeparamref name="TPoco"/> classes as a children of this <see cref="HtmlTag"/>
         /// </summary>
         /// <typeparam name="TPoco"></typeparam>
         /// <param name="Rows"></param>
@@ -961,7 +961,7 @@ namespace InnerLibs
 
         public HtmlTag FirstChild(Expression<Func<HtmlTag, bool>> predicate) => predicate != null ? Children.FirstOrDefault(predicate.Compile()) : FirstChild();
 
-        public string GetAttribute(string key) => Attributes.GetValueOr(key, Text.Empty);
+        public string GetAttribute(string key) => Attributes.GetValueOr(key, Util.Empty);
 
         public bool HasAttribute(string AttrName) => AttrName.IsBlank() ? HasAttributes() : Attributes.ContainsKey(AttrName);
 

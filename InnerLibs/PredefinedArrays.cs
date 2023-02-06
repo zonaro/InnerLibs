@@ -16,7 +16,7 @@ namespace InnerLibs
         public static IEnumerable<string> AlphaNumericChars => AlphaChars.Union(NumberChars).AsEnumerable();
         public static IEnumerable<string> AlphaUpperChars => AlphaLowerChars.Select(x => x.ToUpperInvariant());
         public static IEnumerable<string> BreakLineChars => new[] { Environment.NewLine, "\t", "\n", "\r", "\r\n" }.AsEnumerable();
-        public static IEnumerable<string> CloseWrappers => new[] { Text.DoubleQuoteChar, InnerLibs.Text.SingleQuoteChar, ")", "}", "]", ">", "`" }.AsEnumerable();
+        public static IEnumerable<string> CloseWrappers => new[] { Util.DoubleQuoteChar, InnerLibs.Util.SingleQuoteChar, ")", "}", "]", ">", "`" }.AsEnumerable();
         public static IEnumerable<string> Consonants => UpperConsonants.Union(LowerConsonants).AsEnumerable();
         public static IEnumerable<string> EndOfSentencePunctuation => new[] { ".", "?", "!" }.AsEnumerable();
         public static IEnumerable<string> IdentChars => new[] { "\t" }.AsEnumerable();
@@ -28,8 +28,8 @@ namespace InnerLibs
         public static IEnumerable<DayOfWeek> MondayToSaturday => new[] { 1, 2, 3, 4, 5, 6 }.Cast<DayOfWeek>();
         public static IEnumerable<string> NumberChars => new[] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" }.AsEnumerable();
         public static IEnumerable<Type> NumericTypes => new[] { typeof(float), typeof(ushort), typeof(short), typeof(int), typeof(uint), typeof(ulong), typeof(long), typeof(double), typeof(decimal) }.AsEnumerable();
-        public static IEnumerable<string> OpenWrappers => new[] { Text.DoubleQuoteChar, InnerLibs.Text.SingleQuoteChar, "(", "{", "[", "<", "`" }.AsEnumerable();
-        public static IEnumerable<string> PasswordSpecialChars => SpecialChars.Union(WordWrappers).Union(EndOfSentencePunctuation).Union(MidSentencePunctuation).Where(x => x.IsNotAny(Text.DoubleQuoteChar, Text.SingleQuoteChar)).AsEnumerable();
+        public static IEnumerable<string> OpenWrappers => new[] { Util.DoubleQuoteChar, InnerLibs.Util.SingleQuoteChar, "(", "{", "[", "<", "`" }.AsEnumerable();
+        public static IEnumerable<string> PasswordSpecialChars => SpecialChars.Union(WordWrappers).Union(EndOfSentencePunctuation).Union(MidSentencePunctuation).Where(x => x.IsNotAny(Util.DoubleQuoteChar, Util.SingleQuoteChar)).AsEnumerable();
         public static IEnumerable<string> Punctuation => EndOfSentencePunctuation.Union(MidSentencePunctuation).AsEnumerable();
         public static IEnumerable<char> RegexChars => new[] { '.', '$', '^', '{', '[', '(', '|', ')', '*', '+', '?', '|' }.AsEnumerable();
         public static IEnumerable<string> Slashes => new[] { "|", @"\", "/" }.AsEnumerable();

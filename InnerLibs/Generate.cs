@@ -1,4 +1,4 @@
-﻿using InnerLibs.LINQ;
+﻿
 using InnerLibs.Locations;
 using System;
 using System.Collections.Generic;
@@ -11,7 +11,7 @@ namespace InnerLibs
     /// Geradores de conteudo
     /// </summary>
     /// <remarks></remarks>
-    public static class Generate
+    public static partial class Util
     {
         #region Private Fields
 
@@ -59,13 +59,13 @@ namespace InnerLibs
             if (T == 7 | T == 11)
             {
                 i = i * 3 + p;
-                p = Converter.ToInt((i + 9) / 10) * 10;
+                p = Util.ToInt((i + 9) / 10) * 10;
                 T = p - i;
             }
             else
             {
                 p = p * 3 + i;
-                i = Converter.ToInt((p + 9) / 10) * 10;
+                i = Util.ToInt((p + 9) / 10) * 10;
                 T = i - p;
             }
             return T.ToString();
@@ -78,13 +78,13 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Numbers"></param>
         /// <returns></returns>
-        public static string EANFromNumbers(params string[] Numbers) => Numbers.Where(x => x.IsNumber()).SelectJoinString(InnerLibs.Text.Empty).AppendBarcodeCheckSum();
+        public static string EANFromNumbers(params string[] Numbers) => Numbers.Where(x => x.IsNumber()).SelectJoinString(InnerLibs.Util.Empty).AppendBarcodeCheckSum();
 
         /// <inheritdoc cref="EANFromNumbers(string[])"/>
         public static string EANFromNumbers(params int[] Numbers) => EANFromNumbers(Numbers.Select(x => x.ToString()).ToArray());
 
         /// <summary>
-        /// Generate a password with specific lenght for each char type
+        /// Util a password with specific lenght for each char type
         /// </summary>
         /// <param name="AlphaLenght"></param>
         /// <param name="NumberLenght"></param>
@@ -93,15 +93,15 @@ namespace InnerLibs
         public static string Password(int AlphaLenght, int NumberLenght, int SpecialLenght) => Password((AlphaLenght / 2d).CeilInt(), (AlphaLenght / 2d).FloorInt(), NumberLenght, SpecialLenght);
 
         /// <summary>
-        /// Generate a password with specific lenght for each char type
+        /// Util a password with specific lenght for each char type
         /// </summary>
         /// <returns></returns>
         public static string Password(int AlphaUpperLenght, int AlphaLowerLenght, int NumberLenght, int SpecialLenght)
         {
-            string pass = InnerLibs.Text.Empty;
+            string pass = InnerLibs.Util.Empty;
             if (AlphaLowerLenght > 0)
             {
-                string ss = InnerLibs.Text.Empty;
+                string ss = InnerLibs.Util.Empty;
                 while (ss.Length < AlphaLowerLenght)
                 {
                     ss = ss.Append(PredefinedArrays.AlphaLowerChars.RandomItem());
@@ -112,7 +112,7 @@ namespace InnerLibs
 
             if (AlphaUpperLenght > 0)
             {
-                string ss = InnerLibs.Text.Empty;
+                string ss = InnerLibs.Util.Empty;
                 while (ss.Length < AlphaUpperLenght)
                 {
                     ss = ss.Append(PredefinedArrays.AlphaUpperChars.RandomItem());
@@ -123,7 +123,7 @@ namespace InnerLibs
 
             if (NumberLenght > 0)
             {
-                string ss = InnerLibs.Text.Empty;
+                string ss = InnerLibs.Util.Empty;
                 while (ss.Length < NumberLenght)
                 {
                     ss = ss.Append(PredefinedArrays.NumberChars.RandomItem());
@@ -134,7 +134,7 @@ namespace InnerLibs
 
             if (SpecialLenght > 0)
             {
-                string ss = InnerLibs.Text.Empty;
+                string ss = InnerLibs.Util.Empty;
                 while (ss.Length < SpecialLenght)
                 {
                     ss = ss.Append(PredefinedArrays.PasswordSpecialChars.RandomItem());
@@ -147,7 +147,7 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Generate a password with specific <paramref name="Lenght"/>
+        /// Util a password with specific <paramref name="Lenght"/>
         /// </summary>
         /// <param name="Lenght"></param>
         /// <returns></returns>
@@ -204,7 +204,7 @@ namespace InnerLibs
             while (l.Count < Quantity)
             {
                 var r = ColorExtensions.RandomColor(Red, Green, Blue);
-                if (l.Any(x => (x.ToHexadecimal() ?? InnerLibs.Text.Empty) == (r.ToHexadecimal() ?? InnerLibs.Text.Empty)))
+                if (l.Any(x => (x.ToHexadecimal() ?? InnerLibs.Util.Empty) == (r.ToHexadecimal() ?? InnerLibs.Util.Empty)))
                 {
                     errorcount++;
                     if (errorcount == Quantity)
@@ -238,7 +238,7 @@ namespace InnerLibs
             Second = (Second ?? RandomNumber(DateTime.MinValue.Second, DateTime.MaxValue.Second)).ForcePositive().LimitRange(0, 59);
 
             DateTime randomCreated = DateTime.Now;
-            while (Misc.TryExecute(() => randomCreated = new DateTime(Year.Value, Month.Value, Day.Value, Hour.Value, Minute.Value, Second.Value)) != null)
+            while (Util.TryExecute(() => randomCreated = new DateTime(Year.Value, Month.Value, Day.Value, Hour.Value, Minute.Value, Second.Value)) != null)
             {
                 Day--;
             }
@@ -256,7 +256,7 @@ namespace InnerLibs
         {
             var Min = (MinDate ?? RandomDateTime()).Ticks;
             var Max = (MaxDate ?? RandomDateTime()).Ticks;
-            Misc.FixOrder(ref Min, ref Max);
+            Util.FixOrder(ref Min, ref Max);
             return new DateTime(RandomNumber(Min, Max));
         }
 
@@ -274,7 +274,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string RandomFixLenghtNumber(int Len = 8)
         {
-            var n = InnerLibs.Text.Empty;
+            var n = InnerLibs.Util.Empty;
             for (int i = 0; i < Len; i++)
             {
                 n += PredefinedArrays.NumberChars.RandomItem();
@@ -300,7 +300,7 @@ namespace InnerLibs
         /// <returns>Um numero Inteiro</returns>
         public static int RandomNumber(int Min = 0, int Max = int.MaxValue)
         {
-            Misc.FixOrder(ref Min, ref Max);
+            Util.FixOrder(ref Min, ref Max);
             return Min == Max ? Min : init_rnd.Next(Min, Max == int.MaxValue ? int.MaxValue : Max + 1);
         }
 
@@ -312,7 +312,7 @@ namespace InnerLibs
         /// <returns>Um numero Inteiro</returns>
         public static long RandomNumber(long Min, long Max = long.MaxValue)
         {
-            Misc.FixOrder(ref Min, ref Max);
+            Util.FixOrder(ref Min, ref Max);
             if (Min == Max)
             {
                 return Min;
@@ -341,14 +341,14 @@ namespace InnerLibs
                 if (UniqueNumbers)
                 {
                     if (Max < int.MaxValue) Max++;
-                    Misc.FixOrder(ref Min, ref Max);
+                    Util.FixOrder(ref Min, ref Max);
                     var l = Enumerable.Range(Min, Max - Min).OrderByRandom().ToList();
                     while (l.Count > Count) l.RemoveAt(0);
                     return l;
                 }
                 else
                 {
-                    return Enumerable.Range(1, Count).Select(e => Generate.RandomNumber(Min, Max));
+                    return Enumerable.Range(1, Count).Select(e => RandomNumber(Min, Max));
                 }
             }
             return Array.Empty<int>();
@@ -369,13 +369,13 @@ namespace InnerLibs
         public static string RandomWord(int Length = 0)
         {
             Length = Length < 1 ? RandomNumber(2, 15) : Length;
-            string word = InnerLibs.Text.Empty;
+            string word = Util.Empty;
             if (Length == 1)
             {
-                return Text.RandomItem(PredefinedArrays.Vowels.ToArray());
+                return Util.RandomItem(PredefinedArrays.Vowels.ToArray());
             }
 
-            // Generate the word in consonant / vowel pairs
+            // Util the word in consonant / vowel pairs
             while (word.Length < Length)
             {
                 // Add the consonant

@@ -155,7 +155,7 @@ namespace InnerLibs
 
         public IEnumerator<KeyValuePair<TK, TClass>> GetEnumerator() => collection.Select(x => new KeyValuePair<TK, TClass>(keyselector(x), x)).GetEnumerator();
 
-        public bool Remove(TK key) => ContainsKey(key) && Misc.TryExecute(() =>
+        public bool Remove(TK key) => ContainsKey(key) && Util.TryExecute(() =>
                     {
                         var ii = collection.FirstOrDefault(x => keyselector(x).Equals(key));
 

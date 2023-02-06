@@ -1,11 +1,10 @@
-using InnerLibs.LINQ;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace InnerLibs.TimeMachine
+namespace InnerLibs
 {
     /// <summary>
     /// Works like a positive <see cref="System.TimeSpan"/> with validation of Relevant (Business)
@@ -41,7 +40,7 @@ namespace InnerLibs.TimeMachine
 
         private void CalcRange()
         {
-            Misc.FixOrder(ref _startDate, ref _endDate);
+            Util.FixOrder(ref _startDate, ref _endDate);
 
             int days = 0;
             int years = 0;
@@ -869,7 +868,6 @@ namespace InnerLibs.TimeMachine
             }
         }
 
-
         /// <summary>
         /// Retorna o periodo em um total especificado por <see cref="DateRangeInterval"/>
         /// </summary>
@@ -896,8 +894,6 @@ namespace InnerLibs.TimeMachine
                 default: return TotalMilliseconds;
             };
         }
-
-
 
         /// <summary>
         /// Agrupa itens de uma lista de acordo com uma propriedade e uma express�o de agrupamento
@@ -1128,7 +1124,7 @@ namespace InnerLibs.TimeMachine
                 milisegundos = milisegundos.NullIf(x => Years >= 1);
             }
 
-            string current = new[] { ano, mes, dia, horas, minutos, segundos, milisegundos }.WhereNotBlank().ToPhrase(InnerLibs.Text.Empty, display.AndWord);
+            string current = new[] { ano, mes, dia, horas, minutos, segundos, milisegundos }.WhereNotBlank().ToPhrase(InnerLibs.Util.Empty, display.AndWord);
 
             return current.FixText();
         }

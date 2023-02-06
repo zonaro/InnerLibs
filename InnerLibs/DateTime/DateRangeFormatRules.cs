@@ -1,4 +1,4 @@
-﻿namespace InnerLibs.TimeMachine
+﻿namespace InnerLibs
 {
     /// <summary>
     /// Format rules for <see cref="DateRangeDisplay"/>

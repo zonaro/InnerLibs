@@ -10,7 +10,7 @@ namespace InnerLibs
     /// Modulo de Criptografia
     /// </summary>
     /// <remarks></remarks>
-    public static class Encryption
+    public static partial class Util
     {
         /// <summary>
         /// Criptografa um Texto em MD5

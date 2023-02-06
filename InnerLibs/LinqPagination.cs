@@ -1,11 +1,11 @@
-﻿using InnerLibs.TimeMachine;
+﻿using InnerLibs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace InnerLibs.LINQ
+namespace InnerLibs
 {
     internal class ExpressionReplacer : ExpressionVisitor
     {
@@ -41,7 +41,7 @@ namespace InnerLibs.LINQ
         #endregion Public Methods
     }
 
-    public static class LINQExtensions
+    public static partial class Util
     {
         #region Private Fields
 
@@ -343,7 +343,7 @@ namespace InnerLibs.LINQ
         {
             if (Type != null)
             {
-                return Type.Name.PascalCaseSplit().SelectJoinString(x => x.FirstOrDefault().IfBlank(InnerLibs.Text.Empty), InnerLibs.Text.Empty).ToLowerInvariant();
+                return Type.Name.PascalCaseSplit().SelectJoinString(x => x.FirstOrDefault().IfBlank(InnerLibs.Util.Empty), InnerLibs.Util.Empty).ToLowerInvariant();
             }
 
             return "p";
@@ -409,7 +409,7 @@ namespace InnerLibs.LINQ
                     {
                         foreach (var item in PropertyValues)
                         {
-                            var exp = Expression.Equal(Member, Expression.Constant(Text.Empty, Member?.Type));
+                            var exp = Expression.Equal(Member, Expression.Constant(Util.Empty, Member?.Type));
                             switch (body)
                             {
                                 case null:
@@ -1041,7 +1041,7 @@ namespace InnerLibs.LINQ
                     {
                         try
                         {
-                            var metodo = Member.Type.GetMethods().FirstOrDefault(x => (x.Name.ToLowerInvariant() ?? InnerLibs.Text.Empty) == (Operator.ToLowerInvariant() ?? InnerLibs.Text.Empty));
+                            var metodo = Member.Type.GetMethods().FirstOrDefault(x => (x.Name.ToLowerInvariant() ?? InnerLibs.Util.Empty) == (Operator.ToLowerInvariant() ?? InnerLibs.Util.Empty));
                             Expression exp = (Expression)metodo.Invoke(null, new[] { PropertyValues });
                             exp = Expression.Equal(Expression.Invoke(exp, new[] { Member }), Expression.Constant(comparewith));
                             if (body == null)
@@ -1634,7 +1634,7 @@ namespace InnerLibs.LINQ
         /// <param name="Source"></param>
         /// <param name="Separator"></param>
         /// <returns></returns>
-        public static string SelectJoinString<TSource>(this IEnumerable<TSource> Source, string Separator = InnerLibs.Text.Empty) => Source.SelectJoinString(null, Separator);
+        public static string SelectJoinString<TSource>(this IEnumerable<TSource> Source, string Separator = InnerLibs.Util.Empty) => Source.SelectJoinString(null, Separator);
 
         /// <summary>
         /// Seleciona e une em uma unica string varios elementos
@@ -1644,11 +1644,11 @@ namespace InnerLibs.LINQ
         /// <param name="Selector"></param>
         /// <param name="Separator"></param>
         /// <returns></returns>
-        public static string SelectJoinString<TSource>(this IEnumerable<TSource> Source, Func<TSource, string> Selector, string Separator = InnerLibs.Text.Empty)
+        public static string SelectJoinString<TSource>(this IEnumerable<TSource> Source, Func<TSource, string> Selector, string Separator = InnerLibs.Util.Empty)
         {
             Selector = Selector ?? (x => $"{x}");
             Source = Source ?? Array.Empty<TSource>();
-            return Source.Any() ? String.Join(Separator, Source.Select(Selector).ToArray()) : InnerLibs.Text.Empty;
+            return Source.Any() ? String.Join(Separator, Source.Select(Selector).ToArray()) : InnerLibs.Util.Empty;
         }
 
         /// <summary>
@@ -1659,7 +1659,7 @@ namespace InnerLibs.LINQ
         /// <param name="Selector"></param>
         /// <param name="Separator"></param>
         /// <returns></returns>
-        public static string SelectManyJoinString<TSource>(this IEnumerable<TSource> Source, Func<TSource, IEnumerable<string>> Selector = null, string Separator = InnerLibs.Text.Empty) => SelectJoinString(Source.SelectMany(Selector ?? (x => (new[] { x.ToString() }))), Separator);
+        public static string SelectManyJoinString<TSource>(this IEnumerable<TSource> Source, Func<TSource, IEnumerable<string>> Selector = null, string Separator = InnerLibs.Util.Empty) => SelectJoinString(Source.SelectMany(Selector ?? (x => (new[] { x.ToString() }))), Separator);
 
         /// <summary>
         /// Seleciona e une em uma unica string varios elementos enumeraveis
@@ -1669,7 +1669,7 @@ namespace InnerLibs.LINQ
         /// <param name="Selector"></param>
         /// <param name="Separator"></param>
         /// <returns></returns>
-        public static string SelectManyJoinString<TSource>(this IQueryable<TSource> Source, Func<TSource, IEnumerable<string>> Selector = null, string Separator = InnerLibs.Text.Empty) => Source.AsEnumerable().SelectManyJoinString(Selector, Separator);
+        public static string SelectManyJoinString<TSource>(this IQueryable<TSource> Source, Func<TSource, IEnumerable<string>> Selector = null, string Separator = InnerLibs.Util.Empty) => Source.AsEnumerable().SelectManyJoinString(Selector, Separator);
 
         /// <summary>
         /// Busca em um <see cref="IQueryable{T}"/> usando uma expressao lambda a partir do nome de
@@ -1915,7 +1915,7 @@ namespace InnerLibs.LINQ
             foreach (var prop in SortProperty)
             {
 
-                var propInfo = Misc.FindProperty(typeof(T), prop);
+                var propInfo = Util.FindProperty(typeof(T), prop);
 
                 if (propInfo != null)
                 {

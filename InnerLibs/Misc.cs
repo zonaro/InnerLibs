@@ -1,26 +1,316 @@
-﻿using InnerLibs.LINQ;
+﻿using InnerLibs;
 using InnerLibs.Mail;
-using InnerLibs.MicroORM;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Net.Mail;
 using System.Reflection;
 using System.Runtime.Serialization;
+using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 
 namespace InnerLibs
 {
-    public static class Misc
+    public static partial class Util
     {
+
+        #region Public Methods
+
+        /// <summary>
+        /// Decoda uma string em Util
+        /// </summary>
+        /// <param name="Base"></param>
+        /// <param name="Encoding"></param>
+        /// <returns></returns>
+        public static string Atob(this string Base, Encoding Encoding = null)
+        {
+            if (Base.IsNotBlank())
+            {
+                Base = (Encoding ?? new UTF8Encoding(false)).GetString(Convert.FromBase64String(Base));
+            }
+
+            return Base;
+        }
+
+        /// <summary>
+        /// Converte uma DATAURL ou Util String em um array de Bytes
+        /// </summary>
+        /// <param name="Base64StringOrDataURL">Util String ou DataURL</param>
+        /// <returns></returns>
+        public static byte[] Base64ToBytes(this string Base64StringOrDataURL) => Convert.FromBase64String(Base64StringOrDataURL.FixBase64());
+
+        public static Image Base64ToImage(this string DataUrlOrBase64String, int Width = 0, int Height = 0)
+        {
+            try
+            {
+                if (DataUrlOrBase64String.IsBlank())
+                {
+                    return null;
+                }
+
+                if (DataUrlOrBase64String.Contains(","))
+                {
+                    DataUrlOrBase64String = DataUrlOrBase64String.GetAfter(",");
+                }
+
+                var imageBytes = Base64ToBytes(DataUrlOrBase64String);
+                using (var ms = new MemoryStream(imageBytes, 0, imageBytes.Length))
+                {
+                    ms.Write(imageBytes, 0, imageBytes.Length);
+                    if (Width > 0 && Height > 0)
+                    {
+                        return Image.FromStream(ms, true).Resize(Width, Height, false);
+                    }
+                    else
+                    {
+                        return Image.FromStream(ms, true);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidDataException("Invalid Base64 or DataURL string or Base64 format is not an Image", ex);
+            }
+        }
+
+        /// <summary>
+        /// Encoda uma string em Base64
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <param name="Encoding"></param>
+        /// <returns></returns>
+        public static string Btoa(this string Text, Encoding Encoding = null)
+        {
+            if (Text.IsNotBlank())
+            {
+                Text = Convert.ToBase64String((Encoding ?? new UTF8Encoding(false)).GetBytes(Text));
+            }
+
+            return Text;
+        }
+
+        /// <summary>
+        /// Cria um arquivo fisico a partir de uma Base64 ou DataURL
+        /// </summary>
+        /// <param name="Base64StringOrDataURL"></param>
+        /// <param name="FilePath"></param>
+        /// <returns></returns>
+        public static FileInfo Base64ToFile(this string Base64StringOrDataURL, string FilePath) => Base64StringOrDataURL.Base64ToBytes().WriteToFile(FilePath);
+
+        /// <summary>
+        /// Arruma os caracteres de uma string Util
+        /// </summary>
+        /// <param name="Base64StringOrDataUrl">Base64String ou DataURL</param>
+        /// <returns>Retorna apenas a Util</returns>
+        public static string FixBase64(this string Base64StringOrDataUrl)
+        {
+            string dummyData = Base64StringOrDataUrl.GetAfter(",").Trim().Replace(" ", "+");
+            if (dummyData.Length % 4 > 0)
+            {
+                dummyData = dummyData.PadRight(dummyData.Length + 4 - dummyData.Length % 4, '=');
+            }
+
+            return dummyData;
+        }
+
+        /// <summary>
+        /// Retorna verdadeiro se identificar que a string é base64
+        /// </summary>
+        /// <param name="base64String"></param>
+        /// <returns></returns>
+        public static bool IsBase64(this string base64String)
+        {
+            // Credit: oybek https://stackoverflow.com/users/794764/oybek
+            if (string.IsNullOrWhiteSpace(base64String) ||
+                base64String.Length % 4 != 0 ||
+                base64String.Contains(" ") ||
+                base64String.Contains("\t") ||
+                base64String.Contains("\r") ||
+                base64String.Contains("\n"))
+            {
+                return false;
+            }
+
+            try
+            {
+                Convert.FromBase64String(base64String);
+                return true;
+            }
+            catch
+            {
+                //ignore
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Retorna TRUE se o texto for um dataurl valido
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <returns></returns>
+        public static bool IsDataURL(this string Text)
+        {
+            try
+            {
+                return new DataURI(Text).ToString().IsNotBlank();
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Converte um Array de Bytes em uma string Util
+        /// </summary>
+        /// <param name="Bytes">Array de Bytes</param>
+        /// <returns></returns>
+        public static string ToBase64(this byte[] Bytes) => Convert.ToBase64String(Bytes);
+
+        public static string ToBase64(this Image OriginalImage, System.Drawing.Imaging.ImageFormat OriginalImageFormat)
+        {
+            using (var ms = new MemoryStream())
+            {
+                OriginalImage.Save(ms, OriginalImageFormat);
+                var imageBytes = ms.ToArray();
+                return Convert.ToBase64String(imageBytes);
+            }
+        }
+
+        /// <summary>
+        /// Converte uma Imagem para String Util
+        /// </summary>
+        /// <param name="OriginalImage">
+        /// Imagem original, tipo Image() (Picturebox.Image, Picturebox.BackgroundImage etc.)
+        /// </param>
+        /// <returns>Uma string em formato Util</returns>
+        public static string ToBase64(this Image OriginalImage)
+        {
+            using (var ms = new MemoryStream())
+            {
+                OriginalImage.Save(ms, OriginalImage.GetImageFormat());
+                var imageBytes = ms.ToArray();
+                return Convert.ToBase64String(imageBytes);
+            }
+        }
+
+        /// <summary>
+        /// Converte uma Imagem da WEB para String Util
+        /// </summary>
+        /// <param name="ImageURL">Caminho da imagem</param>
+        /// <returns>Uma string em formato Util</returns>
+        public static string ToBase64(this Uri ImageURL)
+        {
+            if (ImageURL != null)
+            {
+                var imagem = Util.DownloadImage(ImageURL?.AbsoluteUri);
+                using (var m = new MemoryStream())
+                {
+                    imagem.Save(m, imagem.RawFormat);
+                    var imageBytes = m.ToArray();
+                    string base64String = Convert.ToBase64String(imageBytes);
+                    return base64String;
+                }
+            }
+            return null;
+        }
+
+        public static string ToBase64(this string ImageURL, System.Drawing.Imaging.ImageFormat OriginalImageFormat)
+        {
+            var imagem = Image.FromStream(System.Net.WebRequest.Create(string.Format(ImageURL)).GetResponse().GetResponseStream());
+            using (var m = new MemoryStream())
+            {
+                imagem.Save(m, OriginalImageFormat);
+                var imageBytes = m.ToArray();
+                string base64String = Convert.ToBase64String(imageBytes);
+                return base64String;
+            }
+        }
+
+        /// <summary>
+        /// Converte um Array de Bytes em uma DATA URL Completa
+        /// </summary>
+        /// <param name="Bytes">Array de Bytes</param>
+        /// <param name="Type">Tipo de arquivo</param>
+        /// <returns></returns>
+        public static string ToDataURL(this byte[] Bytes, FileType Type = null) => "data:" + (Type ?? new FileType()).ToString() + ";base64," + Bytes.ToBase64();
+
+        /// <summary>
+        /// Converte um Array de Bytes em uma DATA URL Completa
+        /// </summary>
+        /// <param name="Bytes">Array de Bytes</param>
+        /// <param name="MimeType">Tipo de arquivo</param>
+        /// <returns></returns>
+        public static string ToDataURL(this byte[] Bytes, string MimeType) => "data:" + MimeType + ";base64," + Bytes.ToBase64();
+
+        /// <summary>
+        /// Converte um arquivo uma DATA URL Completa
+        /// </summary>
+        /// <param name="File">Arquivo</param>
+        /// <returns></returns>
+        public static string ToDataURL(this FileInfo File) => File.ToBytes().ToDataURL(new FileType(File.Extension));
+
+        /// <summary>
+        /// Transforma uma imagem em uma URL Util
+        /// </summary>
+        /// <param name="Image">Imagem</param>
+        /// <returns>Uma DataURI em string</returns>
+        public static string ToDataURL(this Image Image) => $"data:{Image.GetFileType().First().ToLowerInvariant().Replace("application/octet-stream", Util.GetFileType(".png").First())};base64,{Image.ToBase64()}";
+
+        /// <summary>
+        /// Converte uma imagem para DataURI trocando o MIME T
+        /// </summary>
+        /// <param name="OriginalImage">Imagem</param>
+        /// <param name="OriginalImageFormat">Formato da Imagem</param>
+        /// <returns>Uma data URI com a imagem convertida</returns>
+        public static string ToDataURL(this Image OriginalImage, System.Drawing.Imaging.ImageFormat OriginalImageFormat) => OriginalImage.ToBase64(OriginalImageFormat).Base64ToImage().ToDataURL();
+
+
+
+        /// <summary>
+        /// Converte um array de bytes para imagem
+        /// </summary>
+        /// <param name="Bytes">Bytes</param>
+        /// <returns></returns>
+        public static Image ToImage(this byte[] Bytes)
+        {
+            using (var s = new MemoryStream(Bytes))
+            {
+                return Image.FromStream(s);
+            }
+        }
+
+        #endregion Public Methods
+
+        /// <summary>
+        /// Tenta retornar um index de um IEnumerable a partir de um valor especifico. retorna -1 se
+        /// o index nao existir
+        /// </summary>
+        /// <typeparam name="T">Tipo do IEnumerable e do valor</typeparam>
+        /// <param name="Arr">Array</param>
+        /// <returns></returns>
+        public static int GetIndexOf<T>(this IEnumerable<T> Arr, T item)
+        {
+            try
+            {
+                return Arr.ToList().IndexOf(item);
+            }
+            catch
+            {
+                return -1;
+            }
+        }
+
 
         /// <summary>
         /// Set this flag to true to show InnerLibs Debug messages
@@ -28,7 +318,7 @@ namespace InnerLibs
         public static bool EnableDebugMessages { get; set; }
 
         /// <summary>
-        /// Write a message using <see cref="Debug.WriteLine(value,category)" /> when <see cref="Misc.EnableDebugMessages" /> is true
+        /// Write a message using <see cref="Debug.WriteLine(value,category)" /> when <see cref="Util.EnableDebugMessages" /> is true
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="value"></param>
@@ -38,14 +328,7 @@ namespace InnerLibs
             if (EnableDebugMessages)
             {
                 category = category.IfBlank("InnerLibs Debug");
-                if (value is string s && category is null)
-                {
-                    Debug.WriteLine(s, category);
-                }
-                else
-                {
-                    Debug.WriteLine((object)value, category);
-                }
+                Debug.WriteLine(value, category);
 
             }
             return value;
@@ -86,7 +369,7 @@ namespace InnerLibs
                         if (att != null)
                         {
                             rec.AddAttachment(att);
-                            
+
                         }
                     }
                 }
@@ -147,7 +430,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="N">Itens</param>
         /// <returns></returns>
-        public static string BlankCoalesce(params string[] N) => (N ?? Array.Empty<string>()).FirstOr(x => x.IsNotBlank(), Text.Empty);
+        public static string BlankCoalesce(params string[] N) => (N ?? Array.Empty<string>()).FirstOr(x => x.IsNotBlank(), Util.Empty);
 
         /// <summary>
         /// Verifica se uma lista, coleção ou array contem todos os itens de outra lista, coleção ou array.
@@ -297,7 +580,7 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Cria um arquivo a partir de qualquer objeto usando o <see cref="Misc.CreateXML()"/>
+        /// Cria um arquivo a partir de qualquer objeto usando o <see cref="Util.CreateXML()"/>
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
@@ -594,7 +877,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="MyObject">Objeto</param>
         /// <returns></returns>
-        public static FieldInfo GetField<T>(this T MyObject, string Name) => MyObject.GetTypeOf().GetFields().SingleOrDefault(x => (x.Name ?? Text.Empty) == (Name ?? Text.Empty));
+        public static FieldInfo GetField<T>(this T MyObject, string Name) => MyObject.GetTypeOf().GetFields().SingleOrDefault(x => (x.Name ?? Util.Empty) == (Name ?? Util.Empty));
 
         public static IEnumerable<FieldInfo> GetFields<T>(this T MyObject, BindingFlags BindAttr) => MyObject.GetTypeOf().GetFields(BindAttr).ToList();
 
@@ -664,7 +947,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="MyObject">Objeto</param>
         /// <returns></returns>
-        public static PropertyInfo GetProperty<T>(this T MyObject, string Name) => MyObject.GetTypeOf().GetProperties().SingleOrDefault(x => (x.Name ?? Text.Empty) == (Name ?? Text.Empty));
+        public static PropertyInfo GetProperty<T>(this T MyObject, string Name) => MyObject.GetTypeOf().GetProperties().SingleOrDefault(x => (x.Name ?? Util.Empty) == (Name ?? Util.Empty));
 
         /// <summary>
         /// Retorna uma <see cref="Hashtable"/> das propriedades de um objeto
@@ -856,7 +1139,7 @@ namespace InnerLibs
             {
                 var parts = new List<string>();
                 bool stop = false;
-                string current = Text.Empty;
+                string current = Util.Empty;
                 for (int i = 0, loopTo = PropertyName.Length - 1; i <= loopTo; i++)
                 {
                     if (PropertyName[i] != '.')
@@ -877,7 +1160,7 @@ namespace InnerLibs
                     if (PropertyName[i] == '.' && !stop || i == PropertyName.Length - 1)
                     {
                         parts.Add(current.ToString());
-                        current = Text.Empty;
+                        current = Util.Empty;
                     }
                 }
 
@@ -1267,7 +1550,7 @@ namespace InnerLibs
                         {
                             case var @case when @case == typeof(string):
                                 {
-                                    item.SetValue(Obj, Text.Empty);
+                                    item.SetValue(Obj, Util.Empty);
                                     break;
                                 }
 
@@ -1311,7 +1594,7 @@ namespace InnerLibs
                     propnames.Add(Name.TrimStart('_'));
                 }
                 string propname1 = Name.Trim().Replace(" ", "_").Replace("-", "_").Replace("~", "_");
-                string propname3 = Name.Trim().Replace(" ", Text.Empty).Replace("-", Text.Empty).Replace("~", Text.Empty);
+                string propname3 = Name.Trim().Replace(" ", Util.Empty).Replace("-", Util.Empty).Replace("~", Util.Empty);
                 string propname2 = propname1.RemoveAccents();
                 string propname4 = propname3.RemoveAccents();
                 propnames.AddRange(new[] { Name, propname1, propname2, propname3, propname4 });
@@ -1474,7 +1757,7 @@ namespace InnerLibs
                     }
                     else
                     {
-                        prop.SetValue(MyObject, Converter.ChangeType(Value, prop.PropertyType));
+                        prop.SetValue(MyObject, Util.ChangeType(Value, prop.PropertyType));
                     }
             }
 
@@ -1491,7 +1774,7 @@ namespace InnerLibs
         {
             return Task.Delay(milliseconds).ContinueWith(async (t) =>
                {
-                   Misc.TryExecute(action);
+                   Util.TryExecute(action);
                    t.Dispose();
                });
         }
@@ -1686,7 +1969,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Dic"></param>
         /// <returns></returns>
-        public static string ToQueryString(this Dictionary<string, string> Dic) => Dic?.Where(x => x.Key.IsNotBlank()).SelectJoinString(x => new[] { x.Key, (x.Value ?? Text.Empty).UrlEncode() }.SelectJoinString("="), "&") ?? Text.Empty;
+        public static string ToQueryString(this Dictionary<string, string> Dic) => Dic?.Where(x => x.Key.IsNotBlank()).SelectJoinString(x => new[] { x.Key, (x.Value ?? Util.Empty).UrlEncode() }.SelectJoinString("="), "&") ?? Util.Empty;
 
         /// <summary>
         /// Retorna um <see cref="NameValueCollection"/> em QueryString

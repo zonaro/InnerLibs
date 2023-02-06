@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace InnerLibs.TimeMachine
+namespace InnerLibs
 {
     /// <summary>
     /// Behavior for <see cref="DateRange.FilterBehavior"/>

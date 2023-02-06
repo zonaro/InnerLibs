@@ -1,10 +1,10 @@
-﻿using InnerLibs.LINQ;
+﻿
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 
-namespace InnerLibs.TimeMachine
+namespace InnerLibs
 {
     /// <summary>
     /// Dia de Uma Demanda

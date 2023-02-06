@@ -1,5 +1,5 @@
-﻿using InnerLibs.LINQ;
-using InnerLibs.TimeMachine;
+﻿
+using InnerLibs;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -12,11 +12,11 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace InnerLibs.MicroORM
+namespace InnerLibs
 {
     /// <summary>
-    /// Constantes utilizadas na funçao <see cref="DbExtensions.CreateSQLQuickResponse(DbCommand,
-    /// string, bool)"/> e <see cref="DbExtensions.CreateSQLQuickResponse(DbConnection,
+    /// Constantes utilizadas na funçao <see cref="Util.CreateSQLQuickResponse(DbCommand,
+    /// string, bool)"/> e <see cref="Util.CreateSQLQuickResponse(DbConnection,
     /// FormattableString, string,bool)"/>
     /// </summary>
     public static class DataSetType
@@ -67,7 +67,7 @@ namespace InnerLibs.MicroORM
     /// <summary>
     /// Enxtensões para <see cref="DbConnection"/> e classes derivadas
     /// </summary>
-    public static class DbExtensions
+    public static partial class Util
     {
         #region Public Properties
 
@@ -155,7 +155,7 @@ namespace InnerLibs.MicroORM
         /// <param name="Connection"></param>
         /// <param name="SQL"></param>
         /// <returns></returns>
-        public static DbCommand CreateCommand<T>(this DbConnection Connection, FileInfo SQLFile, T obj, DbTransaction Transaction = null) => CreateCommand(Connection, SQLFile.Exists ? SQLFile.ReadAllText() : InnerLibs.Text.Empty, obj, Transaction);
+        public static DbCommand CreateCommand<T>(this DbConnection Connection, FileInfo SQLFile, T obj, DbTransaction Transaction = null) => CreateCommand(Connection, SQLFile.Exists ? SQLFile.ReadAllText() : InnerLibs.Util.Empty, obj, Transaction);
 
         /// <summary>
         /// Cria um <see cref="DbCommand"/> a partir de uma string SQL e um objeto,
@@ -210,7 +210,7 @@ namespace InnerLibs.MicroORM
                     foreach (var p in Parameters.Keys)
                     {
                         var v = Parameters.GetValueOr(p);
-                        var arr = Converter.ForceArray(v, typeof(object)).ToList();
+                        var arr = Util.ForceArray(v, typeof(object)).ToList();
                         for (int index = 0, loopTo = arr.Count - 1; index <= loopTo; index++)
                         {
                             var param = command.CreateParameter();
@@ -292,7 +292,7 @@ namespace InnerLibs.MicroORM
                     for (int index = 0, loopTo = SQL.ArgumentCount - 1; index <= loopTo; index++)
                     {
                         var valores = SQL.GetArgument(index);
-                        var v = Converter.ForceArray(valores, typeof(object)).ToList();
+                        var v = Util.ForceArray(valores, typeof(object)).ToList();
                         var param_names = new List<string>();
                         for (int v_index = 0, loopTo1 = v.Count() - 1; v_index <= loopTo1; v_index++)
                         {
@@ -522,7 +522,7 @@ namespace InnerLibs.MicroORM
         /// <summary>
         /// Retorna um <see cref="DbType"/> a partir do <see cref="Type"/> do <paramref name="obj"/>
         /// </summary>
-        public static DbType GetDbType<T>(this T obj, DbType DefaultType = DbType.Object) => DbTypes.GetValueOr(Misc.GetNullableTypeOf(obj), DefaultType);
+        public static DbType GetDbType<T>(this T obj, DbType DefaultType = DbType.Object) => DbTypes.GetValueOr(Util.GetNullableTypeOf(obj), DefaultType);
 
         public static DataRow GetFirstRow(this DataSet Data) => Data.GetFirstTable()?.GetFirstRow();
 
@@ -573,7 +573,7 @@ namespace InnerLibs.MicroORM
         {
             try
             {
-                return Converter.ChangeType<T>(row != null ? row[ColumnIndex] : default);
+                return Util.ChangeType<T>(row != null ? row[ColumnIndex] : default);
             }
             catch
             {
@@ -585,7 +585,7 @@ namespace InnerLibs.MicroORM
         {
             try
             {
-                return Converter.ChangeType<T>(row != null ? row[ColumnNameOrIndex] : default);
+                return Util.ChangeType<T>(row != null ? row[ColumnNameOrIndex] : default);
             }
             catch
             {
@@ -682,8 +682,8 @@ namespace InnerLibs.MicroORM
         /// <returns></returns>
         public static DbCommand LogCommand(this DbCommand Command, TextWriter LogWriter = null)
         {
-            DbExtensions.LogWriter = DbExtensions.LogWriter ?? new DebugTextWriter();
-            LogWriter = LogWriter ?? DbExtensions.LogWriter;
+            Util.LogWriter = Util.LogWriter ?? new DebugTextWriter();
+            LogWriter = LogWriter ?? Util.LogWriter;
             LogWriter.WriteLine(Environment.NewLine);
             LogWriter.WriteLine("=".Repeat(10));
             if (Command != null)
@@ -744,8 +744,8 @@ namespace InnerLibs.MicroORM
                     else
                     {
 
-                        var PropInfos = Misc.GetTypeOf(d).FindProperties(name);
-                        var FieldInfos = Misc.GetTypeOf(d).FindFields(name).Where(x => x.Name.IsNotIn(PropInfos.Select(y => y.Name)));
+                        var PropInfos = Util.GetTypeOf(d).FindProperties(name);
+                        var FieldInfos = Util.GetTypeOf(d).FindFields(name).Where(x => x.Name.IsNotIn(PropInfos.Select(y => y.Name)));
                         foreach (var info in PropInfos)
                         {
                             if (info.CanWrite)
@@ -756,7 +756,7 @@ namespace InnerLibs.MicroORM
                                 }
                                 else
                                 {
-                                    info.SetValue(d, Converter.ChangeType(value, info.PropertyType));
+                                    info.SetValue(d, Util.ChangeType(value, info.PropertyType));
                                 }
                             }
                         }
@@ -769,7 +769,7 @@ namespace InnerLibs.MicroORM
                             }
                             else
                             {
-                                info.SetValue(d, Converter.ChangeType(value, info.FieldType));
+                                info.SetValue(d, Util.ChangeType(value, info.FieldType));
                             }
                         }
                     }
@@ -825,8 +825,8 @@ namespace InnerLibs.MicroORM
                     else
                     {
                         var propnames = name.PropertyNamesFor().ToList();
-                        var PropInfos = Misc.GetTypeOf(d).GetProperties().Where(x => x.GetCustomAttributes<ColumnName>().SelectMany(n => n.Names).Contains(x.Name) || x.Name.IsIn(propnames, StringComparer.InvariantCultureIgnoreCase));
-                        var FieldInfos = Misc.GetTypeOf(d).GetFields().Where(x => x.GetCustomAttributes<ColumnName>().SelectMany(n => n.Names).Contains(x.Name) || x.Name.IsIn(propnames, StringComparer.InvariantCultureIgnoreCase)).Where(x => x.Name.IsNotIn(PropInfos.Select(y => y.Name)));
+                        var PropInfos = Util.GetTypeOf(d).GetProperties().Where(x => x.GetCustomAttributes<ColumnName>().SelectMany(n => n.Names).Contains(x.Name) || x.Name.IsIn(propnames, StringComparer.InvariantCultureIgnoreCase));
+                        var FieldInfos = Util.GetTypeOf(d).GetFields().Where(x => x.GetCustomAttributes<ColumnName>().SelectMany(n => n.Names).Contains(x.Name) || x.Name.IsIn(propnames, StringComparer.InvariantCultureIgnoreCase)).Where(x => x.Name.IsNotIn(PropInfos.Select(y => y.Name)));
                         foreach (var info in PropInfos)
                         {
                             if (info.CanWrite)
@@ -837,7 +837,7 @@ namespace InnerLibs.MicroORM
                                 }
                                 else
                                 {
-                                    info.SetValue(d, Converter.ChangeType(value, info.PropertyType));
+                                    info.SetValue(d, Util.ChangeType(value, info.PropertyType));
                                 }
                             }
                         }
@@ -850,7 +850,7 @@ namespace InnerLibs.MicroORM
                             }
                             else
                             {
-                                info.SetValue(d, Converter.ChangeType(value, info.FieldType));
+                                info.SetValue(d, Util.ChangeType(value, info.FieldType));
                             }
                         }
                     }
@@ -1103,7 +1103,7 @@ namespace InnerLibs.MicroORM
                         if (prop.GetValue(d) == null)
                         {
                             var oo = Connection.RunSQLValue(Sql.ToFormattableString());
-                            prop.SetValue(d, Converter.ChangeType(oo, prop.PropertyType));
+                            prop.SetValue(d, Util.ChangeType(oo, prop.PropertyType));
                             if (Recursive)
                             {
                                 Connection.ProccessSubQuery(oo, Recursive);
@@ -1128,7 +1128,7 @@ namespace InnerLibs.MicroORM
         /// <returns></returns>
         public static T ProccessSubQuery<T>(this DbConnection Connection, T d, bool Recursive = false) where T : class
         {
-            foreach (var prop in Misc.GetProperties(d).Where(x => x.HasAttribute<FromSQL>()))
+            foreach (var prop in Util.GetProperties(d).Where(x => x.HasAttribute<FromSQL>()))
             {
                 Connection.ProccessSubQuery(d, prop.Name, Recursive);
             }
@@ -1629,7 +1629,7 @@ namespace InnerLibs.MicroORM
                     for (int index = 0, loopTo = SQL.ArgumentCount - 1; index <= loopTo; index++)
                     {
                         var valores = SQL.GetArgument(index);
-                        var v = Converter.ForceArray(valores, typeof(object));
+                        var v = Util.ForceArray(valores, typeof(object));
                         var paramvalues = new List<object>();
 
                         for (int v_index = 0, loopTo1 = v.Length - 1; v_index <= loopTo1; v_index++)
@@ -1643,15 +1643,15 @@ namespace InnerLibs.MicroORM
                             {
                                 return "NULL";
                             }
-                            else if (Misc.GetNullableTypeOf(x).IsNumericType())
+                            else if (Util.GetNullableTypeOf(x).IsNumericType())
                             {
                                 return x.ToString();
                             }
-                            else if (Verify.IsDate(x))
+                            else if (Util.IsDate(x))
                             {
                                 return x.ToDateTime().ToSQLDateString().EscapeQuotesToQuery(true);
                             }
-                            else if (Verify.IsBool(x))
+                            else if (Util.IsBool(x))
                             {
                                 return x.ToBool().AsIf("1", "0");
                             }

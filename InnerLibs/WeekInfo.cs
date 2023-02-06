@@ -1,7 +1,7 @@
 using System;
 using System.Globalization;
 
-namespace InnerLibs.TimeMachine
+namespace InnerLibs
 {
     public struct WeekInfo : IEquatable<WeekInfo>
     {

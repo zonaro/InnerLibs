@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
-namespace InnerLibs.TimeMachine
+namespace InnerLibs
 {
-    public class FortnightGroup<DataType> : FortnightGroup
+    public class FortnightGroup<T> : FortnightGroup
     {
         #region Public Constructors
 
@@ -28,7 +28,7 @@ namespace InnerLibs.TimeMachine
         /// </summary>
         /// <param name="Fort">Quinzena</param>
         /// <returns></returns>
-        public IEnumerable<DataType> this[Fortnight Fort] => this[Fort.Key];
+        public IEnumerable<T> this[Fortnight Fort] => this[Fort.Key];
 
         /// <summary>
         /// Retorna da <see cref="DataCollection"/> os valores correspondentes a quinzena
@@ -36,11 +36,11 @@ namespace InnerLibs.TimeMachine
         /// </summary>
         /// <param name="Key">Key da quinzena q@MM-YYYY</param>
         /// <returns></returns>
-        public new IEnumerable<DataType> this[string Key]
+        public new IEnumerable<T> this[string Key]
         {
             get
             {
-                var lista = new List<DataType>();
+                var lista = new List<T>();
                 foreach (var ii in DataCollection)
                 {
                     var datas = new List<DateTime>();
@@ -70,15 +70,15 @@ namespace InnerLibs.TimeMachine
 
         #region Public Properties
 
-        public List<DataType> DataCollection { get; set; } = new List<DataType>();
-        public List<Func<DataType, DateTime>> DateSelector { get; set; } = new List<Func<DataType, DateTime>>();
+        public List<T> DataCollection { get; set; } = new List<T>();
+        public List<Func<T, DateTime>> DateSelector { get; set; } = new List<Func<T, DateTime>>();
 
         #endregion Public Properties
 
         #region Public Methods
 
         /// <summary>
-        /// Cria um <see cref="FortnightGroup(Of DataType)"/> a partir de uma coleção de objetos
+        /// Cria um <see cref="FortnightGroup(Of T)"/> a partir de uma coleção de objetos
         /// </summary>
         /// <param name="Range">
         /// Periodo especifico que este grupo irá abranger idependentemente das datas em <paramref name="DateSelector"/>
@@ -88,9 +88,9 @@ namespace InnerLibs.TimeMachine
         /// Expressão Lambda que indica quais campos do objeto contém uma data que deve ser utilizada
         /// </param>
         /// <returns></returns>
-        public static FortnightGroup<DataType> CreateFromDataGroup(IEnumerable<DataType> Data, DateRange Range, params Func<DataType, DateTime>[] DateSelector)
+        public static FortnightGroup<T> CreateFromDataGroup(IEnumerable<T> Data, DateRange Range, params Func<T, DateTime>[] DateSelector)
         {
-            FortnightGroup<DataType> fort;
+            FortnightGroup<T> fort;
             fort = CreateFromDateRange(Range.StartDate, Range.EndDate);
             if (Data != null && Data.Any())
             {
@@ -106,14 +106,14 @@ namespace InnerLibs.TimeMachine
         }
 
         /// <summary>
-        /// Cria um <see cref="FortnightGroup(Of DataType)"/> a partir de uma coleção de objetos
+        /// Cria um <see cref="FortnightGroup(Of T)"/> a partir de uma coleção de objetos
         /// </summary>
         /// <param name="Data">Coleção de objetos</param>
         /// <param name="DateSelector">
         /// Expressão Lambda que indica quais campos do objeto contém uma data que deve ser utilizada
         /// </param>
         /// <returns></returns>
-        public static FortnightGroup<DataType> CreateFromDataGroup(IEnumerable<DataType> Data, params Func<DataType, DateTime>[] DateSelector)
+        public static FortnightGroup<T> CreateFromDataGroup(IEnumerable<T> Data, params Func<T, DateTime>[] DateSelector)
         {
             var datas = new List<DateTime?>();
             if (DateSelector == null || !DateSelector.Any())
@@ -134,48 +134,48 @@ namespace InnerLibs.TimeMachine
         }
 
         /// <summary>
-        /// Cria um <see cref="FortnightGroup(Of DataType)"/> a partir de uma data inicial e uma
+        /// Cria um <see cref="FortnightGroup(Of T)"/> a partir de uma data inicial e uma
         /// data final
         /// </summary>
         /// <param name="StartDate">Data inicial</param>
         /// <param name="EndDate">Data Final</param>
         /// <returns></returns>
-        public new static FortnightGroup<DataType> CreateFromDateRange(DateTime StartDate, DateTime EndDate)
+        public new static FortnightGroup<T> CreateFromDateRange(DateTime StartDate, DateTime EndDate)
         {
-            Misc.FixOrder(ref StartDate, ref EndDate);
+            Util.FixOrder(ref StartDate, ref EndDate);
             int fortcount = 0;
-            FortnightGroup<DataType> fort;
+            FortnightGroup<T> fort;
             do
             {
-                fort = new FortnightGroup<DataType>(StartDate, fortcount++);
+                fort = new FortnightGroup<T>(StartDate, fortcount++);
             }
             while (fort.EndDate.Date < EndDate.Date);
             return fort;
         }
 
         /// <summary>
-        /// Cria um <see cref="FortnightGroup(Of DataType)"/> a partir de uma data inicial e uma
+        /// Cria um <see cref="FortnightGroup(Of T)"/> a partir de uma data inicial e uma
         /// data final
         /// </summary>
         /// <param name="StartDate">Data inicial</param>
         /// <param name="EndDate">Data Final</param>
         /// <returns></returns>
-        public new static FortnightGroup<DataType> CreateFromDateRange(DateRange DateRange) => CreateFromDateRange(DateRange.StartDate, DateRange.EndDate);
+        public new static FortnightGroup<T> CreateFromDateRange(DateRange DateRange) => CreateFromDateRange(DateRange.StartDate, DateRange.EndDate);
 
         /// <summary>
-        /// Retorna um <see cref="Dictionary(Of String, DataType)"/> com as informações agrupadas
+        /// Retorna um <see cref="Dictionary(Of String, T)"/> com as informações agrupadas
         /// por quinzena
         /// </summary>
         /// <returns></returns>
-        public Dictionary<Fortnight, IEnumerable<DataType>> ToDataDictionary(bool IncludeFortnightsWithoutData = true)
+        public Dictionary<Fortnight, IEnumerable<T>> ToDataDictionary(bool IncludeFortnightsWithoutData = true)
         {
-            var d = new Dictionary<Fortnight, IEnumerable<DataType>>();
+            var d = new Dictionary<Fortnight, IEnumerable<T>>();
             foreach (var k in this)
             {
                 var dt = this[k.Key];
                 if (dt.Any() || IncludeFortnightsWithoutData)
                 {
-                    d.Add(k, dt ?? Array.Empty<DataType>().AsEnumerable());
+                    d.Add(k, dt ?? Array.Empty<T>().AsEnumerable());
                 }
             }
 
@@ -234,7 +234,7 @@ namespace InnerLibs.TimeMachine
         /// </summary>
         /// <param name="Key"></param>
         /// <returns></returns>
-        public Fortnight this[string Key] => base[IndexOf(this.Where(x => (x.Key ?? InnerLibs.Text.Empty) == (Key ?? InnerLibs.Text.Empty)).SingleOrDefault())];
+        public Fortnight this[string Key] => base[IndexOf(this.Where(x => (x.Key ?? InnerLibs.Util.Empty) == (Key ?? InnerLibs.Util.Empty)).SingleOrDefault())];
 
         /// <summary>
         /// Retorna uma quinzena a partir da sua Index
@@ -283,7 +283,7 @@ namespace InnerLibs.TimeMachine
         /// <returns></returns>
         public static FortnightGroup CreateFromDateRange(DateTime StartDate, DateTime EndDate)
         {
-            Misc.FixOrder(ref StartDate, ref EndDate);
+            Util.FixOrder(ref StartDate, ref EndDate);
             int fortcount = 0;
             FortnightGroup fort;
             do
