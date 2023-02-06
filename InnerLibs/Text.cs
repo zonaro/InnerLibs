@@ -524,12 +524,6 @@ namespace InnerLibs
             return l;
         }
 
-        /// <summary>
-        /// Procurea numeros de telefone em um texto
-        /// </summary>
-        /// <param name="Text"></param>
-        /// <returns></returns>
-        public static string[] FindTelephoneNumbers(this string Text) => Text.FindByRegex(@"\b[\s()\d-]{6,}\d\b", (RegexOptions)((int)RegexOptions.Singleline + (int)RegexOptions.IgnoreCase)).Select(x => x.FormatTelephoneNumber()).ToArray();
 
         public static string FixCapitalization(this string Text)
         {

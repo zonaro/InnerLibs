@@ -5,9 +5,9 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Xml;
-
-namespace InnerLibs
+namespace InnerLibs.BR
 {
+
     /// <summary>
     /// Objeto para manipular cidades e estados do Brasil
     /// </summary>
@@ -74,6 +74,15 @@ namespace InnerLibs
         #endregion Public Properties
 
         #region Public Methods
+
+
+        /// <summary>
+        /// Procura numeros de telefone em um texto
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <returns></returns>
+        public static IEnumerable<string> FindTelephoneNumbers(this string Text) => Text.FindByRegex(@"\b[\s()\d-]{6,}\d\b", (RegexOptions)((int)RegexOptions.Singleline + (int)RegexOptions.IgnoreCase)).Select(x => x.FormatTelephoneNumber());
+
 
         /// <summary>
         /// Retorna um <see cref="AddressInfo"/> da cidade e estado correspondentes
