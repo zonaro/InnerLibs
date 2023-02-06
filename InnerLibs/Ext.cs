@@ -11890,7 +11890,7 @@ namespace InnerLibs
         /// <param name="Command"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public static DbCommand BeforeRun(ref DbConnection Connection, ref DbCommand Command, TextWriter LogWriter = null)
+        public static DbCommand BeforeRunCommand(ref DbConnection Connection, ref DbCommand Command, TextWriter LogWriter = null)
         {
             Connection = Connection ?? Command?.Connection;
             if (Command == null || Command.CommandText.IsBlank())
@@ -13101,7 +13101,7 @@ namespace InnerLibs
         /// <summary>
         /// Executa um comando SQL e retorna o numero de linhas afetadas
         /// </summary>
-        public static int RunSQLNone(this DbConnection Connection, DbCommand Command) => BeforeRun(ref Connection, ref Command).ExecuteNonQuery();
+        public static int RunSQLNone(this DbConnection Connection, DbCommand Command) => BeforeRunCommand(ref Connection, ref Command).ExecuteNonQuery();
 
         /// <summary>
         /// Retorna os resultado das primeiras e ultimas colunas de uma consulta SQL como pares em
@@ -13135,7 +13135,7 @@ namespace InnerLibs
         /// <summary>
         /// Executa um comando SQL e retorna o <see cref="DbDataReader"/> com os resultados
         /// </summary>
-        public static DbDataReader RunSQLReader(this DbConnection Connection, DbCommand Command) => BeforeRun(ref Connection, ref Command).ExecuteReader();
+        public static DbDataReader RunSQLReader(this DbConnection Connection, DbCommand Command) => BeforeRunCommand(ref Connection, ref Command).ExecuteReader();
 
         /// <summary>
         /// Executa uma query SQL parametrizada e retorna os resultados da primeira linha como um
@@ -13249,7 +13249,7 @@ namespace InnerLibs
         /// <param name="Connection"></param>
         /// <param name="Command"></param>
         /// <returns></returns>
-        public static object RunSQLValue(this DbConnection Connection, DbCommand Command) => BeforeRun(ref Connection, ref Command).ExecuteScalar();
+        public static object RunSQLValue(this DbConnection Connection, DbCommand Command) => BeforeRunCommand(ref Connection, ref Command).ExecuteScalar();
 
         /// <summary>
         /// Retorna o valor da primeira coluna da primeira linha uma consulta SQL
