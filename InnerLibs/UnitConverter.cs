@@ -132,7 +132,7 @@ namespace InnerLibs
         /// Cria um <see cref="UnitConverter"/> de Base 1000 (de y a E)
         /// </summary>
         /// <returns></returns>
-        public static UnitConverter CreateBase1000Converter() => new UnitConverter(1000m, 0.000000000000000000000001m, "y", "z", "a", "f", "p", "n", "µ", "m", InnerLibs.Util.EmptyString, "TK", "M", "G", "T", "P", "E");
+        public static UnitConverter CreateBase1000Converter() => new UnitConverter(1000m, 0.000000000000000000000001m, "y", "z", "a", "f", "p", "n", "µ", "m", InnerLibs.Ext.EmptyString, "TK", "M", "G", "T", "P", "E");
 
         /// <summary>
         /// Cria um <see cref="UnitConverter"/> de de Massa (peso) complexos de base 10 (de mg a kg)
@@ -304,7 +304,7 @@ namespace InnerLibs
             while (i.StartsWithAny(UnitComparisonType, l.ToArray()))
                 i = i.RemoveFirstChars();
             var p = GetUnit(i);
-            string u = p.Value.IfBlank(InnerLibs.Util.EmptyString);
+            string u = p.Value.IfBlank(InnerLibs.Ext.EmptyString);
             if (u.Contains(";"))
             {
                 if (Number.ParseDigits(Culture).IfBlank(1) == 1)

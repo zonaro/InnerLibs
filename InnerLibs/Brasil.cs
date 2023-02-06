@@ -138,7 +138,7 @@ namespace InnerLibs.BR
         /// </summary>
         /// <param name="CityName"></param>
         /// <returns></returns>
-        public static IEnumerable<State> FindStateByCityName(string CityName) => States.Where((Func<State, bool>)(x => x.Cities.Any((Func<City, bool>)(c => (Util.ToSlugCase(c.Name) ?? Util.EmptyString) == (Util.ToSlugCase(CityName) ?? Util.EmptyString) || (c.IBGE.ToString() ?? Util.EmptyString) == (Util.ToSlugCase(CityName) ?? Util.EmptyString)))));
+        public static IEnumerable<State> FindStateByCityName(string CityName) => States.Where((Func<State, bool>)(x => x.Cities.Any((Func<City, bool>)(c => (Ext.ToSlugCase(c.Name) ?? Ext.EmptyString) == (Ext.ToSlugCase(CityName) ?? Ext.EmptyString) || (c.IBGE.ToString() ?? Ext.EmptyString) == (Ext.ToSlugCase(CityName) ?? Ext.EmptyString)))));
 
         public static State FindStateByIBGE(int IBGE) => States.FirstOrDefault(x => x.IBGE == IBGE) ?? FindCityByIBGE(IBGE)?.State;
 
@@ -152,7 +152,7 @@ namespace InnerLibs.BR
         /// <returns></returns>
         public static string FormatCEP(this string CEP)
         {
-            CEP = CEP.RemoveAny(".", "-").GetBefore(",") ?? Util.EmptyString;
+            CEP = CEP.RemoveAny(".", "-").GetBefore(",") ?? Ext.EmptyString;
             CEP = CEP.PadLeft(8, '0');
             CEP = CEP.Insert(5, "-");
             if (CEP.IsValidCEP())
@@ -265,7 +265,7 @@ namespace InnerLibs.BR
             }
         }
 
-        public static string FormatDocumentWithLabel(this string Input, string DefaultString = Util.EmptyString)
+        public static string FormatDocumentWithLabel(this string Input, string DefaultString = Ext.EmptyString)
         {
             var x = Input.GetDocumentLabel(DefaultString);
             switch (x)
@@ -333,7 +333,7 @@ namespace InnerLibs.BR
         /// <returns></returns>
         public static string FormatTelephoneNumber(this string Number)
         {
-            Number = Number ?? Util.EmptyString;
+            Number = Number ?? Ext.EmptyString;
             if (Number.IsBlank()) return Number;
             Number = Number.ParseDigits().RemoveAny(",", ".").TrimBetween().GetLastChars(13);
             string mask;
@@ -384,9 +384,9 @@ namespace InnerLibs.BR
         /// <param name="NameOrStateCodeOrIBGE">Nome ou sigla do estado</param>
         /// <param name="CityName">Nome da cidade</param>
         /// <returns></returns>
-        public static string GetClosestCityName(string NameOrStateCodeOrIBGE, string CityName) => (GetClosestCity(NameOrStateCodeOrIBGE, CityName)?.Name ?? InnerLibs.Util.EmptyString).IfBlank(CityName);
+        public static string GetClosestCityName(string NameOrStateCodeOrIBGE, string CityName) => (GetClosestCity(NameOrStateCodeOrIBGE, CityName)?.Name ?? InnerLibs.Ext.EmptyString).IfBlank(CityName);
 
-        public static string GetDocumentLabel(this string Input, string DefaultLabel = Util.EmptyString)
+        public static string GetDocumentLabel(this string Input, string DefaultLabel = Ext.EmptyString)
         {
             if (Input.IsValidCPF()) return "CPF";
             if (Input.IsValidCNPJ()) return "CNPJ";
@@ -424,7 +424,7 @@ namespace InnerLibs.BR
         public static State GetState(string NameOrStateCodeOrIBGE)
         {
             NameOrStateCodeOrIBGE = NameOrStateCodeOrIBGE.TrimBetween().ToSlugCase();
-            return States.FirstOrDefault(x => (x.Name.ToSlugCase() ?? InnerLibs.Util.EmptyString) == (NameOrStateCodeOrIBGE ?? InnerLibs.Util.EmptyString) || (x.StateCode.ToSlugCase() ?? InnerLibs.Util.EmptyString) == (NameOrStateCodeOrIBGE ?? InnerLibs.Util.EmptyString) || (x.IBGE.ToString()) == (NameOrStateCodeOrIBGE ?? InnerLibs.Util.EmptyString));
+            return States.FirstOrDefault(x => (x.Name.ToSlugCase() ?? InnerLibs.Ext.EmptyString) == (NameOrStateCodeOrIBGE ?? InnerLibs.Ext.EmptyString) || (x.StateCode.ToSlugCase() ?? InnerLibs.Ext.EmptyString) == (NameOrStateCodeOrIBGE ?? InnerLibs.Ext.EmptyString) || (x.IBGE.ToString()) == (NameOrStateCodeOrIBGE ?? InnerLibs.Ext.EmptyString));
         }
 
         /// <summary>
@@ -439,7 +439,7 @@ namespace InnerLibs.BR
         /// </summary>
         /// <param name="Region"></param>
         /// <returns></returns>
-        public static IEnumerable<State> GetStatesOf(string Region) => States.Where((Func<State, bool>)(x => (Util.ToSlugCase(x.Region) ?? Util.EmptyString) == (Util.TrimBetween(Util.ToSlugCase(Region)) ?? Util.EmptyString) || Region.IsBlank()));
+        public static IEnumerable<State> GetStatesOf(string Region) => States.Where((Func<State, bool>)(x => (Ext.ToSlugCase(x.Region) ?? Ext.EmptyString) == (Ext.TrimBetween(Ext.ToSlugCase(Region)) ?? Ext.EmptyString) || Region.IsBlank()));
 
         /// <summary>
         /// Valida se a string é um telefone
@@ -519,7 +519,7 @@ namespace InnerLibs.BR
                     string digito;
                     string tempCnpj;
                     Text = Text.Trim();
-                    Text = Text.Replace(".", InnerLibs.Util.EmptyString).Replace("-", InnerLibs.Util.EmptyString).Replace("/", InnerLibs.Util.EmptyString);
+                    Text = Text.Replace(".", InnerLibs.Ext.EmptyString).Replace("-", InnerLibs.Ext.EmptyString).Replace("/", InnerLibs.Ext.EmptyString);
                     if (Text.Length != 14)
                     {
                         return false;
@@ -582,7 +582,7 @@ namespace InnerLibs.BR
                 if (Text.IsNotBlank())
                 {
                     Text = Text.RemoveAny(".", "-");
-                    string digito = InnerLibs.Util.EmptyString;
+                    string digito = InnerLibs.Ext.EmptyString;
                     int k;
                     int j;
                     int soma;
@@ -626,7 +626,7 @@ namespace InnerLibs.BR
                 return false;
             }
 
-            PIS = Regex.Replace(PIS, "[^0-9]", InnerLibs.Util.EmptyString).ToString();
+            PIS = Regex.Replace(PIS, "[^0-9]", InnerLibs.Ext.EmptyString).ToString();
 
             if (PIS.Length != 11)
             {

@@ -196,7 +196,7 @@ namespace InnerLibs
 
         public override string ToString()
         {
-            string result = Util.EmptyString;
+            string result = Ext.EmptyString;
             result = result.AppendLine("BEGIN:VCARD");
             result = result.AppendLine("VERSION:3.0");
             result = result.AppendLine($"FN;CHARSET=UTF-8:{FormattedName}");

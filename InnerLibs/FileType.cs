@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -9,84 +7,7 @@ using System.Xml;
 
 namespace InnerLibs
 {
-    /// <summary>
-    /// Módulo de manipulaçao de MIME Types
-    /// </summary>
-    public static partial class Util
-    {
-        #region Public Methods
 
-        /// <summary>
-        /// Retorna o Mime T a partir da extensão de um arquivo
-        /// </summary>
-        /// <param name="Extension">extensão do arquivo</param>
-        /// <returns>string mime type</returns>
-        public static IEnumerable<string> GetFileType(this string Extension) => FileType.GetFileType(Extension).GetMimeTypesOrDefault();
-
-        /// <summary>
-        /// Retorna o Mime T a partir de um arquivo
-        /// </summary>
-        /// <param name="File">Arquivo</param>
-        /// <returns>string mime type</returns>
-        public static IEnumerable<string> GetFileType(this FileInfo File) => File.Extension.GetFileType();
-
-        /// <summary>
-        /// Retorna o Mime T a partir de de um formato de Imagem
-        /// </summary>
-        /// <param name="RawFormat">Formato de Imagem</param>
-        /// <returns>string mime type</returns>
-        public static IEnumerable<string> GetFileType(this ImageFormat RawFormat)
-        {
-            try
-            {
-                foreach (var img in ImageCodecInfo.GetImageEncoders())
-                {
-                    if (img.FormatID == RawFormat.Guid)
-                    {
-                        return img.FilenameExtension.GetFileType();
-                    }
-                }
-            }
-            catch
-            {
-            }
-
-            return GetFileType(".png");
-        }
-
-        /// <summary>
-        /// Retorna o Mime T a partir de de uma Imagem
-        /// </summary>
-        /// <param name="Image">Imagem</param>
-        /// <returns>string mime type</returns>
-        public static IEnumerable<string> GetFileType(this Image Image) => Image.RawFormat.GetFileType();
-
-        /// <summary>
-        /// Retorna um icone de acordo com o arquivo
-        /// </summary>
-        /// <param name="File">Arquivo</param>
-        /// <returns></returns>
-        public static Icon GetIcon(this FileSystemInfo File)
-        {
-            try
-            {
-                return Icon.ExtractAssociatedIcon(File.FullName);
-            }
-            catch
-            {
-                return SystemIcons.WinLogo;
-            }
-        }
-
-        /// <summary>
-        /// Retorna um Objeto FileType a partir de uma string MIME T, Nome ou Extensão de Arquivo
-        /// </summary>
-        /// <param name="MimeTypeOrExtensionOrPathOrDataURI"></param>
-        /// <returns></returns>
-        public static FileType ToFileType(this string MimeTypeOrExtensionOrPathOrDataURI) => new FileType(MimeTypeOrExtensionOrPathOrDataURI);
-
-        #endregion Public Methods
-    }
 
     /// <summary>
     /// Classe que representa um MIME T
@@ -235,7 +156,7 @@ namespace InnerLibs
         {
             if (Reset || BaseList == null || BaseList.Any() == false)
             {
-                string r = Util.GetResourceFileText(Assembly.GetExecutingAssembly(), "InnerLibs.mimes.xml");
+                string r = Ext.GetResourceFileText(Assembly.GetExecutingAssembly(), "InnerLibs.mimes.xml");
                 if (r.IsNotBlank())
                 {
                     var doc = new XmlDocument();
@@ -243,7 +164,7 @@ namespace InnerLibs
                     BaseList = new FileTypeList();
                     foreach (XmlNode node in doc["mimes"].ChildNodes)
                     {
-                        var ft = BaseList.FirstOr(x => (x.Description ?? InnerLibs.Util.EmptyString) == (node["Label"].InnerText.TrimBetween() ?? InnerLibs.Util.EmptyString), new FileType());
+                        var ft = BaseList.FirstOr(x => (x.Description ?? InnerLibs.Ext.EmptyString) == (node["Label"].InnerText.TrimBetween() ?? InnerLibs.Ext.EmptyString), new FileType());
                         ft.Description = node["Label"].InnerText.TrimBetween();
 
                         foreach (XmlNode item in node["MimeTypes"].ChildNodes)

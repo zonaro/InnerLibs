@@ -76,11 +76,11 @@ namespace InnerLibs
     }
 
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = true, Inherited = true)]
-    public class ColumnName : Attribute
+    public sealed class ColumnNameAttribute : Attribute
     {
         #region Public Constructors
 
-        public ColumnName(string ColumnName, params string[] AlternativeNames)
+        public ColumnNameAttribute(string ColumnName, params string[] AlternativeNames)
         {
             if (ColumnName.IsBlank())
             {
@@ -200,7 +200,7 @@ namespace InnerLibs
                     }
                 }
 
-                _tokens.Add($"{Column} {Operator.IfBlank("=")} {Util.ToSQLString(Value)}");
+                _tokens.Add($"{Column} {Operator.IfBlank("=")} {Ext.ToSQLString(Value)}");
             }
         }
 
@@ -294,7 +294,7 @@ namespace InnerLibs
     }
 
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
-    public class FromSQL : Attribute
+    public class FromSQLAttribute : Attribute
     {
         #region Private Fields
 
@@ -304,7 +304,7 @@ namespace InnerLibs
 
         #region Public Constructors
 
-        public FromSQL() : base()
+        public FromSQLAttribute() : base()
         {
         }
 
@@ -502,7 +502,7 @@ namespace InnerLibs
             }
             else
             {
-                var props = eltipo.GetProperties().Select(x => x.GetAttributeValue<ColumnName, string>(y => y.Names.FirstOrDefault()).IfBlank(x.Name));
+                var props = eltipo.GetProperties().Select(x => x.GetAttributeValue<ColumnNameAttribute, string>(y => y.Names.FirstOrDefault()).IfBlank(x.Name));
 
                 AddColumns(props.ToArray());
             }
@@ -604,7 +604,7 @@ namespace InnerLibs
             return this;
         }
 
-        public Select<T> AndIn<TO>(string Column, params TO[] Items) => And(Util.ToFormattableString(Column + " in " + Items.ToSQLString()));
+        public Select<T> AndIn<TO>(string Column, params TO[] Items) => And(Ext.ToFormattableString(Column + " in " + Items.ToSQLString()));
 
         public Select<T> AndObject<TO>(TO Obj) where TO : class => WhereObject(Obj, "AND");
 
@@ -627,7 +627,7 @@ namespace InnerLibs
                 var c = item;
                 if (item != "*")
                 {
-                    c = item.UnQuote().Split(".", StringSplitOptions.RemoveEmptyEntries).SelectJoinString(x => Util.FormatSQLColumn(this.QuoteChar, WithTableName.AsIf(this.GetTableOrSubQuery()), x.UnQuote()));
+                    c = item.UnQuote().Split(".", StringSplitOptions.RemoveEmptyEntries).SelectJoinString(x => Ext.FormatSQLColumn(this.QuoteChar, WithTableName.AsIf(this.GetTableOrSubQuery()), x.UnQuote()));
                 }
                 _nova.Add(c);
             }
@@ -660,7 +660,7 @@ namespace InnerLibs
         /// <param name="ColumnName"></param>
         /// <param name="QuoteChar"></param>
         /// <returns></returns>
-        public string FormatColumnName(string ColumnName) => Util.FormatSQLColumn(this.QuoteChar, GetTableOrSubQuery(), ColumnName);
+        public string FormatColumnName(string ColumnName) => Ext.FormatSQLColumn(this.QuoteChar, GetTableOrSubQuery(), ColumnName);
 
         /// <summary>
         /// Sets the FROM clause in the SELECT being built.
@@ -754,7 +754,7 @@ namespace InnerLibs
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
         public Select<T> FullOuterJoin(string table, Condition on) => Join(JoinType.FullOuterJoin, table, on);
 
-        public Select<T> FullOuterJoin(string table, string ThisColumn, string ForeignColumn) => FullOuterJoin(table, Util.ToFormattableString(Util.FormatSQLColumn(QuoteChar, GetTableOrSubQuery(), ThisColumn) + " = " + Util.FormatSQLColumn(QuoteChar, table, ForeignColumn.IfBlank(ThisColumn))));
+        public Select<T> FullOuterJoin(string table, string ThisColumn, string ForeignColumn) => FullOuterJoin(table, Ext.ToFormattableString(Ext.FormatSQLColumn(QuoteChar, GetTableOrSubQuery(), ThisColumn) + " = " + Ext.FormatSQLColumn(QuoteChar, table, ForeignColumn.IfBlank(ThisColumn))));
 
         /// <summary>
         /// Get the table name or subquery alias used in this select
@@ -805,7 +805,7 @@ namespace InnerLibs
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
         public Select<T> InnerJoin(string table, FormattableString on) => InnerJoin(table, new Condition(on));
 
-        public Select<T> InnerJoin(string table, string ThisColumn, string ForeignColumn) => InnerJoin(table, Util.ToFormattableString(Util.FormatSQLColumn(QuoteChar, GetTableOrSubQuery(), ThisColumn) + " = " + Util.FormatSQLColumn(QuoteChar, table, ForeignColumn.IfBlank(ThisColumn))));
+        public Select<T> InnerJoin(string table, string ThisColumn, string ForeignColumn) => InnerJoin(table, Ext.ToFormattableString(Ext.FormatSQLColumn(QuoteChar, GetTableOrSubQuery(), ThisColumn) + " = " + Ext.FormatSQLColumn(QuoteChar, table, ForeignColumn.IfBlank(ThisColumn))));
 
         /// <summary>
         /// Sets a INNER JOIN clause in the SELECT being built.
@@ -855,7 +855,7 @@ namespace InnerLibs
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
         public Select<T> LeftOuterJoin(string table, FormattableString on) => LeftOuterJoin(table, new Condition(on));
 
-        public Select<T> LeftOuterJoin(string table, string ThisColumn, string ForeignColumn) => LeftOuterJoin(table, Util.ToFormattableString(Util.FormatSQLColumn(QuoteChar, GetTableOrSubQuery(), ThisColumn) + " = " + Util.FormatSQLColumn(QuoteChar, table, ForeignColumn.IfBlank(ThisColumn))));
+        public Select<T> LeftOuterJoin(string table, string ThisColumn, string ForeignColumn) => LeftOuterJoin(table, Ext.ToFormattableString(Ext.FormatSQLColumn(QuoteChar, GetTableOrSubQuery(), ThisColumn) + " = " + Ext.FormatSQLColumn(QuoteChar, table, ForeignColumn.IfBlank(ThisColumn))));
 
         /// <summary>
         /// Sets a LEFT OUTER JOIN clause in the SELECT being built.
@@ -986,7 +986,7 @@ namespace InnerLibs
             return this;
         }
 
-        public Select<T> OrIn<TO>(string Column, params TO[] Items) => Or(Util.ToFormattableString(Column + " in " + Items.ToSQLString()));
+        public Select<T> OrIn<TO>(string Column, params TO[] Items) => Or(Ext.ToFormattableString(Column + " in " + Items.ToSQLString()));
 
         public Select<T> OrObject<TO>(TO Obj) where TO : class => WhereObject(Obj, "OR");
 
@@ -1004,7 +1004,7 @@ namespace InnerLibs
             return this;
         }
 
-        public Select<T> RightOuterJoin(string table, string ThisColumn, string ForeignColumn) => RightOuterJoin(table, Util.ToFormattableString(Util.FormatSQLColumn(QuoteChar, GetTableOrSubQuery(), ThisColumn) + " = " + Util.FormatSQLColumn(QuoteChar, table, ForeignColumn.IfBlank(ThisColumn))));
+        public Select<T> RightOuterJoin(string table, string ThisColumn, string ForeignColumn) => RightOuterJoin(table, Ext.ToFormattableString(Ext.FormatSQLColumn(QuoteChar, GetTableOrSubQuery(), ThisColumn) + " = " + Ext.FormatSQLColumn(QuoteChar, table, ForeignColumn.IfBlank(ThisColumn))));
 
         /// <summary>
         /// Sets a RIGHT OUTER JOIN clause in the SELECT being built.
@@ -1074,7 +1074,7 @@ namespace InnerLibs
             {
                 sql.Append($"{_top}");
             }
-            var cols = (_columns?.Distinct().SelectJoinString(",") ?? InnerLibs.Util.EmptyString).IfBlank(" * ");
+            var cols = (_columns?.Distinct().SelectJoinString(",") ?? InnerLibs.Ext.EmptyString).IfBlank(" * ");
             sql.Append(cols);
             if (_fromsub != null && _fromsub.ToString().IsNotBlank())
             {
@@ -1214,7 +1214,7 @@ namespace InnerLibs
 
                 var rp = new Dictionary<string, string>()
                 {
-                    { $"{pName.Name}.", InnerLibs.Util.EmptyString},
+                    { $"{pName.Name}.", InnerLibs.Ext.EmptyString},
                     {"==", "="},
                     {"!=", "<>"},
                     {"AndAlso", " AND "},
@@ -1228,7 +1228,7 @@ namespace InnerLibs
                     {".Like", " LIKE "},
                     {".Equal", " = "},
                     {".IsIn", " in "},
-                    {Util.DoubleQuoteChar, InnerLibs.Util.SingleQuoteChar}
+                    {Ext.DoubleQuoteChar, InnerLibs.Ext.SingleQuoteChar}
                 };
                 Where(p.ReplaceFrom(rp).ToFormattableString());
             }
@@ -1284,7 +1284,7 @@ namespace InnerLibs
         /// <param name="Dic"></param>
         /// <param name="FilterKeys"></param>
         /// <returns></returns>
-        public object Where(Dictionary<string, object> Dic, Util.LogicConcatenationOperator LogicConcatenation, params string[] FilterKeys)
+        public object Where(Dictionary<string, object> Dic, Ext.LogicConcatenationOperator LogicConcatenation, params string[] FilterKeys)
         {
             FilterKeys = FilterKeys ?? Array.Empty<string>();
             if (FilterKeys.Any())
@@ -1301,7 +1301,7 @@ namespace InnerLibs
             {
                 foreach (var f in FilterKeys)
                 {
-                    if (LogicConcatenation == Util.LogicConcatenationOperator.OR)
+                    if (LogicConcatenation == Ext.LogicConcatenationOperator.OR)
                     {
                         Or(f, Dic[f]);
                     }
@@ -1361,7 +1361,7 @@ namespace InnerLibs
 
         public Select<T> WhereObject<TO>(TO Obj) where TO : class => AndObject(Obj);
 
-        public Select<T> WhereObject<TO>(TO Obj, Util.LogicConcatenationOperator LogicOperator) where TO : class => WhereObject(Obj, LogicOperator.GetEnumValueAsString());
+        public Select<T> WhereObject<TO>(TO Obj, Ext.LogicConcatenationOperator LogicOperator) where TO : class => WhereObject(Obj, LogicOperator.GetEnumValueAsString());
 
         public Select<T> WhereObject<TO>(TO Obj, string LogicOperator) where TO : class
         {

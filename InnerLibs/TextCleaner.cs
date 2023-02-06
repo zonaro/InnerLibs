@@ -48,7 +48,7 @@ namespace InnerLibs
 
         public string ToString(int Ident)
         {
-            string ss = InnerLibs.Util.EmptyString;
+            string ss = InnerLibs.Ext.EmptyString;
             foreach (var s in this)
             {
                 ss += s.ToString() + " ";
@@ -74,7 +74,7 @@ namespace InnerLibs
             if (Text.IsNotBlank())
             {
                 var charlist = Text.Trim().ToArray().ToList();
-                string palavra = InnerLibs.Util.EmptyString;
+                string palavra = InnerLibs.Ext.EmptyString;
                 var listabase = new List<string>();
 
                 // remove quaisquer caracteres nao desejados do inicio da frase
@@ -97,7 +97,7 @@ namespace InnerLibs
                                 if (palavra.IsNotBlank())
                                 {
                                     listabase.Add(palavra); // adiciona a plavra atual
-                                    palavra = InnerLibs.Util.EmptyString;
+                                    palavra = InnerLibs.Ext.EmptyString;
                                 }
 
                                 listabase.Add(Convert.ToString(p)); // adiciona a virgula, wrapper ou pontuacao
@@ -109,10 +109,10 @@ namespace InnerLibs
                                 if (palavra.IsNotBlank())
                                 {
                                     listabase.Add(palavra); // adiciona a plavra atual
-                                    palavra = InnerLibs.Util.EmptyString;
+                                    palavra = InnerLibs.Ext.EmptyString;
                                 }
                                 // senao, adiciona o proximo caractere a palavra atual
-                                palavra = InnerLibs.Util.EmptyString;
+                                palavra = InnerLibs.Ext.EmptyString;
                                 break;
                             }
 
@@ -178,7 +178,7 @@ namespace InnerLibs
 
         public override string ToString()
         {
-            string sent = InnerLibs.Util.EmptyString;
+            string sent = InnerLibs.Ext.EmptyString;
             foreach (var s in this)
             {
                 if (s.IsClosingQuote)
@@ -233,7 +233,7 @@ namespace InnerLibs
         /// <returns></returns>
         public bool IsComma => Text == ",";
 
-        public bool IsDoubleQuote => Text == InnerLibs.Util.DoubleQuoteChar;
+        public bool IsDoubleQuote => Text == InnerLibs.Ext.DoubleQuoteChar;
 
         /// <summary>
         /// Retorna TRUE se esta parte de senteça for um caractere de encerramento de frase (pontuaçao)
@@ -269,7 +269,7 @@ namespace InnerLibs
         public bool IsPunctuation => IsEndOfSentencePunctuation || IsMidSentencePunctuation;
 
         public bool IsQuote => IsSingleQuote || IsDoubleQuote;
-        public bool IsSingleQuote => Text == InnerLibs.Util.SingleQuoteChar;
+        public bool IsSingleQuote => Text == InnerLibs.Ext.SingleQuoteChar;
 
         /// <summary>
         /// Retorna TRUE se esta parte de senteça for uma palavra
@@ -331,7 +331,7 @@ namespace InnerLibs
             int indexo = Sentence.IndexOf(this);
             if (indexo < 0)
             {
-                return InnerLibs.Util.EmptyString;
+                return InnerLibs.Ext.EmptyString;
             }
 
             if (indexo == 0 || indexo == 1 && PredefinedArrays.OpenWrappers.Contains(Sentence[0].Text))
@@ -352,7 +352,7 @@ namespace InnerLibs
     {
         #region Private Fields
 
-        private string _originaltext = InnerLibs.Util.EmptyString;
+        private string _originaltext = InnerLibs.Ext.EmptyString;
 
         #endregion Private Fields
 

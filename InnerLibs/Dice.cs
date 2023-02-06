@@ -135,7 +135,7 @@ namespace InnerLibs.RolePlayingGame
         {
             get
             {
-                foreach (var i in Util.GetEnumValues<DiceType>())
+                foreach (var i in Ext.GetEnumValues<DiceType>())
                     if ((int)i == Faces.Count) return i;
                 return DiceType.Custom;
             }
@@ -245,7 +245,7 @@ namespace InnerLibs.RolePlayingGame
                             numfaces.Add(f);
                     }
 
-                    numfaces[Util.RandomNumber(1, numfaces.Count) - 1]._h.Add(DateTime.Now);
+                    numfaces[Ext.RandomNumber(1, numfaces.Count) - 1]._h.Add(DateTime.Now);
                 }
             }
 

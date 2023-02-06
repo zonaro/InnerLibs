@@ -142,7 +142,7 @@ namespace InnerLibs
         /// <returns></returns>
         public new static FortnightGroup<T> CreateFromDateRange(DateTime StartDate, DateTime EndDate)
         {
-            Util.FixOrder(ref StartDate, ref EndDate);
+            Ext.FixOrder(ref StartDate, ref EndDate);
             int fortcount = 0;
             FortnightGroup<T> fort;
             do
@@ -234,7 +234,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Key"></param>
         /// <returns></returns>
-        public Fortnight this[string Key] => base[IndexOf(this.Where(x => (x.Key ?? InnerLibs.Util.EmptyString) == (Key ?? InnerLibs.Util.EmptyString)).SingleOrDefault())];
+        public Fortnight this[string Key] => base[IndexOf(this.Where(x => (x.Key ?? InnerLibs.Ext.EmptyString) == (Key ?? InnerLibs.Ext.EmptyString)).SingleOrDefault())];
 
         /// <summary>
         /// Retorna uma quinzena a partir da sua Index
@@ -283,7 +283,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static FortnightGroup CreateFromDateRange(DateTime StartDate, DateTime EndDate)
         {
-            Util.FixOrder(ref StartDate, ref EndDate);
+            Ext.FixOrder(ref StartDate, ref EndDate);
             int fortcount = 0;
             FortnightGroup fort;
             do

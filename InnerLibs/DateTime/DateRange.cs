@@ -40,7 +40,7 @@ namespace InnerLibs
 
         private void CalcRange()
         {
-            Util.FixOrder(ref _startDate, ref _endDate);
+            Ext.FixOrder(ref _startDate, ref _endDate);
 
             int days = 0;
             int years = 0;
@@ -1124,7 +1124,7 @@ namespace InnerLibs
                 milisegundos = milisegundos.NullIf(x => Years >= 1);
             }
 
-            string current = new[] { ano, mes, dia, horas, minutos, segundos, milisegundos }.WhereNotBlank().ToPhrase(InnerLibs.Util.EmptyString, display.AndWord);
+            string current = new[] { ano, mes, dia, horas, minutos, segundos, milisegundos }.WhereNotBlank().ToPhrase(InnerLibs.Ext.EmptyString, display.AndWord);
 
             return current.FixText();
         }

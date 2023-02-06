@@ -17,7 +17,7 @@ namespace InnerLibs
         /// <summary>
         /// Retorna uma lista com todas as <see cref="KnowColor"/> convertidas em <see cref="System.Drawing.Color"/>
         /// </summary>
-        public static IEnumerable<Color> KnowColors => Util.GetEnumValues<KnownColor>().Select(x => Color.FromKnownColor(x));
+        public static IEnumerable<Color> KnowColors => Ext.GetEnumValues<KnownColor>().Select(x => Color.FromKnownColor(x));
 
         #endregion Public Properties
 
@@ -221,9 +221,9 @@ namespace InnerLibs
             Green = Green.SetMinValue(-1);
             Blue = Blue.SetMinValue(-1);
 
-            Red = (Red < 0 ? Util.RandomNumber(0, 255) : Red).LimitRange<int>(0, 255);
-            Green = (Green < 0 ? Util.RandomNumber(0, 255) : Green).LimitRange<int>(0, 255);
-            Blue = (Blue < 0 ? Util.RandomNumber(0, 255) : Blue).LimitRange<int>(0, 255);
+            Red = (Red < 0 ? Ext.RandomNumber(0, 255) : Red).LimitRange<int>(0, 255);
+            Green = (Green < 0 ? Ext.RandomNumber(0, 255) : Green).LimitRange<int>(0, 255);
+            Blue = (Blue < 0 ? Ext.RandomNumber(0, 255) : Blue).LimitRange<int>(0, 255);
             Alpha = Alpha.LimitRange<int>(0, 255);
             return Color.FromArgb(Alpha, Red, Green, Blue);
         }

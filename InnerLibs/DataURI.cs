@@ -103,7 +103,7 @@ namespace InnerLibs
         /// Retorna uma string da dataURL
         /// </summary>
         /// <returns></returns>
-        public override string ToString() => "data:" + FullMimeType + ";" + Encoding + "," + Data;
+        public override string ToString() => $"data:{FullMimeType};{Encoding},{Data}";
 
         /// <summary>
         /// Transforma este datauri em arquivo

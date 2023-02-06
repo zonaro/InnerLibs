@@ -49,13 +49,13 @@ namespace InnerLibs.Console
         {
             while (BreakLines > 0)
             {
-                System.Console.WriteLine(InnerLibs.Util.EmptyString);
+                System.Console.WriteLine(InnerLibs.Ext.EmptyString);
                 BreakLines--;
             }
             return Text;
         }
 
-        public static string ConsoleBreakLine(this int BreakLines) => ConsoleBreakLine(Util.EmptyString, BreakLines);
+        public static string ConsoleBreakLine(this int BreakLines) => ConsoleBreakLine(Ext.EmptyString, BreakLines);
 
         public static string ConsoleBreakLine() => ConsoleBreakLine(1);
 
@@ -194,7 +194,7 @@ namespace InnerLibs.Console
         /// <param name="Text">Texto</param>
         public static string ConsoleWriteLine(this string Text, int BreakLines = 1) => Text.ConsoleWriteLine(System.Console.ForegroundColor, BreakLines);
 
-        public static string ConsoleWriteSeparator(char Separator = '-', ConsoleColor? Color = null, int BreakLines = 1) => ConsoleWriteSeparator(InnerLibs.Util.EmptyString, Separator, Color, BreakLines);
+        public static string ConsoleWriteSeparator(char Separator = '-', ConsoleColor? Color = null, int BreakLines = 1) => ConsoleWriteSeparator(InnerLibs.Ext.EmptyString, Separator, Color, BreakLines);
 
         /// <summary>
         /// Escreve um separador no console. Este separador pode conter um texto

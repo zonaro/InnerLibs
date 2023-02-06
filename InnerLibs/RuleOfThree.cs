@@ -183,22 +183,22 @@ namespace InnerLibs
             string e2ys = e2.LastOrDefault()?.TrimBetween();
             T? e1x = default;
             if (e1xs.IsNumber())
-                e1x = Util.ChangeType<T>(e1xs);
+                e1x = Ext.ChangeType<T>(e1xs);
             else
                 custom_param_name = e1xs;
             T? e1y = default;
             if (e1ys.IsNumber())
-                e1y = Util.ChangeType<T>(e1ys);
+                e1y = Ext.ChangeType<T>(e1ys);
             else
                 custom_param_name = e1ys;
             T? e2x = default;
             if (e2xs.IsNumber())
-                e2x = Util.ChangeType<T>(e2xs);
+                e2x = Ext.ChangeType<T>(e2xs);
             else
                 custom_param_name = e2xs;
             T? e2y = default;
             if (e2ys.IsNumber())
-                e2y = Util.ChangeType<T>(e2ys);
+                e2y = Ext.ChangeType<T>(e2ys);
             else
                 custom_param_name = e2ys;
             RuleExpression(e1x, e1y, e2x, e2y);
