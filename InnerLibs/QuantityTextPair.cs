@@ -18,7 +18,7 @@ namespace InnerLibs
         /// the singular word for specified item. If ommited, is automatically computed by <see
         /// cref="Util.QuantifyText(decimal, string)"/>.
         /// </param>
-        public QuantityTextPair(string Plural, string Singular = InnerLibs.Util.Empty)
+        public QuantityTextPair(string Plural, string Singular = InnerLibs.Util.EmptyString)
         {
             this.Plural = Plural;
             this.Singular = Singular.IfBlank(Plural.QuantifyText(1));
@@ -50,7 +50,7 @@ namespace InnerLibs
                 }
                 else
                 {
-                    return InnerLibs.Util.Empty;
+                    return InnerLibs.Util.EmptyString;
                 }
             }
 
@@ -82,7 +82,7 @@ namespace InnerLibs
         public static implicit operator QuantityTextPair(string b)
         {
             var parts = b.SplitAny(":", "/", ";");
-            return new QuantityTextPair(parts.FirstOrDefault().IfBlank("Items"), parts.LastOrDefault().NullIf(parts.FirstOrDefault().IfBlank(InnerLibs.Util.Empty)));
+            return new QuantityTextPair(parts.FirstOrDefault().IfBlank("Items"), parts.LastOrDefault().NullIf(parts.FirstOrDefault().IfBlank(InnerLibs.Util.EmptyString)));
         }
 
         public static implicit operator string(QuantityTextPair b) => b.ToString();

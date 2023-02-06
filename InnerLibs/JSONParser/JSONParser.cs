@@ -513,7 +513,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string FormatJson(this string jsonString, int identSize = 4)
         {
-            jsonString = jsonString ?? Util.Empty;
+            jsonString = jsonString ?? Util.EmptyString;
 
             if (identSize < 1)
             {
@@ -779,7 +779,7 @@ namespace InnerLibs
         public static T Load<T>(string FileOrDirectoryPath, bool ExcludeNull = false) where T : JsonFile => Load<T>(FileOrDirectoryPath, null, ExcludeNull);
 
         /// <inheritdoc cref="Load{T}"/>
-        public static T Load<T>() where T : JsonFile => Load<T>(Util.Empty, null);
+        public static T Load<T>() where T : JsonFile => Load<T>(Util.EmptyString, null);
 
         /// <inheritdoc cref="Load{T}"/>
         public static T Load<T>(string FileOrDirectoryPath, string EncryptKey, bool ExcludeNull = false, CultureInfo culture = null) where T : JsonFile

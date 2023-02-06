@@ -25,7 +25,7 @@ namespace InnerLibs.DOTLanguage
 
         public override string ToString()
         {
-            string dotstring = InnerLibs.Util.Empty;
+            string dotstring = InnerLibs.Util.EmptyString;
             foreach (var prop in this)
             {
                 string val = prop.Value.ToString().QuoteIf(prop.Value.ToString().Contains(" ") | prop.Value.ToString().IsBlank() | prop.Value.ToString().IsURL());
@@ -97,7 +97,7 @@ namespace InnerLibs.DOTLanguage
         /// <returns></returns>
         public override string ToString()
         {
-            string dotstring = InnerLibs.Util.Empty;
+            string dotstring = InnerLibs.Util.EmptyString;
             if (Attributes.Any())
             {
                 dotstring = ID + " " + Attributes.ToString() + Environment.NewLine;
@@ -188,7 +188,7 @@ namespace InnerLibs.DOTLanguage
         /// Nome do Gráfico
         /// </summary>
         /// <returns></returns>
-        public string ID { get; set; } = InnerLibs.Util.Empty;
+        public string ID { get; set; } = InnerLibs.Util.EmptyString;
 
         public bool Strict { get; set; } = false;
 

@@ -1074,7 +1074,7 @@ namespace InnerLibs
             {
                 sql.Append($"{_top}");
             }
-            var cols = (_columns?.Distinct().SelectJoinString(",") ?? InnerLibs.Util.Empty).IfBlank(" * ");
+            var cols = (_columns?.Distinct().SelectJoinString(",") ?? InnerLibs.Util.EmptyString).IfBlank(" * ");
             sql.Append(cols);
             if (_fromsub != null && _fromsub.ToString().IsNotBlank())
             {
@@ -1214,7 +1214,7 @@ namespace InnerLibs
 
                 var rp = new Dictionary<string, string>()
                 {
-                    { $"{pName.Name}.", InnerLibs.Util.Empty},
+                    { $"{pName.Name}.", InnerLibs.Util.EmptyString},
                     {"==", "="},
                     {"!=", "<>"},
                     {"AndAlso", " AND "},

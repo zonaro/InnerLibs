@@ -34,13 +34,13 @@ namespace InnerLibs.Console
         private string Format(List<int> columnLengths, char delimiter = '|')
         {
             var columnAlignment = Enumerable.Range(0, Columns.Count).Select(x => GetNumberAlignment(x)).ToList();
-            string delimiterStr = delimiter == char.MinValue ? InnerLibs.Util.Empty : delimiter.ToString();
+            string delimiterStr = delimiter == char.MinValue ? InnerLibs.Util.EmptyString : delimiter.ToString();
             return (Enumerable.Range(0, Columns.Count).Select(i => " " + delimiterStr + " {" + i + "," + columnAlignment[i] + columnLengths[i] + "}").Aggregate((s, a) => s + a) + " " + delimiterStr).Trim();
         }
 
         private string GetNumberAlignment(int i)
         {
-            return Options.NumberAlignment == Alignment.Right && ColumnTypes != null && PredefinedArrays.NumericTypes.Contains(ColumnTypes[i]) ? InnerLibs.Util.Empty : "-";
+            return Options.NumberAlignment == Alignment.Right && ColumnTypes != null && PredefinedArrays.NumericTypes.Contains(ColumnTypes[i]) ? InnerLibs.Util.EmptyString : "-";
         }
 
         private string ToMarkDownString(char delimiter)
@@ -125,7 +125,7 @@ namespace InnerLibs.Console
             }
 
             while (v.Count < Columns.Count)
-                v.Add(InnerLibs.Util.Empty);
+                v.Add(InnerLibs.Util.EmptyString);
             Rows.Add(v.Take(Columns.Count).ToArray());
             return this;
         }
@@ -137,13 +137,13 @@ namespace InnerLibs.Console
                 var l = new List<object>();
                 foreach (var item in Columns)
                 {
-                    if ((item ?? InnerLibs.Util.Empty) == (Key ?? InnerLibs.Util.Empty))
+                    if ((item ?? InnerLibs.Util.EmptyString) == (Key ?? InnerLibs.Util.EmptyString))
                     {
                         l.Add(obj);
                     }
                     else
                     {
-                        l.Add(InnerLibs.Util.Empty);
+                        l.Add(InnerLibs.Util.EmptyString);
                     }
                 }
 
@@ -205,7 +205,7 @@ namespace InnerLibs.Console
             string columnHeaders = string.Format(format, Columns.ToArray());
             int longestLine = Math.Max(maxRowLength, columnHeaders.Length);
             var results = Rows.Select(row => string.Format(format, row)).ToList();
-            string divider = " " + string.Join(InnerLibs.Util.Empty, Enumerable.Repeat("-", longestLine - 1)) + " ";
+            string divider = " " + string.Join(InnerLibs.Util.EmptyString, Enumerable.Repeat("-", longestLine - 1)) + " ";
             builder.AppendLine(divider);
             builder.AppendLine(columnHeaders);
             foreach (var row in results)
@@ -217,7 +217,7 @@ namespace InnerLibs.Console
             builder.AppendLine(divider);
             if (Options.EnableCount)
             {
-                builder.AppendLine(InnerLibs.Util.Empty);
+                builder.AppendLine(InnerLibs.Util.EmptyString);
                 builder.AppendFormat(" Count: {0}", Rows.Count);
             }
 

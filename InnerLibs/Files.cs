@@ -56,7 +56,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="File">Arquivo</param>
         /// <returns></returns>
-        public static string ReadAllText(this FileInfo File, Encoding encoding = null) => File != null && File.Exists ? System.IO.File.ReadAllText(File.FullName, encoding ?? Encoding.UTF8) : InnerLibs.Util.Empty;
+        public static string ReadAllText(this FileInfo File, Encoding encoding = null) => File != null && File.Exists ? System.IO.File.ReadAllText(File.FullName, encoding ?? Encoding.UTF8) : InnerLibs.Util.EmptyString;
 
         /// <summary>
         /// Renomeia um arquivo e retorna um <see cref="FileInfo"/> do arquivo renomeado

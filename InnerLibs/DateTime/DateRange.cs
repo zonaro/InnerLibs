@@ -1124,7 +1124,7 @@ namespace InnerLibs
                 milisegundos = milisegundos.NullIf(x => Years >= 1);
             }
 
-            string current = new[] { ano, mes, dia, horas, minutos, segundos, milisegundos }.WhereNotBlank().ToPhrase(InnerLibs.Util.Empty, display.AndWord);
+            string current = new[] { ano, mes, dia, horas, minutos, segundos, milisegundos }.WhereNotBlank().ToPhrase(InnerLibs.Util.EmptyString, display.AndWord);
 
             return current.FixText();
         }

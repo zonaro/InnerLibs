@@ -1,11 +1,11 @@
-﻿using InnerLibs.Locations;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Xml;
+
 namespace InnerLibs
 {
     /// <summary>
@@ -13,251 +13,6 @@ namespace InnerLibs
     /// </summary>
     public static class Brasil
     {
-
-        /// <summary>
-        /// Valida se a string é um telefone
-        /// </summary>
-        /// <param name="Text"></param>
-        /// <returns></returns>
-        public static bool IsTelephone(this string Text) => new Regex(@"\(?\+[0-9]{1,3}\)? ?-?[0-9]{1,3} ?-?[0-9]{3,5} ?-?[0-9]{4}( ?-?[0-9]{3})? ?(\w{1,10}\s?\d{1,6})?", (RegexOptions)((int)RegexOptions.Singleline + (int)RegexOptions.IgnoreCase)).IsMatch(Text.RemoveAny("(", ")"));
-
-
-        /// <summary>
-        /// Verifica se uma string é um PIS válido
-        /// </summary>
-        /// <param name="CEP"></param>
-        /// <returns></returns>
-        public static bool IsValidPIS(this string PIS)
-        {
-            if (PIS.IsBlank())
-            {
-                return false;
-            }
-
-            PIS = Regex.Replace(PIS, "[^0-9]", InnerLibs.Util.Empty).ToString();
-
-            if (PIS.Length != 11)
-            {
-                return false;
-            }
-
-            var count = PIS[0];
-            if (PIS.Count(w => w == count) == PIS.Length)
-            {
-                return false;
-            }
-
-            var multiplicador = new int[10] { 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
-            int soma;
-            int resto;
-
-            soma = 0;
-
-            for (var i = 0; i < 10; i++)
-            {
-                soma += int.Parse($"{PIS[i]}", CultureInfo.InvariantCulture) * multiplicador[i];
-            }
-
-            resto = soma % 11;
-
-            resto = resto < 2 ? 0 : 11 - resto;
-
-            if (PIS.EndsWith(resto.ToString()))
-            {
-                return true;
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Verifica se uma string é um cep válido
-        /// </summary>
-        /// <param name="CEP"></param>
-        /// <returns></returns>
-        public static bool IsValidCEP(this string CEP) => new Regex(@"^\d{5}-\d{3}$").IsMatch(CEP) || (CEP.RemoveAny("-").IsNumber() && CEP.RemoveAny("-").Length == 8);
-
-
-        /// <summary>
-        /// Verifica se a string é um CNPJ válido
-        /// </summary>
-        /// <param name="Text">CPF</param>
-        /// <returns></returns>
-        public static bool IsValidCNPJ(this string Text)
-        {
-            try
-            {
-                if (Text.IsNotBlank())
-                {
-                    var multiplicador1 = new int[12] { 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
-                    var multiplicador2 = new int[13] { 6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
-                    int soma;
-                    int resto;
-                    string digito;
-                    string tempCnpj;
-                    Text = Text.Trim();
-                    Text = Text.Replace(".", InnerLibs.Util.Empty).Replace("-", InnerLibs.Util.Empty).Replace("/", InnerLibs.Util.Empty);
-                    if (Text.Length != 14)
-                    {
-                        return false;
-                    }
-
-                    tempCnpj = Text.Substring(0, 12);
-                    soma = 0;
-                    for (int i = 0; i <= 12 - 1; i++)
-                    {
-                        soma += int.Parse(tempCnpj[i].ToString()) * multiplicador1[i];
-                    }
-
-                    resto = soma % 11;
-                    if (resto < 2)
-                    {
-                        resto = 0;
-                    }
-                    else
-                    {
-                        resto = 11 - resto;
-                    }
-
-                    digito = resto.ToString();
-                    tempCnpj += digito;
-                    soma = 0;
-                    for (int i = 0; i <= 13 - 1; i++)
-                    {
-                        soma += int.Parse(tempCnpj[i].ToString()) * multiplicador2[i];
-                    }
-
-                    resto = soma % 11;
-                    if (resto < 2)
-                    {
-                        resto = 0;
-                    }
-                    else
-                    {
-                        resto = 11 - resto;
-                    }
-
-                    digito += resto.ToString();
-                    return Text.EndsWith(digito);
-                }
-            }
-            catch
-            {
-            }
-            return false;
-        }
-
-        /// <summary>
-        /// Verifica se a string é um CPF válido
-        /// </summary>
-        /// <param name="Text">CPF</param>
-        /// <returns></returns>
-        public static bool IsValidCPF(this string Text)
-        {
-            try
-            {
-                if (Text.IsNotBlank())
-                {
-                    Text = Text.RemoveAny(".", "-");
-                    string digito = InnerLibs.Util.Empty;
-                    int k;
-                    int j;
-                    int soma;
-                    for (k = 0; k <= 1; k++)
-                    {
-                        soma = 0;
-                        var loopTo = 9 + (k - 1);
-                        for (j = 0; j <= loopTo; j++)
-                        {
-                            soma += int.Parse($"{Text[j]}", CultureInfo.InvariantCulture) * (10 + k - j);
-                        }
-
-                        digito += $"{(soma % 11 == 0 || soma % 11 == 1 ? 0 : 11 - (soma % 11))}";
-                    }
-
-                    return digito[0] == Text[9] & digito[1] == Text[10];
-                }
-            }
-            catch
-            {
-            }
-            return false;
-        }
-
-        /// <summary>
-        /// Verifica se a string é um CPF ou CNPJ válido
-        /// </summary>
-        /// <param name="Text">CPF ou CNPJ</param>
-        /// <returns></returns>
-        public static bool IsValidCPFOrCNPJ(this string Text) => Text.IsValidCPF() || Text.IsValidCNPJ();
-
-
-
-        /// <summary>
-        /// Verifica se a string é um CNH válido
-        /// </summary>
-        /// <param name="Text">CNH</param>
-        /// <returns></returns>
-        public static bool IsValidCNH(this string CNH)
-        {
-            // char firstChar = cnh[0];
-            if (CNH.IsNotBlank() && CNH.Length == 11 && CNH != new string('1', 11))
-            {
-                int dsc = 0;
-                int v = 0;
-                int i = 0;
-                int j = 9;
-                while (i < 9)
-                {
-                    v += Convert.ToInt32(CNH[i].ToString()) * j;
-                    i += 1;
-                    j -= 1;
-                }
-
-                int vl1 = v % 11;
-                if (vl1 >= 10)
-                {
-                    vl1 = 0;
-                    dsc = 2;
-                }
-
-                v = 0;
-                i = 0;
-                j = 1;
-                while (i < 9)
-                {
-                    v += Convert.ToInt32(CNH[i].ToString()) * j;
-                    i += 1;
-                    j += 1;
-                }
-
-                int x = v % 11;
-                int vl2 = x >= 10 ? 0 : x - dsc;
-                return $"{vl1}{vl2}" == (CNH.Substring(CNH.Length - 2, 2));
-            }
-
-            return false;
-        }
-
-
-
-        public static string GetDocumentLabel(this string Input, string DefaultLabel = Util.Empty)
-        {
-            if (Input.IsValidCPF()) return "CPF";
-            if (Input.IsValidCNPJ()) return "CNPJ";
-            if (Input.IsValidCEP()) return "CEP";
-            if (Input.IsValidEAN()) return "EAN";
-            if (Input.IsValidPIS()) return "PIS";
-            if (Input.IsValidCNH()) return "CNH";
-            if (Input.IsEmail()) return "Email";
-            if (Input.IsTelephone()) return "Tel";
-            if (Input.IsIP()) return "IP";
-            return DefaultLabel;
-        }
-
-
-
-
         #region Private Fields
 
         private static List<State> l = new List<State>();
@@ -374,9 +129,234 @@ namespace InnerLibs
         /// </summary>
         /// <param name="CityName"></param>
         /// <returns></returns>
-        public static IEnumerable<State> FindStateByCityName(string CityName) => States.Where((Func<State, bool>)(x => x.Cities.Any((Func<City, bool>)(c => (Util.ToSlugCase(c.Name) ?? Util.Empty) == (Util.ToSlugCase(CityName) ?? Util.Empty) || (c.IBGE.ToString() ?? Util.Empty) == (Util.ToSlugCase(CityName) ?? Util.Empty)))));
+        public static IEnumerable<State> FindStateByCityName(string CityName) => States.Where((Func<State, bool>)(x => x.Cities.Any((Func<City, bool>)(c => (Util.ToSlugCase(c.Name) ?? Util.EmptyString) == (Util.ToSlugCase(CityName) ?? Util.EmptyString) || (c.IBGE.ToString() ?? Util.EmptyString) == (Util.ToSlugCase(CityName) ?? Util.EmptyString)))));
 
         public static State FindStateByIBGE(int IBGE) => States.FirstOrDefault(x => x.IBGE == IBGE) ?? FindCityByIBGE(IBGE)?.State;
+
+        /// <inheritdoc cref="FormatCEP(string)"/>
+        public static string FormatCEP(this int CEP) => FormatCEP(CEP.ToString(CultureInfo.InvariantCulture));
+
+        /// <summary>
+        /// Formata um numero para CEP
+        /// </summary>
+        /// <param name="CEP"></param>
+        /// <returns></returns>
+        public static string FormatCEP(this string CEP)
+        {
+            CEP = CEP.RemoveAny(".", "-").GetBefore(",") ?? Util.EmptyString;
+            CEP = CEP.PadLeft(8, '0');
+            CEP = CEP.Insert(5, "-");
+            if (CEP.IsValidCEP())
+            {
+                return CEP;
+            }
+            else
+            {
+                throw new FormatException("String is not a valid CEP");
+            }
+        }
+
+        /// <summary>
+        /// Formata um numero para CNPJ
+        /// </summary>
+        /// <param name="CNPJ"></param>
+        /// <returns></returns>
+        public static string FormatCNPJ(this long CNPJ) => string.Format(CultureInfo.InvariantCulture, @"{0:00\.000\.000\/0000\-00}", CNPJ);
+
+        /// <summary>
+        /// Formata um numero para CNPJ
+        /// </summary>
+        /// <param name="CNPJ"></param>
+        /// <returns></returns>
+        public static string FormatCNPJ(this string CNPJ)
+        {
+            if (CNPJ.IsValidCNPJ())
+            {
+                if (CNPJ.IsNumber())
+                {
+                    CNPJ = CNPJ.ToLong().FormatCNPJ();
+                }
+            }
+            else
+            {
+                throw new FormatException("String is not a valid CNPJ");
+            }
+
+            return CNPJ;
+        }
+
+        /// <summary>
+        /// Formata um numero para CPF
+        /// </summary>
+        /// <param name="CPF"></param>
+        /// <returns></returns>
+        public static string FormatCPF(this long CPF) => string.Format(CultureInfo.InvariantCulture, @"{0:000\.000\.000\-00}", CPF);
+
+        /// <summary>
+        /// Formata um numero para CPF
+        /// </summary>
+        /// <param name="CPF"></param>
+        /// <returns></returns>
+        public static string FormatCPF(this string CPF)
+        {
+            if (CPF.IsValidCPF())
+            {
+                if (CPF.IsNumber())
+                {
+                    CPF = CPF.ToLong().FormatCPF();
+                }
+            }
+            else
+            {
+                throw new FormatException("String is not a valid CPF");
+            }
+
+            return CPF;
+        }
+
+        /// <summary>
+        /// Formata um numero para CNPJ ou CNPJ se forem validos
+        /// </summary>
+        /// <param name="Document"></param>
+        /// <returns></returns>
+        public static string FormatCPFOrCNPJ(this long Document)
+        {
+            if (Document.ToString(CultureInfo.InvariantCulture).IsValidCPF())
+            {
+                return Document.FormatCPF();
+            }
+            else if (Document.ToString(CultureInfo.InvariantCulture).IsValidCNPJ())
+            {
+                return Document.FormatCNPJ();
+            }
+            else
+            {
+                return Document.ToString(CultureInfo.InvariantCulture);
+            }
+        }
+
+        /// <summary>
+        /// Formata um numero para CNPJ ou CNPJ se forem validos
+        /// </summary>
+        /// <param name="Document"></param>
+        /// <returns></returns>
+        public static string FormatCPFOrCNPJ(this string Document)
+        {
+            if (Document.IsValidCPF())
+            {
+                return Document.FormatCPF();
+            }
+            else if (Document.IsValidCNPJ())
+            {
+                return Document.FormatCNPJ();
+            }
+            else
+            {
+                return Document;
+            }
+        }
+
+        public static string FormatDocumentWithLabel(this string Input, string DefaultString = Util.EmptyString)
+        {
+            var x = Input.GetDocumentLabel(DefaultString);
+            switch (x)
+            {
+                case "CPF":
+                case "CNPJ":
+                    Input = Input.FormatCPFOrCNPJ();
+                    break;
+
+                case "CEP":
+                    Input = Input.FormatCEP();
+                    break;
+
+                case "PIS":
+                    Input = Input.FormatPIS();
+                    break;
+
+                case "Email":
+                    Input = Input.ToLowerInvariant();
+                    break;
+
+                case "Tel":
+                    Input = Input.FormatTelephoneNumber();
+                    break;
+
+                default:
+                    break;
+            }
+            return $"{x}: {Input}";
+        }
+
+        /// <summary>
+        /// Formata o PIS no padrão ###.#####.##-#
+        /// </summary>
+        /// <param name="PIS">PIS a ser formatado</param>
+        /// <param name="returnOnlyNumbers">Se verdadeiro, retorna apenas os números sem formatação</param>
+        /// <returns>PIS formatado</returns>
+        public static string FormatPIS(this string PIS)
+        {
+            if (PIS.IsValidPIS())
+            {
+                PIS = PIS.RemoveAny(".", "-");
+                PIS = PIS.PadLeft(11, '0');
+                PIS = PIS.ToLong().ToString(@"000\.00000\.00-0", CultureInfo.InvariantCulture);
+                return PIS;
+            }
+            else
+            {
+                throw new FormatException("String is not a valid PIS");
+            }
+        }
+
+        /// <summary>
+        /// Formata o PIS no padrão ###.#####.##-#
+        /// </summary>
+        /// <param name="PIS">PIS a ser formatado</param>
+        /// <param name="returnOnlyNumbers">Se verdadeiro, retorna apenas os números sem formatação</param>
+        /// <returns>PIS formatado</returns>
+        public static string FormatPIS(this long PIS) => FormatPIS(PIS.ToString(CultureInfo.InvariantCulture));
+
+        /// <summary>
+        /// Aplica uma mascara a um numero de telefone
+        /// </summary>
+        /// <param name="Number"></param>
+        /// <returns></returns>
+        public static string FormatTelephoneNumber(this string Number)
+        {
+            Number = Number ?? Util.EmptyString;
+            if (Number.IsBlank()) return Number;
+            Number = Number.ParseDigits().RemoveAny(",", ".").TrimBetween().GetLastChars(13);
+            string mask;
+            if (Number.Length <= 4)
+                mask = "{0:####}";
+            else if (Number.Length <= 8)
+                mask = "{0:####-####}";
+            else if (Number.Length == 9)
+                mask = "{0:#####-####}";
+            else if (Number.Length == 10)
+                mask = "{0:(##) ####-####}";
+            else if (Number.Length == 11)
+                mask = "{0:(##) #####-####}";
+            else if (Number.Length == 12)
+                mask = "{0:+## (##) ####-####}";
+            else
+                mask = "{0:+## (##) #####-####}";
+
+            return string.Format(mask, long.Parse(Number.IfBlank("0")));
+        }
+
+        /// <inheritdoc cref="FormatTelephoneNumber(int)"/>
+        public static string FormatTelephoneNumber(this long Number) => FormatTelephoneNumber($"{Number}");
+
+        /// <inheritdoc cref="FormatTelephoneNumber(string)"/>
+        public static string FormatTelephoneNumber(this int Number) => FormatTelephoneNumber($"{Number}");
+
+        /// <inheritdoc cref="FormatTelephoneNumber(int)"/>
+        public static string FormatTelephoneNumber(this decimal Number) => FormatTelephoneNumber($"{Number}");
+
+        /// <inheritdoc cref="FormatTelephoneNumber(int)"/>
+        public static string FormatTelephoneNumber(this double Number) => FormatTelephoneNumber($"{Number}");
 
         public static City GetCapital(string NameOrStateCodeOrIBGE) => (GetState(NameOrStateCodeOrIBGE)?.Cities ?? new List<City>()).FirstOrDefault(x => x.Capital);
 
@@ -395,7 +375,21 @@ namespace InnerLibs
         /// <param name="NameOrStateCodeOrIBGE">Nome ou sigla do estado</param>
         /// <param name="CityName">Nome da cidade</param>
         /// <returns></returns>
-        public static string GetClosestCityName(string NameOrStateCodeOrIBGE, string CityName) => (GetClosestCity(NameOrStateCodeOrIBGE, CityName)?.Name ?? InnerLibs.Util.Empty).IfBlank(CityName);
+        public static string GetClosestCityName(string NameOrStateCodeOrIBGE, string CityName) => (GetClosestCity(NameOrStateCodeOrIBGE, CityName)?.Name ?? InnerLibs.Util.EmptyString).IfBlank(CityName);
+
+        public static string GetDocumentLabel(this string Input, string DefaultLabel = Util.EmptyString)
+        {
+            if (Input.IsValidCPF()) return "CPF";
+            if (Input.IsValidCNPJ()) return "CNPJ";
+            if (Input.IsValidCEP()) return "CEP";
+            if (Input.IsValidEAN()) return "EAN";
+            if (Input.IsValidPIS()) return "PIS";
+            if (Input.IsValidCNH()) return "CNH";
+            if (Input.IsEmail()) return "Email";
+            if (Input.IsTelephone()) return "Tel";
+            if (Input.IsIP()) return "IP";
+            return DefaultLabel;
+        }
 
         public static int? GetIBGEOf(string NameOrStateCodeOrIBGE) => GetState(NameOrStateCodeOrIBGE)?.IBGE;
 
@@ -421,7 +415,7 @@ namespace InnerLibs
         public static State GetState(string NameOrStateCodeOrIBGE)
         {
             NameOrStateCodeOrIBGE = NameOrStateCodeOrIBGE.TrimBetween().ToSlugCase();
-            return States.FirstOrDefault(x => (x.Name.ToSlugCase() ?? InnerLibs.Util.Empty) == (NameOrStateCodeOrIBGE ?? InnerLibs.Util.Empty) || (x.StateCode.ToSlugCase() ?? InnerLibs.Util.Empty) == (NameOrStateCodeOrIBGE ?? InnerLibs.Util.Empty) || (x.IBGE.ToString()) == (NameOrStateCodeOrIBGE ?? InnerLibs.Util.Empty));
+            return States.FirstOrDefault(x => (x.Name.ToSlugCase() ?? InnerLibs.Util.EmptyString) == (NameOrStateCodeOrIBGE ?? InnerLibs.Util.EmptyString) || (x.StateCode.ToSlugCase() ?? InnerLibs.Util.EmptyString) == (NameOrStateCodeOrIBGE ?? InnerLibs.Util.EmptyString) || (x.IBGE.ToString()) == (NameOrStateCodeOrIBGE ?? InnerLibs.Util.EmptyString));
         }
 
         /// <summary>
@@ -436,7 +430,228 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Region"></param>
         /// <returns></returns>
-        public static IEnumerable<State> GetStatesOf(string Region) => States.Where((Func<State, bool>)(x => (Util.ToSlugCase(x.Region) ?? Util.Empty) == (Util.TrimBetween(Util.ToSlugCase(Region)) ?? Util.Empty) || Region.IsBlank()));
+        public static IEnumerable<State> GetStatesOf(string Region) => States.Where((Func<State, bool>)(x => (Util.ToSlugCase(x.Region) ?? Util.EmptyString) == (Util.TrimBetween(Util.ToSlugCase(Region)) ?? Util.EmptyString) || Region.IsBlank()));
+
+        /// <summary>
+        /// Valida se a string é um telefone
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <returns></returns>
+        public static bool IsTelephone(this string Text) => new Regex(@"\(?\+[0-9]{1,3}\)? ?-?[0-9]{1,3} ?-?[0-9]{3,5} ?-?[0-9]{4}( ?-?[0-9]{3})? ?(\w{1,10}\s?\d{1,6})?", (RegexOptions)((int)RegexOptions.Singleline + (int)RegexOptions.IgnoreCase)).IsMatch(Text.RemoveAny("(", ")"));
+
+        /// <summary>
+        /// Verifica se uma string é um cep válido
+        /// </summary>
+        /// <param name="CEP"></param>
+        /// <returns></returns>
+        public static bool IsValidCEP(this string CEP) => new Regex(@"^\d{5}-\d{3}$").IsMatch(CEP) || (CEP.RemoveAny("-").IsNumber() && CEP.RemoveAny("-").Length == 8);
+
+        /// <summary>
+        /// Verifica se a string é um CNH válido
+        /// </summary>
+        /// <param name="Text">CNH</param>
+        /// <returns></returns>
+        public static bool IsValidCNH(this string CNH)
+        {
+            // char firstChar = cnh[0];
+            if (CNH.IsNotBlank() && CNH.Length == 11 && CNH != new string('1', 11))
+            {
+                int dsc = 0;
+                int v = 0;
+                int i = 0;
+                int j = 9;
+                while (i < 9)
+                {
+                    v += Convert.ToInt32(CNH[i].ToString()) * j;
+                    i += 1;
+                    j -= 1;
+                }
+
+                int vl1 = v % 11;
+                if (vl1 >= 10)
+                {
+                    vl1 = 0;
+                    dsc = 2;
+                }
+
+                v = 0;
+                i = 0;
+                j = 1;
+                while (i < 9)
+                {
+                    v += Convert.ToInt32(CNH[i]) * j;
+                    i += 1;
+                    j += 1;
+                }
+
+                int x = v % 11;
+                int vl2 = x >= 10 ? 0 : x - dsc;
+                return $"{vl1}{vl2}" == (CNH.Substring(CNH.Length - 2, 2));
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Verifica se a string é um CNPJ válido
+        /// </summary>
+        /// <param name="Text">CPF</param>
+        /// <returns></returns>
+        public static bool IsValidCNPJ(this string Text)
+        {
+            try
+            {
+                if (Text.IsNotBlank())
+                {
+                    var multiplicador1 = new int[12] { 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
+                    var multiplicador2 = new int[13] { 6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
+                    int soma;
+                    int resto;
+                    string digito;
+                    string tempCnpj;
+                    Text = Text.Trim();
+                    Text = Text.Replace(".", InnerLibs.Util.EmptyString).Replace("-", InnerLibs.Util.EmptyString).Replace("/", InnerLibs.Util.EmptyString);
+                    if (Text.Length != 14)
+                    {
+                        return false;
+                    }
+
+                    tempCnpj = Text.Substring(0, 12);
+                    soma = 0;
+                    for (int i = 0; i <= 12 - 1; i++)
+                    {
+                        soma += int.Parse(tempCnpj[i].ToString()) * multiplicador1[i];
+                    }
+
+                    resto = soma % 11;
+                    if (resto < 2)
+                    {
+                        resto = 0;
+                    }
+                    else
+                    {
+                        resto = 11 - resto;
+                    }
+
+                    digito = resto.ToString();
+                    tempCnpj += digito;
+                    soma = 0;
+                    for (int i = 0; i <= 13 - 1; i++)
+                    {
+                        soma += int.Parse(tempCnpj[i].ToString()) * multiplicador2[i];
+                    }
+
+                    resto = soma % 11;
+                    if (resto < 2)
+                    {
+                        resto = 0;
+                    }
+                    else
+                    {
+                        resto = 11 - resto;
+                    }
+
+                    digito += resto.ToString();
+                    return Text.EndsWith(digito);
+                }
+            }
+            catch
+            {
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Verifica se a string é um CPF válido
+        /// </summary>
+        /// <param name="Text">CPF</param>
+        /// <returns></returns>
+        public static bool IsValidCPF(this string Text)
+        {
+            try
+            {
+                if (Text.IsNotBlank())
+                {
+                    Text = Text.RemoveAny(".", "-");
+                    string digito = InnerLibs.Util.EmptyString;
+                    int k;
+                    int j;
+                    int soma;
+                    for (k = 0; k <= 1; k++)
+                    {
+                        soma = 0;
+                        var loopTo = 9 + (k - 1);
+                        for (j = 0; j <= loopTo; j++)
+                        {
+                            soma += int.Parse($"{Text[j]}", CultureInfo.InvariantCulture) * (10 + k - j);
+                        }
+
+                        digito += $"{(soma % 11 == 0 || soma % 11 == 1 ? 0 : 11 - (soma % 11))}";
+                    }
+
+                    return digito[0] == Text[9] & digito[1] == Text[10];
+                }
+            }
+            catch
+            {
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Verifica se a string é um CPF ou CNPJ válido
+        /// </summary>
+        /// <param name="Text">CPF ou CNPJ</param>
+        /// <returns></returns>
+        public static bool IsValidCPFOrCNPJ(this string Text) => Text.IsValidCPF() || Text.IsValidCNPJ();
+
+        /// <summary>
+        /// Verifica se uma string é um PIS válido
+        /// </summary>
+        /// <param name="CEP"></param>
+        /// <returns></returns>
+        public static bool IsValidPIS(this string PIS)
+        {
+            if (PIS.IsBlank())
+            {
+                return false;
+            }
+
+            PIS = Regex.Replace(PIS, "[^0-9]", InnerLibs.Util.EmptyString).ToString();
+
+            if (PIS.Length != 11)
+            {
+                return false;
+            }
+
+            var count = PIS[0];
+            if (PIS.Count(w => w == count) == PIS.Length)
+            {
+                return false;
+            }
+
+            var multiplicador = new int[10] { 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
+            int soma;
+            int resto;
+
+            soma = 0;
+
+            for (var i = 0; i < 10; i++)
+            {
+                soma += int.Parse($"{PIS[i]}", CultureInfo.InvariantCulture) * multiplicador[i];
+            }
+
+            resto = soma % 11;
+
+            resto = resto < 2 ? 0 : 11 - resto;
+
+            if (PIS.EndsWith(resto.ToString(CultureInfo.InvariantCulture), StringComparison.InvariantCultureIgnoreCase))
+            {
+                return true;
+            }
+
+            return false;
+        }
 
         public static void Reload() => l = new List<State>();
 

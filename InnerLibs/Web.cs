@@ -88,7 +88,7 @@ namespace InnerLibs
 
         public static string DownloadString(string URL, NameValueCollection Headers = null, Encoding Encoding = null)
         {
-            string s = Util.Empty;
+            string s = Util.EmptyString;
             using (var c = new WebClient())
             {
                 c.Encoding = Encoding ?? new UTF8Encoding(false);
@@ -134,7 +134,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string GetFacebookUsername(this Uri URL) => URL?.AbsoluteUri.GetFacebookUsername();
 
-        public static string GetFileNameWithoutExtension(this FileInfo Info) => Info != null ? Path.GetFileNameWithoutExtension(Info.Name) : Util.Empty;
+        public static string GetFileNameWithoutExtension(this FileInfo Info) => Info != null ? Path.GetFileNameWithoutExtension(Info.Name) : Util.EmptyString;
 
         /// <summary>
         /// Retorna um novo <see cref="FileInfo"/> substituindo a extensão original por <paramref name="Extension"/>
@@ -165,7 +165,7 @@ namespace InnerLibs
 
         public static string GetPublicIP()
         {
-            var IP = InnerLibs.Util.Empty;
+            var IP = InnerLibs.Util.EmptyString;
             Util.TryExecute(() => IP = DownloadString("https://ipv4.icanhazip.com/")).ConsoleWriteError();
             IP = IP.Trim().NullIf(x => !x.IsIP());
             return IP.Trim();
@@ -264,7 +264,7 @@ namespace InnerLibs
             if (CSS.IsNotBlank())
             {
                 CSS = Regex.Replace(CSS, "[a-zA-Z]+#", "#");
-                CSS = Regex.Replace(CSS, @"[\n\r]+\s*", InnerLibs.Util.Empty);
+                CSS = Regex.Replace(CSS, @"[\n\r]+\s*", InnerLibs.Util.EmptyString);
                 CSS = Regex.Replace(CSS, @"\s+", " ");
                 CSS = Regex.Replace(CSS, @"\s?([:,;{}])\s?", "$1");
                 CSS = CSS.Replace(";}", "}");
@@ -272,7 +272,7 @@ namespace InnerLibs
                 // Remove comments from CSS
                 if (PreserveComments == false)
                 {
-                    CSS = Regex.Replace(CSS, @"/\*[\d\D]*?\*/", InnerLibs.Util.Empty);
+                    CSS = Regex.Replace(CSS, @"/\*[\d\D]*?\*/", InnerLibs.Util.EmptyString);
                 }
             }
 
@@ -312,7 +312,7 @@ namespace InnerLibs
         {
             if ((URL.IsURL()))
             {
-                URL = Regex.Replace(URL, @"{([^:]+)\s*:\s*(.+?)(?<!\\)}", InnerLibs.Util.Empty);
+                URL = Regex.Replace(URL, @"{([^:]+)\s*:\s*(.+?)(?<!\\)}", InnerLibs.Util.EmptyString);
                 URL = URL.TrimLastEqual("/");
             }
             return URL;

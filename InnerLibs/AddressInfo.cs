@@ -8,9 +8,9 @@ using System.Net;
 using System.Reflection;
 using System.Xml;
 
-namespace InnerLibs.Locations
+namespace InnerLibs
 {
-    public static class AddressInfoExtensions
+    public static partial class Util
     {
         #region Public Methods
 
@@ -37,7 +37,7 @@ namespace InnerLibs.Locations
                 }
 
                 double angleCalculation = Math.Acos(Math.Sin(latitude2Rad) * Math.Sin(latitude1Rad) + Math.Cos(latitude2Rad) * Math.Cos(latitude1Rad) * Math.Cos(longitudeDiff));
-                distance = Util.EarthCircumference * angleCalculation / (2.0d * Math.PI);
+                distance = InnerLibs.Util.EarthCircumference * angleCalculation / (2.0d * Math.PI);
             }
             return distance;
         }
@@ -174,17 +174,17 @@ namespace InnerLibs.Locations
 
         #region Public Methods
 
-        public static string GetAddressType(string Address) => GetAddressTypeProperty(Address)?.Name.IfBlank(Util.Empty);
+        public static string GetAddressType(string Address) => GetAddressTypeProperty(Address)?.Name.IfBlank(InnerLibs.Util.EmptyString);
 
         public static string[] GetAddressTypeList(string Address) => (string[])(GetAddressTypeProperty(Address)?.GetValue(null) ?? Array.Empty<string>());
 
         public static PropertyInfo GetAddressTypeProperty(string Address)
         {
-            string tp = Address.IfBlank(Util.Empty).Split(PredefinedArrays.WordSplitters.ToArray(), StringSplitOptions.RemoveEmptyEntries).FirstOr(Util.Empty);
+            string tp = Address.IfBlank(Util.EmptyString).Split(PredefinedArrays.WordSplitters.ToArray(), StringSplitOptions.RemoveEmptyEntries).FirstOr(Util.EmptyString);
             if (tp.IsNotBlank())
             {
                 var df = typeof(AddressTypes);
-                return df.GetProperties(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy).FirstOrDefault(x => x.Name == tp || Util.IsIn(tp, x.GetValue(null) as string[]));
+                return df.GetProperties(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy).FirstOrDefault(x => x.Name == tp || InnerLibs.Util.IsIn(tp, x.GetValue(null) as string[]));
             }
 
             return null;
@@ -211,7 +211,7 @@ namespace InnerLibs.Locations
 
         #region Private Methods
 
-        private static string PropCleaner(string value) => value.IfBlank(Util.Empty).TrimAny(true, " ", ".", " ", ",", " ", "-", " ").ToTitle().NullIf(x => x.IsBlank());
+        private static string PropCleaner(string value) => value.IfBlank(Util.EmptyString).TrimAny(true, " ", ".", " ", ",", " ", "-", " ").ToTitle().NullIf(x => x.IsBlank());
 
         #endregion Private Methods
 
@@ -231,7 +231,7 @@ namespace InnerLibs.Locations
             this.Label = Label;
         }
 
-        public AddressInfo(string Address, string Number = Util.Empty, string Complement = Util.Empty, string Neighborhood = Util.Empty, string City = Util.Empty, string State = Util.Empty, string Country = Util.Empty, string PostalCode = Util.Empty) : this()
+        public AddressInfo(string Address, string Number = InnerLibs.Util.EmptyString, string Complement = InnerLibs.Util.EmptyString, string Neighborhood = InnerLibs.Util.EmptyString, string City = InnerLibs.Util.EmptyString, string State = InnerLibs.Util.EmptyString, string Country = InnerLibs.Util.EmptyString, string PostalCode = InnerLibs.Util.EmptyString) : this()
         {
             this.Street = Address;
             this.Neighborhood = Neighborhood;
@@ -268,7 +268,6 @@ namespace InnerLibs.Locations
                     this.Country = Country;
                 }
             }
-
         }
 
         #endregion Public Constructors
@@ -286,7 +285,7 @@ namespace InnerLibs.Locations
 
                 if (key.IsBlank())
                 {
-                    return Util.Empty;
+                    return InnerLibs.Util.EmptyString;
                 }
 
                 key = key.ToLowerInvariant();
@@ -387,6 +386,12 @@ namespace InnerLibs.Locations
             }
         }
 
+        /// <summary>
+        /// Retorna o Logradouro e numero
+        /// </summary>
+        /// <returns>Uma String com o endereço completo devidamente formatado</returns>
+        public string BuildingInfo => ToString(AddressPart.BuildingInfo).NullIf(x => x.IsBlank());
+
         public string City
         {
             get => this[nameof(City)];
@@ -411,11 +416,7 @@ namespace InnerLibs.Locations
             set => this[nameof(CountryCode)] = PropCleaner(value)?.ToUpperInvariant();
         }
 
-        public string Label
-        {
-            get => this[nameof(Label)];
-            set => this[nameof(Label)] = value; //Label is a plain text, no need to propclean
-        }
+        public string FixedStreet => $"{Type} {Name}".TrimBetween();
 
         /// <summary>
         /// Formato desta instancia de <see cref="AddressInfo"/> quando chamada pelo <see cref="ToString()"/>
@@ -458,6 +459,11 @@ namespace InnerLibs.Locations
         /// <returns>Uma String com o endereço completo devidamente formatado</returns>
         public string FullBuildingInfo => ToString(AddressPart.FullBuildingInfo);
 
+        public string Label
+        {
+            get => this[nameof(Label)];
+            set => this[nameof(Label)] = value; //Label is a plain text, no need to propclean
+        }
 
         public decimal? Latitude
         {
@@ -484,12 +490,6 @@ namespace InnerLibs.Locations
                 }
             }
         }
-
-        /// <summary>
-        /// Retorna o Logradouro e numero
-        /// </summary>
-        /// <returns>Uma String com o endereço completo devidamente formatado</returns>
-        public string BuildingInfo => ToString(AddressPart.BuildingInfo).NullIf(x => x.IsBlank());
 
         /// <summary>
         /// Coordenada geográfica LONGITUDE
@@ -584,8 +584,6 @@ namespace InnerLibs.Locations
             }
         }
 
-        public string FixedStreet => $"{Type} {Name}".TrimBetween();
-
         /// <summary>
         /// Tipo do Endereço
         /// </summary>
@@ -614,7 +612,7 @@ namespace InnerLibs.Locations
         /// <param name="Country"></param>
         /// <param name="PostalCode"></param>
         /// <returns></returns>
-        public static AddressInfo CreateLocation(string Address, string Number = Util.Empty, string Complement = Util.Empty, string Neighborhood = Util.Empty, string City = Util.Empty, string State = Util.Empty, string Country = Util.Empty, string PostalCode = Util.Empty) => CreateLocation<AddressInfo>(Address, Number, Complement, Neighborhood, City, State, Country, PostalCode);
+        public static AddressInfo CreateLocation(string Address, string Number = InnerLibs.Util.EmptyString, string Complement = InnerLibs.Util.EmptyString, string Neighborhood = InnerLibs.Util.EmptyString, string City = InnerLibs.Util.EmptyString, string State = InnerLibs.Util.EmptyString, string Country = InnerLibs.Util.EmptyString, string PostalCode = InnerLibs.Util.EmptyString) => CreateLocation<AddressInfo>(Address, Number, Complement, Neighborhood, City, State, Country, PostalCode);
 
         /// <summary>
         /// Cria uma localização a partir de partes de endereço
@@ -628,7 +626,7 @@ namespace InnerLibs.Locations
         /// <param name="Country"></param>
         /// <param name="PostalCode"></param>
         /// <returns></returns>
-        public static T CreateLocation<T>(string Address, string Number = Util.Empty, string Complement = Util.Empty, string Neighborhood = Util.Empty, string City = Util.Empty, string State = Util.Empty, string Country = Util.Empty, string PostalCode = Util.Empty) where T : AddressInfo
+        public static T CreateLocation<T>(string Address, string Number = InnerLibs.Util.EmptyString, string Complement = InnerLibs.Util.EmptyString, string Neighborhood = InnerLibs.Util.EmptyString, string City = InnerLibs.Util.EmptyString, string State = InnerLibs.Util.EmptyString, string Country = InnerLibs.Util.EmptyString, string PostalCode = InnerLibs.Util.EmptyString) where T : AddressInfo
         {
             T r = Activator.CreateInstance<T>();
             var temp = new AddressInfo(Address, Number, Complement, Neighborhood, City, State, Country, PostalCode);
@@ -651,11 +649,11 @@ namespace InnerLibs.Locations
         /// <param name="Country"></param>
         /// <param name="PostalCode"></param>
         /// <returns></returns>
-        public static string FormatAddress(string Address = null, string Number = Util.Empty, string Complement = Util.Empty, string Neighborhood = Util.Empty, string City = Util.Empty, string State = Util.Empty, string Country = Util.Empty, string PostalCode = Util.Empty, params AddressPart[] Parts) => CreateLocation(Address, Number, Complement, Neighborhood, City, State, Country, PostalCode).ToString(Parts);
+        public static string FormatAddress(string Address = null, string Number = InnerLibs.Util.EmptyString, string Complement = InnerLibs.Util.EmptyString, string Neighborhood = InnerLibs.Util.EmptyString, string City = InnerLibs.Util.EmptyString, string State = InnerLibs.Util.EmptyString, string Country = InnerLibs.Util.EmptyString, string PostalCode = InnerLibs.Util.EmptyString, params AddressPart[] Parts) => CreateLocation(Address, Number, Complement, Neighborhood, City, State, Country, PostalCode).ToString(Parts);
 
         public static string FormatPostalCode(string CEP)
         {
-            CEP = CEP.IfBlank(Util.Empty).Trim();
+            CEP = CEP.IfBlank(InnerLibs.Util.EmptyString).Trim();
             if (CEP.IsValidCEP())
             {
                 CEP = CEP.FormatCEP();
@@ -721,7 +719,7 @@ namespace InnerLibs.Locations
                                 if (subitem.Name == "type")
                                 {
                                     d[subitem.InnerText] = item["long_name"].InnerText;
-                                    switch (subitem.InnerText ?? Util.Empty)
+                                    switch (subitem.InnerText ?? InnerLibs.Util.EmptyString)
                                     {
                                         case "postal_code":
                                             {
@@ -854,210 +852,13 @@ namespace InnerLibs.Locations
                 }
                 foreach (var item in new[] { "ddd", "ibge", "gia", "siafi" })
                 {
-                    Util.TryExecute(() => d[item.ToUpperInvariant()] = x.GetValueOr(item) as string);
+                    InnerLibs.Util.TryExecute(() => d[item.ToUpperInvariant()] = x.GetValueOr(item) as string);
                 }
             }
             catch { }
 
             return d;
         }
-
-        public static implicit operator AddressInfo(Point Point) => ToAddressInfo(Point);
-
-        public static implicit operator Point(AddressInfo AddressInfo) => AddressInfo?.ToPoint() ?? new Point();
-
-        public static AddressInfo ToAddressInfo(Point Point) => new AddressInfo().SetLatitudeLongitudeFromPoint(Point);
-
-        /// <summary>
-        /// Tenta extrair as partes de um endereço de uma string
-        /// </summary>
-        /// <param name="Address"></param>
-        /// <returns></returns>
-        public static AddressInfo TryParse(string Address) => TryParse<AddressInfo>(Address);
-
-        /// <summary>
-        /// Tenta extrair as partes de um endereço de uma string
-        /// </summary>
-        /// <param name="Address"></param>
-        /// <returns></returns>
-        public static T TryParse<T>(string Address) where T : AddressInfo
-        {
-            string original = Address;
-            string PostalCode = Util.Empty;
-            string State = Util.Empty;
-            string City = Util.Empty;
-            string Neighborhood = Util.Empty;
-            string Complement = Util.Empty;
-            string Number = Util.Empty;
-            string Country = Util.Empty;
-            Address = Address.FixText().TrimEndAny("."); // arruma os espacos do endereco
-            var ceps = Address.FindCEP(); // procura ceps no endereco
-            Address = Address.RemoveAny(ceps); // remove ceps
-            Address = Address.FixText().TrimEndAny("."); // arruma os espacos do endereco
-            if (ceps.Any())
-            {
-                PostalCode = FormatPostalCode(ceps.First());
-            }
-
-            Address = Address.FixText().TrimAny("-", ",", "/"); // arruma os espacos do endereco
-            if (Address.Contains(" - "))
-            {
-                var parts = Address.Split(" - ").ToList();
-                if (parts.Count == 1)
-                {
-                    Address = parts.First().IfBlank(Util.Empty).TrimAny(" ", ",", "-");
-                }
-
-                if (parts.Count == 2)
-                {
-                    Address = parts.First().IfBlank(Util.Empty);
-                    string maybe_neigh = parts.Last().IfBlank(Util.Empty).TrimAny(" ", ",", "-");
-                    if (maybe_neigh.Length == 2)
-                    {
-                        State = maybe_neigh;
-                    }
-                    else
-                    {
-                        Neighborhood = maybe_neigh;
-                    }
-                }
-
-                if (parts.Count == 3)
-                {
-                    Address = parts.First().IfBlank(Util.Empty);
-                    string maybe_city = parts.Last().IfBlank(Util.Empty).TrimAny(" ", ",", "-");
-                    if (maybe_city.Length == 2)
-                    {
-                        State = maybe_city;
-                    }
-                    else
-                    {
-                        City = maybe_city;
-                    }
-
-                    parts.RemoveLast();
-                    parts = parts.Skip(1).ToList();
-                    Neighborhood = parts.FirstOrDefault().IfBlank(Util.Empty).TrimAny(" ", ",", "-");
-                }
-
-                if (parts.Count == 6)
-                {
-                    string ad = parts[0] + ", " + parts[1] + " " + parts[2];
-                    parts.RemoveAt(1);
-                    parts.RemoveAt(2);
-                    parts[0] = ad;
-                }
-
-                if (parts.Count == 5)
-                {
-                    string ad = parts[0] + ", " + parts[1];
-                    parts.RemoveAt(1);
-                    parts[0] = ad;
-                }
-
-                if (parts.Count == 4)
-                {
-                    Address = parts.First().IfBlank(Util.Empty);
-                    string maybe_state = parts.Last().IfBlank(Util.Empty).TrimAny(" ", ",", "-");
-                    parts.RemoveLast();
-                    string maybe_city = parts.Last().IfBlank(Util.Empty).TrimAny(" ", ",", "-");
-                    parts.RemoveLast();
-                    City = maybe_city;
-                    State = maybe_state;
-                    parts = parts.Skip(1).ToList();
-                    Neighborhood = parts.FirstOrDefault().IfBlank(Util.Empty).TrimAny(" ", ",", "-");
-                }
-            }
-
-            Address = Address.FixText();
-            if (Address.Contains(","))
-            {
-                var parts = Address.GetAfter(",").SplitAny(" ", ".", ",").ToList();
-                Number = parts.FirstOrDefault(x => x == "s/n" || x == "sn" || x == "s" || x == "sem" || x.IsNumber());
-                parts.Remove(Number);
-                Complement = parts.SelectJoinString(" ");
-                Address = Address.GetBefore(",");
-            }
-            else
-            {
-                var adparts = Address.SplitAny(" ", "-").ToList();
-                if (adparts.Any())
-                {
-                    string maybe_number = adparts.FirstOrDefault(x => x == "s/n" || x == "sn" || x.IsNumber()).IfBlank(Util.Empty).TrimAny(" ", ",");
-                    Complement = adparts.SelectJoinString(" ").GetAfter(maybe_number).TrimAny(" ", ",");
-                    Number = maybe_number;
-                    Address = adparts.SelectJoinString(" ").GetBefore(maybe_number).TrimAny(" ", ",");
-                }
-            }
-
-            Number = Number.TrimBetween().TrimAny(" ", ",", "-");
-            Complement = Complement.TrimBetween().TrimAny(" ", ",", "-");
-            var d = CreateLocation<T>(Address, Number, Complement, Neighborhood, City, State, Country, PostalCode);
-            d["original_string"] = original;
-            return d;
-        }
-
-        public AddressInfo Add(string key, string value)
-        {
-            this[key] = value;
-            return this;
-        }
-
-        public AddressInfo Clear()
-        {
-            details.Clear();
-            return this;
-        }
-
-        public bool ContainsKey(string key) => details.ContainsKey(key.ToLowerInvariant());
-
-        /// <summary>
-        /// Retona uma informação deste endereço
-        /// </summary>
-        /// <param name="Key"></param>
-        /// <returns></returns>
-        public Dictionary<string, string> GetDetails() => details.ToDictionary();
-
-        public string GeoLocation() => Latitude.HasValue && Longitude.HasValue ? $"{Latitude?.ToString(CultureInfo.InvariantCulture)}, {Longitude?.ToString(CultureInfo.InvariantCulture)}" : null;
-
-        public AddressInfo Remove(string key)
-        {
-            if (ContainsKey(key))
-            {
-                details.Remove(key);
-            }
-
-            return this;
-        }
-
-        public AddressInfo SetLatitudeLongitudeFromPoint(Point Point)
-        {
-            Longitude = Point.X * 0.000001m;
-            Latitude = Point.Y * 0.000001m;
-            return this;
-        }
-
-        public Point ToPoint() => Latitude.HasValue && Longitude.HasValue ? new Point((Longitude * 1000000).ToInt(), (Latitude * 1000000).ToInt()) : new Point();
-
-        /// <summary>
-        /// Retorna uma String contendo as informações do Local
-        /// </summary>
-        /// <returns>string</returns>
-        public override string ToString() => ToString(Array.Empty<AddressPart>());
-
-        /// <summary>
-        /// Retorna uma string com as partes dos endereço especificas
-        /// </summary>
-        /// <param name="Parts"></param>
-        /// <returns></returns>
-        public string ToString(IEnumerable<AddressPart> Parts) => ToString(Parts.ToArray());
-
-
-        /// <summary>
-        /// Retorna um <see cref="AddressPart"/> combinando varios <see cref="AddressPart"/>
-        /// </summary>
-        /// <param name="Parts"></param>
-        /// <returns></returns>
 
         public static AddressPart GetAddressPart(params AddressPart[] Parts)
         {
@@ -1093,6 +894,201 @@ namespace InnerLibs.Locations
             return p;
         }
 
+        public static implicit operator AddressInfo(Point Point) => ToAddressInfo(Point);
+
+        public static implicit operator Point(AddressInfo AddressInfo) => AddressInfo?.ToPoint() ?? new Point();
+
+        public static AddressInfo ToAddressInfo(Point Point) => new AddressInfo().SetLatitudeLongitudeFromPoint(Point);
+
+        /// <summary>
+        /// Tenta extrair as partes de um endereço de uma string
+        /// </summary>
+        /// <param name="Address"></param>
+        /// <returns></returns>
+        public static AddressInfo TryParse(string Address) => TryParse<AddressInfo>(Address);
+
+        /// <summary>
+        /// Tenta extrair as partes de um endereço de uma string
+        /// </summary>
+        /// <param name="Address"></param>
+        /// <returns></returns>
+        public static T TryParse<T>(string Address) where T : AddressInfo
+        {
+            string original = Address;
+            string PostalCode = InnerLibs.Util.EmptyString;
+            string State = InnerLibs.Util.EmptyString;
+            string City = InnerLibs.Util.EmptyString;
+            string Neighborhood = InnerLibs.Util.EmptyString;
+            string Complement = InnerLibs.Util.EmptyString;
+            string Number = InnerLibs.Util.EmptyString;
+            string Country = InnerLibs.Util.EmptyString;
+            Address = Address.FixText().TrimEndAny("."); // arruma os espacos do endereco
+            var ceps = Address.FindCEP(); // procura ceps no endereco
+            Address = Address.RemoveAny(ceps); // remove ceps
+            Address = Address.FixText().TrimEndAny("."); // arruma os espacos do endereco
+            if (ceps.Any())
+            {
+                PostalCode = FormatPostalCode(ceps.First());
+            }
+
+            Address = Address.FixText().TrimAny("-", ",", "/"); // arruma os espacos do endereco
+            if (Address.Contains(" - "))
+            {
+                var parts = Address.Split(" - ").ToList();
+                if (parts.Count == 1)
+                {
+                    Address = parts.First().IfBlank(Util.EmptyString).TrimAny(" ", ",", "-");
+                }
+
+                if (parts.Count == 2)
+                {
+                    Address = parts.First().IfBlank(InnerLibs.Util.EmptyString);
+                    string maybe_neigh = parts.Last().IfBlank(Util.EmptyString).TrimAny(" ", ",", "-");
+                    if (maybe_neigh.Length == 2)
+                    {
+                        State = maybe_neigh;
+                    }
+                    else
+                    {
+                        Neighborhood = maybe_neigh;
+                    }
+                }
+
+                if (parts.Count == 3)
+                {
+                    Address = parts.First().IfBlank(InnerLibs.Util.EmptyString);
+                    string maybe_city = parts.Last().IfBlank(Util.EmptyString).TrimAny(" ", ",", "-");
+                    if (maybe_city.Length == 2)
+                    {
+                        State = maybe_city;
+                    }
+                    else
+                    {
+                        City = maybe_city;
+                    }
+
+                    parts.RemoveLast();
+                    parts = parts.Skip(1).ToList();
+                    Neighborhood = parts.FirstOrDefault().IfBlank(Util.EmptyString).TrimAny(" ", ",", "-");
+                }
+
+                if (parts.Count == 6)
+                {
+                    string ad = parts[0] + ", " + parts[1] + " " + parts[2];
+                    parts.RemoveAt(1);
+                    parts.RemoveAt(2);
+                    parts[0] = ad;
+                }
+
+                if (parts.Count == 5)
+                {
+                    string ad = parts[0] + ", " + parts[1];
+                    parts.RemoveAt(1);
+                    parts[0] = ad;
+                }
+
+                if (parts.Count == 4)
+                {
+                    Address = parts.First().IfBlank(InnerLibs.Util.EmptyString);
+                    string maybe_state = parts.Last().IfBlank(Util.EmptyString).TrimAny(" ", ",", "-");
+                    parts.RemoveLast();
+                    string maybe_city = parts.Last().IfBlank(Util.EmptyString).TrimAny(" ", ",", "-");
+                    parts.RemoveLast();
+                    City = maybe_city;
+                    State = maybe_state;
+                    parts = parts.Skip(1).ToList();
+                    Neighborhood = parts.FirstOrDefault().IfBlank(Util.EmptyString).TrimAny(" ", ",", "-");
+                }
+            }
+
+            Address = Address.FixText();
+            if (Address.Contains(","))
+            {
+                var parts = Address.GetAfter(",").SplitAny(" ", ".", ",").ToList();
+                Number = parts.FirstOrDefault(x => x == "s/n" || x == "sn" || x == "s" || x == "sem" || x.IsNumber());
+                parts.Remove(Number);
+                Complement = parts.SelectJoinString(" ");
+                Address = Address.GetBefore(",");
+            }
+            else
+            {
+                var adparts = Address.SplitAny(" ", "-").ToList();
+                if (adparts.Any())
+                {
+                    string maybe_number = adparts.FirstOrDefault(x => x == "s/n" || x == "sn" || x.IsNumber()).IfBlank(Util.EmptyString).TrimAny(" ", ",");
+                    Complement = adparts.SelectJoinString(" ").GetAfter(maybe_number).TrimAny(" ", ",");
+                    Number = maybe_number;
+                    Address = adparts.SelectJoinString(" ").GetBefore(maybe_number).TrimAny(" ", ",");
+                }
+            }
+
+            Number = Number.TrimBetween().TrimAny(" ", ",", "-");
+            Complement = Complement.TrimBetween().TrimAny(" ", ",", "-");
+            var d = CreateLocation<T>(Address, Number, Complement, Neighborhood, City, State, Country, PostalCode);
+            d["original_string"] = original;
+            return d;
+        }
+
+        public AddressInfo Add(string key, string value)
+        {
+            this[key] = value;
+            return this;
+        }
+
+        public AddressInfo Clear()
+        {
+            details.Clear();
+            return this;
+        }
+
+        public bool ContainsKey(string key) => details.ContainsKey(key.ToLowerInvariant());
+
+        public string GeoLocation() => Latitude.HasValue && Longitude.HasValue ? $"{Latitude?.ToString(CultureInfo.InvariantCulture)}, {Longitude?.ToString(CultureInfo.InvariantCulture)}" : null;
+
+        /// <summary>
+        /// Retona uma informação deste endereço
+        /// </summary>
+        /// <param name="Key"></param>
+        /// <returns></returns>
+        public Dictionary<string, string> GetDetails() => details.ToDictionary();
+
+        public AddressInfo Remove(string key)
+        {
+            if (ContainsKey(key))
+            {
+                details.Remove(key);
+            }
+
+            return this;
+        }
+
+        public AddressInfo SetLatitudeLongitudeFromPoint(Point Point)
+        {
+            Longitude = Point.X * 0.000001m;
+            Latitude = Point.Y * 0.000001m;
+            return this;
+        }
+
+        public Point ToPoint() => Latitude.HasValue && Longitude.HasValue ? new Point((Longitude * 1000000).ToInt(), (Latitude * 1000000).ToInt()) : new Point();
+
+        /// <summary>
+        /// Retorna uma String contendo as informações do Local
+        /// </summary>
+        /// <returns>string</returns>
+        public override string ToString() => ToString(Array.Empty<AddressPart>());
+
+        /// <summary>
+        /// Retorna uma string com as partes dos endereço especificas
+        /// </summary>
+        /// <param name="Parts"></param>
+        /// <returns></returns>
+        public string ToString(IEnumerable<AddressPart> Parts) => ToString(Parts.ToArray());
+
+        /// <summary>
+        /// Retorna um <see cref="AddressPart"/> combinando varios <see cref="AddressPart"/>
+        /// </summary>
+        /// <param name="Parts"></param>
+        /// <returns></returns>
         /// <summary>
         /// Retorna uma string com as partes dos endereço especificas
         /// </summary>
@@ -1100,7 +1096,7 @@ namespace InnerLibs.Locations
         /// <returns></returns>
         public string ToString(params AddressPart[] Parts)
         {
-            string retorno = Util.Empty;
+            string retorno = InnerLibs.Util.EmptyString;
 
             Parts = Parts ?? Array.Empty<AddressPart>();
 
@@ -1111,11 +1107,7 @@ namespace InnerLibs.Locations
 
             var p = GetAddressPart(Parts);
 
-
-
             retorno = retorno.AppendIf($"{Label}:", Label.IsNotBlank() && p.HasFlag(AddressPart.Label));
-
-
 
             if (p.HasFlag(AddressPart.Street))
             {
@@ -1126,7 +1118,6 @@ namespace InnerLibs.Locations
                 retorno = retorno.AppendIf(Type, Type.IsNotBlank() && p.HasFlag(AddressPart.StreetType))
                 .AppendIf($" {Name}", Name.IsNotBlank() && p.HasFlag(AddressPart.StreetName));
             }
-
 
             retorno = retorno.AppendIf($", {Number}", Number.IsNotBlank() && p.HasFlag(AddressPart.Number))
             .AppendIf($", {Complement}", Complement.IsNotBlank() && p.HasFlag(AddressPart.Complement))
@@ -1141,7 +1132,6 @@ namespace InnerLibs.Locations
             {
                 retorno = retorno.AppendIf($" - {StateCode}", StateCode.IsNotBlank() && p.HasFlag(AddressPart.StateCode));
             }
-
 
             retorno = retorno.AppendIf($" - {PostalCode}", PostalCode.IsNotBlank() && p.HasFlag(AddressPart.PostalCode));
 
@@ -1164,7 +1154,6 @@ namespace InnerLibs.Locations
             {
                 retorno = retorno.AppendIf($" / {Latitude?.ToString(CultureInfo.InvariantCulture).Quote('(')}", Latitude != null && p.HasFlag(AddressPart.Latitude));
                 retorno = retorno.AppendIf($" / {Longitude?.ToString(CultureInfo.InvariantCulture).Quote('(')}", Longitude != null && p.HasFlag(AddressPart.Longitude));
-
             }
 
             return retorno.TrimAny(".", " ", ",", " ", "-");
@@ -1188,96 +1177,112 @@ namespace InnerLibs.Locations
         /// Tipo do Lograoduro
         /// </summary>
         StreetType = 1,
+
         OmmitStreetType = ~StreetType,
 
         /// <summary>
         /// Nome do Logradouro
         /// </summary>
         StreetName = 2,
+
         OmmitStreetName = ~StreetName,
 
         /// <summary>
         /// Logradouro
         /// </summary>
         Street = StreetType + StreetName,
+
         OmmitStreet = ~Street,
 
         /// <summary>
         /// Numero do local
         /// </summary>
         Number = 4,
+
         OmmitNumber = ~Number,
 
         /// <summary>
         /// Complemento do local
         /// </summary>
         Complement = 8,
+
         OmmitComplement = ~Complement,
 
         /// <summary>
         /// Numero e complemento
         /// </summary>
         BuildingInfo = Number + Complement,
+
         OmmitBuildingInfo = ~BuildingInfo,
 
         /// <summary>
         /// Logradouro, Numero e complemento
         /// </summary>
         FullBuildingInfo = Street + Number + Complement,
+
         OmmitFullBuildingInfo = ~FullBuildingInfo,
 
         /// <summary>
         /// Bairro
         /// </summary>
         Neighborhood = 16,
+
         OmmitNeighborhood = ~Neighborhood,
 
         /// <summary>
         /// Cidade
         /// </summary>
         City = 32,
+
         OmmitCity = ~City,
 
         /// <summary>
         /// Estado
         /// </summary>
         State = 64,
+
         OmmitState = ~State,
 
         /// <summary>
         /// Cidade e Estado
         /// </summary>
         CityState = City + State,
+
         OmmitCityState = ~CityState,
 
         /// <summary>
         /// UF
         /// </summary>
         StateCode = 128,
+
         OmmitStateCode = ~StateCode,
 
         /// <summary>
         /// Cidade e UF
         /// </summary>
         CityStateCode = City + StateCode,
+
         OmmitCityStateCode = ~CityStateCode,
 
         /// <summary>
         /// País
         /// </summary>
         Country = 256,
+
         OmmitCountry = ~Country,
 
         /// <summary>
         /// País
         /// </summary>
         CountryCode = 512,
+
         OmmitCountryCode = ~CountryCode,
 
         /// <summary>
         /// CEP
         /// </summary>
         PostalCode = 1024,
+
         OmmitPostalCode = ~PostalCode,
 
         /// <summary>
@@ -1300,8 +1305,5 @@ namespace InnerLibs.Locations
         OmmitLabel = ~Label,
 
         LabelAddress = Label + FullAddress
-
-
-
     }
 }

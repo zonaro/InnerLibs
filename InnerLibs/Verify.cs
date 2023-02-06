@@ -542,7 +542,7 @@ namespace InnerLibs
                 {
                     string HostName = new Uri(DomainOrEmail).Host;
                     ObjHost = System.Net.Dns.GetHostEntry(HostName);
-                    return (ObjHost.HostName ?? InnerLibs.Util.Empty) == (HostName ?? InnerLibs.Util.Empty);
+                    return (ObjHost.HostName ?? InnerLibs.Util.EmptyString) == (HostName ?? InnerLibs.Util.EmptyString);
                 }
                 catch
                 {
@@ -722,7 +722,7 @@ namespace InnerLibs
             }
         }
 
-        public static bool ValidatePassword(this string Password, PasswordLevel PasswordLevel = PasswordLevel.Strong) => Password.CheckPassword().ToInt() >= PasswordLevel.ToInt();
+        public static bool ValidatePassword(this string Password, PasswordLevel PasswordLevel = PasswordLevel.Strong) => PasswordLevel == PasswordLevel.None || Password.CheckPassword().ToInt() >= PasswordLevel.ToInt();
 
         /// <summary>
         /// Bloqueia a Thread atual enquanto um arquivo estiver em uso
@@ -730,19 +730,28 @@ namespace InnerLibs
         /// <param name="File">Arquivo</param>
         /// <param name="Seconds">intervalo, em segundo entre as tentativas de acesso</param>
         /// <param name="MaxFailCount">
-        /// Numero maximo de tentativas falhas,quando negativo, verifica infinitamente
+        /// Numero maximo de tentativas falhas,quando nulo, verifica infinitamente
         /// </param>
         /// <param name="OnAttemptFail">ação a ser executado em caso de falha</param>
         /// <returns>TRUE se o arquivo puder ser utilizado</returns>
         public static bool WaifForFile(this FileInfo File, int Seconds = 1, int? MaxFailCount = null, Action<int> OnAttemptFail = null)
         {
+            if (File == null)
+            {
+                return false;
+            }
+            if (File.Exists == false)
+            {
+                return true;
+            }
+
             while (IsInUse(File))
             {
                 Thread.Sleep(Seconds * 1000);
 
-                if (!File.Exists)
+                if (File.Exists == false)
                 {
-                    return false;
+                    return true;
                 }
 
                 if (MaxFailCount.HasValue)
@@ -750,7 +759,7 @@ namespace InnerLibs
                     MaxFailCount = MaxFailCount.Value - 1;
                 }
 
-                if (MaxFailCount.HasValue && MaxFailCount.Value < 0)
+                if (MaxFailCount.HasValue && MaxFailCount.Value <= 0)
                 {
                     return false;
                 }
@@ -765,32 +774,54 @@ namespace InnerLibs
         /// </summary>
         /// <param name="File">Arquivo</param>
         /// <param name="OnSuccess">Função a ser executada ao abrir o arquivo</param>
-        /// <param name="OnFail">Função a ser executada após um numero determinado de tentativas</param>
-        /// <param name="OnAttemptFail"></param>
-        /// <param name="Seconds"></param>
-        /// <param name="MaxFailCount"></param>
+        /// <param name="OnFail">Função a ser executada após um numero determinado de tentativas falharem</param>
+        /// <param name="OnAttemptFail">Função a ser executada a cada tentativa falhada</param>
+        /// <param name="Seconds">Tempo de espera em segundos entre uma tentativa e outra</param>
+        /// <param name="MaxFailCount">Numero máximo de tentativas, infinito se null</param>
+        /// <returns>
+        /// TRUE após <paramref name="OnSuccess"/> ser executada com sucesso. FALSE em qualquer outra situação
+        /// </returns>
         public static bool WithFile(this FileInfo File, Action<FileInfo> OnSuccess, Action<FileInfo> OnFail, Action<int> OnAttemptFail = null, int Seconds = 1, int? MaxFailCount = null)
         {
             if (File != null)
             {
-                if (WaifForFile(File, Seconds, MaxFailCount, OnAttemptFail))
+                try
                 {
-                    OnSuccess?.Invoke(File);
-                    return true;
+
+                    if (WaifForFile(File, Seconds, MaxFailCount, OnAttemptFail))
+                    {
+                        OnSuccess?.Invoke(File);
+                        return true;
+                    }
+
+
                 }
-                else
+                catch (Exception ex)
                 {
-                    OnFail?.Invoke(File);
+                    ex.WriteDebug("Execution of OnSuccess failed");
+
+                    try
+                    {
+                        OnFail?.Invoke(File);
+                    }
+                    catch (Exception exf)
+                    {
+                        exf.WriteDebug("Execution of OnFail failed");
+                    }
                 }
             }
             return false;
         }
+
+
+
 
         #endregion Public Methods
     }
 
     public enum PasswordLevel
     {
+        None,
         VeryWeak = 2,
         Weak = 3,
         Medium = 4,

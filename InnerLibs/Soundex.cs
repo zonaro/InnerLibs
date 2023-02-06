@@ -156,7 +156,7 @@ namespace InnerLibs
         /// <returns>TRUE se possuirem o mesmo fonema</returns>
         public static bool SoundsLike(this string FirstText, string SecondText)
         {
-            return (FirstText.SoundEx() ?? InnerLibs.Util.Empty) == (SecondText.SoundEx() ?? InnerLibs.Util.Empty);
+            return (FirstText.SoundEx() ?? InnerLibs.Util.EmptyString) == (SecondText.SoundEx() ?? InnerLibs.Util.EmptyString);
         }
 
         #endregion Public Methods
@@ -194,7 +194,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Word">Palavra para comparar</param>
         /// <returns></returns>
-        public bool this[string Word] => (new Phonetic(Word).SoundExCode ?? InnerLibs.Util.Empty) == (SoundExCode ?? InnerLibs.Util.Empty) | (Word ?? InnerLibs.Util.Empty) == (this.Word ?? InnerLibs.Util.Empty);
+        public bool this[string Word] => (new Phonetic(Word).SoundExCode ?? InnerLibs.Util.EmptyString) == (SoundExCode ?? InnerLibs.Util.EmptyString) | (Word ?? InnerLibs.Util.EmptyString) == (this.Word ?? InnerLibs.Util.EmptyString);
 
         #endregion Public Indexers
 
@@ -268,7 +268,7 @@ namespace InnerLibs
                 text = text.Replace("ST", "T");
                 text = text.Replace("W", "TV");
                 text = text.Replace("L", "R");
-                text = text.Replace("H", InnerLibs.Util.Empty);
+                text = text.Replace("H", InnerLibs.Util.EmptyString);
                 var sb = new StringBuilder(text);
                 if (text.IsNotBlank())
                 {
@@ -290,7 +290,7 @@ namespace InnerLibs
                         }
                     }
 
-                    string frasesaida = InnerLibs.Util.Empty;
+                    string frasesaida = InnerLibs.Util.EmptyString;
                     try
                     {
                         frasesaida += Convert.ToString(sb[0]);
@@ -311,7 +311,7 @@ namespace InnerLibs
                 }
                 else
                 {
-                    return InnerLibs.Util.Empty;
+                    return InnerLibs.Util.EmptyString;
                 }
             }
         }

@@ -443,13 +443,13 @@ namespace InnerLibs
             _stl = new CSSStyles(this);
         }
 
-        public HtmlTag(string TagName, string InnerHtml = Util.Empty) : this()
+        public HtmlTag(string TagName, string InnerHtml = Util.EmptyString) : this()
         {
             this.TagName = TagName;
             this.InnerHtml = InnerHtml;
         }
 
-        public HtmlTag(string TagName, object Attributes, string InnerHtml = Util.Empty) : this()
+        public HtmlTag(string TagName, object Attributes, string InnerHtml = Util.EmptyString) : this()
         {
             this.TagName = TagName;
             this.InnerHtml = InnerHtml;
@@ -521,7 +521,7 @@ namespace InnerLibs
         [IgnoreDataMember]
         public string Class
         {
-            get => Attributes.GetValueOr("class") ?? Util.Empty;
+            get => Attributes.GetValueOr("class") ?? Util.EmptyString;
 
             set => Attributes["class"] = value;
         }
@@ -961,7 +961,7 @@ namespace InnerLibs
 
         public HtmlTag FirstChild(Expression<Func<HtmlTag, bool>> predicate) => predicate != null ? Children.FirstOrDefault(predicate.Compile()) : FirstChild();
 
-        public string GetAttribute(string key) => Attributes.GetValueOr(key, Util.Empty);
+        public string GetAttribute(string key) => Attributes.GetValueOr(key, Util.EmptyString);
 
         public bool HasAttribute(string AttrName) => AttrName.IsBlank() ? HasAttributes() : Attributes.ContainsKey(AttrName);
 

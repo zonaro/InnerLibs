@@ -423,8 +423,8 @@ namespace InnerLibs.Mail
                     {
                         var msgIndiv = new FluentMailMessage<T>();
 
-                        string msg = Body.IfBlank(Util.Empty);
-                        string subj = Subject.IfBlank(Util.Empty);
+                        string msg = Body.IfBlank(Util.EmptyString);
+                        string subj = Subject.IfBlank(Util.EmptyString);
 
                         if (item is TemplateMailAddress<T> templateMail)
                         {
@@ -591,7 +591,7 @@ namespace InnerLibs.Mail
         /// </summary>
         /// <param name="TemplateOrFilePathOrUrl"></param>
         /// <returns></returns>
-        public FluentMailMessage<T> UseTemplate(string TemplateOrFilePathOrUrl) => UseTemplate(TemplateOrFilePathOrUrl, Util.Empty);
+        public FluentMailMessage<T> UseTemplate(string TemplateOrFilePathOrUrl) => UseTemplate(TemplateOrFilePathOrUrl, Util.EmptyString);
 
         /// <summary>
         /// Utiliza um template para o corpo da mensagem
@@ -603,22 +603,22 @@ namespace InnerLibs.Mail
         /// <summary>
         /// Utiliza um template para o corpo da mensagem
         /// </summary>
-        public FluentMailMessage<T> UseTemplate(HtmlTag Template, string MessageTemplate) => UseTemplate(Template?.OuterHtml ?? Util.Empty, new { BodyText = MessageTemplate }).With(x => x.IsBodyHtml = true);
+        public FluentMailMessage<T> UseTemplate(HtmlTag Template, string MessageTemplate) => UseTemplate(Template?.OuterHtml ?? Util.EmptyString, new { BodyText = MessageTemplate }).With(x => x.IsBodyHtml = true);
 
         /// <summary>
         /// Utiliza um template para o corpo da mensagem
         /// </summary>
-        public FluentMailMessage<T> UseTemplate(HtmlTag Template) => UseTemplate(Template?.OuterHtml ?? Util.Empty, Util.Empty).With(x => x.IsBodyHtml = true);
+        public FluentMailMessage<T> UseTemplate(HtmlTag Template) => UseTemplate(Template?.OuterHtml ?? Util.EmptyString, Util.EmptyString).With(x => x.IsBodyHtml = true);
 
         /// <summary>
         /// Utiliza um template para o corpo da mensagem
         /// </summary>
-        public FluentMailMessage<T> UseTemplate<TMessage>(HtmlTag Template, TMessage MessageTemplate) => UseTemplate(Template?.OuterHtml ?? Util.Empty, MessageTemplate).With(x => x.IsBodyHtml = true);
+        public FluentMailMessage<T> UseTemplate<TMessage>(HtmlTag Template, TMessage MessageTemplate) => UseTemplate(Template?.OuterHtml ?? Util.EmptyString, MessageTemplate).With(x => x.IsBodyHtml = true);
 
         /// <summary>
         /// Utiliza um template para o corpo da mensagem
         /// </summary>
-        public FluentMailMessage<T> UseTemplate(FileInfo Template) => UseTemplate(Template?.FullName ?? Util.Empty, Util.Empty);
+        public FluentMailMessage<T> UseTemplate(FileInfo Template) => UseTemplate(Template?.FullName ?? Util.EmptyString, Util.EmptyString);
 
         /// <summary>
         /// Utiliza um template para o corpo da mensagem
@@ -628,22 +628,22 @@ namespace InnerLibs.Mail
         /// <summary>
         /// Utiliza um template para o corpo da mensagem
         /// </summary>
-        public FluentMailMessage<T> UseTemplate<TMessage>(FileInfo Template, TMessage MessageTemplate) => UseTemplate(Template?.FullName ?? Util.Empty, MessageTemplate);
+        public FluentMailMessage<T> UseTemplate<TMessage>(FileInfo Template, TMessage MessageTemplate) => UseTemplate(Template?.FullName ?? Util.EmptyString, MessageTemplate);
 
         /// <summary>
         /// Utiliza um template para o corpo da mensagem
         /// </summary>
-        public FluentMailMessage<T> UseTemplate(DirectoryInfo TemplateDirectory, string TemplateFileName) => UseTemplate(Path.Combine(TemplateDirectory?.FullName ?? Util.Empty, TemplateFileName ?? Util.Empty), Util.Empty);
+        public FluentMailMessage<T> UseTemplate(DirectoryInfo TemplateDirectory, string TemplateFileName) => UseTemplate(Path.Combine(TemplateDirectory?.FullName ?? Util.EmptyString, TemplateFileName ?? Util.EmptyString), Util.EmptyString);
 
         /// <summary>
         /// Utiliza um template para o corpo da mensagem
         /// </summary>
-        public FluentMailMessage<T> UseTemplate(DirectoryInfo TemplateDirectory, string TemplateFileName, string MessageTemplate) => UseTemplate(Path.Combine(TemplateDirectory?.FullName ?? Util.Empty, TemplateFileName ?? Util.Empty), MessageTemplate);
+        public FluentMailMessage<T> UseTemplate(DirectoryInfo TemplateDirectory, string TemplateFileName, string MessageTemplate) => UseTemplate(Path.Combine(TemplateDirectory?.FullName ?? Util.EmptyString, TemplateFileName ?? Util.EmptyString), MessageTemplate);
 
         /// <summary>
         /// Utiliza um template para o corpo da mensagem
         /// </summary>
-        public FluentMailMessage<T> UseTemplate<TMessage>(DirectoryInfo TemplateDirectory, string TemplateFileName, TMessage MessageTemplate) => UseTemplate(Path.Combine(TemplateDirectory?.FullName ?? Util.Empty, TemplateFileName ?? Util.Empty), MessageTemplate);
+        public FluentMailMessage<T> UseTemplate<TMessage>(DirectoryInfo TemplateDirectory, string TemplateFileName, TMessage MessageTemplate) => UseTemplate(Path.Combine(TemplateDirectory?.FullName ?? Util.EmptyString, TemplateFileName ?? Util.EmptyString), MessageTemplate);
 
         /// <summary>
         /// Utiliza um template para o corpo da mensagem

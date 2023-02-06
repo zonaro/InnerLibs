@@ -430,7 +430,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="N">Itens</param>
         /// <returns></returns>
-        public static string BlankCoalesce(params string[] N) => (N ?? Array.Empty<string>()).FirstOr(x => x.IsNotBlank(), Util.Empty);
+        public static string BlankCoalesce(params string[] N) => (N ?? Array.Empty<string>()).FirstOr(x => x.IsNotBlank(), Util.EmptyString);
 
         /// <summary>
         /// Verifica se uma lista, coleção ou array contem todos os itens de outra lista, coleção ou array.
@@ -877,7 +877,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="MyObject">Objeto</param>
         /// <returns></returns>
-        public static FieldInfo GetField<T>(this T MyObject, string Name) => MyObject.GetTypeOf().GetFields().SingleOrDefault(x => (x.Name ?? Util.Empty) == (Name ?? Util.Empty));
+        public static FieldInfo GetField<T>(this T MyObject, string Name) => MyObject.GetTypeOf().GetFields().SingleOrDefault(x => (x.Name ?? Util.EmptyString) == (Name ?? Util.EmptyString));
 
         public static IEnumerable<FieldInfo> GetFields<T>(this T MyObject, BindingFlags BindAttr) => MyObject.GetTypeOf().GetFields(BindAttr).ToList();
 
@@ -947,7 +947,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="MyObject">Objeto</param>
         /// <returns></returns>
-        public static PropertyInfo GetProperty<T>(this T MyObject, string Name) => MyObject.GetTypeOf().GetProperties().SingleOrDefault(x => (x.Name ?? Util.Empty) == (Name ?? Util.Empty));
+        public static PropertyInfo GetProperty<T>(this T MyObject, string Name) => MyObject.GetTypeOf().GetProperties().SingleOrDefault(x => (x.Name ?? Util.EmptyString) == (Name ?? Util.EmptyString));
 
         /// <summary>
         /// Retorna uma <see cref="Hashtable"/> das propriedades de um objeto
@@ -1139,7 +1139,7 @@ namespace InnerLibs
             {
                 var parts = new List<string>();
                 bool stop = false;
-                string current = Util.Empty;
+                string current = Util.EmptyString;
                 for (int i = 0, loopTo = PropertyName.Length - 1; i <= loopTo; i++)
                 {
                     if (PropertyName[i] != '.')
@@ -1160,7 +1160,7 @@ namespace InnerLibs
                     if (PropertyName[i] == '.' && !stop || i == PropertyName.Length - 1)
                     {
                         parts.Add(current.ToString());
-                        current = Util.Empty;
+                        current = Util.EmptyString;
                     }
                 }
 
@@ -1550,7 +1550,7 @@ namespace InnerLibs
                         {
                             case var @case when @case == typeof(string):
                                 {
-                                    item.SetValue(Obj, Util.Empty);
+                                    item.SetValue(Obj, Util.EmptyString);
                                     break;
                                 }
 
@@ -1594,7 +1594,7 @@ namespace InnerLibs
                     propnames.Add(Name.TrimStart('_'));
                 }
                 string propname1 = Name.Trim().Replace(" ", "_").Replace("-", "_").Replace("~", "_");
-                string propname3 = Name.Trim().Replace(" ", Util.Empty).Replace("-", Util.Empty).Replace("~", Util.Empty);
+                string propname3 = Name.Trim().Replace(" ", Util.EmptyString).Replace("-", Util.EmptyString).Replace("~", Util.EmptyString);
                 string propname2 = propname1.RemoveAccents();
                 string propname4 = propname3.RemoveAccents();
                 propnames.AddRange(new[] { Name, propname1, propname2, propname3, propname4 });
@@ -1969,7 +1969,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Dic"></param>
         /// <returns></returns>
-        public static string ToQueryString(this Dictionary<string, string> Dic) => Dic?.Where(x => x.Key.IsNotBlank()).SelectJoinString(x => new[] { x.Key, (x.Value ?? Util.Empty).UrlEncode() }.SelectJoinString("="), "&") ?? Util.Empty;
+        public static string ToQueryString(this Dictionary<string, string> Dic) => Dic?.Where(x => x.Key.IsNotBlank()).SelectJoinString(x => new[] { x.Key, (x.Value ?? Util.EmptyString).UrlEncode() }.SelectJoinString("="), "&") ?? Util.EmptyString;
 
         /// <summary>
         /// Retorna um <see cref="NameValueCollection"/> em QueryString

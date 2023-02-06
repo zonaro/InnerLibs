@@ -1,8 +1,8 @@
 ﻿
-using InnerLibs.Locations;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
 
 namespace InnerLibs
@@ -22,10 +22,10 @@ namespace InnerLibs
         #region Public Methods
 
         /// <inheritdoc cref="BarcodeCheckSum(string)"/>
-        public static string BarcodeCheckSum(long Code) => BarcodeCheckSum(Code.ToString());
+        public static string BarcodeCheckSum(long Code) => BarcodeCheckSum(Code.ToString(CultureInfo.InvariantCulture));
 
         /// <inheritdoc cref="BarcodeCheckSum(string)"/>
-        public static string BarcodeCheckSum(int Code) => BarcodeCheckSum(Code.ToString());
+        public static string BarcodeCheckSum(int Code) => BarcodeCheckSum(Code.ToString(CultureInfo.InvariantCulture));
 
         /// <summary>
         /// Gera um digito verificador usando Mod10 em um numero
@@ -68,7 +68,7 @@ namespace InnerLibs
                 i = Util.ToInt((p + 9) / 10) * 10;
                 T = i - p;
             }
-            return T.ToString();
+            return T.ToString(CultureInfo.InvariantCulture);
         }
 
         public static string EAN(int ContryCode, int ManufacturerCode, int ProductCode) => EANFromNumbers(ContryCode, ManufacturerCode, ProductCode);
@@ -78,7 +78,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Numbers"></param>
         /// <returns></returns>
-        public static string EANFromNumbers(params string[] Numbers) => Numbers.Where(x => x.IsNumber()).SelectJoinString(InnerLibs.Util.Empty).AppendBarcodeCheckSum();
+        public static string EANFromNumbers(params string[] Numbers) => Numbers.Where(x => x.IsNumber()).SelectJoinString(InnerLibs.Util.EmptyString).AppendBarcodeCheckSum();
 
         /// <inheritdoc cref="EANFromNumbers(string[])"/>
         public static string EANFromNumbers(params int[] Numbers) => EANFromNumbers(Numbers.Select(x => x.ToString()).ToArray());
@@ -98,10 +98,10 @@ namespace InnerLibs
         /// <returns></returns>
         public static string Password(int AlphaUpperLenght, int AlphaLowerLenght, int NumberLenght, int SpecialLenght)
         {
-            string pass = InnerLibs.Util.Empty;
+            string pass = InnerLibs.Util.EmptyString;
             if (AlphaLowerLenght > 0)
             {
-                string ss = InnerLibs.Util.Empty;
+                string ss = InnerLibs.Util.EmptyString;
                 while (ss.Length < AlphaLowerLenght)
                 {
                     ss = ss.Append(PredefinedArrays.AlphaLowerChars.RandomItem());
@@ -112,7 +112,7 @@ namespace InnerLibs
 
             if (AlphaUpperLenght > 0)
             {
-                string ss = InnerLibs.Util.Empty;
+                string ss = InnerLibs.Util.EmptyString;
                 while (ss.Length < AlphaUpperLenght)
                 {
                     ss = ss.Append(PredefinedArrays.AlphaUpperChars.RandomItem());
@@ -123,7 +123,7 @@ namespace InnerLibs
 
             if (NumberLenght > 0)
             {
-                string ss = InnerLibs.Util.Empty;
+                string ss = InnerLibs.Util.EmptyString;
                 while (ss.Length < NumberLenght)
                 {
                     ss = ss.Append(PredefinedArrays.NumberChars.RandomItem());
@@ -134,7 +134,7 @@ namespace InnerLibs
 
             if (SpecialLenght > 0)
             {
-                string ss = InnerLibs.Util.Empty;
+                string ss = InnerLibs.Util.EmptyString;
                 while (ss.Length < SpecialLenght)
                 {
                     ss = ss.Append(PredefinedArrays.PasswordSpecialChars.RandomItem());
@@ -204,7 +204,7 @@ namespace InnerLibs
             while (l.Count < Quantity)
             {
                 var r = ColorExtensions.RandomColor(Red, Green, Blue);
-                if (l.Any(x => (x.ToHexadecimal() ?? InnerLibs.Util.Empty) == (r.ToHexadecimal() ?? InnerLibs.Util.Empty)))
+                if (l.Any(x => (x.ToHexadecimal() ?? InnerLibs.Util.EmptyString) == (r.ToHexadecimal() ?? InnerLibs.Util.EmptyString)))
                 {
                     errorcount++;
                     if (errorcount == Quantity)
@@ -274,7 +274,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string RandomFixLenghtNumber(int Len = 8)
         {
-            var n = InnerLibs.Util.Empty;
+            var n = InnerLibs.Util.EmptyString;
             for (int i = 0; i < Len; i++)
             {
                 n += PredefinedArrays.NumberChars.RandomItem();
@@ -369,7 +369,7 @@ namespace InnerLibs
         public static string RandomWord(int Length = 0)
         {
             Length = Length < 1 ? RandomNumber(2, 15) : Length;
-            string word = Util.Empty;
+            string word = Util.EmptyString;
             if (Length == 1)
             {
                 return Util.RandomItem(PredefinedArrays.Vowels.ToArray());

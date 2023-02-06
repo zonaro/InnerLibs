@@ -17,7 +17,7 @@ namespace InnerLibs.Printer
             var bmp = new Bitmap(image);
 
             // Set character line spacing to n dotlines
-            string send = InnerLibs.Util.Empty + '\u001b' + '3' + '\0';
+            string send = InnerLibs.Util.EmptyString + '\u001b' + '3' + '\0';
             var data = new byte[send.Length];
             for (int i = 0, loopTo = send.Length - 1; i <= loopTo; i++)
                 data[i] = (byte)Util.ToAsc(send[i]);

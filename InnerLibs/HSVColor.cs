@@ -845,7 +845,7 @@ namespace InnerLibs
 
         public Bitmap CreateSolidImage(int Width, int Height) => new Bitmap(_scolor.CreateSolidImage(Width, Height));
 
-        public Bitmap CreateSolidImage(string Size = InnerLibs.Util.Empty)
+        public Bitmap CreateSolidImage(string Size = InnerLibs.Util.EmptyString)
         {
             var s = Size.IfBlank("100").ParseSize();
             return CreateSolidImage(s.Width, s.Height);

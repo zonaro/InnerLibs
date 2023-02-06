@@ -124,13 +124,13 @@ namespace InnerLibs.Printer
                 return new string(CharLine, (Columns.Value - (LeftText.Length + RightText.Length)).LimitRange(0, Columns.Value));
             }
 
-            return InnerLibs.Util.Empty;
+            return InnerLibs.Util.EmptyString;
         }
 
         internal string GetPair(string LeftText, string RightText, int? Columns = default, char CharLine = ' ')
         {
             Columns = Columns ?? GetCurrentColumns();
-            string dots = InnerLibs.Util.Empty;
+            string dots = InnerLibs.Util.EmptyString;
             string s1 = $"{LeftText}";
             string s2 = $"{RightText}";
             if (s2.IsNotBlank() && Columns.Value > 0)
@@ -1215,7 +1215,7 @@ namespace InnerLibs.Printer
         /// <returns></returns>
         public Printer WritePriceList<T>(IEnumerable<T> List, Expression<Func<T, string>> Description, Expression<Func<T, decimal>> Price, CultureInfo Culture = null, int? Columns = default, char CharLine = '.') => WritePriceList(List.Select(x => new Tuple<string, decimal>(Description.Compile()(x), Price.Compile()(x))), Culture, Columns);
 
-        public Printer WriteScriptLine(int? Columns = default, string Name = InnerLibs.Util.Empty)
+        public Printer WriteScriptLine(int? Columns = default, string Name = InnerLibs.Util.EmptyString)
         {
             ResetFont();
             NewLine(5);
@@ -1588,7 +1588,7 @@ namespace InnerLibs.Printer.XmlTemplates
 
                 if (atname == "align")
                 {
-                    switch (attr.Value?.ToLowerInvariant() ?? InnerLibs.Util.Empty)
+                    switch (attr.Value?.ToLowerInvariant() ?? InnerLibs.Util.EmptyString)
                     {
                         case "right":
                             {
@@ -1612,7 +1612,7 @@ namespace InnerLibs.Printer.XmlTemplates
 
                 if (atname == "font-size")
                 {
-                    switch (attr.Value?.ToLowerInvariant() ?? InnerLibs.Util.Empty)
+                    switch (attr.Value?.ToLowerInvariant() ?? InnerLibs.Util.EmptyString)
                     {
                         case "2":
                         case "medium":
@@ -1638,7 +1638,7 @@ namespace InnerLibs.Printer.XmlTemplates
 
                 if (atname == "font-stretch")
                 {
-                    switch (attr.Value?.ToLowerInvariant() ?? InnerLibs.Util.Empty)
+                    switch (attr.Value?.ToLowerInvariant() ?? InnerLibs.Util.EmptyString)
                     {
                         case "2":
                         case "condensed":

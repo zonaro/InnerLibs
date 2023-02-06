@@ -243,7 +243,7 @@ namespace InnerLibs
                     BaseList = new FileTypeList();
                     foreach (XmlNode node in doc["mimes"].ChildNodes)
                     {
-                        var ft = BaseList.FirstOr(x => (x.Description ?? InnerLibs.Util.Empty) == (node["Label"].InnerText.TrimBetween() ?? InnerLibs.Util.Empty), new FileType());
+                        var ft = BaseList.FirstOr(x => (x.Description ?? InnerLibs.Util.EmptyString) == (node["Label"].InnerText.TrimBetween() ?? InnerLibs.Util.EmptyString), new FileType());
                         ft.Description = node["Label"].InnerText.TrimBetween();
 
                         foreach (XmlNode item in node["MimeTypes"].ChildNodes)

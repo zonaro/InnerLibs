@@ -26,7 +26,7 @@ namespace InnerLibs
 
         #region Public Constructors
 
-        public ShortLinkGenerator() : this(null) => Seed = InnerLibs.Util.Empty;
+        public ShortLinkGenerator() : this(null) => Seed = InnerLibs.Util.EmptyString;
 
         public ShortLinkGenerator(string Seed, string UrlPattern) : this(Seed) => this.UrlPattern = UrlPattern;
 
@@ -102,7 +102,7 @@ namespace InnerLibs
                 return Token[0].ToString();
             }
 
-            string s = InnerLibs.Util.Empty;
+            string s = InnerLibs.Util.EmptyString;
             while (i > 0)
             {
                 s += Convert.ToString(Token[i % Token.Length]);
@@ -114,7 +114,7 @@ namespace InnerLibs
                 s += "0";
             }
 
-            return string.Join(InnerLibs.Util.Empty, s.Reverse());
+            return string.Join(InnerLibs.Util.EmptyString, s.Reverse());
         }
 
         public string RandomHash() => Encode(Util.RandomNumber());

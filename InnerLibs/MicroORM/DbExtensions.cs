@@ -155,7 +155,7 @@ namespace InnerLibs
         /// <param name="Connection"></param>
         /// <param name="SQL"></param>
         /// <returns></returns>
-        public static DbCommand CreateCommand<T>(this DbConnection Connection, FileInfo SQLFile, T obj, DbTransaction Transaction = null) => CreateCommand(Connection, SQLFile.Exists ? SQLFile.ReadAllText() : InnerLibs.Util.Empty, obj, Transaction);
+        public static DbCommand CreateCommand<T>(this DbConnection Connection, FileInfo SQLFile, T obj, DbTransaction Transaction = null) => CreateCommand(Connection, SQLFile.Exists ? SQLFile.ReadAllText() : InnerLibs.Util.EmptyString, obj, Transaction);
 
         /// <summary>
         /// Cria um <see cref="DbCommand"/> a partir de uma string SQL e um objeto,

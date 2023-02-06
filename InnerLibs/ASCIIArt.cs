@@ -4,7 +4,7 @@ using System.Text;
 
 namespace InnerLibs
 {
-    public static class AsciiArt
+    public static partial class Util
     {
         #region Private Fields
 

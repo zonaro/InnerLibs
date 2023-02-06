@@ -48,7 +48,7 @@ namespace InnerLibs
 
         public string ToString(int Ident)
         {
-            string ss = InnerLibs.Util.Empty;
+            string ss = InnerLibs.Util.EmptyString;
             foreach (var s in this)
             {
                 ss += s.ToString() + " ";
@@ -74,7 +74,7 @@ namespace InnerLibs
             if (Text.IsNotBlank())
             {
                 var charlist = Text.Trim().ToArray().ToList();
-                string palavra = InnerLibs.Util.Empty;
+                string palavra = InnerLibs.Util.EmptyString;
                 var listabase = new List<string>();
 
                 // remove quaisquer caracteres nao desejados do inicio da frase
@@ -97,7 +97,7 @@ namespace InnerLibs
                                 if (palavra.IsNotBlank())
                                 {
                                     listabase.Add(palavra); // adiciona a plavra atual
-                                    palavra = InnerLibs.Util.Empty;
+                                    palavra = InnerLibs.Util.EmptyString;
                                 }
 
                                 listabase.Add(Convert.ToString(p)); // adiciona a virgula, wrapper ou pontuacao
@@ -109,10 +109,10 @@ namespace InnerLibs
                                 if (palavra.IsNotBlank())
                                 {
                                     listabase.Add(palavra); // adiciona a plavra atual
-                                    palavra = InnerLibs.Util.Empty;
+                                    palavra = InnerLibs.Util.EmptyString;
                                 }
                                 // senao, adiciona o proximo caractere a palavra atual
-                                palavra = InnerLibs.Util.Empty;
+                                palavra = InnerLibs.Util.EmptyString;
                                 break;
                             }
 
@@ -178,7 +178,7 @@ namespace InnerLibs
 
         public override string ToString()
         {
-            string sent = InnerLibs.Util.Empty;
+            string sent = InnerLibs.Util.EmptyString;
             foreach (var s in this)
             {
                 if (s.IsClosingQuote)
@@ -331,7 +331,7 @@ namespace InnerLibs
             int indexo = Sentence.IndexOf(this);
             if (indexo < 0)
             {
-                return InnerLibs.Util.Empty;
+                return InnerLibs.Util.EmptyString;
             }
 
             if (indexo == 0 || indexo == 1 && PredefinedArrays.OpenWrappers.Contains(Sentence[0].Text))
@@ -352,7 +352,7 @@ namespace InnerLibs
     {
         #region Private Fields
 
-        private string _originaltext = InnerLibs.Util.Empty;
+        private string _originaltext = InnerLibs.Util.EmptyString;
 
         #endregion Private Fields
 

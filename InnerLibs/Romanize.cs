@@ -137,7 +137,7 @@ namespace InnerLibs
             var algarismosRomanos = new string[] { "M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "TV", "IV", "I" };
 
             // inicializa o string builder
-            string resultado = Util.Empty;
+            string resultado = Util.EmptyString;
 
             // percorre os valores nos arrays
             for (int i = 0; i <= 12; i++)

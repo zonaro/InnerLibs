@@ -603,7 +603,7 @@ namespace InnerLibs.QuestionTests
 
         internal Question _question;
 
-        internal string _text = InnerLibs.Util.Empty;
+        internal string _text = InnerLibs.Util.EmptyString;
 
         #endregion Internal Fields
 
@@ -659,7 +659,7 @@ namespace InnerLibs.QuestionTests
     {
         #region Private Fields
 
-        private string _title = Util.Empty;
+        private string _title = Util.EmptyString;
 
         private Dictionary<string, object> personalInfo = new Dictionary<string, object>();
 
@@ -1162,7 +1162,7 @@ namespace InnerLibs.QuestionTests
             return form;
         }
 
-        public override string ToString() => ToHTML()?.OuterHtml ?? Util.Empty;
+        public override string ToString() => ToHTML()?.OuterHtml ?? Util.EmptyString;
     }
 
     /// <summary>
@@ -1261,7 +1261,7 @@ namespace InnerLibs.QuestionTests
         /// Legenda da Imagem
         /// </summary>
         /// <returns></returns>
-        public string Subtitle { get; set; } = Util.Empty;
+        public string Subtitle { get; set; } = Util.EmptyString;
 
         [IgnoreDataMember]
 
@@ -1296,7 +1296,7 @@ namespace InnerLibs.QuestionTests
 
         #region Public Methods
 
-        public StatementImages Add(Image Image, string Subtitle = Util.Empty)
+        public StatementImages Add(Image Image, string Subtitle = Util.EmptyString)
         {
             var i = new StatementImage(this)
             {
@@ -1307,7 +1307,7 @@ namespace InnerLibs.QuestionTests
             return this;
         }
 
-        public StatementImages Add(string ImagePath, string Subtitle = Util.Empty)
+        public StatementImages Add(string ImagePath, string Subtitle = Util.EmptyString)
         {
             var i = new StatementImage(this)
             {

@@ -234,7 +234,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Key"></param>
         /// <returns></returns>
-        public Fortnight this[string Key] => base[IndexOf(this.Where(x => (x.Key ?? InnerLibs.Util.Empty) == (Key ?? InnerLibs.Util.Empty)).SingleOrDefault())];
+        public Fortnight this[string Key] => base[IndexOf(this.Where(x => (x.Key ?? InnerLibs.Util.EmptyString) == (Key ?? InnerLibs.Util.EmptyString)).SingleOrDefault())];
 
         /// <summary>
         /// Retorna uma quinzena a partir da sua Index
