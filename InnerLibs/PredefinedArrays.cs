@@ -11,14 +11,13 @@ namespace InnerLibs
     {
         #region Public Properties
 
-        public static IEnumerable<string> AsciiArtChars => new[] { "#", "#", "@", "%", "=", "+", "*", ":", "-", ".", " " };
-
+        public static IEnumerable<string> AsciiArtChars => new[] { "#", "#", "@", "%", "=", "+", "*", ":", "-", ".", Ext.WhitespaceChar };
         public static IEnumerable<string> AlphaChars => AlphaUpperChars.Union(AlphaLowerChars).OrderBy(x => x).AsEnumerable();
         public static IEnumerable<string> AlphaLowerChars => LowerConsonants.Union(LowerVowels).OrderBy(x => x).AsEnumerable();
         public static IEnumerable<string> AlphaNumericChars => AlphaChars.Union(NumberChars).AsEnumerable();
         public static IEnumerable<string> AlphaUpperChars => AlphaLowerChars.Select(x => x.ToUpperInvariant());
         public static IEnumerable<string> BreakLineChars => new[] { Environment.NewLine, "\t", "\n", "\r", "\r\n" }.AsEnumerable();
-        public static IEnumerable<string> CloseWrappers => new[] { Ext.DoubleQuoteChar, InnerLibs.Ext.SingleQuoteChar, ")", "}", "]", ">", "`" }.AsEnumerable();
+        public static IEnumerable<string> CloseWrappers => new[] { Ext.DoubleQuoteChar, Ext.SingleQuoteChar, ")", "}", "]", ">", "`" }.AsEnumerable();
         public static IEnumerable<string> Consonants => UpperConsonants.Union(LowerConsonants).AsEnumerable();
         public static IEnumerable<string> EndOfSentencePunctuation => new[] { ".", "?", "!" }.AsEnumerable();
         public static IEnumerable<string> IdentChars => new[] { "\t" }.AsEnumerable();

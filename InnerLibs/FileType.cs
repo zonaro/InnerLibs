@@ -10,9 +10,9 @@ namespace InnerLibs
 
 
     /// <summary>
-    /// Classe que representa um MIME T
+    /// Classe que representa um MIME Type
     /// </summary>
-    public class FileType
+    public class FileType 
     {
         #region Private Fields
 

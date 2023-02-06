@@ -364,6 +364,728 @@ namespace InnerLibs
 
         #endregion Public Methods
 
+        #region Public Methods
+
+
+
+
+
+        public static DirectoryInfo ToDirectoryInfo(this string[] PathParts)
+        {
+            var x = ToFileSystemInfo(PathParts);
+            return x is FileInfo info ? info.Directory : x as DirectoryInfo;
+        }
+        public static FileInfo ToFileInfo(this string[] PathParts)
+        {
+            var x = ToFileSystemInfo(PathParts);
+            if (x is DirectoryInfo)
+            {
+                throw new Exception("Path is directory");
+            }
+            return x as FileInfo;
+        }
+        public static FileSystemInfo ToFileSystemInfo(this string[] PathParts)
+        {
+            var path = Path.Combine(PathParts).FixPath();
+            if (path.IsFilePath()) return new FileInfo(path);
+            else if (path.IsDirectoryPath()) return new DirectoryInfo(path);
+            else throw new ArgumentException("Can't create path from array", nameof(PathParts));
+        }
+
+        /// <summary>
+        /// Remove todos os subdiretorios vazios
+        /// </summary>
+        /// <param name="TopDirectory">Diretorio da operação</param>
+        public static DirectoryInfo CleanDirectory(this DirectoryInfo TopDirectory, bool DeleteTopDirectoryIfEmpty = true)
+        {
+            if (TopDirectory != null)
+            {
+                foreach (var diretorio in TopDirectory.GetDirectories("*", SearchOption.TopDirectoryOnly))
+                {
+                    diretorio.GetDirectories().Each(subdiretorio => subdiretorio.CleanDirectory(true));
+
+                    if (diretorio.HasDirectories())
+                    {
+                        diretorio.CleanDirectory(true);
+                    }
+
+                    if (diretorio.IsEmpty())
+                    {
+                        diretorio.Delete();
+                    }
+                }
+
+                if (DeleteTopDirectoryIfEmpty && TopDirectory.Exists && TopDirectory.IsEmpty())
+                {
+                    TopDirectory.Delete();
+                }
+            }
+            return TopDirectory;
+        }
+
+        /// <summary>
+        /// Copia arquivos para dentro de outro diretório
+        /// </summary>
+        /// <param name="List">Arquivos</param>
+        /// <param name="DestinationDirectory">Diretório de destino</param>
+        /// <returns></returns>
+        public static IEnumerable<FileInfo> CopyTo(this IEnumerable<FileInfo> List, DirectoryInfo DestinationDirectory)
+        {
+            var lista = new List<FileInfo>();
+            if (!DestinationDirectory?.Exists ?? false)
+            {
+                DestinationDirectory.Create();
+            }
+
+            foreach (var file in List ?? new List<FileInfo>())
+            {
+                lista.Add(file.CopyTo(DestinationDirectory.FullName + Path.DirectorySeparatorChar + file.Name));
+            }
+
+            return lista;
+        }
+
+
+
+        public static DirectoryInfo MoveDirectory(string SourcePath, string TargetPath)
+        {
+            var sourcePath = SourcePath.FixPath();
+            var targetPath = TargetPath.FixPath();
+            var files = Directory.EnumerateFiles(sourcePath, "*", SearchOption.AllDirectories)
+                                 .GroupBy(s => Path.GetDirectoryName(s));
+            foreach (var folder in files)
+            {
+                var targetFolder = folder.Key.Replace(sourcePath, targetPath);
+                Directory.CreateDirectory(targetFolder);
+                foreach (var file in folder)
+                {
+                    var targetFile = Path.Combine(targetFolder, Path.GetFileName(file));
+                    if (File.Exists(targetFile)) File.Delete(targetFile);
+                    File.Move(file, targetFile);
+                }
+            }
+            Directory.Delete(SourcePath, true);
+            return new DirectoryInfo(targetPath);
+        }
+
+
+
+        /// <summary>
+        /// Cria um diretório se o mesmo nao existir e retorna um <see cref="DirectoryInfo"/> deste diretório
+        /// </summary>
+        /// <param name="DirectoryName">o nome(s) do(s) diretorio(s) Ex.: "dir1/dir2/dir3"</param>
+        /// <returns>Um DirectoryInfo contendo as informacoes do diretório criado</returns>
+        /// <remarks>
+        /// Caso o <paramref name="DirectoryName"/> for um caminho de arquivo, é utilizado o
+        /// diretório deste arquivo.
+        /// </remarks>
+        public static DirectoryInfo CreateDirectoryIfNotExists(this string DirectoryName)
+        {
+            if (DirectoryName.IsFilePath())
+            {
+                DirectoryName = Path.GetDirectoryName(DirectoryName);
+            }
+
+            if (DirectoryName.IsDirectoryPath())
+            {
+                if (Directory.Exists(DirectoryName) == false)
+                {
+                    Directory.CreateDirectory(DirectoryName);
+                }
+            }
+            else
+            {
+                throw new ArgumentException("DirectoryName is not a valid path");
+            }
+
+            return new DirectoryInfo(DirectoryName + Path.DirectorySeparatorChar);
+        }
+
+        public static DirectoryInfo CreateDirectoryIfNotExists(this DirectoryInfo DirectoryName) => DirectoryName?.FullName.CreateDirectoryIfNotExists();
+
+        public static DirectoryInfo CreateDirectoryIfNotExists(this FileInfo FileName) => FileName.FullName.CreateDirectoryIfNotExists();
+
+        /// <summary>
+        /// Cria um arquivo em branco se o mesmo nao existir e retorna um Fileinfo deste arquivo
+        /// </summary>
+        /// <param name="FileName">o nome do arquivo Ex.: "dir1/dir2/dir3/file.txt"</param>
+        /// <returns>Um FileInfo contendo as informacoes do arquivo criado</returns>
+        public static FileInfo CreateFileIfNotExists(this string FileName, FileType Type = null)
+        {
+            Type = Type ?? new FileType(Path.GetExtension(FileName));
+            FileName = $"{Path.GetFullPath(FileName.TrimAny(Path.GetExtension(FileName)))}{Type.Extensions.FirstOrDefault()}";
+
+            FileName.CreateDirectoryIfNotExists();
+
+            if (File.Exists(FileName) == false)
+            {
+                File.Create(FileName).Dispose();
+            }
+
+            return new FileInfo(FileName);
+        }
+
+        /// <summary>
+        /// Deleta um arquivo ou diretório se o mesmo existir e retorna true se o arquivo puder ser
+        /// criado novamente
+        /// </summary>
+        /// <param name="Path">Camingo</param>
+        /// <returns></returns>
+        public static bool DeleteIfExist(this string Path)
+        {
+            try
+            {
+                if (Path.IsDirectoryPath())
+                {
+                    var d = new DirectoryInfo(Path);
+                    if (d.Exists)
+                    {
+                        try
+                        {
+                            d.Delete(true);
+                        }
+                        catch
+                        {
+                        }
+                    }
+
+                    return !d.Exists;
+                }
+
+                if (Path.IsFilePath())
+                {
+                    var d = new FileInfo(Path);
+                    if (d.Exists)
+                    {
+                        try
+                        {
+                            d.Delete();
+                        }
+                        catch
+                        {
+                        }
+                    }
+
+                    return !d.Exists;
+                }
+
+                return false;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Deleta um arquivo ou diretório se o mesmo existir e retorna TRUE se o arquivo puder ser
+        /// criado novamente
+        /// </summary>
+        /// <param name="Path">Caminho</param>
+        /// <returns></returns>
+        public static bool DeleteIfExist(this FileSystemInfo Path) => Path?.FullName.DeleteIfExist() ?? false;
+
+        /// <summary>
+        /// Verifica se um diretório possui subdiretórios
+        /// </summary>
+        /// <param name="Directory">Diretório</param>
+        /// <returns></returns>
+        public static bool HasDirectories(this DirectoryInfo Directory) => Directory?.GetDirectories().Any() ?? false;
+
+        /// <summary>
+        /// Verifica se um diretório possui arquivos
+        /// </summary>
+        /// <param name="Directory">Diretório</param>
+        /// <returns></returns>
+        public static bool HasFiles(this DirectoryInfo Directory) => Directory?.GetFiles().Any() ?? false;
+
+        public static T Hide<T>(this T dir) where T : FileSystemInfo
+        {
+            if (dir != null && dir.Exists)
+            {
+                if (!dir.Attributes.HasFlag(FileAttributes.Hidden))
+                {
+                    dir.Attributes |= FileAttributes.Hidden;
+                }
+            }
+            return dir;
+        }
+
+        /// <summary>
+        /// Verifica se um diretório está vazio
+        /// </summary>
+        /// <param name="Directory">Diretório</param>
+        /// <returns></returns>
+        public static bool IsEmpty(this DirectoryInfo Directory) => !Directory.HasFiles() && !Directory.HasDirectories();
+
+        /// <summary>
+        /// Verifica se um diretório não está vazio
+        /// </summary>
+        /// <param name="Directory">Diretório</param>
+        /// <returns></returns>
+        public static bool IsNotEmpty(this DirectoryInfo Directory) => !Directory.IsEmpty();
+
+        public static bool IsVisible<T>(this T dir) where T : FileSystemInfo => dir != null && dir.Exists && dir.Attributes.HasFlag(FileAttributes.Hidden) == false;
+
+        public static IEnumerable<string> ReadManyText(this DirectoryInfo directory, SearchOption Option, params string[] Patterns) => directory.SearchFiles(Option, Patterns).Select(x => x.ReadAllText());
+
+        public static IEnumerable<string> ReadManyText(this DirectoryInfo directory, params string[] Patterns) => directory.ReadManyText(SearchOption.TopDirectoryOnly, Patterns);
+
+        /// <summary>
+        /// Retorna uma lista de arquivos ou diretórios baseado em um ou mais padrões de pesquisas
+        /// </summary>
+        /// <param name="Directory">Diretório</param>
+        /// <param name="SearchOption">
+        /// Especifica se a pesquisa ocorrerá apenas no diretório ou em todos os subdiretórios também
+        /// </param>
+        /// <param name="Searches">Padrões de pesquisa (*.txt, arquivo.*, *)</param>
+        /// <returns></returns>
+        public static IEnumerable<FileSystemInfo> Search(this DirectoryInfo Directory, SearchOption SearchOption, params string[] Searches)
+        {
+            var FilteredList = new List<FileSystemInfo>();
+            foreach (string pattern in (Searches ?? Array.Empty<string>()).SelectMany(z => z.SplitAny(":", "|")).Where(x => x.IsNotBlank()).DefaultIfEmpty("*"))
+            {
+                if (Directory != null)
+                    FilteredList.AddRange(Directory.GetFileSystemInfos(pattern.Trim(), SearchOption));
+            }
+
+            return FilteredList;
+        }
+
+        /// <summary>
+        /// Retorna uma lista de arquivos ou diretórios baseado em um ou mais padrões de pesquisas
+        /// dentro de um range de 2 datas
+        /// </summary>
+        /// <param name="Directory">Diretório</param>
+        /// <param name="SearchOption">
+        /// Especifica se a pesquisa ocorrerá apenas no diretório ou em todos os subdiretórios também
+        /// </param>
+        /// <param name="Searches">Padrões de pesquisa (*.txt, arquivo.*, *)</param>
+        /// <param name="FirstDate">Data Inicial</param>
+        /// <param name="SecondDate">Data Final</param>
+        /// <returns></returns>
+        public static IEnumerable<FileSystemInfo> SearchBetween(this DirectoryInfo Directory, DateTime FirstDate, DateTime SecondDate, SearchOption SearchOption, params string[] Searches)
+        {
+            Ext.FixOrder(ref FirstDate, ref SecondDate);
+            return Directory.Search(SearchOption, Searches).Where(file => file.LastWriteTime >= FirstDate && file.LastWriteTime <= SecondDate).OrderByDescending(f => f.LastWriteTime.Year <= 1601 ? f.CreationTime : f.LastWriteTime).ToList();
+        }
+
+        /// <summary>
+        /// Retorna uma lista de diretórios baseado em um ou mais padrões de pesquisas
+        /// </summary>
+        /// <param name="Directory">Diretório</param>
+        /// <param name="SearchOption">
+        /// Especifica se a pesquisa ocorrerá apenas no diretório ou em todos os subdiretórios também
+        /// </param>
+        /// <param name="Searches">Padrões de pesquisa (*.txt, arquivo.*, *)</param>
+        /// <returns></returns>
+        public static IEnumerable<DirectoryInfo> SearchDirectories(this DirectoryInfo Directory, SearchOption SearchOption, params string[] Searches)
+        {
+            var FilteredList = new List<DirectoryInfo>();
+            foreach (string pattern in (Searches ?? Array.Empty<string>()).Where(x => x.IsNotBlank()).DefaultIfEmpty("*"))
+            {
+                if (Directory != null)
+                    FilteredList.AddRange(Directory.GetDirectories(pattern.Trim(), SearchOption));
+            }
+
+            return FilteredList;
+        }
+
+        /// <summary>
+        /// Retorna uma lista de arquivos baseado em um ou mais padrões de pesquisas dentro de um
+        /// range de 2 datas
+        /// </summary>
+        /// <param name="Directory">Diretório</param>
+        /// <param name="SearchOption">
+        /// Especifica se a pesquisa ocorrerá apenas no diretório ou em todos os subdiretórios também
+        /// </param>
+        /// <param name="Searches">Padrões de pesquisa (*.txt, arquivo.*, *)</param>
+        /// <param name="FirstDate">Data Inicial</param>
+        /// <param name="SecondDate">Data Final</param>
+        /// <returns></returns>
+        public static IEnumerable<DirectoryInfo> SearchDirectoriesBetween(this DirectoryInfo Directory, DateTime FirstDate, DateTime SecondDate, SearchOption SearchOption, params string[] Searches)
+        {
+            Ext.FixOrder(ref FirstDate, ref SecondDate);
+            return Directory.SearchDirectories(SearchOption, Searches).Where(file => file.LastWriteTime >= FirstDate && file.LastWriteTime <= SecondDate).OrderByDescending(f => f.LastWriteTime.Year <= 1601 ? f.CreationTime : f.LastWriteTime).ToList();
+        }
+
+        /// <summary>
+        /// Retorna uma lista de arquivos baseado em um ou mais padrões de pesquisas
+        /// </summary>
+        /// <param name="Directory">Diretório</param>
+        /// <param name="SearchOption">
+        /// Especifica se a pesquisa ocorrerá apenas no diretório ou em todos os subdiretórios também
+        /// </param>
+        /// <param name="Searches">Padrões de pesquisa (*.txt, arquivo.*, *)</param>
+        /// <returns></returns>
+        public static IEnumerable<FileInfo> SearchFiles(this DirectoryInfo Directory, SearchOption SearchOption, params string[] Searches) => (Searches ?? Array.Empty<string>()).Where(x => x.IsNotBlank()).DefaultIfEmpty("*").SelectMany(x => Directory.GetFiles(x.Trim(), SearchOption));
+
+        /// <summary>
+        /// Retorna uma lista de arquivos baseado em um ou mais padrões de pesquisas dentro de um
+        /// range de 2 datas
+        /// </summary>
+        /// <param name="Directory">Diretório</param>
+        /// <param name="SearchOption">
+        /// Especifica se a pesquisa ocorrerá apenas no diretório ou em todos os subdiretórios também
+        /// </param>
+        /// <param name="Searches">Padrões de pesquisa (*.txt, arquivo.*, *)</param>
+        /// <param name="FirstDate">Data Inicial</param>
+        /// <param name="SecondDate">Data Final</param>
+        /// <returns></returns>
+        public static IEnumerable<FileInfo> SearchFilesBetween(this DirectoryInfo Directory, DateTime FirstDate, DateTime SecondDate, SearchOption SearchOption, params string[] Searches)
+        {
+            Ext.FixOrder(ref FirstDate, ref SecondDate);
+            return Directory.SearchFiles(SearchOption, Searches).Where(file => file.LastWriteTime.IsBetween(FirstDate, SecondDate)).OrderByDescending(f => f.LastWriteTime.Year <= 1601 ? f.CreationTime : f.LastWriteTime).ToList();
+        }
+
+        public static T Show<T>(this T dir) where T : FileSystemInfo
+        {
+            if (dir != null && dir.Exists)
+            {
+                if (dir.Attributes.HasFlag(FileAttributes.Hidden))
+                {
+                    dir.Attributes &= ~FileAttributes.Hidden;
+                }
+            }
+            return dir;
+        }
+
+        #region Public Properties
+
+        /// <summary>
+        /// Retorna uma lista com todas as <see cref="KnowColor"/> convertidas em <see cref="System.Drawing.Color"/>
+        /// </summary>
+        public static IEnumerable<Color> KnowColors => Ext.GetEnumValues<KnownColor>().Select(x => Color.FromKnownColor(x));
+
+        #endregion Public Properties
+
+        #region Public Methods
+
+        /// <summary>
+        /// Procura uma cor na tabela de cores <see cref="HSVColor.NamedColors"/>
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <returns></returns>
+        public static HSVColor FindColor(this string Text) => HSVColor.NamedColors
+               .FirstOrDefault(x => x.Name.ToLowerInvariant().Replace("grey", "gray").RemoveAny(PredefinedArrays.PasswordSpecialChars.Union(new[] { " " }).ToArray()) == Text.ToLowerInvariant().Replace("grey", "gray").RemoveAny(PredefinedArrays.PasswordSpecialChars.Union(new[] { " " }).ToArray()));
+
+        /// <summary>
+        /// Retorna o nome comum mais proximo a esta cor
+        /// </summary>
+        /// <param name="Color"></param>
+        /// <returns></returns>
+        public static string GetClosestColorName(this Color Color) => Color.GetClosestKnowColor().Name;
+
+        /// <summary>
+        /// Retorna uma cor conhecida mais proxima de outra cor
+        /// </summary>
+        /// <param name="Color"></param>
+        /// <returns></returns>
+        public static Color GetClosestKnowColor(this Color Color)
+        {
+            double closest_distance = double.MaxValue;
+            var closest = Color.White;
+            foreach (var kc in KnowColors)
+            {
+                // Calculate Euclidean Distance
+                double d = new HSVColor(kc).GetEuclideanDistance(Color);
+                if (d < closest_distance)
+                {
+                    closest_distance = d;
+                    closest = kc;
+                }
+            }
+
+            return closest;
+        }
+
+        /// <summary>
+        /// Retorna o nome da cor
+        /// </summary>
+        /// <param name="Color"></param>
+        /// <returns></returns>
+        public static string GetColorName(this Color Color)
+        {
+            foreach (var namedColor in HSVColor.NamedColors) if (namedColor.ARGB == Color.ToArgb()) return namedColor.Name;
+            return Color.Name;
+        }
+
+        /// <summary>
+        /// Retorna uma cor de contraste baseado na iluminacao da primeira cor: Uma cor clara se a
+        /// primeira for escura. Uma cor escura se a primeira for clara
+        /// </summary>
+        /// <param name="TheColor">Primeira cor</param>
+        /// <param name="Percent">Grau de mesclagem da cor escura ou clara</param>
+        /// <returns>
+        /// Uma cor clara se a primeira cor for escura, uma cor escura se a primeira for clara
+        /// </returns>
+        public static Color GetContrastColor(this Color TheColor, float Percent = 70f)
+        {
+            double a = 1d - (0.299d * TheColor.R + 0.587d * TheColor.G + 0.114d * TheColor.B) / 255d;
+            int d = a < 0.5d ? 0 : 255;
+            return TheColor.MergeWith(Color.FromArgb(d, d, d), Percent);
+        }
+
+        /// <summary>
+        /// Retorna a cor negativa de uma cor
+        /// </summary>
+        /// <param name="TheColor">Cor</param>
+        /// <returns></returns>
+        public static Color GetNegativeColor(this Color TheColor) => Color.FromArgb(255 - TheColor.R, 255 - TheColor.G, 255 - TheColor.B);
+
+        public static IEnumerable<HSVColor> GrayscalePallette(int Amount) => MonochromaticPallette(Color.White, Amount);
+
+        /// <summary>
+        /// Verifica se uma cor é escura
+        /// </summary>
+        /// <param name="TheColor">Cor</param>
+        /// <returns></returns>
+        public static bool IsDark(this Color TheColor) => new HSVColor(TheColor).IsDark();
+
+        public static bool IsHexaDecimalColor(this string Text)
+        {
+            Text = Text.TrimFirstEqual("#");
+            var myRegex = new Regex("^[a-fA-F0-9]+$");
+            return Text.IsNotBlank() && myRegex.IsMatch(Text);
+        }
+
+        /// <summary>
+        /// Verifica se uma cor é clara
+        /// </summary>
+        /// <param name="TheColor">Cor</param>
+        /// <returns></returns>
+        public static bool IsLight(this Color TheColor) => !TheColor.IsDark();
+
+        /// <summary>
+        /// Verifica se uma cor é legivel sobre outra
+        /// </summary>
+        /// <param name="Color"></param>
+        /// <param name="BackgroundColor"></param>
+        /// <param name="Size"></param>
+        /// <returns></returns>
+        public static bool IsReadable(this Color Color, Color BackgroundColor, int Size = 10)
+        {
+            if (Color.A == 0)
+                return false;
+            if (BackgroundColor.A == 0)
+                return true;
+            double diff = BackgroundColor.R * 0.299d + BackgroundColor.G * 0.587d + BackgroundColor.B * 0.114d - Color.R * 0.299d - Color.G * 0.587d - Color.B * 0.114d;
+            return !(diff < 1.5d + 141.162d * Math.Pow(0.975d, Size)) && diff > -0.5d - 154.709d * Math.Pow(0.99d, Size);
+        }
+
+        /// <summary>
+        /// Mescla duas cores usando <see cref="Lerp"/>
+        /// </summary>
+        /// <param name="FromColor">Cor</param>
+        /// <param name="ToColor">Outra cor</param>
+        /// <param name="amount">Indice de mesclagem</param>
+        /// <returns></returns>
+        public static Color Lerp(this Color FromColor, Color ToColor, float Amount)
+        {
+            // start colours as lerp-able floats
+            float sr = FromColor.R;
+            float sg = FromColor.G;
+            float sb = FromColor.B;
+            // end colours as lerp-able floats
+            float er = ToColor.R;
+            float eg = ToColor.G;
+            float eb = ToColor.B;
+            // lerp the colours to get the difference
+            byte r = (byte)Math.Round(sr.Lerp(er, Amount));
+            byte g = (byte)Math.Round(sg.Lerp(eg, Amount));
+            byte b = (byte)Math.Round(sb.Lerp(eb, Amount));
+            // return the new colour
+            return Color.FromArgb(r, g, b);
+        }
+
+        /// <summary>
+        /// Escurece a cor mesclando ela com preto
+        /// </summary>
+        /// <param name="TheColor">Cor</param>
+        /// <param name="percent">porcentagem de mesclagem</param>
+        /// <returns></returns>
+        public static Color MakeDarker(this Color TheColor, float Percent = 50f) => TheColor.MergeWith(Color.Black, Percent);
+
+        /// <summary>
+        /// Clareia a cor misturando ela com branco
+        /// </summary>
+        /// <param name="TheColor">Cor</param>
+        /// <param name="percent">Porcentagem de mesclagem</param>
+        /// <returns></returns>
+        public static Color MakeLighter(this Color TheColor, float Percent = 50f) => TheColor.MergeWith(Color.White, Percent);
+
+        /// <summary>
+        /// Mescla duas cores a partir de uma porcentagem
+        /// </summary>
+        /// <param name="TheColor">Cor principal</param>
+        /// <param name="AnotherColor">Cor de mesclagem</param>
+        /// <param name="percent">Porcentagem de mescla</param>
+        /// <returns></returns>
+        public static Color MergeWith(this Color TheColor, Color AnotherColor, float Percent = 50f) => TheColor.Lerp(AnotherColor, Percent / 100f);
+
+        /// <summary>
+        /// Gera uma paleta de cores monocromatica com <paramref name="Amount"/> amostras a partir
+        /// de uma <paramref name="Color"/> base.
+        /// </summary>
+        /// <param name="Color"></param>
+        /// <param name="Amount"></param>
+        /// <returns></returns>
+        /// <remarks>A distancia entre as cores será maior se a quantidade de amostras for pequena</remarks>
+        public static IEnumerable<HSVColor> MonochromaticPallette(Color Color, int Amount)
+        {
+            var t = new RuleOfThree<int>(Amount, 100, 1, default);
+            var Percent = t.UnknownValue?.ToSingle();
+            Color = Color.White.MergeWith(Color);
+            var l = new List<Color>();
+            for (int index = 1, loopTo = Amount; index <= loopTo; index++)
+            {
+                Color = Color.MakeDarker((float)Percent);
+                l.Add(Color);
+            }
+
+            return l.ToHSVColorList();
+        }
+
+        /// <summary>
+        /// Gera uma cor aleatória misturando ou não os canais RGB
+        /// </summary>
+        /// <param name="Red">-1 para Random ou de 0 a 255 para especificar o valor</param>
+        /// <param name="Green">-1 para Random ou de 0 a 255 para especificar o valor</param>
+        /// <param name="Blue">-1 para Random ou de 0 a 255 para especificar o valor</param>
+        /// <returns></returns>
+        public static Color RandomColor(int Red = -1, int Green = -1, int Blue = -1, int Alpha = 255)
+        {
+            Red = Red.SetMinValue(-1);
+            Green = Green.SetMinValue(-1);
+            Blue = Blue.SetMinValue(-1);
+
+            Red = (Red < 0 ? Ext.RandomNumber(0, 255) : Red).LimitRange<int>(0, 255);
+            Green = (Green < 0 ? Ext.RandomNumber(0, 255) : Green).LimitRange<int>(0, 255);
+            Blue = (Blue < 0 ? Ext.RandomNumber(0, 255) : Blue).LimitRange<int>(0, 255);
+            Alpha = Alpha.LimitRange<int>(0, 255);
+            return Color.FromArgb(Alpha, Red, Green, Blue);
+        }
+
+        /// <summary>
+        /// Retorna a <see cref="Color"/> a partir de uma <see cref="ConsoleColor"/>
+        /// </summary>
+        /// <param name="Color"></param>
+        /// <returns></returns>
+        public static HSVColor ToColor(this ConsoleColor Color) => new HSVColor(new[] { 0x0, 0x80, 0x8000, 0x8080, 0x800000, 0x800080, 0x808000, 0xC0C0C0, 0x808080, 0xFF, 0xFF00, 0xFFFF, 0xFF0000, 0xFF00FF, 0xFFFF00, 0xFFFFFF }[(int)Color]) { Alpha = 255 };
+
+        /// <summary>
+        /// Gera uma cor a partir de uma palavra
+        /// </summary>
+        /// <param name="Text">
+        /// Pode ser um texto em branco (Transparent), uma <see cref="NamedColors"/> (retorna aquela
+        /// cor exata), uma palavra qualquer (gera proceduralmente uma cor) ou uma expressão de cor
+        /// (Red+Blue, Red-Blue,Green*Red etc).
+        /// </param>
+        /// <returns></returns>
+        public static Color ToColor(this string Text)
+        {
+            if (Text.IsBlank()) return Color.Transparent;
+
+            if (Text == "random") return RandomColor();
+
+            if (Text.IsNumber()) return Color.FromArgb(Text.ToInt());
+
+            if (Text.IsHexaDecimalColor()) return ColorTranslator.FromHtml("#" + Text.TrimFirstEqual("#"));
+
+            var maybecolor = FindColor(Text);
+            if (maybecolor != null)
+            {
+                return maybecolor.ToDrawingColor();
+            }
+
+            if (Text.Contains("+"))
+            {
+                var various = Text.Split("+");
+
+                if (various.Any())
+                {
+                    return various.Select(x => new HSVColor(x.Trim())).Aggregate((a, b) => a + b);
+                }
+            }
+
+            if (Text.Contains("-"))
+            {
+                var various = Text.Split("-");
+                if (various.Any())
+                {
+                    return various.Select(x => new HSVColor(x.Trim())).Aggregate((a, b) => a - b);
+                }
+            }
+            if (Text.Contains("*"))
+            {
+                var various = Text.Split("*");
+
+                if (various.Any())
+                {
+                    return various.Select(x => new HSVColor(x.Trim())).Aggregate((a, b) => a * b);
+                }
+            }
+
+            var coresInt = Text.GetWords().Select(p => p.ToCharArray().Sum(a => Math.Pow(a.ToAsc(), 2d) * p.Length)).Sum().RoundInt();
+            return Color.FromArgb(255, Color.FromArgb(coresInt));
+        }
+
+        /// <summary>
+        /// Retorna a <see cref="ConsoleColor"/> mais proxima de uma <see cref="Color"/>
+        /// </summary>
+        /// <param name="Color"></param>
+        /// <returns></returns>
+        public static ConsoleColor ToConsoleColor(this Color Color)
+        {
+            int index = Color.R > 128 | Color.G > 128 | Color.B > 128 ? 8 : 0;
+            index |= Color.R > 64 ? 4 : 0;
+            index |= Color.G > 64 ? 2 : 0;
+            index |= Color.B > 64 ? 1 : 0;
+            return (ConsoleColor)index;
+        }
+
+        public static string ToCssRGB(this Color Color) => "rgb(" + Color.R.ToString() + "," + Color.G.ToString() + "," + Color.B.ToString() + ")";
+
+        /// <summary>
+        /// Converte uma cor de sistema para CSS RGB
+        /// </summary>
+        /// <param name="Color">Cor do sistema</param>
+        /// <returns>String contendo a cor em RGB</returns>
+        public static string ToCssRGBA(this Color Color) => "rgba(" + Color.R.ToString() + "," + Color.G.ToString() + "," + Color.B.ToString() + "," + Color.A.ToString() + ")";
+
+        public static string ToHexadecimal(this Color Color, bool Hash = true) => (Color.R.ToString("X2") + Color.G.ToString("X2") + Color.B.ToString("X2")).PrependIf("#", Hash);
+
+        public static IEnumerable<HSVColor> ToHSVColorList(this IEnumerable<Color> ColorList) => ColorList?.Select(x => new HSVColor(x));
+
+        #endregion Public Methods
+
+        public static T ToggleVisibility<T>(this T FileOrDir) where T : FileSystemInfo => FileOrDir.IsVisible() ? FileOrDir.Hide() : FileOrDir.Show();
+
+        /// <summary>
+        /// Retorna uma lista de arquivos ou diretórios baseado em uma busca usando predicate
+        /// </summary>
+        /// <param name="Directory">Diretório</param>
+        /// <param name="predicate">Funcao LINQ utilizada para a busca</param>
+        /// <param name="SearchOption">
+        /// Indica se apenas o diretorio atual ou todos os subdiretorios devem ser percorridos pela busca
+        /// </param>
+        /// <returns></returns>
+        public static IEnumerable<T> Where<T>(this DirectoryInfo Directory, Func<T, bool> predicate, SearchOption SearchOption = SearchOption.AllDirectories) where T : FileSystemInfo
+        {
+            if (Directory != null && Directory.Exists && predicate != null)
+
+                if (typeof(T) == typeof(FileInfo))
+                    return Directory.GetFiles("*", SearchOption).Where((Func<FileInfo, bool>)predicate) as IEnumerable<T>;
+                else if (typeof(T) == typeof(DirectoryInfo))
+                    return Directory.GetDirectories("*", SearchOption).Where((Func<DirectoryInfo, bool>)predicate) as IEnumerable<T>;
+
+                else
+                    return Directory.GetFileSystemInfos("*", SearchOption).Where((Func<FileSystemInfo, bool>)predicate) as IEnumerable<T>;
+
+            return Array.Empty<T>();
+        }
+
+        #endregion Public Methods
 
 
         #region Public Methods
@@ -6779,7 +7501,7 @@ namespace InnerLibs
             int errorcount = 0;
             while (l.Count < Quantity)
             {
-                var r = ColorExtensions.RandomColor(Red, Green, Blue);
+                var r = RandomColor(Red, Green, Blue);
                 if (l.Any(x => (x.ToHexadecimal() ?? InnerLibs.Ext.EmptyString) == (r.ToHexadecimal() ?? InnerLibs.Ext.EmptyString)))
                 {
                     errorcount++;

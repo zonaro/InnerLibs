@@ -660,7 +660,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Name"></param>
         /// <returns></returns>
-        public static HSVColor RandomColor(string Name = null) => new HSVColor(ColorExtensions.RandomColor(), Name);
+        public static HSVColor RandomColor(string Name = null) => new HSVColor(Ext.RandomColor(), Name);
 
         /// <summary>
         /// Gera uma <see cref="HSVColor"/> opaca aleatoria dentro de um Mood especifico
@@ -1077,7 +1077,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Amount"></param>
         /// <returns></returns>
-        public HSVColor[] Monochromatic(decimal Amount = 4m) => ColorExtensions.MonochromaticPallette(_scolor, (int)Math.Round(Amount)).ToArray();
+        public HSVColor[] Monochromatic(decimal Amount = 4m) => Ext.MonochromaticPallette(_scolor, (int)Math.Round(Amount)).ToArray();
 
         /// <summary>
         /// Retorna uma nova cor a partir da mistura multiplicativa de 2 cores

@@ -191,9 +191,7 @@ namespace InnerLibs.QuestionTests
 
         public void AddRange(IEnumerable<Alternative> Alternatives)
         {
-            if (Alternatives != null)
-                foreach (var alt in Alternatives)
-                    if (alt != null) Add(alt);
+            foreach (var alt in Alternatives ?? Array.Empty<Alternative>()) if (alt != null) Add(alt);
         }
 
         public override string ToString() => ToString("Alternatives");

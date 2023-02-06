@@ -1,11 +1,9 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace InnerLibs
 {
-    [Serializable]
     public class ConnectionStringParser : Dictionary<string, string>
     {
         #region Public Constructors
@@ -14,11 +12,15 @@ namespace InnerLibs
 
         #endregion Public Constructors
 
+
+
         #region Public Properties
 
         public string ConnectionString { get => ToString(); set => Parse(value); }
 
         #endregion Public Properties
+
+
 
         #region Public Methods
 
@@ -53,7 +55,6 @@ namespace InnerLibs
         #endregion Public Methods
     }
 
-    [Serializable]
     public class SqlServerConnectionStringParser : ConnectionStringParser
     {
         #region Public Constructors
@@ -62,6 +63,8 @@ namespace InnerLibs
         { }
 
         #endregion Public Constructors
+
+
 
         #region Public Properties
 
