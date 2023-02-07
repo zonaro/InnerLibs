@@ -2122,7 +2122,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Code"></param>
         /// <returns></returns>
-        public static string AppendBarcodeCheckSum(this string Code) => Code.Append(BarcodeCheckSum(Code));
+        public static string AppendBarcodeCheckSum(this string Code) => Code.Append(GenerateBarcodeCheckSum(Code));
 
         /// <summary>
         /// Adiciona texto ao final de uma string se um criterio for cumprido
@@ -6934,7 +6934,7 @@ namespace InnerLibs
 
             var bar = Code.RemoveLastChars();
             var ver = Code.GetLastChars();
-            return BarcodeCheckSum(bar) == ver;
+            return GenerateBarcodeCheckSum(bar) == ver;
         }
 
         public static bool IsValidEAN(this int Code) => Code.ToString(CultureInfo.InvariantCulture).PadLeft(12, '0').ToString().IsValidEAN();
@@ -7315,11 +7315,11 @@ namespace InnerLibs
 
 
 
-        /// <inheritdoc cref="BarcodeCheckSum(string)"/>
-        public static string BarcodeCheckSum(long Code) => BarcodeCheckSum(Code.ToString(CultureInfo.InvariantCulture));
+        /// <inheritdoc cref="GenerateBarcodeCheckSum(string)"/>
+        public static string GenerateBarcodeCheckSum(long Code) => GenerateBarcodeCheckSum(Code.ToString(CultureInfo.InvariantCulture));
 
-        /// <inheritdoc cref="BarcodeCheckSum(string)"/>
-        public static string BarcodeCheckSum(int Code) => BarcodeCheckSum(Code.ToString(CultureInfo.InvariantCulture));
+        /// <inheritdoc cref="GenerateBarcodeCheckSum(string)"/>
+        public static string GenerateBarcodeCheckSum(int Code) => GenerateBarcodeCheckSum(Code.ToString(CultureInfo.InvariantCulture));
 
         /// <summary>
         /// Gera um digito verificador usando Mod10 em um numero
@@ -7327,7 +7327,7 @@ namespace InnerLibs
         /// <param name="Code"></param>
         /// <returns></returns>
         /// <exception cref="FormatException"></exception>
-        public static string BarcodeCheckSum(string Code)
+        public static string GenerateBarcodeCheckSum(string Code)
         {
             if (Code.IsNotNumber())
             {
@@ -7365,17 +7365,17 @@ namespace InnerLibs
             return T.ToString(CultureInfo.InvariantCulture);
         }
 
-        public static string EAN(int ContryCode, int ManufacturerCode, int ProductCode) => EANFromNumbers(ContryCode, ManufacturerCode, ProductCode);
+        public static string GenerateEAN(int ContryCode, int ManufacturerCode, int ProductCode) => GenerateEANFromNumbers(ContryCode, ManufacturerCode, ProductCode);
 
         /// <summary>
         /// Gera um numero de EAN válido a aprtir da combinação de vários numeros
         /// </summary>
         /// <param name="Numbers"></param>
         /// <returns></returns>
-        public static string EANFromNumbers(params string[] Numbers) => Numbers.Where(x => x.IsNumber()).SelectJoinString(EmptyString).AppendBarcodeCheckSum();
+        public static string GenerateEANFromNumbers(params string[] Numbers) => Numbers.Where(x => x.IsNumber()).SelectJoinString(EmptyString).AppendBarcodeCheckSum();
 
-        /// <inheritdoc cref="EANFromNumbers(string[])"/>
-        public static string EANFromNumbers(params int[] Numbers) => EANFromNumbers(Numbers.Select(x => x.ToString()).ToArray());
+        /// <inheritdoc cref="GenerateEANFromNumbers(string[])"/>
+        public static string GenerateEANFromNumbers(params int[] Numbers) => GenerateEANFromNumbers(Numbers.Select(x => x.ToString()).ToArray());
 
         /// <summary>
         /// Util a password with specific lenght for each char type
@@ -7384,13 +7384,13 @@ namespace InnerLibs
         /// <param name="NumberLenght"></param>
         /// <param name="SpecialLenght"></param>
         /// <returns></returns>
-        public static string Password(int AlphaLenght, int NumberLenght, int SpecialLenght) => Password((AlphaLenght / 2d).CeilInt(), (AlphaLenght / 2d).FloorInt(), NumberLenght, SpecialLenght);
+        public static string GeneratePassword(int AlphaLenght, int NumberLenght, int SpecialLenght) => GeneratePassword((AlphaLenght / 2d).CeilInt(), (AlphaLenght / 2d).FloorInt(), NumberLenght, SpecialLenght);
 
         /// <summary>
         /// Util a password with specific lenght for each char type
         /// </summary>
         /// <returns></returns>
-        public static string Password(int AlphaUpperLenght, int AlphaLowerLenght, int NumberLenght, int SpecialLenght)
+        public static string GeneratePassword(int AlphaUpperLenght, int AlphaLowerLenght, int NumberLenght, int SpecialLenght)
         {
             string pass = EmptyString;
             if (AlphaLowerLenght > 0)
@@ -7445,10 +7445,10 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Lenght"></param>
         /// <returns></returns>
-        public static string Password(int Lenght = 8)
+        public static string GeneratePassword(int Lenght = 8)
         {
             var basenumber = Lenght / 3d;
-            return Password(basenumber.CeilInt(), basenumber.FloorInt(), basenumber.FloorInt()).PadRight(Lenght, Convert.ToChar(PredefinedArrays.AlphaChars.RandomItem())).GetFirstChars(Lenght);
+            return GeneratePassword(basenumber.CeilInt(), basenumber.FloorInt(), basenumber.FloorInt()).PadRight(Lenght, Convert.ToChar(PredefinedArrays.AlphaChars.RandomItem())).GetFirstChars(Lenght);
         }
 
         /// <summary>

@@ -943,6 +943,8 @@ namespace InnerLibs
 
         #region Public Methods
 
+        public static HtmlTag CreateFontAwesomeIcon(string Icon) => new HtmlTag("i").AddClass(Icon);
+
         public static HtmlTag CreateAnchor(string URL, string Text, string Target = "_self", object htmlAttributes = null) => new HtmlTag("a", htmlAttributes, Text).SetAttribute("href", URL, true).SetAttribute("target", Target, true);
 
         public static HtmlTag CreateBreakLine() => new HtmlTag("br") { SelfClosing = true };
