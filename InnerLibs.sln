@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.32112.339
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InnerLibs", "InnerLibs\InnerLibs.csproj", "{CD0FDCD4-62CB-4686-9312-E1AF72152893}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InnerLibsDLL", "InnerLibs\InnerLibsDLL.csproj", "{CD0FDCD4-62CB-4686-9312-E1AF72152893}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "InnerLibs", "InnerLibsCommon\InnerLibs.shproj", "{4A6BE46F-380F-4565-A9F3-72E1FF4DA2D3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,5 +23,9 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {872BBDAA-2C1D-43C2-B6BD-319A5A4AA7F3}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		InnerLibsCommon\InnerLibs.projitems*{4a6be46f-380f-4565-a9f3-72e1ff4da2d3}*SharedItemsImports = 13
+		InnerLibsCommon\InnerLibs.projitems*{cd0fdcd4-62cb-4686-9312-e1af72152893}*SharedItemsImports = 5
 	EndGlobalSection
 EndGlobal

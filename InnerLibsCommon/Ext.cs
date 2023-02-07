@@ -1,5 +1,4 @@
 ﻿using InnerLibs;
-using InnerLibs.Console;
 using InnerLibs.Mail;
 using System;
 using System.Collections;
@@ -35,7 +34,7 @@ namespace InnerLibs
 {
     public static class Ext
     {
-        #region Public Methods
+
 
         /// <summary>
         /// Adciona um parametro a Query String de uma URL
@@ -106,7 +105,7 @@ namespace InnerLibs
 
         public static string DownloadString(string URL, NameValueCollection Headers = null, Encoding Encoding = null)
         {
-            string s = Ext.EmptyString;
+            string s = EmptyString;
             using (var c = new WebClient())
             {
                 c.Encoding = Encoding ?? new UTF8Encoding(false);
@@ -152,7 +151,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string GetFacebookUsername(this Uri URL) => URL?.AbsoluteUri.GetFacebookUsername();
 
-        public static string GetFileNameWithoutExtension(this FileInfo Info) => Info != null ? Path.GetFileNameWithoutExtension(Info.Name) : Ext.EmptyString;
+        public static string GetFileNameWithoutExtension(this FileInfo Info) => Info != null ? Path.GetFileNameWithoutExtension(Info.Name) : EmptyString;
 
         public static IEnumerable<string> GetIPs() => GetLocalIP().Union(new[] { GetPublicIP() });
 
@@ -170,8 +169,9 @@ namespace InnerLibs
 
         public static string GetPublicIP()
         {
-            var IP = InnerLibs.Ext.EmptyString;
-            Ext.TryExecute(() => IP = DownloadString("https://ipv4.icanhazip.com/")).ConsoleWriteError();
+            var IP = EmptyString;
+            var z = TryExecute(() => IP = DownloadString("https://ipv4.icanhazip.com/"));
+            if (z != null) WriteDebug(z);
             IP = IP.Trim().NullIf(x => !x.IsIP());
             return IP.Trim();
         }
@@ -183,15 +183,15 @@ namespace InnerLibs
         /// <returns></returns>
         public static IEnumerable<string> GetURLSegments(this string URL)
         {
-            var l = new List<string>();
+
             var p = new Regex(@"(?<!\?.+)(?<=\/)[\w-.]+(?=[/\r\n?]|$)", (RegexOptions)((int)RegexOptions.Singleline + (int)RegexOptions.IgnoreCase));
             var gs = p.Matches(URL);
             foreach (Match g in gs)
             {
-                l.Add(g.Value);
+                yield return g.Value;
             }
 
-            return l;
+
         }
 
         /// <summary>
@@ -228,14 +228,14 @@ namespace InnerLibs
         /// </summary>
         /// <param name="URL">Url do Youtube</param>
         /// <returns></returns>
-        public static byte[] GetYoutubeThumbnail(string URL) => DownloadFile($"http://img.youtube.com/vi/{GetVideoID(URL)}/hqdefault.jpg");
+        public static Image GetYoutubeThumbnail(string URL) => DownloadImage($"http://img.youtube.com/vi/{GetVideoID(URL)}/hqdefault.jpg");
 
         /// <summary>
         /// Captura a Thumbnail de um video do youtube
         /// </summary>
         /// <param name="URL">Url do Youtube</param>
         /// <returns></returns>
-        public static byte[] GetYoutubeThumbnail(this Uri URL) => GetYoutubeThumbnail(URL?.AbsoluteUri);
+        public static Image GetYoutubeThumbnail(this Uri URL) => GetYoutubeThumbnail(URL?.AbsoluteUri);
 
         /// <summary>
         /// Verifica se o computador está conectado com a internet
@@ -269,7 +269,7 @@ namespace InnerLibs
             if (CSS.IsNotBlank())
             {
                 CSS = Regex.Replace(CSS, "[a-zA-Z]+#", "#");
-                CSS = Regex.Replace(CSS, @"[\n\r]+\s*", InnerLibs.Ext.EmptyString);
+                CSS = Regex.Replace(CSS, @"[\n\r]+\s*", EmptyString);
                 CSS = Regex.Replace(CSS, @"\s+", " ");
                 CSS = Regex.Replace(CSS, @"\s?([:,;{}])\s?", "$1");
                 CSS = CSS.Replace(";}", "}");
@@ -277,7 +277,7 @@ namespace InnerLibs
                 // Remove comments from CSS
                 if (PreserveComments == false)
                 {
-                    CSS = Regex.Replace(CSS, @"/\*[\d\D]*?\*/", InnerLibs.Ext.EmptyString);
+                    CSS = Regex.Replace(CSS, @"/\*[\d\D]*?\*/", EmptyString);
                 }
             }
 
@@ -317,7 +317,7 @@ namespace InnerLibs
         {
             if ((URL.IsURL()))
             {
-                URL = Regex.Replace(URL, @"{([^:]+)\s*:\s*(.+?)(?<!\\)}", InnerLibs.Ext.EmptyString);
+                URL = Regex.Replace(URL, @"{([^:]+)\s*:\s*(.+?)(?<!\\)}", EmptyString);
                 URL = URL.TrimLastEqual("/");
             }
             return URL;
@@ -362,19 +362,15 @@ namespace InnerLibs
 
         public static string ReplaceUrlParameters<T>(Uri URL, T obj) => ReplaceUrlParameters(URL?.ToString(), obj);
 
-        #endregion Public Methods
 
-        #region Public Methods
-
-
-
-
-
+        public static DirectoryInfo ToDirectoryInfo(this string PathPart) => ToDirectoryInfo(new[] { PathPart });
         public static DirectoryInfo ToDirectoryInfo(this string[] PathParts)
         {
             var x = ToFileSystemInfo(PathParts);
             return x is FileInfo info ? info.Directory : x as DirectoryInfo;
         }
+
+        public static FileInfo ToFileInfo(this string PathPart) => ToFileInfo(new[] { PathPart });
         public static FileInfo ToFileInfo(this string[] PathParts)
         {
             var x = ToFileSystemInfo(PathParts);
@@ -384,6 +380,7 @@ namespace InnerLibs
             }
             return x as FileInfo;
         }
+        public static FileSystemInfo ToFileSystemInfo(this string PathPart) => ToFileSystemInfo(new[] { PathPart });
         public static FileSystemInfo ToFileSystemInfo(this string[] PathParts)
         {
             var path = Path.Combine(PathParts).FixPath();
@@ -429,43 +426,42 @@ namespace InnerLibs
         /// <param name="List">Arquivos</param>
         /// <param name="DestinationDirectory">Diretório de destino</param>
         /// <returns></returns>
-        public static IEnumerable<FileInfo> CopyTo(this IEnumerable<FileInfo> List, DirectoryInfo DestinationDirectory)
+        public static IEnumerable<FileInfo> CopyTo(this IEnumerable<FileInfo> List, DirectoryInfo DestinationDirectory, bool overwrite = true)
         {
-            var lista = new List<FileInfo>();
-            if (!DestinationDirectory?.Exists ?? false)
+            if (DestinationDirectory != null)
             {
-                DestinationDirectory.Create();
+                DestinationDirectory.CreateDirectoryIfNotExists();
+                foreach (var file in List ?? new List<FileInfo>())
+                {
+                    if (file != null && file.Exists)
+                        yield return file.CopyTo(Path.Combine(DestinationDirectory.FullName, file.Name), overwrite);
+                }
             }
-
-            foreach (var file in List ?? new List<FileInfo>())
-            {
-                lista.Add(file.CopyTo(DestinationDirectory.FullName + Path.DirectorySeparatorChar + file.Name));
-            }
-
-            return lista;
         }
 
 
-
-        public static DirectoryInfo MoveDirectory(string SourcePath, string TargetPath)
+        public static DirectoryInfo MoveDirectory(DirectoryInfo sourcePath, DirectoryInfo targetPath)
         {
-            var sourcePath = SourcePath.FixPath();
-            var targetPath = TargetPath.FixPath();
-            var files = Directory.EnumerateFiles(sourcePath, "*", SearchOption.AllDirectories)
-                                 .GroupBy(s => Path.GetDirectoryName(s));
-            foreach (var folder in files)
+            if (sourcePath.Exists)
             {
-                var targetFolder = folder.Key.Replace(sourcePath, targetPath);
-                Directory.CreateDirectory(targetFolder);
-                foreach (var file in folder)
+
+                targetPath = targetPath.CreateDirectoryIfNotExists();
+                var files = Directory.EnumerateFiles(sourcePath.FullName, "*", SearchOption.AllDirectories).GroupBy(s => Path.GetDirectoryName(s));
+                foreach (var folder in files)
                 {
-                    var targetFile = Path.Combine(targetFolder, Path.GetFileName(file));
-                    if (File.Exists(targetFile)) File.Delete(targetFile);
-                    File.Move(file, targetFile);
+                    var targetFolder = folder.Key.Replace(sourcePath.FullName, targetPath.FullName);
+                    Directory.CreateDirectory(targetFolder);
+                    foreach (var file in folder)
+                    {
+                        var targetFile = Path.Combine(targetFolder, Path.GetFileName(file));
+                        if (File.Exists(targetFile)) File.Delete(targetFile);
+                        File.Move(file, targetFile);
+                    }
                 }
+                Directory.Delete(sourcePath.FullName, true);
             }
-            Directory.Delete(SourcePath, true);
-            return new DirectoryInfo(targetPath);
+
+            return targetPath;
         }
 
 
@@ -490,7 +486,7 @@ namespace InnerLibs
             {
                 if (Directory.Exists(DirectoryName) == false)
                 {
-                    Directory.CreateDirectory(DirectoryName);
+                    DirectoryName = Directory.CreateDirectory(DirectoryName).FullName;
                 }
             }
             else
@@ -498,12 +494,12 @@ namespace InnerLibs
                 throw new ArgumentException("DirectoryName is not a valid path");
             }
 
-            return new DirectoryInfo(DirectoryName + Path.DirectorySeparatorChar);
+            return new DirectoryInfo(DirectoryName);
         }
 
         public static DirectoryInfo CreateDirectoryIfNotExists(this DirectoryInfo DirectoryName) => DirectoryName?.FullName.CreateDirectoryIfNotExists();
 
-        public static DirectoryInfo CreateDirectoryIfNotExists(this FileInfo FileName) => FileName.FullName.CreateDirectoryIfNotExists();
+        public static DirectoryInfo CreateDirectoryIfNotExists(this FileInfo FileName) => FileName?.FullName.CreateDirectoryIfNotExists();
 
         /// <summary>
         /// Cria um arquivo em branco se o mesmo nao existir e retorna um Fileinfo deste arquivo
@@ -666,7 +662,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static IEnumerable<FileSystemInfo> SearchBetween(this DirectoryInfo Directory, DateTime FirstDate, DateTime SecondDate, SearchOption SearchOption, params string[] Searches)
         {
-            Ext.FixOrder(ref FirstDate, ref SecondDate);
+            FixOrder(ref FirstDate, ref SecondDate);
             return Directory.Search(SearchOption, Searches).Where(file => file.LastWriteTime >= FirstDate && file.LastWriteTime <= SecondDate).OrderByDescending(f => f.LastWriteTime.Year <= 1601 ? f.CreationTime : f.LastWriteTime).ToList();
         }
 
@@ -705,7 +701,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static IEnumerable<DirectoryInfo> SearchDirectoriesBetween(this DirectoryInfo Directory, DateTime FirstDate, DateTime SecondDate, SearchOption SearchOption, params string[] Searches)
         {
-            Ext.FixOrder(ref FirstDate, ref SecondDate);
+            FixOrder(ref FirstDate, ref SecondDate);
             return Directory.SearchDirectories(SearchOption, Searches).Where(file => file.LastWriteTime >= FirstDate && file.LastWriteTime <= SecondDate).OrderByDescending(f => f.LastWriteTime.Year <= 1601 ? f.CreationTime : f.LastWriteTime).ToList();
         }
 
@@ -734,7 +730,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static IEnumerable<FileInfo> SearchFilesBetween(this DirectoryInfo Directory, DateTime FirstDate, DateTime SecondDate, SearchOption SearchOption, params string[] Searches)
         {
-            Ext.FixOrder(ref FirstDate, ref SecondDate);
+            FixOrder(ref FirstDate, ref SecondDate);
             return Directory.SearchFiles(SearchOption, Searches).Where(file => file.LastWriteTime.IsBetween(FirstDate, SecondDate)).OrderByDescending(f => f.LastWriteTime.Year <= 1601 ? f.CreationTime : f.LastWriteTime).ToList();
         }
 
@@ -750,16 +746,16 @@ namespace InnerLibs
             return dir;
         }
 
-        #region Public Properties
+
 
         /// <summary>
         /// Retorna uma lista com todas as <see cref="KnowColor"/> convertidas em <see cref="System.Drawing.Color"/>
         /// </summary>
-        public static IEnumerable<Color> KnowColors => Ext.GetEnumValues<KnownColor>().Select(x => Color.FromKnownColor(x));
+        public static IEnumerable<Color> KnowColors => GetEnumValues<KnownColor>().Select(x => Color.FromKnownColor(x));
 
-        #endregion Public Properties
 
-        #region Public Methods
+
+
 
         /// <summary>
         /// Procura uma cor na tabela de cores <see cref="HSVColor.NamedColors"/>
@@ -959,9 +955,9 @@ namespace InnerLibs
             Green = Green.SetMinValue(-1);
             Blue = Blue.SetMinValue(-1);
 
-            Red = (Red < 0 ? Ext.RandomNumber(0, 255) : Red).LimitRange<int>(0, 255);
-            Green = (Green < 0 ? Ext.RandomNumber(0, 255) : Green).LimitRange<int>(0, 255);
-            Blue = (Blue < 0 ? Ext.RandomNumber(0, 255) : Blue).LimitRange<int>(0, 255);
+            Red = (Red < 0 ? RandomNumber(0, 255) : Red).LimitRange<int>(0, 255);
+            Green = (Green < 0 ? RandomNumber(0, 255) : Green).LimitRange<int>(0, 255);
+            Blue = (Blue < 0 ? RandomNumber(0, 255) : Blue).LimitRange<int>(0, 255);
             Alpha = Alpha.LimitRange<int>(0, 255);
             return Color.FromArgb(Alpha, Red, Green, Blue);
         }
@@ -1057,7 +1053,7 @@ namespace InnerLibs
 
         public static IEnumerable<HSVColor> ToHSVColorList(this IEnumerable<Color> ColorList) => ColorList?.Select(x => new HSVColor(x));
 
-        #endregion Public Methods
+
 
         public static T ToggleVisibility<T>(this T FileOrDir) where T : FileSystemInfo => FileOrDir.IsVisible() ? FileOrDir.Hide() : FileOrDir.Show();
 
@@ -1085,10 +1081,10 @@ namespace InnerLibs
             return Array.Empty<T>();
         }
 
-        #endregion Public Methods
 
 
-        #region Public Methods
+
+
 
         /// <summary>
         /// Calcula a distancia entre 2 locais
@@ -1113,7 +1109,7 @@ namespace InnerLibs
                 }
 
                 double angleCalculation = Math.Acos(Math.Sin(latitude2Rad) * Math.Sin(latitude1Rad) + Math.Cos(latitude2Rad) * Math.Cos(latitude1Rad) * Math.Cos(longitudeDiff));
-                distance = InnerLibs.Ext.EarthCircumference * angleCalculation / (2.0d * Math.PI);
+                distance = EarthCircumference * angleCalculation / (2.0d * Math.PI);
             }
             return distance;
         }
@@ -1194,24 +1190,24 @@ namespace InnerLibs
             return locations;
         }
 
-        #endregion Public Methods
-
-        #region Public Methods
 
 
 
-        #region Public Methods
 
-        #region Public Fields
+
+
+
+
+
 
         /// <summary>
         /// Earth's circumference at the equator in km, considering the earth is a globe, not flat
         /// </summary>
         public const double EarthCircumference = 40075d;
 
-        #endregion Public Fields
 
-        #region Public Methods
+
+
 
         /// <summary>
         /// Retorna uma progressão Aritmética com N numeros
@@ -1926,7 +1922,7 @@ namespace InnerLibs
             return number.ToString("0".AppendIf(culture.NumberFormat.NumberDecimalSeparator + "0".Repeat(Decimals), Decimals > 0), culture);
         }
 
-        #region Public Methods
+
 
         /// <summary>
         /// Retorna o Mime T a partir da extensão de um arquivo
@@ -1997,31 +1993,31 @@ namespace InnerLibs
         /// <returns></returns>
         public static FileType ToFileType(this string MimeTypeOrExtensionOrPathOrDataURI) => new FileType(MimeTypeOrExtensionOrPathOrDataURI);
 
-        #endregion Public Methods
+
 
         /// <summary>
-        /// retorna o numeor em sua forma ordinal (inglês)
+        /// retorna o numero em sua forma ordinal (inglês)
         /// </summary>
         /// <param name="Number">Numero</param>
         /// <returns></returns>
         public static string ToOrdinalNumber(this int Number) => Number.ToLong().ToOrdinalNumber();
 
         /// <summary>
-        /// retorna o numeor em sua forma ordinal (inglês)
+        /// retorna o numero em sua forma ordinal (inglês)
         /// </summary>
         /// <param name="Number">Numero</param>
         /// <returns></returns>
         public static string ToOrdinalNumber(this long Number) => $"{Number}{Number.GetOrdinal()}";
 
         /// <summary>
-        /// retorna o numeor em sua forma ordinal (inglês)
+        /// retorna o numero em sua forma ordinal (inglês)
         /// </summary>
         /// <param name="Number">Numero</param>
         /// <returns></returns>
         public static string ToOrdinalNumber(this short Number) => Number.ToInt().ToOrdinalNumber();
 
         /// <summary>
-        /// retorna o numeor em sua forma ordinal (inglês)
+        /// retorna o numero em sua forma ordinal (inglês)
         /// </summary>
         /// <param name="Number">Numero</param>
         /// <returns></returns>
@@ -2041,7 +2037,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static double ToRadians(this double Degrees) => Degrees * Math.PI / 180.0d;
 
-        #endregion Public Methods
+
 
         public static string ToAsciiArt(this Bitmap image, int ratio)
         {
@@ -2085,16 +2081,16 @@ namespace InnerLibs
             return sb.ToString();
         }
 
-        #region Public Fields
+
 
         public const string DoubleQuoteChar = "\"";
         public const string EmptyString = "";
         public const string SingleQuoteChar = "\'";
         public const string WhitespaceChar = " ";
 
-        #endregion Public Fields
 
-        #region Public Methods
+
+
 
         /// <summary>
         /// Retorna uma string em ordem afabética baseada em uma outra string
@@ -2126,7 +2122,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Code"></param>
         /// <returns></returns>
-        public static string AppendBarcodeCheckSum(this string Code) => Code.Append(Ext.BarcodeCheckSum(Code));
+        public static string AppendBarcodeCheckSum(this string Code) => Code.Append(BarcodeCheckSum(Code));
 
         /// <summary>
         /// Adiciona texto ao final de uma string se um criterio for cumprido
@@ -2431,7 +2427,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static bool ContainsUpper(this string Text) => (Text ?? InnerLibs.Ext.EmptyString).ToArray().Any(char.IsUpper);
+        public static bool ContainsUpper(this string Text) => (Text ?? EmptyString).ToArray().Any(char.IsUpper);
 
         /// <summary>
         /// Conta os caracters especificos de uma string
@@ -2538,7 +2534,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text">Texto a ser tratado</param>
         /// <returns>String pronta para a query</returns>
-        public static string EscapeQuotesToQuery(this string Text, bool AlsoQuoteText = false) => Text.Replace(InnerLibs.Ext.SingleQuoteChar, "''").QuoteIf(AlsoQuoteText, '\'');
+        public static string EscapeQuotesToQuery(this string Text, bool AlsoQuoteText = false) => Text.Replace(SingleQuoteChar, "''").QuoteIf(AlsoQuoteText, '\'');
 
         /// <summary>
         /// Extrai emails de uma string
@@ -2607,7 +2603,7 @@ namespace InnerLibs
             }
 
             sentences = Text.Split(WhitespaceChar).ToList();
-            Text = InnerLibs.Ext.EmptyString;
+            Text = EmptyString;
             foreach (var c in sentences)
             {
                 string palavra = c;
@@ -2615,7 +2611,7 @@ namespace InnerLibs
                 {
                     palavra = palavra.ToUpperInvariant();
                     Text += palavra;
-                    string proximapalavra = sentences.IfNoIndex(sentences.IndexOf(c) + 1, InnerLibs.Ext.EmptyString);
+                    string proximapalavra = sentences.IfNoIndex(sentences.IndexOf(c) + 1, EmptyString);
                     if (!(proximapalavra.EndsWith(".") && palavra.Length == 2))
                     {
                         Text += WhitespaceChar;
@@ -2738,7 +2734,7 @@ namespace InnerLibs
         /// <returns>Uma string com o valor posterior ao valor especificado.</returns>
         public static string GetAfter(this string Text, string Value, bool WhiteIfNotFound = false)
         {
-            Value = Value.IfBlank(InnerLibs.Ext.EmptyString);
+            Value = Value.IfBlank(EmptyString);
 
             return Text.IsBlank() || Text.IndexOf(Value) == -1
                 ? WhiteIfNotFound ? EmptyString : $"{Text}"
@@ -2773,8 +2769,8 @@ namespace InnerLibs
         /// <returns>Uma string com o valor anterior ao valor especificado.</returns>
         public static string GetBefore(this string Text, string Value, bool WhiteIfNotFound = false)
         {
-            Value = Value.IfBlank(InnerLibs.Ext.EmptyString);
-            return Text.IsBlank() || Text.IndexOf(Value) == -1 ? WhiteIfNotFound ? InnerLibs.Ext.EmptyString : $"{Text}" : Text.Substring(0, Text.IndexOf(Value));
+            Value = Value.IfBlank(EmptyString);
+            return Text.IsBlank() || Text.IndexOf(Value) == -1 ? WhiteIfNotFound ? EmptyString : $"{Text}" : Text.Substring(0, Text.IndexOf(Value));
         }
 
         /// <summary>
@@ -2793,7 +2789,7 @@ namespace InnerLibs
                 int afterStartIndex = Text.IndexOf(After, startIndex);
                 return beforeStartIndex < 0 || afterStartIndex < 0 ? Text : Text.Substring(startIndex, afterStartIndex - startIndex);
             }
-            return InnerLibs.Ext.EmptyString;
+            return EmptyString;
         }
 
         /// <summary>
@@ -2839,9 +2835,9 @@ namespace InnerLibs
         /// <returns>nome do dominio</returns>
         public static string GetDomainAndProtocol(this string URL) => $"{new Uri(URL.PrependIf("http://", x => x.IsURL() == false)).GetLeftPart(UriPartial.Authority)}";
 
-        public static string GetFirstChars(this string Text, int Number = 1) => Text.IsNotBlank() ? Text.Length < Number || Number < 0 ? Text : Text.Substring(0, Number) : InnerLibs.Ext.EmptyString;
+        public static string GetFirstChars(this string Text, int Number = 1) => Text.IsNotBlank() ? Text.Length < Number || Number < 0 ? Text : Text.Substring(0, Number) : EmptyString;
 
-        public static string GetLastChars(this string Text, int Number = 1) => Text.IsNotBlank() ? Text.Length < Number || Number < 0 ? Text : Text.Substring(Text.Length - Number) : InnerLibs.Ext.EmptyString;
+        public static string GetLastChars(this string Text, int Number = 1) => Text.IsNotBlank() ? Text.Length < Number || Number < 0 ? Text : Text.Substring(Text.Length - Number) : EmptyString;
 
         /// <summary>
         /// Retorna N caracteres de uma string a partir do caractere encontrado no centro
@@ -2851,7 +2847,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string GetMiddleChars(this string Text, int Length)
         {
-            Text = Text.IfBlank(InnerLibs.Ext.EmptyString);
+            Text = Text.IfBlank(EmptyString);
             if (Text.Length >= Length)
             {
                 if (Text.Length % 2 != 0)
@@ -2916,7 +2912,7 @@ namespace InnerLibs
         /// <typeparam name="T">Tipo da Matriz</typeparam>
         /// <param name="Array">Matriz</param>
         /// <returns>Um valor do tipo especificado</returns>
-        public static T GetRandomItem<T>(this T[] Array) => Array == null || Array.Length == 0 ? default(T) : Array[Ext.RandomNumber(0, Array.Length - 1)];
+        public static T GetRandomItem<T>(this T[] Array) => Array == null || Array.Length == 0 ? default(T) : Array[RandomNumber(0, Array.Length - 1)];
 
         /// <summary>
         /// Retorna o caminho relativo da url
@@ -3011,14 +3007,14 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text">string HTML</param>
         /// <returns>String HTML corrigido</returns>
-        public static string HtmlDecode(this string Text) => System.Net.WebUtility.HtmlDecode(InnerLibs.Ext.EmptyString + Text).ReplaceMany(Environment.NewLine, "<br/>", "<br />", "<br>");
+        public static string HtmlDecode(this string Text) => WebUtility.HtmlDecode(EmptyString + Text).ReplaceMany(Environment.NewLine, "<br/>", "<br />", "<br>");
 
         /// <summary>
         /// Escapa o texto HTML
         /// </summary>
         /// <param name="Text">string HTML</param>
         /// <returns>String HTML corrigido</returns>
-        public static string HtmlEncode(this string Text) => System.Net.WebUtility.HtmlEncode(InnerLibs.Ext.EmptyString + Text.ReplaceMany("<br>", PredefinedArrays.BreakLineChars.ToArray()));
+        public static string HtmlEncode(this string Text) => WebUtility.HtmlEncode(EmptyString + Text.ReplaceMany("<br>", PredefinedArrays.BreakLineChars.ToArray()));
 
         /// <summary>
         /// Inject the property values of <typeparamref name="T"/> into <paramref name="TemplatedString"/>
@@ -3027,7 +3023,7 @@ namespace InnerLibs
         /// <param name="formatString"></param>
         /// <param name="injectionObject"></param>
         /// <returns></returns>
-        public static string Inject<T>(this T Obj, string TemplatedString, bool IsSQL = false) => TemplatedString.IfBlank(InnerLibs.Ext.EmptyString).Inject(Obj, IsSQL);
+        public static string Inject<T>(this T Obj, string TemplatedString, bool IsSQL = false) => TemplatedString.IfBlank(EmptyString).Inject(Obj, IsSQL);
 
         /// <summary>
         /// Inject the property values of <typeparamref name="T"/> into <see cref="String"/>
@@ -3042,7 +3038,7 @@ namespace InnerLibs
             {
                 return injectionObject.IsDictionary()
                     ? formatString.Inject(new Hashtable((IDictionary)injectionObject), IsSQL)
-                    : formatString.Inject(Ext.GetPropertyHash(injectionObject), IsSQL);
+                    : formatString.Inject(GetPropertyHash(injectionObject), IsSQL);
             }
 
             return formatString;
@@ -3094,7 +3090,7 @@ namespace InnerLibs
 
                 if (IsSQL)
                 {
-                    replacement = Ext.ToSQLString(replacement);
+                    replacement = ToSQLString(replacement);
                 }
 
                 result = result.Replace(m.ToString(), replacement);
@@ -3105,13 +3101,13 @@ namespace InnerLibs
 
         public static string Interpolate(this string Text, params string[] Texts)
         {
-            Text = Text.IfBlank(InnerLibs.Ext.EmptyString);
+            Text = Text.IfBlank(EmptyString);
             Texts = Texts ?? Array.Empty<string>();
 
             var s = Texts.ToList();
             s.Insert(0, Text);
 
-            var ns = @InnerLibs.Ext.EmptyString;
+            var ns = EmptyString;
             var len = s.Max(x => x.Length);
             for (int i = 0; i < len; i++)
             {
@@ -3161,7 +3157,7 @@ namespace InnerLibs
 
         public static bool IsCloseWrapChar(this char c) => IsCloseWrapChar($"{c}");
 
-        public static bool IsCrossLikeAny(this string Text, IEnumerable<string> Patterns) => (Patterns ?? Array.Empty<string>()).Any((Func<string, bool>)(x => Ext.Like(Text.IfBlank(InnerLibs.Ext.EmptyString), x) || Ext.Like(x, Text)));
+        public static bool IsCrossLikeAny(this string Text, IEnumerable<string> Patterns) => (Patterns ?? Array.Empty<string>()).Any((Func<string, bool>)(x => Like(Text.IfBlank(EmptyString), x) || Like(x, Text)));
 
         /// <summary>
         /// Verifica se um texto existe em uma determinada lista usando comparação com caratere curinga
@@ -3169,7 +3165,7 @@ namespace InnerLibs
         /// <param name="Text"></param>
         /// <param name="Patterns"></param>
         /// <returns></returns>
-        public static bool IsLikeAny(this string Text, IEnumerable<string> Patterns) => (Patterns ?? Array.Empty<string>()).Any((Func<string, bool>)(x => Ext.Like(Text.IfBlank(InnerLibs.Ext.EmptyString), x)));
+        public static bool IsLikeAny(this string Text, IEnumerable<string> Patterns) => (Patterns ?? Array.Empty<string>()).Any((Func<string, bool>)(x => Like(Text.IfBlank(EmptyString), x)));
 
         /// <summary>
         /// Verifica se um texto existe em uma determinada lista usando comparação com caratere curinga
@@ -3260,8 +3256,8 @@ namespace InnerLibs
         /// </summary>
         public static int LevenshteinDistance(this string Text1, string Text2)
         {
-            Text1 = Text1 ?? InnerLibs.Ext.EmptyString;
-            Text2 = Text2 ?? InnerLibs.Ext.EmptyString;
+            Text1 = Text1 ?? EmptyString;
+            Text2 = Text2 ?? EmptyString;
             int n = Text1.Length;
             int m = Text2.Length;
             var d = new int[n + 1 + 1, m + 1 + 1];
@@ -3518,7 +3514,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string PreetyPrint(this XmlDocument Document)
         {
-            string Result = InnerLibs.Ext.EmptyString;
+            string Result = EmptyString;
             var mStream = new MemoryStream();
             var writer = new XmlTextWriter(mStream, Encoding.Unicode);
             try
@@ -3560,8 +3556,8 @@ namespace InnerLibs
         /// <param name="PrependText">Texto adicional</param>
         public static string Prepend(this string Text, string PrependText)
         {
-            Text = Text ?? InnerLibs.Ext.EmptyString;
-            PrependText = PrependText ?? InnerLibs.Ext.EmptyString;
+            Text = Text ?? EmptyString;
+            PrependText = PrependText ?? EmptyString;
             Text = PrependText + Text;
             return Text;
         }
@@ -3574,8 +3570,8 @@ namespace InnerLibs
         /// <param name="Test">Teste</param>
         public static string PrependIf(this string Text, string PrependText, Func<string, bool> Test = null)
         {
-            Text = Text ?? InnerLibs.Ext.EmptyString;
-            PrependText = PrependText ?? InnerLibs.Ext.EmptyString;
+            Text = Text ?? EmptyString;
+            PrependText = PrependText ?? EmptyString;
             return Text.PrependIf(PrependText, (Test ?? (x => false))(Text));
         }
 
@@ -3587,8 +3583,8 @@ namespace InnerLibs
         /// <param name="Test">Teste</param>
         public static string PrependIf(this string Text, string PrependText, bool Test)
         {
-            Text = Text ?? InnerLibs.Ext.EmptyString;
-            PrependText = PrependText ?? InnerLibs.Ext.EmptyString;
+            Text = Text ?? EmptyString;
+            PrependText = PrependText ?? EmptyString;
             return Test ? Text.Prepend(PrependText) : Text;
         }
 
@@ -3623,7 +3619,7 @@ namespace InnerLibs
         /// <param name="Text"></param>
         /// <param name="BooleanValue"></param>
         /// <returns></returns>
-        public static string PrintIf(this string Text, bool BooleanValue) => BooleanValue ? Text : InnerLibs.Ext.EmptyString;
+        public static string PrintIf(this string Text, bool BooleanValue) => BooleanValue ? Text : EmptyString;
 
         /// <summary>
         /// Retorna o texto a na sua forma singular ou plural de acordo com uma quantidade
@@ -3683,7 +3679,7 @@ namespace InnerLibs
 
                 case object _ when QuantityOrListOrBoolean.GetType() == typeof(bool):
                     {
-                        OutQuantity = Ext.ToDecimal(QuantityOrListOrBoolean);
+                        OutQuantity = ToDecimal(QuantityOrListOrBoolean);
                         return PluralText.Singularize(); // de acordo com as normas do portugues, quando a quantidade esperada maxima for 1, zero também é singular.
                     }
 
@@ -3806,7 +3802,7 @@ namespace InnerLibs
 
         public static IEnumerable<string> ReduceToDifference(this IEnumerable<string> Texts, out string RemovedPart, bool FromStart = false, string BreakAt = null)
         {
-            RemovedPart = InnerLibs.Ext.EmptyString;
+            RemovedPart = EmptyString;
             Texts = Texts ?? Array.Empty<string>();
             var arr = Texts.WhereNotBlank().ToArray();
             while (arr.Distinct().Count() > 1 && !arr.Any(x => BreakAt.IsNotBlank() && (FromStart ? x.StartsWith(BreakAt) : x.EndsWith(BreakAt))) && arr.All(x => FromStart ? x.StartsWith(arr.FirstOrDefault().GetFirstChars()) : x.EndsWith(arr.FirstOrDefault().GetLastChars())))
@@ -3832,7 +3828,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string RegexEscape(this string Text)
         {
-            string newstring = InnerLibs.Ext.EmptyString;
+            string newstring = EmptyString;
             foreach (var c in Text.ToArray())
             {
                 if (c.IsIn(PredefinedArrays.RegexChars))
@@ -3883,7 +3879,7 @@ namespace InnerLibs
         /// <param name="Text">Texto</param>
         /// <param name="Values">Strings a serem removidas</param>
         /// <returns>Uma string com os valores removidos</returns>
-        public static string RemoveAny(this string Text, params string[] Values) => Text.ReplaceMany(InnerLibs.Ext.EmptyString, Values ?? Array.Empty<string>());
+        public static string RemoveAny(this string Text, params string[] Values) => Text.ReplaceMany(EmptyString, Values ?? Array.Empty<string>());
 
         public static string RemoveAny(this string Text, params char[] Values) => Text.RemoveAny(Values.Select(x => x.ToString()).ToArray());
 
@@ -3900,13 +3896,13 @@ namespace InnerLibs
         /// <param name="Text">Texto</param>
         /// <param name="Quantity">Quantidade de Caracteres</param>
         /// <returns></returns>
-        public static string RemoveFirstChars(this string Text, int Quantity = 1) => Text.IsNotBlank() && Text.Length > Quantity && Quantity > 0 ? Text.Remove(0, Quantity) : InnerLibs.Ext.EmptyString;
+        public static string RemoveFirstChars(this string Text, int Quantity = 1) => Text.IsNotBlank() && Text.Length > Quantity && Quantity > 0 ? Text.Remove(0, Quantity) : EmptyString;
 
         public static string RemoveHTML(this string Text)
         {
             if (Text.IsNotBlank())
             {
-                return Regex.Replace(Text.ReplaceMany(Environment.NewLine, "<br/>", "<br>", "<br />"), "<.*?>", InnerLibs.Ext.EmptyString).HtmlDecode();
+                return Regex.Replace(Text.ReplaceMany(Environment.NewLine, "<br/>", "<br>", "<br />"), "<.*?>", EmptyString).HtmlDecode();
             }
 
             return Text;
@@ -3918,7 +3914,7 @@ namespace InnerLibs
         /// <param name="Text">Texto</param>
         /// <param name="Quantity">Quantidade de Caracteres</param>
         /// <returns></returns>
-        public static string RemoveLastChars(this string Text, int Quantity = 1) => Text.IsNotBlank() && Text.Length > Quantity && Quantity > 0 ? Text.Substring(0, Text.Length - Quantity) : InnerLibs.Ext.EmptyString;
+        public static string RemoveLastChars(this string Text, int Quantity = 1) => Text.IsNotBlank() && Text.Length > Quantity && Quantity > 0 ? Text.Substring(0, Text.Length - Quantity) : EmptyString;
 
         public static string RemoveMask(this string MaskedText, params char[] AllowCharacters)
         {
@@ -3968,7 +3964,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string Repeat(this string Text, int Times = 2)
         {
-            var ns = InnerLibs.Ext.EmptyString;
+            var ns = EmptyString;
             while (Times > 0)
             {
                 ns += Text;
@@ -3995,7 +3991,7 @@ namespace InnerLibs
             {
                 if (ReplaceIfEquals)
                 {
-                    if ((NewArray[index] ?? InnerLibs.Ext.EmptyString) == (OldValue ?? InnerLibs.Ext.EmptyString))
+                    if ((NewArray[index] ?? EmptyString) == (OldValue ?? EmptyString))
                     {
                         NewArray[index] = NewValue;
                     }
@@ -4075,9 +4071,9 @@ namespace InnerLibs
 
                         case object _ when typeof(T).IsAssignableFrom(typeof(Array)):
                             {
-                                foreach (var item in Ext.ForceArray(p.Value, typeof(T)))
+                                foreach (var item in ForceArray(p.Value, typeof(T)))
                                 {
-                                    Text = Text.ReplaceMany(p.Key, Ext.ForceArray(p.Value, typeof(T)).Cast<string>().ToArray());
+                                    Text = Text.ReplaceMany(p.Key, ForceArray(p.Value, typeof(T)).Cast<string>().ToArray());
                                 }
 
                                 break;
@@ -4140,7 +4136,7 @@ namespace InnerLibs
                     var tos = p.Value.ToList();
                     while (froms.Count > tos.Count)
                     {
-                        tos.Add(InnerLibs.Ext.EmptyString);
+                        tos.Add(EmptyString);
                     }
 
                     for (int i = 0, loopTo = froms.Count - 1; i <= loopTo; i++)
@@ -4182,7 +4178,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string ReplaceMany(this string Text, string NewValue, params string[] OldValues)
         {
-            Text = Text ?? InnerLibs.Ext.EmptyString;
+            Text = Text ?? EmptyString;
             foreach (var word in (OldValues ?? Array.Empty<string>()).Where(x => x.Length > 0))
             {
                 Text = Text.Replace(word, NewValue);
@@ -4198,7 +4194,7 @@ namespace InnerLibs
         /// <param name="Text">Texto</param>
         /// <param name="OldValue">Valor a ser substituido por vazio</param>
         /// <returns>String corrigida</returns>
-        public static string ReplaceNone(this string Text, string OldValue) => Text.Replace(OldValue, InnerLibs.Ext.EmptyString);
+        public static string ReplaceNone(this string Text, string OldValue) => Text.Replace(OldValue, EmptyString);
 
         /// <summary>
         /// Une todos os valores de um objeto em uma unica string
@@ -4240,9 +4236,9 @@ namespace InnerLibs
         {
             if (Text.IsNotBlank())
             {
-                foreach (var oldvalue in OldValues ?? new[] { InnerLibs.Ext.EmptyString })
+                foreach (var oldvalue in OldValues ?? new[] { EmptyString })
                 {
-                    NewValue = NewValue ?? InnerLibs.Ext.EmptyString;
+                    NewValue = NewValue ?? EmptyString;
                     if (!oldvalue.Equals(NewValue, ComparisonType))
                     {
                         int foundAt;
@@ -4404,7 +4400,7 @@ namespace InnerLibs
         /// <param name="Text">Texto</param>
         /// <param name="Separator">Texto utilizado como separador</param>
         /// <returns></returns>
-        public static string[] Split(this string Text, string Separator, StringSplitOptions Options = StringSplitOptions.RemoveEmptyEntries) => (Text ?? InnerLibs.Ext.EmptyString).Split(new[] { Separator }, Options);
+        public static string[] Split(this string Text, string Separator, StringSplitOptions Options = StringSplitOptions.RemoveEmptyEntries) => (Text ?? EmptyString).Split(new[] { Separator }, Options);
 
         /// <summary>
         /// Separa uma string em varias partes a partir de varias strings removendo as entradas em branco
@@ -4444,7 +4440,7 @@ namespace InnerLibs
         /// <param name="Text"></param>
         /// <param name="Words"></param>
         /// <returns></returns>
-        public static bool StartsWithAny(this string Text, StringComparison comparison, params string[] Words) => Words.Any(p => Text.IfBlank(InnerLibs.Ext.EmptyString).StartsWith(p, comparison));
+        public static bool StartsWithAny(this string Text, StringComparison comparison, params string[] Words) => Words.Any(p => Text.IfBlank(EmptyString).StartsWith(p, comparison));
 
         public static bool StartsWithAny(this string Text, params string[] Words) => StartsWithAny(Text, StringComparison.InvariantCultureIgnoreCase, Words);
 
@@ -5971,7 +5967,7 @@ namespace InnerLibs
         public static string ToPhrase<TSource>(this IEnumerable<TSource> Texts, string PhraseStart = EmptyString, string And = "and", string EmptyValue = null, char Separator = ',')
         {
             Separator = Separator.IfBlank(',');
-            PhraseStart = PhraseStart.IfBlank(Ext.EmptyString);
+            PhraseStart = PhraseStart.IfBlank(EmptyString);
 
             Texts = (Texts ?? Array.Empty<TSource>()).WhereNotBlank();
 
@@ -5989,7 +5985,7 @@ namespace InnerLibs
                     }
                     else
                     {
-                        PhraseStart = Ext.EmptyString;
+                        PhraseStart = EmptyString;
                     }
                     break;
 
@@ -6008,7 +6004,7 @@ namespace InnerLibs
         }
 
         ///<inheritdoc cref="ToPhrase{TSource}(IEnumerable{TSource}, string, string, string, char)"/>
-        public static string ToPhrase(string And, params string[] Texts) => (Texts ?? Array.Empty<string>()).ToPhrase(InnerLibs.Ext.EmptyString, And);
+        public static string ToPhrase(string And, params string[] Texts) => (Texts ?? Array.Empty<string>()).ToPhrase(EmptyString, And);
 
         /// <summary>
         /// Coloca o texto em TitleCase
@@ -6031,7 +6027,7 @@ namespace InnerLibs
             for (int index = 0, loopTo = l.Count - 1; index <= loopTo; index++)
             {
                 string pal = l[index];
-                bool artigo = index > 0 && Ext.IsIn(pal, "o", "a", "os", "as", "um", "uma", "uns", "umas", "de", "do", "dos", "das", "e", "ou");
+                bool artigo = index > 0 && IsIn(pal, "o", "a", "os", "as", "um", "uma", "uns", "umas", "de", "do", "dos", "das", "e", "ou");
                 if (pal.IsNotBlank())
                 {
                     if (ForceCase || artigo == false)
@@ -6062,7 +6058,7 @@ namespace InnerLibs
             Times = Times.SetMinValue(ch.Length);
             for (int index = 1, loopTo = Times; index <= loopTo; index++)
             {
-                int newindex = Ext.RandomNumber(0, ch.Length - 1);
+                int newindex = RandomNumber(0, ch.Length - 1);
                 if (char.IsUpper(ch[newindex]))
                 {
                     ch[newindex] = char.ToLower(ch[newindex], CultureInfo.InvariantCulture);
@@ -6373,14 +6369,14 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text">Texto</param>
         /// <returns></returns>
-        public static string UrlDecode(this string Text) => Text.IsNotBlank() ? System.Net.WebUtility.UrlDecode(Text) : EmptyString;
+        public static string UrlDecode(this string Text) => Text.IsNotBlank() ? WebUtility.UrlDecode(Text) : EmptyString;
 
         /// <summary>
         /// Encoda uma string para transmissão por URL
         /// </summary>
         /// <param name="Text">Texto</param>
         /// <returns></returns>
-        public static string UrlEncode(this string Text) => Text.IsNotBlank() ? System.Net.WebUtility.UrlEncode(Text) : EmptyString;
+        public static string UrlEncode(this string Text) => Text.IsNotBlank() ? WebUtility.UrlEncode(Text) : EmptyString;
 
         /// <summary>
         /// Encapsula um tento entre 2 textos
@@ -6390,7 +6386,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string Wrap(this string Text, string WrapText = DoubleQuoteChar) => Text.Wrap(WrapText, WrapText);
 
-        #region Private Fields
+
 
         private const int ERROR_LOCK_VIOLATION = 33;
 
@@ -6407,9 +6403,9 @@ namespace InnerLibs
             x => x.ContainsAny(StringComparison.InvariantCulture, PredefinedArrays.AlphaLowerChars.ToArray())
         };
 
-        #endregion Private Fields
 
-        #region Public Methods
+
+
 
         /// <summary>
         /// Verifica se o valor é um numero ou pode ser convertido em numero
@@ -6458,7 +6454,7 @@ namespace InnerLibs
         /// <param name="Value">Valor</param>
         /// <param name="ValueIfBlank">Valor se estiver em branco</param>
         /// <returns></returns>
-        public static T IfBlank<T>(this object Value, T ValueIfBlank = default) => Value.IsBlank() ? ValueIfBlank : Ext.ChangeType<T>(Value);
+        public static T IfBlank<T>(this object Value, T ValueIfBlank = default) => Value.IsBlank() ? ValueIfBlank : ChangeType<T>(Value);
 
         /// <summary>
         /// Tenta retornar um valor de um IEnumerable a partir de um Index especifico. retorna um
@@ -6612,7 +6608,7 @@ namespace InnerLibs
             }
             catch (Exception ex)
             {
-                Ext.WriteDebug(ex);
+                WriteDebug(ex);
             }
             return true;
         }
@@ -6624,7 +6620,7 @@ namespace InnerLibs
         /// <returns>TRUE se estivar vazia ou em branco, caso contrario FALSE</returns>
         public static bool IsBlank(this FormattableString Text) => Text == null || $"{Text}".IsBlank();
 
-        public static bool IsBool<T>(this T Obj) => Ext.GetNullableTypeOf(Obj) == typeof(bool) || $"{Obj}".ToLowerInvariant().IsIn("true", "false");
+        public static bool IsBool<T>(this T Obj) => GetNullableTypeOf(Obj) == typeof(bool) || $"{Obj}".ToLowerInvariant().IsIn("true", "false");
 
         public static bool IsDate(this string Obj)
         {
@@ -6638,7 +6634,7 @@ namespace InnerLibs
             }
         }
 
-        public static bool IsDate<T>(this T Obj) => Ext.GetNullableTypeOf(Obj) == typeof(DateTime) || $"{Obj}".IsDate();
+        public static bool IsDate<T>(this T Obj) => GetNullableTypeOf(Obj) == typeof(DateTime) || $"{Obj}".IsDate();
 
         /// <summary>
         /// Verifica se uma string é um caminho de diretório válido
@@ -6913,8 +6909,8 @@ namespace InnerLibs
                 try
                 {
                     string HostName = new Uri(DomainOrEmail).Host;
-                    ObjHost = System.Net.Dns.GetHostEntry(HostName);
-                    return (ObjHost.HostName ?? InnerLibs.Ext.EmptyString) == (HostName ?? InnerLibs.Ext.EmptyString);
+                    ObjHost = Dns.GetHostEntry(HostName);
+                    return (ObjHost.HostName ?? EmptyString) == (HostName ?? EmptyString);
                 }
                 catch
                 {
@@ -6938,7 +6934,7 @@ namespace InnerLibs
 
             var bar = Code.RemoveLastChars();
             var ver = Code.GetLastChars();
-            return Ext.BarcodeCheckSum(bar) == ver;
+            return BarcodeCheckSum(bar) == ver;
         }
 
         public static bool IsValidEAN(this int Code) => Code.ToString(CultureInfo.InvariantCulture).PadLeft(12, '0').ToString().IsValidEAN();
@@ -7184,7 +7180,7 @@ namespace InnerLibs
             return false;
         }
 
-        #endregion Public Methods
+
 
         /// <summary>
         /// Encapsula um tento entre 2 textos
@@ -7199,9 +7195,9 @@ namespace InnerLibs
 
         public static HtmlTag WrapInTag(this string Text, string TagName) => new HtmlTag() { InnerHtml = Text, TagName = TagName };
 
-        #endregion Public Methods
 
-        #endregion Public Methods
+
+
 
         public static int ToArabic(this string RomanNumber)
         {
@@ -7311,13 +7307,13 @@ namespace InnerLibs
             return total;
         }
 
-        #region Private Fields
+
 
         private static readonly Random init_rnd = new Random();
 
-        #endregion Private Fields
 
-        #region Public Methods
+
+
 
         /// <inheritdoc cref="BarcodeCheckSum(string)"/>
         public static string BarcodeCheckSum(long Code) => BarcodeCheckSum(Code.ToString(CultureInfo.InvariantCulture));
@@ -7357,13 +7353,13 @@ namespace InnerLibs
             if (T == 7 | T == 11)
             {
                 i = i * 3 + p;
-                p = Ext.ToInt((i + 9) / 10) * 10;
+                p = ToInt((i + 9) / 10) * 10;
                 T = p - i;
             }
             else
             {
                 p = p * 3 + i;
-                i = Ext.ToInt((p + 9) / 10) * 10;
+                i = ToInt((p + 9) / 10) * 10;
                 T = i - p;
             }
             return T.ToString(CultureInfo.InvariantCulture);
@@ -7376,7 +7372,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Numbers"></param>
         /// <returns></returns>
-        public static string EANFromNumbers(params string[] Numbers) => Numbers.Where(x => x.IsNumber()).SelectJoinString(InnerLibs.Ext.EmptyString).AppendBarcodeCheckSum();
+        public static string EANFromNumbers(params string[] Numbers) => Numbers.Where(x => x.IsNumber()).SelectJoinString(EmptyString).AppendBarcodeCheckSum();
 
         /// <inheritdoc cref="EANFromNumbers(string[])"/>
         public static string EANFromNumbers(params int[] Numbers) => EANFromNumbers(Numbers.Select(x => x.ToString()).ToArray());
@@ -7396,10 +7392,10 @@ namespace InnerLibs
         /// <returns></returns>
         public static string Password(int AlphaUpperLenght, int AlphaLowerLenght, int NumberLenght, int SpecialLenght)
         {
-            string pass = InnerLibs.Ext.EmptyString;
+            string pass = EmptyString;
             if (AlphaLowerLenght > 0)
             {
-                string ss = InnerLibs.Ext.EmptyString;
+                string ss = EmptyString;
                 while (ss.Length < AlphaLowerLenght)
                 {
                     ss = ss.Append(PredefinedArrays.AlphaLowerChars.RandomItem());
@@ -7410,7 +7406,7 @@ namespace InnerLibs
 
             if (AlphaUpperLenght > 0)
             {
-                string ss = InnerLibs.Ext.EmptyString;
+                string ss = EmptyString;
                 while (ss.Length < AlphaUpperLenght)
                 {
                     ss = ss.Append(PredefinedArrays.AlphaUpperChars.RandomItem());
@@ -7421,7 +7417,7 @@ namespace InnerLibs
 
             if (NumberLenght > 0)
             {
-                string ss = InnerLibs.Ext.EmptyString;
+                string ss = EmptyString;
                 while (ss.Length < NumberLenght)
                 {
                     ss = ss.Append(PredefinedArrays.NumberChars.RandomItem());
@@ -7432,7 +7428,7 @@ namespace InnerLibs
 
             if (SpecialLenght > 0)
             {
-                string ss = InnerLibs.Ext.EmptyString;
+                string ss = EmptyString;
                 while (ss.Length < SpecialLenght)
                 {
                     ss = ss.Append(PredefinedArrays.PasswordSpecialChars.RandomItem());
@@ -7502,7 +7498,7 @@ namespace InnerLibs
             while (l.Count < Quantity)
             {
                 var r = RandomColor(Red, Green, Blue);
-                if (l.Any(x => (x.ToHexadecimal() ?? InnerLibs.Ext.EmptyString) == (r.ToHexadecimal() ?? InnerLibs.Ext.EmptyString)))
+                if (l.Any(x => (x.ToHexadecimal() ?? EmptyString) == (r.ToHexadecimal() ?? EmptyString)))
                 {
                     errorcount++;
                     if (errorcount == Quantity)
@@ -7536,7 +7532,7 @@ namespace InnerLibs
             Second = (Second ?? RandomNumber(DateTime.MinValue.Second, DateTime.MaxValue.Second)).ForcePositive().LimitRange(0, 59);
 
             DateTime randomCreated = DateTime.Now;
-            while (Ext.TryExecute(() => randomCreated = new DateTime(Year.Value, Month.Value, Day.Value, Hour.Value, Minute.Value, Second.Value)) != null)
+            while (TryExecute(() => randomCreated = new DateTime(Year.Value, Month.Value, Day.Value, Hour.Value, Minute.Value, Second.Value)) != null)
             {
                 Day--;
             }
@@ -7554,7 +7550,7 @@ namespace InnerLibs
         {
             var Min = (MinDate ?? RandomDateTime()).Ticks;
             var Max = (MaxDate ?? RandomDateTime()).Ticks;
-            Ext.FixOrder(ref Min, ref Max);
+            FixOrder(ref Min, ref Max);
             return new DateTime(RandomNumber(Min, Max));
         }
 
@@ -7572,7 +7568,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string RandomFixLenghtNumber(int Len = 8)
         {
-            var n = InnerLibs.Ext.EmptyString;
+            var n = EmptyString;
             for (int i = 0; i < Len; i++)
             {
                 n += PredefinedArrays.NumberChars.RandomItem();
@@ -7598,7 +7594,7 @@ namespace InnerLibs
         /// <returns>Um numero Inteiro</returns>
         public static int RandomNumber(int Min = 0, int Max = int.MaxValue)
         {
-            Ext.FixOrder(ref Min, ref Max);
+            FixOrder(ref Min, ref Max);
             return Min == Max ? Min : init_rnd.Next(Min, Max == int.MaxValue ? int.MaxValue : Max + 1);
         }
 
@@ -7610,7 +7606,7 @@ namespace InnerLibs
         /// <returns>Um numero Inteiro</returns>
         public static long RandomNumber(long Min, long Max = long.MaxValue)
         {
-            Ext.FixOrder(ref Min, ref Max);
+            FixOrder(ref Min, ref Max);
             if (Min == Max)
             {
                 return Min;
@@ -7639,7 +7635,7 @@ namespace InnerLibs
                 if (UniqueNumbers)
                 {
                     if (Max < int.MaxValue) Max++;
-                    Ext.FixOrder(ref Min, ref Max);
+                    FixOrder(ref Min, ref Max);
                     var l = Enumerable.Range(Min, Max - Min).OrderByRandom().ToList();
                     while (l.Count > Count) l.RemoveAt(0);
                     return l;
@@ -7667,10 +7663,10 @@ namespace InnerLibs
         public static string RandomWord(int Length = 0)
         {
             Length = Length < 1 ? RandomNumber(2, 15) : Length;
-            string word = Ext.EmptyString;
+            string word = EmptyString;
             if (Length == 1)
             {
-                return Ext.RandomItem(PredefinedArrays.Vowels.ToArray());
+                return RandomItem(PredefinedArrays.Vowels.ToArray());
             }
 
             // Util the word in consonant / vowel pairs
@@ -7709,7 +7705,7 @@ namespace InnerLibs
             return word;
         }
 
-        #region Private Methods
+
 
         /// <summary>
         /// Aplica um borrão a uma determinada parte da imagem
@@ -7811,9 +7807,9 @@ namespace InnerLibs
             }
         }
 
-        #endregion Private Methods
 
-        #region Public Properties
+
+
 
         /// <summary>
         /// Lista com todos os formatos de imagem
@@ -7821,9 +7817,9 @@ namespace InnerLibs
         /// <returns></returns>
         public static ImageFormat[] ImageTypes { get; private set; } = new[] { ImageFormat.Bmp, ImageFormat.Emf, ImageFormat.Exif, ImageFormat.Gif, ImageFormat.Icon, ImageFormat.Jpeg, ImageFormat.Png, ImageFormat.Tiff, ImageFormat.Wmf };
 
-        #endregion Public Properties
 
-        #region Public Methods
+
+
 
         /// <summary>
         /// Aplica um borrão a imagem
@@ -8074,7 +8070,7 @@ namespace InnerLibs
             }
         }
 
-        #region Private Fields
+
 
         private static readonly MethodInfo containsMethod = typeof(string).GetMethod("Contains", new[] { typeof(string) });
 
@@ -8084,9 +8080,9 @@ namespace InnerLibs
 
         private static readonly MethodInfo startsWithMethod = typeof(string).GetMethod("StartsWith", new[] { typeof(string) });
 
-        #endregion Private Fields
 
-        #region Public Methods
+
+
 
         /// <summary>
         /// Retorna TRUE se a todos os testes em uma lista retornarem FALSE
@@ -8374,7 +8370,7 @@ namespace InnerLibs
         {
             if (Type != null)
             {
-                return Type.Name.PascalCaseSplit().SelectJoinString(x => x.FirstOrDefault().IfBlank(InnerLibs.Ext.EmptyString), InnerLibs.Ext.EmptyString).ToLowerInvariant();
+                return Type.Name.PascalCaseSplit().SelectJoinString(x => x.FirstOrDefault().IfBlank(EmptyString), EmptyString).ToLowerInvariant();
             }
 
             return "p";
@@ -8440,7 +8436,7 @@ namespace InnerLibs
                     {
                         foreach (var item in PropertyValues)
                         {
-                            var exp = Expression.Equal(Member, Expression.Constant(Ext.EmptyString, Member?.Type));
+                            var exp = Expression.Equal(Member, Expression.Constant(EmptyString, Member?.Type));
                             switch (body)
                             {
                                 case null:
@@ -9072,7 +9068,7 @@ namespace InnerLibs
                     {
                         try
                         {
-                            var metodo = Member.Type.GetMethods().FirstOrDefault(x => (x.Name.ToLowerInvariant() ?? InnerLibs.Ext.EmptyString) == (Operator.ToLowerInvariant() ?? InnerLibs.Ext.EmptyString));
+                            var metodo = Member.Type.GetMethods().FirstOrDefault(x => (x.Name.ToLowerInvariant() ?? EmptyString) == (Operator.ToLowerInvariant() ?? EmptyString));
                             Expression exp = (Expression)metodo.Invoke(null, new[] { PropertyValues });
                             exp = Expression.Equal(Expression.Invoke(exp, new[] { Member }), Expression.Constant(comparewith));
                             if (body == null)
@@ -9667,7 +9663,7 @@ namespace InnerLibs
         /// <param name="Source"></param>
         /// <param name="Separator"></param>
         /// <returns></returns>
-        public static string SelectJoinString<TSource>(this IEnumerable<TSource> Source, string Separator = InnerLibs.Ext.EmptyString) => Source.SelectJoinString(null, Separator);
+        public static string SelectJoinString<TSource>(this IEnumerable<TSource> Source, string Separator = EmptyString) => Source.SelectJoinString(null, Separator);
 
         /// <summary>
         /// Seleciona e une em uma unica string varios elementos
@@ -9677,11 +9673,11 @@ namespace InnerLibs
         /// <param name="Selector"></param>
         /// <param name="Separator"></param>
         /// <returns></returns>
-        public static string SelectJoinString<TSource>(this IEnumerable<TSource> Source, Func<TSource, string> Selector, string Separator = InnerLibs.Ext.EmptyString)
+        public static string SelectJoinString<TSource>(this IEnumerable<TSource> Source, Func<TSource, string> Selector, string Separator = EmptyString)
         {
             Selector = Selector ?? (x => $"{x}");
             Source = Source ?? Array.Empty<TSource>();
-            return Source.Any() ? String.Join(Separator, Source.Select(Selector).ToArray()) : InnerLibs.Ext.EmptyString;
+            return Source.Any() ? String.Join(Separator, Source.Select(Selector).ToArray()) : EmptyString;
         }
 
         /// <summary>
@@ -9692,7 +9688,7 @@ namespace InnerLibs
         /// <param name="Selector"></param>
         /// <param name="Separator"></param>
         /// <returns></returns>
-        public static string SelectManyJoinString<TSource>(this IEnumerable<TSource> Source, Func<TSource, IEnumerable<string>> Selector = null, string Separator = InnerLibs.Ext.EmptyString) => SelectJoinString(Source.SelectMany(Selector ?? (x => (new[] { x.ToString() }))), Separator);
+        public static string SelectManyJoinString<TSource>(this IEnumerable<TSource> Source, Func<TSource, IEnumerable<string>> Selector = null, string Separator = EmptyString) => SelectJoinString(Source.SelectMany(Selector ?? (x => (new[] { x.ToString() }))), Separator);
 
         /// <summary>
         /// Seleciona e une em uma unica string varios elementos enumeraveis
@@ -9702,7 +9698,7 @@ namespace InnerLibs
         /// <param name="Selector"></param>
         /// <param name="Separator"></param>
         /// <returns></returns>
-        public static string SelectManyJoinString<TSource>(this IQueryable<TSource> Source, Func<TSource, IEnumerable<string>> Selector = null, string Separator = InnerLibs.Ext.EmptyString) => Source.AsEnumerable().SelectManyJoinString(Selector, Separator);
+        public static string SelectManyJoinString<TSource>(this IQueryable<TSource> Source, Func<TSource, IEnumerable<string>> Selector = null, string Separator = EmptyString) => Source.AsEnumerable().SelectManyJoinString(Selector, Separator);
 
         /// <summary>
         /// Busca em um <see cref="IQueryable{T}"/> usando uma expressao lambda a partir do nome de
@@ -9942,7 +9938,7 @@ namespace InnerLibs
             SortProperty = SortProperty ?? Array.Empty<string>();
             foreach (var prop in SortProperty)
             {
-                var propInfo = Ext.FindProperty(typeof(T), prop);
+                var propInfo = FindProperty(typeof(T), prop);
 
                 if (propInfo != null)
                 {
@@ -10107,7 +10103,7 @@ namespace InnerLibs
 
         public static IEnumerable<Type> WhereType<BaseType, Type>(this IEnumerable<BaseType> List) where Type : BaseType => List.Where(x => x is Type).Cast<Type>();
 
-        #endregion Public Methods
+
 
         #region FilterDateRange
 
@@ -10299,12 +10295,12 @@ namespace InnerLibs
                 Y = Y.LimitRange(-1, img.Height);
                 if (X == -1)
                 {
-                    X = (int)Math.Round(bitmap.Width / 2d - tamanho.Width / 2f);
+                    X = RoundInt(bitmap.Width / 2d - tamanho.Width / 2f);
                 }
 
                 if (Y == -1)
                 {
-                    Y = (int)Math.Round(bitmap.Height / 2d - tamanho.Height / 2f);
+                    Y = RoundInt(bitmap.Height / 2d - tamanho.Height / 2f);
                 }
 
                 Color = Color ?? bitmap.GetPixel(X, Y).GetContrastColor(50f);
@@ -10320,10 +10316,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="RawFormat">Image format</param>
         /// <returns>image codec info.</returns>
-        public static ImageCodecInfo GetEncoderInfo(this ImageFormat RawFormat)
-        {
-            return ImageCodecInfo.GetImageDecoders().Where(c => c.FormatID == RawFormat.Guid).FirstOr(ImageCodecInfo.GetImageDecoders().Where(c => c.FormatID == ImageFormat.Png.Guid).First());
-        }
+        public static ImageCodecInfo GetEncoderInfo(this ImageFormat RawFormat) => ImageCodecInfo.GetImageDecoders().Where(c => c.FormatID == RawFormat.Guid).FirstOr(ImageCodecInfo.GetImageDecoders().Where(c => c.FormatID == ImageFormat.Png.Guid).First());
 
         /// <summary>
         /// Retorna o formato da imagem correspondente a aquela imagem
@@ -11031,7 +11024,7 @@ namespace InnerLibs
             return bm_Resultado;
         }
 
-        #endregion Public Methods
+
 
         /// <summary>
         /// Gera uma URL do google MAPs baseado na localização
@@ -11043,7 +11036,7 @@ namespace InnerLibs
         /// <returns>Uma URI do Google Maps</returns>
         public static Uri ToGoogleMapsURL(this AddressInfo local, params AddressPart[] Parts) => local != null ? new Uri($"https://www.google.com.br/maps/search/{Uri.EscapeUriString(local.ToString(Parts))}") : null;
 
-        #endregion Public Methods
+
 
         public static string ToRoman(this int ArabicNumber)
         {
@@ -11058,7 +11051,7 @@ namespace InnerLibs
             var algarismosRomanos = new string[] { "M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "TV", "IV", "I" };
 
             // inicializa o string builder
-            string resultado = Ext.EmptyString;
+            string resultado = EmptyString;
 
             // percorre os valores nos arrays
             for (int i = 0; i <= 12; i++)
@@ -11076,7 +11069,7 @@ namespace InnerLibs
             return resultado.ToString();
         }
 
-        #endregion Public Methods
+
 
         #region Public Enums
 
@@ -11120,7 +11113,7 @@ namespace InnerLibs
 
         #endregion Public Enums
 
-        #region Public Methods
+
 
         /// <summary>
         /// Retorna a classe do icone do FontAwesome que representa melhor o arquivo
@@ -11380,7 +11373,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string GetIconByFileType(this FileType MIME) => GetFontAwesomeIconByFileExtension(MIME?.Extensions.ToArray() ?? Array.Empty<string>());
 
-        #region Public Methods
+
 
         /// <summary>
         /// Retorna true se <paramref name="Value"/> não estiver em branco, for diferente de NULL,
@@ -11474,18 +11467,18 @@ namespace InnerLibs
         {
             if (ToType == null)
             {
-                Ext.WriteDebug($"ToType is null, using {typeof(TFrom).Name}");
+                WriteDebug($"ToType is null, using {typeof(TFrom).Name}");
                 return Value;
             }
 
-            Ext.WriteDebug($"Try changing from {typeof(TFrom).Name} to {ToType.Name}");
+            WriteDebug($"Try changing from {typeof(TFrom).Name} to {ToType.Name}");
 
             try
             {
                 var met = Value?.GetType().GetNullableTypeOf().GetMethods().FirstOrDefault(x => x.Name == $"To{ToType.Name}" && x.ReturnType == ToType && x.IsPublic && x.GetParameters().Any() == false);
                 if (met != null)
                 {
-                    Ext.WriteDebug($"Trying internal method {met.Name}");
+                    WriteDebug($"Trying internal method {met.Name}");
                     return met.Invoke(Value, Array.Empty<object>());
                 }
             }
@@ -11495,10 +11488,10 @@ namespace InnerLibs
 
             try
             {
-                ToType = Ext.GetNullableTypeOf(ToType);
+                ToType = GetNullableTypeOf(ToType);
                 if (Value == null)
                 {
-                    Ext.WriteDebug($"Value is null");
+                    WriteDebug($"Value is null");
                     if (!ToType.IsValueType() || ToType.IsNullableType())
                     {
                         return null;
@@ -11511,7 +11504,7 @@ namespace InnerLibs
 
                 if (ToType == typeof(Guid))
                 {
-                    Ext.WriteDebug($"Parsing Guid");
+                    WriteDebug($"Parsing Guid");
                     return Guid.Parse(Value.ToString());
                 }
 
@@ -11527,19 +11520,19 @@ namespace InnerLibs
 
                             if (Name == entryName || Name == entryValue)
                             {
-                                Ext.WriteDebug($"{ToType.Name} value ({Name}) found ({entryName})");
+                                WriteDebug($"{ToType.Name} value ({Name}) found ({entryName})");
                                 return Convert.ChangeType(x, ToType);
                             }
                         }
 
-                        Ext.WriteDebug($"{ToType.Name} value ({Name}) not found");
+                        WriteDebug($"{ToType.Name} value ({Name}) not found");
                         return Activator.CreateInstance(ToType);
                     }
                 }
 
                 if (ToType.IsValueType())
                 {
-                    Ext.WriteDebug($"{ToType.Name} is value type");
+                    WriteDebug($"{ToType.Name} is value type");
                     var Converter = TypeDescriptor.GetConverter(ToType);
                     if (Converter.CanConvertFrom(typeof(TFrom)))
                     {
@@ -11564,8 +11557,8 @@ namespace InnerLibs
             }
             catch (Exception ex)
             {
-                Ext.WriteDebug(ex.ToFullExceptionString(), "Error on change type");
-                Ext.WriteDebug("Returning null");
+                WriteDebug(ex.ToFullExceptionString(), "Error on change type");
+                WriteDebug("Returning null");
                 return null;
             }
         }
@@ -11615,10 +11608,10 @@ namespace InnerLibs
                 {
                     k.Key.PropertyNamesFor();
                     string propname1 = k.Key.Trim().Replace(" ", "_").Replace("-", "_").Replace("~", "_");
-                    string propname3 = k.Key.Trim().Replace(" ", InnerLibs.Ext.EmptyString).Replace("-", InnerLibs.Ext.EmptyString).Replace("~", InnerLibs.Ext.EmptyString);
+                    string propname3 = k.Key.Trim().Replace(" ", EmptyString).Replace("-", EmptyString).Replace("~", EmptyString);
                     string propname2 = propname1.RemoveAccents();
                     string propname4 = propname3.RemoveAccents();
-                    var prop = Ext.NullCoalesce(tipo.GetProperty(propname1), tipo.GetProperty(propname2), tipo.GetProperty(propname3), tipo.GetProperty(propname4));
+                    var prop = NullCoalesce(tipo.GetProperty(propname1), tipo.GetProperty(propname2), tipo.GetProperty(propname3), tipo.GetProperty(propname4));
                     if (prop != null)
                     {
                         if (prop.CanWrite)
@@ -11635,7 +11628,7 @@ namespace InnerLibs
                     }
                     else
                     {
-                        var fiif = Ext.NullCoalesce(tipo.GetField(propname1), tipo.GetField(propname2), tipo.GetField(propname3), tipo.GetField(propname4));
+                        var fiif = NullCoalesce(tipo.GetField(propname1), tipo.GetField(propname2), tipo.GetField(propname3), tipo.GetField(propname4));
                         if (fiif != null)
                         {
                             if (k.Value.GetType() == typeof(DBNull))
@@ -11675,15 +11668,15 @@ namespace InnerLibs
             Type = Type ?? typeof(object);
             if (Obj != null)
             {
-                if (Ext.IsArray(Obj))
+                if (IsArray(Obj))
                 {
                     var aobj = ((Array)Obj).Cast<object>().ToArray();
-                    return Ext.ChangeArrayType(aobj, Type).ToArray();
+                    return ChangeArrayType(aobj, Type).ToArray();
                 }
                 else if (!Obj.IsTypeOf<string>() && Obj.IsEnumerable())
                 {
                     var aobj = (IEnumerable<object>)Obj;
-                    return Ext.ChangeIEnumerableType(aobj, Type).ToArray();
+                    return ChangeIEnumerableType(aobj, Type).ToArray();
                 }
                 else
                 {
@@ -11737,7 +11730,7 @@ namespace InnerLibs
                             var lista = new List<object>();
 
                             // chave do resultado é um array?
-                            if (Ext.IsArray(result[key]))
+                            if (IsArray(result[key]))
                             {
                                 lista.AddRange((IEnumerable<object>)result[key]);
                             }
@@ -11746,7 +11739,7 @@ namespace InnerLibs
                                 lista.Add(result[key]);
                             }
                             // chave do dicionario é um array?
-                            if (Ext.IsArray(dic[key]))
+                            if (IsArray(dic[key]))
                             {
                                 lista.AddRange((IEnumerable<object>)dic[key]);
                             }
@@ -11768,7 +11761,7 @@ namespace InnerLibs
                                 }
                             }
                         }
-                        else if (dic[key].GetType() != typeof(string) && (Ext.IsArray(dic[key]) || dic[key].IsList()))
+                        else if (dic[key].GetType() != typeof(string) && (IsArray(dic[key]) || dic[key].IsList()))
                         {
                             result.Add(key, dic[key].ChangeType<object[]>());
                         }
@@ -11930,7 +11923,7 @@ namespace InnerLibs
                     if (result.ContainsKey(key))
                     {
                         var l = new List<object>();
-                        if (Ext.IsArray(result[key]))
+                        if (IsArray(result[key]))
                         {
                             foreach (var v in (IEnumerable)result[key])
                             {
@@ -11942,7 +11935,7 @@ namespace InnerLibs
                                             break;
                                         }
 
-                                    case object _ when Ext.IsDate(v):
+                                    case object _ when IsDate(v):
                                         {
                                             l.Add(Convert.ToDateTime(v));
                                             break;
@@ -11966,7 +11959,7 @@ namespace InnerLibs
                                         break;
                                     }
 
-                                case object _ when Ext.IsDate(result[key]):
+                                case object _ when IsDate(result[key]):
                                     {
                                         l.Add(Convert.ToDateTime(result[key]));
                                         break;
@@ -12087,9 +12080,9 @@ namespace InnerLibs
         /// <returns>Valor convertido em novo ToType</returns>
         public static float ToSingle<FromType>(this FromType Value) => Value.ChangeType<float>();
 
-        #endregion Public Methods
 
-        #region Public Methods
+
+
 
         /// <summary>
         /// Descriptografa uma string
@@ -12308,11 +12301,11 @@ namespace InnerLibs
             return Text;
         }
 
-        #endregion Public Methods
 
-        #endregion Public Methods
 
-        #region Public Methods
+
+
+
 
         /// <summary>
         /// Format a file path using a <see cref="DateTime"/>
@@ -12357,7 +12350,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="File">Arquivo</param>
         /// <returns></returns>
-        public static string ReadAllText(this FileInfo File, Encoding encoding = null) => File != null && File.Exists ? System.IO.File.ReadAllText(File.FullName, encoding ?? Encoding.UTF8) : InnerLibs.Ext.EmptyString;
+        public static string ReadAllText(this FileInfo File, Encoding encoding = null) => File != null && File.Exists ? System.IO.File.ReadAllText(File.FullName, encoding ?? Encoding.UTF8) : EmptyString;
 
         /// <summary>
         /// Renomeia um arquivo e retorna um <see cref="FileInfo"/> do arquivo renomeado
@@ -12494,11 +12487,11 @@ namespace InnerLibs
                 if (Bytes.Any())
                 {
                     File.WriteAllBytes(FilePath, Bytes);
-                    Ext.WriteDebug(FilePath, "File Written");
+                    WriteDebug(FilePath, "File Written");
                 }
                 else
                 {
-                    Ext.WriteDebug("Bytes array is empty", "File not Written");
+                    WriteDebug("Bytes array is empty", "File not Written");
                 }
 
                 return new FileInfo(FilePath).With(x => { x.LastWriteTime = DateAndTime.Value; });
@@ -12555,9 +12548,9 @@ namespace InnerLibs
 
         public static FileInfo WriteToFile(this string Text, DirectoryInfo Directory, string SubDirectory, string FileName, bool Append = false, Encoding Enconding = null, DateTime? DateAndTime = null) => Text.WriteToFile(Path.Combine(Directory?.FullName, SubDirectory, Path.GetFileName(FileName)), Append, Enconding, DateAndTime);
 
-        #endregion Public Methods
 
-        #region Public Properties
+
+
 
         /// <summary>
         /// Dicionario com os <see cref="Type"/> e seu <see cref="DbType"/> correspondente
@@ -12593,9 +12586,9 @@ namespace InnerLibs
         /// <returns></returns>
         public static TextWriter LogWriter { get; set; } = new DebugTextWriter();
 
-        #endregion Public Properties
 
-        #region Public Methods
+
+
 
         public static string AsSQLColumns(this IDictionary<string, object> obj, char Quote = '[') => obj.Select(x => x.Key.ToString().Quote(Quote)).SelectJoinString(",");
 
@@ -12643,7 +12636,7 @@ namespace InnerLibs
         /// <param name="Connection"></param>
         /// <param name="SQL"></param>
         /// <returns></returns>
-        public static DbCommand CreateCommand<T>(this DbConnection Connection, FileInfo SQLFile, T obj, DbTransaction Transaction = null) => CreateCommand(Connection, SQLFile.Exists ? SQLFile.ReadAllText() : InnerLibs.Ext.EmptyString, obj, Transaction);
+        public static DbCommand CreateCommand<T>(this DbConnection Connection, FileInfo SQLFile, T obj, DbTransaction Transaction = null) => CreateCommand(Connection, SQLFile.Exists ? SQLFile.ReadAllText() : EmptyString, obj, Transaction);
 
         /// <summary>
         /// Cria um <see cref="DbCommand"/> a partir de uma string SQL e um objeto,
@@ -12698,7 +12691,7 @@ namespace InnerLibs
                     foreach (var p in Parameters.Keys)
                     {
                         var v = Parameters.GetValueOr(p);
-                        var arr = Ext.ForceArray(v, typeof(object)).ToList();
+                        var arr = ForceArray(v, typeof(object)).ToList();
                         for (int index = 0, loopTo = arr.Count - 1; index <= loopTo; index++)
                         {
                             var param = command.CreateParameter();
@@ -12780,7 +12773,7 @@ namespace InnerLibs
                     for (int index = 0, loopTo = SQL.ArgumentCount - 1; index <= loopTo; index++)
                     {
                         var valores = SQL.GetArgument(index);
-                        var v = Ext.ForceArray(valores, typeof(object)).ToList();
+                        var v = ForceArray(valores, typeof(object)).ToList();
                         var param_names = new List<string>();
                         for (int v_index = 0, loopTo1 = v.Count() - 1; v_index <= loopTo1; v_index++)
                         {
@@ -13010,7 +13003,7 @@ namespace InnerLibs
         /// <summary>
         /// Retorna um <see cref="DbType"/> a partir do <see cref="Type"/> do <paramref name="obj"/>
         /// </summary>
-        public static DbType GetDbType<T>(this T obj, DbType DefaultType = DbType.Object) => DbTypes.GetValueOr(Ext.GetNullableTypeOf(obj), DefaultType);
+        public static DbType GetDbType<T>(this T obj, DbType DefaultType = DbType.Object) => DbTypes.GetValueOr(GetNullableTypeOf(obj), DefaultType);
 
         public static DataRow GetFirstRow(this DataSet Data) => Data.GetFirstTable()?.GetFirstRow();
 
@@ -13061,7 +13054,7 @@ namespace InnerLibs
         {
             try
             {
-                return Ext.ChangeType<T>(row != null ? row[ColumnIndex] : default);
+                return ChangeType<T>(row != null ? row[ColumnIndex] : default);
             }
             catch
             {
@@ -13073,7 +13066,7 @@ namespace InnerLibs
         {
             try
             {
-                return Ext.ChangeType<T>(row != null ? row[ColumnNameOrIndex] : default);
+                return ChangeType<T>(row != null ? row[ColumnNameOrIndex] : default);
             }
             catch
             {
@@ -13230,8 +13223,8 @@ namespace InnerLibs
                     }
                     else
                     {
-                        var PropInfos = Ext.GetTypeOf(d).FindProperties(name);
-                        var FieldInfos = Ext.GetTypeOf(d).FindFields(name).Where(x => x.Name.IsNotIn(PropInfos.Select(y => y.Name)));
+                        var PropInfos = GetTypeOf(d).FindProperties(name);
+                        var FieldInfos = GetTypeOf(d).FindFields(name).Where(x => x.Name.IsNotIn(PropInfos.Select(y => y.Name)));
                         foreach (var info in PropInfos)
                         {
                             if (info.CanWrite)
@@ -13242,7 +13235,7 @@ namespace InnerLibs
                                 }
                                 else
                                 {
-                                    info.SetValue(d, Ext.ChangeType(value, info.PropertyType));
+                                    info.SetValue(d, ChangeType(value, info.PropertyType));
                                 }
                             }
                         }
@@ -13255,7 +13248,7 @@ namespace InnerLibs
                             }
                             else
                             {
-                                info.SetValue(d, Ext.ChangeType(value, info.FieldType));
+                                info.SetValue(d, ChangeType(value, info.FieldType));
                             }
                         }
                     }
@@ -13311,8 +13304,8 @@ namespace InnerLibs
                     else
                     {
                         var propnames = name.PropertyNamesFor().ToList();
-                        var PropInfos = Ext.GetTypeOf(d).GetProperties().Where(x => x.GetCustomAttributes<ColumnNameAttribute>().SelectMany(n => n.Names).Contains(x.Name) || x.Name.IsIn(propnames, StringComparer.InvariantCultureIgnoreCase));
-                        var FieldInfos = Ext.GetTypeOf(d).GetFields().Where(x => x.GetCustomAttributes<ColumnNameAttribute>().SelectMany(n => n.Names).Contains(x.Name) || x.Name.IsIn(propnames, StringComparer.InvariantCultureIgnoreCase)).Where(x => x.Name.IsNotIn(PropInfos.Select(y => y.Name)));
+                        var PropInfos = GetTypeOf(d).GetProperties().Where(x => x.GetCustomAttributes<ColumnNameAttribute>().SelectMany(n => n.Names).Contains(x.Name) || x.Name.IsIn(propnames, StringComparer.InvariantCultureIgnoreCase));
+                        var FieldInfos = GetTypeOf(d).GetFields().Where(x => x.GetCustomAttributes<ColumnNameAttribute>().SelectMany(n => n.Names).Contains(x.Name) || x.Name.IsIn(propnames, StringComparer.InvariantCultureIgnoreCase)).Where(x => x.Name.IsNotIn(PropInfos.Select(y => y.Name)));
                         foreach (var info in PropInfos)
                         {
                             if (info.CanWrite)
@@ -13323,7 +13316,7 @@ namespace InnerLibs
                                 }
                                 else
                                 {
-                                    info.SetValue(d, Ext.ChangeType(value, info.PropertyType));
+                                    info.SetValue(d, ChangeType(value, info.PropertyType));
                                 }
                             }
                         }
@@ -13336,7 +13329,7 @@ namespace InnerLibs
                             }
                             else
                             {
-                                info.SetValue(d, Ext.ChangeType(value, info.FieldType));
+                                info.SetValue(d, ChangeType(value, info.FieldType));
                             }
                         }
                     }
@@ -13589,7 +13582,7 @@ namespace InnerLibs
                         if (prop.GetValue(d) == null)
                         {
                             var oo = Connection.RunSQLValue(Sql.ToFormattableString());
-                            prop.SetValue(d, Ext.ChangeType(oo, prop.PropertyType));
+                            prop.SetValue(d, ChangeType(oo, prop.PropertyType));
                             if (Recursive)
                             {
                                 Connection.ProccessSubQuery(oo, Recursive);
@@ -13614,7 +13607,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static T ProccessSubQuery<T>(this DbConnection Connection, T d, bool Recursive = false) where T : class
         {
-            foreach (var prop in Ext.GetProperties(d).Where(x => x.HasAttribute<FromSQLAttribute>()))
+            foreach (var prop in GetProperties(d).Where(x => x.HasAttribute<FromSQLAttribute>()))
             {
                 Connection.ProccessSubQuery(d, prop.Name, Recursive);
             }
@@ -14115,7 +14108,7 @@ namespace InnerLibs
                     for (int index = 0, loopTo = SQL.ArgumentCount - 1; index <= loopTo; index++)
                     {
                         var valores = SQL.GetArgument(index);
-                        var v = Ext.ForceArray(valores, typeof(object));
+                        var v = ForceArray(valores, typeof(object));
                         var paramvalues = new List<object>();
 
                         for (int v_index = 0, loopTo1 = v.Length - 1; v_index <= loopTo1; v_index++)
@@ -14129,15 +14122,15 @@ namespace InnerLibs
                             {
                                 return "NULL";
                             }
-                            else if (Ext.GetNullableTypeOf(x).IsNumericType())
+                            else if (GetNullableTypeOf(x).IsNumericType())
                             {
                                 return x.ToString();
                             }
-                            else if (Ext.IsDate(x))
+                            else if (IsDate(x))
                             {
                                 return x.ToDateTime().ToSQLDateString().EscapeQuotesToQuery(true);
                             }
-                            else if (Ext.IsBool(x))
+                            else if (IsBool(x))
                             {
                                 return x.ToBool().AsIf("1", "0");
                             }
@@ -14164,7 +14157,7 @@ namespace InnerLibs
             return null;
         }
 
-        #endregion Public Methods
+
 
         #region Public Enums
 
@@ -14176,7 +14169,7 @@ namespace InnerLibs
 
         #endregion Public Enums
 
-        #region Public Methods
+
 
         /// <summary>
         /// Decoda uma string em Util
@@ -14366,7 +14359,7 @@ namespace InnerLibs
         {
             if (ImageURL != null)
             {
-                var imagem = Ext.DownloadImage(ImageURL?.AbsoluteUri);
+                var imagem = DownloadImage(ImageURL?.AbsoluteUri);
                 using (var m = new MemoryStream())
                 {
                     imagem.Save(m, imagem.RawFormat);
@@ -14380,7 +14373,7 @@ namespace InnerLibs
 
         public static string ToBase64(this string ImageURL, System.Drawing.Imaging.ImageFormat OriginalImageFormat)
         {
-            var imagem = Image.FromStream(System.Net.WebRequest.Create(string.Format(ImageURL)).GetResponse().GetResponseStream());
+            var imagem = Image.FromStream(WebRequest.Create(string.Format(ImageURL)).GetResponse().GetResponseStream());
             using (var m = new MemoryStream())
             {
                 imagem.Save(m, OriginalImageFormat);
@@ -14418,7 +14411,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Image">Imagem</param>
         /// <returns>Uma DataURI em string</returns>
-        public static string ToDataURL(this Image Image) => $"data:{Image.GetFileType().First().ToLowerInvariant().Replace("application/octet-stream", Ext.GetFileType(".png").First())};base64,{Image.ToBase64()}";
+        public static string ToDataURL(this Image Image) => $"data:{Image.GetFileType().First().ToLowerInvariant().Replace("application/octet-stream", GetFileType(".png").First())};base64,{Image.ToBase64()}";
 
         /// <summary>
         /// Converte uma imagem para DataURI trocando o MIME T
@@ -14441,7 +14434,7 @@ namespace InnerLibs
             }
         }
 
-        #endregion Public Methods
+
 
         /// <summary>
         /// Set this flag to true to show InnerLibs Debug messages
@@ -14484,7 +14477,9 @@ namespace InnerLibs
             return value;
         }
 
-        #region Public Methods
+
+
+
 
         public static IEnumerable<TemplateMailAddress<T>> AddAttachmentFromData<T>(this IEnumerable<TemplateMailAddress<T>> recipients, Expression<Func<T, IEnumerable<System.Net.Mail.Attachment>>> AttachmentSelector) where T : class
         {
@@ -14578,7 +14573,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="N">Itens</param>
         /// <returns></returns>
-        public static string BlankCoalesce(params string[] N) => (N ?? Array.Empty<string>()).FirstOr(x => x.IsNotBlank(), Ext.EmptyString);
+        public static string BlankCoalesce(params string[] N) => (N ?? Array.Empty<string>()).FirstOr(x => x.IsNotBlank(), EmptyString);
 
         /// <summary>
         /// Verifica se uma lista, coleção ou array contem todos os itens de outra lista, coleção ou array.
@@ -15025,7 +15020,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="MyObject">Objeto</param>
         /// <returns></returns>
-        public static FieldInfo GetField<T>(this T MyObject, string Name) => MyObject.GetTypeOf().GetFields().SingleOrDefault(x => (x.Name ?? Ext.EmptyString) == (Name ?? Ext.EmptyString));
+        public static FieldInfo GetField<T>(this T MyObject, string Name) => MyObject.GetTypeOf().GetFields().SingleOrDefault(x => (x.Name ?? EmptyString) == (Name ?? EmptyString));
 
         public static IEnumerable<FieldInfo> GetFields<T>(this T MyObject, BindingFlags BindAttr) => MyObject.GetTypeOf().GetFields(BindAttr).ToList();
 
@@ -15095,7 +15090,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="MyObject">Objeto</param>
         /// <returns></returns>
-        public static PropertyInfo GetProperty<T>(this T MyObject, string Name) => MyObject.GetTypeOf().GetProperties().SingleOrDefault(x => (x.Name ?? Ext.EmptyString) == (Name ?? Ext.EmptyString));
+        public static PropertyInfo GetProperty<T>(this T MyObject, string Name) => MyObject.GetTypeOf().GetProperties().SingleOrDefault(x => (x.Name ?? EmptyString) == (Name ?? EmptyString));
 
         /// <summary>
         /// Retorna uma <see cref="Hashtable"/> das propriedades de um objeto
@@ -15287,7 +15282,7 @@ namespace InnerLibs
             {
                 var parts = new List<string>();
                 bool stop = false;
-                string current = Ext.EmptyString;
+                string current = EmptyString;
                 for (int i = 0, loopTo = PropertyName.Length - 1; i <= loopTo; i++)
                 {
                     if (PropertyName[i] != '.')
@@ -15308,7 +15303,7 @@ namespace InnerLibs
                     if (PropertyName[i] == '.' && !stop || i == PropertyName.Length - 1)
                     {
                         parts.Add(current.ToString());
-                        current = Ext.EmptyString;
+                        current = EmptyString;
                     }
                 }
 
@@ -15699,7 +15694,7 @@ namespace InnerLibs
                         {
                             case var @case when @case == typeof(string):
                                 {
-                                    item.SetValue(Obj, Ext.EmptyString);
+                                    item.SetValue(Obj, EmptyString);
                                     break;
                                 }
 
@@ -15743,7 +15738,7 @@ namespace InnerLibs
                     propnames.Add(Name.TrimStart('_'));
                 }
                 string propname1 = Name.Trim().Replace(" ", "_").Replace("-", "_").Replace("~", "_");
-                string propname3 = Name.Trim().Replace(" ", Ext.EmptyString).Replace("-", Ext.EmptyString).Replace("~", Ext.EmptyString);
+                string propname3 = Name.Trim().Replace(" ", EmptyString).Replace("-", EmptyString).Replace("~", EmptyString);
                 string propname2 = propname1.RemoveAccents();
                 string propname4 = propname3.RemoveAccents();
                 propnames.AddRange(new[] { Name, propname1, propname2, propname3, propname4 });
@@ -15906,7 +15901,7 @@ namespace InnerLibs
                     }
                     else
                     {
-                        prop.SetValue(MyObject, Ext.ChangeType(Value, prop.PropertyType));
+                        prop.SetValue(MyObject, ChangeType(Value, prop.PropertyType));
                     }
             }
 
@@ -15923,7 +15918,7 @@ namespace InnerLibs
         {
             return Task.Delay(milliseconds).ContinueWith(async (t) =>
                 {
-                    Ext.TryExecute(action);
+                    TryExecute(action);
                     t.Dispose();
                 });
         }
@@ -16118,7 +16113,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Dic"></param>
         /// <returns></returns>
-        public static string ToQueryString(this Dictionary<string, string> Dic) => Dic?.Where(x => x.Key.IsNotBlank()).SelectJoinString(x => new[] { x.Key, (x.Value ?? Ext.EmptyString).UrlEncode() }.SelectJoinString("="), "&") ?? Ext.EmptyString;
+        public static string ToQueryString(this Dictionary<string, string> Dic) => Dic?.Where(x => x.Key.IsNotBlank()).SelectJoinString(x => new[] { x.Key, (x.Value ?? EmptyString).UrlEncode() }.SelectJoinString("="), "&") ?? EmptyString;
 
         /// <summary>
         /// Retorna um <see cref="NameValueCollection"/> em QueryString
@@ -16185,7 +16180,7 @@ namespace InnerLibs
         {
             try
             {
-                action?.Invoke();
+                action.Invoke();
                 return null;
             }
             catch (Exception exx)
@@ -16213,6 +16208,6 @@ namespace InnerLibs
             return Obj;
         }
 
-        #endregion Public Methods
+
     }
 }

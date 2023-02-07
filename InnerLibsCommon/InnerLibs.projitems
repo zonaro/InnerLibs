@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>4a6be46f-380f-4565-a9f3-72e1ff4da2d3</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>InnerLibs</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)AddressInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Brasil.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Cnsl.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ConnectionStringParser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ConsoleTable.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataURI.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DateTime\CalendarFormat.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DateTime\DateRange.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DateTime\DateRangeDisplay.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DateTime\DateRangeFilterBehavior.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DateTime\DateRangeFormatRules.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DateTime\DateRangeInterval.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DateTime\DateRangeStatic.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DateTime\DateTimeExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DateTime\Fortnight.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DateTime\FortnightGroup.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DateTime\RoundTo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DateTime\TimeDemand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DebugTextWriter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dice.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DictionarySelector.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DOT Language.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Emoji.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ExpressionReplacer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Ext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FileTree.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FileType.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FullMoneyWriter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GlobalSuppressions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)HSVColor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)HtmlParser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)InnerMenu.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IPaginatedEnumerable.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)JSONParser\JSONParser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Like.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Mailer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MicroORM\SelectWrapper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MicroORM\SQLResponse.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)OnlineList.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PasswordLevel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PredefinedArrays.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Printer\EscBema.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Printer\EscDaruma.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Printer\EscPos.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Printer\IPrintCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Printer\Printer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Printer\PrinterByteExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)QuantityTextPair.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)QuestionTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)RuleOfThree.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Select2Data.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ShortLink.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Soundex.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TextCleaner.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)UnitConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)vCard.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)WeekInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)brasil.xml" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Colors.xml" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)mimes.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="$(MSBuildThisFileDirectory)Printer\Printer.css" />
+  </ItemGroup>
+</Project>
