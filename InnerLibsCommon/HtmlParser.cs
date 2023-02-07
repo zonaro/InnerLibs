@@ -916,7 +916,7 @@ namespace InnerLibs
         public HtmlTag Parent => _parent;
         public bool SelfClosing
         {
-            get => !this.Children.Any() || _selfClosing;
+            get => _selfClosing;
 
             set
             {
@@ -1049,26 +1049,32 @@ namespace InnerLibs
 
         public static implicit operator string(HtmlTag Tag) => Tag?.ToString();
 
-        public static IEnumerable<HtmlTag> Parse(string HtmlStringOrURL)
+        public static IEnumerable<HtmlTag> Parse(string HtmlStringOrFileOrURL)
         {
-            if (HtmlStringOrURL.IsURL())
+            if (HtmlStringOrFileOrURL.IsURL())
             {
-                HtmlStringOrURL = Ext.DownloadString(HtmlStringOrURL);
+                HtmlStringOrFileOrURL = Ext.DownloadString(HtmlStringOrFileOrURL);
             }
-            return HtmlStringOrURL.IsNotBlank() ? HtmlParser.Instance.Parse(HtmlStringOrURL) : Array.Empty<HtmlTag>();
+            else
+
+
+            if (HtmlStringOrFileOrURL.IsFilePath())
+            {
+                HtmlStringOrFileOrURL = HtmlStringOrFileOrURL.ToFileInfo().ReadAllText();
+            }
+
+            return HtmlStringOrFileOrURL.IsNotBlank() ? HtmlParser.Instance.Parse(HtmlStringOrFileOrURL) : Array.Empty<HtmlTag>();
         }
 
         public static IEnumerable<HtmlTag> Parse(Uri Url) => Parse(Url?.ToString());
+        public static IEnumerable<HtmlTag> Parse(FileInfo Url) => Parse(Url?.FullName);
 
-        public static HtmlTag ParseTag(string HtmlStringOrURL) => Parse(HtmlStringOrURL).FirstOrDefault();
+        public static HtmlTag ParseTag(string HtmlStringOrFileOrURL) => Parse(HtmlStringOrFileOrURL).FirstOrDefault();
+        public static HtmlTag ParseTag(FileInfo File) => Parse(File).FirstOrDefault();
 
         public static HtmlTag ParseTag(Uri Url) => Parse(Url).FirstOrDefault();
 
-        public HtmlTag AddAnchor(string URL, string Text, string Target = "_self", object htmlAttributes = null)
-        {
-            _children.Add(CreateAnchor(URL, Text, Target, htmlAttributes));
-            return this;
-        }
+        public HtmlTag AddAnchor(string URL, string Text, string Target = "_self", object htmlAttributes = null) => AddChildren(CreateAnchor(URL, Text, Target, htmlAttributes));
 
         public HtmlTag AddAttributes(params (string, string)[] pairs)
         {
@@ -1116,31 +1122,15 @@ namespace InnerLibs
 
         public HtmlTag AddHorizontalRule() => AddChildren(CreateHorizontalRule());
 
-        public HtmlTag AddTable(string[][] Table, bool Header = false)
-        {
-            _children.Add(CreateTable(Table, Header));
-            return this;
-        }
+        public HtmlTag AddTable(string[][] Table, bool Header = false) => AddChildren(CreateTable(Table, Header));
 
-        public HtmlTag AddTable(string[,] Table, bool Header = false)
-        {
-            _children.Add(CreateTable(Table, Header));
-            return this;
-        }
+        public HtmlTag AddTable(string[,] Table, bool Header = false) => AddChildren(CreateTable(Table, Header));
 
         ///<inheritdoc cref="AddTable{TPoco}(IEnumerable{TPoco}, TPoco, string, string[])"/>
-        public HtmlTag AddTable<TPoco>(IEnumerable<TPoco> Rows, bool header, string IDProperty, params string[] Properties) where TPoco : class
-        {
-            _children.Add(CreateTable(Rows, header, IDProperty, Properties));
-            return this;
-        }
+        public HtmlTag AddTable<TPoco>(IEnumerable<TPoco> Rows, bool header, string IDProperty, params string[] Properties) where TPoco : class => AddChildren(CreateTable(Rows, header, IDProperty, Properties));
 
         ///<inheritdoc cref="AddTable{TPoco}(IEnumerable{TPoco}, TPoco, string, string[])"/>
-        public HtmlTag AddTable<TPoco>(IEnumerable<TPoco> Rows) where TPoco : class
-        {
-            _children.Add(CreateTable(Rows));
-            return this;
-        }
+        public HtmlTag AddTable<TPoco>(IEnumerable<TPoco> Rows) where TPoco : class => AddChildren(CreateTable(Rows));
 
         /// <summary>
         /// Util a table from <typeparamref name="TPoco"/> classes as a children of this <see cref="HtmlTag"/>
@@ -1151,11 +1141,7 @@ namespace InnerLibs
         /// <param name="IDProperty"></param>
         /// <param name="properties"></param>
         /// <returns></returns>
-        public HtmlTag AddTable<TPoco>(IEnumerable<TPoco> Rows, TPoco header, string IDProperty, params string[] properties) where TPoco : class
-        {
-            _children.Add(CreateTable(Rows, header, IDProperty, properties));
-            return this;
-        }
+        public HtmlTag AddTable<TPoco>(IEnumerable<TPoco> Rows, TPoco header, string IDProperty, params string[] properties) where TPoco : class => AddChildren(CreateTable(Rows, header, IDProperty, properties));
 
         public HtmlTag AddText(string Text) => AddChildren(CreateText(Text));
 

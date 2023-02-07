@@ -3428,9 +3428,17 @@ namespace InnerLibs
             }
         }
 
-        public static HtmlTag ParseTag(this string HtmlStringOrUrl) => HtmlTag.ParseTag(HtmlStringOrUrl);
+        public static HtmlTag ParseTag(this string HtmlStringOrFileOrUrl) => HtmlTag.ParseTag(HtmlStringOrFileOrUrl);
 
-        public static IEnumerable<HtmlTag> ParseTags(this string HtmlStringOrUrl) => HtmlTag.Parse(HtmlStringOrUrl);
+        public static IEnumerable<HtmlTag> ParseTags(this string HtmlStringOrFileOrUrl) => HtmlTag.Parse(HtmlStringOrFileOrUrl);
+
+        public static HtmlTag ParseTag(this FileInfo File) => HtmlTag.ParseTag(File);
+
+        public static IEnumerable<HtmlTag> ParseTags(this FileInfo File) => HtmlTag.Parse(File);
+
+        public static HtmlTag ParseTag(this Uri URL) => HtmlTag.ParseTag(URL);
+
+        public static IEnumerable<HtmlTag> ParseTags(this Uri URL) => HtmlTag.Parse(URL);
 
         /// <summary>
         /// Separa as palavras de um texto CamelCase a partir de suas letras maíusculas
