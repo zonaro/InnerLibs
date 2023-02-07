@@ -1045,7 +1045,7 @@ namespace InnerLibs
 
         public static HtmlTag CreateWhiteSpace() => new HtmlTag(HtmlNodeType.Text).With(x => x._content = "&nbsp;");
 
-        public static IEnumerable<HtmlTag> FromFile(FileInfo file) => file != null && file.Exists ? Parse(file.ReadAllText()) : Array.Empty<HtmlTag>();
+
 
         public static implicit operator string(HtmlTag Tag) => Tag?.ToString();
 
@@ -1066,8 +1066,8 @@ namespace InnerLibs
             return HtmlStringOrFileOrURL.IsNotBlank() ? HtmlParser.Instance.Parse(HtmlStringOrFileOrURL) : Array.Empty<HtmlTag>();
         }
 
-        public static IEnumerable<HtmlTag> Parse(Uri Url) => Parse(Url?.ToString());
-        public static IEnumerable<HtmlTag> Parse(FileInfo Url) => Parse(Url?.FullName);
+        public static IEnumerable<HtmlTag> Parse(Uri URL) => Parse(URL?.ToString());
+        public static IEnumerable<HtmlTag> Parse(FileInfo File) => File != null && File.Exists ? Parse(File.ReadAllText()) : Array.Empty<HtmlTag>();
 
         public static HtmlTag ParseTag(string HtmlStringOrFileOrURL) => Parse(HtmlStringOrFileOrURL).FirstOrDefault();
         public static HtmlTag ParseTag(FileInfo File) => Parse(File).FirstOrDefault();
