@@ -228,14 +228,14 @@ namespace InnerLibs
         /// </summary>
         /// <param name="URL">Url do Youtube</param>
         /// <returns></returns>
-        public static Image GetYoutubeThumbnail(string URL) => DownloadImage($"http://img.youtube.com/vi/{GetVideoID(URL)}/hqdefault.jpg");
+        public static System.Drawing.Image GetYoutubeThumbnail(string URL) => DownloadImage($"http://img.youtube.com/vi/{GetVideoID(URL)}/hqdefault.jpg");
 
         /// <summary>
         /// Captura a Thumbnail de um video do youtube
         /// </summary>
         /// <param name="URL">Url do Youtube</param>
         /// <returns></returns>
-        public static Image GetYoutubeThumbnail(this Uri URL) => GetYoutubeThumbnail(URL?.AbsoluteUri);
+        public static System.Drawing.Image GetYoutubeThumbnail(this Uri URL) => GetYoutubeThumbnail(URL?.AbsoluteUri);
 
         /// <summary>
         /// Verifica se o computador está conectado com a internet

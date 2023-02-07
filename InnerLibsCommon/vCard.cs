@@ -45,6 +45,8 @@ namespace InnerLibs
             return result.ToString();
         }
 
+
+
         #endregion Public Methods
     }
 
@@ -63,37 +65,25 @@ namespace InnerLibs
 
         #region Public Properties
 
-        public List<vAddress> Addresses { get; set; }
+        public List<vAddress> Addresses { get; set; } = new List<vAddress>();
 
         public DateTime? Birthday { get; set; }
 
         public string Company
         {
-            get
-            {
-                return Organization;
-            }
+            get => Organization;
 
-            set
-            {
-                Organization = value;
-            }
+            set => Organization = value;
         }
 
         public string Department
         {
-            get
-            {
-                return OrganizationalUnit;
-            }
+            get => OrganizationalUnit;
 
-            set
-            {
-                OrganizationalUnit = value;
-            }
+            set => OrganizationalUnit = value;
         }
 
-        public List<vEmail> Emails { get; set; }
+        public List<vEmail> Emails { get; set; } = new List<vEmail>();
 
         public string FirstName { get; set; }
 
@@ -118,11 +108,11 @@ namespace InnerLibs
 
         public string Role { get; set; }
 
-        public List<vSocial> Social { get; set; }
+        public List<vSocial> Social { get; set; } = new List<vSocial>();
 
         public string Suffix { get; set; }
 
-        public List<vTelephone> Telephones { get; set; }
+        public List<vTelephone> Telephones { get; set; } = new List<vTelephone>();
 
         public string Title { get; set; }   // Mr., Mrs., Ms., Dr.
 
@@ -187,11 +177,17 @@ namespace InnerLibs
             return null;
         }
 
-        public FileInfo ToFile(string FullPath)
+        public FileInfo SaveAs(DirectoryInfo Directory) => SaveAs(Path.Combine(Directory?.FullName, this.FormattedName.BlankCoalesce(UID?.ToString(), DateTime.Now.Ticks.ToString()) + ".vcf").FixPath());
+        public FileInfo SaveAs(FileInfo File) => SaveAs(File?.FullName);
+        public FileInfo SaveAs(string FullPath)
         {
-            var fi = ToString().WriteToFile(FullPath, false, new UTF8Encoding(false));
-            fi.LastWriteTime = LastModified;
-            return fi;
+            if (FullPath.IsFilePath())
+            {
+                var fi = ToString().WriteToFile(FullPath, false, new UTF8Encoding(false), LastModified);
+                fi.LastWriteTime = LastModified;
+                return fi;
+            }
+            return null;
         }
 
         public override string ToString()
