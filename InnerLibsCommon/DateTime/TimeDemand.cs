@@ -43,7 +43,7 @@ namespace InnerLibs
 
         public DayOfWeek DayOfWeek { get; private set; }
 
-        public bool HasLunch => LunchTime.Milliseconds > 0;
+        public bool HasLunch => LunchTime.HasValue && LunchTime.Value.Milliseconds > 0;
         public bool IsJourney => JourneyTime.Milliseconds > 0;
 
         /// <summary>
@@ -69,7 +69,15 @@ namespace InnerLibs
         /// <returns></returns>
         public TimeSpan JourneyTime { get; set; } = new TimeSpan(0, 23, 59, 59, 999);
 
-        public TimeSpan LunchEndHour => LunchStartHour.Add(LunchTime);
+        public TimeSpan? LunchEndHour
+        {
+            get
+            {
+                if (LunchTime.HasValue)
+                    return LunchStartHour.Add(LunchTime.Value);
+                return null;
+            }
+        }
 
         /// <summary>
         /// Hora de almoco
@@ -86,13 +94,13 @@ namespace InnerLibs
         /// Hora de Almoço
         /// </summary>
         /// <returns></returns>
-        public TimeSpan LunchTime { get; set; } = default;
+        public TimeSpan? LunchTime { get; set; }
 
         /// <summary>
         /// Jornada + hora de Almoço
         /// </summary>
         /// <returns></returns>
-        public TimeSpan TotalTime => JourneyTime + LunchTime;
+        public TimeSpan TotalTime => LunchTime.HasValue ? JourneyTime + LunchTime.Value : JourneyTime;
 
         #endregion Public Properties
 
@@ -102,7 +110,7 @@ namespace InnerLibs
 
         public DateTime? JourneyStartHourAt(DateTime Day) => Day.DayOfWeek == DayOfWeek && IsJourney ? Day.Date.At(JourneyStartHour) : (DateTime?)null;
 
-        public DateTime? LunchEndHourAt(DateTime Day) => Day.DayOfWeek == DayOfWeek && IsJourney && HasLunch ? Day.At(LunchEndHour) : (DateTime?)null;
+        public DateTime? LunchEndHourAt(DateTime Day) => Day.DayOfWeek == DayOfWeek && IsJourney && HasLunch ? Day.At(LunchEndHour.Value) : (DateTime?)null;
 
         public DateTime? LunchStartHourAt(DateTime Day) => Day.DayOfWeek == DayOfWeek && IsJourney && HasLunch ? Day.At(LunchStartHour) : (DateTime?)null;
 
@@ -442,7 +450,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="[Date]"></param>
         /// <returns></returns>
-        public TimeSpan LunchTime(DateTime Date) => GetJourneyDay(Date).LunchTime;
+        public TimeSpan? LunchTime(DateTime Date) => GetJourneyDay(Date).LunchTime;
 
         public DateTime Proccess(DateTime StartDate)
         {
@@ -457,12 +465,12 @@ namespace InnerLibs
                 }
                 else if (HasLunch(dia) && base.EndDate.TimeOfDay > LunchStartHour(dia).Value.TimeOfDay)
                 {
-                    base.EndDate = base.EndDate.Add(LunchTime(dia));
+                    base.EndDate = base.EndDate.Add(LunchTime(dia).Value);
                 }
 
-                if (HasLunch(dia) && base.EndDate.IsBetween(LunchStartHour(dia), LunchEndHour(dia)))
+                if (HasLunch(dia) && base.EndDate.IsBetween(LunchStartHour(dia).Value, LunchEndHour(dia).Value))
                 {
-                    base.EndDate = base.EndDate.Add(LunchTime(dia));
+                    base.EndDate = base.EndDate.Add(LunchTime(dia).Value);
                 }
             }
 

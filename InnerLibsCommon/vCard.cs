@@ -138,6 +138,7 @@ namespace InnerLibs
             return null;
         }
 
+        public vSocial AddSocial(string Name, Uri URL) => AddSocial(Name, URL?.AbsoluteUri);
         public vSocial AddSocial(string Name, string URL)
         {
             if (URL.IsNotBlank() && Name.IsNotBlank())
@@ -164,6 +165,7 @@ namespace InnerLibs
             return null;
         }
 
+        public vURL AddURL(Uri URL) => AddURL(URL?.AbsoluteUri);
         public vURL AddURL(string URL)
         {
             if (URL.IsURL())
@@ -177,10 +179,15 @@ namespace InnerLibs
             return null;
         }
 
-        public FileInfo SaveAs(DirectoryInfo Directory) => SaveAs(Path.Combine(Directory?.FullName, this.FormattedName.BlankCoalesce(UID?.ToString(), DateTime.Now.Ticks.ToString()) + ".vcf").FixPath());
+        public FileInfo SaveAs(DirectoryInfo Directory) => SaveAs(Directory?.FullName);
         public FileInfo SaveAs(FileInfo File) => SaveAs(File?.FullName);
         public FileInfo SaveAs(string FullPath)
         {
+            if (FullPath.IsDirectoryPath())
+            {
+                FullPath = Path.Combine(FullPath, FormattedName.BlankCoalesce(UID?.ToString(), DateTime.Now.Ticks.ToString()) + ".vcf");
+            }
+
             if (FullPath.IsFilePath())
             {
                 var fi = ToString().WriteToFile(FullPath, false, new UTF8Encoding(false), LastModified);

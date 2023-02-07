@@ -6,7 +6,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Platforms>AnyCPU;x86</Platforms>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Title>InnerLibs</Title>
+    <Title>$(MSBuildProjectName.Replace(" ", "_").Replace("DLL", ""))</Title>
     <Description>Uma biblioteca de classes e métodos para .NET. Opções flexiveis e fáceis de usar para simplificar e manter seu código limpo.</Description>
     <Copyright></Copyright>
     <PackageProjectUrl>https://github.com/Innercodetech/InnerLibs</PackageProjectUrl>
@@ -20,35 +20,7 @@
     <AnalysisLevel>6.0-all</AnalysisLevel>
     <AssemblyName>$(MSBuildProjectName.Replace(" ", "_").Replace("DLL", ""))</AssemblyName>
     <RootNamespace>$(MSBuildProjectName.Replace(" ", "_").Replace("DLL", ""))</RootNamespace>
-  </PropertyGroup>
-  <ItemGroup>
-    <Compile Remove="MicroORM\Parser\**" />
-    <Compile Remove="Printer\**" />
-    <EmbeddedResource Remove="MicroORM\Parser\**" />
-    <EmbeddedResource Remove="Printer\**" />
-    <None Remove="MicroORM\Parser\**" />
-    <None Remove="Printer\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Remove="JSminifier.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Remove="brasil.xml" />
-    <None Remove="Colors.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Remove="C:\svn\InnerLibs\InnerLibs\JSminifier.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Remove="C:\svn\InnerLibs\InnerLibs\Printer\Printer.css" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Remove="C:\svn\InnerLibs\InnerLibs\brasil.xml" />
-    <EmbeddedResource Remove="C:\svn\InnerLibs\InnerLibs\mimes.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Remove="mimes.xml" />
-  </ItemGroup>
+  </PropertyGroup>  
   <ItemGroup>
     <None Include="..\innerlibs.png">
       <Pack>True</Pack>

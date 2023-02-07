@@ -1947,6 +1947,7 @@ namespace InnerLibs
         {
             try
             {
+                RawFormat = RawFormat ?? ImageFormat.Png;
                 foreach (var img in ImageCodecInfo.GetImageEncoders())
                 {
                     if (img.FormatID == RawFormat.Guid)
@@ -15381,10 +15382,10 @@ namespace InnerLibs
         /// <param name="MinValue">Primeiro comparador</param>
         /// <param name="MaxValue">Segundo comparador</param>
         /// <returns></returns>
-        public static bool IsBetween(this IComparable Value, IComparable MinValue, IComparable MaxValue)
+        public static bool IsBetween<T>(this T Value, T MinValue, T MaxValue) where T : IComparable
         {
             FixOrder(ref MinValue, ref MaxValue);
-            return MinValue.Equals(MaxValue) ? Value.Equals(MinValue) : Value.IsGreaterThanOrEqual(MinValue) && Value.IsLessThan(MaxValue);
+            return MinValue.IsEqual(MaxValue) ? Value.IsEqual(MinValue) : Value.IsGreaterThanOrEqual(MinValue) && Value.IsLessThan(MaxValue);
         }
 
         /// <summary>
@@ -15401,10 +15402,10 @@ namespace InnerLibs
         /// <param name="MinValue">Primeiro comparador</param>
         /// <param name="MaxValue">Segundo comparador</param>
         /// <returns></returns>
-        public static bool IsBetweenExclusive(this IComparable Value, IComparable MinValue, IComparable MaxValue)
+        public static bool IsBetweenExclusive<T>(this T Value, T MinValue, T MaxValue) where T : IComparable
         {
             FixOrder(ref MinValue, ref MaxValue);
-            return MinValue != MaxValue && Value.IsGreaterThan(MinValue) && Value.IsLessThan(MaxValue);
+            return !MinValue.IsEqual(MaxValue) && Value.IsGreaterThan(MinValue) && Value.IsLessThan(MaxValue);
         }
 
         /// <summary>
@@ -15421,10 +15422,10 @@ namespace InnerLibs
         /// <param name="MinValue">Primeiro comparador</param>
         /// <param name="MaxValue">Segundo comparador</param>
         /// <returns></returns>
-        public static bool IsBetweenOrEqual(this IComparable Value, IComparable MinValue, IComparable MaxValue)
+        public static bool IsBetweenOrEqual<T>(this T Value, T MinValue, T MaxValue) where T : IComparable
         {
             FixOrder(ref MinValue, ref MaxValue);
-            return MinValue == MaxValue ? Value == MinValue : Value.IsGreaterThanOrEqual(MinValue) && Value.IsLessThanOrEqual(MaxValue);
+            return Value.IsGreaterThanOrEqual(MinValue) && Value.IsLessThanOrEqual(MaxValue);
         }
 
         /// <summary>
@@ -15633,7 +15634,7 @@ namespace InnerLibs
             ToList = ToList ?? new List<T>();
             if (FromList != null)
             {
-                Indexes = Indexes?.Where(x => x.IsBetween(0, FromList.Count)).ToArray() ?? Array.Empty<int>();
+                Indexes = Indexes?.Where(x => x.IsBetween(0, FromList.Count - 1)).ToArray() ?? Array.Empty<int>();
                 foreach (var index in Indexes)
                 {
                     var item = FromList.Detach(index);
