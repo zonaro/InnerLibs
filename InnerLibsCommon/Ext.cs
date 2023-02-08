@@ -63,11 +63,7 @@ namespace InnerLibs
 
         #endregion Private Fields
 
-        #region Private Methods
 
-
-
-        #endregion Private Methods
 
         #region Public Fields
 
@@ -124,7 +120,7 @@ namespace InnerLibs
         /// Lista com todos os formatos de imagem
         /// </summary>
         /// <returns></returns>
-        public static ImageFormat[] ImageTypes { get; private set; } = new[] { ImageFormat.Bmp, ImageFormat.Emf, ImageFormat.Exif, ImageFormat.Gif, ImageFormat.Icon, ImageFormat.Jpeg, ImageFormat.Png, ImageFormat.Tiff, ImageFormat.Wmf };
+        public static IEnumerable<ImageFormat> ImageTypes { get; private set; } = new[] { ImageFormat.Bmp, ImageFormat.Emf, ImageFormat.Exif, ImageFormat.Gif, ImageFormat.Icon, ImageFormat.Jpeg, ImageFormat.Png, ImageFormat.Tiff, ImageFormat.Wmf }.AsEnumerable();
 
         /// <summary>
         /// Retorna uma lista com todas as <see cref="KnowColor"/> convertidas em <see cref="System.Drawing.Color"/>
@@ -9595,52 +9591,46 @@ namespace InnerLibs
         /// <returns></returns>
         public static string QuantifyText(this string PluralText, object QuantityOrListOrBoolean, ref decimal OutQuantity)
         {
-            switch (true)
+            bool forceSingular = false;
+            if (QuantityOrListOrBoolean == null)
             {
-                case object _ when QuantityOrListOrBoolean is null:
-                    {
-                        OutQuantity = 0m;
-                        break;
-                    }
-
-                case object _ when QuantityOrListOrBoolean.GetType() == typeof(bool):
-                    {
-                        OutQuantity = ToDecimal(QuantityOrListOrBoolean);
-                        return PluralText.Singularize(); // de acordo com as normas do portugues, quando a quantidade esperada maxima for 1, zero também é singular.
-                    }
-
-                case object _ when QuantityOrListOrBoolean.IsNumber():
-                    {
-                        OutQuantity = Convert.ToDecimal(QuantityOrListOrBoolean);
-                        break;
-                    }
-
-                case object _ when typeof(IList).IsAssignableFrom(QuantityOrListOrBoolean.GetType()):
-                    {
-                        OutQuantity = ((IList)QuantityOrListOrBoolean).Count;
-                        break;
-                    }
-
-                case object _ when typeof(IDictionary).IsAssignableFrom(QuantityOrListOrBoolean.GetType()):
-                    {
-                        OutQuantity = ((IDictionary)QuantityOrListOrBoolean).Count;
-                        break;
-                    }
-
-                case object _ when typeof(Array).IsAssignableFrom(QuantityOrListOrBoolean.GetType()):
-                    {
-                        OutQuantity = ((Array)QuantityOrListOrBoolean).Length;
-                        break;
-                    }
-
-                default:
-                    {
-                        OutQuantity = Convert.ToDecimal(QuantityOrListOrBoolean);
-                        break;
-                    }
+                OutQuantity = 0m;
             }
+            else if (QuantityOrListOrBoolean is bool b)
+            {
+                //em portugues, quando a quantidade maixa de itens é 1, zero também é singular
+                OutQuantity = b ? 1 : 0;
+                forceSingular = true;
+            }
+            else if (QuantityOrListOrBoolean.IsNumber())
+            {
+                OutQuantity = (QuantityOrListOrBoolean).ToDecimal();
+            }
+            else if (typeof(IList).IsAssignableFrom(QuantityOrListOrBoolean.GetType()))
+            {
+                OutQuantity = ((IList)QuantityOrListOrBoolean).Count;
 
-            return OutQuantity.Floor() == 1m || OutQuantity.Floor() == -1 ? PluralText.Singularize() : PluralText;
+            }
+            else if (typeof(IDictionary).IsAssignableFrom(QuantityOrListOrBoolean.GetType()))
+            {
+                var dic = (IDictionary)QuantityOrListOrBoolean;
+                OutQuantity = dic.Count;
+
+
+            }
+            else if (typeof(Array).IsAssignableFrom(QuantityOrListOrBoolean.GetType()))
+            {
+                var arr = (Array)QuantityOrListOrBoolean;
+                OutQuantity = (arr).Length;
+            }
+            else
+            {
+                if (!decimal.TryParse(QuantityOrListOrBoolean.ToString(), out OutQuantity))
+                {
+                    WriteDebug("Quantity parsing fail");
+                }
+            }
+            return forceSingular || OutQuantity.Floor() == 1m || OutQuantity.Floor() == -1 ? PluralText.Singularize() : PluralText;
         }
 
         /// <summary>
