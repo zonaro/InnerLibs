@@ -1,6 +1,4 @@
-﻿using InnerLibs;
-using InnerLibs.Mail;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -29,13 +27,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
+using InnerLibs;
+using InnerLibs.Mail;
 
 namespace InnerLibs
 {
     public static class Ext
     {
-
-
         /// <summary>
         /// Adciona um parametro a Query String de uma URL
         /// </summary>
@@ -183,15 +181,12 @@ namespace InnerLibs
         /// <returns></returns>
         public static IEnumerable<string> GetURLSegments(this string URL)
         {
-
             var p = new Regex(@"(?<!\?.+)(?<=\/)[\w-.]+(?=[/\r\n?]|$)", (RegexOptions)((int)RegexOptions.Singleline + (int)RegexOptions.IgnoreCase));
             var gs = p.Matches(URL);
             foreach (Match g in gs)
             {
                 yield return g.Value;
             }
-
-
         }
 
         /// <summary>
@@ -362,7 +357,6 @@ namespace InnerLibs
 
         public static string ReplaceUrlParameters<T>(Uri URL, T obj) => ReplaceUrlParameters(URL?.ToString(), obj);
 
-
         public static DirectoryInfo ToDirectoryInfo(this string PathPart) => ToDirectoryInfo(new[] { PathPart });
         public static DirectoryInfo ToDirectoryInfo(this string[] PathParts)
         {
@@ -439,12 +433,10 @@ namespace InnerLibs
             }
         }
 
-
         public static DirectoryInfo MoveDirectory(DirectoryInfo sourcePath, DirectoryInfo targetPath)
         {
             if (sourcePath.Exists)
             {
-
                 targetPath = targetPath.CreateDirectoryIfNotExists();
                 var files = Directory.EnumerateFiles(sourcePath.FullName, "*", SearchOption.AllDirectories).GroupBy(s => Path.GetDirectoryName(s));
                 foreach (var folder in files)
@@ -463,8 +455,6 @@ namespace InnerLibs
 
             return targetPath;
         }
-
-
 
         /// <summary>
         /// Cria um diretório se o mesmo nao existir e retorna um <see cref="DirectoryInfo"/> deste diretório
@@ -746,16 +736,10 @@ namespace InnerLibs
             return dir;
         }
 
-
-
         /// <summary>
         /// Retorna uma lista com todas as <see cref="KnowColor"/> convertidas em <see cref="System.Drawing.Color"/>
         /// </summary>
         public static IEnumerable<Color> KnowColors => GetEnumValues<KnownColor>().Select(x => Color.FromKnownColor(x));
-
-
-
-
 
         /// <summary>
         /// Procura uma cor na tabela de cores <see cref="HSVColor.NamedColors"/>
@@ -1053,8 +1037,6 @@ namespace InnerLibs
 
         public static IEnumerable<HSVColor> ToHSVColorList(this IEnumerable<Color> ColorList) => ColorList?.Select(x => new HSVColor(x));
 
-
-
         public static T ToggleVisibility<T>(this T FileOrDir) where T : FileSystemInfo => FileOrDir.IsVisible() ? FileOrDir.Hide() : FileOrDir.Show();
 
         /// <summary>
@@ -1074,17 +1056,11 @@ namespace InnerLibs
                     return Directory.GetFiles("*", SearchOption).Where((Func<FileInfo, bool>)predicate) as IEnumerable<T>;
                 else if (typeof(T) == typeof(DirectoryInfo))
                     return Directory.GetDirectories("*", SearchOption).Where((Func<DirectoryInfo, bool>)predicate) as IEnumerable<T>;
-
                 else
                     return Directory.GetFileSystemInfos("*", SearchOption).Where((Func<FileSystemInfo, bool>)predicate) as IEnumerable<T>;
 
             return Array.Empty<T>();
         }
-
-
-
-
-
 
         /// <summary>
         /// Calcula a distancia entre 2 locais
@@ -1190,24 +1166,10 @@ namespace InnerLibs
             return locations;
         }
 
-
-
-
-
-
-
-
-
-
-
         /// <summary>
         /// Earth's circumference at the equator in km, considering the earth is a globe, not flat
         /// </summary>
         public const double EarthCircumference = 40075d;
-
-
-
-
 
         /// <summary>
         /// Retorna uma progressão Aritmética com N numeros
@@ -1922,8 +1884,6 @@ namespace InnerLibs
             return number.ToString("0".AppendIf(culture.NumberFormat.NumberDecimalSeparator + "0".Repeat(Decimals), Decimals > 0), culture);
         }
 
-
-
         /// <summary>
         /// Retorna o Mime T a partir da extensão de um arquivo
         /// </summary>
@@ -1994,8 +1954,6 @@ namespace InnerLibs
         /// <returns></returns>
         public static FileType ToFileType(this string MimeTypeOrExtensionOrPathOrDataURI) => new FileType(MimeTypeOrExtensionOrPathOrDataURI);
 
-
-
         /// <summary>
         /// retorna o numero em sua forma ordinal (inglês)
         /// </summary>
@@ -2037,8 +1995,6 @@ namespace InnerLibs
         /// <param name="Degrees"></param>
         /// <returns></returns>
         public static double ToRadians(this double Degrees) => Degrees * Math.PI / 180.0d;
-
-
 
         public static string ToAsciiArt(this Bitmap image, int ratio)
         {
@@ -2082,16 +2038,10 @@ namespace InnerLibs
             return sb.ToString();
         }
 
-
-
         public const string DoubleQuoteChar = "\"";
         public const string EmptyString = "";
         public const string SingleQuoteChar = "\'";
         public const string WhitespaceChar = " ";
-
-
-
-
 
         /// <summary>
         /// Retorna uma string em ordem afabética baseada em uma outra string
@@ -6395,8 +6345,6 @@ namespace InnerLibs
         /// <returns></returns>
         public static string Wrap(this string Text, string WrapText = DoubleQuoteChar) => Text.Wrap(WrapText, WrapText);
 
-
-
         private const int ERROR_LOCK_VIOLATION = 33;
 
         private const int ERROR_SHARING_VIOLATION = 32;
@@ -6411,10 +6359,6 @@ namespace InnerLibs
             x => x.ContainsAny(StringComparison.InvariantCulture, PredefinedArrays.AlphaUpperChars.ToArray()),
             x => x.ContainsAny(StringComparison.InvariantCulture, PredefinedArrays.AlphaLowerChars.ToArray())
         };
-
-
-
-
 
         /// <summary>
         /// Verifica se o valor é um numero ou pode ser convertido em numero
@@ -7189,8 +7133,6 @@ namespace InnerLibs
             return false;
         }
 
-
-
         /// <summary>
         /// Encapsula um tento entre 2 textos
         /// </summary>
@@ -7203,10 +7145,6 @@ namespace InnerLibs
         public static HtmlTag WrapInTag(this HtmlTag Tag, string TagName) => new HtmlTag(TagName).AddChildren(Tag);
 
         public static HtmlTag WrapInTag(this string Text, string TagName) => new HtmlTag() { InnerHtml = Text, TagName = TagName };
-
-
-
-
 
         public static int ToArabic(this string RomanNumber)
         {
@@ -7316,13 +7254,7 @@ namespace InnerLibs
             return total;
         }
 
-
-
         private static readonly Random init_rnd = new Random();
-
-
-
-
 
         /// <inheritdoc cref="GenerateBarcodeCheckSum(string)"/>
         public static string GenerateBarcodeCheckSum(long Code) => GenerateBarcodeCheckSum(Code.ToString(CultureInfo.InvariantCulture));
@@ -7714,8 +7646,6 @@ namespace InnerLibs
             return word;
         }
 
-
-
         /// <summary>
         /// Aplica um borrão a uma determinada parte da imagem
         /// </summary>
@@ -7816,19 +7746,11 @@ namespace InnerLibs
             }
         }
 
-
-
-
-
         /// <summary>
         /// Lista com todos os formatos de imagem
         /// </summary>
         /// <returns></returns>
         public static ImageFormat[] ImageTypes { get; private set; } = new[] { ImageFormat.Bmp, ImageFormat.Emf, ImageFormat.Exif, ImageFormat.Gif, ImageFormat.Icon, ImageFormat.Jpeg, ImageFormat.Png, ImageFormat.Tiff, ImageFormat.Wmf };
-
-
-
-
 
         /// <summary>
         /// Aplica um borrão a imagem
@@ -8079,8 +8001,6 @@ namespace InnerLibs
             }
         }
 
-
-
         private static readonly MethodInfo containsMethod = typeof(string).GetMethod("Contains", new[] { typeof(string) });
 
         private static readonly MethodInfo endsWithMethod = typeof(string).GetMethod("EndsWith", new[] { typeof(string) });
@@ -8088,10 +8008,6 @@ namespace InnerLibs
         private static readonly MethodInfo equalMethod = typeof(string).GetMethod("Equals", new[] { typeof(string) });
 
         private static readonly MethodInfo startsWithMethod = typeof(string).GetMethod("StartsWith", new[] { typeof(string) });
-
-
-
-
 
         /// <summary>
         /// Retorna TRUE se a todos os testes em uma lista retornarem FALSE
@@ -10112,10 +10028,6 @@ namespace InnerLibs
 
         public static IEnumerable<Type> WhereType<BaseType, Type>(this IEnumerable<BaseType> List) where Type : BaseType => List.Where(x => x is Type).Cast<Type>();
 
-
-
-        #region FilterDateRange
-
         public static IEnumerable<T> FilterDateRange<T>(this IEnumerable<T> List, Expression<Func<T, DateTime>> Property, DateRange Range, DateRangeFilterBehavior? FilterBehavior = null)
         => List.Where(x => Range.Contains(Property.Compile()(x), FilterBehavior ?? Range.FilterBehavior));
 
@@ -10125,10 +10037,6 @@ namespace InnerLibs
         public static IQueryable<T> FilterDateRange<T>(this IQueryable<T> List, Expression<Func<T, DateTime>> Property, DateRange Range, DateRangeFilterBehavior? FilterBehavior = null) => List.Where(Property.IsInDateRange(Range));
 
         public static IQueryable<T> FilterDateRange<T>(this IQueryable<T> List, Expression<Func<T, DateTime?>> Property, DateRange Range, DateRangeFilterBehavior? FilterBehavior = null) => List.Where(Property.IsInDateRange(Range));
-
-        #endregion FilterDateRange
-
-        #region IsBetween
 
         public static Expression<Func<T, bool>> IsBetween<T, V>(this Expression<Func<T, V>> MinProperty, Expression<Func<T, V>> MaxProperty, IEnumerable<V> Values)
         {
@@ -10179,10 +10087,6 @@ namespace InnerLibs
                 return WhereExpression(Property, "between", new IComparable[] { (DateTime?)DateRange.StartDate, (DateTime?)DateRange.EndDate });
             }
         }
-
-        #endregion IsBetween
-
-        #region IsBetweenOrEqual
 
         public static Expression<Func<T, bool>> IsBetweenOrEqual<T, V>(this Expression<Func<T, V>> MinProperty, Expression<Func<T, V>> MaxProperty, IEnumerable<V> Values)
         {
@@ -10243,8 +10147,6 @@ namespace InnerLibs
                 default: return WhereExpression(Property, "betweenorequal", icomp);
             }
         }
-
-        #endregion IsBetweenOrEqual
 
         /// <summary>
         /// Corta a imagem em um circulo
@@ -11033,8 +10935,6 @@ namespace InnerLibs
             return bm_Resultado;
         }
 
-
-
         /// <summary>
         /// Gera uma URL do google MAPs baseado na localização
         /// </summary>
@@ -11044,8 +10944,6 @@ namespace InnerLibs
         /// </param>
         /// <returns>Uma URI do Google Maps</returns>
         public static Uri ToGoogleMapsURL(this AddressInfo local, params AddressPart[] Parts) => local != null ? new Uri($"https://www.google.com.br/maps/search/{Uri.EscapeUriString(local.ToString(Parts))}") : null;
-
-
 
         public static string ToRoman(this int ArabicNumber)
         {
@@ -11077,10 +10975,6 @@ namespace InnerLibs
             // retorna o resultado
             return resultado.ToString();
         }
-
-
-
-        #region Public Enums
 
         public enum RomanDigit
         {
@@ -11119,10 +11013,6 @@ namespace InnerLibs
             /// </summary>
             M = 1000
         }
-
-        #endregion Public Enums
-
-
 
         /// <summary>
         /// Retorna a classe do icone do FontAwesome que representa melhor o arquivo
@@ -11381,8 +11271,6 @@ namespace InnerLibs
         /// <param name="MIME">MIME T do Arquivo</param>
         /// <returns></returns>
         public static string GetIconByFileType(this FileType MIME) => GetFontAwesomeIconByFileExtension(MIME?.Extensions.ToArray() ?? Array.Empty<string>());
-
-
 
         /// <summary>
         /// Retorna true se <paramref name="Value"/> não estiver em branco, for diferente de NULL,
@@ -12089,10 +11977,6 @@ namespace InnerLibs
         /// <returns>Valor convertido em novo ToType</returns>
         public static float ToSingle<FromType>(this FromType Value) => Value.ChangeType<float>();
 
-
-
-
-
         /// <summary>
         /// Descriptografa uma string
         /// </summary>
@@ -12309,12 +12193,6 @@ namespace InnerLibs
 
             return Text;
         }
-
-
-
-
-
-
 
         /// <summary>
         /// Format a file path using a <see cref="DateTime"/>
@@ -12557,10 +12435,6 @@ namespace InnerLibs
 
         public static FileInfo WriteToFile(this string Text, DirectoryInfo Directory, string SubDirectory, string FileName, bool Append = false, Encoding Enconding = null, DateTime? DateAndTime = null) => Text.WriteToFile(Path.Combine(Directory?.FullName, SubDirectory, Path.GetFileName(FileName)), Append, Enconding, DateAndTime);
 
-
-
-
-
         /// <summary>
         /// Dicionario com os <see cref="Type"/> e seu <see cref="DbType"/> correspondente
         /// </summary>
@@ -12594,10 +12468,6 @@ namespace InnerLibs
         /// </summary>
         /// <returns></returns>
         public static TextWriter LogWriter { get; set; } = new DebugTextWriter();
-
-
-
-
 
         public static string AsSQLColumns(this IDictionary<string, object> obj, char Quote = '[') => obj.Select(x => x.Key.ToString().Quote(Quote)).SelectJoinString(",");
 
@@ -14166,19 +14036,11 @@ namespace InnerLibs
             return null;
         }
 
-
-
-        #region Public Enums
-
         public enum LogicConcatenationOperator
         {
             AND,
             OR
         }
-
-        #endregion Public Enums
-
-
 
         /// <summary>
         /// Decoda uma string em Util
@@ -14443,8 +14305,6 @@ namespace InnerLibs
             }
         }
 
-
-
         /// <summary>
         /// Set this flag to true to show InnerLibs Debug messages
         /// </summary>
@@ -14485,10 +14345,6 @@ namespace InnerLibs
             }
             return value;
         }
-
-
-
-
 
         public static IEnumerable<TemplateMailAddress<T>> AddAttachmentFromData<T>(this IEnumerable<TemplateMailAddress<T>> recipients, Expression<Func<T, IEnumerable<System.Net.Mail.Attachment>>> AttachmentSelector) where T : class
         {
@@ -16216,7 +16072,5 @@ namespace InnerLibs
             ex = TryExecute(() => Callback?.Invoke(Obj));
             return Obj;
         }
-
-
     }
 }
