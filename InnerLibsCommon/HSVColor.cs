@@ -300,10 +300,7 @@ namespace InnerLibs
             }
         }
 
-        /// <summary>
-        /// Descricao desta cor
-        /// </summary>
-        /// <returns></returns>
+        
         public string Description { get; set; }
 
         public int DominantValue => new[] { Red, Green, Blue }.Max();
@@ -372,18 +369,21 @@ namespace InnerLibs
         /// <returns></returns>
         public double Luminance => 0.2126d * Red + 0.7152d * Green + 0.0722d * Blue;
 
+        public bool IsMostRed() => Red >= Blue && Red >= Green;
 
-        public bool IsMostRed => Red >= Blue && Red >= Green;
-        public bool IsMostGreen => Green >= Red && Green >= Blue;
-        public bool IsMostBlue => Blue >= Red && Blue >= Green;
+        public bool IsMostGreen() => Green >= Red && Green >= Blue;
 
-        public bool IsLowRed => Red < Blue && Red < Green;
-        public bool IsLowGreen => Green < Red && Green < Blue;
-        public bool IsLowBlue => Blue < Red && Blue < Green;
+        public bool IsMostBlue() => Blue >= Red && Blue >= Green;
 
-        public bool IsLowLuminance => Luminance >= 250d;
+        public bool IsLowRed() => Red < Blue && Red < Green;
 
-        public bool IsHighLuminance => Luminance <= 15d;
+        public bool IsLowGreen() => Green < Red && Green < Blue;
+
+        public bool IsLowBlue() => Blue < Red && Blue < Green;
+
+        public bool IsLowLuminance() => Luminance >= 250d;
+
+        public bool IsHighLuminance() => Luminance <= 15d;
 
 
         /// <summary>
@@ -433,11 +433,11 @@ namespace InnerLibs
 
 
 
-                if (IsLowLuminance)
+                if (IsLowLuminance())
                 {
                     m |= ColorMood.LowLuminance;
                 }
-                else if (IsHighLuminance)
+                else if (IsHighLuminance())
                 {
                     m |= ColorMood.HighLuminance;
                 }
@@ -472,32 +472,32 @@ namespace InnerLibs
                     m |= ColorMood.NoBlue;
                 }
 
-                if (IsMostRed)
+                if (IsMostRed())
                 {
                     m |= ColorMood.MostRed;
                 }
 
-                if (IsMostGreen)
+                if (IsMostGreen())
                 {
                     m |= ColorMood.MostGreen;
                 }
 
-                if (IsMostBlue)
+                if (IsMostBlue())
                 {
                     m |= ColorMood.MostBlue;
                 }
 
-                if (IsLowRed)
+                if (IsLowRed())
                 {
                     m |= ColorMood.LowRed;
                 }
 
-                if (IsLowGreen)
+                if (IsLowGreen())
                 {
                     m |= ColorMood.LowGreen;
                 }
 
-                if (IsLowBlue)
+                if (IsLowBlue())
                 {
                     m |= ColorMood.LowBlue;
                 }
