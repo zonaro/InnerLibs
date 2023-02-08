@@ -1049,27 +1049,12 @@ namespace InnerLibs
 
         public static implicit operator string(HtmlTag Tag) => Tag?.ToString();
 
-        public static IEnumerable<HtmlTag> Parse(string HtmlStringOrFileOrURL)
-        {
-            if (HtmlStringOrFileOrURL.IsURL())
-            {
-                HtmlStringOrFileOrURL = Ext.DownloadString(HtmlStringOrFileOrURL);
-            }
-            else
+        public static IEnumerable<HtmlTag> Parse(string HtmlString) => HtmlString.IsNotBlank() ? HtmlParser.Instance.Parse(HtmlString) : Array.Empty<HtmlTag>();
 
-
-            if (HtmlStringOrFileOrURL.IsFilePath())
-            {
-                HtmlStringOrFileOrURL = HtmlStringOrFileOrURL.ToFileInfo().ReadAllText();
-            }
-
-            return HtmlStringOrFileOrURL.IsNotBlank() ? HtmlParser.Instance.Parse(HtmlStringOrFileOrURL) : Array.Empty<HtmlTag>();
-        }
-
-        public static IEnumerable<HtmlTag> Parse(Uri URL) => Parse(URL?.ToString());
+        public static IEnumerable<HtmlTag> Parse(Uri URL) => Parse(URL?.DownloadString());
         public static IEnumerable<HtmlTag> Parse(FileInfo File) => File != null && File.Exists ? Parse(File.ReadAllText()) : Array.Empty<HtmlTag>();
 
-        public static HtmlTag ParseTag(string HtmlStringOrFileOrURL) => Parse(HtmlStringOrFileOrURL).FirstOrDefault();
+        public static HtmlTag ParseTag(string HtmlString) => Parse(HtmlString).FirstOrDefault();
         public static HtmlTag ParseTag(FileInfo File) => Parse(File).FirstOrDefault();
 
         public static HtmlTag ParseTag(Uri Url) => Parse(Url).FirstOrDefault();

@@ -3429,9 +3429,9 @@ namespace InnerLibs
             }
         }
 
-        public static HtmlTag ParseTag(this string HtmlStringOrFileOrUrl) => HtmlTag.ParseTag(HtmlStringOrFileOrUrl);
+        public static HtmlTag ParseTag(this string HtmlString) => HtmlTag.ParseTag(HtmlString);
 
-        public static IEnumerable<HtmlTag> ParseTags(this string HtmlStringOrFileOrUrl) => HtmlTag.Parse(HtmlStringOrFileOrUrl);
+        public static IEnumerable<HtmlTag> ParseTags(this string HtmlString) => HtmlTag.Parse(HtmlString);
 
         public static HtmlTag ParseTag(this FileInfo File) => HtmlTag.ParseTag(File);
 
@@ -3494,7 +3494,7 @@ namespace InnerLibs
         public static string[] Poopfy(params string[] Words)
         {
             var p = new List<string>();
-            foreach (var Text in Words)
+            foreach (var Text in Words ?? Array.Empty<string>())
             {
                 decimal l = (decimal)(Text.Length / 2d);
                 l = l.Floor();
@@ -3514,7 +3514,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static string Poopfy(this string Text) => Poopfy(Text.Split(WhitespaceChar)).SelectJoinString(WhitespaceChar);
+        public static string Poopfy(this string Text) => Poopfy(Text.SplitAny(PredefinedArrays.WordSplitters)).SelectJoinString(WhitespaceChar);
 
         /// <summary>
         /// Return a Idented XML string
@@ -3524,35 +3524,39 @@ namespace InnerLibs
         public static string PreetyPrint(this XmlDocument Document)
         {
             string Result = EmptyString;
-            var mStream = new MemoryStream();
-            var writer = new XmlTextWriter(mStream, Encoding.Unicode);
-            try
+            if (Document != null)
             {
-                writer.Formatting = Formatting.Indented;
 
-                // Write the XML into a formatting XmlTextWriter
-                Document.WriteContentTo(writer);
-                writer.Flush();
-                mStream.Flush();
+                var mStream = new MemoryStream();
+                var writer = new XmlTextWriter(mStream, Encoding.Unicode);
+                try
+                {
+                    writer.Formatting = Formatting.Indented;
 
-                // Have to rewind the MemoryStream in order to read its contents.
-                mStream.Position = 0L;
+                    // Write the XML into a formatting XmlTextWriter
+                    Document.WriteContentTo(writer);
+                    writer.Flush();
+                    mStream.Flush();
 
-                // Read MemoryStream contents into a StreamReader.
-                var sReader = new StreamReader(mStream);
+                    // Have to rewind the MemoryStream in order to read its contents.
+                    mStream.Position = 0L;
 
-                // Extract the text from the StreamReader.
-                Result = sReader.ReadToEnd();
-            }
-            catch (XmlException)
-            {
-            }
-            finally
-            {
-                mStream?.Close();
-                writer?.Close();
-                mStream?.Dispose();
-                writer?.Dispose();
+                    // Read MemoryStream contents into a StreamReader.
+                    var sReader = new StreamReader(mStream);
+
+                    // Extract the text from the StreamReader.
+                    Result = sReader.ReadToEnd();
+                }
+                catch (XmlException)
+                {
+                }
+                finally
+                {
+                    mStream.Close();
+                    writer.Close();
+                    mStream.Dispose();
+                    writer.Dispose();
+                }
             }
 
             return Result;
