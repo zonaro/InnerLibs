@@ -938,7 +938,7 @@ namespace InnerLibs.Mail
                                 }
                             }
 
-                            if (p.IsEnumerableNotString())
+                            if (p.Value.IsEnumerableNotString())
                             {
                                 tipo.WriteDebug("Traversing");
 

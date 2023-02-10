@@ -28,7 +28,6 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 using InnerLibs;
-using InnerLibs.Mail;
 
 namespace InnerLibs
 {
@@ -137,44 +136,6 @@ namespace InnerLibs
         #endregion Public Properties
 
         #region Public Methods
-
-        public static IEnumerable<TemplateMailAddress<T>> AddAttachmentFromData<T>(this IEnumerable<TemplateMailAddress<T>> recipients, Expression<Func<T, IEnumerable<System.Net.Mail.Attachment>>> AttachmentSelector) where T : class
-        {
-            if (AttachmentSelector != null)
-                foreach (var rec in recipients ?? Array.Empty<TemplateMailAddress<T>>())
-                {
-                    if (rec?.TemplateData != null)
-                    {
-                        var att = AttachmentSelector.Compile().Invoke(rec.TemplateData);
-                        if (att != null)
-                        {
-                            rec.AddAttachment(att);
-                        }
-                    }
-                }
-            return recipients;
-        }
-
-        public static TemplateMailAddress<T> AddAttachmentFromData<T>(this TemplateMailAddress<T> recipient, Expression<Func<T, IEnumerable<System.Net.Mail.Attachment>>> AttachmentSelector) where T : class => AddAttachmentFromData(new[] { recipient }, AttachmentSelector).FirstOrDefault();
-
-        public static TemplateMailAddress<T> AddAttachmentFromData<T>(this TemplateMailAddress<T> recipient, Expression<Func<T, System.Net.Mail.Attachment>> AttachmentSelector) where T : class => AddAttachmentFromData(new[] { recipient }, AttachmentSelector).FirstOrDefault();
-
-        public static IEnumerable<TemplateMailAddress<T>> AddAttachmentFromData<T>(this IEnumerable<TemplateMailAddress<T>> recipients, Expression<Func<T, System.Net.Mail.Attachment>> AttachmentSelector) where T : class
-        {
-            if (AttachmentSelector != null)
-                foreach (var rec in recipients ?? Array.Empty<TemplateMailAddress<T>>())
-                {
-                    if (rec?.TemplateData != null)
-                    {
-                        var att = AttachmentSelector.Compile().Invoke(rec.TemplateData);
-                        if (att != null)
-                        {
-                            rec.AddAttachment(att);
-                        }
-                    }
-                }
-            return recipients;
-        }
 
         /// <summary>
         /// Adciona um parametro a Query String de uma URL
@@ -8871,6 +8832,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string Pad(this string Text, int TotalLength, char PaddingChar = ' ')
         {
+            Text = Text ?? EmptyString;
             if (Text.Length < TotalLength)
             {
                 while (Text.Length < TotalLength)
