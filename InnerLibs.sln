@@ -1,36 +1,37 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
-# SharpDevelop 4.4
-VisualStudioVersion = 17.0.32112.339
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33213.308
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InnerLibsDLL", "InnerLibs\InnerLibsDLL.csproj", "{CD0FDCD4-62CB-4686-9312-E1AF72152893}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InnerLibsDLL", "InnerLibs\InnerLibsDLL.csproj", "{95CD99D4-4EFE-436B-BDA6-B608DB5B105D}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "InnerLibs", "InnerLibsCommon\InnerLibs.shproj", "{4A6BE46F-380F-4565-A9F3-72E1FF4DA2D3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Debug|x86 = Debug|x86
 		Release|Any CPU = Release|Any CPU
+		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{CD0FDCD4-62CB-4686-9312-E1AF72152893}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CD0FDCD4-62CB-4686-9312-E1AF72152893}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CD0FDCD4-62CB-4686-9312-E1AF72152893}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CD0FDCD4-62CB-4686-9312-E1AF72152893}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4A6BE46F-380F-4565-A9F3-72E1FF4DA2D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4A6BE46F-380F-4565-A9F3-72E1FF4DA2D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4A6BE46F-380F-4565-A9F3-72E1FF4DA2D3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4A6BE46F-380F-4565-A9F3-72E1FF4DA2D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95CD99D4-4EFE-436B-BDA6-B608DB5B105D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95CD99D4-4EFE-436B-BDA6-B608DB5B105D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95CD99D4-4EFE-436B-BDA6-B608DB5B105D}.Debug|x86.ActiveCfg = Debug|x86
+		{95CD99D4-4EFE-436B-BDA6-B608DB5B105D}.Debug|x86.Build.0 = Debug|x86
+		{95CD99D4-4EFE-436B-BDA6-B608DB5B105D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95CD99D4-4EFE-436B-BDA6-B608DB5B105D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{95CD99D4-4EFE-436B-BDA6-B608DB5B105D}.Release|x86.ActiveCfg = Release|x86
+		{95CD99D4-4EFE-436B-BDA6-B608DB5B105D}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {872BBDAA-2C1D-43C2-B6BD-319A5A4AA7F3}
+		SolutionGuid = {C3476E8F-CD9D-415A-A341-1AC0C0F5E989}
 	EndGlobalSection
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		InnerLibsCommon\InnerLibs.projitems*{4a6be46f-380f-4565-a9f3-72e1ff4da2d3}*SharedItemsImports = 13
-		InnerLibsCommon\InnerLibs.projitems*{cd0fdcd4-62cb-4686-9312-e1af72152893}*SharedItemsImports = 5
+		InnerLibsCommon\InnerLibs.projitems*{95cd99d4-4efe-436b-bda6-b608db5b105d}*SharedItemsImports = 5
 	EndGlobalSection
 EndGlobal
