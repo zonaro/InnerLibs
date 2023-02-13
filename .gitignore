@@ -348,3 +348,8 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+
+# SandCastle temp files
+
+/Help/working
+/Help/LastBuild.log

@@ -20,6 +20,7 @@
     <AnalysisLevel>6.0-all</AnalysisLevel>
     <AssemblyName>$(MSBuildProjectName.Replace(" ", "_").Replace("DLL", ""))</AssemblyName>
     <RootNamespace>$(MSBuildProjectName.Replace(" ", "_").Replace("DLL", ""))</RootNamespace>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>  
   <ItemGroup>
     <None Include="..\innerlibs.png">
