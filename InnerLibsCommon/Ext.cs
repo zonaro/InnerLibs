@@ -6293,6 +6293,11 @@ namespace InnerLibs
         /// <returns></returns>
         public static IEnumerable<T> IfNullOrEmpty<T>(this IEnumerable<object[]> Value, IEnumerable<T> ValueIfBlank) => Value != null && Value.Any() ? Value.ChangeIEnumerableType<T, object[]>() : ValueIfBlank;
 
+
+
+        public static int Increment(this int Num, int Inc = 1) => Num + Inc.SetMinValue(0);
+        public static long Increment(this long Num, long Inc = 1) => Num + Inc.SetMinValue(0L);
+
         /// <summary>
         /// Inject the property values of <typeparamref name="T"/> into <paramref name="TemplatedString"/>
         /// </summary>
