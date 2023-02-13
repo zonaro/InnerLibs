@@ -18,13 +18,13 @@
     <OutputPath>.\Help\</OutputPath>
     <HtmlHelpName>Docs</HtmlHelpName>
     <Language>en-US</Language>
-    <HelpFileFormat>Website</HelpFileFormat>
-    <SyntaxFilters>C#, Visual Basic, ASP.NET</SyntaxFilters>
-    <PresentationStyle>Default2022</PresentationStyle>
+    <HelpFileFormat>Markdown</HelpFileFormat>
+    <SyntaxFilters>C#, Visual Basic</SyntaxFilters>
+    <PresentationStyle>Markdown</PresentationStyle>
     <CleanIntermediates>True</CleanIntermediates>
     <KeepLogFile>True</KeepLogFile>
     <DisableCodeBlockComponent>False</DisableCodeBlockComponent>
-    <IndentHtml>False</IndentHtml>
+    <IndentHtml>True</IndentHtml>
     <BuildAssemblerVerbosity>OnlyWarningsAndErrors</BuildAssemblerVerbosity>
     <SaveComponentCacheCapacity>100</SaveComponentCacheCapacity>
     <HelpTitle>InnerLibs</HelpTitle>
@@ -39,8 +39,14 @@
     <SdkLinkTarget>Blank</SdkLinkTarget>
     <VisibleItems>InheritedMembers, Protected, ProtectedInternalAsProtected, NonBrowsable</VisibleItems>
     <DocumentationSources>
-      <DocumentationSource sourceFile="InnerLibs\bin\Debug\net472\InnerLibs.dll" xmlns="" />
-    </DocumentationSources>
+      <DocumentationSource sourceFile="InnerLibs\bin\Debug\net472\InnerLibs.xml" />
+<DocumentationSource sourceFile="InnerLibs\bin\Debug\net472\InnerLibs.dll" /></DocumentationSources>
+    <MissingTags>Summary, Parameter, Returns, Remarks, AutoDocumentCtors, Namespace, TypeParameter, AutoDocumentDispose</MissingTags>
+    <ApiFilter>
+      <Filter entryType="Namespace" fullName="InnerLibs.EscBemaCommands" isExposed="False" xmlns="" />
+<Filter entryType="Namespace" fullName="InnerLibs.EscDarumaCommands" isExposed="False" xmlns="" />
+<Filter entryType="Namespace" fullName="InnerLibs.EscPosCommands" isExposed="False" xmlns="" />
+<Filter entryType="Namespace" fullName="InnerLibs.Printer.Command" isExposed="False" xmlns="" /></ApiFilter>
   </PropertyGroup>
   <!-- There are no properties for these groups.  AnyCPU needs to appear in order for Visual Studio to perform
 			 the build.  The others are optional common platform types that may appear. -->
