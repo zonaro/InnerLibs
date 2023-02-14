@@ -1263,7 +1263,7 @@ namespace InnerLibs.Printer
                 foreach (var item in Objects)
                 {
                     string ns = TemplateString.Inject(item);
-                    WriteLine(ns.SplitAny(InnerLibs.PredefinedArrays.BreakLineChars.ToArray()));
+                    WriteLine(ns.SplitAny(PredefinedArrays.BreakLineChars.ToArray()));
                     if (PartialCutOnEach)
                     {
                         PartialPaperCut();

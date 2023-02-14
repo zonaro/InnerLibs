@@ -969,7 +969,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Template">Template de pagina</param>
         /// <returns></returns>
-        public string PageButtonsFromTemplate(string Template, string SeparatorTemplate = InnerLibs.Ext.EmptyString) => Template.IsNotBlank() ? Ext.SelectJoinString(CreatePaginationButtons(InnerLibs.Ext.EmptyString).Select(x => Template.Inject(new { Page = x })), SeparatorTemplate.IfBlank(InnerLibs.Ext.EmptyString)) : InnerLibs.Ext.EmptyString;
+        public string PageButtonsFromTemplate(string Template, string SeparatorTemplate = Ext.EmptyString) => Template.IsNotBlank() ? Ext.SelectJoinString(CreatePaginationButtons(Ext.EmptyString).Select(x => Template.Inject(new { Page = x })), SeparatorTemplate.IfBlank(Ext.EmptyString)) : Ext.EmptyString;
 
         /// <summary>
         /// Seta a lista com os dados a serem filtrados nesse filtro

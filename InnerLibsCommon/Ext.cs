@@ -1679,7 +1679,7 @@ namespace InnerLibs
         /// <param name="Connection"></param>
         /// <param name="SQL"></param>
         /// <returns></returns>
-        public static DbCommand CreateCommand<T>(DbConnection connection, string SQL, T obj, DbTransaction transaction = null) => CreateCommand(connection, SQL.Inject(obj, true).ToFormattableString(), transaction);
+        public static DbCommand CreateCommand<T>(DbConnection connection, string SQL, T obj, DbTransaction transaction = null) => CreateCommand(connection, SQL.InjectSQL(obj).ToFormattableString(), transaction);
 
         /// <summary>
         /// Cria um <see cref="DbCommand"/> a partir de uma string SQL e um <see cref="Dictionary(Of
@@ -6305,7 +6305,8 @@ namespace InnerLibs
         /// <param name="formatString"></param>
         /// <param name="injectionObject"></param>
         /// <returns></returns>
-        public static string Inject<T>(this T Obj, string TemplatedString, bool IsSQL = false) => TemplatedString.IfBlank(EmptyString).Inject(Obj, IsSQL);
+        public static string InjectInto<T>(this T Obj, string TemplatedString ) => TemplatedString.IfBlank(EmptyString).Inject(Obj);
+        public static string InjectSQLInto<T>(this T Obj, string TemplatedString ) => TemplatedString.IfBlank(EmptyString).InjectSQL(Obj);
 
         /// <summary>
         /// Inject the property values of <typeparamref name="T"/> into <see cref="String"/>
@@ -6314,13 +6315,32 @@ namespace InnerLibs
         /// <param name="formatString"></param>
         /// <param name="injectionObject"></param>
         /// <returns></returns>
-        public static string Inject<T>(this string formatString, T injectionObject, bool IsSQL = false)
+        public static string Inject<T>(this string formatString, T injectionObject )
         {
             if (injectionObject != null)
             {
                 return injectionObject.IsDictionary()
-                    ? formatString.Inject(new Hashtable((IDictionary)injectionObject), IsSQL)
-                    : formatString.Inject(GetPropertyHash(injectionObject), IsSQL);
+                    ? formatString.Inject(new Hashtable((IDictionary)injectionObject))
+                    : formatString.Inject(GetPropertyHash(injectionObject));
+            }
+
+            return formatString;
+        }
+
+              /// <summary>
+        /// Inject the property values of <typeparamref name="T"/> into <see cref="String"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="formatString"></param>
+        /// <param name="injectionObject"></param>
+        /// <returns></returns>
+        public static string InjectSQL<T>(this string formatString, T injectionObject )
+        {
+            if (injectionObject != null)
+            {
+                return injectionObject.IsDictionary()
+                    ? formatString.InjectSQL(new Hashtable((IDictionary)injectionObject))
+                    : formatString.InjectSQL(GetPropertyHash(injectionObject));
             }
 
             return formatString;
@@ -6332,19 +6352,22 @@ namespace InnerLibs
         /// <param name="formatString"></param>
         /// <param name="attributes"></param>
         /// <returns></returns>
-        public static string Inject(this string formatString, Hashtable attributes, bool IsSQL = false)
+        private static string InjectBase(string formatString, Hashtable attributes, bool IsSQL)
         {
             string result = formatString;
             if (attributes != null && formatString != null)
             {
                 foreach (string attributeKey in attributes.Keys)
                 {
-                    result = result.InjectSingleValue(attributeKey, attributes[attributeKey], IsSQL);
+                    result = result.InjectSingleValueBase(attributeKey, attributes[attributeKey], IsSQL);
                 }
             }
 
             return result;
         }
+        public static string Inject(this string formatString, Hashtable attributes) => InjectBase(formatString, attributes, false);
+
+        public static string InjectSQL(this string formatString, Hashtable attributes) => InjectBase(formatString, attributes, true);
 
         /// <summary>
         /// Replace te found <paramref name="key"/> with <paramref name="replacementValue"/>
@@ -6353,7 +6376,7 @@ namespace InnerLibs
         /// <param name="key"></param>
         /// <param name="replacementValue"></param>
         /// <returns></returns>
-        public static string InjectSingleValue(this string formatString, string key, object replacementValue, bool IsSQL = false, CultureInfo cultureInfo = null)
+        private static string InjectSingleValueBase(this string formatString, string key, object replacementValue, bool IsSQL = false, CultureInfo cultureInfo = null)
         {
             string result = formatString ?? "";
             var attributeRegex = new Regex("{(" + key + ")(?:}|(?::(.[^}]*)}))");
@@ -6380,6 +6403,11 @@ namespace InnerLibs
 
             return result;
         }
+
+        public static string InjectSingleValue(this string formatString, string key, object replacementValue, CultureInfo cultureInfo = null) => InjectSingleValueBase(formatString, key, replacementValue, false, cultureInfo);
+
+        public static string InjectSingleValueSQL(this string formatString, string key, object replacementValue, CultureInfo cultureInfo = null) => InjectSingleValueBase(formatString, key, replacementValue, true, cultureInfo);
+
 
         /// <summary>
         /// Insere uma imagem em outra imagem
