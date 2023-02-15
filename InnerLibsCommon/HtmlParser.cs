@@ -1198,6 +1198,7 @@ namespace InnerLibs
             if (Tag != null && Index >= 0)
             {
                 Tag._parent = this;
+                _selfClosing = false;
                 _children.Insert(Index, Tag);
             }
             return this;
