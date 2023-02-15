@@ -125,6 +125,7 @@ namespace InnerLibs
         /// Retorna uma lista com todas as <see cref="KnowColor"/> convertidas em <see cref="System.Drawing.Color"/>
         /// </summary>
         public static IEnumerable<Color> KnowColors => GetEnumValues<KnownColor>().Select(x => Color.FromKnownColor(x));
+        public static IEnumerable<HSVColor> KnowHSVColors => GetEnumValues<KnownColor>().Select(x => HSVColor.FromKnowColor(x));
 
         /// <summary>
         /// Quando Configurado, escreve os parametros e queries executadas no <see
@@ -132,6 +133,12 @@ namespace InnerLibs
         /// </summary>
         /// <returns></returns>
         public static TextWriter LogWriter { get; set; } = new DebugTextWriter();
+
+
+        /// <summary>
+        /// Retorna o ano atual
+        /// </summary>
+        public static int ThisYear => DateTime.Now.Year;
 
         #endregion Public Properties
 
@@ -6305,8 +6312,8 @@ namespace InnerLibs
         /// <param name="formatString"></param>
         /// <param name="injectionObject"></param>
         /// <returns></returns>
-        public static string InjectInto<T>(this T Obj, string TemplatedString ) => TemplatedString.IfBlank(EmptyString).Inject(Obj);
-        public static string InjectSQLInto<T>(this T Obj, string TemplatedString ) => TemplatedString.IfBlank(EmptyString).InjectSQL(Obj);
+        public static string InjectInto<T>(this T Obj, string TemplatedString) => TemplatedString.IfBlank(EmptyString).Inject(Obj);
+        public static string InjectSQLInto<T>(this T Obj, string TemplatedString) => TemplatedString.IfBlank(EmptyString).InjectSQL(Obj);
 
         /// <summary>
         /// Inject the property values of <typeparamref name="T"/> into <see cref="String"/>
@@ -6315,7 +6322,7 @@ namespace InnerLibs
         /// <param name="formatString"></param>
         /// <param name="injectionObject"></param>
         /// <returns></returns>
-        public static string Inject<T>(this string formatString, T injectionObject )
+        public static string Inject<T>(this string formatString, T injectionObject)
         {
             if (injectionObject != null)
             {
@@ -6327,14 +6334,14 @@ namespace InnerLibs
             return formatString;
         }
 
-              /// <summary>
+        /// <summary>
         /// Inject the property values of <typeparamref name="T"/> into <see cref="String"/>
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="formatString"></param>
         /// <param name="injectionObject"></param>
         /// <returns></returns>
-        public static string InjectSQL<T>(this string formatString, T injectionObject )
+        public static string InjectSQL<T>(this string formatString, T injectionObject)
         {
             if (injectionObject != null)
             {
