@@ -125,7 +125,7 @@ namespace InnerLibs
         /// Retorna uma lista com todas as <see cref="KnowColor"/> convertidas em <see cref="System.Drawing.Color"/>
         /// </summary>
         public static IEnumerable<Color> KnowColors => GetEnumValues<KnownColor>().Select(x => Color.FromKnownColor(x));
-        public static IEnumerable<HSVColor> KnowHSVColors => GetEnumValues<KnownColor>().Select(x => HSVColor.FromKnowColor(x));
+        public static IEnumerable<HSVColor> KnowHSVColors => KnowColors.Select(x => new HSVColor(x));
 
         /// <summary>
         /// Quando Configurado, escreve os parametros e queries executadas no <see
