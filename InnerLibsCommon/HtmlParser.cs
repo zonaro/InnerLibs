@@ -1157,6 +1157,10 @@ namespace InnerLibs
         /// <returns></returns>
         public HtmlTag CloneTag() => ParseTag(OuterHtml);
 
+        /// <summary>
+        /// Remove this tag from parent tag
+        /// </summary>
+        /// <returns></returns>
         public HtmlTag Detach()
         {
             this.Parent?.RemoveChildren(this);
