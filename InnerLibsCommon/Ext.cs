@@ -8889,6 +8889,10 @@ namespace InnerLibs
             return Text;
         }
 
+        public static string PadZero(this string Number, int totalWidth) => Number.IfBlank("0").PadLeft(totalWidth, '0');
+
+        public static string PadZero(this int Number, int totalWidth) => Number.ToString(CultureInfo.InvariantCulture).PadZero(totalWidth );
+
         /// <summary>
         /// Reduz um <see cref="IQueryable"/> em uma página especifica
         /// </summary>
