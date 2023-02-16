@@ -186,7 +186,7 @@ namespace InnerLibs.Mail
         /// <summary>
         /// Ação executada quando ocorrer erro no disparo
         /// </summary>
-        public Action<TemplateMailAddress<T>, FluentMailMessage<T>, Exception> ErrorAction { get; set; }
+        public Action<TemplateMailAddress<T>, MailMessage, Exception> ErrorAction { get; set; }
 
         /// <summary>
         /// Lista contendo os endereços de email que encontraram algum erro ao serem enviados
@@ -211,7 +211,7 @@ namespace InnerLibs.Mail
         /// <summary>
         /// Ação executada quando o disparo for concluido com êxito
         /// </summary>
-        public Action<TemplateMailAddress<T>, FluentMailMessage<T>> SuccessAction { get; set; }
+        public Action<TemplateMailAddress<T>, MailMessage> SuccessAction { get; set; }
 
         /// <summary>
         /// Lista contendo os endereços de email que foram enviados com sucesso
@@ -414,14 +414,14 @@ namespace InnerLibs.Mail
         /// Retorna uma lista de <see cref="FluentMailMessage{T}"/> com todas as mensagens de emails
         /// geradas por essa <see cref="FluentMailMessage{T}"/>
         /// </summary>
-        public IEnumerable<FluentMailMessage<T>> GenerateEmails()
+        public IEnumerable<MailMessage> GenerateEmails()
         {
             if (To != null)
                 foreach (var item in To)
                 {
                     if (item != null)
                     {
-                        var msgIndiv = new FluentMailMessage<T>();
+                        var msgIndiv = new MailMessage();
 
                         string msg = Body.IfBlank(Ext.EmptyString);
                         string subj = Subject.IfBlank(Ext.EmptyString);
@@ -490,7 +490,7 @@ namespace InnerLibs.Mail
         /// </summary>
         /// <param name="Action"></param>
         /// <returns></returns>
-        public FluentMailMessage<T> OnError(Action<TemplateMailAddress<T>, FluentMailMessage<T>, Exception> Action)
+        public FluentMailMessage<T> OnError(Action<TemplateMailAddress<T>, MailMessage, Exception> Action)
         {
             ErrorAction = Action;
             return this;
@@ -501,7 +501,7 @@ namespace InnerLibs.Mail
         /// </summary>
         /// <param name="Action"></param>
         /// <returns></returns>
-        public FluentMailMessage<T> OnSuccess(Action<TemplateMailAddress<T>, FluentMailMessage<T>> Action)
+        public FluentMailMessage<T> OnSuccess(Action<TemplateMailAddress<T>, MailMessage> Action)
         {
             SuccessAction = Action;
             return this;
@@ -701,6 +701,9 @@ namespace InnerLibs.Mail
                 : WithCredentials(new NetworkCredential(Login, Password));
         }
 
+        public FluentMailMessage<T> WithSmtpAndCredentials(string Login, string Password, string Host, int Port, bool UseSSL) => WithSmtp(Host, Port, UseSSL).WithCredentials(Login, Password);
+
+
         /// <summary>
         /// Configura o email com prioridade alta
         /// </summary>
@@ -891,7 +894,7 @@ namespace InnerLibs.Mail
         #region Public Properties
 
         /// <summary>
-        /// Procura anexos em <see cref="TemplateData"/> e <see cref="OtherAttachments"/>
+        /// Procura anexos em <see cref="TemplateData"/>
         /// </summary>
         /// <returns></returns>
         /// <remarks>
