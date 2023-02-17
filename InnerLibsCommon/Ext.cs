@@ -3272,6 +3272,9 @@ namespace InnerLibs
         /// <returns></returns>
         public static T FirstOrDefaultExpression<T>(this IQueryable<T> List, string PropertyName, string Operator, object PropertyValue, bool Is = true) => List.FirstOrDefault(WhereExpression<T>(PropertyName, Operator, (IEnumerable<IComparable>)PropertyValue, Is));
 
+
+        public static string FixedLenght(this int Number, int Lenght) => Number.PadZero(Lenght).GetLastChars(Lenght);
+
         /// <summary>
         /// Arruma os caracteres de uma string Util
         /// </summary>
@@ -8891,7 +8894,7 @@ namespace InnerLibs
 
         public static string PadZero(this string Number, int totalWidth) => Number.IfBlank("0").PadLeft(totalWidth, '0');
 
-        public static string PadZero(this int Number, int totalWidth) => Number.ToString(CultureInfo.InvariantCulture).PadZero(totalWidth );
+        public static string PadZero(this int Number, int totalWidth) => Number.ToString(CultureInfo.InvariantCulture).PadZero(totalWidth);
 
         /// <summary>
         /// Reduz um <see cref="IQueryable"/> em uma página especifica
