@@ -3890,7 +3890,7 @@ namespace InnerLibs
 
         public static TValue GetAttributeValue<TAttribute, TValue>(this MemberInfo prop, Expression<Func<TAttribute, TValue>> ValueSelector) where TAttribute : Attribute
         {
-            if (prop.GetCustomAttributes(typeof(TAttribute), true).FirstOrDefault() is TAttribute att && att != null)
+            if (prop.GetCustomAttributes(typeof(TAttribute), true).FirstOrDefault() is TAttribute att)
             {
                 return att.GetAttributeValue(ValueSelector);
             }
@@ -4251,7 +4251,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Image">Imagem</param>
         /// <returns>string mime type</returns>
-        public static IEnumerable<string> GetFileType(this Image Image) => Image.RawFormat.GetFileType();
+        public static IEnumerable<string> GetFileType(this Image Image) => Image?.RawFormat.GetFileType() ?? Array.Empty<string>();
 
         public static string GetFirstChars(this string Text, int Number = 1) => Text.IsNotBlank() ? Text.Length < Number || Number < 0 ? Text : Text.Substring(0, Number) : EmptyString;
 
@@ -4271,7 +4271,9 @@ namespace InnerLibs
         public static string GetFontAwesomeIconByFileExtension(this string[] Extensions)
         {
             foreach (var Extension in Extensions ?? Array.Empty<string>())
+            {
                 if (Extension.IsNotBlank())
+                {
                     switch (Extension.RemoveAny(".").ToLowerInvariant())
                     {
                         case "vcf":
@@ -4344,6 +4346,7 @@ namespace InnerLibs
                         case "ts":
                         case "vbs":
                         case "ps1":
+                        case "lua":
                             {
                                 return "fa-file-code";
                             }
@@ -4487,7 +4490,8 @@ namespace InnerLibs
                                 break;
                             }
                     }
-
+                }
+            }
             return "fa-file";
         }
 
