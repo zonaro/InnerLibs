@@ -3446,7 +3446,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string FixPath(this string Text, bool AlternativeChar = false)
         {
-            return Text.Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries).Where(x => x.IsNotBlank()).Select((x, i) =>
+            return Text?.Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries).Where(x => x.IsNotBlank()).Select((x, i) =>
             {
                 if (i == 0 && x.Length == 2 && x.EndsWith(":"))
                 {
