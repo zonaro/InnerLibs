@@ -129,7 +129,7 @@ namespace InnerLibs.Mail
 
                 ResetStatus();
 
-                foreach (FluentMailMessage<T> mailMessage in GenerateEmails())
+                foreach (var mailMessage in GenerateEmails())
                 {
                     try
                     {
