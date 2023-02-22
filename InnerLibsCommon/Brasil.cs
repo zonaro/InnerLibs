@@ -8,6 +8,60 @@ using System.Xml;
 namespace InnerLibs.BR
 {
 
+
+    public class ChaveNFe
+    {
+        #region Private Fields
+
+        private string chave;
+
+        #endregion Private Fields
+
+        #region Public Properties
+
+        public int Year => NFeKey.Substring(2, 2).ToInt();
+
+        public string NFeKey
+        {
+            get => chave.PadLeft(44, '0');
+            set
+            {
+                var c = "";
+                foreach (char item in value ?? Ext.EmptyString)
+                {
+                    if (char.IsNumber(item))
+                    {
+                        c += item;
+                    }
+                }
+                if (c.Length == 44)
+                {
+                    chave = c;
+                }
+                else
+                {
+                    chave = "".PadLeft(44, '0');
+                }
+            }
+        }
+
+        public string CNPJ => NFeKey.Substring(6, 14).FormatCNPJ();
+
+        public int Digit => NFeKey.Substring(35, 8).ToInt();
+        public int Month => NFeKey.Substring(4, 2).ToInt();
+        public DateTime MonthYear => new DateTime(2000 + Year, Month, 1);
+        public int Model => NFeKey.Substring(20, 2).ToInt();
+        public int Number => NFeKey.Substring(25, 9).ToInt();
+        public int Series => NFeKey.Substring(22, 3).ToInt();
+        public int Type => NFeKey.Substring(34, 1).ToInt();
+        public State State => Brasil.GetState(NFeKey.Substring(0, 2));
+
+        #endregion Public Properties
+
+
+        public override string ToString() => NFeKey;
+    }
+
     /// <summary>
     /// Objeto para manipular cidades e estados do Brasil
     /// </summary>
@@ -300,8 +354,7 @@ namespace InnerLibs.BR
         /// <summary>
         /// Formata o PIS no padrão ###.#####.##-#
         /// </summary>
-        /// <param name="PIS">PIS a ser formatado</param>
-        /// <param name="returnOnlyNumbers">Se verdadeiro, retorna apenas os números sem formatação</param>
+        /// <param name="PIS">PIS a ser formatado</param> 
         /// <returns>PIS formatado</returns>
         public static string FormatPIS(this string PIS)
         {
@@ -321,8 +374,7 @@ namespace InnerLibs.BR
         /// <summary>
         /// Formata o PIS no padrão ###.#####.##-#
         /// </summary>
-        /// <param name="PIS">PIS a ser formatado</param>
-        /// <param name="returnOnlyNumbers">Se verdadeiro, retorna apenas os números sem formatação</param>
+        /// <param name="PIS">PIS a ser formatado</param> 
         /// <returns>PIS formatado</returns>
         public static string FormatPIS(this long PIS) => FormatPIS(PIS.ToString(CultureInfo.InvariantCulture));
 
@@ -424,7 +476,7 @@ namespace InnerLibs.BR
         public static State GetState(string NameOrStateCodeOrIBGE)
         {
             NameOrStateCodeOrIBGE = NameOrStateCodeOrIBGE.TrimBetween().ToSlugCase();
-            return States.FirstOrDefault(x => (x.Name.ToSlugCase() ?? InnerLibs.Ext.EmptyString) == (NameOrStateCodeOrIBGE ?? InnerLibs.Ext.EmptyString) || (x.StateCode.ToSlugCase() ?? InnerLibs.Ext.EmptyString) == (NameOrStateCodeOrIBGE ?? InnerLibs.Ext.EmptyString) || (x.IBGE.ToString()) == (NameOrStateCodeOrIBGE ?? InnerLibs.Ext.EmptyString));
+            return States.FirstOrDefault(x => (x.Name.ToSlugCase() ?? Ext.EmptyString) == (NameOrStateCodeOrIBGE ?? Ext.EmptyString) || (x.StateCode.ToSlugCase() ?? InnerLibs.Ext.EmptyString) == (NameOrStateCodeOrIBGE ?? InnerLibs.Ext.EmptyString) || (x.IBGE.ToString()) == (NameOrStateCodeOrIBGE ?? InnerLibs.Ext.EmptyString));
         }
 
         /// <summary>
