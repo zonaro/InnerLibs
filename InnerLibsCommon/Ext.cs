@@ -8311,7 +8311,7 @@ namespace InnerLibs
         public static IEnumerable<HSVColor> MonochromaticPallette(Color Color, int Amount)
         {
             var t = new RuleOfThree<int>(Amount, 100, 1, default);
-            var Percent = t.UnknownValue?.ToSingle();
+            var Percent = t.UnknownValue?.ToFloat();
             Color = Color.White.MergeWith(Color);
             var l = new List<Color>();
             for (int index = 1, loopTo = Amount; index <= loopTo; index++)
@@ -13015,10 +13015,10 @@ namespace InnerLibs
         /// <summary>
         /// Converte um ToType para Double. Retorna Nothing (NULL) se a conversão falhar
         /// </summary>
-        /// <typeparam name="FromType">Tipo de origem</typeparam>
+        /// <typeparam name="T">Tipo de origem</typeparam>
         /// <param name="Value">Variavel com valor</param>
         /// <returns>Valor convertido em novo ToType</returns>
-        public static double ToDouble<FromType>(this FromType Value) => Value.ChangeType<double>();
+        public static double ToDouble<T>(this T Value) => Value.ChangeType<double>();
 
         public static FileInfo ToFileInfo(this string PathPart) => ToFileInfo(new[] { PathPart });
 
@@ -13037,14 +13037,14 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Size">Tamanho</param>
         /// <returns>String com o tamanho + unidade de medida</returns>
-        public static string ToFileSizeString(this byte[] Size, int DecimalPlaces = -1) => Size.LongLength.ToFileSizeString(DecimalPlaces);
+        public static string ToFileSizeString(this byte[] Size, int DecimalPlaces = -1) => (Size?.LongLength ?? 0).ToFileSizeString(DecimalPlaces);
 
         /// <summary>
         /// Retorna o uma string representando um valor em bytes, KB, MB, GB ou TB
         /// </summary>
         /// <param name="Size">Tamanho</param>
         /// <returns>String com o tamanho + unidade de medida</returns>
-        public static string ToFileSizeString(this FileInfo Size, int DecimalPlaces = -1) => Size.Length.ToFileSizeString(DecimalPlaces);
+        public static string ToFileSizeString(this FileInfo Size, int DecimalPlaces = -1) => (Size?.Length ?? 0).ToFileSizeString(DecimalPlaces);
 
         /// <summary>
         /// Retorna o uma string representando um valor em bytes, KB, MB, GB ou TB
@@ -14497,10 +14497,10 @@ namespace InnerLibs
         /// <summary>
         /// Converte um ToType para Integer. Retorna Nothing (NULL) se a conversão falhar
         /// </summary>
-        /// <typeparam name="FromType">Tipo de origem</typeparam>
+        /// <typeparam name="T">Tipo de origem</typeparam>
         /// <param name="Value">Variavel com valor</param>
         /// <returns>Valor convertido em novo ToType</returns>
-        public static long ToLong<FromType>(this FromType Value) => Value.ChangeType<long>();
+        public static long ToLong<T>(this T Value) => Value.ChangeType<long>();
 
         public static string ToMD5String(this string Text)
         {
@@ -14631,14 +14631,14 @@ namespace InnerLibs
         /// <see cref="null"/>, omite o <paramref name="PhraseStart"/> da string final
         /// </param>
         /// <returns></returns>
-        public static string ToPhrase<TSource>(this IEnumerable<TSource> Texts, string PhraseStart = EmptyString, string And = "and", string EmptyValue = null, char Separator = ',')
+        public static string ToPhrase<T>(this IEnumerable<T> Texts, string PhraseStart = EmptyString, string And = "and", string EmptyValue = null, char Separator = ',')
         {
             Separator = Separator.IfBlank(',');
             PhraseStart = PhraseStart.IfBlank(EmptyString);
 
-            Texts = (Texts ?? Array.Empty<TSource>()).WhereNotBlank();
+            Texts = (Texts ?? Array.Empty<T>()).WhereNotBlank();
 
-            if (PhraseStart.IsNotBlank() && !PhraseStart.EndsWith(WhitespaceChar, StringComparison.InvariantCultureIgnoreCase))
+            if (PhraseStart.IsNotBlank() && !PhraseStart.EndsWithAny(StringComparison.InvariantCultureIgnoreCase, PredefinedArrays.BreakLineChars.ToArray()) && !PhraseStart.EndsWith(WhitespaceChar, StringComparison.InvariantCultureIgnoreCase))
             {
                 PhraseStart += WhitespaceChar;
             }
@@ -14650,10 +14650,7 @@ namespace InnerLibs
                     {
                         PhraseStart += EmptyValue;
                     }
-                    else
-                    {
-                        PhraseStart = EmptyString;
-                    }
+
                     break;
 
                 case 1:
@@ -14740,7 +14737,7 @@ namespace InnerLibs
             for (int index = 0, loopTo = l.Count - 1; index <= loopTo; index++)
             {
                 string pal = l[index];
-                bool artigo = index > 0 && IsIn(pal, "o", "a", "os", "as", "um", "uma", "uns", "umas", "de", "do", "dos", "das", "e", "ou");
+                bool artigo = index > 0 && IsIn(pal, "o", "a", "os", "as", "um", "uma", "uns", "umas", "de", "do", "dos", "das", "e", "ou", "of");
                 if (pal.IsNotBlank())
                 {
                     if (ForceCase || artigo == false)
@@ -14840,18 +14837,18 @@ namespace InnerLibs
         /// <summary>
         /// Converte um ToType para short. Retorna Nothing (NULL) se a conversão falhar
         /// </summary>
-        /// <typeparam name="FromType">Tipo de origem</typeparam>
+        /// <typeparam name="T">Tipo de origem</typeparam>
         /// <param name="Value">Variavel com valor</param>
         /// <returns>Valor convertido em novo ToType</returns>
-        public static double ToShort<FromType>(this FromType Value) => Value.ChangeType<short>();
+        public static double ToShort<T>(this T Value) => Value.ChangeType<short>();
 
         /// <summary>
         /// Converte um ToType para Single. Retorna Nothing (NULL) se a conversão falhar
         /// </summary>
-        /// <typeparam name="FromType">Tipo de origem</typeparam>
+        /// <typeparam name="T">Tipo de origem</typeparam>
         /// <param name="Value">Variavel com valor</param>
         /// <returns>Valor convertido em novo ToType</returns>
-        public static float ToSingle<FromType>(this FromType Value) => Value.ChangeType<float>();
+        public static float ToFloat<T>(this T Value) => Value.ChangeType<float>();
 
         /// <summary>
         /// Prepara uma string para se tornar uma URL amigavel (remove caracteres nao permitidos e
