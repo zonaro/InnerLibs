@@ -132,6 +132,7 @@ namespace InnerLibs.Mail
 
                 foreach (var mailMessage in GenerateEmails())
                 {
+                    TemplateMailAddress<T> newto;
                     try
                     {
                         if (TestEmail.IsEmail())
@@ -144,15 +145,15 @@ namespace InnerLibs.Mail
 
                         Smtp.Send(mailMessage);
 
-                        _status.Add((mailMessage.To.First() as TemplateMailAddress<T>, SentStatus.Success, null));
-
-                        SuccessAction?.Invoke(mailMessage.To.First() as TemplateMailAddress<T>, this);
+                        newto = new TemplateMailAddress<T>(mailMessage.To.First());
+                        _status.Add((newto, SentStatus.Success, null));
+                        SuccessAction?.Invoke(newto, this);
                     }
                     catch (Exception ex)
                     {
-                        _status.Add((mailMessage.To.First() as TemplateMailAddress<T>, SentStatus.Error, ex));
-
-                        ErrorAction?.Invoke(mailMessage.To.First() as TemplateMailAddress<T>, this, ex);
+                        newto = new TemplateMailAddress<T>(mailMessage.To.First());
+                        _status.Add((newto, SentStatus.Error, ex));
+                        ErrorAction?.Invoke(newto, this, ex);
                     }
                     finally
                     {
@@ -866,6 +867,19 @@ namespace InnerLibs.Mail
         #endregion Internal Fields
 
         #region Public Constructors
+
+        public TemplateMailAddress(MailAddress address) : base(address?.Address, address?.DisplayName)
+        {
+            if (address is TemplateMailAddress<T> a)
+            {
+                this.TemplateData = a.TemplateData;
+            }
+        }
+
+        public TemplateMailAddress(MailAddress address, T TemplateData) : base(address?.Address, address?.DisplayName)
+        {
+            this.TemplateData = TemplateData;
+        }
 
         public TemplateMailAddress(string address, T TemplateData = null) : base(address)
         {
