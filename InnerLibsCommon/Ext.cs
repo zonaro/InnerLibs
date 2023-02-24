@@ -122,7 +122,7 @@ namespace InnerLibs
         public static IEnumerable<ImageFormat> ImageTypes { get; private set; } = new[] { ImageFormat.Bmp, ImageFormat.Emf, ImageFormat.Exif, ImageFormat.Gif, ImageFormat.Icon, ImageFormat.Jpeg, ImageFormat.Png, ImageFormat.Tiff, ImageFormat.Wmf }.AsEnumerable();
 
         /// <summary>
-        /// Retorna uma lista com todas as <see cref="KnowColor"/> convertidas em <see cref="System.Drawing.Color"/>
+        /// Retorna uma lista com todas as <see cref="KnowColor"/> convertidas em <see cref="Color"/>
         /// </summary>
         public static IEnumerable<Color> KnowColors => GetEnumValues<KnownColor>().Select(x => Color.FromKnownColor(x));
         public static IEnumerable<HSVColor> KnowHSVColors => KnowColors.Select(x => new HSVColor(x));
@@ -1345,10 +1345,7 @@ namespace InnerLibs
         /// imagens serão combinadas horizontalmente (Uma do lado da outra da esquerda para a direita)
         /// </param>
         /// <returns>Um Bitmap com a combinaçao de todas as imagens da Lista</returns>
-        public static Bitmap CombineImages(bool VerticalFlow, params Image[] Images)
-        {
-            return Images.CombineImages(VerticalFlow);
-        }
+        public static Bitmap CombineImages(bool VerticalFlow, params Image[] Images) => Images.CombineImages(VerticalFlow);
 
         /// <summary>
         /// Combina 2 ou mais imagens em uma única imagem
@@ -2853,9 +2850,9 @@ namespace InnerLibs
 
         public static byte[] DownloadFile(this Uri URL, NameValueCollection Headers = null, Encoding Encoding = null) => DownloadFile($"{URL}", Headers, Encoding);
 
-        public static System.Drawing.Image DownloadImage(string URL, NameValueCollection Headers = null, Encoding Encoding = null) => DownloadFile(URL, Headers, Encoding).ToImage();
+        public static Image DownloadImage(string URL, NameValueCollection Headers = null, Encoding Encoding = null) => DownloadFile(URL, Headers, Encoding).ToImage();
 
-        public static System.Drawing.Image DownloadImage(this Uri URL, NameValueCollection Headers = null, Encoding Encoding = null) => DownloadImage($"{URL}", Headers, Encoding);
+        public static Image DownloadImage(this Uri URL, NameValueCollection Headers = null, Encoding Encoding = null) => DownloadImage($"{URL}", Headers, Encoding);
 
         public static T DownloadJson<T>(string URL, NameValueCollection Headers = null, Encoding Encoding = null) => DownloadString(URL, Headers, Encoding).FromJson<T>();
 
@@ -3444,18 +3441,15 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static string FixPath(this string Text, bool AlternativeChar = false)
-        {
-            return Text?.Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries).Where(x => x.IsNotBlank()).Select((x, i) =>
-            {
-                if (i == 0 && x.Length == 2 && x.EndsWith(":"))
-                {
-                    return x;
-                }
+        public static string FixPath(this string Text, bool AlternativeChar = false) => Text?.Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries).Where(x => x.IsNotBlank()).Select((x, i) =>
+                                                                                                 {
+                                                                                                     if (i == 0 && x.Length == 2 && x.EndsWith(":"))
+                                                                                                     {
+                                                                                                         return x;
+                                                                                                     }
 
-                return x.ToFriendlyPathName();
-            }).SelectJoinString(AlternativeChar.AsIf(Path.AltDirectorySeparatorChar.ToString(), Path.DirectorySeparatorChar.ToString())).TrimEndAny(Path.DirectorySeparatorChar.ToString(), Path.AltDirectorySeparatorChar.ToString());
-        }
+                                                                                                     return x.ToFriendlyPathName();
+                                                                                                 }).SelectJoinString(AlternativeChar.AsIf(Path.AltDirectorySeparatorChar.ToString(), Path.DirectorySeparatorChar.ToString())).TrimEndAny(Path.DirectorySeparatorChar.ToString(), Path.AltDirectorySeparatorChar.ToString());
 
         /// <summary>
         /// Adciona pontuação ao final de uma string se a mesma não terminar com alguma pontuacao.
@@ -4142,7 +4136,7 @@ namespace InnerLibs
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static string GetEnumValueAsString<T>(this string Value) => Value.GetEnumValue<T>().GetEnumValueAsString<T>();
+        public static string GetEnumValueAsString<T>(this string Value) => Value.GetEnumValue<T>().GetEnumValueAsString();
 
         /// <summary>
         /// Traz a string correspondente ao <paramref name="Value"/> de uma <see cref="Enum"/> do
@@ -4150,7 +4144,7 @@ namespace InnerLibs
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static string GetEnumValueAsString<T>(this int Value) => Value.GetEnumValue<T>().GetEnumValueAsString<T>();
+        public static string GetEnumValueAsString<T>(this int Value) => Value.GetEnumValue<T>().GetEnumValueAsString();
 
         /// <summary>
         /// Traz todos os Valores de uma enumeração
@@ -4545,10 +4539,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="OriginalImage"></param>
         /// <returns></returns>
-        public static ImageFormat GetImageFormat(this Image OriginalImage)
-        {
-            return ImageTypes.Where(p => p.Guid == OriginalImage.RawFormat.Guid).FirstOr(ImageFormat.Png);
-        }
+        public static ImageFormat GetImageFormat(this Image OriginalImage) => ImageTypes.Where(p => p.Guid == OriginalImage.RawFormat.Guid).FirstOr(ImageFormat.Png);
 
         /// <summary>
         /// Tenta retornar um index de um IEnumerable a partir de um valor especifico. retorna -1 se
@@ -4571,11 +4562,9 @@ namespace InnerLibs
 
         public static IEnumerable<Type> GetInheritedClasses<T>() where T : class => GetInheritedClasses(typeof(T));
 
-        public static IEnumerable<Type> GetInheritedClasses(this Type MyType)
-        {
+        public static IEnumerable<Type> GetInheritedClasses(this Type MyType) =>
             //if you want the abstract classes drop the !TheType.IsAbstract but it is probably to instance so its a good idea to keep it.
-            return Assembly.GetAssembly(MyType).GetTypes().Where(TheType => TheType.IsClass && !TheType.IsAbstract && TheType.IsSubclassOf(MyType));
-        }
+            Assembly.GetAssembly(MyType).GetTypes().Where(TheType => TheType.IsClass && !TheType.IsAbstract && TheType.IsSubclassOf(MyType));
 
         public static IEnumerable<string> GetIPs() => GetLocalIP().Union(new[] { GetPublicIP() });
 
@@ -4673,20 +4662,14 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Image">Imagem</param>
         /// <returns>uma lista de Color</returns>
-        public static IEnumerable<HSVColor> GetMostUsedColors(this Image Image, int Count)
-        {
-            return new Bitmap(Image).GetMostUsedColors().Take(Count);
-        }
+        public static IEnumerable<HSVColor> GetMostUsedColors(this Image Image, int Count) => new Bitmap(Image).GetMostUsedColors().Take(Count);
 
         /// <summary>
         /// Retorna uma lista com as cores utilizadas na imagem
         /// </summary>
         /// <param name="Image">Imagem</param>
         /// <returns>uma lista de Color</returns>
-        public static IEnumerable<HSVColor> GetMostUsedColors(this Image Image)
-        {
-            return Image.ColorPallette().Keys;
-        }
+        public static IEnumerable<HSVColor> GetMostUsedColors(this Image Image) => Image.ColorPallette().Keys;
 
         /// <summary>
         /// Retorna a cor negativa de uma cor
@@ -5965,14 +5948,14 @@ namespace InnerLibs
         /// </summary>
         /// <param name="URL">Url do Youtube</param>
         /// <returns></returns>
-        public static System.Drawing.Image GetYoutubeThumbnail(string URL) => DownloadImage($"http://img.youtube.com/vi/{GetVideoID(URL)}/hqdefault.jpg");
+        public static Image GetYoutubeThumbnail(string URL) => DownloadImage($"http://img.youtube.com/vi/{GetVideoID(URL)}/hqdefault.jpg");
 
         /// <summary>
         /// Captura a Thumbnail de um video do youtube
         /// </summary>
         /// <param name="URL">Url do Youtube</param>
         /// <returns></returns>
-        public static System.Drawing.Image GetYoutubeThumbnail(this Uri URL) => GetYoutubeThumbnail(URL?.AbsoluteUri);
+        public static Image GetYoutubeThumbnail(this Uri URL) => GetYoutubeThumbnail(URL?.AbsoluteUri);
 
         /// <summary>
         /// Converte uma Imagem para Escala de cinza
@@ -7414,7 +7397,7 @@ namespace InnerLibs
         /// <remarks>Retornara sempre false quando nao houver conexao com a internet</remarks>
         public static bool IsValidDomain(this string DomainOrEmail)
         {
-            System.Net.IPHostEntry ObjHost;
+            IPHostEntry ObjHost;
             if (DomainOrEmail.IsEmail() == true)
             {
                 DomainOrEmail = "http://" + DomainOrEmail.GetAfter("@");
@@ -10456,7 +10439,7 @@ namespace InnerLibs
         public static FileInfo ReplaceExtension(this FileInfo Info, string Extension)
         {
             if (Info != null)
-                return new FileInfo(Path.Combine(Info.DirectoryName, Info.GetFileNameWithoutExtension() + "." + Extension.IfBlank("bin").TrimStart('.')).FixPath());
+                return new FileInfo(Path.Combine(Info.DirectoryName, $"{Info.GetFileNameWithoutExtension()}.{Extension.IfBlank("bin").TrimStart('.')}").FixPath());
             return null;
         }
 
@@ -10467,12 +10450,12 @@ namespace InnerLibs
         /// <param name="OldText"></param>
         /// <param name="NewText"></param>
         /// <returns></returns>
-        public static string ReplaceFirst(this string Text, string OldText, string NewText = EmptyString)
+        public static string ReplaceFirst(this string Text, string OldText, string NewText = EmptyString, StringComparison Comparison = StringComparison.CurrentCulture)
         {
             if (Text.Contains(OldText))
             {
-                Text = Text.Insert(Text.IndexOf(OldText), NewText);
-                Text = Text.Remove(Text.IndexOf(OldText), 1);
+                Text = Text.Insert(Text.IndexOf(OldText, Comparison), NewText);
+                Text = Text.Remove(Text.IndexOf(OldText, Comparison), 1);
             }
 
             return Text;
@@ -10693,10 +10676,7 @@ namespace InnerLibs
         /// Indica se a imagem deve ser redimensionada apenas se sua largura for maior que a especificada
         /// </param>
         /// <returns></returns>
-        public static Image Resize(this Image Original, Size Size, bool OnlyResizeIfWider = true)
-        {
-            return Original.Resize(Size.Width, Size.Height, OnlyResizeIfWider);
-        }
+        public static Image Resize(this Image Original, Size Size, bool OnlyResizeIfWider = true) => Original.Resize(Size.Width, Size.Height, OnlyResizeIfWider);
 
         /// <summary>
         /// Redimensiona e converte uma Imagem
@@ -10739,10 +10719,7 @@ namespace InnerLibs
         /// <param name="Width"></param>
         /// <param name="Height"></param>
         /// <returns></returns>
-        public static Image ResizeCrop(this Image Image, int Width, int Height)
-        {
-            return Image.Resize(Width, Height, false).Crop(Width, Height);
-        }
+        public static Image ResizeCrop(this Image Image, int Width, int Height) => Image.Resize(Width, Height, false).Crop(Width, Height);
 
         /// <summary>
         /// redimensiona e Cropa uma imagem, aproveitando a maior parte dela
@@ -10751,10 +10728,7 @@ namespace InnerLibs
         /// <param name="Width"></param>
         /// <param name="Height"></param>
         /// <returns></returns>
-        public static Image ResizeCrop(this Image Image, int Width, int Height, bool OnlyResizeIfWider)
-        {
-            return Image.Resize(Width, Height, OnlyResizeIfWider).Crop(Width, Height);
-        }
+        public static Image ResizeCrop(this Image Image, int Width, int Height, bool OnlyResizeIfWider) => Image.Resize(Width, Height, OnlyResizeIfWider).Crop(Width, Height);
 
         /// <summary>
         /// Redimensiona uma imagem para o tamanho definido por uma porcentagem
@@ -10798,10 +10772,7 @@ namespace InnerLibs
             return Original.Resize(size, OnlyResizeIfWider);
         }
 
-        public static Image ResizePercent(this Image Original, decimal Percent, bool OnlyResizeIfWider = true)
-        {
-            return Original.ResizePercent(Percent.ToPercentString(), OnlyResizeIfWider);
-        }
+        public static Image ResizePercent(this Image Original, decimal Percent, bool OnlyResizeIfWider = true) => Original.ResizePercent(Percent.ToPercentString(), OnlyResizeIfWider);
 
         /// <summary>
         /// Arredonda um numero para o valor inteiro mais próximo
@@ -11012,10 +10983,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static Tuple<IEnumerable<T1>, IEnumerable<T2>> RunSQLMany<T1, T2>(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null)
             where T1 : class
-            where T2 : class
-        {
-            return Connection.RunSQLMany<T1, T2>(Connection.CreateCommand(SQL, Transaction));
-        }
+            where T2 : class => Connection.RunSQLMany<T1, T2>(Connection.CreateCommand(SQL, Transaction));
 
         /// <summary>
         /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de
@@ -11099,7 +11067,7 @@ namespace InnerLibs
 
         /// <summary>
         /// Executa uma query SQL parametrizada e retorna o resultado da primeira linha mapeada para
-        /// um <see cref="Dictionary(Of String, Object)"/>
+        /// um <see cref="Dictionary{String, Object}"/>
         /// </summary>
         public static Dictionary<string, object> RunSQLRow(this DbConnection Connection, DbCommand SQL) => Connection.RunSQLRow<Dictionary<string, object>>(SQL);
 
@@ -11145,7 +11113,7 @@ namespace InnerLibs
 
         /// <summary>
         /// Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset
-        /// mapeados para uma lista de <see cref="Dictionary(Of String, Object)"/>
+        /// mapeados para uma lista de <see cref="Dictionary{String, Object}"/>
         /// </summary>
         /// <param name="Connection"></param>
         /// <param name="SQL"></param>
@@ -11177,18 +11145,16 @@ namespace InnerLibs
         /// <param name="SQL"></param>
         /// <returns></returns>
         public static IEnumerable<T> RunSQLSet<T>(this DbConnection Connection, DbCommand SQL, bool WithSubQueries = false) where T : class
-        {
-            return Connection.RunSQLMany(SQL)?.FirstOrDefault()?.Select(x =>
+            => Connection.RunSQLMany(SQL)?.FirstOrDefault()?.Select(x =>
             {
                 T v = (T)x.CreateOrSetObject(null, typeof(T));
                 if (WithSubQueries)
                 {
                     Connection.ProccessSubQuery(v, WithSubQueries);
                 }
-
                 return v;
             }).AsEnumerable();
-        }
+
 
         /// <summary>
         /// Retorna o primeiro resultado da primeira coluna de uma consulta SQL
@@ -11229,7 +11195,7 @@ namespace InnerLibs
         /// <param name="attachment"></param>
         /// <param name="Directory"></param>
         /// <returns></returns>
-        public static FileInfo SaveMailAttachment(this System.Net.Mail.Attachment attachment, DirectoryInfo Directory, DateTime? DateAndTime = null) => attachment.SaveMailAttachment(Directory.FullName, DateAndTime);
+        public static FileInfo SaveMailAttachment(this Attachment attachment, DirectoryInfo Directory, DateTime? DateAndTime = null) => attachment.SaveMailAttachment(Directory.FullName, DateAndTime);
 
         /// <summary>
         /// Salva um anexo para um caminho
@@ -11237,7 +11203,7 @@ namespace InnerLibs
         /// <param name="attachment"></param>
         /// <param name="FilePath"></param>
         /// <returns></returns>
-        public static FileInfo SaveMailAttachment(this System.Net.Mail.Attachment attachment, string FilePath, DateTime? DateAndTime = null)
+        public static FileInfo SaveMailAttachment(this Attachment attachment, string FilePath, DateTime? DateAndTime = null)
         {
             if (attachment != null)
             {
@@ -11405,7 +11371,7 @@ namespace InnerLibs
         }
 
         /// <summary>
-        /// Retorna um <see cref="IQueryable(Of ClassType)"/> procurando em varios campos diferentes
+        /// Retorna um <see cref="IQueryable{ClassType}"/> procurando em varios campos diferentes
         /// de uma entidade
         /// </summary>
         /// <typeparam name="TClass">Tipo da Entidade</typeparam>
@@ -11644,14 +11610,11 @@ namespace InnerLibs
             return obj;
         }
 
-        public static Task SetTimeout(int milliseconds, Action action)
-        {
-            return Task.Delay(milliseconds).ContinueWith(async (t) =>
-                {
-                    TryExecute(action);
-                    t.Dispose();
-                });
-        }
+        public static Task SetTimeout(int milliseconds, Action action) => Task.Delay(milliseconds).ContinueWith(async (t) =>
+                                                                                       {
+                                                                                           TryExecute(action);
+                                                                                           t.Dispose();
+                                                                                       });
 
         public static T SetValuesIn<T>(this Dictionary<string, object> Dic) => (T)Dic.CreateOrSetObject(null, typeof(T));
 
@@ -12307,17 +12270,27 @@ namespace InnerLibs
             return source.GetType() != typeof(IOrderedEnumerable<T>) ? source.OrderBy(x => true) : (IOrderedEnumerable<T>)source;
         }
 
+        /// <summary>
+        /// Converte uma matriz denteada para uma matriz multidemensional
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source"></param>
+        /// <returns></returns>
         public static T[,] To2D<T>(this T[][] source)
         {
-            int FirstDim = source.Length;
-            int SecondDim = source.GroupBy(row => row.Length).Max().Key;
+            if (source != null)
+            {
+                int FirstDim = source.Length;
+                int SecondDim = source.GroupBy(row => row.Length).Max().Key;
 
-            var result = new T[FirstDim, SecondDim];
-            for (int i = 0; i < FirstDim; ++i)
-                for (int j = 0; j < SecondDim; ++j)
-                    result[i, j] = source[i].IfNoIndex(j);
+                var result = new T[FirstDim, SecondDim];
+                for (int i = 0; i < FirstDim; ++i)
+                    for (int j = 0; j < SecondDim; ++j)
+                        result[i, j] = source[i].IfNoIndex(j);
 
-            return result;
+                return result;
+            }
+            return default;
         }
 
         /// <summary>
@@ -12447,7 +12420,7 @@ namespace InnerLibs
             {
                 if (Convert.ToInt32(valores[i]) < Convert.ToInt32(valores[i + 1]))
                 {
-                    throw new ArgumentException("Invalid Roman number.In this case the digit can not be greater than the previous one.");
+                    throw new ArgumentException("Invalid Roman number. In this case the digit can not be greater than the previous one.");
                 }
             }
 
@@ -12544,65 +12517,26 @@ namespace InnerLibs
         /// <returns></returns>
         public static string ToBase64(this byte[] Bytes) => Convert.ToBase64String(Bytes);
 
-        public static string ToBase64(this Image OriginalImage, System.Drawing.Imaging.ImageFormat OriginalImageFormat)
+        public static string ToBase64(this Image OriginalImage, ImageFormat OriginalImageFormat = null)
         {
-            using (var ms = new MemoryStream())
-            {
-                OriginalImage.Save(ms, OriginalImageFormat);
-                var imageBytes = ms.ToArray();
-                return Convert.ToBase64String(imageBytes);
-            }
-        }
-
-        /// <summary>
-        /// Converte uma Imagem para String Util
-        /// </summary>
-        /// <param name="OriginalImage">
-        /// Imagem original, tipo Image() (Picturebox.Image, Picturebox.BackgroundImage etc.)
-        /// </param>
-        /// <returns>Uma string em formato Util</returns>
-        public static string ToBase64(this Image OriginalImage)
-        {
-            using (var ms = new MemoryStream())
-            {
-                OriginalImage.Save(ms, OriginalImage.GetImageFormat());
-                var imageBytes = ms.ToArray();
-                return Convert.ToBase64String(imageBytes);
-            }
-        }
-
-        /// <summary>
-        /// Converte uma Imagem da WEB para String Util
-        /// </summary>
-        /// <param name="ImageURL">Caminho da imagem</param>
-        /// <returns>Uma string em formato Util</returns>
-        public static string ToBase64(this Uri ImageURL)
-        {
-            if (ImageURL != null)
-            {
-                var imagem = DownloadImage(ImageURL?.AbsoluteUri);
-                using (var m = new MemoryStream())
+            if (OriginalImage != null)
+                using (var ms = new MemoryStream())
                 {
-                    imagem.Save(m, imagem.RawFormat);
-                    var imageBytes = m.ToArray();
-                    string base64String = Convert.ToBase64String(imageBytes);
-                    return base64String;
+                    OriginalImage.Save(ms, OriginalImageFormat ?? OriginalImage.GetImageFormat() ?? ImageFormat.Png);
+                    var imageBytes = ms.ToArray();
+                    return Convert.ToBase64String(imageBytes);
                 }
-            }
             return null;
         }
 
-        public static string ToBase64(this string ImageURL, System.Drawing.Imaging.ImageFormat OriginalImageFormat)
-        {
-            var imagem = Image.FromStream(WebRequest.Create(string.Format(ImageURL)).GetResponse().GetResponseStream());
-            using (var m = new MemoryStream())
-            {
-                imagem.Save(m, OriginalImageFormat);
-                var imageBytes = m.ToArray();
-                string base64String = Convert.ToBase64String(imageBytes);
-                return base64String;
-            }
-        }
+
+        /// <summary>
+        /// Converte uma Imagem da WEB para Base64
+        /// </summary>
+        /// <param name="ImageURL">Caminho da imagem</param>
+        /// <returns>Uma string em formato Util</returns>
+        public static string ToBase64(this Uri ImageURL, ImageFormat OriginalImageFormat, NameValueCollection Headers = null, Encoding Encoding = null) => ImageURL != null ? (ImageURL.DownloadImage(Headers, Encoding)?.ToBase64(OriginalImageFormat)) : null;
+
 
         /// <summary>
         /// Monta um Comando SQL para executar uma procedure especifica para cada item em uma
@@ -12653,7 +12587,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="attachment"></param>
         /// <returns></returns>
-        public static byte[] ToBytes(this System.Net.Mail.Attachment attachment) => attachment?.ContentStream.ToBytes() ?? Array.Empty<byte>();
+        public static byte[] ToBytes(this Attachment attachment) => attachment?.ContentStream.ToBytes() ?? Array.Empty<byte>();
 
         /// <summary>
         /// Converte um stream em Bytes
@@ -12716,7 +12650,7 @@ namespace InnerLibs
         {
             if (Text.IsBlank()) return Color.Transparent;
 
-            if (Text == "random") return RandomColor();
+            if (Text == "random" || Text == "rnd") return RandomColor();
 
             if (Text.IsNumber()) return Color.FromArgb(Text.ToInt());
 
@@ -12728,6 +12662,15 @@ namespace InnerLibs
                 return maybecolor.ToDrawingColor();
             }
 
+            if (Text.Contains("*"))
+            {
+                var various = Text.Split("*");
+
+                if (various.Any())
+                {
+                    return various.Select(x => new HSVColor(x.Trim())).Aggregate((a, b) => a * b);
+                }
+            }
             if (Text.Contains("+"))
             {
                 var various = Text.Split("+");
@@ -12744,15 +12687,6 @@ namespace InnerLibs
                 if (various.Any())
                 {
                     return various.Select(x => new HSVColor(x.Trim())).Aggregate((a, b) => a - b);
-                }
-            }
-            if (Text.Contains("*"))
-            {
-                var various = Text.Split("*");
-
-                if (various.Any())
-                {
-                    return various.Select(x => new HSVColor(x.Trim())).Aggregate((a, b) => a * b);
                 }
             }
 
@@ -12774,14 +12708,14 @@ namespace InnerLibs
             return (ConsoleColor)index;
         }
 
-        public static string ToCssRGB(this Color Color) => "rgb(" + Color.R.ToString() + "," + Color.G.ToString() + "," + Color.B.ToString() + ")";
+        public static string ToCssRGB(this Color Color) => $"rgb({Color.R},{Color.G},{Color.B})";
 
         /// <summary>
         /// Converte uma cor de sistema para CSS RGB
         /// </summary>
         /// <param name="Color">Cor do sistema</param>
         /// <returns>String contendo a cor em RGB</returns>
-        public static string ToCssRGBA(this Color Color) => "rgba(" + Color.R.ToString() + "," + Color.G.ToString() + "," + Color.B.ToString() + "," + Color.A.ToString() + ")";
+        public static string ToCssRGBA(this Color Color) => $"rgba({Color.R},{Color.G},{Color.B},{Color.A})";
 
         /// <summary>
         /// Returns a CSV String from <see cref="IEnumerable{T}"/>
@@ -12861,7 +12795,7 @@ namespace InnerLibs
         /// <param name="OriginalImage">Imagem</param>
         /// <param name="OriginalImageFormat">Formato da Imagem</param>
         /// <returns>Uma data URI com a imagem convertida</returns>
-        public static string ToDataURL(this Image OriginalImage, System.Drawing.Imaging.ImageFormat OriginalImageFormat) => OriginalImage.ToBase64(OriginalImageFormat).Base64ToImage().ToDataURL();
+        public static string ToDataURL(this Image OriginalImage, ImageFormat OriginalImageFormat) => OriginalImage.ToBase64(OriginalImageFormat).Base64ToImage().ToDataURL();
 
         /// <summary>
         /// Converte um ToType para DateTime. Retorna Nothing (NULL) se a conversão falhar
@@ -15951,7 +15885,7 @@ namespace InnerLibs
 
         /// <summary>
         /// Write a message using <see cref="Debug.WriteLine(value,category)"/> when <see
-        /// cref="Ext.EnableDebugMessages"/> is true
+        /// cref="EnableDebugMessages"/> is true
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="value"></param>
