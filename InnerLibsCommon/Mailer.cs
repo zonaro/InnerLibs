@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -918,6 +919,7 @@ namespace InnerLibs.Mail
                             if (p.Value is Attachment att1)
                             {
                                 l.Add(att1.WriteDebug($"{att1.Name} from Attachment property {p.Key}"));
+                                continue;
                             }
 
                             if (p.Value is FileInfo f)
@@ -926,6 +928,7 @@ namespace InnerLibs.Mail
                                 if (af != null)
                                 {
                                     l.Add(af.WriteDebug($"{f.Name} from FileInfo property {p.Key}"));
+                                    continue;
                                 }
                             }
 
@@ -939,13 +942,15 @@ namespace InnerLibs.Mail
                                     if (af != null)
                                         l.Add(af.WriteDebug($"{ff.Name} from FileInfo in {ff.Directory.FullName} from property {p.Key}"));
                                 }
+                                continue;
+
                             }
 
                             if (p.Value.IsEnumerableNotString())
                             {
                                 tipo.WriteDebug("Traversing");
 
-                                foreach (var oo in (object[])p.Value)
+                                foreach (var oo in (IEnumerable)p.Value)
                                 {
                                     if (oo is Attachment att3)
                                     {
@@ -970,7 +975,7 @@ namespace InnerLibs.Mail
                                             if (af != null)
                                                 l.Add(af.WriteDebug($"{ff.Name} from FileInfo in {ff.Directory.FullName} from {p.Key} in {tipo.Name} type property"));
                                         }
-                                        continue;
+
                                     }
                                 }
                             }
