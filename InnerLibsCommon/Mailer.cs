@@ -281,7 +281,7 @@ namespace InnerLibs.Mail
         public FluentMailMessage<T> AddBcc(params string[] Emails)
         {
             foreach (var email in (Emails ?? Array.Empty<string>()).SelectMany(x => x.ExtractEmails()).ToArray())
-                Bcc.Add(new TemplateMailAddress(email));
+                Bcc.Add(new MailAddress(email));
             return this;
         }
 
@@ -305,7 +305,7 @@ namespace InnerLibs.Mail
         public FluentMailMessage<T> AddCc(params string[] Emails)
         {
             foreach (var email in (Emails ?? Array.Empty<string>()).SelectMany(x => x.ExtractEmails()).ToArray())
-                CC.Add(new TemplateMailAddress(email));
+                CC.Add(new MailAddress(email));
             return this;
         }
 
