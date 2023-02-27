@@ -5383,6 +5383,50 @@ namespace InnerLibs
         }
 
         /// <summary>
+        /// Gera uma chave de licença para um produto
+        /// </summary>
+        /// <param name="productIdentifier"></param>
+        /// <returns></returns>
+        public static string GenerateLicenseKey(this string productIdentifier)
+        {
+            var enc = Encoding.Unicode.GetEncoder();
+            byte[] unicodeText = new byte[productIdentifier.Length * 2];
+            enc.GetBytes(productIdentifier.ToCharArray(), 0, productIdentifier.Length, unicodeText, 0, true);
+            MD5 md5 = new MD5CryptoServiceProvider();
+            byte[] result = md5.ComputeHash(unicodeText);
+
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < result.Length; i++)
+            {
+                sb.Append(result[i].ToString("X2"));
+            }
+
+            productIdentifier = sb.ToString().Substring(0, 28).ToUpper();
+            char[] serialArray = productIdentifier.ToCharArray();
+            StringBuilder licenseKey = new StringBuilder();
+
+            int j;
+            for (int i = 0; i < 28; i++)
+            {
+                for (j = i; j < 4 + i; j++)
+                {
+                    licenseKey.Append(serialArray[j]);
+                }
+                if (j == 28)
+                {
+                    break;
+                }
+                else
+                {
+                    i = (j) - 1;
+                    licenseKey.Append('-');
+                }
+            }
+            return licenseKey.ToString();
+        }
+
+
+        /// <summary>
         /// Retorna o caractere de encapsulamento oposto ao caractere indicado
         /// </summary>
         /// <param name="Text">Caractere</param>
