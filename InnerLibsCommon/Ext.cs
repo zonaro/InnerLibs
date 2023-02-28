@@ -11913,18 +11913,15 @@ namespace InnerLibs
         /// <returns></returns>
         public static string[] SplitAny(this string Text, StringSplitOptions SplitOptions, IEnumerable<string> SplitText) => Text?.SplitAny(SplitOptions, SplitText.ToArray());
 
-        public static IEnumerable<string> SplitIntoChunks(this string inputString, int chunkSize)
+        public static IEnumerable<string> SplitChunk(this string inputString, int chunkSize)
         {
-
-            if (chunkSize > 0)
+            inputString = inputString ?? EmptyString;
+            if (chunkSize > 0 && inputString.Length > 0)
             {
                 for (int i = 0; i < inputString.Length; i += chunkSize)
                 {
                     int remainingLength = inputString.Length - i;
-                    int currentChunkSize = remainingLength < chunkSize ? remainingLength : chunkSize;
-
-                    string chunk = inputString.Substring(i, currentChunkSize);
-                    yield return chunk;
+                    yield return inputString.Substring(i, remainingLength < chunkSize ? remainingLength : chunkSize);
                 }
             }
             else yield return inputString;
