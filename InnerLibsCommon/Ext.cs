@@ -9911,6 +9911,43 @@ namespace InnerLibs
         /// <returns></returns>
         public static TextStructure RandomIpsum(int ParagraphCount = 5, int SentenceCount = 3, int MinWordCount = 10, int MaxWordCount = 50, int IdentSize = 0, int BreakLinesBetweenParagraph = 0) => new TextStructure(Enumerable.Range(1, ParagraphCount.SetMinValue(1)).SelectJoinString(pp => Enumerable.Range(1, SentenceCount.SetMinValue(1)).SelectJoinString(s => Enumerable.Range(1, RandomNumber(MinWordCount.SetMinValue(1), MaxWordCount.SetMinValue(1))).SelectJoinString(p => RandomBool(20).AsIf(RandomWord(RandomNumber(2, 6)).ToUpperInvariant(), RandomWord()) + RandomBool(30).AsIf(","), " "), PredefinedArrays.EndOfSentencePunctuation.TakeRandom() + " "), Environment.NewLine)) { Ident = IdentSize, BreakLinesBetweenParagraph = BreakLinesBetweenParagraph };
 
+
+
+
+        public static TextStructure LoremIpsum(int ParagraphCount = 5, int SentenceCount = 3, int MinWordCount = 10, int MaxWordCount = 50)
+        {
+            string[] words = { "lorem", "ipsum", "dolor", "sit", "amet", "consectetur", "adipiscing", "elit", "sed", "do", "eiusmod", "tempor", "incididunt", "ut", "labore", "et", "dolore", "magna", "aliqua", "Ut", "enim", "ad", "minim", "veniam", "quis", "nostrud", "exercitation", "ullamco", "laboris", "nisi", "ut", "aliquip", "ex", "ea", "commodo", "consequat", "Duis", "aute", "irure", "dolor", "in", "reprehenderit", "in", "voluptate", "velit", "esse", "cillum", "dolore", "eu", "fugiat", "nulla", "pariatur" };
+
+
+            StringBuilder sb = new StringBuilder();
+
+
+            for (int i = 0; i < ParagraphCount; i++)
+            {
+                for (int j = 0; j < SentenceCount; j++)
+                {
+                    int sentenceLength = RandomNumber(MinWordCount, MaxWordCount); // Choose a random sentence length between 4 and 14 words
+                    for (int k = 0; k < sentenceLength; k++)
+                    {
+
+                        string word = words.RandomItem();
+                        if (k == 0)
+                        {
+                            word = char.ToUpper(word[0]) + word.Substring(1); // Capitalize the first letter of the first word in the sentence
+                        }
+                        sb.Append(word);
+                        sb.Append(WhitespaceChar);
+                    }
+                    sb.Append(". "); // Add a period at the end of the sentence
+                }
+                sb.Append(Environment.NewLine); // Add a newline character between paragraphs
+            }
+
+            return new TextStructure(sb.ToString());
+        }
+
+
+
         /// <summary>
         /// Sorteia um item da Matriz
         /// </summary>
