@@ -12,7 +12,7 @@ namespace InnerLibs
     /// <summary>
     /// Classe que representa um MIME Type
     /// </summary>
-    public class FileType 
+    public class FileType
     {
         #region Private Fields
 
@@ -164,8 +164,8 @@ namespace InnerLibs
                     BaseList = new FileTypeList();
                     foreach (XmlNode node in doc["mimes"].ChildNodes)
                     {
-                        var ft = BaseList.FirstOr(x => (x.Description ?? InnerLibs.Ext.EmptyString) == (node["Label"].InnerText.TrimBetween() ?? InnerLibs.Ext.EmptyString), new FileType());
-                        ft.Description = node["Label"].InnerText.TrimBetween();
+                        var ft = BaseList.FirstOr(x => (x.Description ?? InnerLibs.Ext.EmptyString) == (node["Description"].InnerText.TrimBetween() ?? InnerLibs.Ext.EmptyString), new FileType());
+                        ft.Description = node["Description"].InnerText.TrimBetween();
 
                         foreach (XmlNode item in node["MimeTypes"].ChildNodes)
                         {

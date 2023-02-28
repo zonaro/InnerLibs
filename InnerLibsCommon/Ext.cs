@@ -7307,6 +7307,10 @@ namespace InnerLibs
         {
             try
             {
+                if ($"{Value}".ToCharArray().All(x => char.IsNumber(x)))
+                {
+                    return true;
+                }
                 Convert.ToDecimal(Value, CultureInfo.InvariantCulture);
                 return Value != null && $"{Value}".IsIP() == false && ((Value.GetType() == typeof(DateTime)) == false);
             }
@@ -9806,7 +9810,7 @@ namespace InnerLibs
         /// <param name="Blue"></param>
         /// <remarks></remarks>
         /// <returns></returns>
-        public static List<Color> RandomColorList(int Quantity, int Red = -1, int Green = -1, int Blue = -1)
+        public static IEnumerable<Color> RandomColorList(int Quantity, int Red = -1, int Green = -1, int Blue = -1)
         {
             Red = Red.SetMinValue(-1);
             Green = Green.SetMinValue(-1);
@@ -9909,43 +9913,39 @@ namespace InnerLibs
         /// <param name="MinWordCount"></param>
         /// <param name="MaxWordCount"></param>
         /// <returns></returns>
-        public static TextStructure RandomIpsum(int ParagraphCount = 5, int SentenceCount = 3, int MinWordCount = 10, int MaxWordCount = 50, int IdentSize = 0, int BreakLinesBetweenParagraph = 0) => new TextStructure(Enumerable.Range(1, ParagraphCount.SetMinValue(1)).SelectJoinString(pp => Enumerable.Range(1, SentenceCount.SetMinValue(1)).SelectJoinString(s => Enumerable.Range(1, RandomNumber(MinWordCount.SetMinValue(1), MaxWordCount.SetMinValue(1))).SelectJoinString(p => RandomBool(20).AsIf(RandomWord(RandomNumber(2, 6)).ToUpperInvariant(), RandomWord()) + RandomBool(30).AsIf(","), " "), PredefinedArrays.EndOfSentencePunctuation.TakeRandom() + " "), Environment.NewLine)) { Ident = IdentSize, BreakLinesBetweenParagraph = BreakLinesBetweenParagraph };
+        public static TextStructure RandomIpsum(int ParagraphCount = 5, int SentenceCount = 3, int MinWordCount = 10, int MaxWordCount = 50, int IdentSize = 0, int BreakLinesBetweenParagraph = 0, int Words = 300) => LoremIpsum(ParagraphCount, SentenceCount, MinWordCount, MaxWordCount, IdentSize, BreakLinesBetweenParagraph, Enumerable.Range(0, Words).Select(x => RandomWord(2, 14)).ToArray());
 
 
-
-
-        public static TextStructure LoremIpsum(int ParagraphCount = 5, int SentenceCount = 3, int MinWordCount = 10, int MaxWordCount = 50)
+        public static TextStructure LoremIpsum(int ParagraphCount = 5, int SentenceCount = 3, int MinWordCount = 10, int MaxWordCount = 50, int IdentSize = 0, int BreakLinesBetweenParagraph = 0, string[] Words = null)
         {
-            string[] words = { "lorem", "ipsum", "dolor", "sit", "amet", "consectetur", "adipiscing", "elit", "sed", "do", "eiusmod", "tempor", "incididunt", "ut", "labore", "et", "dolore", "magna", "aliqua", "Ut", "enim", "ad", "minim", "veniam", "quis", "nostrud", "exercitation", "ullamco", "laboris", "nisi", "ut", "aliquip", "ex", "ea", "commodo", "consequat", "Duis", "aute", "irure", "dolor", "in", "reprehenderit", "in", "voluptate", "velit", "esse", "cillum", "dolore", "eu", "fugiat", "nulla", "pariatur" };
+            var sb = new StringBuilder();
+            if (Words == null || Words.Length == 0)
+                Words = new[] { "lorem", "ipsum", "dolor", "sit", "amet", "consectetur", "adipiscing", "elit", "sed", "do", "eiusmod", "tempor", "incididunt", "ut", "labore", "et", "dolore", "magna", "aliqua", "Ut", "enim", "ad", "minim", "veniam", "quis", "nostrud", "exercitation", "ullamco", "laboris", "nisi", "ut", "aliquip", "ex", "ea", "commodo", "consequat", "Duis", "aute", "irure", "dolor", "in", "reprehenderit", "in", "voluptate", "velit", "esse", "cillum", "dolore", "eu", "fugiat", "nulla", "pariatur" };
 
-
-            StringBuilder sb = new StringBuilder();
-
-
-            for (int i = 0; i < ParagraphCount; i++)
+            for (int i = 0; i < ParagraphCount.SetMinValue(1); i++)
             {
-                for (int j = 0; j < SentenceCount; j++)
+                sb.Append(WhitespaceChar.Repeat(IdentSize));
+                for (int j = 0; j < SentenceCount.SetMinValue(1); j++)
                 {
-                    int sentenceLength = RandomNumber(MinWordCount, MaxWordCount); // Choose a random sentence length between 4 and 14 words
-                    for (int k = 0; k < sentenceLength; k++)
+                    for (int k = 0; k < RandomNumber(MinWordCount.SetMinValue(1), MaxWordCount.SetMinValue(1)); k++)
                     {
-
-                        string word = words.RandomItem();
+                        string word = Words.RandomItem();
                         if (k == 0)
                         {
-                            word = char.ToUpper(word[0]) + word.Substring(1); // Capitalize the first letter of the first word in the sentence
+                            word = word.ToSentenceCase();
                         }
-                        sb.Append(word);
-                        sb.Append(WhitespaceChar);
+                        sb.Append(word + WhitespaceChar);
                     }
-                    sb.Append(". "); // Add a period at the end of the sentence
+                    sb.Append(PredefinedArrays.EndOfSentencePunctuation.RandomItem());
                 }
-                sb.Append(Environment.NewLine); // Add a newline character between paragraphs
+                sb.Append(Environment.NewLine);
+                sb.Append(Environment.NewLine.Repeat(BreakLinesBetweenParagraph)); // Add more newline character between paragraphs
+
+
             }
 
             return new TextStructure(sb.ToString());
         }
-
 
 
         /// <summary>
@@ -14813,6 +14813,8 @@ namespace InnerLibs
             return Connection.CreateCommand(sql, Dic.ToDictionary(x => x.Key, x => x.Value), Transaction);
         }
 
+
+
         /// <summary>
         /// Coloca o texto em TitleCase
         /// </summary>
@@ -14851,6 +14853,18 @@ namespace InnerLibs
             }
 
             return l.SelectJoinString(WhitespaceChar);
+        }
+
+        public static string ToSentenceCase(this string Text, CultureInfo culture = null)
+        {
+            culture = culture ?? CultureInfo.CurrentCulture;
+            if (Text.IsNotBlank())
+            {
+                if (Text.Length >= 2)
+                    Text = char.ToUpper(Text[0], culture) + Text.Substring(1);
+                else Text = Text.ToUpper(culture);
+            }
+            return Text;
         }
 
         /// <summary>
