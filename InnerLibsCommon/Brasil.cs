@@ -11,6 +11,16 @@ namespace InnerLibs.BR
 
     public class ChaveNFe
     {
+        public ChaveNFe()
+        {
+
+        }
+        
+        public ChaveNFe(string NFeKey)
+        {
+            this.NFeKey = NFeKey;
+        }
+
         #region Private Fields
 
         private string chave;
