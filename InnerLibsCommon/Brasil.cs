@@ -9,68 +9,82 @@ namespace InnerLibs.BR
 {
 
 
-    public class ChaveNFe
-    {
-        public ChaveNFe()
-        {
+   public class ChaveNFe
+{
+	public ChaveNFe()
+	{
 
-        }
-        
-        public ChaveNFe(string NFeKey)
-        {
-            this.NFeKey = NFeKey;
-        }
+	}
 
-        #region Private Fields
+	public ChaveNFe(string NFeKey)
+	{
+		this.NFeKey = NFeKey;
+	}
 
-        private string chave;
+	public string NFeKey
+	{
+		get => ToString();
+		set
+		{
+			var c = "";
+			foreach (char item in value ?? Ext.EmptyString)
+			{
+				if (char.IsNumber(item))
+				{
+					c += item;
+				}
+			}
 
-        #endregion Private Fields
-
-        #region Public Properties
-
-        public int Year => NFeKey.Substring(2, 2).ToInt();
-
-        public string NFeKey
-        {
-            get => chave.PadLeft(44, '0');
-            set
-            {
-                var c = "";
-                foreach (char item in value ?? Ext.EmptyString)
-                {
-                    if (char.IsNumber(item))
-                    {
-                        c += item;
-                    }
-                }
-                if (c.Length == 44)
-                {
-                    chave = c;
-                }
-                else
-                {
-                    chave = "".PadLeft(44, '0');
-                }
-            }
-        }
-
-        public string CNPJ => NFeKey.Substring(6, 14).FormatCNPJ();
-
-        public int Digit => NFeKey.Substring(35, 8).ToInt();
-        public int Month => NFeKey.Substring(4, 2).ToInt();
-        public DateTime MonthYear => new DateTime(2000 + Year, Month, 1);
-        public int Model => NFeKey.Substring(20, 2).ToInt();
-        public int Number => NFeKey.Substring(25, 9).ToInt();
-        public int Series => NFeKey.Substring(22, 3).ToInt();
-        public int Type => NFeKey.Substring(34, 1).ToInt();
-        public State State => Brasil.GetState(NFeKey.Substring(0, 2));
-
-        #endregion Public Properties
+			if (c.Length != 44)
+			{
+				c = "".PadLeft(44, '0');
+			}
 
 
-        public override string ToString() => NFeKey;
-    }
+			UF = c.Substring(0, UFSize).ToInt();
+			Year = c.Substring(2, MonthYearSize - 2).ToInt();
+			Month = c.Substring(4, MonthYearSize - 2).ToInt();
+			CNPJ = c.Substring(6, CNPJSize);
+			Model = c.Substring(20, ModelSize).ToInt();
+			Series = c.Substring(22, SerieSize).ToInt();
+			Number = c.Substring(25, NumberSize).ToInt();
+			Code = c.Substring(34, CodeSize).ToInt();
+			Digit = c.Substring(43, DigitSize).ToInt();
+
+
+		}
+	}
+
+	private string cnpj = "";
+	public string CNPJ { get => cnpj.FormatCPFOrCNPJ();	set => cnpj= value.RemoveMask().PadZero(CNPJSize); 	}
+	public int Digit { get; set; }
+	public int Month { get; set; }
+	public int Model { get; set; }
+	public int Number { get; set; }
+	public int Series { get; set; }
+	public int Code { get; set; }
+	public int UF { get; set; }
+	public int Year { get; set; }
+
+	const int UFSize = 2;
+	const int MonthYearSize = 4;
+	const int CNPJSize = 14;
+	const int ModelSize = 2;
+	const int SerieSize = 3;
+	const int NumberSize = 9;
+	const int CodeSize = 9;
+	const int DigitSize = 1;
+
+	public State State => Brasil.GetState($"{UF}");
+	public DateTime MonthYear => new DateTime(2000 + Year, Month, 1);
+
+
+	public override string ToString() => ID.RemoveMask();
+
+
+	public string ID => $"{UF.FixedLenght(UFSize)}-{Year.FixedLenght(MonthYearSize - 2)}{Month.FixedLenght(MonthYearSize - 2)}-{CNPJ.RemoveMask().PadLeft(CNPJSize, '0')}-{Model.FixedLenght(ModelSize)}-{Series.FixedLenght(SerieSize)}-{Number.FixedLenght(NumberSize)}-{Code.FixedLenght(CodeSize)}-{Digit.FixedLenght(DigitSize)}";
+
+}
 
     /// <summary>
     /// Objeto para manipular cidades e estados do Brasil
