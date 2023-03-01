@@ -11966,6 +11966,30 @@ namespace InnerLibs
         }
 
 
+      
+        public static IEnumerable<string> SplitManyChunk(this string input, params int[] chunkSizes)
+        {
+            if (input != null)
+                while (input.Length > 0)
+                {
+                    var size = chunkSizes.IfNoIndex(0, input.Length);
+                    if (size <= 0) size = input.Length;
+                    var chunk = input.GetFirstChars(size);
+                    if (chunk.Length == 0)
+                    {
+                        if (input.Length > 0)
+                            yield return input;
+                        break;
+
+                    }
+                    yield return chunk;
+                    input = input.RemoveFirstChars(size);
+                    chunkSizes = chunkSizes.Skip(1).ToArray();
+
+                }
+
+        }
+
         /// <summary>
         /// Cria uma <see cref="List{T}"/> e adciona um objeto a ela. Util para tipos anonimos
         /// </summary>
