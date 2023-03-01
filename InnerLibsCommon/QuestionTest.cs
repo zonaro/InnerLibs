@@ -6,12 +6,12 @@ using System.Drawing;
 using System.Linq;
 using System.Runtime.Serialization;
 
-namespace InnerLibs.QuestionTests
+namespace QuestionTests
 {
 
 
 
-    public static class QuestionTestExtensions
+    public static class QuestionTesTextensions
     {
         #region Public Methods
 
@@ -21,7 +21,7 @@ namespace InnerLibs.QuestionTests
 
         //}
 
-        public static IEnumerable<QuestionTest> Rank(this IEnumerable<QuestionTest> Tests) => Ext.Rank(Tests, x => x.FinalNote, x => x.Rank);
+        public static IEnumerable<QuestionTest> Rank(this IEnumerable<QuestionTest> Tests) => Util.Rank(Tests, x => x.FinalNote, x => x.Rank);
 
         public static TQuestion SetWeight<TQuestion>(this TQuestion Question, decimal Weight) where TQuestion : Question
         {
@@ -161,7 +161,7 @@ namespace InnerLibs.QuestionTests
             base.OnCollectionChanged(e);
             if (e?.Action == NotifyCollectionChangedAction.Add)
             {
-                Ext.WriteDebug("Alternative Added");
+                Util.WriteDebug("Alternative Added");
                 foreach (var ni in e.NewItems)
                 {
                     Alternative i = (Alternative)ni;
@@ -254,8 +254,8 @@ namespace InnerLibs.QuestionTests
                 var num2 = 0;
                 while (num1 == num2)
                 {
-                    num1 = Ext.RandomNumber(0, Alternatives.Count - 1);
-                    num2 = Ext.RandomNumber(0, Alternatives.Count - 1);
+                    num1 = Util.RandomNumber(0, Alternatives.Count - 1);
+                    num2 = Util.RandomNumber(0, Alternatives.Count - 1);
                 }
 
                 this.Alternatives.Move(num1, num2);
@@ -370,7 +370,7 @@ namespace InnerLibs.QuestionTests
         public override decimal Hits
         {
             get => Alternatives.Count > 0 ? Alternatives.Count(x => x.IsCorrect) * Weight / Alternatives.Count : 0;
-            set => Ext.WriteDebug($"Can't set hits on {nameof(MultipleAlternativeQuestion)}");
+            set => Util.WriteDebug($"Can't set hits on {nameof(MultipleAlternativeQuestion)}");
         }
 
         /// <summary>
@@ -543,7 +543,7 @@ namespace InnerLibs.QuestionTests
         public bool Reviewed { get; set; }
 
         /// <summary>
-        /// Enunciado da questão (texto da pergunta)
+        /// Enunciado da questão (Texto da pergunta)
         /// </summary>
         /// <returns></returns>
         public QuestionStatement Statement
@@ -581,7 +581,7 @@ namespace InnerLibs.QuestionTests
         #region Public Methods
 
         /// <summary>
-        /// Return the statment text for this question
+        /// Return the statment Text for this question
         /// </summary>
         /// <returns></returns>
         public override string ToString() => ($"{Number}) " + Statement?.Text).Trim();
@@ -598,7 +598,7 @@ namespace InnerLibs.QuestionTests
 
         internal Question _question;
 
-        internal string _text = InnerLibs.Ext.EmptyString;
+        internal string _Text = Util.EmptyString;
 
         #endregion Internal Fields
 
@@ -629,9 +629,9 @@ namespace InnerLibs.QuestionTests
         /// <returns></returns>
         public string Text
         {
-            get => _text.FixText();
+            get => _Text.FixText();
 
-            set => _text = value.FixText();
+            set => _Text = value.FixText();
         }
 
         #endregion Public Properties
@@ -654,7 +654,7 @@ namespace InnerLibs.QuestionTests
     {
         #region Private Fields
 
-        private string _title = Ext.EmptyString;
+        private string _title = Util.EmptyString;
 
         private Dictionary<string, object> personalInfo = new Dictionary<string, object>();
 
@@ -724,7 +724,7 @@ namespace InnerLibs.QuestionTests
         /// <summary>
         /// Posição desta avaliação em relação a outras avaliações
         /// </summary>
-        /// <remarks>Coloque todas as avaliações em uma <see cref="IEnumerable{QuestionTest}"/> e utilize o metodo <see cref="QuestionTestExtensions.Rank(IEnumerable{QuestionTest})"/></remarks>
+        /// <remarks>Coloque todas as avaliações em uma <see cref="IEnumerable{QuestionTest}"/> e utilize o metodo <see cref="QuestionTesTextensions.Rank(IEnumerable{QuestionTest})"/></remarks>
         public int Rank { get; set; }
 
 
@@ -799,7 +799,7 @@ namespace InnerLibs.QuestionTests
             {
                 case NotifyCollectionChangedAction.Add:
                     {
-                        Ext.WriteDebug("Question Added");
+                        Util.WriteDebug("Question Added");
                         foreach (var ni in e.NewItems)
                         {
                             Question q = (Question)ni;
@@ -811,7 +811,7 @@ namespace InnerLibs.QuestionTests
 
                 case NotifyCollectionChangedAction.Remove:
                     {
-                        Ext.WriteDebug("Question Removed");
+                        Util.WriteDebug("Question Removed");
                         foreach (var ni in e.OldItems)
                         {
                             Question q = (Question)ni;
@@ -823,7 +823,7 @@ namespace InnerLibs.QuestionTests
 
                 case NotifyCollectionChangedAction.Replace:
                     {
-                        Ext.WriteDebug("Question Replaced");
+                        Util.WriteDebug("Question Replaced");
                         foreach (var ni in e.NewItems)
                         {
                             Question q = (Question)ni;
@@ -942,7 +942,7 @@ namespace InnerLibs.QuestionTests
         {
             var q = new NumericQuestion(this);
             q.Statement.Text = Statement;
-            Ext.FixOrder(ref MinValue, ref MaxValue);
+            Util.FixOrder(ref MinValue, ref MaxValue);
             q.MinValue = MinValue;
             q.MaxValue = MaxValue;
             this.Add(q);
@@ -1062,8 +1062,8 @@ namespace InnerLibs.QuestionTests
                 var num2 = 0;
                 while (num1 == num2)
                 {
-                    num1 = Ext.RandomNumber(0, Count - 1);
-                    num2 = Ext.RandomNumber(0, Count - 1);
+                    num1 = Util.RandomNumber(0, Count - 1);
+                    num2 = Util.RandomNumber(0, Count - 1);
                 }
 
                 this.Move(num1, num2);
@@ -1108,7 +1108,7 @@ namespace InnerLibs.QuestionTests
             foreach (var quest in this.Questions)
             {
                 var sq = new HtmlTag("article").AddClass($"question-{quest.Number}").SetID(quest.ID).InsertInto(list)
-                .AddChildren(quest.Statement.ToString().WrapInTag("h3").AddClass($"question-text-{quest.Number}"));
+                .AddChildren(quest.Statement.ToString().WrapInTag("h3").AddClass($"question-Text-{quest.Number}"));
 
                 if (quest.Statement.Images.Any())
                 {
@@ -1125,7 +1125,7 @@ namespace InnerLibs.QuestionTests
 
                 if (quest is DissertativeQuestion diss)
                 {
-                    new HtmlTag("textarea", diss.Answer).SetID(diss.ID).SetAttribute("name", diss.ID).SetAttribute("rows", $"{diss.Lines}").InsertInto(sq);
+                    new HtmlTag("Textarea", diss.Answer).SetID(diss.ID).SetAttribute("name", diss.ID).SetAttribute("rows", $"{diss.Lines}").InsertInto(sq);
                 }
                 else if (quest is AlternativeQuestion altquest)
                 {
@@ -1157,7 +1157,7 @@ namespace InnerLibs.QuestionTests
             return form;
         }
 
-        public override string ToString() => ToHTML()?.OuterHtml ?? Ext.EmptyString;
+        public override string ToString() => ToHTML()?.OuterHtml ?? Util.EmptyString;
     }
 
     /// <summary>
@@ -1256,7 +1256,7 @@ namespace InnerLibs.QuestionTests
         /// Legenda da Imagem
         /// </summary>
         /// <returns></returns>
-        public string Subtitle { get; set; } = Ext.EmptyString;
+        public string Subtitle { get; set; } = Util.EmptyString;
 
         [IgnoreDataMember]
 
@@ -1291,7 +1291,7 @@ namespace InnerLibs.QuestionTests
 
         #region Public Methods
 
-        public StatementImages Add(Image Image, string Subtitle = Ext.EmptyString)
+        public StatementImages Add(Image Image, string Subtitle = Util.EmptyString)
         {
             var i = new StatementImage(this)
             {
@@ -1302,7 +1302,7 @@ namespace InnerLibs.QuestionTests
             return this;
         }
 
-        public StatementImages Add(string ImagePath, string Subtitle = Ext.EmptyString)
+        public StatementImages Add(string ImagePath, string Subtitle = Util.EmptyString)
         {
             var i = new StatementImage(this)
             {

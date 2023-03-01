@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 
-namespace InnerLibs.Console
+namespace Console
 {
     /// <summary>
     /// Métodos para manipulação de aplicações baseadas em <see cref="System.Console"/>
@@ -49,13 +49,13 @@ namespace InnerLibs.Console
         {
             while (BreakLines > 0)
             {
-                System.Console.WriteLine(InnerLibs.Ext.EmptyString);
+                System.Console.WriteLine(Util.EmptyString);
                 BreakLines--;
             }
             return Text;
         }
 
-        public static string ConsoleBreakLine(this int BreakLines) => ConsoleBreakLine(Ext.EmptyString, BreakLines);
+        public static string ConsoleBreakLine(this int BreakLines) => ConsoleBreakLine(Util.EmptyString, BreakLines);
 
         public static string ConsoleBreakLine() => ConsoleBreakLine(1);
 
@@ -135,7 +135,7 @@ namespace InnerLibs.Console
         }
 
         /// <summary>
-        /// Escreve o texto de uma exception no console
+        /// Escreve o Texto de uma exception no console
         /// </summary>
         /// <param name="Exception">Texto</param>
         /// <param name="Message">Mensagem Adicional de erro</param>
@@ -143,7 +143,7 @@ namespace InnerLibs.Console
         public static T ConsoleWriteError<T>(this T Exception, string Message, string Separator, ConsoleColor Color = ConsoleColor.Red, int BreakLines = 1) where T : Exception => (T)new Exception(Message.IfBlank("Error"), Exception).ConsoleWriteError(Separator, Color, BreakLines);
 
         /// <summary>
-        /// Escreve o texto de uma exception no console
+        /// Escreve o Texto de uma exception no console
         /// </summary>
         /// <param name="Exception">Texto</param>
         /// <param name="Color">Cor</param>
@@ -154,22 +154,22 @@ namespace InnerLibs.Console
         }
 
         /// <summary>
-        /// Escreve o texto de uma exception no console
+        /// Escreve o Texto de uma exception no console
         /// </summary>
         public static T ConsoleWriteError<T>(this T Exception, string Message) where T : Exception => Exception.ConsoleWriteError(Message, " => ");
 
         /// <summary>
-        /// Escreve o texto de uma exception no console
+        /// Escreve o Texto de uma exception no console
         /// </summary>
         public static T ConsoleWriteError<T>(this T Exception) where T : Exception => Exception.ConsoleWriteError(" >> ", ConsoleColor.Red, 1);
 
         /// <summary>
-        /// Escreve o texto de uma exception no console
+        /// Escreve o Texto de uma exception no console
         /// </summary>
         public static T ConsoleWriteError<T>(this T Exception, ConsoleColor Color, int BreakLines = 1) where T : Exception => Exception.ConsoleWriteError(" >> ", Color, BreakLines);
 
         /// <summary>
-        /// Escreve o texto de uma <typeparamref name="T"/> no console
+        /// Escreve o Texto de uma <typeparamref name="T"/> no console
         /// </summary>
         public static T ConsoleWriteError<T>(this T Exception, int BreakLines) where T : Exception => Exception.ConsoleWriteError(" >> ", ConsoleColor.Red, BreakLines);
 
@@ -194,10 +194,10 @@ namespace InnerLibs.Console
         /// <param name="Text">Texto</param>
         public static string ConsoleWriteLine(this string Text, int BreakLines = 1) => Text.ConsoleWriteLine(System.Console.ForegroundColor, BreakLines);
 
-        public static string ConsoleWriteSeparator(char Separator = '-', ConsoleColor? Color = null, int BreakLines = 1) => ConsoleWriteSeparator(InnerLibs.Ext.EmptyString, Separator, Color, BreakLines);
+        public static string ConsoleWriteSeparator(char Separator = '-', ConsoleColor? Color = null, int BreakLines = 1) => ConsoleWriteSeparator(Util.EmptyString, Separator, Color, BreakLines);
 
         /// <summary>
-        /// Escreve um separador no console. Este separador pode conter um texto
+        /// Escreve um separador no console. Este separador pode conter um Texto
         /// </summary>
         /// <param name="Text"></param>
         /// <param name="Separator"></param>

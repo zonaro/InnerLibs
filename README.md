@@ -11,7 +11,7 @@ O projeto nasceu a partir da nescessidade de repetir os códigos em diversos pro
  - Conversão de números para sua forma extensa;
  - Classe para criação e edição de vCards;
  - Calculo de prazo de entrega baseado em jornada de trabalho utilizando `InnerLibs`;
- - Vários manipuladores e validadores de texto;
+ - Vários manipuladores e validadores de Texto;
  - Identificação de MIME Type a partir da extensão de arquivos;
  - Geradores de expressões lambda para filtros compativel com `EntityFramework` e `LINQ to SQL`;
  - Classes para gerar `DOT Language` a partir de outras classes;

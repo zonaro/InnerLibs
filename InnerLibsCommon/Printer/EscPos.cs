@@ -1,11 +1,11 @@
-﻿using InnerLibs.Printer;
-using InnerLibs.Printer.Command;
+﻿using Printers;
+using Printers.Command;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Text;
 
-namespace InnerLibs.EscPosCommands
+namespace EscPosCommands
 {
     public class EscPos : IPrintCommand
     {

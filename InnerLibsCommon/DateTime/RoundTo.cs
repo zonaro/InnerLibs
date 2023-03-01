@@ -1,30 +1,29 @@
-﻿namespace InnerLibs
+﻿
+
+/// <summary>
+/// Used for rounding precision
+/// </summary>
+public enum RoundTo
 {
+    None = -1,
+
     /// <summary>
-    /// Used for rounding precision
+    /// Second precision.
     /// </summary>
-    public enum RoundTo
-    {
-        None = -1,
+    Second,
 
-        /// <summary>
-        /// Second precision.
-        /// </summary>
-        Second,
+    /// <summary>
+    /// Minute precision.
+    /// </summary>
+    Minute,
 
-        /// <summary>
-        /// Minute precision.
-        /// </summary>
-        Minute,
+    /// <summary>
+    /// Hour precision.
+    /// </summary>
+    Hour,
 
-        /// <summary>
-        /// Hour precision.
-        /// </summary>
-        Hour,
-
-        /// <summary>
-        /// Day precision.
-        /// </summary>
-        Day
-    }
+    /// <summary>
+    /// Day precision.
+    /// </summary>
+    Day
 }

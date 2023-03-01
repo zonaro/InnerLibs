@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
-namespace InnerLibs.DOTLanguage
+namespace DOTLanguage
 {
     public class Cluster : DotObject
     {
@@ -25,11 +25,11 @@ namespace InnerLibs.DOTLanguage
 
         public override string ToString()
         {
-            string dotstring = InnerLibs.Ext.EmptyString;
+            string dotstring = Util.EmptyString;
             foreach (var prop in this)
             {
                 string val = prop.Value.ToString().QuoteIf(prop.Value.ToString().Contains(" ") | prop.Value.ToString().IsBlank() | prop.Value.ToString().IsURL());
-                if (Ext.IsIn(val, new[] { "True", "False" }))
+                if (Util.IsIn(val, new[] { "True", "False" }))
                 {
                     val = val.ToLowerInvariant();
                 }
@@ -76,7 +76,7 @@ namespace InnerLibs.DOTLanguage
         {
             get => ParentNode.ID.ToSlugCase(true) + (Oriented ? " -> " : " -- ") + ChildNode.ID.ToSlugCase(true);
 
-            set => Ext.WriteDebug("Cannot change ID of a relation");
+            set => Util.WriteDebug("Cannot change ID of a relation");
         }
 
         /// <summary>
@@ -97,7 +97,7 @@ namespace InnerLibs.DOTLanguage
         /// <returns></returns>
         public override string ToString()
         {
-            string dotstring = InnerLibs.Ext.EmptyString;
+            string dotstring = Util.EmptyString;
             if (Attributes.Any())
             {
                 dotstring = ID + " " + Attributes.ToString() + Environment.NewLine;
@@ -188,7 +188,7 @@ namespace InnerLibs.DOTLanguage
         /// Nome do Gráfico
         /// </summary>
         /// <returns></returns>
-        public string ID { get; set; } = InnerLibs.Ext.EmptyString;
+        public string ID { get; set; } = Util.EmptyString;
 
         public bool Strict { get; set; } = false;
 

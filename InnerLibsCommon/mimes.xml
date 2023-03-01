@@ -5,7 +5,7 @@
       <item>.323</item>
     </Extensions>
     <MimeTypes>
-      <item>text/h323</item>
+      <item>Text/h323</item>
     </MimeTypes>
   </item>
   <item>
@@ -102,7 +102,7 @@
     </Extensions>
     <MimeTypes>
       <item>application/x-asp</item>
-      <item>text/asp</item>
+      <item>Text/asp</item>
     </MimeTypes>
   </item>
   <item>
@@ -164,7 +164,7 @@
       <item>.bas</item>
     </Extensions>
     <MimeTypes>
-      <item>text/plain</item>
+      <item>Text/plain</item>
     </MimeTypes>
   </item>
   <item>
@@ -217,7 +217,7 @@
       <item>.c</item>
     </Extensions>
     <MimeTypes>
-      <item>text/x-csrc</item>
+      <item>Text/x-csrc</item>
     </MimeTypes>
   </item>
   <item>
@@ -226,7 +226,7 @@
       <item>.c++</item>
     </Extensions>
     <MimeTypes>
-      <item>text/x-c++src</item>
+      <item>Text/x-c++src</item>
     </MimeTypes>
   </item>
   <item>
@@ -268,8 +268,8 @@
       <item>application/x-cdf</item>
       <item> application/netcdf</item>
       <item> application/x-netcdf</item>
-      <item> text/cdf</item>
-      <item> text/x-cdf</item>
+      <item> Text/cdf</item>
+      <item> Text/x-cdf</item>
     </MimeTypes>
   </item>
   <item>
@@ -357,7 +357,7 @@
       <item>.cp</item>
     </Extensions>
     <MimeTypes>
-      <item>text/x-c++src</item>
+      <item>Text/x-c++src</item>
     </MimeTypes>
   </item>
   <item>
@@ -375,7 +375,7 @@
       <item>.cpp</item>
     </Extensions>
     <MimeTypes>
-      <item>text/x-c++src</item>
+      <item>Text/x-c++src</item>
     </MimeTypes>
   </item>
   <item>
@@ -434,7 +434,7 @@
       <item>.css</item>
     </Extensions>
     <MimeTypes>
-      <item>text/css</item>
+      <item>Text/css</item>
       <item>application/css-stylesheet</item>
     </MimeTypes>
   </item>
@@ -453,10 +453,10 @@
       <item>.csv</item>
     </Extensions>
     <MimeTypes>
-      <item>text/csv</item>
+      <item>Text/csv</item>
       <item>application/csv</item>
-      <item> text/comma-separated-values</item>
-      <item> text/x-comma-separated-values</item>
+      <item> Text/comma-separated-values</item>
+      <item> Text/x-comma-separated-values</item>
     </MimeTypes>
   </item>
   <item>
@@ -496,7 +496,7 @@
       <item>.diff</item>
     </Extensions>
     <MimeTypes>
-      <item>text/x-patch</item>
+      <item>Text/x-patch</item>
     </MimeTypes>
   </item>
   <item>
@@ -712,13 +712,13 @@
     </MimeTypes>
   </item>
   <item>
-    <Description>Setext (Structure Enhanced Text)</Description>
+    <Description>SeText (Structure Enhanced Text)</Description>
     <Extensions>
       <item>.etx</item>
     </Extensions>
     <MimeTypes>
-      <item>text/x-setext</item>
-      <item>text/anytext</item>
+      <item>Text/x-seText</item>
+      <item>Text/anyText</item>
     </MimeTypes>
   </item>
   <item>
@@ -828,7 +828,7 @@
       <item>.h</item>
     </Extensions>
     <MimeTypes>
-      <item>text/x-chdr</item>
+      <item>Text/x-chdr</item>
     </MimeTypes>
   </item>
   <item>
@@ -877,7 +877,7 @@
       <item>.htc</item>
     </Extensions>
     <MimeTypes>
-      <item>text/x-component</item>
+      <item>Text/x-component</item>
     </MimeTypes>
   </item>
   <item>
@@ -887,17 +887,17 @@
       <item>.html</item>
     </Extensions>
     <MimeTypes>
-      <item>text/html</item>
+      <item>Text/html</item>
       <item>application/xhtml+xml</item>
     </MimeTypes>
   </item>
   <item>
-    <Description>Hypertext Template File</Description>
+    <Description>HyperText Template File</Description>
     <Extensions>
       <item>.htt</item>
     </Extensions>
     <MimeTypes>
-      <item>text/webviewhtml</item>
+      <item>Text/webviewhtml</item>
     </MimeTypes>
   </item>
   <item>
@@ -915,7 +915,7 @@
       <item>.ics</item>
     </Extensions>
     <MimeTypes>
-      <item>text/calendar</item>
+      <item>Text/calendar</item>
     </MimeTypes>
   </item>
   <item>
@@ -969,7 +969,7 @@
       <item>.jad</item>
     </Extensions>
     <MimeTypes>
-      <item>text/vnd.sun.j2me.app-descriptor</item>
+      <item>Text/vnd.sun.j2me.app-descriptor</item>
     </MimeTypes>
   </item>
   <item>
@@ -987,10 +987,10 @@
       <item>.java</item>
     </Extensions>
     <MimeTypes>
-      <item>text/x-java</item>
+      <item>Text/x-java</item>
       <item>java/*</item>
-      <item> text/java</item>
-      <item> text/x-java-source</item>
+      <item> Text/java</item>
+      <item> Text/x-java-source</item>
     </MimeTypes>
   </item>
   <item>
@@ -1012,7 +1012,7 @@
       <item>.js</item>
     </Extensions>
     <MimeTypes>
-      <item>text/javascript</item>
+      <item>Text/javascript</item>
       <item>application/javascript</item>
       <item> application/x-javascript</item>
       <item> application/x-js</item>
@@ -1043,7 +1043,7 @@
     </Extensions>
     <MimeTypes>
       <item>application/x-latex</item>
-      <item>text/x-latex</item>
+      <item>Text/x-latex</item>
     </MimeTypes>
   </item>
   <item>
@@ -1085,7 +1085,7 @@
       <item>.log</item>
     </Extensions>
     <MimeTypes>
-      <item>text/x-log</item>
+      <item>Text/x-log</item>
     </MimeTypes>
   </item>
   <item>
@@ -1134,7 +1134,7 @@
       <item>.m</item>
     </Extensions>
     <MimeTypes>
-      <item>text/x-objcsrc</item>
+      <item>Text/x-objcsrc</item>
     </MimeTypes>
   </item>
   <item>
@@ -1533,7 +1533,7 @@
       <item>.odt</item>
     </Extensions>
     <MimeTypes>
-      <item>application/vnd.oasis.opendocument.text</item>
+      <item>application/vnd.oasis.opendocument.Text</item>
     </MimeTypes>
   </item>
   <item>
@@ -1574,7 +1574,7 @@
       <item>.patch</item>
     </Extensions>
     <MimeTypes>
-      <item>text/x-patch</item>
+      <item>Text/x-patch</item>
     </MimeTypes>
   </item>
   <item>
@@ -1621,8 +1621,8 @@
       <item> application/nappdf</item>
       <item> application/x-pdf</item>
       <item> application/vnd.pdf</item>
-      <item> text/pdf</item>
-      <item> text/x-pdf</item>
+      <item> Text/pdf</item>
+      <item> Text/x-pdf</item>
     </MimeTypes>
   </item>
   <item>
@@ -1652,8 +1652,8 @@
     <MimeTypes>
       <item>application/x-php</item>
       <item>application/php</item>
-      <item> text/php</item>
-      <item> text/x-php</item>
+      <item> Text/php</item>
+      <item> Text/x-php</item>
     </MimeTypes>
   </item>
   <item>
@@ -1685,7 +1685,7 @@
     </Extensions>
     <MimeTypes>
       <item>application/x-perl</item>
-      <item>text/x-perl</item>
+      <item>Text/x-perl</item>
     </MimeTypes>
   </item>
   <item>
@@ -1719,7 +1719,7 @@
     </Extensions>
     <MimeTypes>
       <item>application/x-perl</item>
-      <item>text/x-perl</item>
+      <item>Text/x-perl</item>
     </MimeTypes>
   </item>
   <item>
@@ -1756,7 +1756,7 @@
       <item>.pod</item>
     </Extensions>
     <MimeTypes>
-      <item>text/x-pod</item>
+      <item>Text/x-pod</item>
     </MimeTypes>
   </item>
   <item>
@@ -1921,7 +1921,7 @@
       <item>.py</item>
     </Extensions>
     <MimeTypes>
-      <item>text/x-python</item>
+      <item>Text/x-python</item>
     </MimeTypes>
   </item>
   <item>
@@ -2038,10 +2038,10 @@
     </Extensions>
     <MimeTypes>
       <item>application/rtf</item>
-      <item>application/richtext</item>
+      <item>application/richText</item>
       <item> application/x-rtf</item>
-      <item> text/richtext</item>
-      <item> text/rtf</item>
+      <item> Text/richText</item>
+      <item> Text/rtf</item>
     </MimeTypes>
   </item>
   <item>
@@ -2051,10 +2051,10 @@
     </Extensions>
     <MimeTypes>
       <item>application/rtf</item>
-      <item>application/richtext</item>
+      <item>application/richText</item>
       <item> application/x-rtf</item>
-      <item> text/richtext</item>
-      <item> text/rtf</item>
+      <item> Text/richText</item>
+      <item> Text/rtf</item>
     </MimeTypes>
   </item>
   <item>
@@ -2104,8 +2104,8 @@
       <item>.scm</item>
     </Extensions>
     <MimeTypes>
-      <item>text/x-script.scheme</item>
-      <item>text/x-scheme</item>
+      <item>Text/x-script.scheme</item>
+      <item>Text/x-scheme</item>
     </MimeTypes>
   </item>
   <item>
@@ -2114,7 +2114,7 @@
       <item>.sct</item>
     </Extensions>
     <MimeTypes>
-      <item>text/scriptlet</item>
+      <item>Text/scriptlet</item>
     </MimeTypes>
   </item>
   <item>
@@ -2160,7 +2160,7 @@
       <item>.shtml</item>
     </Extensions>
     <MimeTypes>
-      <item>text/html</item>
+      <item>Text/html</item>
       <item>application/xhtml+xml</item>
     </MimeTypes>
   </item>
@@ -2222,8 +2222,8 @@
       <item>.sql</item>
     </Extensions>
     <MimeTypes>
-      <item>text/x-sql</item>
-      <item>text/sql</item>
+      <item>Text/x-sql</item>
+      <item>Text/sql</item>
     </MimeTypes>
   </item>
   <item>
@@ -2259,7 +2259,7 @@
       <item>.stm</item>
     </Extensions>
     <MimeTypes>
-      <item>text/html</item>
+      <item>Text/html</item>
     </MimeTypes>
   </item>
   <item>
@@ -2317,8 +2317,8 @@
     </Extensions>
     <MimeTypes>
       <item>application/x-tcl</item>
-      <item>text/x-script.tcl</item>
-      <item> text/x-tcl</item>
+      <item>Text/x-script.tcl</item>
+      <item> Text/x-tcl</item>
     </MimeTypes>
   </item>
   <item>
@@ -2328,7 +2328,7 @@
     </Extensions>
     <MimeTypes>
       <item>application/x-tex</item>
-      <item>text/x-tex</item>
+      <item>Text/x-tex</item>
     </MimeTypes>
   </item>
   <item>
@@ -2424,9 +2424,9 @@
       <item>.tsv</item>
     </Extensions>
     <MimeTypes>
-      <item>text/tsv</item>
-      <item>text/tab-separated-values</item>
-      <item> text/x-tab-separated-values</item>
+      <item>Text/tsv</item>
+      <item>Text/tab-separated-values</item>
+      <item> Text/x-tab-separated-values</item>
     </MimeTypes>
   </item>
   <item>
@@ -2457,7 +2457,7 @@
       <item>.txt</item>
     </Extensions>
     <MimeTypes>
-      <item>text/plain</item>
+      <item>Text/plain</item>
     </MimeTypes>
   </item>
   <item>
@@ -2466,7 +2466,7 @@
       <item>.uls</item>
     </Extensions>
     <MimeTypes>
-      <item>text/iuls</item>
+      <item>Text/iuls</item>
     </MimeTypes>
   </item>
   <item>
@@ -2484,7 +2484,7 @@
       <item>.vcf</item>
     </Extensions>
     <MimeTypes>
-      <item>text/x-vcard</item>
+      <item>Text/x-vcard</item>
     </MimeTypes>
   </item>
   <item>
@@ -2666,7 +2666,7 @@
       <item>.xhtml</item>
     </Extensions>
     <MimeTypes>
-      <item>text/html</item>
+      <item>Text/html</item>
       <item>application/xhtml+xml</item>
     </MimeTypes>
   </item>
@@ -2811,7 +2811,7 @@
       <item>.xml</item>
     </Extensions>
     <MimeTypes>
-      <item>text/xml</item>
+      <item>Text/xml</item>
       <item>application/x-xml</item>
       <item> application/xml</item>
     </MimeTypes>
@@ -2842,7 +2842,7 @@
       <item>.xsl</item>
     </Extensions>
     <MimeTypes>
-      <item>text/xsl</item>
+      <item>Text/xsl</item>
     </MimeTypes>
   </item>
   <item>
@@ -2971,10 +2971,10 @@
       <item>.md</item>
     </Extensions>
     <MimeTypes>
-      <item>text/markdown</item>
-      <item>text/vnd.daringfireball.markdown</item>
-      <item>text/x-markdown</item>
-      <item>text/x-web-markdown</item>
+      <item>Text/markdown</item>
+      <item>Text/vnd.daringfireball.markdown</item>
+      <item>Text/x-markdown</item>
+      <item>Text/x-web-markdown</item>
     </MimeTypes>
   </item>
   <item>
@@ -2989,11 +2989,11 @@
   <item>
     <Description>Textile Text File</Description>
     <Extensions>
-      <item>.textile</item>
+      <item>.Textile</item>
     </Extensions>
     <MimeTypes>
-      <item>text/x-web-textile</item>
-      <item>text/x-wiki.creole</item>
+      <item>Text/x-web-Textile</item>
+      <item>Text/x-wiki.creole</item>
     </MimeTypes>
   </item>
   <item>

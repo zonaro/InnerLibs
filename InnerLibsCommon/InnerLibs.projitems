@@ -6,7 +6,7 @@
     <SharedGUID>4a6be46f-380f-4565-a9f3-72e1ff4da2d3</SharedGUID>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
-    <Import_RootNamespace>InnerLibs</Import_RootNamespace>
+    <Import_RootNamespace>SharedResources</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)AddressInfo.cs" />
@@ -33,7 +33,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)DOT Language.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Emoji.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExpressionReplacer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Ext.cs" />
+    <Compile Include="..\InnerLibsCommon\Util.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FileTree.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FileType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FullMoneyWriter.cs" />

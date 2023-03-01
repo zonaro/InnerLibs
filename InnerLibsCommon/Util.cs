@@ -30,7 +30,7 @@ using System.Xml.Serialization;
 
 
 
-public partial static class Ext
+public static partial class Util
 {
     #region Private Fields
 
@@ -232,7 +232,7 @@ public partial static class Ext
            => (FirstExpression ?? true.CreateWhereExpression<T>()).And(Text.SearchExpression(Properties));
 
     /// <summary>
-    /// Adiciona Texto ao fim de uma string
+    /// Adiciona texto ao fim de uma string
     /// </summary>
     /// <param name="Text">Texto</param>
     /// <param name="AppendText">Texto adicional</param>
@@ -252,7 +252,7 @@ public partial static class Ext
     public static string AppendBarcodeCheckSum(this string Code) => Code.Append(GenerateBarcodeCheckSum(Code));
 
     /// <summary>
-    /// Adiciona Texto ao final de uma string se um criterio for cumprido
+    /// Adiciona texto ao final de uma string se um criterio for cumprido
     /// </summary>
     /// <param name="Text">Texto</param>
     /// <param name="AppendText">Texto adicional</param>
@@ -265,7 +265,7 @@ public partial static class Ext
     }
 
     /// <summary>
-    /// Adiciona Texto ao final de uma string se um criterio for cumprido
+    /// Adiciona texto ao final de uma string se um criterio for cumprido
     /// </summary>
     /// <param name="Text">Texto</param>
     /// <param name="AppendText">Texto adicional</param>
@@ -273,7 +273,7 @@ public partial static class Ext
     public static string AppendIf(this string Text, string AppendText, Func<string, bool> Test) => AppendIf(Text, AppendText, (Test ?? (x => false))(Text));
 
     /// <summary>
-    /// Adiciona Texto ao final de uma string com uma quebra de linha no final do <paramref name="AppendText"/>
+    /// Adiciona texto ao final de uma string com uma quebra de linha no final do <paramref name="AppendText"/>
     /// </summary>
     /// <param name="Text">Texto</param>
     /// <param name="AppendText">Texto adicional</param>
@@ -294,7 +294,7 @@ public partial static class Ext
     }
 
     /// <summary>
-    /// Adiciona Texto ao final de uma string enquanto um criterio for cumprido
+    /// Adiciona texto ao final de uma string enquanto um criterio for cumprido
     /// </summary>
     /// <param name="Text">Texto</param>
     /// <param name="AppendText">Texto adicional</param>
@@ -537,7 +537,7 @@ public partial static class Ext
     }
 
     /// <summary>
-    /// Valida se uma conexao e um comando nao sao nulos. Valida se o Texto do comando esta em
+    /// Valida se uma conexao e um comando nao sao nulos. Valida se o texto do comando esta em
     /// branco e associa este comando a conexao especifica. Escreve o comando no <see
     /// cref="LogWriter"/> e retorna o mesmo
     /// </summary>
@@ -666,7 +666,7 @@ public partial static class Ext
     }
 
     /// <summary>
-    /// Encapsula um Texto em uma caixa. Funciona somente com fonte monoespaçadas
+    /// Encapsula um texto em uma caixa. Funciona somente com fonte monoespaçadas
     /// </summary>
     /// <param name="Text"></param>
     /// <returns></returns>
@@ -704,7 +704,7 @@ public partial static class Ext
     }
 
     /// <summary>
-    /// Encapsula um Texto em uma caixa incorporado em comentários CSS
+    /// Encapsula um texto em uma caixa incorporado em comentários CSS
     /// </summary>
     /// <param name="Text"></param>
     /// <returns></returns>
@@ -994,8 +994,8 @@ public partial static class Ext
     public static long CeilLong(this decimal Number) => Number.Ceil().ToLong();
 
     /// <summary>
-    /// Censura as palavras de um Texto substituindo as palavras indesejadas por * (ou outro
-    /// caractere desejado) e retorna um valor indicando se o Texto precisou ser censurado
+    /// Censura as palavras de um texto substituindo as palavras indesejadas por * (ou outro
+    /// caractere desejado) e retorna um valor indicando se o texto precisou ser censurado
     /// </summary>
     /// <param name="Text">Texto</param>
     /// <param name="BadWords">Lista de palavras indesejadas</param>
@@ -1034,7 +1034,7 @@ public partial static class Ext
     }
 
     /// <summary>
-    /// Retorna um novo Texto censurando as palavras de um Texto substituindo as palavras
+    /// Retorna um novo texto censurando as palavras de um texto substituindo as palavras
     /// indesejadas por um caractere desejado)
     /// </summary>
     /// <param name="Text">Texto</param>
@@ -1420,7 +1420,7 @@ public partial static class Ext
     public static bool CompareARGB(this Color Color1, bool IgnoreAlpha, params Color[] Colors) => (Colors = Colors ?? Array.Empty<Color>()).Any(Color2 => Color1.R == Color2.R && Color1.G == Color2.G && Color1.B == Color2.B && (IgnoreAlpha || Color1.A == Color2.A));
 
     /// <summary>
-    /// Verifica se um Texto contém outro
+    /// Verifica se um texto contém outro
     /// </summary>
     /// <param name="Text"></param>
     /// <param name="OtherText"></param>
@@ -1642,7 +1642,7 @@ public partial static class Ext
     /// <summary>
     /// Retorna as plavaras contidas em uma frase em ordem alfabética e sua respectiva quantidade
     /// </summary>
-    /// <param name="Text">Texto</param>
+    /// <param name="Text">TExto</param>
     /// <param name="RemoveDiacritics">indica se os acentos devem ser removidos das palavras</param>
     /// <param name="Words">
     /// Desconsidera outras palavras e busca a quantidade de cada palavra especificada em um array
@@ -1961,8 +1961,8 @@ public partial static class Ext
     /// <returns>Um FileInfo contendo as informacoes do arquivo criado</returns>
     public static FileInfo CreateFileIfNotExists(this string FileName, FileType Type = null)
     {
-        Type = Type ?? new FileType(Path.GeTextension(FileName));
-        FileName = $"{Path.GetFullPath(FileName.TrimAny(Path.GeTextension(FileName)))}{Type.Extensions.FirstOrDefault()}";
+        Type = Type ?? new FileType(Path.GetExtension(FileName));
+        FileName = $"{Path.GetFullPath(FileName.TrimAny(Path.GetExtension(FileName)))}{Type.Extensions.FirstOrDefault()}";
 
         FileName.CreateDirectoryIfNotExists();
 
@@ -2498,7 +2498,7 @@ public partial static class Ext
     }
 
     /// <summary>
-    /// Verifica se um Texto contém outro ou vice versa
+    /// Verifica se um texto contém outro ou vice versa
     /// </summary>
     /// <param name="Text"></param>
     /// <param name="OtherText"></param>
@@ -2548,9 +2548,9 @@ public partial static class Ext
     /// </summary>
     /// <param name="Text">Texto Criptografado</param>
     /// <returns></returns>
-    public static string Decrypt(this string Text, string Key, string IV)
+    public static string Decrypt(this string text, string Key, string IV)
     {
-        if (Text.IsNotBlank())
+        if (text.IsNotBlank())
         {
             var aes = new AesCryptoServiceProvider
             {
@@ -2564,11 +2564,11 @@ public partial static class Ext
             byte[] src;
             try
             {
-                src = Convert.FromBase64String(Text.FixBase64());
+                src = Convert.FromBase64String(text.FixBase64());
             }
             catch
             {
-                src = Convert.FromBase64String(Text);
+                src = Convert.FromBase64String(text);
             }
 
             using (var ddecrypt = aes.CreateDecryptor())
@@ -2584,7 +2584,7 @@ public partial static class Ext
             }
         }
 
-        return Text;
+        return text;
     }
 
     public static FileInfo DecryptRSA(this FileInfo File, string Key) => File?.ToBytes().DecryptRSA(Key).WriteToFile(File.FullName);
@@ -2676,7 +2676,7 @@ public partial static class Ext
     public static bool DeleteIfExist(this FileSystemInfo Path) => Path?.FullName.DeleteIfExist() ?? false;
 
     /// <summary>
-    /// Remove uma linha especifica de um Texto
+    /// Remove uma linha especifica de um texto
     /// </summary>
     /// <param name="Text">Texto</param>
     /// <param name="LineIndex">Numero da linha</param>
@@ -2969,9 +2969,9 @@ public partial static class Ext
     /// </summary>
     /// <param name="Text">Texto descriptografado</param>
     /// <returns></returns>
-    public static string Encrypt(this string Text, string Key, string IV)
+    public static string Encrypt(this string text, string Key, string IV)
     {
-        if (Text.IsNotBlank())
+        if (text.IsNotBlank())
         {
             var aes = new AesCryptoServiceProvider
             {
@@ -2982,7 +2982,7 @@ public partial static class Ext
                 Mode = CipherMode.CBC,
                 Padding = PaddingMode.PKCS7
             };
-            var src = new UTF8Encoding(false).GetBytes(Text);
+            var src = new UTF8Encoding(false).GetBytes(text);
             using (var eencrypt = aes.CreateEncryptor())
             {
                 var dest = eencrypt.TransformFinalBlock(src, 0, src.Length);
@@ -2990,7 +2990,7 @@ public partial static class Ext
             }
         }
 
-        return Text;
+        return text;
     }
 
     /// <summary>
@@ -3114,14 +3114,14 @@ public partial static class Ext
     /// </summary>
     /// <param name="Info">Arquivo ou Diretório</param>
     /// <returns></returns>
-    public static string FileNameAsTitle(this FileSystemInfo Info, bool ForceCase = false) => Path.GetFileNameWithouTextension(Info?.Name).ToNormalCase().ToTitle(ForceCase);
+    public static string FileNameAsTitle(this FileSystemInfo Info, bool ForceCase = false) => Path.GetFileNameWithoutExtension(Info?.Name).ToNormalCase().ToTitle(ForceCase);
 
     /// <summary>
     /// Retorna o Titulo do arquivo a partir do nome do arquivo
     /// </summary>
     /// <param name="FilePath">Arquivo ou Diretório</param>
     /// <returns></returns>
-    public static string FileNameAsTitle(this string FilePath, bool ForceCase = false) => Path.GetFileNameWithouTextension(FilePath).ToNormalCase().ToTitle(ForceCase);
+    public static string FileNameAsTitle(this string FilePath, bool ForceCase = false) => Path.GetFileNameWithoutExtension(FilePath).ToNormalCase().ToTitle(ForceCase);
 
     public static IEnumerable<T> FilterDateRange<T>(this IEnumerable<T> List, Expression<Func<T, DateTime>> Property, DateRange Range, DateRangeFilterBehavior? FilterBehavior = null)
            => List.Where(x => Range.Contains(Property.Compile()(x), FilterBehavior ?? Range.FilterBehavior));
@@ -3140,17 +3140,17 @@ public partial static class Ext
     /// <summary>
     /// Procura CEPs em uma string
     /// </summary>
-    /// <param name="Text"></param>
+    /// <param name="TExt"></param>
     /// <returns></returns>
     public static string[] FindByRegex(this string Text, string Regex, RegexOptions RegexOptions = RegexOptions.None)
     {
-        var Textos = new List<string>();
+        var textos = new List<string>();
         foreach (Match m in new Regex(Regex, RegexOptions).Matches(Text))
         {
-            Textos.Add(m.Value);
+            textos.Add(m.Value);
         }
 
-        return Textos.ToArray();
+        return textos.ToArray();
     }
 
     /// <summary>
@@ -3483,7 +3483,7 @@ public partial static class Ext
     }
 
     /// <summary>
-    /// Arruma a ortografia do Texto captalizando corretamente, adcionando pontuação ao final de
+    /// Arruma a ortografia do texto captalizando corretamente, adcionando pontuação ao final de
     /// frase caso nescessário e removendo espaços excessivos ou incorretos
     /// </summary>
     /// <param name="Text">Texto</param>
@@ -3610,7 +3610,7 @@ public partial static class Ext
     public static short ForcePositive(this short Value) => (short)(Value < 0 ? -Value : Value);
 
     /// <summary>
-    /// Executa uma ação para cada linha de um Texto
+    /// Executa uma ação para cada linha de um texto
     /// </summary>
     /// <param name="Text"></param>
     /// <param name="Action"></param>
@@ -3855,7 +3855,7 @@ public partial static class Ext
     }
 
     /// <summary>
-    /// Retorna um Texto posterior a outro
+    /// Retorna um texto posterior a outro
     /// </summary>
     /// <param name="Text">Texto correspondente</param>
     /// <param name="Value">Texto Posterior</param>
@@ -3870,12 +3870,12 @@ public partial static class Ext
     }
 
     /// <summary>
-    /// Retorna todas as ocorrencias de um Texto entre dois Textos
+    /// Retorna todas as ocorrencias de um texto entre dois textos
     /// </summary>
-    /// <param name="Text">T Texto correspondente</param>
-    /// <param name="Before">T Texto Anterior</param>
-    /// <param name="After">T Texto Posterior</param>
-    /// <returns>Uma String com o Texto entre o Texto anterior e posterior</returns>
+    /// <param name="Text">T texto correspondente</param>
+    /// <param name="Before">T texto Anterior</param>
+    /// <param name="After">T texto Posterior</param>
+    /// <returns>Uma String com o texto entre o texto anterior e posterior</returns>
     public static string[] GetAllBetween(this string Text, string Before, string After = EmptyString)
     {
         var lista = new List<string>();
@@ -3927,7 +3927,7 @@ public partial static class Ext
     }
 
     /// <summary>
-    /// Retorna um Texto anterior a outro
+    /// Retorna um texto anterior a outro
     /// </summary>
     /// <param name="Text">Texto correspondente</param>
     /// <param name="Value">Texto Anterior</param>
@@ -3939,12 +3939,12 @@ public partial static class Ext
     }
 
     /// <summary>
-    /// Retorna o Texto entre dois Textos
+    /// Retorna o texto entre dois textos
     /// </summary>
-    /// <param name="Text">T Texto correspondente</param>
-    /// <param name="Before">T Texto Anterior</param>
-    /// <param name="After">T Texto Posterior</param>
-    /// <returns>Uma String com o Texto entre o Texto anterior e posterior</returns>
+    /// <param name="Text">T texto correspondente</param>
+    /// <param name="Before">T texto Anterior</param>
+    /// <param name="After">T texto Posterior</param>
+    /// <returns>Uma String com o texto entre o texto anterior e posterior</returns>
     public static string GetBetween(this string Text, string Before, string After)
     {
         if (Text.IsNotBlank())
@@ -4206,7 +4206,7 @@ public partial static class Ext
     /// <returns></returns>
     public static IEnumerable<FieldInfo> GetFields<T>(this T MyObject) => MyObject.GetTypeOf().GetFields().ToList();
 
-    public static string GetFileNameWithouTextension(this FileInfo Info) => Info != null ? Path.GetFileNameWithouTextension(Info.Name) : EmptyString;
+    public static string GetFileNameWithoutExtension(this FileInfo Info) => Info != null ? Path.GetFileNameWithoutExtension(Info.Name) : EmptyString;
 
     /// <summary>
     /// Retorna o Mime T a partir da extensão de um arquivo
@@ -4406,7 +4406,7 @@ public partial static class Ext
                     case "xps":
                     case "cfg":
                         {
-                            return "fa-file-Text";
+                            return "fa-file-text";
                         }
 
                     case "csv":
@@ -5642,16 +5642,25 @@ public partial static class Ext
 
     public static byte[] GetResourceBytes(string FileName) => GetResourceBytes(Assembly.GetExecutingAssembly(), FileName);
 
+
+
+
     /// <summary>
-    /// Pega o Texto de um arquivo embutido no assembly
+    /// Pega o texto de um arquivo embutido no assembly
     /// </summary>
     /// <param name="FileName">Nome do arquivo embutido dentro do assembly (Embedded Resource)</param>
     /// <returns></returns>
-    public static string GetResourceFileText(this Assembly Assembly, string FileName)
+    public static string GetResourceFileText(this Assembly Assembly, string FileName, bool IsFullQualifiedName = false)
     {
+
         string txt = null;
         if (Assembly != null && FileName.IsNotBlank())
         {
+            if (!IsFullQualifiedName)
+            {
+                FileName = Assembly.GetName().Name + "." + FileName;
+            }
+
             using (var x = Assembly.GetManifestResourceStream(FileName))
             {
                 if (x != null)
@@ -5667,7 +5676,7 @@ public partial static class Ext
         return txt;
     }
 
-    public static string GetResourceFileText(string FileName) => GetResourceFileText(Assembly.GetExecutingAssembly(), FileName);
+
 
     public static RotateFlipType GetRotateFlip(this Image Img)
     {
@@ -5740,7 +5749,7 @@ public partial static class Ext
     }
 
     /// <summary>
-    /// Corta um Texto para exibir um numero máximo de caracteres ou na primeira quebra de linha.
+    /// Corta um texto para exibir um numero máximo de caracteres ou na primeira quebra de linha.
     /// </summary>
     /// <param name="Text"></param>
     /// <param name="TextLength"></param>
@@ -5952,7 +5961,7 @@ public partial static class Ext
     }
 
     /// <summary>
-    /// Retorna uma lista de palavras encontradas no Texto em ordem alfabetica
+    /// Retorna uma lista de palavras encontradas no texto em ordem alfabetica
     /// </summary>
     /// <param name="Text"></param>
     /// <returns></returns>
@@ -5970,7 +5979,7 @@ public partial static class Ext
 
     /// <summary>
     /// Captura todas as sentenças que estão entre aspas ou parentesis ou chaves ou colchetes em
-    /// um Texto
+    /// um texto
     /// </summary>
     /// <param name="Text">Texto</param>
     /// <returns></returns>
@@ -6243,14 +6252,14 @@ public partial static class Ext
     }
 
     /// <summary>
-    /// Retorna um Texto com entidades HTML convertidas para caracteres e tags BR em breaklines
+    /// Retorna um texto com entidades HTML convertidas para caracteres e tags BR em breaklines
     /// </summary>
     /// <param name="Text">string HTML</param>
     /// <returns>String HTML corrigido</returns>
     public static string HtmlDecode(this string Text) => WebUtility.HtmlDecode(EmptyString + Text).ReplaceMany(Environment.NewLine, "<br/>", "<br />", "<br>");
 
     /// <summary>
-    /// Escapa o Texto HTML
+    /// Escapa o texto HTML
     /// </summary>
     /// <param name="Text">string HTML</param>
     /// <returns>String HTML corrigido</returns>
@@ -6851,7 +6860,7 @@ public partial static class Ext
     public static bool IsDark(this Color TheColor) => new HSVColor(TheColor).IsDark();
 
     /// <summary>
-    /// Retorna TRUE se o Texto for um dataurl valido
+    /// Retorna TRUE se o texto for um dataurl valido
     /// </summary>
     /// <param name="Text"></param>
     /// <returns></returns>
@@ -6924,7 +6933,7 @@ public partial static class Ext
                 return true;
             }
             // ends with slash if has extension then its a file; directory otherwise
-            return string.IsNullOrWhiteSpace(Path.GeTextension(Text));
+            return string.IsNullOrWhiteSpace(Path.GetExtension(Text));
         }
         catch
         {
@@ -6935,7 +6944,7 @@ public partial static class Ext
     public static bool IsDomain(this string Text) => Text.IsNotBlank() && $"http://{Text}".IsURL();
 
     /// <summary>
-    /// Verifica se um determinado Texto é um email
+    /// Verifica se um determinado texto é um email
     /// </summary>
     /// <param name="Text">Texto a ser validado</param>
     /// <returns>TRUE se for um email, FALSE se não for email</returns>
@@ -7037,7 +7046,7 @@ public partial static class Ext
         try
         {
             // if has extension then its a file; directory otherwise
-            return !Text.EndsWith(Convert.ToString(Path.DirectorySeparatorChar, CultureInfo.InvariantCulture), StringComparison.InvariantCultureIgnoreCase) && Path.GeTextension(Text).IsNotBlank();
+            return !Text.EndsWith(Convert.ToString(Path.DirectorySeparatorChar, CultureInfo.InvariantCulture), StringComparison.InvariantCultureIgnoreCase) && Path.GetExtension(Text).IsNotBlank();
         }
         catch { return false; }
     }
@@ -7185,7 +7194,7 @@ public partial static class Ext
     public static bool IsLight(this Color TheColor) => !TheColor.IsDark();
 
     /// <summary>
-    /// Verifica se um Texto existe em uma determinada lista usando comparação com caratere curinga
+    /// Verifica se um texto existe em uma determinada lista usando comparação com caratere curinga
     /// </summary>
     /// <param name="Text"></param>
     /// <param name="Patterns"></param>
@@ -7193,7 +7202,7 @@ public partial static class Ext
     public static bool IsLikeAny(this string Text, IEnumerable<string> Patterns) => (Patterns ?? Array.Empty<string>()).Any((Func<string, bool>)(x => Like(Text.IfBlank(EmptyString), x)));
 
     /// <summary>
-    /// Verifica se um Texto existe em uma determinada lista usando comparação com caratere curinga
+    /// Verifica se um texto existe em uma determinada lista usando comparação com caratere curinga
     /// </summary>
     /// <param name="Text"></param>
     /// <param name="Patterns"></param>
@@ -7254,11 +7263,11 @@ public partial static class Ext
     public static bool IsNotIn<T>(this T Obj, IEnumerable<T> List, IEqualityComparer<T> Comparer = null) => !Obj.IsIn(List, Comparer);
 
     /// <summary>
-    /// Verifica se o objeto não existe dentro de um Texto
+    /// Verifica se o objeto não existe dentro de um texto
     /// </summary>
     /// <typeparam name="T">Tipo do objeto</typeparam>
     /// <param name="Obj">objeto</param>
-    /// <param name="Text">Texto</param>
+    /// <param name="TExt">Texto</param>
     /// <returns></returns>
     public static bool IsNotIn<T>(this T Obj, string Text, StringComparison? Comparer = null) => !Obj.IsIn(Text, Comparer);
 
@@ -7438,7 +7447,7 @@ public partial static class Ext
     public static bool IsTypeOf<T>(this T Obj, Type Type) => Obj.GetTypeOf() == Type.GetTypeOf();
 
     /// <summary>
-    /// Verifica se um determinado Texto é uma URL válida
+    /// Verifica se um determinado texto é uma URL válida
     /// </summary>
     /// <param name="Text">Texto a ser verificado</param>
     /// <returns>TRUE se for uma URL, FALSE se não for uma URL válida</returns>
@@ -8975,7 +8984,7 @@ public partial static class Ext
     }
 
     /// <summary>
-    /// limpa um Texto deixando apenas os caracteres alfanumericos.
+    /// limpa um texto deixando apenas os caracteres alfanumericos.
     /// </summary>
     /// <param name="Text"></param>
     /// <returns></returns>
@@ -9220,7 +9229,7 @@ public partial static class Ext
     public static IEnumerable<HtmlTag> ParseTags(this Uri URL) => HtmlTag.Parse(URL);
 
     /// <summary>
-    /// Separa as palavras de um Texto CamelCase a partir de suas letras maíusculas
+    /// Separa as palavras de um texto CamelCase a partir de suas letras maíusculas
     /// </summary>
     /// <param name="Text"></param>
     /// <returns></returns>
@@ -9258,7 +9267,7 @@ public partial static class Ext
     }
 
     /// <summary>
-    /// Transforma um Texto em CamelCase em um array de palavras a partir de suas letras maíusculas
+    /// Transforma um texto em CamelCase em um array de palavras a partir de suas letras maíusculas
     /// </summary>
     /// <param name="Text"></param>
     /// <returns></returns>
@@ -9375,7 +9384,7 @@ public partial static class Ext
                 // Read MemoryStream contents into a StreamReader.
                 var sReader = new StreamReader(mStream);
 
-                // Extract the Text from the StreamReader.
+                // Extract the text from the StreamReader.
                 Result = sReader.ReadToEnd();
             }
             catch (XmlException)
@@ -9394,7 +9403,7 @@ public partial static class Ext
     }
 
     /// <summary>
-    /// Adiciona Texto ao começo de uma string
+    /// Adiciona texto ao começo de uma string
     /// </summary>
     /// <param name="Text">Texto</param>
     /// <param name="PrependText">Texto adicional</param>
@@ -9407,7 +9416,7 @@ public partial static class Ext
     }
 
     /// <summary>
-    /// Adiciona Texto ao final de uma string se um criterio for cumprido
+    /// Adiciona texto ao final de uma string se um criterio for cumprido
     /// </summary>
     /// <param name="Text">Texto</param>
     /// <param name="PrependText">Texto adicional</param>
@@ -9420,7 +9429,7 @@ public partial static class Ext
     }
 
     /// <summary>
-    /// Adiciona Texto ao começo de uma string se um criterio for cumprido
+    /// Adiciona texto ao começo de uma string se um criterio for cumprido
     /// </summary>
     /// <param name="Text">Texto</param>
     /// <param name="PrependText">Texto adicional</param>
@@ -9433,14 +9442,14 @@ public partial static class Ext
     }
 
     /// <summary>
-    /// Adiciona Texto ao inicio de uma string com uma quebra de linha no final do <paramref name="PrependText"/>
+    /// Adiciona texto ao inicio de uma string com uma quebra de linha no final do <paramref name="PrependText"/>
     /// </summary>
     /// <param name="Text">Texto</param>
     /// <param name="PrependText">Texto adicional</param>
     public static string PrependLine(this string Text, string PrependText) => Text.Prepend(Environment.NewLine).Prepend(PrependText);
 
     /// <summary>
-    /// Adiciona Texto ao inicio de uma string enquanto um criterio for cumprido
+    /// Adiciona texto ao inicio de uma string enquanto um criterio for cumprido
     /// </summary>
     /// <param name="Text">Texto</param>
     /// <param name="PrependText">Texto adicional</param>
@@ -9595,12 +9604,12 @@ public partial static class Ext
     }
 
     /// <summary>
-    /// Retorna o Texto a na sua forma singular ou plural de acordo com uma quantidade
+    /// Retorna o texto a na sua forma singular ou plural de acordo com uma quantidade
     /// determinada em uma lista ou um valor numérico encontrado no primeiro parametro.
     /// </summary>
     /// <param name="PluralText">Texto no plural</param>
     /// <returns></returns>
-    /// <example>Texto = $"{2} pães"</example>
+    /// <example>texto = $"{2} pães"</example>
     public static string QuantifyText(this FormattableString PluralText)
     {
         if (PluralText.IsNotBlank() && PluralText.ArgumentCount > 0)
@@ -9620,7 +9629,7 @@ public partial static class Ext
     }
 
     /// <summary>
-    /// Retorna o Texto a na sua forma singular ou plural de acordo com uma quantidade
+    /// Retorna o texto a na sua forma singular ou plural de acordo com uma quantidade
     /// determinada em uma lista ou um valor numérico.
     /// </summary>
     /// <param name="PluralText">Texto no plural</param>
@@ -9633,7 +9642,7 @@ public partial static class Ext
     }
 
     /// <summary>
-    /// Retorna o Texto a na sua forma singular ou plural de acordo com uma quantidade
+    /// Retorna o texto a na sua forma singular ou plural de acordo com uma quantidade
     /// determinada em uma lista ou um valor numérico.
     /// </summary>
     /// <param name="PluralText">Texto no plural</param>
@@ -9685,7 +9694,7 @@ public partial static class Ext
     }
 
     /// <summary>
-    /// Retorna o Texto a na sua forma singular ou plural de acordo com um numero determinado.
+    /// Retorna o texto a na sua forma singular ou plural de acordo com um numero determinado.
     /// </summary>
     /// <param name="PluralText">Texto no plural</param>
     /// <param name="List">Lista com itens</param>
@@ -9693,7 +9702,7 @@ public partial static class Ext
     public static string QuantifyText<T>(this IEnumerable<T> List, string PluralText) => PluralText.QuantifyText(List ?? Array.Empty<T>());
 
     /// <summary>
-    /// Retorna o Texto a na sua forma singular ou plural de acordo com um numero determinado.
+    /// Retorna o texto a na sua forma singular ou plural de acordo com um numero determinado.
     /// </summary>
     /// <param name="PluralText">Texto no plural</param>
     /// <param name="Quantity">Quantidade de Itens</param>
@@ -9701,7 +9710,7 @@ public partial static class Ext
     public static string QuantifyText(this int Quantity, string PluralText) => PluralText.QuantifyText(Quantity);
 
     /// <summary>
-    /// Retorna o Texto a na sua forma singular ou plural de acordo com um numero determinado.
+    /// Retorna o texto a na sua forma singular ou plural de acordo com um numero determinado.
     /// </summary>
     /// <param name="PluralText">Texto no plural</param>
     /// <param name="Quantity">Quantidade de Itens</param>
@@ -9709,7 +9718,7 @@ public partial static class Ext
     public static string QuantifyText(this decimal Quantity, string PluralText) => PluralText.QuantifyText(Quantity);
 
     /// <summary>
-    /// Retorna o Texto a na sua forma singular ou plural de acordo com um numero determinado.
+    /// Retorna o texto a na sua forma singular ou plural de acordo com um numero determinado.
     /// </summary>
     /// <param name="PluralText">Texto no plural</param>
     /// <param name="Quantity">Quantidade de Itens</param>
@@ -9717,7 +9726,7 @@ public partial static class Ext
     public static string QuantifyText(this short Quantity, string PluralText) => PluralText.QuantifyText(Quantity);
 
     /// <summary>
-    /// Retorna o Texto a na sua forma singular ou plural de acordo com um numero determinado.
+    /// Retorna o texto a na sua forma singular ou plural de acordo com um numero determinado.
     /// </summary>
     /// <param name="PluralText">Texto no plural</param>
     /// <param name="Quantity">Quantidade de Itens</param>
@@ -9725,7 +9734,7 @@ public partial static class Ext
     public static string QuantifyText(this long Quantity, string PluralText) => PluralText.QuantifyText(Quantity);
 
     /// <summary>
-    /// Retorna o Texto a na sua forma singular ou plural de acordo com um numero determinado.
+    /// Retorna o texto a na sua forma singular ou plural de acordo com um numero determinado.
     /// </summary>
     /// <param name="PluralText">Texto no plural</param>
     /// <param name="Quantity">Quantidade de Itens</param>
@@ -9743,7 +9752,7 @@ public partial static class Ext
     public static IEnumerable<HtmlTag> QueryLinqAll(this IEnumerable<HtmlTag> tags, Func<HtmlTag, bool> query) => tags.Traverse(ht => ht.Children).Where(query);
 
     /// <summary>
-    /// Encapsula um Texto entre 2 caracteres (normalmente parentesis, chaves, aspas ou colchetes)
+    /// Encapsula um texto entre 2 caracteres (normalmente parentesis, chaves, aspas ou colchetes)
     /// </summary>
     /// <param name="Text">Texto</param>
     /// <param name="OpenQuoteChar">Caractere de encapsulamento</param>
@@ -9759,7 +9768,7 @@ public partial static class Ext
     }
 
     /// <summary>
-    /// Encapsula um tento entre 2 Textos (normalmente parentesis, chaves, aspas ou colchetes)
+    /// Encapsula um tento entre 2 textos (normalmente parentesis, chaves, aspas ou colchetes)
     /// se uma condição for cumprida
     /// </summary>
     /// <param name="Text">Texto</param>
@@ -9913,7 +9922,7 @@ public partial static class Ext
     }
 
     /// <summary>
-    /// Gera um Texto aleatorio
+    /// Gera um texto aleatorio
     /// </summary>
     /// <param name="ParagraphCount">Quantidade de paragrafos</param>
     /// <param name="SentenceCount">QUantidade de sentenças por paragrafo</param>
@@ -10126,7 +10135,7 @@ public partial static class Ext
     }
 
     /// <summary>
-    /// Retorna o conteudo de um arquivo de Texto
+    /// Retorna o conteudo de um arquivo de texto
     /// </summary>
     /// <param name="File">Arquivo</param>
     /// <returns></returns>
@@ -10446,7 +10455,7 @@ public partial static class Ext
         {
             if (KeepOriginalExtension)
             {
-                Name = $"{Path.GetFileNameWithouTextension(Name)}.{File.Extension.Trim('.')}";
+                Name = $"{Path.GetFileNameWithoutExtension(Name)}.{File.Extension.Trim('.')}";
             }
 
             var pt = Path.Combine(File.DirectoryName, Name);
@@ -10527,12 +10536,12 @@ public partial static class Ext
     public static FileInfo ReplaceExtension(this FileInfo Info, string Extension)
     {
         if (Info != null)
-            return new FileInfo(Path.Combine(Info.DirectoryName, $"{Info.GetFileNameWithouTextension()}.{Extension.IfBlank("bin").TrimStart('.')}").FixPath());
+            return new FileInfo(Path.Combine(Info.DirectoryName, $"{Info.GetFileNameWithoutExtension()}.{Extension.IfBlank("bin").TrimStart('.')}").FixPath());
         return null;
     }
 
     /// <summary>
-    /// Substitui a primeira ocorrencia de um Texto por outro
+    /// Substitui a primeira ocorrencia de um texto por outro
     /// </summary>
     /// <param name="Text"></param>
     /// <param name="OldText"></param>
@@ -10550,7 +10559,7 @@ public partial static class Ext
     }
 
     /// <summary>
-    /// Aplica varios replaces a um Texto a partir de um <see cref="IDictionary"/>
+    /// Aplica varios replaces a um texto a partir de um <see cref="IDictionary"/>
     /// </summary>
     public static string ReplaceFrom(this string Text, IDictionary<string, string> Dic)
     {
@@ -10566,7 +10575,7 @@ public partial static class Ext
     }
 
     /// <summary>
-    /// Aplica varios replaces a um Texto a partir de um <see cref="IDictionary"/>
+    /// Aplica varios replaces a um texto a partir de um <see cref="IDictionary"/>
     /// </summary>
     public static string ReplaceFrom<T>(this string Text, IDictionary<string, T> Dic)
     {
@@ -10605,7 +10614,7 @@ public partial static class Ext
     }
 
     /// <summary>
-    /// Aplica um replace a um Texto baseando-se em um <see cref="IDictionary"/>.
+    /// Aplica um replace a um texto baseando-se em um <see cref="IDictionary"/>.
     /// </summary>
     public static string ReplaceFrom(this string Text, IDictionary<string, string[]> Dic, StringComparison Comparison = StringComparison.InvariantCultureIgnoreCase)
     {
@@ -10621,7 +10630,7 @@ public partial static class Ext
     }
 
     /// <summary>
-    /// Aplica um replace a um Texto baseando-se em um <see cref="IDictionary"/>.
+    /// Aplica um replace a um texto baseando-se em um <see cref="IDictionary"/>.
     /// </summary>
     public static string ReplaceFrom(this string Text, IDictionary<string[], string> Dic, StringComparison Comparison = StringComparison.InvariantCultureIgnoreCase)
     {
@@ -10637,7 +10646,7 @@ public partial static class Ext
     }
 
     /// <summary>
-    /// Aplica um replace a um Texto baseando-se em um <see cref="IDictionary"/>.
+    /// Aplica um replace a um texto baseando-se em um <see cref="IDictionary"/>.
     /// </summary>
     public static string ReplaceFrom(this string Text, IDictionary<string[], string[]> Dic, StringComparison Comparison = StringComparison.InvariantCultureIgnoreCase)
     {
@@ -10663,7 +10672,7 @@ public partial static class Ext
     }
 
     /// <summary>
-    /// Substitui a ultima ocorrencia de um Texto por outro
+    /// Substitui a ultima ocorrencia de um texto por outro
     /// </summary>
     /// <param name="Text"></param>
     /// <param name="OldText"></param>
@@ -11754,7 +11763,7 @@ public partial static class Ext
     public static List<Type> Shuffle<Type>(this List<Type> List) => List.OrderByRandom().ToList();
 
     /// <summary>
-    /// Aleatoriza a ordem das letras de um Texto
+    /// Aleatoriza a ordem das letras de um texto
     /// </summary>
     /// <param name="Text">Texto</param>
     /// <returns></returns>
@@ -11918,7 +11927,7 @@ public partial static class Ext
     }
 
     /// <summary>
-    /// Separa um Texto em um array de strings a partir de uma outra string
+    /// Separa um texto em um array de strings a partir de uma outra string
     /// </summary>
     /// <param name="Text">Texto</param>
     /// <param name="Separator">Texto utilizado como separador</param>
@@ -12455,7 +12464,7 @@ public partial static class Ext
     }
 
     /// <summary>
-    /// Retorna um anagrama de um Texto
+    /// Retorna um anagrama de um texto
     /// </summary>
     /// <param name="Text">Texto</param>
     /// <returns></returns>
@@ -12778,7 +12787,7 @@ public partial static class Ext
     /// Gera uma cor a partir de uma palavra
     /// </summary>
     /// <param name="Text">
-    /// Pode ser um Texto em branco (Transparent), uma <see cref="NamedColors"/> (retorna aquela
+    /// Pode ser um texto em branco (Transparent), uma <see cref="NamedColors"/> (retorna aquela
     /// cor exata), uma palavra qualquer (gera proceduralmente uma cor) ou uma expressão de cor
     /// (Red+Blue, Red-Blue,Green*Red etc).
     /// </param>
@@ -13335,9 +13344,9 @@ public partial static class Ext
     }
 
     /// <summary>
-    /// Converte um Texto para Leet (1337)
+    /// Converte um texto para Leet (1337)
     /// </summary>
-    /// <param name="Text">Texto original</param>
+    /// <param name="text">TExto original</param>
     /// <param name="degree">Grau de itensidade (0 a 7)</param>
     /// <returns>Texto em 1337</returns>
     public static string ToLeet(this string Text, int Degree = 7)
@@ -14659,7 +14668,7 @@ public partial static class Ext
     }
 
     /// <summary>
-    /// Pega um Texto em "PascalCase" ou "snake_case" e o retorna na forma "normal case"
+    /// Pega um texto em "PascalCase" ou "snake_case" e o retorna na forma "normal case"
     /// </summary>
     /// <param name="Text"></param>
     /// <returns></returns>
@@ -14856,7 +14865,7 @@ public partial static class Ext
 
 
     /// <summary>
-    /// Coloca o Texto em TitleCase
+    /// Coloca o texto em TitleCase
     /// </summary>
     /// <param name="Text"></param>
     /// <returns></returns>
@@ -15111,7 +15120,7 @@ public partial static class Ext
     /// <summary>
     /// Cria um <see cref="Stream"/> a partir de uma string
     /// </summary>
-    /// <param name="Text"></param>
+    /// <param name="TExt"></param>
     /// <returns></returns>
     public static Stream ToStream(this string Text)
     {
@@ -15182,7 +15191,7 @@ public partial static class Ext
     public static IEnumerable<object[]> ToTableArray<TGroupKey, TGroupValue>(this Dictionary<TGroupKey, TGroupValue> Groups) => Groups.Select(x => new List<object> { x.Key, x.Value }.ToArray());
 
     /// <summary>
-    /// Transforma um Texto em titulo
+    /// Transforma um texto em titulo
     /// </summary>
     /// <param name="Text">Texto a ser manipulado</param>
     /// <param name="ForceCase">
@@ -15190,7 +15199,7 @@ public partial static class Ext
     /// demais intactos. Se TRUE, força o primeiro caractere de casa palavra como UPPERCASE e os
     /// demais como LOWERCASE
     /// </param>
-    /// <returns>Uma String com o Texto em nome próprio</returns>
+    /// <returns>Uma String com o texto em nome próprio</returns>
     public static string ToTitle(this string Text, bool ForceCase = false) => Text?.ToProperCase(ForceCase);
 
     /// <summary>
@@ -15433,7 +15442,7 @@ public partial static class Ext
     /// Parametro que indica se a string deve continuar sendo testada até que todas as
     /// ocorrencias sejam removidas
     /// </param>
-    /// <param name="StringTest">Conjunto de Textos que serão comparados</param>
+    /// <param name="StringTest">Conjunto de textos que serão comparados</param>
     /// <returns></returns>
     public static string TrimAny(this string Text, bool ContinuouslyRemove, params string[] StringTest)
     {
@@ -15450,7 +15459,7 @@ public partial static class Ext
     /// Remove do começo e do final de uma string qualquer valor que estiver no conjunto
     /// </summary>
     /// <param name="Text">Texto</param>
-    /// <param name="StringTest">Conjunto de Textos que serão comparados</param>
+    /// <param name="StringTest">Conjunto de textos que serão comparados</param>
     /// <returns></returns>
     public static string TrimAny(this string Text, params string[] StringTest) => Text.TrimAny(true, StringTest);
 
@@ -15486,7 +15495,7 @@ public partial static class Ext
     /// Parametro que indica se a string deve continuar sendo testada até que todas as
     /// ocorrencias sejam removidas
     /// </param>
-    /// <param name="EndStringTest">Conjunto de Textos que serão comparados</param>
+    /// <param name="EndStringTest">Conjunto de textos que serão comparados</param>
     /// <returns></returns>
     public static string TrimEndAny(this string Text, bool ContinuouslyRemove, StringComparison comparison, params string[] EndStringTest)
     {
@@ -15514,7 +15523,7 @@ public partial static class Ext
     /// Remove continuamente o final de uma string se ela for igual a qualquer um dos valores correspondentes
     /// </summary>
     /// <param name="Text">Texto</param>
-    /// <param name="EndStringTest">Conjunto de Textos que serão comparados</param>
+    /// <param name="EndStringTest">Conjunto de textos que serão comparados</param>
     /// <returns></returns>
     public static string TrimEndAny(this string Text, params string[] EndStringTest) => Text.TrimEndAny(true, default, EndStringTest);
 
@@ -15522,7 +15531,7 @@ public partial static class Ext
     /// Remove continuamente o final de uma string se ela for igual a qualquer um dos valores correspondentes
     /// </summary>
     /// <param name="Text">Texto</param>
-    /// <param name="EndStringTest">Conjunto de Textos que serão comparados</param>
+    /// <param name="EndStringTest">Conjunto de textos que serão comparados</param>
     /// <param name="ContinuouslyRemove">Remove continuamente as strings</param>
     /// <returns></returns>
     public static string TrimEndAny(this string Text, bool ContinuouslyRemove, params string[] EndStringTest) => Text.TrimEndAny(ContinuouslyRemove, default, EndStringTest);
@@ -15531,12 +15540,12 @@ public partial static class Ext
     /// Remove continuamente o final de uma string se ela for igual a qualquer um dos valores correspondentes
     /// </summary>
     /// <param name="Text">Texto</param>
-    /// <param name="EndStringTest">Conjunto de Textos que serão comparados</param>
+    /// <param name="EndStringTest">Conjunto de textos que serão comparados</param>
     /// <returns></returns>
     public static string TrimEndAny(this string Text, StringComparison comparison, params string[] EndStringTest) => Text.TrimEndAny(true, comparison, EndStringTest);
 
     /// <summary>
-    /// Remove um Texto do inicio de uma string se ele for um outro Texto especificado
+    /// Remove um texto do inicio de uma string se ele for um outro texto especificado
     /// </summary>
     /// <param name="Text">Texto</param>
     /// <param name="StartStringTest">Texto inicial que será comparado</param>
@@ -15553,7 +15562,7 @@ public partial static class Ext
     }
 
     /// <summary>
-    /// Remove um Texto do final de uma string se ele for um outro Texto
+    /// Remove um texto do final de uma string se ele for um outro texto
     /// </summary>
     /// <param name="Text">Texto</param>
     /// <param name="EndStringTest">Texto final que será comparado</param>
@@ -15577,7 +15586,7 @@ public partial static class Ext
     /// Parametro que indica se a string deve continuar sendo testada até que todas as
     /// ocorrencias sejam removidas
     /// </param>
-    /// <param name="StartStringTest">Conjunto de Textos que serão comparados</param>
+    /// <param name="StartStringTest">Conjunto de textos que serão comparados</param>
     /// <returns></returns>
     public static string TrimStartAny(this string Text, bool ContinuouslyRemove, StringComparison comparison, params string[] StartStringTest)
     {
@@ -15605,7 +15614,7 @@ public partial static class Ext
     /// Remove continuamente o começo de uma string se ela for igual a qualquer um dos valores correspondentes
     /// </summary>
     /// <param name="Text">Texto</param>
-    /// <param name="StartStringTest">Conjunto de Textos que serão comparados</param>
+    /// <param name="StartStringTest">Conjunto de textos que serão comparados</param>
     /// <param name="comparison"></param>
     /// <returns></returns>
     public static string TrimStartAny(this string Text, StringComparison comparison, params string[] StartStringTest) => Text.TrimStartAny(true, comparison, StartStringTest);
@@ -15614,7 +15623,7 @@ public partial static class Ext
     /// Remove continuamente o começo de uma string se ela for igual a qualquer um dos valores correspondentes
     /// </summary>
     /// <param name="Text">Texto</param>
-    /// <param name="StartStringTest">Conjunto de Textos que serão comparados</param>
+    /// <param name="StartStringTest">Conjunto de textos que serão comparados</param>
     /// <returns></returns>
     public static string TrimStartAny(this string Text, params string[] StartStringTest) => Text.TrimStartAny(true, default, StartStringTest);
 
@@ -15622,7 +15631,7 @@ public partial static class Ext
     /// Remove continuamente o começo de uma string se ela for igual a qualquer um dos valores correspondentes
     /// </summary>
     /// <param name="Text">Texto</param>
-    /// <param name="StartStringTest">Conjunto de Textos que serão comparados</param>
+    /// <param name="StartStringTest">Conjunto de textos que serão comparados</param>
     /// <returns></returns>
     public static string TrimStartAny(this string Text, bool ContinuouslyRemove, params string[] StartStringTest) => Text.TrimStartAny(ContinuouslyRemove, default, StartStringTest);
 
@@ -16011,7 +16020,7 @@ public partial static class Ext
     }
 
     /// <summary>
-    /// Encapsula um tento entre 2 Textos
+    /// Encapsula um tento entre 2 textos
     /// </summary>
     /// <param name="Text">Texto</param>
     /// <param name="WrapText">Caractere de encapsulamento</param>
@@ -16019,7 +16028,7 @@ public partial static class Ext
     public static string Wrap(this string Text, string WrapText = DoubleQuoteChar) => Text.Wrap(WrapText, WrapText);
 
     /// <summary>
-    /// Encapsula um tento entre 2 Textos
+    /// Encapsula um tento entre 2 textos
     /// </summary>
     /// <param name="Text">Texto</param>
     /// <returns></returns>
@@ -16104,9 +16113,9 @@ public partial static class Ext
     /// <param name="File">T arquivo a ser convertido</param>
     /// <returns>Um array do tipo Byte()</returns>
     /// <summary>
-    /// Salva um Texto em um arquivo
+    /// Salva um texto em um arquivo
     /// </summary>
-    /// <param name="Text">Texto</param>
+    /// <param name="Text">TExto</param>
     /// <param name="FilePath">Caminho do arquivo</param>
     /// <returns>Um Fileinfo contendo as informações do arquivo criado</returns>
     public static FileInfo WriteToFile(this string Text, string FilePath, bool Append = false, Encoding Enconding = null, DateTime? DateAndTime = null)
@@ -16133,9 +16142,9 @@ public partial static class Ext
     }
 
     /// <summary>
-    /// Salva um Texto em um arquivo
+    /// Salva um texto em um arquivo
     /// </summary>
-    /// <param name="Text">Texto</param>
+    /// <param name="Text">TExto</param>
     /// <param name="File">Arquivo</param>
     /// <returns>Um Fileinfo contendo as informações do arquivo criado</returns>
     public static FileInfo WriteToFile(this string Text, FileInfo File, bool Append = false, Encoding Enconding = null, DateTime? DateAndTime = null) => Text.WriteToFile(File.FullName, Append, Enconding, DateAndTime);

@@ -20,7 +20,6 @@
 // </copyright>
 // ***********************************************************************
 
-using InnerLibs.Printer.Command;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -31,14 +30,15 @@ using System.Reflection;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
+using Printers.Command;
 
-namespace InnerLibs.Printer
+namespace Printers
 {
     public static class PrinterExtension
     {
         #region Public Methods
 
-        public static Printer CreatePrinter(this InnerLibs.Printer.Command.IPrintCommand CommandType, string PrinterName, int ColsNormal = 0, int ColsCondensed = 0, int ColsExpanded = 0, Encoding Encoding = null) => Printer.CreatePrinter(CommandType, PrinterName, ColsNormal, ColsCondensed, ColsExpanded, Encoding);
+        public static Printer CreatePrinter(this IPrintCommand CommandType, string PrinterName, int ColsNormal = 0, int ColsCondensed = 0, int ColsExpanded = 0, Encoding Encoding = null) => Printer.CreatePrinter(CommandType, PrinterName, ColsNormal, ColsCondensed, ColsExpanded, Encoding);
 
         #endregion Public Methods
     }
@@ -115,13 +115,13 @@ namespace InnerLibs.Printer
                 return new string(CharLine, (Columns.Value - (LeftText.Length + RightText.Length)).LimitRange(0, Columns.Value));
             }
 
-            return InnerLibs.Ext.EmptyString;
+            return Util.EmptyString;
         }
 
         internal string GetPair(string LeftText, string RightText, int? Columns = default, char CharLine = ' ')
         {
             Columns = Columns ?? GetCurrentColumns();
-            string dots = InnerLibs.Ext.EmptyString;
+            string dots = Util.EmptyString;
             string s1 = $"{LeftText}";
             string s2 = $"{RightText}";
             if (s2.IsNotBlank() && Columns.Value > 0)
@@ -184,7 +184,7 @@ namespace InnerLibs.Printer
                 throw new ArgumentException("Printername cannot be null or empty", "PrinterName");
             }
 
-            this.Command = Command ?? new InnerLibs.EscPosCommands.EscPos();
+            this.Command = Command ?? new EscPosCommands.EscPos();
             if (Encoding != null)
             {
                 this.Command.Encoding = Encoding;
@@ -347,7 +347,7 @@ namespace InnerLibs.Printer
 
         #region Public Methods
 
-        public static Printer CreatePrinter<CommandType>(string PrinterName, int ColsNormal = 0, int ColsCondensed = 0, int ColsExpanded = 0, Encoding Encoding = null) where CommandType : InnerLibs.Printer.Command.IPrintCommand => CreatePrinter(typeof(CommandType), PrinterName, ColsNormal, ColsCondensed, ColsExpanded, Encoding);
+        public static Printer CreatePrinter<CommandType>(string PrinterName, int ColsNormal = 0, int ColsCondensed = 0, int ColsExpanded = 0, Encoding Encoding = null) where CommandType : Printers.Command.IPrintCommand => CreatePrinter(typeof(CommandType), PrinterName, ColsNormal, ColsCondensed, ColsExpanded, Encoding);
 
         public static Printer CreatePrinter(Type CommandType, string PrinterName, int ColsNormal = 0, int ColsCondensed = 0, int ColsExpanded = 0, Encoding Encoding = null)
         {
@@ -697,7 +697,7 @@ namespace InnerLibs.Printer
                         }
                         else if (!RawPrinterHelper.SendBytesToPrinter(PrinterName, DocumentBuffer.ToArray()))
                         {
-                            Ext.WriteDebug("Não foi possível acessar a impressora: " + PrinterName);
+                            Util.WriteDebug("Não foi possível acessar a impressora: " + PrinterName);
                         }
                     }
                 }
@@ -712,7 +712,7 @@ namespace InnerLibs.Printer
             return Write(Command.PrintQrData(qrData));
         }
 
-        public Printer QrCode(string qrData, InnerLibs.Printer.QrCodeSize qrCodeSize)
+        public Printer QrCode(string qrData, Printers.QrCodeSize qrCodeSize)
         {
             _ommit = true;
             return Write(Command.PrintQrData(qrData, qrCodeSize));
@@ -761,7 +761,7 @@ namespace InnerLibs.Printer
                         HTMLDocument.Save(s);
                         if (!info.Directory.GetFiles("Printer.css").Any())
                         {
-                            Ext.GetResourceFileText(Assembly.GetExecutingAssembly(), "InnerLibs.Printer.css").Replace("##Cols##", ColumnsNormal.ToString()).WriteToFile($@"{info.Directory}\Printer.css", false, Encoding.Unicode);
+                            Util.GetResourceFileText(Assembly.GetExecutingAssembly(), "Printer.css").Replace("##Cols##", ColumnsNormal.ToString()).WriteToFile($@"{info.Directory}\Printer.css", false, Encoding.Unicode);
                         }
                     }
                 }
@@ -856,7 +856,7 @@ namespace InnerLibs.Printer
                 {
                     try
                     {
-                        string v = Command.Encoding.GetString(value).ReplaceMany("<br/>", InnerLibs.PredefinedArrays.BreakLineChars.ToArray());
+                        string v = Command.Encoding.GetString(value).ReplaceMany("<br/>", PredefinedArrays.BreakLineChars.ToArray());
                         if (v == "<br/>")
                         {
                             HTMLDocument.Root.Add("<br/>");
@@ -1197,7 +1197,7 @@ namespace InnerLibs.Printer
         /// <returns></returns>
         public Printer WritePriceList<T>(IEnumerable<T> List, Expression<Func<T, string>> Description, Expression<Func<T, decimal>> Price, CultureInfo Culture = null, int? Columns = default, char CharLine = '.') => WritePriceList(List.Select(x => new Tuple<string, decimal>(Description.Compile()(x), Price.Compile()(x))), Culture, Columns);
 
-        public Printer WriteScriptLine(int? Columns = default, string Name = InnerLibs.Ext.EmptyString)
+        public Printer WriteScriptLine(int? Columns = default, string Name = Util.EmptyString)
         {
             ResetFont();
             NewLine(5);
@@ -1290,7 +1290,7 @@ namespace InnerLibs.Printer
         /// <param name="obj"></param>
         /// <param name="PartialCutOnEach"></param>
         /// <returns></returns>
-        public Printer WriteTemplate<T>(string TemplateString, T obj, bool PartialCutOnEach = false) where T : class => WriteTemplate(TemplateString, PartialCutOnEach, InnerLibs.Ext.ForceArray(obj, typeof(T)));
+        public Printer WriteTemplate<T>(string TemplateString, T obj, bool PartialCutOnEach = false) where T : class => WriteTemplate(TemplateString, PartialCutOnEach, Util.ForceArray(obj, typeof(T)));
 
         /// <summary>
         /// Escreve um teste de 48 colunas no <see cref="DocumentBuffer"/>
@@ -1336,7 +1336,7 @@ namespace InnerLibs.Printer
     }
 }
 
-namespace InnerLibs.Printer.XmlTemplates
+namespace Printers.XmlTemplates
 {
     public class XmlTemplatePrinter : Printer
     {
@@ -1529,7 +1529,7 @@ namespace InnerLibs.Printer.XmlTemplates
 
                 return this;
             }
-            // se chegou aqui, é so tratar como texto mesmo
+            // se chegou aqui, é so tratar como Texto mesmo
             if (name.IsIn("line", "writeline", "ln", "printl", "title", "h1", "h2", "h3", "h4", "h5", "h6"))
             {
                 lines = 1;
@@ -1567,7 +1567,7 @@ namespace InnerLibs.Printer.XmlTemplates
 
                 if (atname == "align")
                 {
-                    switch (attr.Value?.ToLowerInvariant() ?? InnerLibs.Ext.EmptyString)
+                    switch (attr.Value?.ToLowerInvariant() ?? Util.EmptyString)
                     {
                         case "right":
                             {
@@ -1591,7 +1591,7 @@ namespace InnerLibs.Printer.XmlTemplates
 
                 if (atname == "font-size")
                 {
-                    switch (attr.Value?.ToLowerInvariant() ?? InnerLibs.Ext.EmptyString)
+                    switch (attr.Value?.ToLowerInvariant() ?? Util.EmptyString)
                     {
                         case "2":
                         case "medium":
@@ -1617,7 +1617,7 @@ namespace InnerLibs.Printer.XmlTemplates
 
                 if (atname == "font-stretch")
                 {
-                    switch (attr.Value?.ToLowerInvariant() ?? InnerLibs.Ext.EmptyString)
+                    switch (attr.Value?.ToLowerInvariant() ?? Util.EmptyString)
                     {
                         case "2":
                         case "condensed":

@@ -1,28 +1,27 @@
 ﻿using System;
 
-namespace InnerLibs
+
+
+/// <summary>
+/// Behavior for <see cref="DateRange.FilterBehavior"/>
+/// </summary>
+public enum DateRangeFilterBehavior
 {
     /// <summary>
-    /// Behavior for <see cref="DateRange.FilterBehavior"/>
+    /// Check if <see cref="DateTime"/> is between <see cref="DateRange.StartDate"/> and <see
+    /// cref="DateRange.EndDate"/> but not equal them
     /// </summary>
-    public enum DateRangeFilterBehavior
-    {
-        /// <summary>
-        /// Check if <see cref="DateTime"/> is between <see cref="DateRange.StartDate"/> and <see
-        /// cref="DateRange.EndDate"/> but not equal them
-        /// </summary>
-        BetweenExclusive,
+    BetweenExclusive,
 
-        /// <summary>
-        /// Check if <see cref="DateTime"/> is Between or equal <see cref="DateRange.StartDate"/>
-        /// and <see cref="DateRange.EndDate"/>
-        /// </summary>
-        BetweenOrEqual,
+    /// <summary>
+    /// Check if <see cref="DateTime"/> is Between or equal <see cref="DateRange.StartDate"/>
+    /// and <see cref="DateRange.EndDate"/>
+    /// </summary>
+    BetweenOrEqual,
 
-        /// <summary>
-        /// Check if <see cref="DateTime"/> is greater than or equal <see
-        /// cref="DateRange.StartDate"/> and less than <see cref="DateRange.EndDate"/>
-        /// </summary>
-        Between,
-    }
+    /// <summary>
+    /// Check if <see cref="DateTime"/> is greater than or equal <see
+    /// cref="DateRange.StartDate"/> and less than <see cref="DateRange.EndDate"/>
+    /// </summary>
+    Between,
 }

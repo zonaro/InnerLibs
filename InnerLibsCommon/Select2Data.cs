@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace InnerLibs.Select2
+namespace Select2
 {
     public static class Select2Extensions
     {

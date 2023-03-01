@@ -1,10 +1,10 @@
-﻿using InnerLibs.Printer;
-using InnerLibs.Printer.Command;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Printers;
+using Printers.Command;
 
-namespace InnerLibs.EscBemaCommands
+namespace EscBemaCommands
 {
     public class EscBema : IPrintCommand
     {

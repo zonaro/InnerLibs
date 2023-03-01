@@ -1,11 +1,11 @@
 ﻿.align-right {
-    text-align: right;
+    Text-align: right;
     width: ##Cols##ch;
     position: absolute;
 }
 
 .align-center {
-    text-align: center;
+    Text-align: center;
     width: ##Cols##ch;
     position: absolute;
 }
@@ -42,7 +42,7 @@ body {
 }
 
 .underline {
-    text-decoration: underline;
+    Text-decoration: underline;
 }
 
 .italic {

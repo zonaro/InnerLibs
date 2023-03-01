@@ -5,87 +5,9 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Xml;
-namespace InnerLibs.BR
+
+namespace BR
 {
-
-
-   public class ChaveNFe
-{
-	public ChaveNFe()
-	{
-
-	}
-
-	public ChaveNFe(string NFeKey)
-	{
-		this.NFeKey = NFeKey;
-	}
-
-	public string NFeKey
-	{
-		get => ToString();
-		set
-		{
-			var c = "";
-			foreach (char item in value ?? Ext.EmptyString)
-			{
-				if (char.IsNumber(item))
-				{
-					c += item;
-				}
-			}
-
-			if (c.Length != 44)
-			{
-				c = "".PadLeft(44, '0');
-			}
-
-
-			UF = c.Substring(0, UFSize).ToInt();
-			Year = c.Substring(2, MonthYearSize - 2).ToInt();
-			Month = c.Substring(4, MonthYearSize - 2).ToInt();
-			CNPJ = c.Substring(6, CNPJSize);
-			Model = c.Substring(20, ModelSize).ToInt();
-			Series = c.Substring(22, SerieSize).ToInt();
-			Number = c.Substring(25, NumberSize).ToInt();
-			Code = c.Substring(34, CodeSize).ToInt();
-			Digit = c.Substring(43, DigitSize).ToInt();
-
-
-		}
-	}
-
-	private string cnpj = "";
-	public string CNPJ { get => cnpj.FormatCPFOrCNPJ();	set => cnpj= value.RemoveMask().PadZero(CNPJSize); 	}
-	public int Digit { get; set; }
-	public int Month { get; set; }
-	public int Model { get; set; }
-	public int Number { get; set; }
-	public int Series { get; set; }
-	public int Code { get; set; }
-	public int UF { get; set; }
-	public int Year { get; set; }
-
-	const int UFSize = 2;
-	const int MonthYearSize = 4;
-	const int CNPJSize = 14;
-	const int ModelSize = 2;
-	const int SerieSize = 3;
-	const int NumberSize = 9;
-	const int CodeSize = 9;
-	const int DigitSize = 1;
-
-	public State State => Brasil.GetState($"{UF}");
-	public DateTime MonthYear => new DateTime(2000 + Year, Month, 1);
-
-
-	public override string ToString() => ID.RemoveMask();
-
-
-	public string ID => $"{UF.FixedLenght(UFSize)}-{Year.FixedLenght(MonthYearSize - 2)}{Month.FixedLenght(MonthYearSize - 2)}-{CNPJ.RemoveMask().PadLeft(CNPJSize, '0')}-{Model.FixedLenght(ModelSize)}-{Series.FixedLenght(SerieSize)}-{Number.FixedLenght(NumberSize)}-{Code.FixedLenght(CodeSize)}-{Digit.FixedLenght(DigitSize)}";
-
-}
-
     /// <summary>
     /// Objeto para manipular cidades e estados do Brasil
     /// </summary>
@@ -118,7 +40,7 @@ namespace InnerLibs.BR
                 l = l ?? new List<State>();
                 if (!l.Any())
                 {
-                    string s = Assembly.GetExecutingAssembly().GetResourceFileText("InnerLibs.brasil.xml");
+                    string s = Assembly.GetExecutingAssembly().GetResourceFileText("brasil.xml");
                     var doc = new XmlDocument();
                     doc.LoadXml(s);
 
@@ -152,15 +74,6 @@ namespace InnerLibs.BR
         #endregion Public Properties
 
         #region Public Methods
-
-
-        /// <summary>
-        /// Procura numeros de telefone em um texto
-        /// </summary>
-        /// <param name="Text"></param>
-        /// <returns></returns>
-        public static IEnumerable<string> FindTelephoneNumbers(this string Text) => Text.FindByRegex(@"\b[\s()\d-]{6,}\d\b", (RegexOptions)((int)RegexOptions.Singleline + (int)RegexOptions.IgnoreCase)).Select(x => x.FormatTelephoneNumber());
-
 
         /// <summary>
         /// Retorna um <see cref="AddressInfo"/> da cidade e estado correspondentes
@@ -216,9 +129,16 @@ namespace InnerLibs.BR
         /// </summary>
         /// <param name="CityName"></param>
         /// <returns></returns>
-        public static IEnumerable<State> FindStateByCityName(string CityName) => States.Where((Func<State, bool>)(x => x.Cities.Any((Func<City, bool>)(c => (Ext.ToSlugCase(c.Name) ?? Ext.EmptyString) == (Ext.ToSlugCase(CityName) ?? Ext.EmptyString) || (c.IBGE.ToString() ?? Ext.EmptyString) == (Ext.ToSlugCase(CityName) ?? Ext.EmptyString)))));
+        public static IEnumerable<State> FindStateByCityName(string CityName) => States.Where((Func<State, bool>)(x => x.Cities.Any((Func<City, bool>)(c => (Util.ToSlugCase(c.Name) ?? Util.EmptyString) == (Util.ToSlugCase(CityName) ?? Util.EmptyString) || (c.IBGE.ToString() ?? Util.EmptyString) == (Util.ToSlugCase(CityName) ?? Util.EmptyString)))));
 
         public static State FindStateByIBGE(int IBGE) => States.FirstOrDefault(x => x.IBGE == IBGE) ?? FindCityByIBGE(IBGE)?.State;
+
+        /// <summary>
+        /// Procura numeros de telefone em um Texto
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <returns></returns>
+        public static IEnumerable<string> FindTelephoneNumbers(this string Text) => Text.FindByRegex(@"\b[\s()\d-]{6,}\d\b", (RegexOptions)((int)RegexOptions.Singleline + (int)RegexOptions.IgnoreCase)).Select(x => x.FormatTelephoneNumber());
 
         /// <inheritdoc cref="FormatCEP(string)"/>
         public static string FormatCEP(this int CEP) => FormatCEP(CEP.ToString(CultureInfo.InvariantCulture));
@@ -230,7 +150,7 @@ namespace InnerLibs.BR
         /// <returns></returns>
         public static string FormatCEP(this string CEP)
         {
-            CEP = CEP.RemoveAny(".", "-").GetBefore(",") ?? Ext.EmptyString;
+            CEP = CEP.RemoveAny(".", "-").GetBefore(",") ?? Util.EmptyString;
             CEP = CEP.PadLeft(8, '0');
             CEP = CEP.Insert(5, "-");
             if (CEP.IsValidCEP())
@@ -343,7 +263,7 @@ namespace InnerLibs.BR
             }
         }
 
-        public static string FormatDocumentWithLabel(this string Input, string DefaultString = Ext.EmptyString)
+        public static string FormatDocumentWithLabel(this string Input, string DefaultString = Util.EmptyString)
         {
             var x = Input.GetDocumentLabel(DefaultString);
             switch (x)
@@ -378,7 +298,7 @@ namespace InnerLibs.BR
         /// <summary>
         /// Formata o PIS no padrão ###.#####.##-#
         /// </summary>
-        /// <param name="PIS">PIS a ser formatado</param> 
+        /// <param name="PIS">PIS a ser formatado</param>
         /// <returns>PIS formatado</returns>
         public static string FormatPIS(this string PIS)
         {
@@ -398,7 +318,7 @@ namespace InnerLibs.BR
         /// <summary>
         /// Formata o PIS no padrão ###.#####.##-#
         /// </summary>
-        /// <param name="PIS">PIS a ser formatado</param> 
+        /// <param name="PIS">PIS a ser formatado</param>
         /// <returns>PIS formatado</returns>
         public static string FormatPIS(this long PIS) => FormatPIS(PIS.ToString(CultureInfo.InvariantCulture));
 
@@ -409,7 +329,7 @@ namespace InnerLibs.BR
         /// <returns></returns>
         public static string FormatTelephoneNumber(this string Number)
         {
-            Number = Number ?? Ext.EmptyString;
+            Number = Number ?? Util.EmptyString;
             if (Number.IsBlank()) return Number;
             Number = Number.ParseDigits().RemoveAny(",", ".").TrimBetween().GetLastChars(13);
             string mask;
@@ -460,9 +380,9 @@ namespace InnerLibs.BR
         /// <param name="NameOrStateCodeOrIBGE">Nome ou sigla do estado</param>
         /// <param name="CityName">Nome da cidade</param>
         /// <returns></returns>
-        public static string GetClosestCityName(string NameOrStateCodeOrIBGE, string CityName) => (GetClosestCity(NameOrStateCodeOrIBGE, CityName)?.Name ?? InnerLibs.Ext.EmptyString).IfBlank(CityName);
+        public static string GetClosestCityName(string NameOrStateCodeOrIBGE, string CityName) => (GetClosestCity(NameOrStateCodeOrIBGE, CityName)?.Name ?? Util.EmptyString).IfBlank(CityName);
 
-        public static string GetDocumentLabel(this string Input, string DefaultLabel = Ext.EmptyString)
+        public static string GetDocumentLabel(this string Input, string DefaultLabel = Util.EmptyString)
         {
             if (Input.IsValidCPF()) return "CPF";
             if (Input.IsValidCNPJ()) return "CNPJ";
@@ -500,7 +420,7 @@ namespace InnerLibs.BR
         public static State GetState(string NameOrStateCodeOrIBGE)
         {
             NameOrStateCodeOrIBGE = NameOrStateCodeOrIBGE.TrimBetween().ToSlugCase();
-            return States.FirstOrDefault(x => (x.Name.ToSlugCase() ?? Ext.EmptyString) == (NameOrStateCodeOrIBGE ?? Ext.EmptyString) || (x.StateCode.ToSlugCase() ?? InnerLibs.Ext.EmptyString) == (NameOrStateCodeOrIBGE ?? InnerLibs.Ext.EmptyString) || (x.IBGE.ToString()) == (NameOrStateCodeOrIBGE ?? InnerLibs.Ext.EmptyString));
+            return States.FirstOrDefault(x => (x.Name.ToSlugCase() ?? Util.EmptyString) == (NameOrStateCodeOrIBGE ?? Util.EmptyString) || (x.StateCode.ToSlugCase() ?? Util.EmptyString) == (NameOrStateCodeOrIBGE ?? Util.EmptyString) || (x.IBGE.ToString()) == (NameOrStateCodeOrIBGE ?? Util.EmptyString));
         }
 
         /// <summary>
@@ -515,7 +435,7 @@ namespace InnerLibs.BR
         /// </summary>
         /// <param name="Region"></param>
         /// <returns></returns>
-        public static IEnumerable<State> GetStatesOf(string Region) => States.Where((Func<State, bool>)(x => (Ext.ToSlugCase(x.Region) ?? Ext.EmptyString) == (Ext.TrimBetween(Ext.ToSlugCase(Region)) ?? Ext.EmptyString) || Region.IsBlank()));
+        public static IEnumerable<State> GetStatesOf(string Region) => States.Where((Func<State, bool>)(x => (Util.ToSlugCase(x.Region) ?? Util.EmptyString) == (Util.TrimBetween(Util.ToSlugCase(Region)) ?? Util.EmptyString) || Region.IsBlank()));
 
         /// <summary>
         /// Valida se a string é um telefone
@@ -595,7 +515,7 @@ namespace InnerLibs.BR
                     string digito;
                     string tempCnpj;
                     Text = Text.Trim();
-                    Text = Text.Replace(".", InnerLibs.Ext.EmptyString).Replace("-", InnerLibs.Ext.EmptyString).Replace("/", InnerLibs.Ext.EmptyString);
+                    Text = Text.Replace(".", Util.EmptyString).Replace("-", Util.EmptyString).Replace("/", Util.EmptyString);
                     if (Text.Length != 14)
                     {
                         return false;
@@ -658,7 +578,7 @@ namespace InnerLibs.BR
                 if (Text.IsNotBlank())
                 {
                     Text = Text.RemoveAny(".", "-");
-                    string digito = InnerLibs.Ext.EmptyString;
+                    string digito = Util.EmptyString;
                     int k;
                     int j;
                     int soma;
@@ -702,7 +622,7 @@ namespace InnerLibs.BR
                 return false;
             }
 
-            PIS = Regex.Replace(PIS, "[^0-9]", InnerLibs.Ext.EmptyString).ToString();
+            PIS = Regex.Replace(PIS, "[^0-9]", Util.EmptyString).ToString();
 
             if (PIS.Length != 11)
             {
@@ -739,6 +659,141 @@ namespace InnerLibs.BR
         }
 
         public static void Reload() => l = new List<State>();
+
+        #endregion Public Methods
+    }
+
+    public class ChaveNFe
+    {
+        #region Private Fields
+
+        private const int TamanhoCNPJ = 14;
+
+        private const int TamanhoCodigo = 9;
+
+        private const int TamanhoDigito = 1;
+
+        private const int TamanhoMesAno = 4;
+
+        private const int TamanhoModelo = 2;
+
+        private const int TamanhoNota = 9;
+
+        private const int TamanhoSerie = 3;
+
+        private const int TamanhoUF = 2;
+
+        private string cnpj = "";
+
+        #endregion Private Fields
+
+        #region Public Constructors
+
+        public ChaveNFe()
+        {
+        }
+
+        public ChaveNFe(string Chave)
+        {
+            this.Chave = Chave;
+        }
+
+        #endregion Public Constructors
+
+        #region Public Properties
+
+        public int Ano { get; set; }
+
+        public string Chave
+        {
+            get => ToString();
+            set
+            {
+                var c = "";
+                foreach (char item in value ?? Util.EmptyString)
+                {
+                    if (char.IsNumber(item))
+                    {
+                        c += item;
+                    }
+                }
+
+                if (c.Length != 44)
+                {
+                    c = "".PadLeft(44, '0');
+                }
+
+                var parts = c.SplitChunk(TamanhoUF, TamanhoMesAno - 2, TamanhoMesAno - 2, TamanhoCNPJ, TamanhoModelo, TamanhoSerie, TamanhoNota, TamanhoCodigo, TamanhoDigito).ToArray();
+
+                UF = parts[0].ToInt();
+                Ano = parts[1].ToInt();
+                Mes = parts[2].ToInt();
+                CNPJ = parts[3];
+                Modelo = parts[4].ToInt();
+                Serie = parts[5].ToInt();
+                Nota = parts[6].ToInt();
+                Codigo = parts[7].ToInt();
+                Digito = parts[8].ToInt();
+            }
+        }
+
+        public string CNPJ { get => cnpj.FormatCPFOrCNPJ(); set => cnpj = value.RemoveMask().PadZero(TamanhoCNPJ); }
+
+        public int Codigo { get; set; }
+
+        public int Digito { get; set; }
+
+        public string ID => $"{UF.FixedLenght(TamanhoUF)}-{Ano.FixedLenght(TamanhoMesAno - 2)}{Mes.FixedLenght(TamanhoMesAno - 2)}-{CNPJ.RemoveMask().PadLeft(TamanhoCNPJ, '0')}-{Modelo.FixedLenght(TamanhoModelo)}-{Serie.FixedLenght(TamanhoSerie)}-{Nota.FixedLenght(TamanhoNota)}-{Codigo.FixedLenght(TamanhoCodigo)}-{Digito.FixedLenght(TamanhoDigito)}";
+
+        public int Mes { get; set; }
+
+        public int Modelo { get; set; }
+
+        public DateTime MesEmissao => new DateTime(2000 + Ano, Mes, 1);
+
+        public int Nota { get; set; }
+
+        public int Serie { get; set; }
+
+        public State Estado => Brasil.GetState($"{UF}");
+
+        public int UF { get; set; }
+
+        #endregion Public Properties
+
+        #region Public Methods
+
+        public static int CalcularDigito(string Chave)
+        {
+            if (Chave != null && Chave.Length.IsAny(43, 44))
+            {
+                // Cálculo do dígito verificador
+                int peso = 2;
+                int soma = 0;
+                for (int i = Chave.Length - 1; i >= 0; i--)
+                {
+                    int algarismo = Convert.ToInt32(Chave.Substring(i, 1));
+                    soma += algarismo * peso;
+                    peso++;
+                    if (peso == 10)
+                    {
+                        peso = 2;
+                    }
+                }
+                int resto = soma % 11;
+                int dv = 11 - resto;
+                if (dv == 10 || dv == 11)
+                {
+                    dv = 0;
+                }
+                return dv;
+            }
+            throw new FormatException("Chave NFe inválida");
+        }
+
+        public int CalcularDigito() => Digito = CalcularDigito(this.Chave);
+
+        public override string ToString() => ID.RemoveMask();
 
         #endregion Public Methods
     }
