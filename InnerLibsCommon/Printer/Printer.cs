@@ -38,10 +38,7 @@ namespace InnerLibs.Printer
     {
         #region Public Methods
 
-        public static Printer CreatePrinter(this InnerLibs.Printer.Command.IPrintCommand CommandType, string PrinterName, int ColsNormal = 0, int ColsCondensed = 0, int ColsExpanded = 0, Encoding Encoding = null)
-        {
-            return Printer.CreatePrinter(CommandType, PrinterName, ColsNormal, ColsCondensed, ColsExpanded, Encoding);
-        }
+        public static Printer CreatePrinter(this InnerLibs.Printer.Command.IPrintCommand CommandType, string PrinterName, int ColsNormal = 0, int ColsCondensed = 0, int ColsExpanded = 0, Encoding Encoding = null) => Printer.CreatePrinter(CommandType, PrinterName, ColsNormal, ColsCondensed, ColsExpanded, Encoding);
 
         #endregion Public Methods
     }
@@ -94,15 +91,9 @@ namespace InnerLibs.Printer
 
             #region Public Methods
 
-            public override void Flush()
-            {
-                p.PrintDocument();
-            }
+            public override void Flush() => p.PrintDocument();
 
-            public override void Write(char value)
-            {
-                Write($"{value}");
-            }
+            public override void Write(char value) => Write($"{value}");
 
             #endregion Public Methods
         }
@@ -356,10 +347,7 @@ namespace InnerLibs.Printer
 
         #region Public Methods
 
-        public static Printer CreatePrinter<CommandType>(string PrinterName, int ColsNormal = 0, int ColsCondensed = 0, int ColsExpanded = 0, Encoding Encoding = null) where CommandType : InnerLibs.Printer.Command.IPrintCommand
-        {
-            return CreatePrinter(typeof(CommandType), PrinterName, ColsNormal, ColsCondensed, ColsExpanded, Encoding);
-        }
+        public static Printer CreatePrinter<CommandType>(string PrinterName, int ColsNormal = 0, int ColsCondensed = 0, int ColsExpanded = 0, Encoding Encoding = null) where CommandType : InnerLibs.Printer.Command.IPrintCommand => CreatePrinter(typeof(CommandType), PrinterName, ColsNormal, ColsCondensed, ColsExpanded, Encoding);
 
         public static Printer CreatePrinter(Type CommandType, string PrinterName, int ColsNormal = 0, int ColsCondensed = 0, int ColsExpanded = 0, Encoding Encoding = null)
         {
@@ -367,10 +355,7 @@ namespace InnerLibs.Printer
             return CreatePrinter(tp, PrinterName, ColsNormal, ColsCondensed, ColsExpanded, Encoding);
         }
 
-        public static Printer CreatePrinter(IPrintCommand CommandType, string PrinterName, int ColsNormal = 0, int ColsCondensed = 0, int ColsExpanded = 0, Encoding Encoding = null)
-        {
-            return new Printer(CommandType, PrinterName, ColsNormal, ColsCondensed, ColsExpanded, Encoding);
-        }
+        public static Printer CreatePrinter(IPrintCommand CommandType, string PrinterName, int ColsNormal = 0, int ColsCondensed = 0, int ColsExpanded = 0, Encoding Encoding = null) => new Printer(CommandType, PrinterName, ColsNormal, ColsCondensed, ColsExpanded, Encoding);
 
         public Printer AlignCenter()
         {
@@ -794,10 +779,7 @@ namespace InnerLibs.Printer
         /// </summary>
         /// <param name="Character"></param>
         /// <returns></returns>
-        public Printer Separator(char Character = '-', int? Columns = default)
-        {
-            return WriteLine(new string(Character, Columns ?? GetCurrentColumns()));
-        }
+        public Printer Separator(char Character = '-', int? Columns = default) => WriteLine(new string(Character, Columns ?? GetCurrentColumns()));
 
         /// <summary>
         /// Adciona um numero <paramref name="Spaces"/> de espaços em branco ao <see cref="DocumentBuffer"/>
@@ -1368,10 +1350,7 @@ namespace InnerLibs.Printer.XmlTemplates
         /// <param name="obj"></param>
         /// <param name="Xml"></param>
         /// <returns></returns>
-        public Printer WriteXmlTemplate<T>(T obj, XmlDocument Xml)
-        {
-            return WriteXmlTemplate(obj, Xml.OuterXml);
-        }
+        public Printer WriteXmlTemplate<T>(T obj, XmlDocument Xml) => WriteXmlTemplate(obj, Xml.OuterXml);
 
         /// <summary>
         /// Escreve um template de um <see cref="XDocument"/> para cada entrada em uma lista

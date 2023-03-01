@@ -197,10 +197,7 @@ namespace InnerLibs
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        IDictionaryEnumerator IDictionary.GetEnumerator()
-        {
-            throw new NotImplementedException();
-        }
+        IDictionaryEnumerator IDictionary.GetEnumerator() => throw new NotImplementedException();
 
         #endregion Public Methods
     }

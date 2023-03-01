@@ -11,29 +11,11 @@ namespace InnerLibs.EscDarumaCommands
     {
         #region Properties
 
-        public int ColsCondensed
-        {
-            get
-            {
-                return 57;
-            }
-        }
+        public int ColsCondensed => 57;
 
-        public int ColsExpanded
-        {
-            get
-            {
-                return 25;
-            }
-        }
+        public int ColsExpanded => 25;
 
-        public int ColsNormal
-        {
-            get
-            {
-                return 48;
-            }
-        }
+        public int ColsNormal => 48;
 
         // Encoding.GetEncoding("IBM860")
         public Encoding Encoding { get; set; }
@@ -50,37 +32,17 @@ namespace InnerLibs.EscDarumaCommands
             return (new byte[] { 27, 106, 49 }).AddBytes(new byte[] { 27, 129 }).AddBytes(new[] { b }).AddBytes(new[] { b2 }).AddBytes(new[] { ((int)size + 3).ToByte() }).AddBytes(new[] { 'M'.ToByte() });
         }
 
-        public byte[] AutoTest()
-        {
-            return new byte[] { 28, 'M'.ToByte(), 254, 0 };
-        }
+        public byte[] AutoTest() => new byte[] { 28, 'M'.ToByte(), 254, 0 };
 
-        public byte[] Bold(bool state)
-        {
-            return state == true ? (new byte[] { 27, 'E'.ToByte() }) : (new byte[] { 27, 'F'.ToByte() });
-        }
+        public byte[] Bold(bool state) => state == true ? (new byte[] { 27, 'E'.ToByte() }) : (new byte[] { 27, 'F'.ToByte() });
 
-        public byte[] Center()
-        {
-            return new byte[] { 27, 'j'.ToByte(), 1 };
-        }
+        public byte[] Center() => new byte[] { 27, 'j'.ToByte(), 1 };
 
-        public byte[] Code128(string code)
-        {
-            return (new byte[] { 27, 'b'.ToByte(), 5 }).AddBytes(new byte[] { 2 }).AddBytes(new byte[] { 50 }).AddBytes(new byte[] { 0 }).AddTextBytes(code, Encoding).AddBytes(new byte[] { 0 }); // Code T
-            // Witdh Height If print code informed (1 print, 0 dont print)
-        }
+        public byte[] Code128(string code) => (new byte[] { 27, 'b'.ToByte(), 5 }).AddBytes(new byte[] { 2 }).AddBytes(new byte[] { 50 }).AddBytes(new byte[] { 0 }).AddTextBytes(code, Encoding).AddBytes(new byte[] { 0 }); // Code T// Witdh Height If print code informed (1 print, 0 dont print)
 
-        public byte[] Code39(string code)
-        {
-            return (new byte[] { 27, 'b'.ToByte(), 6 }).AddBytes(new byte[] { 2 }).AddBytes(new byte[] { 50 }).AddBytes(new byte[] { 0 }).AddTextBytes(code, Encoding).AddBytes(new byte[] { 0 }); // Code T
-            // Witdh Height If print code informed (1 print, 0 dont print)
-        }
+        public byte[] Code39(string code) => (new byte[] { 27, 'b'.ToByte(), 6 }).AddBytes(new byte[] { 2 }).AddBytes(new byte[] { 50 }).AddBytes(new byte[] { 0 }).AddTextBytes(code, Encoding).AddBytes(new byte[] { 0 }); // Code T// Witdh Height If print code informed (1 print, 0 dont print)
 
-        public byte[] Condensed(bool state)
-        {
-            return state == true ? (new byte[] { 27, 15 }) : (new byte[] { 27, 18, 20 });
-        }
+        public byte[] Condensed(bool state) => state == true ? (new byte[] { 27, 15 }) : (new byte[] { 27, 18, 20 });
 
         public byte[] Ean13(string code)
         {
@@ -90,55 +52,25 @@ namespace InnerLibs.EscDarumaCommands
             // Witdh Height If print code informed (1 print, 0 dont print)
         }
 
-        public byte[] Expanded(bool state)
-        {
-            return state == true ? (new byte[] { 27, 'w'.ToByte(), 1 }) : (new byte[] { 27, 'w'.ToByte(), 0 });
-        }
+        public byte[] Expanded(bool state) => state == true ? (new byte[] { 27, 'w'.ToByte(), 1 }) : (new byte[] { 27, 'w'.ToByte(), 0 });
 
-        public byte[] FullCut()
-        {
-            return new byte[] { 27, 'm'.ToByte() };
-        }
+        public byte[] FullCut() => new byte[] { 27, 'm'.ToByte() };
 
-        public byte[] Initialize()
-        {
-            return new byte[] { 27, '@'.ToByte() };
-        }
+        public byte[] Initialize() => new byte[] { 27, '@'.ToByte() };
 
-        public byte[] Italic(bool state)
-        {
-            return state == true ? (new byte[] { 27, '4'.ToByte(), 1 }) : (new byte[] { 27, '4'.ToByte(), 0 });
-        }
+        public byte[] Italic(bool state) => state == true ? (new byte[] { 27, '4'.ToByte(), 1 }) : (new byte[] { 27, '4'.ToByte(), 0 });
 
-        public byte[] LargeFont()
-        {
-            return new byte[] { 27, 14, 0 };
-        }
+        public byte[] LargeFont() => new byte[] { 27, 14, 0 };
 
-        public byte[] LargerFont()
-        {
-            return new byte[] { 27, 14, 0 };
-        }
+        public byte[] LargerFont() => new byte[] { 27, 14, 0 };
 
-        public byte[] Left()
-        {
-            return new byte[] { 27, 'j'.ToByte(), 0 };
-        }
+        public byte[] Left() => new byte[] { 27, 'j'.ToByte(), 0 };
 
-        public byte[] NormalFont()
-        {
-            return new byte[] { 20 };
-        }
+        public byte[] NormalFont() => new byte[] { 20 };
 
-        public byte[] OpenDrawer()
-        {
-            return new byte[] { 27, 'p'.ToByte() };
-        }
+        public byte[] OpenDrawer() => new byte[] { 27, 'p'.ToByte() };
 
-        public byte[] PartialCut()
-        {
-            return new byte[] { 27, 'm'.ToByte() };
-        }
+        public byte[] PartialCut() => new byte[] { 27, 'm'.ToByte() };
 
         public byte[] PrintImage(Image image, bool highDensity)
         {
@@ -196,20 +128,11 @@ namespace InnerLibs.EscDarumaCommands
             return list.ToArray();
         }
 
-        public byte[] Right()
-        {
-            return new byte[] { 27, 'j'.ToByte(), 2 };
-        }
+        public byte[] Right() => new byte[] { 27, 'j'.ToByte(), 2 };
 
-        public byte[] Underline(bool state)
-        {
-            return state == true ? (new byte[] { 27, '-'.ToByte(), 1 }) : (new byte[] { 27, '-'.ToByte(), 0 });
-        }
+        public byte[] Underline(bool state) => state == true ? (new byte[] { 27, '-'.ToByte(), 1 }) : (new byte[] { 27, '-'.ToByte(), 0 });
 
-        byte[] IPrintCommand.PrintQrData(string qrData)
-        {
-            return PrintQrData(qrData, QrCodeSize.Size0);
-        }
+        byte[] IPrintCommand.PrintQrData(string qrData) => PrintQrData(qrData, QrCodeSize.Size0);
 
         #endregion Methods
     }

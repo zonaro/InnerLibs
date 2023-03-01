@@ -38,24 +38,15 @@ namespace InnerLibs.Select2
 
         public static Select2Data CreateSelect2Data<OptionsType, T1, T2>(this PaginationFilter<T1, T2> Filter, Func<T2, string> TextSelector, Func<T2, string> IdSelector, Action<T2, OptionsType> OtherSelectors)
             where OptionsType : ISelect2Option
-            where T1 : class
-        {
-            return Filter.CreateSelect2Data(TextSelector, IdSelector, null, OtherSelectors);
-        }
+            where T1 : class => Filter.CreateSelect2Data(TextSelector, IdSelector, null, OtherSelectors);
 
         public static Select2Data CreateSelect2Data<OptionsType, T1>(this PaginationFilter<T1, OptionsType> Filter)
             where OptionsType : ISelect2Option
-            where T1 : class
-        {
-            return Filter.CreateSelect2Data<OptionsType, T1, OptionsType>((x) => x.Text, (x) => x.ID);
-        }
+            where T1 : class => Filter.CreateSelect2Data<OptionsType, T1, OptionsType>((x) => x.Text, (x) => x.ID);
 
         public static Select2Data CreateSelect2Data<OptionsType, T1>(this PaginationFilter<T1, OptionsType> Filter, Func<OptionsType, string> GroupBySelector)
             where OptionsType : ISelect2Option
-            where T1 : class
-        {
-            return Filter.CreateSelect2Data<OptionsType, T1, OptionsType>((x) => x.Text, (x) => x.ID, GroupBySelector);
-        }
+            where T1 : class => Filter.CreateSelect2Data<OptionsType, T1, OptionsType>((x) => x.Text, (x) => x.ID, GroupBySelector);
 
         public static OptionType CreateSelect2Option<OptionType, T>(this T item, Func<T, string> TextSelector, Func<T, string> IdSelector, Action<T, OptionType> OtherSelectors = null) where OptionType : ISelect2Option
         {

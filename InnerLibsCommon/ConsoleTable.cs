@@ -11,25 +11,13 @@ namespace InnerLibs.Console
     {
         #region Private Methods
 
-        private static IEnumerable<string> GetColumns<T>(bool FixCase = true)
-        {
-            return typeof(T).GetProperties().Select(x => !FixCase ? x.Name : x.Name.ToNormalCase().ToTitle()).ToArray();
-        }
+        private static IEnumerable<string> GetColumns<T>(bool FixCase = true) => typeof(T).GetProperties().Select(x => !FixCase ? x.Name : x.Name.ToNormalCase().ToTitle()).ToArray();
 
-        private static IEnumerable<Type> GetColumnsType<T>()
-        {
-            return typeof(T).GetTypeOf().GetProperties().Select(x => x.PropertyType).ToArray();
-        }
+        private static IEnumerable<Type> GetColumnsType<T>() => typeof(T).GetTypeOf().GetProperties().Select(x => x.PropertyType).ToArray();
 
-        private static object GetColumnValue<T>(object target, string column)
-        {
-            return typeof(T).GetProperty(column).GetValue(target, null);
-        }
+        private static object GetColumnValue<T>(object target, string column) => typeof(T).GetProperty(column).GetValue(target, null);
 
-        private List<int> ColumnLengths()
-        {
-            return Columns.Select((t, i) => Rows.Select(x => x[i]).Union(new[] { Columns[i] }).Where(x => x != null).Select(x => x.ToString().Length).Max()).ToList();
-        }
+        private List<int> ColumnLengths() => Columns.Select((t, i) => Rows.Select(x => x[i]).Union(new[] { Columns[i] }).Where(x => x != null).Select(x => x.ToString().Length).Max()).ToList();
 
         private string Format(List<int> columnLengths, char delimiter = '|')
         {
@@ -38,10 +26,7 @@ namespace InnerLibs.Console
             return (Enumerable.Range(0, Columns.Count).Select(i => " " + delimiterStr + " {" + i + "," + columnAlignment[i] + columnLengths[i] + "}").Aggregate((s, a) => s + a) + " " + delimiterStr).Trim();
         }
 
-        private string GetNumberAlignment(int i)
-        {
-            return Options.NumberAlignment == Alignment.Right && ColumnTypes != null && PredefinedArrays.NumericTypes.Contains(ColumnTypes[i]) ? InnerLibs.Ext.EmptyString : "-";
-        }
+        private string GetNumberAlignment(int i) => Options.NumberAlignment == Alignment.Right && ColumnTypes != null && PredefinedArrays.NumericTypes.Contains(ColumnTypes[i]) ? InnerLibs.Ext.EmptyString : "-";
 
         private string ToMarkDownString(char delimiter)
         {
@@ -159,15 +144,9 @@ namespace InnerLibs.Console
             return this;
         }
 
-        public string ToMarkDownString()
-        {
-            return ToMarkDownString('|');
-        }
+        public string ToMarkDownString() => ToMarkDownString('|');
 
-        public string ToMinimalString()
-        {
-            return ToMarkDownString(char.MinValue);
-        }
+        public string ToMinimalString() => ToMarkDownString(char.MinValue);
 
         public string ToString(Format format)
         {
@@ -245,10 +224,7 @@ namespace InnerLibs.Console
             return builder.ToString();
         }
 
-        public void Write(Format format = Console.Format.Default)
-        {
-            Options.OutputTo.WriteLine(ToString(format));
-        }
+        public void Write(Format format = Console.Format.Default) => Options.OutputTo.WriteLine(ToString(format));
 
         #endregion Public Methods
     }

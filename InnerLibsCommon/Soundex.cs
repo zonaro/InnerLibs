@@ -143,10 +143,7 @@ namespace InnerLibs
         /// </summary>
         /// <param name="Text">Texto</param>
         /// <returns>Um código soundex</returns>
-        public static string SoundEx(this string Text)
-        {
-            return SoundEx(Text, 4);
-        }
+        public static string SoundEx(this string Text) => SoundEx(Text, 4);
 
         /// <summary>
         /// Compara 2 palavras e verifica se elas possuem fonema parecido
@@ -154,10 +151,7 @@ namespace InnerLibs
         /// <param name="FirstText">Primeira palavra</param>
         /// <param name="SecondText">Segunda palavra</param>
         /// <returns>TRUE se possuirem o mesmo fonema</returns>
-        public static bool SoundsLike(this string FirstText, string SecondText)
-        {
-            return (FirstText.SoundEx() ?? InnerLibs.Ext.EmptyString) == (SecondText.SoundEx() ?? InnerLibs.Ext.EmptyString);
-        }
+        public static bool SoundsLike(this string FirstText, string SecondText) => (FirstText.SoundEx() ?? InnerLibs.Ext.EmptyString) == (SecondText.SoundEx() ?? InnerLibs.Ext.EmptyString);
 
         #endregion Public Methods
     }

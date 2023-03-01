@@ -696,12 +696,9 @@ namespace InnerLibs.Mail
         /// <summary>
         /// Configura as credenciais do SMTP
         /// </summary>
-        public FluentMailMessage<T> WithCredentials(string Login, string Password)
-        {
-            return Smtp == null || Smtp.Host.IsBlank()
+        public FluentMailMessage<T> WithCredentials(string Login, string Password) => Smtp == null || Smtp.Host.IsBlank()
                 ? WithQuickConfig(Login, Password)
                 : WithCredentials(new NetworkCredential(Login, Password));
-        }
 
         public FluentMailMessage<T> WithSmtpAndCredentials(string Login, string Password, string Host, int Port, bool UseSSL) => WithSmtp(Host, Port, UseSSL).WithCredentials(Login, Password);
 

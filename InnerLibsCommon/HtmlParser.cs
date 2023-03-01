@@ -251,10 +251,7 @@ namespace InnerLibs
     {
         #region Private Methods
 
-        private void ParseStyle()
-        {
-            dic = _tag.GetAttribute("style").Split(";").ToDictionary(x => x.GetBefore(":"), x => x.GetAfter(":"));
-        }
+        private void ParseStyle() => dic = _tag.GetAttribute("style").Split(";").ToDictionary(x => x.GetBefore(":"), x => x.GetAfter(":"));
 
         #endregion Private Methods
 

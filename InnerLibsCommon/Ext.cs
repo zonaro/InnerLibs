@@ -894,7 +894,15 @@ namespace InnerLibs
         /// <returns></returns>
         public static decimal CalculateSimpleInterest(this decimal Capital, decimal Rate, decimal Time) => Capital * Rate * Time;
 
-        public static decimal CalculateValueFromPercent(this string Percent, decimal Total) => Percent.ReplaceNone("%").ToDecimal().CalculateValueFromPercent(Total);
+        public static decimal CalculateValueFromPercent(this string Percent, decimal Total)
+        {
+            Percent = Percent.FindNumbers().FirstOrDefault();
+            if (Percent.IsNumber())
+            {
+                return Percent.ToDecimal().CalculateValueFromPercent(Total);
+            }
+            else throw new ArgumentException("Percent is not a number");
+        }
 
         public static decimal CalculateValueFromPercent(this int Percent, decimal Total) => Percent.ToDecimal().CalculateValueFromPercent(Total);
 
@@ -11950,7 +11958,7 @@ namespace InnerLibs
         /// <returns></returns>
         public static string[] SplitAny(this string Text, StringSplitOptions SplitOptions, IEnumerable<string> SplitText) => Text?.SplitAny(SplitOptions, SplitText.ToArray());
 
-        public static IEnumerable<string> SplitChunk(this string inputString, int chunkSize)
+        public static IEnumerable<string> SplitFixedChunk(this string inputString, int chunkSize)
         {
             inputString = inputString ?? EmptyString;
             if (chunkSize > 0 && inputString.Length > 0)
@@ -11965,9 +11973,18 @@ namespace InnerLibs
 
         }
 
+        public static IEnumerable<string> SplitPercentChunk(this string input, params string[] percents)
+        {
+            if (input != null && input.Length > 0)
+            {
+                var p = percents.Select(x => x.CalculateValueFromPercent(input.Length.ToDecimal()).RoundInt()).ToArray();
 
-      
-        public static IEnumerable<string> SplitManyChunk(this string input, params int[] chunkSizes)
+                foreach (var s in input.SplitChunk(p)) yield return s;
+            }
+
+        }
+
+        public static IEnumerable<string> SplitChunk(this string input, params int[] chunkSizes)
         {
             if (input != null)
                 while (input.Length > 0)

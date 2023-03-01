@@ -241,10 +241,7 @@ namespace InnerLibs.QuestionTests
 
         #region Public Methods
 
-        public void CreateAlternative(string Text, bool Correct = false)
-        {
-            Alternatives.Add(Text, Correct);
-        }
+        public void CreateAlternative(string Text, bool Correct = false) => Alternatives.Add(Text, Correct);
 
         /// <summary>
         /// Embaralha as alternativas

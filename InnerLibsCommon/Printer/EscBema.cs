@@ -10,29 +10,11 @@ namespace InnerLibs.EscBemaCommands
     {
         #region Properties
 
-        public int ColsCondensed
-        {
-            get
-            {
-                return 67;
-            }
-        }
+        public int ColsCondensed => 67;
 
-        public int ColsExpanded
-        {
-            get
-            {
-                return 25;
-            }
-        }
+        public int ColsExpanded => 25;
 
-        public int ColsNormal
-        {
-            get
-            {
-                return 50;
-            }
-        }
+        public int ColsNormal => 50;
 
         public Encoding Encoding { get; set; } = Encoding.GetEncoding(850);
 
@@ -67,15 +49,9 @@ namespace InnerLibs.EscBemaCommands
             return new byte[] { 27, 'a'.ToByte(), lAlign };
         }
 
-        private static byte[] SetEscBema()
-        {
-            return new byte[] { 29, 249, 32, 0 };
-        }
+        private static byte[] SetEscBema() => new byte[] { 29, 249, 32, 0 };
 
-        private static byte[] SetLineSpace3(byte range = 20)
-        {
-            return new byte[] { 27, 51, range };
-        }
+        private static byte[] SetLineSpace3(byte range = 20) => new byte[] { 27, 51, range };
 
         private static IEnumerable<byte> StoreQr(string qrData, QrCodeSize size)
         {
@@ -85,37 +61,17 @@ namespace InnerLibs.EscBemaCommands
             return (new byte[] { 29, 107, 81 }).AddBytes(new[] { size.ToByte() }).AddBytes(new byte[] { 6, 0, 1 }).AddBytes(new[] { b }).AddBytes(new[] { b2 });
         }
 
-        public byte[] AutoTest()
-        {
-            return new byte[] { 0x1D, 0xF9, 0x29, 0x30 };
-        }
+        public byte[] AutoTest() => new byte[] { 0x1D, 0xF9, 0x29, 0x30 };
 
-        public byte[] Bold(bool state)
-        {
-            return state == true ? (new byte[] { 27, 'E'.ToByte() }) : (new byte[] { 27, 'F'.ToByte() });
-        }
+        public byte[] Bold(bool state) => state == true ? (new byte[] { 27, 'E'.ToByte() }) : (new byte[] { 27, 'F'.ToByte() });
 
-        public byte[] Center()
-        {
-            return Align(Justifications.Center);
-        }
+        public byte[] Center() => Align(Justifications.Center);
 
-        public byte[] Code128(string code)
-        {
-            return (new byte[] { 29, 119, 2 }).AddBytes(new byte[] { 29, 104, 50 }).AddBytes(new byte[] { 29, 102, 1 }).AddBytes(new byte[] { 29, 72, 0 }).AddBytes(new byte[] { 29, 107, 73 }).AddBytes(new[] { (byte)(code.Length + 2) }).AddBytes(new[] { '{'.ToByte(), 'C'.ToByte() }).AddTextBytes(code, Encoding); // Width
-            // Height font hri character If print code informed printCode
-        }
+        public byte[] Code128(string code) => (new byte[] { 29, 119, 2 }).AddBytes(new byte[] { 29, 104, 50 }).AddBytes(new byte[] { 29, 102, 1 }).AddBytes(new byte[] { 29, 72, 0 }).AddBytes(new byte[] { 29, 107, 73 }).AddBytes(new[] { (byte)(code.Length + 2) }).AddBytes(new[] { '{'.ToByte(), 'C'.ToByte() }).AddTextBytes(code, Encoding); // Width// Height font hri character If print code informed printCode
 
-        public byte[] Code39(string code)
-        {
-            return (new byte[] { 29, 119, 2 }).AddBytes(new byte[] { 29, 104, 50 }).AddBytes(new byte[] { 29, 102, 0 }).AddBytes(new byte[] { 29, 72, 0 }).AddBytes(new byte[] { 29, 107, 4 }).AddTextBytes(code, Encoding).AddBytes(new byte[] { 0 }); // Width
-            // Height font hri character If print code informed
-        }
+        public byte[] Code39(string code) => (new byte[] { 29, 119, 2 }).AddBytes(new byte[] { 29, 104, 50 }).AddBytes(new byte[] { 29, 102, 0 }).AddBytes(new byte[] { 29, 72, 0 }).AddBytes(new byte[] { 29, 107, 4 }).AddTextBytes(code, Encoding).AddBytes(new byte[] { 0 }); // Width// Height font hri character If print code informed
 
-        public byte[] Condensed(bool state)
-        {
-            return state == true ? (new byte[] { 27, 15 }) : (new byte[] { 27, 'P'.ToByte() });
-        }
+        public byte[] Condensed(bool state) => state == true ? (new byte[] { 27, 15 }) : (new byte[] { 27, 'P'.ToByte() });
 
         public byte[] Ean13(string code)
         {
@@ -125,65 +81,29 @@ namespace InnerLibs.EscBemaCommands
             // Height If print code informed
         }
 
-        public byte[] Expanded(bool state)
-        {
-            return new byte[] { 27, 'W'.ToByte(), state == true ? '1'.ToByte() : '0'.ToByte() };
-        }
+        public byte[] Expanded(bool state) => new byte[] { 27, 'W'.ToByte(), state == true ? '1'.ToByte() : '0'.ToByte() };
 
-        public byte[] FullCut()
-        {
-            return new byte[] { 27, 'w'.ToByte() };
-        }
+        public byte[] FullCut() => new byte[] { 27, 'w'.ToByte() };
 
-        public byte[] Initialize()
-        {
-            return (new byte[] { 27, '@'.ToByte() }).AddBytes(SetEscBema()).AddBytes(SetLineSpace3());
-        }
+        public byte[] Initialize() => (new byte[] { 27, '@'.ToByte() }).AddBytes(SetEscBema()).AddBytes(SetLineSpace3());
 
-        public byte[] Italic(bool state)
-        {
-            return state == true ? (new byte[] { 27, '4'.ToByte() }) : (new byte[] { 27, '5'.ToByte() });
-        }
+        public byte[] Italic(bool state) => state == true ? (new byte[] { 27, '4'.ToByte() }) : (new byte[] { 27, '5'.ToByte() });
 
-        public byte[] LargeFont()
-        {
-            return new byte[] { 27, 'W'.ToByte(), 1, 27, 'd'.ToByte(), 1 };
-        }
+        public byte[] LargeFont() => new byte[] { 27, 'W'.ToByte(), 1, 27, 'd'.ToByte(), 1 };
 
-        public byte[] LargerFont()
-        {
-            return new byte[] { 29, '!'.ToByte(), 32 };
-        }
+        public byte[] LargerFont() => new byte[] { 29, '!'.ToByte(), 32 };
 
-        public byte[] Left()
-        {
-            return Align(Justifications.Left);
-        }
+        public byte[] Left() => Align(Justifications.Left);
 
-        public byte[] NormalFont()
-        {
-            return new byte[] { 27, 'W'.ToByte(), 0, 27, 'd'.ToByte(), 0 };
-        }
+        public byte[] NormalFont() => new byte[] { 27, 'W'.ToByte(), 0, 27, 'd'.ToByte(), 0 };
 
-        public byte[] OpenDrawer()
-        {
-            return new byte[] { 27, 'v'.ToByte(), 140 };
-        }
+        public byte[] OpenDrawer() => new byte[] { 27, 'v'.ToByte(), 140 };
 
-        public byte[] PartialCut()
-        {
-            return new byte[] { 27, 'm'.ToByte() };
-        }
+        public byte[] PartialCut() => new byte[] { 27, 'm'.ToByte() };
 
-        public byte[] PrintImage(System.Drawing.Image image, bool highDensity)
-        {
-            return PrinterByteExtensions.SharedImagePrinter(image, highDensity);
-        }
+        public byte[] PrintImage(System.Drawing.Image image, bool highDensity) => PrinterByteExtensions.SharedImagePrinter(image, highDensity);
 
-        public byte[] PrintQrData(string qrData)
-        {
-            return PrintQrData(qrData, QrCodeSize.Size0);
-        }
+        public byte[] PrintQrData(string qrData) => PrintQrData(qrData, QrCodeSize.Size0);
 
         public byte[] PrintQrData(string qrData, QrCodeSize qrCodeSize)
         {
@@ -193,15 +113,9 @@ namespace InnerLibs.EscBemaCommands
             return list.ToArray();
         }
 
-        public byte[] Right()
-        {
-            return Align(Justifications.Right);
-        }
+        public byte[] Right() => Align(Justifications.Right);
 
-        public byte[] Underline(bool state)
-        {
-            return state == true ? (new byte[] { 27, '-'.ToByte(), 1 }) : (new byte[] { 27, '-'.ToByte(), 0 });
-        }
+        public byte[] Underline(bool state) => state == true ? (new byte[] { 27, '-'.ToByte(), 1 }) : (new byte[] { 27, '-'.ToByte(), 0 });
 
         #endregion Methods
     }

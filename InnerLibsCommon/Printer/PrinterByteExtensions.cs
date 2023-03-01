@@ -85,15 +85,9 @@ namespace InnerLibs.Printer
             return list.ToArray();
         }
 
-        public static byte[] AddCrLF(this byte[] bytes, Encoding Encoding = null)
-        {
-            return bytes.AddTextBytes(Environment.NewLine, Encoding);
-        }
+        public static byte[] AddCrLF(this byte[] bytes, Encoding Encoding = null) => bytes.AddTextBytes(Environment.NewLine, Encoding);
 
-        public static byte[] AddLF(this byte[] bytes, Encoding Encoding = null)
-        {
-            return bytes.AddTextBytes(Environment.NewLine, Encoding);
-        }
+        public static byte[] AddLF(this byte[] bytes, Encoding Encoding = null) => bytes.AddTextBytes(Environment.NewLine, Encoding);
 
         public static byte[] AddTextBytes(this byte[] bytes, string value, Encoding Encoding)
         {
@@ -105,35 +99,17 @@ namespace InnerLibs.Printer
             return list.ToArray();
         }
 
-        public static bool IsNullOrEmpty(this string value)
-        {
-            return string.IsNullOrEmpty(value);
-        }
+        public static bool IsNullOrEmpty(this string value) => string.IsNullOrEmpty(value);
 
-        public static byte[] TextBytes(this string Value, Encoding Encoding)
-        {
-            return (Encoding ?? Encoding.Default).GetBytes(Value);
-        }
+        public static byte[] TextBytes(this string Value, Encoding Encoding) => (Encoding ?? Encoding.Default).GetBytes(Value);
 
-        public static byte ToByte(this char c)
-        {
-            return (byte)c.ToAsc();
-        }
+        public static byte ToByte(this char c) => (byte)c.ToAsc();
 
-        public static byte ToByte(this Enum c)
-        {
-            return (byte)Convert.ToInt16(c);
-        }
+        public static byte ToByte(this Enum c) => (byte)Convert.ToInt16(c);
 
-        public static byte ToByte(this short c)
-        {
-            return (byte)c;
-        }
+        public static byte ToByte(this short c) => (byte)c;
 
-        public static byte ToByte(this int c)
-        {
-            return (byte)c;
-        }
+        public static byte ToByte(this int c) => (byte)c;
 
         #endregion Public Methods
     }
