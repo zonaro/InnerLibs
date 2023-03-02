@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Xml;
 using Extensions;
+using Locations;
 
 namespace BR
 {

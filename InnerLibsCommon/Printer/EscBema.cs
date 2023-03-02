@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Printers;
 using Printers.Command;
 
-namespace EscBemaCommands
+namespace Printers.EscBemaCommands
 {
     public class EscBema : IPrintCommand
     {

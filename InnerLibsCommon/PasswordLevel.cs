@@ -1,13 +1,17 @@
-﻿
-
-
-
-public enum PasswordLevel
+﻿namespace Extensions
 {
-    None,
-    VeryWeak = 2,
-    Weak = 3,
-    Medium = 4,
-    Strong = 5,
-    VeryStrong = 6
+
+
+
+
+    public enum PasswordLevel
+    {
+        None,
+        VeryWeak = 2,
+        Weak = 3,
+        Medium = 4,
+        Strong = 5,
+        VeryStrong = 6
+    }
+
 }

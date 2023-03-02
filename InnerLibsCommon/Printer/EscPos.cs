@@ -1,11 +1,10 @@
-﻿using Printers;
-using Printers.Command;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Text;
+using Printers.Command;
 
-namespace EscPosCommands
+namespace Printers.EscPosCommands
 {
     public class EscPos : IPrintCommand
     {

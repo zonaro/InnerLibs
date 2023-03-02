@@ -1,39 +1,42 @@
 ﻿using System.Linq.Expressions;
 
 
-
-internal class ExpressionReplacer : ExpressionVisitor
+namespace Expressions
 {
-    #region Private Fields
-
-    private Expression _dest;
-    private Expression _source;
-
-    #endregion Private Fields
-
-    #region Public Constructors
-
-    public ExpressionReplacer(Expression source, Expression dest)
+    internal class ExpressionReplacer : ExpressionVisitor
     {
-        _source = source;
-        _dest = dest;
-    }
+        #region Private Fields
 
-    #endregion Public Constructors
+        private Expression _dest;
+        private Expression _source;
 
-    #region Public Methods
+        #endregion Private Fields
 
-    public override Expression Visit(Expression node)
-    {
-        if (node.Equals(_source))
+        #region Public Constructors
+
+        public ExpressionReplacer(Expression source, Expression dest)
         {
-            return _dest;
+            _source = source;
+            _dest = dest;
         }
 
-        return base.Visit(node);
+        #endregion Public Constructors
+
+
+        #region Public Methods
+
+        public override Expression Visit(Expression node)
+        {
+            if (node.Equals(_source))
+            {
+                return _dest;
+            }
+
+            return base.Visit(node);
+        }
+
+        #endregion Public Methods
     }
 
-    #endregion Public Methods
 }
-
 

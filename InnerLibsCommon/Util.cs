@@ -27,6 +27,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
+using Colors;
+using Converters;
+using Databases;
+using Dates;
+using DebugWriter;
+using Files;
+using Locations;
+using Pagination;
+using TextParser;
+using Web;
 
 namespace Extensions
 {
@@ -6868,7 +6878,7 @@ namespace Extensions
         {
             try
             {
-                return new DataURI(Text).ToString().IsNotBlank();
+                return new Web.DataURI(Text).ToString().IsNotBlank();
             }
             catch
             {

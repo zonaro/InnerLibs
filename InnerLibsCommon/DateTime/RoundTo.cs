@@ -1,29 +1,33 @@
 ﻿
-
-/// <summary>
-/// Used for rounding precision
-/// </summary>
-public enum RoundTo
+namespace Dates
 {
-    None = -1,
 
     /// <summary>
-    /// Second precision.
+    /// Used for rounding precision
     /// </summary>
-    Second,
+    public enum RoundTo
+    {
+        None = -1,
 
-    /// <summary>
-    /// Minute precision.
-    /// </summary>
-    Minute,
+        /// <summary>
+        /// Second precision.
+        /// </summary>
+        Second,
 
-    /// <summary>
-    /// Hour precision.
-    /// </summary>
-    Hour,
+        /// <summary>
+        /// Minute precision.
+        /// </summary>
+        Minute,
 
-    /// <summary>
-    /// Day precision.
-    /// </summary>
-    Day
+        /// <summary>
+        /// Hour precision.
+        /// </summary>
+        Hour,
+
+        /// <summary>
+        /// Day precision.
+        /// </summary>
+        Day
+    }
+
 }
