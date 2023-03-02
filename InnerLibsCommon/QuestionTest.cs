@@ -5,6 +5,7 @@ using System.Collections.Specialized;
 using System.Drawing;
 using System.Linq;
 using System.Runtime.Serialization;
+using Extensions;
 
 namespace QuestionTests
 {

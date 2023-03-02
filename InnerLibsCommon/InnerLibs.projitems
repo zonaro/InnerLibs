@@ -33,7 +33,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)DOT Language.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Emoji.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExpressionReplacer.cs" />
-    <Compile Include="..\InnerLibsCommon\Util.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FileTree.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FileType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FullMoneyWriter.cs" />

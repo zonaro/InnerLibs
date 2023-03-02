@@ -30,6 +30,7 @@ using System.Reflection;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
+using Extensions;
 using Printers.Command;
 
 namespace Printers

@@ -8,6 +8,7 @@ using System.Net;
 using System.Reflection;
 using System.Xml;
 using BR;
+using Extensions;
 
 public static class AddressTypes
 {

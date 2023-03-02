@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Extensions;
 
 /// <summary>
 /// Classe para Extrair informaçoes de uma DATAURL

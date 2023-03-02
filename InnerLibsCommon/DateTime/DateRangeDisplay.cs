@@ -1,6 +1,5 @@
 ﻿using System.Linq;
-
-
+using Extensions;
 
 /// <summary>
 /// The display configuration for generate human readable strings from a <see cref="DateRange"/>

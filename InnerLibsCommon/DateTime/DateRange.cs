@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
-
-
+using Extensions;
 
 /// <summary>
 /// Works like a positive <see cref="System.TimeSpan"/> with validation of Relevant (Business)

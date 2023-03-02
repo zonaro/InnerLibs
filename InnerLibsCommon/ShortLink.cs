@@ -2,8 +2,7 @@
 using System;
 using System.Linq;
 using System.Text;
-
-
+using Extensions;
 
 /// <summary>
 /// Classe para encodar IDs numéricos em hashs curtas

@@ -6,8 +6,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Xml;
-
-
+using Extensions;
 
 /// <summary>
 /// Representa uma cor no formato HSV e RGBA com metodos para manipulação de valores

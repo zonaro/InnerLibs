@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Linq.Expressions;
-
-
+using Extensions;
 
 /// <summary>
 /// Classe para criação de paginação e filtros dinâmicos para listas de classes

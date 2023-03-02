@@ -2,8 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-
-
+using Extensions;
 
 /// <summary>
 /// Uma estrutura <see cref="IDictionary"/> que utiliza como Key uma propriedade de Value

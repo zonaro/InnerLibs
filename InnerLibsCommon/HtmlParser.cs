@@ -6,8 +6,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.Serialization;
-
-
+using Extensions;
 
 internal class HtmlParser
 {

@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
-
-
+using Extensions;
 
 /// <summary>
 /// Define a pair of words for quantify items

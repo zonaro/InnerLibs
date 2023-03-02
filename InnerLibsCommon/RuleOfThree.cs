@@ -2,8 +2,7 @@ using System;
 using System.Data;
 using System.Linq;
 using System.Reflection;
-
-
+using Extensions;
 
 /// <summary>
 /// Representa um Par X,Y para operaçoes matemáticas

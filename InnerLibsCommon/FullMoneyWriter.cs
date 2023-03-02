@@ -1,8 +1,7 @@
 using System;
 using System.Globalization;
 using System.Linq;
-
-
+using Extensions;
 
 /// <summary>
 /// Classe para escrever moedas por extenso com suporte até 999 quintilhoes de $$

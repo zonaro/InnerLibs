@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-
-
+using Extensions;
 
 /// <summary>
 /// Classe para manipulaçao de numeros e conversão unidades
