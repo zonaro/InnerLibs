@@ -16177,37 +16177,37 @@ namespace Extensions
         public enum RomanDigit
         {
             /// <summary>
-            /// Valor correspondente
+            /// Valor correspondente a 1
             /// </summary>
             I = 1,
 
             /// <summary>
-            /// Valor correspondente
+            /// Valor correspondente a 5
             /// </summary>
             V = 5,
 
             /// <summary>
-            /// Valor correspondente
+            /// Valor correspondente a 10
             /// </summary>
             X = 10,
 
             /// <summary>
-            /// Valor correspondente
+            /// Valor correspondente a 50
             /// </summary>
             L = 50,
 
             /// <summary>
-            /// Valor correspondente
+            /// Valor correspondente a 100
             /// </summary>
             C = 100,
 
             /// <summary>
-            /// Valor correspondente
+            /// Valor correspondente a 500
             /// </summary>
             D = 500,
 
             /// <summary>
-            /// Valor correspondente
+            /// Valor correspondente a 1000
             /// </summary>
             M = 1000
         }
