@@ -15078,43 +15078,53 @@ namespace Extensions
                     string CommandText = SQL.Format.Trim();
                     for (int index = 0, loopTo = SQL.ArgumentCount - 1; index <= loopTo; index++)
                     {
-                        var valores = SQL.GetArgument(index);
-                        var v = ForceArray(valores, typeof(object));
-                        var paramvalues = new List<object>();
+                        var v = SQL.GetArgument(index);
 
-                        for (int v_index = 0, loopTo1 = v.Length - 1; v_index <= loopTo1; v_index++)
+                        if (v.IsEnumerableNotString() == false)
                         {
-                            paramvalues.Add(v[v_index]);
+                            v = new[] { v };
                         }
 
-                        var pv = paramvalues.Select(x =>
+                        var pv = new List<string>();
+                        if (v is IEnumerable paramvalues)
                         {
-                            if (x == null)
+                            foreach (var x in paramvalues)
                             {
-                                return "NULL";
+                                if (x == null)
+                                {
+                                    pv.Add("NULL");
+                                }
+                                else if (x is string == false && x is IEnumerable cc)
+                                {
+                                    foreach (var c in cc)
+                                    {
+                                        pv.Add(c.ToSQLString(false));
+                                    }
+                                }
+                                else if (GetNullableTypeOf(x).IsNumericType())
+                                {
+                                    pv.Add(x.ToString());
+                                }
+                                else if (IsDate(x))
+                                {
+                                    pv.Add(x.ToDateTime().ToSQLDateString().EscapeQuotesToQuery(true));
+                                }
+                                else if (IsBool(x))
+                                {
+                                    pv.Add(x.ToBool().AsIf("1", "0"));
+                                }
+                                else if (x.IsTypeOf<Select>())
+                                {
+                                    pv.Add(x.ToString());
+                                }
+                                else
+                                {
+                                    pv.Add(x.ToString().EscapeQuotesToQuery(true));
+                                }
                             }
-                            else if (GetNullableTypeOf(x).IsNumericType())
-                            {
-                                return x.ToString();
-                            }
-                            else if (IsDate(x))
-                            {
-                                return x.ToDateTime().ToSQLDateString().EscapeQuotesToQuery(true);
-                            }
-                            else if (IsBool(x))
-                            {
-                                return x.ToBool().AsIf("1", "0");
-                            }
-                            else if (x.IsTypeOf<Select>())
-                            {
-                                return x.ToString();
-                            }
-                            else
-                            {
-                                return x.ToString().EscapeQuotesToQuery(true);
-                            }
-                        }).ToList();
-                        CommandText = CommandText.Replace("{" + index + "}", pv.SelectJoinString(",").IfBlank("NULL").UnQuote('(', true).QuoteIf(Parenthesis, '('));
+
+                            CommandText = CommandText.Replace("{" + index + "}", pv.SelectJoinString(",").IfBlank("NULL").UnQuote('(', true).QuoteIf(Parenthesis, '('));
+                        }
                     }
 
                     return CommandText;
