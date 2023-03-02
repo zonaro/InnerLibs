@@ -35,7 +35,7 @@ using DebugWriter;
 using Files;
 using Locations;
 using Pagination;
-using TextParser;
+using ComplexText;
 using Web;
 
 namespace Extensions

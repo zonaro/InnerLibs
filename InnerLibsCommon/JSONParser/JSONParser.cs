@@ -11,7 +11,7 @@ using System.Text;
 using Extensions;
 
 
-namespace TextParser
+namespace ComplexText
 {
 
 

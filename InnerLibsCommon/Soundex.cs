@@ -2,7 +2,7 @@
 using System.Text;
 using Extensions;
 
-namespace Sound
+namespace ComplexText
 {
 
     public static class SoundExType

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Extensions;
 
-namespace TextParser
+namespace ComplexText
 {
 
 
