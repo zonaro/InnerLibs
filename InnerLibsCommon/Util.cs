@@ -13250,9 +13250,7 @@ namespace Extensions
 
         public static FormattableString ToFormattableString(this string Text, params object[] args) => FormattableStringFactory.Create(Text, args ?? Array.Empty<object>());
 
-        public static FormattableString ToFormattableString<T>(IEnumerable<T> args, string Text) => ToFormattableString(Text, args);
 
-        public static FormattableString ToFormattableString(this string Text, IEnumerable<object[]> args) => ToFormattableString(Text, args);
 
         /// <summary>
         /// Prepara uma string para se tornar uma caminho amigavel (remove caracteres nao permitidos)
@@ -15063,6 +15061,8 @@ namespace Extensions
         /// <param name="Obj"></param>
         /// <returns></returns>
         public static string ToSQLString<T>(this T Obj, bool Parenthesis = true) => ToSQLString("{0}".ToFormattableString(Obj), Parenthesis);
+
+
 
         /// <summary>
         /// Converte uma <see cref="FormattableString"/> para uma string SQL, tratando seus
