@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 using Extensions;
 
 
-namespace Pagination
+namespace Extensions.Pagination
 {
 
 

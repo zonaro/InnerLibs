@@ -6,7 +6,8 @@ using System.Linq;
 using System.Text;
 using Extensions;
 
-namespace Web.Online
+
+namespace Extensions.Web.Online
 {
 
     public class LogEntryBackup

@@ -6,9 +6,9 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Xml;
 using Extensions;
-using Locations;
+using Extensions.Locations;
 
-namespace BR
+namespace Extensions.BR
 {
     /// <summary>
     /// Objeto para manipular cidades e estados do Brasil

@@ -2,9 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Extensions;
 
-namespace DOTLanguage
+namespace Extensions.DOTLanguage
 {
     public class Cluster : DotObject
     {

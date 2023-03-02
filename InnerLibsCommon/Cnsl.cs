@@ -4,7 +4,7 @@ using System.Globalization;
 using System.Linq;
 using Extensions;
 
-namespace Console
+namespace Extensions.Console
 {
     /// <summary>
     /// Métodos para manipulação de aplicações baseadas em <see cref="System.Console"/>

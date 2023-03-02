@@ -8,7 +8,7 @@ using System.Reflection;
 using System.Xml;
 using Extensions;
 
-namespace Colors
+namespace Extensions.Colors
 {
 
 

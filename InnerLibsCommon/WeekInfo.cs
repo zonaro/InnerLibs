@@ -1,7 +1,7 @@
 using System;
 using System.Globalization;
 
-namespace Extensions
+namespace Extensions.Dates
 {
     public struct WeekInfo : IEquatable<WeekInfo>
     {

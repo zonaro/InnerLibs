@@ -9,7 +9,7 @@ using System.Runtime.Serialization;
 using Extensions;
 
 
-namespace Web
+namespace Extensions.Web
 {
 
 

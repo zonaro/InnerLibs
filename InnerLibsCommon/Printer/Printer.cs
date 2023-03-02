@@ -31,23 +31,18 @@ using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using Extensions;
-using Printers.Command;
+using Extensions.Printers.Command;
+using Extensions.Printers.EscPosCommands;
 
-namespace Printers
+namespace Extensions.Printers
 {
     public static class PrinterExtension
     {
-        #region Public Methods
-
         public static Printer CreatePrinter(this IPrintCommand CommandType, string PrinterName, int ColsNormal = 0, int ColsCondensed = 0, int ColsExpanded = 0, Encoding Encoding = null) => Printer.CreatePrinter(CommandType, PrinterName, ColsNormal, ColsCondensed, ColsExpanded, Encoding);
-
-        #endregion Public Methods
     }
 
     public class Printer
     {
-        #region Private Fields
-
         private bool _ommit = false;
 
         private string Align = "Left";
@@ -58,19 +53,9 @@ namespace Printers
 
         private TextWriter txw;
 
-        #endregion Private Fields
-
-        #region Private Classes
-
         private class PrinterWriter : TextWriter
         {
-            #region Private Fields
-
             private Printer p;
-
-            #endregion Private Fields
-
-            #region Public Constructors
 
             public PrinterWriter(Printer p)
             {
@@ -82,26 +67,12 @@ namespace Printers
                 this.p = p;
             }
 
-            #endregion Public Constructors
-
-            #region Public Properties
-
             public override Encoding Encoding => p.Command?.Encoding;
-
-            #endregion Public Properties
-
-            #region Public Methods
 
             public override void Flush() => p.PrintDocument();
 
             public override void Write(char value) => Write($"{value}");
-
-            #endregion Public Methods
         }
-
-        #endregion Private Classes
-
-        #region Internal Methods
 
         internal string GetDotLine(string LeftText, string RightText, int? Columns = default, char CharLine = ' ')
         {
@@ -136,10 +107,6 @@ namespace Printers
 
             return $"{s1}{dots}{s2}";
         }
-
-        #endregion Internal Methods
-
-        #region Public Constructors
 
         public Printer(Encoding Encoding) : this(null, null, 0, 0, 0, Encoding)
         {
@@ -184,8 +151,13 @@ namespace Printers
             {
                 throw new ArgumentException("Printername cannot be null or empty", "PrinterName");
             }
+            if (Command == null)
+            {
+                Command = new EscPos();
+            }
 
-            this.Command = Command ?? new EscPosCommands.EscPos();
+            this.Command = Command;
+
             if (Encoding != null)
             {
                 this.Command.Encoding = Encoding;
@@ -229,10 +201,6 @@ namespace Printers
         public Printer(string PrinterName) : this(PrinterName, 0, 0, 0, null)
         {
         }
-
-        #endregion Public Constructors
-
-        #region Public Properties
 
         public bool AutoPrint { get; set; } = false;
 
@@ -343,10 +311,6 @@ namespace Printers
         /// </summary>
         /// <returns></returns>
         public TextWriter TextWriter => txw;
-
-        #endregion Public Properties
-
-        #region Public Methods
 
         public static Printer CreatePrinter<CommandType>(string PrinterName, int ColsNormal = 0, int ColsCondensed = 0, int ColsExpanded = 0, Encoding Encoding = null) where CommandType : Printers.Command.IPrintCommand => CreatePrinter(typeof(CommandType), PrinterName, ColsNormal, ColsCondensed, ColsExpanded, Encoding);
 
@@ -1332,17 +1296,13 @@ namespace Printers
             PartialPaperCut();
             return this;
         }
-
-        #endregion Public Methods
     }
 }
 
-namespace Printers.XmlTemplates
+namespace Extensions.Printers.XmlTemplates
 {
     public class XmlTemplatePrinter : Printer
     {
-        #region Public Methods
-
         /// <summary>
         /// Escreve um template de um <see cref="XDocument"/> para cada entrada em uma lista
         /// substituindo as marcações {Propriedade} encontradas pelo valor da propriedade equivalente
@@ -1659,7 +1619,5 @@ namespace Printers.XmlTemplates
             ResetFont();
             return this;
         }
-
-        #endregion Public Methods
     }
 }

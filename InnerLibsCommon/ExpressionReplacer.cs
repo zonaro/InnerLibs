@@ -1,7 +1,7 @@
 ﻿using System.Linq.Expressions;
 
 
-namespace Expressions
+namespace Extensions.Expressions
 {
     internal class ExpressionReplacer : ExpressionVisitor
     {

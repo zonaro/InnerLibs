@@ -2,10 +2,9 @@ using System;
 using System.Globalization;
 using System.Linq;
 using Extensions;
+using Extensions.ComplexText;
 
-
-
-namespace NumberWriters
+namespace Extensions.NumberWriters
 {
 
     /// <summary>

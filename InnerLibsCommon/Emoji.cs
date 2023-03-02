@@ -1,6 +1,6 @@
 ﻿
 
-namespace Web
+namespace Extensions
 {
 
     public static class Emoji

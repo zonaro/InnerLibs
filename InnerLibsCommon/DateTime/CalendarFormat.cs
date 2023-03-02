@@ -1,5 +1,5 @@
 ﻿
-namespace Dates
+namespace Extensions.Dates
 {
 
     public enum CalendarFormat

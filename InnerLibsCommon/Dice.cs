@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Extensions;
-using NumberWriters;
+using Extensions.NumberWriters;
 
-namespace RolePlayingGame
+namespace Extensions.RolePlayingGame
 {
     /// <summary>
     /// Dado de RPG

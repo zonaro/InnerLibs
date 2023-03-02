@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Xml;
 using Extensions;
 
-namespace Files
+namespace Extensions.Files
 
 {
     /// <summary>

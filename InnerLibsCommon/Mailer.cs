@@ -9,9 +9,9 @@ using System.Net;
 using System.Net.Mail;
 using System.Text;
 using Extensions;
-using Web;
+using Extensions.Web;
 
-namespace Mail
+namespace Extensions.Mail
 {
     /// <summary>
     /// Wrapper de <see cref="System.Net.Mail"/> em FluentAPI com configurações de Template métodos

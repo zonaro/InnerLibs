@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 using Extensions;
 
 
-namespace Dates
+namespace Extensions.Dates
 {
     /// <summary>
     /// Works like a positive <see cref="System.TimeSpan"/> with validation of Relevant (Business)

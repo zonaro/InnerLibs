@@ -1,7 +1,8 @@
 ﻿using System.Linq;
 using Extensions;
+using Extensions.ComplexText;
 
-namespace Dates
+namespace Extensions.Dates
 {
 
 

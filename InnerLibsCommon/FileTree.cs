@@ -6,7 +6,7 @@ using System.Linq;
 using Extensions;
 
 
-namespace Files
+namespace Extensions.Files
 {
 
 

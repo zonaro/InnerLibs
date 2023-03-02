@@ -4,9 +4,8 @@ using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
-using Extensions;
 
-namespace Printers
+namespace Extensions.Printers
 {
     internal static class PrinterByteExtensions
     {

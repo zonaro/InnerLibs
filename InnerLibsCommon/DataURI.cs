@@ -2,10 +2,9 @@
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Extensions;
-using Files;
+using Extensions.Files;
 
-namespace Web
+namespace Extensions.Web
 {
     /// <summary>
     /// Classe para Extrair informaçoes de uma DATAURL

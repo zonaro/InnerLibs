@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text.RegularExpressions;
 
-namespace Extensions
+namespace Extensions.ComplexText
 {
 
     internal class Like

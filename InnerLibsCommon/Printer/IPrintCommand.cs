@@ -1,7 +1,7 @@
 ﻿using System.Drawing;
 using System.Text;
 
-namespace Printers.Command
+namespace Extensions.Printers.Command
 {
     public interface IPrintCommand
     {

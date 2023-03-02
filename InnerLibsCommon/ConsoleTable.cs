@@ -6,7 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Extensions;
 
-namespace Console
+namespace Extensions.Console
 {
     public class ConsoleTable
     {

@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Text;
-using Extensions;
 
-namespace ComplexText
+namespace Extensions.ComplexText
 {
 
     public static class SoundExType

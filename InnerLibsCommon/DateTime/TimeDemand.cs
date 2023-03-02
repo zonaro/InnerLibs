@@ -6,7 +6,7 @@ using System.Linq;
 using Extensions;
 
 
-namespace Dates
+namespace Extensions.Dates
 {
     /// <summary>
     /// Dia de Uma Demanda

@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Text;
-using Extensions;
-using Printers.Command;
+using Extensions.Printers.Command;
 
-namespace Printers.EscDarumaCommands
+namespace Extensions.Printers.EscDarumaCommands
 {
     public class EscDaruma : IPrintCommand
     {

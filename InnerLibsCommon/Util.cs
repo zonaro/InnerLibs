@@ -27,16 +27,17 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
-using Colors;
-using Converters;
-using Databases;
-using Dates;
-using DebugWriter;
-using Files;
-using Locations;
-using Pagination;
-using ComplexText;
-using Web;
+using Extensions.Colors;
+using Extensions.ComplexText;
+using Extensions.Converters;
+using Extensions.Databases;
+using Extensions.Dates;
+using Extensions.DebugWriter;
+using Extensions.Equations;
+using Extensions.Files;
+using Extensions.Locations;
+using Extensions.Pagination;
+using Extensions.Web;
 
 namespace Extensions
 {

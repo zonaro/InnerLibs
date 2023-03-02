@@ -8,10 +8,9 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
-using Extensions;
 
 
-namespace ComplexText
+namespace Extensions.ComplexText
 {
 
 

@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Text;
-using Printers.Command;
+using Extensions.Printers.Command;
 
-namespace Printers.EscPosCommands
+namespace Extensions.Printers.EscPosCommands
 {
     public class EscPos : IPrintCommand
     {

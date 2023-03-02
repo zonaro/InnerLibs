@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
-using Extensions;
 
-namespace MenuBuilder
+namespace Extensions.MenuBuilder
 {
     public class MenuItem : MenuItem<object>
     {

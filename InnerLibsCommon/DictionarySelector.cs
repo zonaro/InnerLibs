@@ -6,7 +6,7 @@ using Extensions;
 
 
 
-namespace Dictionaries
+namespace Extensions.Dictionaries
 {
 
 

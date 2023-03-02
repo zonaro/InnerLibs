@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Globalization;
-using Extensions;
 
-namespace Dates
+namespace Extensions.Dates
 {
 
     public class Fortnight : DateRange

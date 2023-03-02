@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Data.Common;
 
-namespace Databases
+namespace Extensions.Databases
 {
 
 

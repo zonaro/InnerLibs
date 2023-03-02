@@ -2,10 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Extensions;
-using Pagination;
+using Extensions.Pagination;
 
-namespace Select2
+namespace Extensions.Select2
 {
     public static class Select2Extensions
     {

@@ -7,10 +7,10 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Xml;
-using BR;
 using Extensions;
+using Extensions.BR;
 
-namespace Locations
+namespace Extensions.Locations
 {
 
     public static class AddressTypes
