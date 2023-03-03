@@ -43,8 +43,6 @@ namespace Extensions
 {
     public static partial class Util
     {
-        #region Private Fields
-
         private const int ERROR_LOCK_VIOLATION = 33;
 
         private const int ERROR_SHARING_VIOLATION = 32;
@@ -70,12 +68,6 @@ namespace Extensions
 
         private static readonly MethodInfo startsWithMethod = typeof(string).GetMethod("StartsWith", new[] { typeof(string) });
 
-        #endregion Private Fields
-
-
-
-        #region Public Fields
-
         public const string DoubleQuoteChar = "\"";
 
         /// <summary>
@@ -88,10 +80,6 @@ namespace Extensions
         public const string SingleQuoteChar = "\'";
 
         public const string WhitespaceChar = " ";
-
-        #endregion Public Fields
-
-        #region Public Properties
 
         /// <summary>
         /// Dicionario com os <see cref="Type"/> e seu <see cref="DbType"/> correspondente
@@ -144,15 +132,10 @@ namespace Extensions
         /// <returns></returns>
         public static TextWriter LogWriter { get; set; } = new DebugTextWriter();
 
-
         /// <summary>
         /// Retorna o ano atual
         /// </summary>
         public static int ThisYear => DateTime.Now.Year;
-
-        #endregion Public Properties
-
-        #region Public Methods
 
         /// <summary>
         /// Adciona um parametro a Query String de uma URL
@@ -359,7 +342,6 @@ namespace Extensions
                 return false;
             }
         }
-
 
         /// <summary>
         /// Retorna uma progressão Aritmética com N numeros
@@ -3287,7 +3269,6 @@ namespace Extensions
         /// <returns></returns>
         public static T FirstOrDefaultExpression<T>(this IQueryable<T> List, string PropertyName, string Operator, object PropertyValue, bool Is = true) => List.FirstOrDefault(WhereExpression<T>(PropertyName, Operator, (IEnumerable<IComparable>)PropertyValue, Is));
 
-
         public static string FixedLenght(this int Number, int Lenght) => Number.PadZero(Lenght).GetLastChars(Lenght);
 
         public static string FixedLenghtByLeft(this string Text, int Lenght, char PaddingChar = '0') => Text.PadLeft(Lenght, PaddingChar).GetLastChars(Lenght);
@@ -3319,7 +3300,7 @@ namespace Extensions
                 sentences = Text.Split(dot, StringSplitOptions.None).ToList();
                 for (int index = 0, loopTo = sentences.Count - 1; index <= loopTo; index++)
                 {
-                    sentences[index] = string.Empty + sentences[index].Trim().GetFirstChars(1).ToUpperInvariant() + sentences[index].RemoveFirstChars(1);
+                    sentences[index] = $"{sentences[index].Trim().GetFirstChars(1)?.ToUpperInvariant()}{sentences[index]?.RemoveFirstChars(1)}";
                 }
 
                 Text = sentences.SelectJoinString(dot);
@@ -3463,14 +3444,14 @@ namespace Extensions
         /// <param name="Text"></param>
         /// <returns></returns>
         public static string FixPath(this string Text, bool AlternativeChar = false) => Text?.Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries).Where(x => x.IsNotBlank()).Select((x, i) =>
-                                                                                                 {
-                                                                                                     if (i == 0 && x.Length == 2 && x.EndsWith(":"))
-                                                                                                     {
-                                                                                                         return x;
-                                                                                                     }
+                                                                                                    {
+                                                                                                        if (i == 0 && x.Length == 2 && x.EndsWith(":"))
+                                                                                                        {
+                                                                                                            return x;
+                                                                                                        }
 
-                                                                                                     return x.ToFriendlyPathName();
-                                                                                                 }).SelectJoinString(AlternativeChar.AsIf(Path.AltDirectorySeparatorChar.ToString(), Path.DirectorySeparatorChar.ToString())).TrimEndAny(Path.DirectorySeparatorChar.ToString(), Path.AltDirectorySeparatorChar.ToString());
+                                                                                                        return x.ToFriendlyPathName();
+                                                                                                    }).SelectJoinString(AlternativeChar.AsIf(Path.AltDirectorySeparatorChar.ToString(), Path.DirectorySeparatorChar.ToString())).TrimEndAny(Path.DirectorySeparatorChar.ToString(), Path.AltDirectorySeparatorChar.ToString());
 
         /// <summary>
         /// Adciona pontuação ao final de uma string se a mesma não terminar com alguma pontuacao.
@@ -3518,8 +3499,6 @@ namespace Extensions
             }
             return Text.Trim().TrimBetween();
         }
-
-
 
         /// <summary>
         /// Arredonda um numero para baixo. Ex.: 4,5 -&gt; 4
@@ -5448,7 +5427,6 @@ namespace Extensions
             return licenseKey.ToString();
         }
 
-
         /// <summary>
         /// Retorna o caractere de encapsulamento oposto ao caractere indicado
         /// </summary>
@@ -5658,9 +5636,6 @@ namespace Extensions
 
         public static byte[] GetResourceBytes(string FileName) => GetResourceBytes(Assembly.GetExecutingAssembly(), FileName);
 
-
-
-
         /// <summary>
         /// Pega o texto de um arquivo embutido no assembly
         /// </summary>
@@ -5668,7 +5643,6 @@ namespace Extensions
         /// <returns></returns>
         public static string GetResourceFileText(this Assembly Assembly, string FileName, bool IsFullQualifiedName = false)
         {
-
             string txt = null;
             if (Assembly != null && FileName.IsNotBlank())
             {
@@ -5691,8 +5665,6 @@ namespace Extensions
 
             return txt;
         }
-
-
 
         public static RotateFlipType GetRotateFlip(this Image Img)
         {
@@ -6366,8 +6338,6 @@ namespace Extensions
         /// <returns></returns>
         public static IEnumerable<T> IfNullOrEmpty<T>(this IEnumerable<object[]> Value, IEnumerable<T> ValueIfBlank) => Value != null && Value.Any() ? Value.ChangeIEnumerableType<T, object[]>() : ValueIfBlank;
 
-
-
         public static int Increment(this int Num, int Inc = 1) => Num + Inc.SetMinValue(0);
         public static long Increment(this long Num, long Inc = 1) => Num + Inc.SetMinValue(0L);
 
@@ -6480,7 +6450,6 @@ namespace Extensions
         public static string InjectSingleValue(this string formatString, string key, object replacementValue, CultureInfo cultureInfo = null) => InjectSingleValueBase(formatString, key, replacementValue, false, cultureInfo);
 
         public static string InjectSingleValueSQL(this string formatString, string key, object replacementValue, CultureInfo cultureInfo = null) => InjectSingleValueBase(formatString, key, replacementValue, true, cultureInfo);
-
 
         /// <summary>
         /// Insere uma imagem em outra imagem
@@ -7080,10 +7049,8 @@ namespace Extensions
         }
 
         /// <summary>
-        /// Verifica se um tipo e generico de outro
+        /// Verifica se um valor de tipo generico é maior que outro
         /// </summary>
-        /// <param name="MainType"></param>
-        /// <param name="Type"></param>
         /// <returns></returns>
         public static bool IsGreaterThan<T>(this T Value, T MinValue) where T : IComparable => Value.CompareTo(MinValue) > 0;
 
@@ -7603,7 +7570,6 @@ namespace Extensions
             return Color.FromArgb(r, g, b);
         }
         public static HSVColor Lerp(this HSVColor FromColor, HSVColor ToColor, float Amount) => new HSVColor(Lerp(FromColor.ToDrawingColor(), ToColor.ToDrawingColor(), Amount));
-
 
         /// <summary>
         /// Realiza um calculo de interpolação Linear
@@ -9695,14 +9661,11 @@ namespace Extensions
             else if (typeof(IList).IsAssignableFrom(QuantityOrListOrBoolean.GetType()))
             {
                 OutQuantity = ((IList)QuantityOrListOrBoolean).Count;
-
             }
             else if (typeof(IDictionary).IsAssignableFrom(QuantityOrListOrBoolean.GetType()))
             {
                 var dic = (IDictionary)QuantityOrListOrBoolean;
                 OutQuantity = dic.Count;
-
-
             }
             else if (typeof(Array).IsAssignableFrom(QuantityOrListOrBoolean.GetType()))
             {
@@ -9957,7 +9920,6 @@ namespace Extensions
         /// <returns></returns>
         public static TextStructure RandomIpsum(int ParagraphCount = 5, int SentenceCount = 3, int MinWordCount = 10, int MaxWordCount = 50, int IdentSize = 0, int BreakLinesBetweenParagraph = 0, int Words = 300) => LoremIpsum(ParagraphCount, SentenceCount, MinWordCount, MaxWordCount, IdentSize, BreakLinesBetweenParagraph, Enumerable.Range(0, Words).Select(x => RandomWord(2, 14)).ToArray());
 
-
         public static TextStructure LoremIpsum(int ParagraphCount = 5, int SentenceCount = 3, int MinWordCount = 10, int MaxWordCount = 50, int IdentSize = 0, int BreakLinesBetweenParagraph = 0, string[] Words = null)
         {
             var sb = new StringBuilder();
@@ -9982,13 +9944,10 @@ namespace Extensions
                 }
                 sb.Append(Environment.NewLine);
                 sb.Append(Environment.NewLine.Repeat(BreakLinesBetweenParagraph)); // Add more newline character between paragraphs
-
-
             }
 
             return new TextStructure(sb.ToString());
         }
-
 
         /// <summary>
         /// Sorteia um item da Matriz
@@ -11278,7 +11237,6 @@ namespace Extensions
                 return v;
             }).AsEnumerable();
 
-
         /// <summary>
         /// Retorna o primeiro resultado da primeira coluna de uma consulta SQL
         /// </summary>
@@ -11494,8 +11452,8 @@ namespace Extensions
         }
 
         /// <summary>
-        /// Retorna um <see cref="IQueryable{ClassType}"/> procurando em varios campos diferentes
-        /// de uma entidade
+        /// Retorna um <see cref="IQueryable{ClassType}"/> procurando em varios campos diferentes de
+        /// uma entidade
         /// </summary>
         /// <typeparam name="TClass">Tipo da Entidade</typeparam>
         /// <param name="Table">Tabela da Entidade</param>
@@ -11734,10 +11692,10 @@ namespace Extensions
         }
 
         public static Task SetTimeout(int milliseconds, Action action) => Task.Delay(milliseconds).ContinueWith(async (t) =>
-                                                                                       {
-                                                                                           TryExecute(action);
-                                                                                           t.Dispose();
-                                                                                       });
+                                                                                     {
+                                                                                         TryExecute(action);
+                                                                                         t.Dispose();
+                                                                                     });
 
         public static T SetValuesIn<T>(this Dictionary<string, object> Dic) => (T)Dic.CreateOrSetObject(null, typeof(T));
 
@@ -12004,7 +11962,6 @@ namespace Extensions
                 }
             }
             else yield return inputString;
-
         }
 
         public static IEnumerable<string> SplitPercentChunk(this string input, params string[] percents)
@@ -12015,7 +11972,6 @@ namespace Extensions
 
                 foreach (var s in input.SplitChunk(p)) yield return s;
             }
-
         }
 
         public static IEnumerable<string> SplitChunk(this string input, params int[] chunkSizes)
@@ -12031,14 +11987,11 @@ namespace Extensions
                         if (input.Length > 0)
                             yield return input;
                         break;
-
                     }
                     yield return chunk;
                     input = input.RemoveFirstChars(size);
                     chunkSizes = chunkSizes.Skip(1).ToArray();
-
                 }
-
         }
 
         /// <summary>
@@ -12701,14 +12654,12 @@ namespace Extensions
             return null;
         }
 
-
         /// <summary>
         /// Converte uma Imagem da WEB para Base64
         /// </summary>
         /// <param name="ImageURL">Caminho da imagem</param>
         /// <returns>Uma string em formato Util</returns>
         public static string ToBase64(this Uri ImageURL, ImageFormat OriginalImageFormat, NameValueCollection Headers = null, Encoding Encoding = null) => ImageURL != null ? (ImageURL.DownloadImage(Headers, Encoding)?.ToBase64(OriginalImageFormat)) : null;
-
 
         /// <summary>
         /// Monta um Comando SQL para executar uma procedure especifica para cada item em uma
@@ -13264,8 +13215,6 @@ namespace Extensions
         public static FileType ToFileType(this string MimeTypeOrExtensionOrPathOrDataURI) => new FileType(MimeTypeOrExtensionOrPathOrDataURI);
 
         public static FormattableString ToFormattableString(this string Text, params object[] args) => FormattableStringFactory.Create(Text, args ?? Array.Empty<object>());
-
-
 
         /// <summary>
         /// Prepara uma string para se tornar uma caminho amigavel (remove caracteres nao permitidos)
@@ -14886,8 +14835,6 @@ namespace Extensions
             return Connection.CreateCommand(sql, Dic.ToDictionary(x => x.Key, x => x.Value), Transaction);
         }
 
-
-
         /// <summary>
         /// Coloca o texto em TitleCase
         /// </summary>
@@ -14927,8 +14874,6 @@ namespace Extensions
 
             return l.SelectJoinString(WhitespaceChar);
         }
-
-
 
         /// <summary>
         /// Retorna um dicionário em QueryString
@@ -15066,8 +15011,6 @@ namespace Extensions
         /// <param name="Obj"></param>
         /// <returns></returns>
         public static string ToSQLString<T>(this T Obj, bool Parenthesis = true) => ToSQLString("{0}".ToFormattableString(Obj), Parenthesis);
-
-
 
         /// <summary>
         /// Converte uma <see cref="FormattableString"/> para uma string SQL, tratando seus
@@ -16077,9 +16020,8 @@ namespace Extensions
         {
             if (EnableDebugMessages)
             {
-                category = $"{new StackFrame(1, true).GetMethod()?.Name.AppendIf(" => ",category.IsNotBlank())} {category}".Trim();
+                category = $"{new StackFrame(1, true).GetMethod()?.Name.AppendIf(" => ", category.IsNotBlank())} {category}".Trim();
                 Debug.WriteLine(value, category);
-
             }
             return value;
         }
@@ -16180,10 +16122,6 @@ namespace Extensions
 
         public static FileInfo WriteToFile(this string Text, DirectoryInfo Directory, string SubDirectory, string FileName, bool Append = false, Encoding Enconding = null, DateTime? DateAndTime = null) => Text.WriteToFile(Path.Combine(Directory?.FullName, SubDirectory, Path.GetFileName(FileName)), Append, Enconding, DateAndTime);
 
-        #endregion Public Methods
-
-        #region Public Enums
-
         public enum LogicConcatenationOperator
         {
             AND,
@@ -16227,7 +16165,5 @@ namespace Extensions
             /// </summary>
             M = 1000
         }
-
-        #endregion Public Enums
     }
 }
