@@ -3290,6 +3290,9 @@ namespace Extensions
 
         public static string FixedLenght(this int Number, int Lenght) => Number.PadZero(Lenght).GetLastChars(Lenght);
 
+        public static string FixedLenghtByLeft(this string Text, int Lenght, char PaddingChar = '0') => Text.PadLeft(Lenght, PaddingChar).GetLastChars(Lenght);
+        public static string FixedLenghtByRight(this string Text, int Lenght, char PaddingChar = '0') => Text.PadRight(Lenght, PaddingChar).GetFirstChars(Lenght);
+
         /// <summary>
         /// Arruma os caracteres de uma string Util
         /// </summary>
@@ -3306,7 +3309,7 @@ namespace Extensions
             return dummyData;
         }
 
-        public static string FixCapitalization(this string Text)
+        public static string ToSentenceCase(this string Text)
         {
             Text = Text.Trim().GetFirstChars(1).ToUpperInvariant() + Text.RemoveFirstChars(1);
             var dots = new[] { "...", ". ", "? ", "! " };
@@ -3515,6 +3518,8 @@ namespace Extensions
             }
             return Text.Trim().TrimBetween();
         }
+
+
 
         /// <summary>
         /// Arredonda um numero para baixo. Ex.: 4,5 -&gt; 4
@@ -6800,9 +6805,8 @@ namespace Extensions
                     {
                         return off.Equals(DateTimeOffset.MinValue);
                     }
-                    else if (Value.IsEnumerable())
+                    else if (Value.IsEnumerableNotString() && Value is IEnumerable enumerable)
                     {
-                        IEnumerable enumerable = (IEnumerable)Value;
                         foreach (object item in enumerable)
                         {
                             if (item.IsNotBlank())
@@ -7414,7 +7418,7 @@ namespace Extensions
                 Text = Text.RemoveAny(WhitespaceChar);
             }
 
-            return Text == Text.ToCharArray().Reverse().SelectJoinString();
+            return Text == Text.Reverse().SelectJoinString();
         }
 
         /// <summary>
@@ -7483,7 +7487,7 @@ namespace Extensions
                 {
                     string HostName = new Uri(DomainOrEmail).Host;
                     ObjHost = Dns.GetHostEntry(HostName);
-                    return (ObjHost.HostName ?? EmptyString) == (HostName ?? EmptyString);
+                    return (ObjHost?.HostName ?? EmptyString) == (HostName ?? EmptyString);
                 }
                 catch
                 {
@@ -7598,6 +7602,8 @@ namespace Extensions
             // return the new colour
             return Color.FromArgb(r, g, b);
         }
+        public static HSVColor Lerp(this HSVColor FromColor, HSVColor ToColor, float Amount) => new HSVColor(Lerp(FromColor.ToDrawingColor(), ToColor.ToDrawingColor(), Amount));
+
 
         /// <summary>
         /// Realiza um calculo de interpolação Linear
@@ -8346,9 +8352,18 @@ namespace Extensions
         /// </summary>
         /// <param name="TheColor">Cor principal</param>
         /// <param name="AnotherColor">Cor de mesclagem</param>
-        /// <param name="percent">Porcentagem de mescla</param>
+        /// <param name="Percent">Porcentagem de mescla</param>
         /// <returns></returns>
         public static Color MergeWith(this Color TheColor, Color AnotherColor, float Percent = 50f) => TheColor.Lerp(AnotherColor, Percent / 100f);
+
+        /// <summary>
+        /// Mescla duas cores a partir de uma porcentagem
+        /// </summary>
+        /// <param name="TheColor">Cor principal</param>
+        /// <param name="AnotherColor">Cor de mesclagem</param>
+        /// <param name="Percent">Porcentagem de mescla</param>
+        /// <returns></returns>
+        public static HSVColor MergeWith(this HSVColor TheColor, HSVColor AnotherColor, float Percent = 50f) => TheColor.Lerp(AnotherColor, Percent / 100f);
 
         /// <summary>
         /// Minifica uma folha de estilo CSS
@@ -8859,7 +8874,7 @@ namespace Extensions
         public static IEnumerable<T> OrderByPredefinedOrder<T, TOrder>(this IEnumerable<T> Source, Expression<Func<T, TOrder>> PropertySelector, params TOrder[] order)
         {
             Source = Source ?? Array.Empty<T>();
-            if (PropertySelector == null) throw new ArgumentException("Property is null");
+            if (PropertySelector == null) throw new ArgumentException("Property selector is null");
             var p = PropertySelector.Compile();
             var lookup = Source.ToLookup(p, t => t);
             if (order.IsNotNullOrEmpty())
@@ -14913,17 +14928,7 @@ namespace Extensions
             return l.SelectJoinString(WhitespaceChar);
         }
 
-        public static string ToSentenceCase(this string Text, CultureInfo culture = null)
-        {
-            culture = culture ?? CultureInfo.CurrentCulture;
-            if (Text.IsNotBlank())
-            {
-                if (Text.Length >= 2)
-                    Text = char.ToUpper(Text[0], culture) + Text.Substring(1);
-                else Text = Text.ToUpper(culture);
-            }
-            return Text;
-        }
+
 
         /// <summary>
         /// Retorna um dicionário em QueryString
@@ -15094,7 +15099,7 @@ namespace Extensions
                                 {
                                     pv.Add("NULL");
                                 }
-                                else if (x is string == false && x is IEnumerable cc)
+                                else if (x.IsEnumerableNotString() && x is IEnumerable cc)
                                 {
                                     foreach (var c in cc)
                                     {
@@ -15969,7 +15974,7 @@ namespace Extensions
         /// <returns></returns>
         public static IQueryable<T> WhereExpression<T>(this IQueryable<T> List, string PropertyName, string Operator, IEnumerable<IComparable> PropertyValue, bool Is = true, bool Exclusive = true) => List.Where(WhereExpression<T>(PropertyName, Operator, PropertyValue, Is));
 
-        public static IEnumerable<T> WhereNotBlank<T>(this IEnumerable<T> List) => List.Where(x => x != null && $"{x}".IsNotBlank());
+        public static IEnumerable<T> WhereNotBlank<T>(this IEnumerable<T> List) => List.Where(x => x.IsNotBlank());
 
         public static IQueryable<T> WhereNotNull<T>(this IQueryable<T> List) => List.Where(x => x != null);
 
@@ -16063,7 +16068,7 @@ namespace Extensions
 
         /// <summary>
         /// Write a message using <see cref="Debug.WriteLine(value,category)"/> when <see
-        /// cref="EnableDebugMessages"/> is true
+        /// cref="EnableDebugMessages"/> is <b>true</b>
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="value"></param>
@@ -16072,8 +16077,9 @@ namespace Extensions
         {
             if (EnableDebugMessages)
             {
-                category = category.IfBlank("InnerLibs Debug");
+                category = $"{new StackFrame(1, true).GetMethod()?.Name.AppendIf(" => ",category.IsNotBlank())} {category}".Trim();
                 Debug.WriteLine(value, category);
+
             }
             return value;
         }
