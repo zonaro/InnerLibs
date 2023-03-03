@@ -37,7 +37,12 @@ namespace Extensions.BR
         public static IEnumerable<string> SobrenomesMaisComuns => new[] { "Silva", "Santos", "Souza", "Oliveira", "Pereira", "Ferreira", "Alves", "Pinto", "Ribeiro", "Rodrigues", "Costa", "Carvalho", "Gomes", "Martins", "Araújo", "Melo", "Barbosa", "Cardoso", "Nascimento", "Lima", "Moura", "Cavalcanti", "Monteiro", "Moreira", "Nunes", "Sales", "Ramos", "Montenegro", "Siqueira", "Borges", "Teixeira", "Amaral", "Sampaio", "Correa", "Fernandes", "Batista", "Miranda", "Leal", "Xavier", "Marques", "Andrade", "Freitas", "Paiva", "Vieira", "Aguiar", "Macedo", "Garcia", "Lacerda", "Lopes", "Mautari", "Zonaro" };
 
 
-        public static string GerarNomeAleatorio() => $"{NomesMaisComuns.RandomItem()} {SobrenomesMaisComuns.RandomItem()} {SobrenomesMaisComuns.RandomItem().NullIf(x => Util.RandomBool())}".Trim();
+        public static string GerarNomeAleatorio()
+        {
+            var s1 = SobrenomesMaisComuns.RandomItem();
+            var s2 = SobrenomesMaisComuns.RandomItem().NullIf(x => Util.RandomBool() || x == s1);
+            return $"{NomesMaisComuns.RandomItem()} {s1} {s2}".Trim();
+        }
 
         public static IEnumerable<Cidade> Cidades => Estados.SelectMany(x => x.Cidades).ToArray();
 
