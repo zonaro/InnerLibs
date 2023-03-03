@@ -271,7 +271,7 @@ namespace Extensions.BR
         /// </summary>
         /// <param name="Document"></param>
         /// <returns></returns>
-        public static string FormatarCPFOrCNPJ(this long Document)
+        public static string FormatarCPFOuCNPJ(this long Document)
         {
             if (Document.ToString(CultureInfo.InvariantCulture).CPFValido())
             {
@@ -292,7 +292,7 @@ namespace Extensions.BR
         /// </summary>
         /// <param name="Document"></param>
         /// <returns></returns>
-        public static string FormatarCPFOrCNPJ(this string Document)
+        public static string FormatarCPFOuCNPJ(this string Document)
         {
             if (Document.CPFValido())
             {
@@ -315,7 +315,7 @@ namespace Extensions.BR
             {
                 case "CPF":
                 case "CNPJ":
-                    Text = Text.FormatarCPFOrCNPJ();
+                    Text = Text.FormatarCPFOuCNPJ();
                     break;
 
                 case "CEP":
@@ -785,7 +785,7 @@ namespace Extensions.BR
             }
         }
 
-        public string CNPJ { get => cnpj.FormatarCPFOrCNPJ(); set => cnpj = value.RemoveMask().PadZero(TamanhoCNPJ); }
+        public string CNPJ { get => cnpj.FormatarCPFOuCNPJ(); set => cnpj = value.RemoveMask().PadZero(TamanhoCNPJ); }
 
         public int Codigo { get; set; }
 
