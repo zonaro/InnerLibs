@@ -310,7 +310,7 @@ namespace Extensions.BR
 
         public static string FormatarDocumentoComRotulo(this string Text, string DefaultString = Util.EmptyString)
         {
-            var x = Text.GetDocumentLabel(DefaultString);
+            var x = Text.PegarRotuloDocumento(DefaultString);
             switch (x)
             {
                 case "CPF":
@@ -430,7 +430,7 @@ namespace Extensions.BR
         /// <returns></returns>
         public static string PegarNomeDaCidadePorAproximacao(string NomeOuUFouIBGE, string NomeAproximadoDaCidade) => (PegarCidadePorAproximacao(NomeOuUFouIBGE, NomeAproximadoDaCidade)?.Nome ?? Util.EmptyString).IfBlank(NomeAproximadoDaCidade);
 
-        public static string GetDocumentLabel(this string Input, string DefaultLabel = Util.EmptyString)
+        public static string PegarRotuloDocumento(this string Input, string DefaultLabel = Util.EmptyString)
         {
             if (Input.CPFValido()) return "CPF";
             if (Input.CNPJValido()) return "CNPJ";
