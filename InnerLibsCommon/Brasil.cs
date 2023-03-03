@@ -28,7 +28,7 @@ namespace Extensions.BR
         /// <summary>
         /// Array contendo os nomes mais comuns no Brasil
         /// </summary>
-        public static IEnumerable<string> NomesMaisComuns => new[] { "Miguel", "Arthur", "Davi", "Gabriel", "Pedro", "Alice", "Sophia","Sofia", "Manuela", "Isabella", "Laura", "Heitor", "Enzo", "Lorenzo", "Valentina", "Giovanna","Giovana", "Maria Eduarda", "Beatriz", "Maria Clara", "Vinícius", "Rafael", "Lara", "Mariana", "Helena", "Mariana", "Isadora", "Lívia", "Luana", "Maria Luíza", "Luiza", "Ana Luiza", "Eduarda", "Letícia", "Lara", "Melissa", "Maria Fernanda", "Cecília", "Lorena", "Clara", "Gustavo", "Matheus", "João Pedro", "Breno", "Felipe", "Júlia", "Carolina", "Caroline", "Joaquim", "Enzo Gabriel", "Thiago", "Lucas", "Giovanni", "Bianca", "Sophie", "Antônio", "Benjamin", "Vitória", "Isabelly", "Amanda", "Emilly", "Maria Cecília", "Marina", "Analu", "Nina", "Júlia", "Gustavo Henrique", "Miguel", "Catarina", "Stella", "Miguel Henrique", "Guilherme", "Caio", "Maria Vitória", "Isis", "Heloísa", "Gabriela", "Eloá", "Agatha", "Arthur Miguel", "Luiza", "Pedro Henrique", "Ana Beatriz", "Ruan", "Sophia", "Lara", "Luana", "Bárbara", "Kaique", "Raissa", "Rafaela", "Maria Valentina", "Bernardo", "Mirella", "Leonardo", "Davi Lucas", "Luiz Felipe", "Emanuel", "Maria Alice", "Luana", "Luna", "Enrico" };
+        public static IEnumerable<string> NomesMaisComuns => new[] { "Miguel", "Arthur", "Davi", "Gabriel", "Pedro", "Alice", "Sophia", "Sofia", "Manuela", "Isabella", "Laura", "Heitor", "Enzo", "Lorenzo", "Valentina", "Giovanna", "Giovana", "Maria Eduarda", "Beatriz", "Maria Clara", "Vinícius", "Rafael", "Lara", "Mariana", "Helena", "Mariana", "Isadora", "Lívia", "Luana", "Maria Luíza", "Luiza", "Ana Luiza", "Eduarda", "Letícia", "Lara", "Melissa", "Maria Fernanda", "Cecília", "Lorena", "Clara", "Gustavo", "Matheus", "João Pedro", "Breno", "Felipe", "Júlia", "Carolina", "Caroline", "Joaquim", "Enzo Gabriel", "Thiago", "Lucas", "Giovanni", "Bianca", "Sophie", "Antônio", "Benjamin", "Vitória", "Isabelly", "Amanda", "Emilly", "Maria Cecília", "Marina", "Analu", "Nina", "Júlia", "Gustavo Henrique", "Miguel", "Catarina", "Stella", "Miguel Henrique", "Guilherme", "Caio", "Maria Vitória", "Isis", "Heloísa", "Gabriela", "Eloá", "Agatha", "Arthur Miguel", "Luiza", "Pedro Henrique", "Ana Beatriz", "Ruan", "Sophia", "Lara", "Luana", "Bárbara", "Kaique", "Raissa", "Rafaela", "Maria Valentina", "Bernardo", "Mirella", "Leonardo", "Davi Lucas", "Luiz Felipe", "Emanuel", "Maria Alice", "Luana", "Luna", "Enrico" };
 
         // 
         /// <summary>
@@ -37,7 +37,7 @@ namespace Extensions.BR
         public static IEnumerable<string> SobrenomesMaisComuns => new[] { "Silva", "Santos", "Souza", "Oliveira", "Pereira", "Ferreira", "Alves", "Pinto", "Ribeiro", "Rodrigues", "Costa", "Carvalho", "Gomes", "Martins", "Araújo", "Melo", "Barbosa", "Cardoso", "Nascimento", "Lima", "Moura", "Cavalcanti", "Monteiro", "Moreira", "Nunes", "Sales", "Ramos", "Montenegro", "Siqueira", "Borges", "Teixeira", "Amaral", "Sampaio", "Correa", "Fernandes", "Batista", "Miranda", "Leal", "Xavier", "Marques", "Andrade", "Freitas", "Paiva", "Vieira", "Aguiar", "Macedo", "Garcia", "Lacerda", "Lopes", "Zonaro" };
 
 
-        public static IEnumerable<Cidade> Cidades => Estados.SelectMany(x => x.Cities).ToArray();
+        public static IEnumerable<Cidade> Cidades => Estados.SelectMany(x => x.Cidades).ToArray();
 
         /// <summary>
         /// Retorna as Regiões dos estados brasileiros
@@ -79,7 +79,7 @@ namespace Extensions.BR
                                 node["Capital"].InnerText.AsBool()));
                         }
 
-                        e.Cities = cities;
+                        e.Cidades = cities;
                         l.Add(e);
                     }
                 }
@@ -97,27 +97,27 @@ namespace Extensions.BR
         /// <param name="NameOrStateCode"></param>
         /// <param name="City"></param>
         /// <returns></returns>
-        public static AddressInfo CreateAddressInfo(string NameOrStateCode, string City) => CreateAddressInfo<AddressInfo>(NameOrStateCode, City);
+        public static AddressInfo CreateAddressInfo(string NameOrStateCode, string City) => CriarAddressInfo<AddressInfo>(NameOrStateCode, City);
 
         /// <summary>
         /// Retorna um <see cref="AddressInfo"/> da cidade e estado correspondentes
         /// </summary>
-        /// <param name="NameOrStateCodeOrIBGE"></param>
-        /// <param name="City"></param>
+        /// <param name="NomeOuUFouIBGE"></param>
+        /// <param name="Cidade"></param>
         /// <returns></returns>
-        public static T CreateAddressInfo<T>(string NameOrStateCodeOrIBGE, string City) where T : AddressInfo
+        public static T CriarAddressInfo<T>(string NomeOuUFouIBGE, string Cidade) where T : AddressInfo
         {
-            if (NameOrStateCodeOrIBGE.IsBlank() && City.IsNotBlank())
+            if (NomeOuUFouIBGE.IsBlank() && Cidade.IsNotBlank())
             {
-                NameOrStateCodeOrIBGE = FindStateByCityName(City).FirstOrDefault().IfBlank(NameOrStateCodeOrIBGE);
+                NomeOuUFouIBGE = FindStateByCityName(Cidade).FirstOrDefault().IfBlank(NomeOuUFouIBGE);
             }
 
-            var s = PegarEstado(NameOrStateCodeOrIBGE);
+            var s = PegarEstado(NomeOuUFouIBGE);
             if (s != null)
             {
-                var c = PegarCidadePorAproximacao(s.UF, City);
+                var c = PegarCidadePorAproximacao(s.UF, Cidade);
                 var ends = Activator.CreateInstance<T>();
-                ends.City = c?.Nome ?? City;
+                ends.City = c?.Nome ?? Cidade;
                 ends.State = s.Nome;
                 ends.StateCode = s.UF;
                 ends.Region = s.Regiao;
@@ -137,7 +137,7 @@ namespace Extensions.BR
             return null;
         }
 
-        public static Cidade PegarCidadePeloIBGE(int IBGE) => Cidades.FirstOrDefault(x => x.IBGE == IBGE);
+        public static Cidade PegarCidadePeloIBGE(int IBGE) => Cidades.FirstOrDefault(x => x.IBGE == IBGE) ?? Estados.FirstOrDefault(x => x.IBGE == IBGE)?.Cidades.FirstOrDefault(x => x.Capital);
 
         /// <summary>
         /// Retorna o estado de uma cidade especifa. Pode trazer mais de um estado caso o nome da
@@ -145,7 +145,7 @@ namespace Extensions.BR
         /// </summary>
         /// <param name="CityName"></param>
         /// <returns></returns>
-        public static IEnumerable<Estado> FindStateByCityName(string CityName) => Estados.Where((Func<Estado, bool>)(x => x.Cities.Any((Func<Cidade, bool>)(c => (Util.ToSlugCase(c.Nome) ?? Util.EmptyString) == (Util.ToSlugCase(CityName) ?? Util.EmptyString) || (c.IBGE.ToString() ?? Util.EmptyString) == (Util.ToSlugCase(CityName) ?? Util.EmptyString)))));
+        public static IEnumerable<Estado> FindStateByCityName(string CityName) => Estados.Where((Func<Estado, bool>)(x => x.Cidades.Any((Func<Cidade, bool>)(c => (Util.ToSlugCase(c.Nome) ?? Util.EmptyString) == (Util.ToSlugCase(CityName) ?? Util.EmptyString) || (c.IBGE.ToString() ?? Util.EmptyString) == (Util.ToSlugCase(CityName) ?? Util.EmptyString)))));
 
         public static Estado PegarEstadoPeloIBGE(int IBGE) => Estados.FirstOrDefault(x => x.IBGE == IBGE) ?? PegarCidadePeloIBGE(IBGE)?.Estado;
 
@@ -379,16 +379,16 @@ namespace Extensions.BR
         /// <inheritdoc cref="FormatarTelefone(int)"/>
         public static string FormatTelephoneNumber(this double Number) => FormatarTelefone($"{Number}");
 
-        public static Cidade PegarCapital(string NomeOuUFouIBGE) => (PegarEstado(NomeOuUFouIBGE)?.Cities ?? new List<Cidade>()).FirstOrDefault(x => x.Capital);
+        public static Cidade PegarCapital(string NomeOuUFouIBGE) => (PegarEstado(NomeOuUFouIBGE)?.Cidades ?? new List<Cidade>()).FirstOrDefault(x => x.Capital);
 
         /// <summary>
         /// Retorna as cidades de um estado a partir do nome ou sigla do estado
         /// </summary>
         /// <param name="NameOrStateCodeOrIBGE">Nome ou sigla do estado</param>
         /// <returns></returns>
-        public static IEnumerable<Cidade> PegarCidades(string NameOrStateCodeOrIBGE) => (PegarEstado(NameOrStateCodeOrIBGE)?.Cities ?? new List<Cidade>()).AsEnumerable();
+        public static IEnumerable<Cidade> PegarCidades(string NameOrStateCodeOrIBGE) => (PegarEstado(NameOrStateCodeOrIBGE)?.Cidades ?? new List<Cidade>()).AsEnumerable();
 
-        public static Cidade PegarCidadePorAproximacao(string NomeOuUFouIBGE, string NomeAproximadoDaCidade) => (PegarEstado(NomeOuUFouIBGE)?.Cities ?? new List<Cidade>()).AsEnumerable().OrderBy(x => x.Nome.LevenshteinDistance(NomeAproximadoDaCidade)).Where(x => NomeAproximadoDaCidade.IsNotBlank()).FirstOrDefault();
+        public static Cidade PegarCidadePorAproximacao(string NomeOuUFouIBGE, string NomeAproximadoDaCidade) => (PegarEstado(NomeOuUFouIBGE)?.Cidades ?? new List<Cidade>()).AsEnumerable().OrderBy(x => x.Nome.LevenshteinDistance(NomeAproximadoDaCidade)).Where(x => NomeAproximadoDaCidade.IsNotBlank()).FirstOrDefault();
 
         /// <summary>
         /// Retorna o nome da cidade mais parecido com o especificado em <paramref name="NomeAproximadoDaCidade"/>
@@ -887,7 +887,7 @@ namespace Extensions.BR
             {
                 Nome = Brasil.PegarNomeEstado(NomeOuUF);
                 UF = Brasil.PegarCodigoEstado(NomeOuUF);
-                Cities = Brasil.PegarCidades(NomeOuUF);
+                Cidades = Brasil.PegarCidades(NomeOuUF);
                 Regiao = Brasil.PegarRegiao(NomeOuUF);
             }
         }
@@ -900,7 +900,7 @@ namespace Extensions.BR
         /// Lista de cidades do estado
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<Cidade> Cities { get; internal set; }
+        public IEnumerable<Cidade> Cidades { get; internal set; }
 
         public string Pais { get; }
 
