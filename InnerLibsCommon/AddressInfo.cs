@@ -82,6 +82,13 @@ namespace Extensions.Locations
             return null;
         }
 
+        public static IEnumerable<string> GetAllAdressTypes()
+        {
+            var df = typeof(AddressTypes);
+            return df.GetProperties(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy).SelectMany(x => new[] { x.Name }.Union(x.GetValue(null) as string[])).Distinct();
+
+        }
+
         #endregion Public Methods
     }
 

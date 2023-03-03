@@ -37,12 +37,34 @@ namespace Extensions.BR
         public static IEnumerable<string> SobrenomesMaisComuns => new[] { "Silva", "Santos", "Souza", "Oliveira", "Pereira", "Ferreira", "Alves", "Pinto", "Ribeiro", "Rodrigues", "Costa", "Carvalho", "Gomes", "Martins", "Araújo", "Melo", "Barbosa", "Cardoso", "Nascimento", "Lima", "Moura", "Cavalcanti", "Monteiro", "Moreira", "Nunes", "Sales", "Ramos", "Montenegro", "Siqueira", "Borges", "Teixeira", "Amaral", "Sampaio", "Correa", "Fernandes", "Batista", "Miranda", "Leal", "Xavier", "Marques", "Andrade", "Freitas", "Paiva", "Vieira", "Aguiar", "Macedo", "Garcia", "Lacerda", "Lopes", "Mautari", "Zonaro" };
 
 
-        public static string GerarNomeAleatorio()
+        public static string GerarNomeAleatorio(bool SobrenomeUnico = false)
         {
             var s1 = SobrenomesMaisComuns.RandomItem();
-            var s2 = SobrenomesMaisComuns.RandomItem().NullIf(x => Util.RandomBool() || x == s1);
+            var s2 = SobrenomesMaisComuns.RandomItem().NullIf(x => Util.RandomBool() || x == s1  || SobrenomeUnico );
             return $"{NomesMaisComuns.RandomItem()} {s1} {s2}".Trim();
         }
+
+        public static AddressInfo GerarEnderecoFake()
+        {
+
+            var e = Estados.RandomItem();
+            var ad = CriarAddressInfo<AddressInfo>(e.Nome, e.Cidades.RandomItem().Nome);
+            ad.Street = $"{AddressTypes.GetAllAdressTypes().RandomItem().AppendIf(".", x => x.Length < 3)} {GerarNomeAleatorio()}";
+            ad.Neighborhood = GerarNomeAleatorio(true).PrependIf(new[] { "Jardim ", "Campos " }.RandomItem(), Util.RandomBool(75));
+            ad.Number = Util.RandomNumber(10, 2000).ToString();
+            ad.ZipCode = Util.RandomNumber(11111111, 99999999).FormatarCEP();
+            ad.Complement = new[]
+            {
+                "",
+                $"Casa {PredefinedArrays.AlphaUpperChars.Take(4).RandomItem()}",
+                $"Apto. {Util.RandomNumber(11,200)}",
+                $"Bloco {PredefinedArrays.AlphaUpperChars.Take(20).RandomItem()} Apto. {Util.RandomNumber(11,200)}",
+                $"Bloco {PredefinedArrays.AlphaUpperChars.Take(20).RandomItem()} Casa {Util.RandomNumber(1,12)}",
+                $"Bloco {PredefinedArrays.AlphaUpperChars.Take(20).RandomItem()} Casa {PredefinedArrays.AlphaUpperChars.Take(6).RandomItem()}",
+            }.RandomItem();
+            return ad;
+        }
+
 
         public static IEnumerable<Cidade> Cidades => Estados.SelectMany(x => x.Cidades).ToArray();
 
@@ -396,6 +418,9 @@ namespace Extensions.BR
         public static IEnumerable<Cidade> PegarCidades(string NameOrStateCodeOrIBGE) => (PegarEstado(NameOrStateCodeOrIBGE)?.Cidades ?? new List<Cidade>()).AsEnumerable();
 
         public static Cidade PegarCidadePorAproximacao(string NomeOuUFouIBGE, string NomeAproximadoDaCidade) => (PegarEstado(NomeOuUFouIBGE)?.Cidades ?? new List<Cidade>()).AsEnumerable().OrderBy(x => x.Nome.LevenshteinDistance(NomeAproximadoDaCidade)).Where(x => NomeAproximadoDaCidade.IsNotBlank()).FirstOrDefault();
+
+
+
 
         /// <summary>
         /// Retorna o nome da cidade mais parecido com o especificado em <paramref name="NomeAproximadoDaCidade"/>
