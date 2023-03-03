@@ -131,12 +131,12 @@ namespace Extensions.Locations
             this.Number = Number;
             this.City = City;
             this.PostalCode = PostalCode;
-            var st = Brasil.GetState(State);
+            var st = Brasil.PegarEstado(State);
             if (st != null)
             {
-                this.State = st.Name;
-                this.StateCode = st.StateCode;
-                this.Region = st.Region;
+                this.State = st.Nome;
+                this.StateCode = st.UF;
+                this.Region = st.Regiao;
                 this.Country = "Brasil";
                 this.CountryCode = "BR";
             }
@@ -546,9 +546,9 @@ namespace Extensions.Locations
         public static string FormatPostalCode(string CEP)
         {
             CEP = CEP.IfBlank(Util.EmptyString).Trim();
-            if (CEP.IsValidCEP())
+            if (CEP.CEPValido())
             {
-                CEP = CEP.FormatCEP();
+                CEP = CEP.FormatarCEP();
             }
 
             return CEP;
@@ -630,7 +630,7 @@ namespace Extensions.Locations
                                             {
                                                 d.State = item["long_name"].InnerText;
                                                 d.StateCode = item["short_name"].InnerText;
-                                                d.Region = d.Region.IfBlank(Brasil.GetRegionOf(d.StateCode));
+                                                d.Region = d.Region.IfBlank(Brasil.PegarRegiao(d.StateCode));
                                                 break;
                                             }
 
@@ -739,8 +739,8 @@ namespace Extensions.Locations
                 d.StateCode = x.GetValueOr("uf") as string;
                 if (d.StateCode.IsNotBlank())
                 {
-                    d.State = Brasil.GetNameOf(d.StateCode);
-                    d.Region = Brasil.GetRegionOf(d.StateCode);
+                    d.State = Brasil.PegarNomeEstado(d.StateCode);
+                    d.Region = Brasil.PegarRegiao(d.StateCode);
                 }
                 foreach (var item in new[] { "ddd", "ibge", "gia", "siafi" })
                 {
