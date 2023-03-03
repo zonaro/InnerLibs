@@ -20,19 +20,19 @@ namespace Extensions.BR
         /// <summary>
         /// Array contendo os nomes mais comuns no Brasil
         /// </summary>
-        public static IEnumerable<string> NomesMaisComuns => new[] { "Ellie", "Ellie Rose", "Miguel", "Arthur", "Davi", "Gabriel", "Pedro", "Alice", "Sophia", "Sofia", "Manuela", "Isabella", "Laura", "Heitor", "Enzo", "Lorenzo", "Valentina", "Giovanna", "Giovana", "Maria Eduarda", "Beatriz", "Maria Clara", "Vinícius", "Rafael", "Lara", "Mariana", "Helena", "Mariana", "Isadora", "Lívia", "Luana", "Maria Luíza", "Luiza", "Ana Luiza", "Eduarda", "Letícia", "Lara", "Melissa", "Maria Fernanda", "Cecília", "Lorena", "Clara", "Gustavo", "Matheus", "João Pedro", "Breno", "Felipe", "Júlia", "Carolina", "Caroline", "Joaquim", "Enzo Gabriel", "Thiago", "Lucas", "Giovanni", "Bianca", "Sophie", "Antônio", "Benjamin", "Vitória", "Isabelly", "Amanda", "Emilly", "Maria Cecília", "Marina", "Analu", "Nina", "Júlia", "Gustavo Henrique", "Miguel", "Catarina", "Stella", "Miguel Henrique", "Guilherme", "Caio", "Maria Vitória", "Isis", "Heloísa", "Gabriela", "Eloá", "Agatha", "Arthur Miguel", "Luiza", "Pedro Henrique", "Ana Beatriz", "Ruan", "Sophia", "Lara", "Luana", "Bárbara", "Kaique", "Raissa", "Rafaela", "Maria Valentina", "Bernardo", "Mirella", "Leonardo", "Davi Lucas", "Luiz Felipe", "Emanuel", "Maria Alice", "Luana", "Luna", "Enrico" };
+        public static IEnumerable<string> NomesComuns => new[] { "Ellie", "Ellie Rose", "Miguel", "Arthur", "Davi", "Gabriel", "Pedro", "Alice", "Sophia", "Sofia", "Manuela", "Isabella", "Laura", "Heitor", "Enzo", "Lorenzo", "Valentina", "Giovanna", "Giovana", "Maria Eduarda", "Beatriz", "Maria Clara", "Vinícius", "Rafael", "Lara", "Mariana", "Helena", "Mariana", "Isadora", "Lívia", "Luana", "Maria Luíza", "Luiza", "Ana Luiza", "Eduarda", "Letícia", "Lara", "Melissa", "Maria Fernanda", "Cecília", "Lorena", "Clara", "Gustavo", "Matheus", "João Pedro", "Breno", "Felipe", "Júlia", "Carolina", "Caroline", "Joaquim", "Enzo Gabriel", "Thiago", "Lucas", "Giovanni", "Bianca", "Sophie", "Antônio", "Benjamin", "Vitória", "Isabelly", "Amanda", "Emilly", "Maria Cecília", "Marina", "Analu", "Nina", "Júlia", "Gustavo Henrique", "Miguel", "Catarina", "Stella", "Miguel Henrique", "Guilherme", "Caio", "Maria Vitória", "Isis", "Heloísa", "Gabriela", "Eloá", "Agatha", "Arthur Miguel", "Luiza", "Pedro Henrique", "Ana Beatriz", "Ruan", "Sophia", "Lara", "Luana", "Bárbara", "Kaique", "Raissa", "Rafaela", "Maria Valentina", "Bernardo", "Mirella", "Leonardo", "Davi Lucas", "Luiz Felipe", "Emanuel", "Maria Alice", "Luana", "Luna", "Enrico" };
 
 
         /// <summary>
         /// Array contendo os sobrenomes mais comuns no Brasil
         /// </summary>
-        public static IEnumerable<string> SobrenomesMaisComuns => new[] { "Silva", "Santos", "Souza", "Oliveira", "Pereira", "Ferreira", "Alves", "Pinto", "Ribeiro", "Rodrigues", "Costa", "Carvalho", "Gomes", "Martins", "Araújo", "Melo", "Barbosa", "Cardoso", "Nascimento", "Lima", "Moura", "Cavalcanti", "Monteiro", "Moreira", "Nunes", "Sales", "Ramos", "Montenegro", "Siqueira", "Borges", "Teixeira", "Amaral", "Sampaio", "Correa", "Fernandes", "Batista", "Miranda", "Leal", "Xavier", "Marques", "Andrade", "Freitas", "Paiva", "Vieira", "Aguiar", "Macedo", "Garcia", "Lacerda", "Lopes", "Mautari", "Zonaro" };
+        public static IEnumerable<string> SobrenomesComuns => new[] { "Silva", "Santos", "Souza", "Oliveira", "Pereira", "Ferreira", "Alves", "Pinto", "Ribeiro", "Rodrigues", "Costa", "Carvalho", "Gomes", "Martins", "Araújo", "Melo", "Barbosa", "Cardoso", "Nascimento", "Lima", "Moura", "Cavalcanti", "Monteiro", "Moreira", "Nunes", "Sales", "Ramos", "Montenegro", "Siqueira", "Borges", "Teixeira", "Amaral", "Sampaio", "Correa", "Fernandes", "Batista", "Miranda", "Leal", "Xavier", "Marques", "Andrade", "Freitas", "Paiva", "Vieira", "Aguiar", "Macedo", "Garcia", "Lacerda", "Lopes", "Mautari", "Zonaro" };
 
         public static string GerarNomeAleatorio(bool SobrenomeUnico = false)
         {
-            var s1 = SobrenomesMaisComuns.RandomItem();
-            var s2 = SobrenomesMaisComuns.RandomItem().NullIf(x => Util.RandomBool() || x == s1 || SobrenomeUnico);
-            return $"{NomesMaisComuns.RandomItem()} {s1} {s2}".Trim();
+            var s1 = SobrenomesComuns.RandomItem();
+            var s2 = SobrenomesComuns.RandomItem().NullIf(x => Util.RandomBool() || x == s1 || SobrenomeUnico);
+            return $"{NomesComuns.RandomItem()} {s1} {s2}".Trim();
         }
 
         public static AddressInfo GerarEnderecoFake()
