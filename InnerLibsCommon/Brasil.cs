@@ -15,38 +15,28 @@ namespace Extensions.BR
     /// </summary>
     public static class Brasil
     {
-        #region Private Fields
-
         private static List<Estado> l = new List<Estado>();
-
-        #endregion Private Fields
-
-        #region Public Properties
-
-
 
         /// <summary>
         /// Array contendo os nomes mais comuns no Brasil
         /// </summary>
         public static IEnumerable<string> NomesMaisComuns => new[] { "Ellie", "Ellie Rose", "Miguel", "Arthur", "Davi", "Gabriel", "Pedro", "Alice", "Sophia", "Sofia", "Manuela", "Isabella", "Laura", "Heitor", "Enzo", "Lorenzo", "Valentina", "Giovanna", "Giovana", "Maria Eduarda", "Beatriz", "Maria Clara", "Vinícius", "Rafael", "Lara", "Mariana", "Helena", "Mariana", "Isadora", "Lívia", "Luana", "Maria Luíza", "Luiza", "Ana Luiza", "Eduarda", "Letícia", "Lara", "Melissa", "Maria Fernanda", "Cecília", "Lorena", "Clara", "Gustavo", "Matheus", "João Pedro", "Breno", "Felipe", "Júlia", "Carolina", "Caroline", "Joaquim", "Enzo Gabriel", "Thiago", "Lucas", "Giovanni", "Bianca", "Sophie", "Antônio", "Benjamin", "Vitória", "Isabelly", "Amanda", "Emilly", "Maria Cecília", "Marina", "Analu", "Nina", "Júlia", "Gustavo Henrique", "Miguel", "Catarina", "Stella", "Miguel Henrique", "Guilherme", "Caio", "Maria Vitória", "Isis", "Heloísa", "Gabriela", "Eloá", "Agatha", "Arthur Miguel", "Luiza", "Pedro Henrique", "Ana Beatriz", "Ruan", "Sophia", "Lara", "Luana", "Bárbara", "Kaique", "Raissa", "Rafaela", "Maria Valentina", "Bernardo", "Mirella", "Leonardo", "Davi Lucas", "Luiz Felipe", "Emanuel", "Maria Alice", "Luana", "Luna", "Enrico" };
 
-        // 
+
         /// <summary>
         /// Array contendo os sobrenomes mais comuns no Brasil
         /// </summary>
         public static IEnumerable<string> SobrenomesMaisComuns => new[] { "Silva", "Santos", "Souza", "Oliveira", "Pereira", "Ferreira", "Alves", "Pinto", "Ribeiro", "Rodrigues", "Costa", "Carvalho", "Gomes", "Martins", "Araújo", "Melo", "Barbosa", "Cardoso", "Nascimento", "Lima", "Moura", "Cavalcanti", "Monteiro", "Moreira", "Nunes", "Sales", "Ramos", "Montenegro", "Siqueira", "Borges", "Teixeira", "Amaral", "Sampaio", "Correa", "Fernandes", "Batista", "Miranda", "Leal", "Xavier", "Marques", "Andrade", "Freitas", "Paiva", "Vieira", "Aguiar", "Macedo", "Garcia", "Lacerda", "Lopes", "Mautari", "Zonaro" };
 
-
         public static string GerarNomeAleatorio(bool SobrenomeUnico = false)
         {
             var s1 = SobrenomesMaisComuns.RandomItem();
-            var s2 = SobrenomesMaisComuns.RandomItem().NullIf(x => Util.RandomBool() || x == s1  || SobrenomeUnico );
+            var s2 = SobrenomesMaisComuns.RandomItem().NullIf(x => Util.RandomBool() || x == s1 || SobrenomeUnico);
             return $"{NomesMaisComuns.RandomItem()} {s1} {s2}".Trim();
         }
 
         public static AddressInfo GerarEnderecoFake()
         {
-
             var e = Estados.RandomItem();
             var ad = CriarAddressInfo<AddressInfo>(e.Nome, e.Cidades.RandomItem().Nome);
             ad.Street = $"{AddressTypes.GetAllAdressTypes().RandomItem().AppendIf(".", x => x.Length < 3)} {GerarNomeAleatorio()}";
@@ -64,7 +54,6 @@ namespace Extensions.BR
             }.RandomItem();
             return ad;
         }
-
 
         public static IEnumerable<Cidade> Cidades => Estados.SelectMany(x => x.Cidades).ToArray();
 
@@ -116,17 +105,13 @@ namespace Extensions.BR
             }
         }
 
-        #endregion Public Properties
-
-        #region Public Methods
-
         /// <summary>
         /// Retorna um <see cref="AddressInfo"/> da cidade e estado correspondentes
         /// </summary>
-        /// <param name="NameOrStateCode"></param>
+        /// <param name="NomeOuUFouIBGE"></param>
         /// <param name="City"></param>
         /// <returns></returns>
-        public static AddressInfo CreateAddressInfo(string NameOrStateCode, string City) => CriarAddressInfo<AddressInfo>(NameOrStateCode, City);
+        public static AddressInfo CriarAddressInfo(string NomeOuUFouIBGE, string City) => CriarAddressInfo<AddressInfo>(NomeOuUFouIBGE, City);
 
         /// <summary>
         /// Retorna um <see cref="AddressInfo"/> da cidade e estado correspondentes
@@ -138,7 +123,7 @@ namespace Extensions.BR
         {
             if (NomeOuUFouIBGE.IsBlank() && Cidade.IsNotBlank())
             {
-                NomeOuUFouIBGE = FindStateByCityName(Cidade).FirstOrDefault().IfBlank(NomeOuUFouIBGE);
+                NomeOuUFouIBGE = PegarEstadoPeloNomeDaCidade(Cidade).FirstOrDefault().IfBlank(NomeOuUFouIBGE);
             }
 
             var s = PegarEstado(NomeOuUFouIBGE);
@@ -174,7 +159,7 @@ namespace Extensions.BR
         /// </summary>
         /// <param name="CityName"></param>
         /// <returns></returns>
-        public static IEnumerable<Estado> FindStateByCityName(string CityName) => Estados.Where((Func<Estado, bool>)(x => x.Cidades.Any((Func<Cidade, bool>)(c => (Util.ToSlugCase(c.Nome) ?? Util.EmptyString) == (Util.ToSlugCase(CityName) ?? Util.EmptyString) || (c.IBGE.ToString() ?? Util.EmptyString) == (Util.ToSlugCase(CityName) ?? Util.EmptyString)))));
+        public static IEnumerable<Estado> PegarEstadoPeloNomeDaCidade(string CityName) => Estados.Where((Func<Estado, bool>)(x => x.Cidades.Any((Func<Cidade, bool>)(c => (Util.ToSlugCase(c.Nome) ?? Util.EmptyString) == (Util.ToSlugCase(CityName) ?? Util.EmptyString) || (c.IBGE.ToString() ?? Util.EmptyString) == (Util.ToSlugCase(CityName) ?? Util.EmptyString)))));
 
         public static Estado PegarEstadoPeloIBGE(int IBGE) => Estados.FirstOrDefault(x => x.IBGE == IBGE) ?? PegarCidadePeloIBGE(IBGE)?.Estado;
 
@@ -183,7 +168,7 @@ namespace Extensions.BR
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static IEnumerable<string> FindTelephoneNumbers(this string Text) => Text.FindByRegex(@"\b[\s()\d-]{6,}\d\b", (RegexOptions)((int)RegexOptions.Singleline + (int)RegexOptions.IgnoreCase)).Select(x => x.FormatarTelefone());
+        public static IEnumerable<string> ProcurarNumerosDeTelefone(this string Text) => Text.FindByRegex(@"\b[\s()\d-]{6,}\d\b", (RegexOptions)((int)RegexOptions.Singleline + (int)RegexOptions.IgnoreCase)).Select(x => x.FormatarTelefone());
 
         /// <inheritdoc cref="FormatarCEP(string)"/>
         public static string FormatarCEP(this int CEP) => FormatarCEP(CEP.ToString(CultureInfo.InvariantCulture));
@@ -397,16 +382,16 @@ namespace Extensions.BR
         }
 
         /// <inheritdoc cref="FormatarTelefone(int)"/>
-        public static string FormatTelephoneNumber(this long Number) => FormatarTelefone($"{Number}");
+        public static string FormatarTelefone(this long Number) => FormatarTelefone($"{Number}");
 
         /// <inheritdoc cref="FormatarTelefone(string)"/>
         public static string FormatarTelefone(this int Number) => FormatarTelefone($"{Number}");
 
         /// <inheritdoc cref="FormatarTelefone(int)"/>
-        public static string FormatTelephoneNumber(this decimal Number) => FormatarTelefone($"{Number}");
+        public static string FormatarTelefone(this decimal Number) => FormatarTelefone($"{Number}");
 
         /// <inheritdoc cref="FormatarTelefone(int)"/>
-        public static string FormatTelephoneNumber(this double Number) => FormatarTelefone($"{Number}");
+        public static string FormatarTelefone(this double Number) => FormatarTelefone($"{Number}");
 
         public static Cidade PegarCapital(string NomeOuUFouIBGE) => (PegarEstado(NomeOuUFouIBGE)?.Cidades ?? new List<Cidade>()).FirstOrDefault(x => x.Capital);
 
@@ -418,9 +403,6 @@ namespace Extensions.BR
         public static IEnumerable<Cidade> PegarCidades(string NameOrStateCodeOrIBGE) => (PegarEstado(NameOrStateCodeOrIBGE)?.Cidades ?? new List<Cidade>()).AsEnumerable();
 
         public static Cidade PegarCidadePorAproximacao(string NomeOuUFouIBGE, string NomeAproximadoDaCidade) => (PegarEstado(NomeOuUFouIBGE)?.Cidades ?? new List<Cidade>()).AsEnumerable().OrderBy(x => x.Nome.LevenshteinDistance(NomeAproximadoDaCidade)).Where(x => NomeAproximadoDaCidade.IsNotBlank()).FirstOrDefault();
-
-
-
 
         /// <summary>
         /// Retorna o nome da cidade mais parecido com o especificado em <paramref name="NomeAproximadoDaCidade"/>
@@ -449,34 +431,34 @@ namespace Extensions.BR
         /// <summary>
         /// Retorna o nome do estado a partir da sigla
         /// </summary>
-        /// <param name="NameOrStateCodeOrIBGE"></param>
+        /// <param name="NomeOuUFOuIBGE"></param>
         /// <returns></returns>
-        public static string PegarNomeEstado(string NameOrStateCodeOrIBGE) => PegarEstado(NameOrStateCodeOrIBGE)?.Nome;
+        public static string PegarNomeEstado(string NomeOuUFOuIBGE) => PegarEstado(NomeOuUFOuIBGE)?.Nome;
 
         /// <summary>
         /// Retorna a região a partir de um nome de estado
         /// </summary>
-        /// <param name="NameOrStateCodeOrIBGE"></param>
+        /// <param name="NomeOuUFOuIBGE"></param>
         /// <returns></returns>
-        public static string PegarRegiao(string NameOrStateCodeOrIBGE) => PegarEstado(NameOrStateCodeOrIBGE)?.Regiao;
+        public static string PegarRegiao(string NomeOuUFOuIBGE) => PegarEstado(NomeOuUFOuIBGE)?.Regiao;
 
         /// <summary>
         /// Retorna a as informações do estado a partir de um nome de estado ou sua sigla
         /// </summary>
-        /// <param name="NameOrStateCodeOrIBGE">Nome ou UF</param>
+        /// <param name="NomeOuUFOuIBGE">Nome ou UF</param>
         /// <returns></returns>
-        public static Estado PegarEstado(string NameOrStateCodeOrIBGE)
+        public static Estado PegarEstado(string NomeOuUFOuIBGE)
         {
-            NameOrStateCodeOrIBGE = NameOrStateCodeOrIBGE.TrimBetween().ToSlugCase();
-            return Estados.FirstOrDefault(x => (x.Nome.ToSlugCase() ?? Util.EmptyString) == (NameOrStateCodeOrIBGE ?? Util.EmptyString) || (x.UF.ToSlugCase() ?? Util.EmptyString) == (NameOrStateCodeOrIBGE ?? Util.EmptyString) || (x.IBGE.ToString()) == (NameOrStateCodeOrIBGE ?? Util.EmptyString));
+            NomeOuUFOuIBGE = NomeOuUFOuIBGE.TrimBetween().ToSlugCase();
+            return Estados.FirstOrDefault(x => (x.Nome.ToSlugCase() ?? Util.EmptyString) == (NomeOuUFOuIBGE ?? Util.EmptyString) || (x.UF.ToSlugCase() ?? Util.EmptyString) == (NomeOuUFOuIBGE ?? Util.EmptyString) || (x.IBGE.ToString()) == (NomeOuUFOuIBGE ?? Util.EmptyString));
         }
 
         /// <summary>
         /// Retorna a Sigla a partir de um nome de estado
         /// </summary>
-        /// <param name="NameOrStateCodeOrIBGE"></param>
+        /// <param name="NomeOuUFOuIBGE"></param>
         /// <returns></returns>
-        public static string PegarCodigoEstado(string NameOrStateCodeOrIBGE) => PegarEstado(NameOrStateCodeOrIBGE)?.UF;
+        public static string PegarCodigoEstado(string NomeOuUFOuIBGE) => PegarEstado(NomeOuUFOuIBGE)?.UF;
 
         /// <summary>
         /// Retorna os estados de uma região
@@ -488,9 +470,9 @@ namespace Extensions.BR
         /// <summary>
         /// Valida se a string é um telefone
         /// </summary>
-        /// <param name="Text"></param>
+        /// <param name="Telefone"></param>
         /// <returns></returns>
-        public static bool TelefoneValido(this string Text) => new Regex(@"\(?\+[0-9]{1,3}\)? ?-?[0-9]{1,3} ?-?[0-9]{3,5} ?-?[0-9]{4}( ?-?[0-9]{3})? ?(\w{1,10}\s?\d{1,6})?", (RegexOptions)((int)RegexOptions.Singleline + (int)RegexOptions.IgnoreCase)).IsMatch(Text.RemoveAny("(", ")"));
+        public static bool TelefoneValido(this string Telefone) => new Regex(@"\(?\+[0-9]{1,3}\)? ?-?[0-9]{1,3} ?-?[0-9]{3,5} ?-?[0-9]{4}( ?-?[0-9]{3})? ?(\w{1,10}\s?\d{1,6})?", (RegexOptions)((int)RegexOptions.Singleline + (int)RegexOptions.IgnoreCase)).IsMatch(Telefone.RemoveAny("(", ")"));
 
         /// <summary>
         /// Verifica se uma string é um cep válido
@@ -548,13 +530,13 @@ namespace Extensions.BR
         /// <summary>
         /// Verifica se a string é um CNPJ válido
         /// </summary>
-        /// <param name="Text">CPF</param>
+        /// <param name="CNPJ">CPF</param>
         /// <returns></returns>
-        public static bool CNPJValido(this string Text)
+        public static bool CNPJValido(this string CNPJ)
         {
             try
             {
-                if (Text.IsNotBlank())
+                if (CNPJ.IsNotBlank())
                 {
                     var multiplicador1 = new int[12] { 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
                     var multiplicador2 = new int[13] { 6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
@@ -562,14 +544,14 @@ namespace Extensions.BR
                     int resto;
                     string digito;
                     string tempCnpj;
-                    Text = Text.Trim();
-                    Text = Text.Replace(".", Util.EmptyString).Replace("-", Util.EmptyString).Replace("/", Util.EmptyString);
-                    if (Text.Length != 14)
+                    CNPJ = CNPJ.Trim();
+                    CNPJ = CNPJ.Replace(".", Util.EmptyString).Replace("-", Util.EmptyString).Replace("/", Util.EmptyString);
+                    if (CNPJ.Length != 14)
                     {
                         return false;
                     }
 
-                    tempCnpj = Text.Substring(0, 12);
+                    tempCnpj = CNPJ.Substring(0, 12);
                     soma = 0;
                     for (int i = 0; i <= 12 - 1; i++)
                     {
@@ -605,7 +587,7 @@ namespace Extensions.BR
                     }
 
                     digito += resto.ToString();
-                    return Text.EndsWith(digito);
+                    return CNPJ.EndsWith(digito);
                 }
             }
             catch
@@ -617,15 +599,15 @@ namespace Extensions.BR
         /// <summary>
         /// Verifica se a string é um CPF válido
         /// </summary>
-        /// <param name="Text">CPF</param>
+        /// <param name="CPF">CPF</param>
         /// <returns></returns>
-        public static bool CPFValido(this string Text)
+        public static bool CPFValido(this string CPF)
         {
             try
             {
-                if (Text.IsNotBlank())
+                if (CPF.IsNotBlank())
                 {
-                    Text = Text.RemoveAny(".", "-");
+                    CPF = CPF.RemoveAny(".", "-");
                     string digito = Util.EmptyString;
                     int k;
                     int j;
@@ -636,13 +618,13 @@ namespace Extensions.BR
                         var loopTo = 9 + (k - 1);
                         for (j = 0; j <= loopTo; j++)
                         {
-                            soma += int.Parse($"{Text[j]}", CultureInfo.InvariantCulture) * (10 + k - j);
+                            soma += int.Parse($"{CPF[j]}", CultureInfo.InvariantCulture) * (10 + k - j);
                         }
 
                         digito += $"{(soma % 11 == 0 || soma % 11 == 1 ? 0 : 11 - (soma % 11))}";
                     }
 
-                    return digito[0] == Text[9] & digito[1] == Text[10];
+                    return digito[0] == CPF[9] & digito[1] == CPF[10];
                 }
             }
             catch
@@ -654,9 +636,9 @@ namespace Extensions.BR
         /// <summary>
         /// Verifica se a string é um CPF ou CNPJ válido
         /// </summary>
-        /// <param name="Text">CPF ou CNPJ</param>
+        /// <param name="CPFouCNPJ">CPF ou CNPJ</param>
         /// <returns></returns>
-        public static bool CPFouCNPJValido(this string Text) => Text.CPFValido() || Text.CNPJValido();
+        public static bool CPFouCNPJValido(this string CPFouCNPJ) => CPFouCNPJ.CPFValido() || CPFouCNPJ.CNPJValido();
 
         /// <summary>
         /// Verifica se uma string é um PIS válido
@@ -707,14 +689,10 @@ namespace Extensions.BR
         }
 
         public static void Reload() => l = new List<Estado>();
-
-        #endregion Public Methods
     }
 
     public class ChaveNFe
     {
-        #region Private Fields
-
         private const int TamanhoCNPJ = 14;
 
         private const int TamanhoCodigo = 9;
@@ -733,10 +711,6 @@ namespace Extensions.BR
 
         private string cnpj = "";
 
-        #endregion Private Fields
-
-        #region Public Constructors
-
         public ChaveNFe()
         {
         }
@@ -745,10 +719,6 @@ namespace Extensions.BR
         {
             this.Chave = Chave;
         }
-
-        #endregion Public Constructors
-
-        #region Public Properties
 
         public int Ano { get; set; }
 
@@ -807,14 +777,12 @@ namespace Extensions.BR
 
         public int UF { get; set; }
 
-        #endregion Public Properties
-
-        #region Public Methods
-
         public static int CalcularDigito(string Chave)
         {
             if (Chave != null && Chave.Length.IsAny(43, 44))
             {
+                Chave = Chave.GetFirstChars(43);
+
                 // Cálculo do dígito verificador
                 int peso = 2;
                 int soma = 0;
@@ -842,14 +810,10 @@ namespace Extensions.BR
         public void CalcularDigito() => Digito = CalcularDigito(this.Chave);
 
         public override string ToString() => ID.RemoveMask();
-
-        #endregion Public Methods
     }
 
     public class Cidade
     {
-        #region Public Constructors
-
         public Cidade(string Name, int IBGE, int DDD, Estado Estado, string SIAFI, string TimeZone, decimal Latitude, decimal Longitude, bool Capital) : base()
         {
             this.Nome = Name;
@@ -863,10 +827,6 @@ namespace Extensions.BR
             this.Capital = Capital;
         }
 
-        #endregion Public Constructors
-
-        #region Public Properties
-
         public bool Capital { get; }
         public int DDD { get; }
         public int IBGE { get; }
@@ -877,13 +837,7 @@ namespace Extensions.BR
         public Estado Estado { get; } = new Estado(null);
         public string TimeZone { get; }
 
-        #endregion Public Properties
-
-        #region Public Methods
-
         public override string ToString() => Nome;
-
-        #endregion Public Methods
     }
 
     /// <summary>
@@ -891,8 +845,6 @@ namespace Extensions.BR
     /// </summary>
     public class Estado
     {
-        #region Public Constructors
-
         /// <summary>
         /// Sigla do estado
         /// </summary>
@@ -924,10 +876,6 @@ namespace Extensions.BR
             }
         }
 
-        #endregion Public Constructors
-
-        #region Public Properties
-
         /// <summary>
         /// Lista de cidades do estado
         /// </summary>
@@ -953,16 +901,10 @@ namespace Extensions.BR
         public string Regiao { get; }
         public string UF { get; }
 
-        #endregion Public Properties
-
-        #region Public Methods
-
         /// <summary>
         /// Retorna a String correspondente ao estado
         /// </summary>
         /// <returns></returns>
         public override string ToString() => UF;
-
-        #endregion Public Methods
     }
 }
