@@ -693,21 +693,21 @@ namespace Extensions.BR
 
     public class ChaveNFe
     {
-        private const int TamanhoCNPJ = 14;
+        public const int TamanhoCNPJ = 14;
 
-        private const int TamanhoCodigo = 9;
+        public const int TamanhoCodigo = 9;
 
-        private const int TamanhoDigito = 1;
+        public const int TamanhoDigito = 1;
 
-        private const int TamanhoMesAno = 4;
+        public const int TamanhoMesAno = 4;
 
-        private const int TamanhoModelo = 2;
+        public const int TamanhoModelo = 2;
 
-        private const int TamanhoNota = 9;
+        public const int TamanhoNota = 9;
 
-        private const int TamanhoSerie = 3;
+        public const int TamanhoSerie = 3;
 
-        private const int TamanhoUF = 2;
+        public const int TamanhoUF = 2;
 
         private string cnpj = "";
 
