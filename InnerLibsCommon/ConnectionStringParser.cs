@@ -75,7 +75,7 @@ namespace Extensions.Databases
         public bool IntegratedSecurity { get => this.GetValueOr("Integrated Security", "false").ToLowerInvariant().ToBool(); set => this.SetOrRemove("Integrated Security", value.ToString().ToTitle().NullIf("False")); }
         public string Password { get => this.GetValueOr("Password"); set => this.SetOrRemove("Password", value.NullIf(x => x.IsBlank())); }
         public string Server { get => this.GetValueOr("Server"); set => this.SetOrRemove("Server", value.NullIf(x => x.IsBlank())); }
-        public string UserID { get => this.GetValueOr("User ID"); set => this.SetOrRemove("User ID", value.NullIf(x => x.IsBlank())); }
+        public string UserID { get => this.GetValueOr("User ChaveFormatada"); set => this.SetOrRemove("User ChaveFormatada", value.NullIf(x => x.IsBlank())); }
 
         #endregion Public Properties
     }

@@ -76,7 +76,7 @@ namespace Extensions.QuestionTests
         public bool Correct { get; set; }
 
         /// <summary>
-        /// ID da alternativa
+        /// ChaveFormatada da alternativa
         /// </summary>
         /// <returns></returns>
         public string ID => Question != null ? $"{Question.ID}A{Number}" : null;
@@ -997,7 +997,7 @@ namespace Extensions.QuestionTests
         /// </summary>
         /// <returns></returns>
         /// <summary>
-        ///ID da prova, para identifica-la como unica
+        ///ChaveFormatada da prova, para identifica-la como unica
         /// </summary>
         /// <returns></returns>
         public QuestionTest GenerateID()
@@ -1007,7 +1007,7 @@ namespace Extensions.QuestionTests
         }
 
         /// <summary>
-        /// Pega uma Alternativa de uma Questão pelo ID
+        /// Pega uma Alternativa de uma Questão pelo ChaveFormatada
         /// </summary>
         /// <param name="ID"></param>
         /// <returns></returns>
@@ -1016,7 +1016,7 @@ namespace Extensions.QuestionTests
         public override int GetHashCode() => ID.GetHashCode();
 
         /// <summary>
-        /// Pega uma questão por ID
+        /// Pega uma questão por ChaveFormatada
         /// </summary>
         /// <typeparam name="T">Tipo da Questão</typeparam>
         /// <param name="ID"></param>
@@ -1231,7 +1231,7 @@ namespace Extensions.QuestionTests
         #region Public Properties
 
         /// <summary>
-        /// ID desta imagem
+        /// ChaveFormatada desta imagem
         /// </summary>
         public string ID => $"{Statement.Question.ID}{this.StatementImages.IndexOf(this) + 1}";
 

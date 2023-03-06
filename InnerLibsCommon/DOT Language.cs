@@ -75,7 +75,7 @@ namespace Extensions.DOTLanguage
         {
             get => ParentNode.ID.ToSlugCase(true) + (Oriented ? " -> " : " -- ") + ChildNode.ID.ToSlugCase(true);
 
-            set => Util.WriteDebug("Cannot change ID of a relation");
+            set => Util.WriteDebug("Cannot change ChaveFormatada of a relation");
         }
 
         /// <summary>
@@ -135,7 +135,7 @@ namespace Extensions.DOTLanguage
         #region Public Properties
 
         /// <summary>
-        /// ID deste nó
+        /// ChaveFormatada deste nó
         /// </summary>
         /// <returns></returns>
         public override string ID

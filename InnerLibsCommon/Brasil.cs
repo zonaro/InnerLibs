@@ -22,7 +22,6 @@ namespace Extensions.BR
         /// </summary>
         public static IEnumerable<string> NomesComuns => new[] { "Ellie", "Ellie Rose", "Miguel", "Arthur", "Davi", "Gabriel", "Pedro", "Alice", "Sophia", "Sofia", "Manuela", "Isabella", "Laura", "Heitor", "Enzo", "Lorenzo", "Valentina", "Giovanna", "Giovana", "Maria Eduarda", "Beatriz", "Maria Clara", "Vinícius", "Rafael", "Lara", "Mariana", "Helena", "Mariana", "Isadora", "Lívia", "Luana", "Maria Luíza", "Luiza", "Ana Luiza", "Eduarda", "Letícia", "Lara", "Melissa", "Maria Fernanda", "Cecília", "Lorena", "Clara", "Gustavo", "Matheus", "João Pedro", "Breno", "Felipe", "Júlia", "Carolina", "Caroline", "Joaquim", "Enzo Gabriel", "Thiago", "Lucas", "Giovanni", "Bianca", "Sophie", "Antônio", "Benjamin", "Vitória", "Isabelly", "Amanda", "Emilly", "Maria Cecília", "Marina", "Analu", "Nina", "Júlia", "Gustavo Henrique", "Miguel", "Catarina", "Stella", "Miguel Henrique", "Guilherme", "Caio", "Maria Vitória", "Isis", "Heloísa", "Gabriela", "Eloá", "Agatha", "Arthur Miguel", "Luiza", "Pedro Henrique", "Ana Beatriz", "Ruan", "Sophia", "Lara", "Luana", "Bárbara", "Kaique", "Raissa", "Rafaela", "Maria Valentina", "Bernardo", "Mirella", "Leonardo", "Davi Lucas", "Luiz Felipe", "Emanuel", "Maria Alice", "Luana", "Luna", "Enrico" };
 
-
         /// <summary>
         /// Array contendo os sobrenomes mais comuns no Brasil
         /// </summary>
@@ -709,14 +708,17 @@ namespace Extensions.BR
 
         public const int TamanhoUF = 2;
 
-        private string cnpj = "";
-
         public ChaveNFe()
         {
         }
 
         public ChaveNFe(string Chave)
         {
+            Chave = Chave.RemoveMask();
+            if (Chave.Length == 43)
+            {
+                Chave += $"{CalcularDigito(Chave)}";
+            }
             this.Chave = Chave;
         }
 
@@ -727,15 +729,7 @@ namespace Extensions.BR
             get => ToString();
             set
             {
-                var c = "";
-                foreach (char item in value ?? Util.EmptyString)
-                {
-                    if (char.IsNumber(item))
-                    {
-                        c += item;
-                    }
-                }
-
+                var c = value.IfBlank("0").RemoveMask();
                 if (c.Length != 44)
                 {
                     c = "".PadLeft(44, '0');
@@ -746,36 +740,60 @@ namespace Extensions.BR
                 UF = parts[0].ToInt();
                 Ano = parts[1].ToInt();
                 Mes = parts[2].ToInt();
-                CNPJ = parts[3];
+                CNPJ = parts[3].ToInt();
                 Modelo = parts[4].ToInt();
                 Serie = parts[5].ToInt();
                 Nota = parts[6].ToInt();
                 Codigo = parts[7].ToInt();
-                Digito = parts.IfBlankOrNoIndex(8, $"{CalcularDigito(c)}").ToInt();
+                Util.TryExecute(() => Digito = parts.IfBlankOrNoIndex(8, $"{CalcularDigito(c)}").ToInt());
             }
         }
 
-        public string CNPJ { get => cnpj.FormatarCPFOuCNPJ(); set => cnpj = value.RemoveMask().PadZero(TamanhoCNPJ); }
+        public int CNPJ { get; set; }
+
+        public string CNPJFixo => CNPJ.FixedLenght(TamanhoCNPJ);
+
+        public string CNPJFormatado { get => CNPJ.FixedLenght(TamanhoCNPJ).FormatarCNPJ(); set => CNPJ = value.RemoveMask().IfBlank(0); }
 
         public int Codigo { get; set; }
 
-        public int Digito { get; set; }
+        public string CodigoFixo => Codigo.FixedLenght(TamanhoCodigo);
 
-        public string ID => $"{UF.FixedLenght(TamanhoUF)}-{Ano.FixedLenght(TamanhoMesAno - 2)}{Mes.FixedLenght(TamanhoMesAno - 2)}-{CNPJ.RemoveMask().PadLeft(TamanhoCNPJ, '0')}-{Modelo.FixedLenght(TamanhoModelo)}-{Serie.FixedLenght(TamanhoSerie)}-{Nota.FixedLenght(TamanhoNota)}-{Codigo.FixedLenght(TamanhoCodigo)}-{Digito.FixedLenght(TamanhoDigito)}";
+        public int Digito { get; set; }
+        public string DigitoFixo => Digito.FixedLenght(TamanhoDigito);
+
+        public string ChaveFormatada => $"{UFFixo}-{MesAno}-{CNPJFixo}-{ModeloFixo}-{SerieFixo}-{NotaFixo}-{CodigoFixo}-{DigitoFixo}";
 
         public int Mes { get; set; }
 
+        public string MesAno => $"{Mes.FixedLenght(TamanhoMesAno - 2)}{Ano.FixedLenght(TamanhoMesAno - 2)}";
+
         public int Modelo { get; set; }
 
-        public DateTime MesEmissao => new DateTime(2000 + Ano, Mes, 1);
+        public string ModeloFixo => Modelo.FixedLenght(TamanhoModelo);
+
+        public DateTime MesEmissao
+        {
+            get => new DateTime(2000 + Ano, Mes, 1);
+            set
+            {
+                this.Mes = value.Month;
+                this.Ano = value.Year;
+            }
+        }
 
         public int Nota { get; set; }
+        public string NotaFixo => Nota.FixedLenght(TamanhoNota);
 
         public int Serie { get; set; }
 
-        public Estado Estado => Brasil.PegarEstado($"{UF}");
+        public string SerieFixo => Serie.FixedLenght(TamanhoSerie);
+
+        public Estado Estado { get => Brasil.PegarEstado($"{UF}"); set => UF = value?.IBGE ?? 0; }
 
         public int UF { get; set; }
+
+        public string UFFixo => UF.FixedLenght(TamanhoUF);
 
         public static int CalcularDigito(string Chave)
         {
@@ -809,7 +827,7 @@ namespace Extensions.BR
 
         public void CalcularDigito() => Digito = CalcularDigito(this.Chave);
 
-        public override string ToString() => ID.RemoveMask();
+        public override string ToString() => ChaveFormatada.RemoveMask();
     }
 
     public class Cidade

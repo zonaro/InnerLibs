@@ -811,7 +811,7 @@ namespace Extensions.Web
         }
 
         [IgnoreDataMember]
-        public string ID { get => GetAttribute("id").IfBlank(GetAttribute("ID")); set => SetAttribute("id", value, true); }
+        public string ID { get => GetAttribute("id").IfBlank(GetAttribute("ChaveFormatada")); set => SetAttribute("id", value, true); }
 
         [IgnoreDataMember]
         public int Index => Parent?.Children.GetIndexOf(this) ?? -1;
@@ -1035,7 +1035,7 @@ namespace Extensions.Web
             {
                 tag.InnerHtml += Rows.SelectJoinString(row => props(row).SelectJoinString(column => column.GetValue(row)?.ToString().WrapInTag("td")).WrapInTag("tr").With(w =>
                 {
-                    if (IDProperty.IsNotBlank()) w.SetAttribute("ID", row.GetPropertyValue<object, TPoco>(IDProperty).ToString());
+                    if (IDProperty.IsNotBlank()) w.SetAttribute("ChaveFormatada", row.GetPropertyValue<object, TPoco>(IDProperty).ToString());
                 }).ToString()).WrapInTag("tbody");
             }
 

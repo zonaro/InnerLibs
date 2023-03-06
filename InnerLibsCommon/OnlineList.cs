@@ -29,7 +29,7 @@ namespace Extensions.Web.Online
     /// online/offline em uma aplicação
     /// </summary>
     /// <typeparam name="TUser">Tipo da Classe do usuário</typeparam>
-    /// <typeparam name="TID">Tipo do ID do usuário</typeparam>
+    /// <typeparam name="TID">Tipo do ChaveFormatada do usuário</typeparam>
 
     [Serializable]
     public class OnlineList<TUser, TID> : Dictionary<TID, OnlineUser<TUser, TID>>
@@ -46,10 +46,10 @@ namespace Extensions.Web.Online
         #region Public Constructors
 
         /// <summary>
-        /// Cria uma nova instancia de OnlineList apontando a propriedade do ID do usuario e opcionalmente
+        /// Cria uma nova instancia de OnlineList apontando a propriedade do ChaveFormatada do usuario e opcionalmente
         /// </summary>
         /// <param name="IdProperty">
-        /// Expressão lambda que indica qual propriedade da classe <see cref="TUser"/> é o ID de
+        /// Expressão lambda que indica qual propriedade da classe <see cref="TUser"/> é o ChaveFormatada de
         /// tipo <see cref="TID"/>
         /// </param>
         public OnlineList(Func<TUser, TID> IdProperty)
@@ -64,7 +64,7 @@ namespace Extensions.Web.Online
         #region Public Indexers
 
         /// <summary>
-        /// Retorna um usuario de acordo com seu ID
+        /// Retorna um usuario de acordo com seu ChaveFormatada
         /// </summary>
         /// <param name="User"></param>
         /// <returns></returns>
@@ -252,7 +252,7 @@ namespace Extensions.Web.Online
         => Log.CreateLog(User, Message, URL, LogData, DateTime.Now);
 
         /// <summary>
-        /// Retorna o ID do usuário
+        /// Retorna o ChaveFormatada do usuário
         /// </summary>
         /// <param name="User"></param>
         /// <returns></returns>
@@ -347,7 +347,7 @@ namespace Extensions.Web.Online
         }
 
         /// <summary>
-        /// Remove um usuário desta lista a partir do ID
+        /// Remove um usuário desta lista a partir do ChaveFormatada
         /// </summary>
         /// <param name="ID"></param>
         public new void Remove(TID ID) => this.RemoveIfExist(ID);
@@ -397,7 +397,7 @@ namespace Extensions.Web.Online
         public OnlineUser<TUser, TID> SetOnlineActivity(TUser Obj, string Activity, Uri Url = null, Dictionary<string, string> LogData = null, DateTime? DateTime = default) => Add(Obj, true, Activity, Url, LogData, DateTime);
 
         /// <summary>
-        /// Retorna um usuário desta lista a partir do ID
+        /// Retorna um usuário desta lista a partir do ChaveFormatada
         /// </summary>
         /// <param name="Key"></param>
         /// <returns></returns>
@@ -412,7 +412,7 @@ namespace Extensions.Web.Online
         }
 
         /// <summary>
-        /// Retorna um usuário desta lista a partir do ID
+        /// Retorna um usuário desta lista a partir do ChaveFormatada
         /// </summary>
         /// <param name="Key"></param>
         /// <returns></returns>
@@ -461,7 +461,7 @@ namespace Extensions.Web.Online
         public UserConversation<TUser, TID>[] Conversations => GetConversations();
 
         /// <summary>
-        /// ID deste usuário
+        /// ChaveFormatada deste usuário
         /// </summary>
         /// <returns></returns>
         public TID ID => OnlineList.GetID(User);
@@ -685,7 +685,7 @@ namespace Extensions.Web.Online
         public DateTime SentDate { get; set; } = DateTime.Now;
 
         /// <summary>
-        /// ID do usuário destinatario
+        /// ChaveFormatada do usuário destinatario
         /// </summary>
         /// <returns></returns>
         public TID ToUserID { get; set; }
@@ -914,7 +914,7 @@ namespace Extensions.Web.Online
         public DateTime DateTime { get; set; }
 
         /// <summary>
-        /// ID desta entrada
+        /// ChaveFormatada desta entrada
         /// </summary>
         /// <returns></returns>
         public string ID => new string[] { GetUser().OnlineList.Log.IndexOf(this).ToString(), "-", GetUser().ID.ToString() }.SelectJoinString(Util.EmptyString);
@@ -938,7 +938,7 @@ namespace Extensions.Web.Online
         public Uri URL { get; set; }
 
         /// <summary>
-        /// ID do Usuário
+        /// ChaveFormatada do Usuário
         /// </summary>
         /// <returns></returns>
         public TID UserID { get; set; }
