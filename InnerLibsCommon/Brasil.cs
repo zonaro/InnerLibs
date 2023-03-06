@@ -751,7 +751,7 @@ namespace Extensions.BR
                 Serie = parts[5].ToInt();
                 Nota = parts[6].ToInt();
                 Codigo = parts[7].ToInt();
-                Digito = parts[8].ToInt();
+                Digito = parts.IfBlankOrNoIndex(8, $"{CalcularDigito(c)}").ToInt();
             }
         }
 
