@@ -2341,7 +2341,7 @@ namespace Extensions
         /// <returns>um <see cref="XmlDocument"/></returns>
         public static XmlDocument CreateXML<T>(this T obj) where T : class
         {
-            var xs = new XmlSerializer(obj.GetType());
+            var xs = new XmlSerializer(typeof(T));
             var doc = new XmlDocument();
             using (var sw = new StringWriter())
             {
@@ -2358,6 +2358,7 @@ namespace Extensions
         /// <param name="obj"></param>
         /// <returns></returns>
         public static FileInfo CreateXmlFile(this object obj, string FilePath) => obj.CreateXML().ToXMLString().WriteToFile(FilePath);
+        public static FileInfo CreateXmlFile(this object obj, DirectoryInfo DirectoryPath, string FileName) => obj.CreateXML().ToXMLString().WriteToFile(DirectoryPath, FileName);
 
         /// <summary>
         /// Cropa uma imagem a patir do centro
