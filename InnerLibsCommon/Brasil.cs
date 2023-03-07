@@ -730,6 +730,11 @@ namespace Extensions.BR
             set
             {
                 var c = value.IfBlank("0").RemoveMask();
+                if (c.Length == 43)
+                {
+                    c += CalcularDigito(c);
+                }
+
                 if (c.Length != 44)
                 {
                     c = "".PadLeft(44, '0');
@@ -740,37 +745,61 @@ namespace Extensions.BR
                 UF = parts[0].ToInt();
                 Ano = parts[1].ToInt();
                 Mes = parts[2].ToInt();
-                CNPJ = parts[3].ToInt();
+                CNPJ = parts[3].ToLong();
                 Modelo = parts[4].ToInt();
                 Serie = parts[5].ToInt();
                 Nota = parts[6].ToInt();
                 Codigo = parts[7].ToInt();
-                Util.TryExecute(() => Digito = parts.IfBlankOrNoIndex(8, $"{CalcularDigito(c)}").ToInt());
+                Digito = parts[8].ToInt();
             }
         }
 
-        public int CNPJ { get; set; }
+        public long CNPJ { get; set; }
 
-        public string CNPJFixo => CNPJ.FixedLenght(TamanhoCNPJ);
+        public string CNPJFixo
+        {
+            get => CNPJ.FixedLenght(TamanhoCNPJ);
+            set => CNPJ = value.RemoveMask().ToLong();
+        }
 
-        public string CNPJFormatado { get => CNPJ.FixedLenght(TamanhoCNPJ).FormatarCNPJ(); set => CNPJ = value.RemoveMask().IfBlank(0); }
+        public string CNPJFormatado { get => CNPJ.FixedLenght(TamanhoCNPJ).FormatarCNPJ(); set => CNPJ = value.RemoveMask().IfBlank(0L); }
 
         public int Codigo { get; set; }
 
-        public string CodigoFixo => Codigo.FixedLenght(TamanhoCodigo);
+        public string CodigoFixo
+        {
+            get => Codigo.FixedLenght(TamanhoCodigo);
+            set => Codigo = value.RemoveMask().ToInt();
+        }
 
         public int Digito { get; set; }
-        public string DigitoFixo => Digito.FixedLenght(TamanhoDigito);
+        public string DigitoFixo
+        {
+            get => Digito.FixedLenght(TamanhoDigito);
+            set => Digito = value.RemoveMask().ToInt();
+        }
 
         public string ChaveFormatada => $"{UFFixo}-{MesAno}-{CNPJFixo}-{ModeloFixo}-{SerieFixo}-{NotaFixo}-{CodigoFixo}-{DigitoFixo}";
 
         public int Mes { get; set; }
 
-        public string MesAno => $"{Mes.FixedLenght(TamanhoMesAno - 2)}{Ano.FixedLenght(TamanhoMesAno - 2)}";
+        public string MesAno
+        {
+            get => $"{Mes.FixedLenght(TamanhoMesAno - 2)}{Ano.FixedLenght(TamanhoMesAno - 2)}";
+            set
+            {
+                Mes = value.RemoveMask().GetFirstChars(2).ToInt();
+                Ano = value.RemoveMask().GetLastChars(2).ToInt();
+            }
+        }
 
         public int Modelo { get; set; }
 
-        public string ModeloFixo => Modelo.FixedLenght(TamanhoModelo);
+        public string ModeloFixo
+        {
+            get => Modelo.FixedLenght(TamanhoModelo);
+            set => Modelo = value.RemoveMask().ToInt();
+        }
 
         public DateTime MesEmissao
         {
@@ -783,17 +812,29 @@ namespace Extensions.BR
         }
 
         public int Nota { get; set; }
-        public string NotaFixo => Nota.FixedLenght(TamanhoNota);
+        public string NotaFixo
+        {
+            get => Nota.FixedLenght(TamanhoNota);
+            set => Nota = value.RemoveMask().ToInt();
+        }
 
         public int Serie { get; set; }
 
-        public string SerieFixo => Serie.FixedLenght(TamanhoSerie);
+        public string SerieFixo
+        {
+            get => Serie.FixedLenght(TamanhoSerie);
+            set => Serie = value.RemoveMask().ToInt();
+        }
 
         public Estado Estado { get => Brasil.PegarEstado($"{UF}"); set => UF = value?.IBGE ?? 0; }
 
         public int UF { get; set; }
 
-        public string UFFixo => UF.FixedLenght(TamanhoUF);
+        public string UFFixo
+        {
+            get => UF.FixedLenght(TamanhoUF);
+            set => UF = value.RemoveMask().ToInt();
+        }
 
         public static int CalcularDigito(string Chave)
         {
