@@ -73,7 +73,7 @@ namespace Extensions.DOTLanguage
 
         public override string ID
         {
-            get => ParentNode.ID.ToSlugCase(true) + (Oriented ? " -> " : " -- ") + ChildNode.ID.ToSlugCase(true);
+            get => ParentNode.ID.ToFriendlyURL(true) + (Oriented ? " -> " : " -- ") + ChildNode.ID.ToFriendlyURL(true);
 
             set => Util.WriteDebug("Cannot change ChaveFormatada of a relation");
         }
@@ -142,7 +142,7 @@ namespace Extensions.DOTLanguage
         {
             get => _id;
 
-            set => _id = value.ToSlugCase(true);
+            set => _id = value.ToFriendlyURL(true);
         }
 
         #endregion Public Properties
@@ -209,7 +209,7 @@ namespace Extensions.DOTLanguage
                 s = s.Replace("->", "--").Replace("<-", "--");
             }
 
-            return gg + " " + ID.ToSlugCase(true) + " " + s.Quote('{');
+            return gg + " " + ID.ToFriendlyURL(true) + " " + s.Quote('{');
         }
 
         #endregion Public Methods

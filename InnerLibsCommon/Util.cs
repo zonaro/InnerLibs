@@ -9592,7 +9592,7 @@ namespace Extensions
                 string propname4 = propname3.RemoveAccents();
                 propnames.AddRange(new[] { Name, propname1, propname2, propname3, propname4 });
                 propnames.AddRange(propnames.Select(x => $"_{x}").ToArray());
-                return propnames.Distinct();
+                return propnames.Where(x => x.Contains(" ") == false).Distinct();
             }
             return Array.Empty<string>();
         }
@@ -14980,7 +14980,7 @@ namespace Extensions
         /// Indica se os espacos serão substituidos por underscores (underline). Use FALSE para hifens
         /// </param>
         /// <returns>string amigavel para URL</returns>
-        public static string ToSlugCase(this string Text, bool UseUnderscore = false) => Text.ToFriendlyURL(UseUnderscore);
+        public static string ToSlugCase(this string Text) => Text.Replace(WhitespaceChar, "-").ToLowerInvariant();
 
         /// <summary>
         /// Retorna uma string em Snake_Case
@@ -14988,6 +14988,8 @@ namespace Extensions
         /// <param name="Text"></param>
         /// <returns></returns>
         public static string ToSnakeCase(this string Text) => Text.Replace(WhitespaceChar, "_").ToLowerInvariant();
+
+        public static string ToCamelCase(this string Text) => Text.PascalCaseSplit().Select((x, i) => i == 0 ? x.ToLowerInvariant() : x.ToTitle()).SelectJoinString("");
 
         ///<summary> Monta um Comando SQL para executar um SELECT com
         /// filtros a partir de um <see cref="NameValueCollection" />
