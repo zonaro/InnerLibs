@@ -2371,6 +2371,7 @@ namespace Extensions
         /// <returns></returns>
         public static FileInfo CreateXmlFile<T>(this T obj, string FilePath, DateTime? DateAndTime = null) where T : class => obj.CreateXML<T>().ToXMLString().WriteToFile(FilePath, DateAndTime: DateAndTime);
         public static FileInfo CreateXmlFile<T>(this T obj, DirectoryInfo DirectoryPath, string FileName, DateTime? DateAndTime = null) where T : class => obj.CreateXML<T>().ToXMLString().WriteToFile(DirectoryPath, FileName, DateAndTime: DateAndTime);
+        public static FileInfo CreateXmlFile<T>(this T obj, DirectoryInfo DirectoryPath, string SubDirectory, string FileName, DateTime? DateAndTime = null) where T : class => obj.CreateXML<T>().ToXMLString().WriteToFile(DirectoryPath, SubDirectory, FileName, DateAndTime: DateAndTime);
 
         /// <summary>
         /// Cropa uma imagem a patir do centro
