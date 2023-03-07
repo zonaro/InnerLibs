@@ -9584,7 +9584,7 @@ namespace Extensions
             {
                 if (Name.StartsWith("_", StringComparison.InvariantCultureIgnoreCase))
                 {
-                    propnames.Add(Name.TrimStart('_'));
+                    propnames.Add(Name.TrimStart('_').Replace(" ", "_").Replace("-", "_").Replace("~", "_"));
                 }
                 string propname1 = Name.Trim().Replace(" ", "_").Replace("-", "_").Replace("~", "_");
                 string propname3 = Name.Trim().Replace(" ", EmptyString).Replace("-", EmptyString).Replace("~", EmptyString);

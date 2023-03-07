@@ -678,13 +678,13 @@ namespace Extensions.ComplexText
         /// When <see cref="IsEncrypted"/>, assumes the <see cref="Assembly.Name"/> of current
         /// executing application, otherwise use the default ".json" extension
         /// </remarks>
-        [IgnoreDataMember] public string DefaultFileName => $"{this.GetType().Name}.{(IsEncrypted ? this.GetType().Assembly.GetName().Name.ToLower(Culture) : "json")}";
+        [IgnoreDataMember] public string DefaultFileName => $"{this.GetType().Name}.{(IsEncrypted ? this.GetType().Assembly.GetName().Name.ToSnakeCase().ToLower(Culture) : "json")}";
 
         /// <summary>
         /// The default path used to save JsonFiles
         /// </summary>
-        /// <remarks>Uses <see cref="Environment.CurrentDirectory"/> and <see cref="DefaultFileName"/></remarks>
-        [IgnoreDataMember] public string DefaultFilePath => $"{Environment.CurrentDirectory}\\{DefaultFileName}";
+        /// <remarks>Uses <see cref="Assembly.Location"/> directory and <see cref="DefaultFileName"/></remarks>
+        [IgnoreDataMember] public string DefaultFilePath => $"{Path.GetDirectoryName(this.GetType().Assembly.Location)}\\{DefaultFileName}";
 
         /// <summary>
         /// When not blank, encrypt the json file using this string as Key
