@@ -2341,15 +2341,23 @@ namespace Extensions
         /// <returns>um <see cref="XmlDocument"/></returns>
         public static XmlDocument CreateXML<T>(this T obj) where T : class
         {
-            var xs = new XmlSerializer(typeof(T));
-            var doc = new XmlDocument();
-            using (var sw = new StringWriter())
+            if (obj is XmlDocument tdoc)
             {
-                xs.Serialize(sw, obj);
-                doc.LoadXml(sw.ToString());
+                return tdoc;
+            }
+            else
+            {
+                var xs = new XmlSerializer(typeof(T));
+                var doc = new XmlDocument();
+                using (var sw = new StringWriter())
+                {
+                    xs.Serialize(sw, obj);
+                    doc.LoadXml(sw.ToString());
+                }
+
+                return doc;
             }
 
-            return doc;
         }
 
         /// <summary>
@@ -2357,8 +2365,8 @@ namespace Extensions
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public static FileInfo CreateXmlFile(this object obj, string FilePath) => obj.CreateXML().ToXMLString().WriteToFile(FilePath);
-        public static FileInfo CreateXmlFile(this object obj, DirectoryInfo DirectoryPath, string FileName) => obj.CreateXML().ToXMLString().WriteToFile(DirectoryPath, FileName);
+        public static FileInfo CreateXmlFile<T>(this T obj, string FilePath) where T : class => obj.CreateXML<T>().ToXMLString().WriteToFile(FilePath);
+        public static FileInfo CreateXmlFile<T>(this T obj, DirectoryInfo DirectoryPath, string FileName) where T : class => obj.CreateXML<T>().ToXMLString().WriteToFile(DirectoryPath, FileName);
 
         /// <summary>
         /// Cropa uma imagem a patir do centro
