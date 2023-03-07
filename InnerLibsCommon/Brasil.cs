@@ -769,14 +769,14 @@ namespace Extensions.BR
         public string CodigoFixo
         {
             get => Codigo.FixedLenght(TamanhoCodigo);
-            set => Codigo = value.RemoveMask().ToInt();
+            set => Codigo = value.RemoveMaskInt();
         }
 
         public int Digito { get; set; }
         public string DigitoFixo
         {
             get => Digito.FixedLenght(TamanhoDigito);
-            set => Digito = value.RemoveMask().ToInt();
+            set => Digito = value.RemoveMaskInt();
         }
 
         public string ChaveFormatada => $"{UFFixo}-{MesAno}-{CNPJFixo}-{ModeloFixo}-{SerieFixo}-{NotaFixo}-{CodigoFixo}-{DigitoFixo}";
@@ -798,7 +798,7 @@ namespace Extensions.BR
         public string ModeloFixo
         {
             get => Modelo.FixedLenght(TamanhoModelo);
-            set => Modelo = value.RemoveMask().ToInt();
+            set => Modelo = value.RemoveMaskInt();
         }
 
         public DateTime MesEmissao
@@ -815,7 +815,7 @@ namespace Extensions.BR
         public string NotaFixo
         {
             get => Nota.FixedLenght(TamanhoNota);
-            set => Nota = value.RemoveMask().ToInt();
+            set => Nota = value.RemoveMaskInt();
         }
 
         public int Serie { get; set; }
@@ -823,7 +823,7 @@ namespace Extensions.BR
         public string SerieFixo
         {
             get => Serie.FixedLenght(TamanhoSerie);
-            set => Serie = value.RemoveMask().ToInt();
+            set => Serie = value.RemoveMaskInt();
         }
 
         public Estado Estado { get => Brasil.PegarEstado($"{UF}"); set => UF = value?.IBGE ?? 0; }
@@ -833,7 +833,7 @@ namespace Extensions.BR
         public string UFFixo
         {
             get => UF.FixedLenght(TamanhoUF);
-            set => UF = value.RemoveMask().ToInt();
+            set => UF = Brasil.PegarEstado(value)?.IBGE ?? value.RemoveMaskInt();
         }
 
         public static int CalcularDigito(string Chave)
