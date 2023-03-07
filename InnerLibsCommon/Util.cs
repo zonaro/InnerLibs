@@ -1921,8 +1921,11 @@ namespace Extensions
         /// Caso o <paramref name="DirectoryName"/> for um caminho de arquivo, é utilizado o
         /// diretório deste arquivo.
         /// </remarks>
-        public static DirectoryInfo CreateDirectoryIfNotExists(this string DirectoryName)
+        public static DirectoryInfo CreateDirectoryIfNotExists(this string DirectoryName, DateTime? DateAndTime = null)
         {
+
+            DirectoryName = DateAndTime.FormatPath(DirectoryName);
+
             if (DirectoryName.IsFilePath())
             {
                 DirectoryName = Path.GetDirectoryName(DirectoryName);
@@ -1943,21 +1946,22 @@ namespace Extensions
             return new DirectoryInfo(DirectoryName);
         }
 
-        public static DirectoryInfo CreateDirectoryIfNotExists(this DirectoryInfo DirectoryName) => DirectoryName?.FullName.CreateDirectoryIfNotExists();
+        public static DirectoryInfo CreateDirectoryIfNotExists(this DirectoryInfo DirectoryName, DateTime? DateAndTime = null) => DirectoryName?.FullName.CreateDirectoryIfNotExists(DateAndTime);
 
-        public static DirectoryInfo CreateDirectoryIfNotExists(this FileInfo FileName) => FileName?.FullName.CreateDirectoryIfNotExists();
+        public static DirectoryInfo CreateDirectoryIfNotExists(this FileInfo FileName, DateTime? DateAndTime = null) => FileName?.FullName.CreateDirectoryIfNotExists(DateAndTime);
 
         /// <summary>
         /// Cria um arquivo em branco se o mesmo nao existir e retorna um Fileinfo deste arquivo
         /// </summary>
         /// <param name="FileName">o nome do arquivo Ex.: "dir1/dir2/dir3/file.txt"</param>
         /// <returns>Um FileInfo contendo as informacoes do arquivo criado</returns>
-        public static FileInfo CreateFileIfNotExists(this string FileName, FileType Type = null)
+        public static FileInfo CreateFileIfNotExists(this string FileName, FileType Type = null, DateTime? DateAndTime = null)
         {
+            FileName = DateAndTime.FormatPath(FileName);
             Type = Type ?? new FileType(Path.GetExtension(FileName));
             FileName = $"{Path.GetFullPath(FileName.TrimAny(Path.GetExtension(FileName)))}{Type.Extensions.FirstOrDefault()}";
 
-            FileName.CreateDirectoryIfNotExists();
+            FileName.CreateDirectoryIfNotExists(DateAndTime);
 
             if (File.Exists(FileName) == false)
             {
@@ -2365,8 +2369,8 @@ namespace Extensions
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public static FileInfo CreateXmlFile<T>(this T obj, string FilePath) where T : class => obj.CreateXML<T>().ToXMLString().WriteToFile(FilePath);
-        public static FileInfo CreateXmlFile<T>(this T obj, DirectoryInfo DirectoryPath, string FileName) where T : class => obj.CreateXML<T>().ToXMLString().WriteToFile(DirectoryPath, FileName);
+        public static FileInfo CreateXmlFile<T>(this T obj, string FilePath, DateTime? DateAndTime = null) where T : class => obj.CreateXML<T>().ToXMLString().WriteToFile(FilePath, DateAndTime: DateAndTime);
+        public static FileInfo CreateXmlFile<T>(this T obj, DirectoryInfo DirectoryPath, string FileName, DateTime? DateAndTime = null) where T : class => obj.CreateXML<T>().ToXMLString().WriteToFile(DirectoryPath, FileName, DateAndTime: DateAndTime);
 
         /// <summary>
         /// Cropa uma imagem a patir do centro
@@ -16070,7 +16074,7 @@ namespace Extensions
 
             if (FilePath.IsFilePath())
             {
-                FilePath.CreateDirectoryIfNotExists();
+                FilePath.CreateDirectoryIfNotExists(DateAndTime);
                 if (Bytes.Any())
                 {
                     File.WriteAllBytes(FilePath, Bytes);
