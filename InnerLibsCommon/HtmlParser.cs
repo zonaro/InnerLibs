@@ -1264,6 +1264,12 @@ namespace Extensions.Web
             return this;
         }
 
+        public HtmlTag SetStyle(string StyleName, string Value)
+        {
+            Styles.SetStyle(StyleName, Value);
+            return this;
+        }
+
         public HtmlTag SetID(string Value)
         {
             ID = Value;
