@@ -150,7 +150,16 @@ namespace Extensions.BR
             return null;
         }
 
-        public static Cidade PegarCidadePeloIBGE(int IBGE) => Cidades.FirstOrDefault(x => x.IBGE == IBGE) ?? Estados.FirstOrDefault(x => x.IBGE == IBGE)?.Cidades.FirstOrDefault(x => x.Capital);
+        public static Cidade PegarCidade(string NomeOuUFOuIBGE, string NomeDaCidadeOuIBGE)
+        {
+            var est = (PegarEstado(NomeOuUFOuIBGE) ?? PegarEstado(NomeDaCidadeOuIBGE));
+            if (est != null)
+            {
+                return est.Cidades.FirstOrDefault(x => x.Nome.ToSlugCase() == NomeDaCidadeOuIBGE.ToSlugCase() || x.IBGE == NomeDaCidadeOuIBGE.RemoveMaskInt());
+            }
+            return null;
+        }
+        public static Cidade PegarCidade(int IBGE) => PegarEstado(IBGE.ToString())?.Cidades.FirstOrDefault(x => x.IBGE == IBGE);
 
         /// <summary>
         /// Retorna o estado de uma cidade especifa. Pode trazer mais de um estado caso o nome da
@@ -160,7 +169,6 @@ namespace Extensions.BR
         /// <returns></returns>
         public static IEnumerable<Estado> PegarEstadoPeloNomeDaCidade(string CityName) => Estados.Where((Func<Estado, bool>)(x => x.Cidades.Any((Func<Cidade, bool>)(c => (Util.ToSlugCase(c.Nome) ?? Util.EmptyString) == (Util.ToSlugCase(CityName) ?? Util.EmptyString) || (c.IBGE.ToString() ?? Util.EmptyString) == (Util.ToSlugCase(CityName) ?? Util.EmptyString)))));
 
-        public static Estado PegarEstadoPeloIBGE(int IBGE) => Estados.FirstOrDefault(x => x.IBGE == $"{IBGE}".GetFirstChars(2).ToInt()) ?? PegarCidadePeloIBGE(IBGE)?.Estado;
 
         /// <summary>
         /// Procura numeros de telefone em um Texto
@@ -397,9 +405,9 @@ namespace Extensions.BR
         /// <summary>
         /// Retorna as cidades de um estado a partir do nome ou sigla do estado
         /// </summary>
-        /// <param name="NameOrStateCodeOrIBGE">Nome ou sigla do estado</param>
+        /// <param name="NomeOuUFOuIBGE">Nome ou sigla do estado</param>
         /// <returns></returns>
-        public static IEnumerable<Cidade> PegarCidades(string NameOrStateCodeOrIBGE) => (PegarEstado(NameOrStateCodeOrIBGE)?.Cidades ?? new List<Cidade>()).AsEnumerable();
+        public static IEnumerable<Cidade> PegarCidades(string NomeOuUFOuIBGE) => (PegarEstado(NomeOuUFOuIBGE)?.Cidades ?? new List<Cidade>()).AsEnumerable();
 
         public static Cidade PegarCidadePorAproximacao(string NomeOuUFouIBGE, string NomeAproximadoDaCidade) => (PegarEstado(NomeOuUFouIBGE)?.Cidades ?? new List<Cidade>()).AsEnumerable().OrderBy(x => x.Nome.LevenshteinDistance(NomeAproximadoDaCidade)).Where(x => NomeAproximadoDaCidade.IsNotBlank()).FirstOrDefault();
 
