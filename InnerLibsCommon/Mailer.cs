@@ -21,6 +21,13 @@ namespace Extensions.Mail
     {
         #region Public Methods
 
+
+
+        public static FluentMailMessage<T> FromData<T>(IEnumerable<T> Recipients, Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector) where T : class => new FluentMailMessage<T>().AddRecipient(EmailSelector, NameSelector, Recipients?.ToArray() ?? Array.Empty<T>());
+
+        public static FluentMailMessage<T> FromData<T>(IEnumerable<T> Recipients, Expression<Func<T, string>> EmailSelector) where T : class => new FluentMailMessage<T>().AddRecipient(EmailSelector, Recipients?.ToArray() ?? Array.Empty<T>());
+
+
         /// <summary>
         /// Cria um <see cref="FluentMailMessage{T}"/> com destinatários a partir de uma <see cref="IEnumerable{T}"/>
         /// </summary>
@@ -28,9 +35,9 @@ namespace Extensions.Mail
         /// <param name="EmailSelector">seletor de email</param>
         /// <param name="NameSelector">seletor de nome</param>
         /// <returns></returns>
-        public static FluentMailMessage<T> FromData<T>(Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector, params T[] Recipients) where T : class => new FluentMailMessage<T>().AddRecipient(EmailSelector, NameSelector, Recipients);
+        public static FluentMailMessage<T> FromData<T>(Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector, params T[] Recipients) where T : class => FromData(Recipients?.AsEnumerable(), EmailSelector, NameSelector);
 
-        public static FluentMailMessage<T> FromData<T>(Expression<Func<T, string>> EmailSelector, params T[] Recipients) where T : class => new FluentMailMessage<T>().AddRecipient(EmailSelector, Recipients);
+        public static FluentMailMessage<T> FromData<T>(Expression<Func<T, string>> EmailSelector, params T[] Recipients) where T : class => FromData(Recipients?.AsEnumerable(), EmailSelector);
 
         /// <summary>
         /// Cria um <see cref="FluentMailMessage{T}"/> com destinatários a partir de um objeto do
@@ -1018,9 +1025,11 @@ namespace Extensions.Mail
         /// <param name="EmailSelector"></param>
         /// <param name="NameSelector"></param>
         /// <returns></returns>
-        public static IEnumerable<TemplateMailAddress<T>> FromData(Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector, params T[] Data) => (Data ?? Array.Empty<T>()).AsEnumerable().Select(x => new TemplateMailAddress<T>(x, EmailSelector, NameSelector)).Where(x => x != null);
+        public static IEnumerable<TemplateMailAddress<T>> FromData(Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector, params T[] Data) => FromData(Data?.AsEnumerable(), EmailSelector, NameSelector);
+        public static IEnumerable<TemplateMailAddress<T>> FromData(IEnumerable<T> Data, Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector) => (Data ?? Array.Empty<T>()).Select(x => new TemplateMailAddress<T>(x, EmailSelector, NameSelector)).Where(x => x != null);
 
-        public static IEnumerable<TemplateMailAddress<T>> FromData(Expression<Func<T, string>> EmailSelector, params T[] Data) => (Data ?? Array.Empty<T>()).AsEnumerable().Select(x => new TemplateMailAddress<T>(x, EmailSelector)).Where(x => x != null);
+        public static IEnumerable<TemplateMailAddress<T>> FromData(Expression<Func<T, string>> EmailSelector, params T[] Data) => FromData(Data?.AsEnumerable(), EmailSelector);
+        public static IEnumerable<TemplateMailAddress<T>> FromData(IEnumerable<T> Data, Expression<Func<T, string>> EmailSelector) => (Data ?? Array.Empty<T>()).Select(x => new TemplateMailAddress<T>(x, EmailSelector)).Where(x => x != null);
 
         /// <inheritdoc cref="AddAttachment(Attachment)"/>
         public TemplateMailAddress<T> AddAttachment(params string[] files) => AddAttachment(files.Select(file => new Attachment(file)));

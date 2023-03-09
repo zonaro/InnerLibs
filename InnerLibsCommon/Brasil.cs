@@ -160,7 +160,7 @@ namespace Extensions.BR
         /// <returns></returns>
         public static IEnumerable<Estado> PegarEstadoPeloNomeDaCidade(string CityName) => Estados.Where((Func<Estado, bool>)(x => x.Cidades.Any((Func<Cidade, bool>)(c => (Util.ToSlugCase(c.Nome) ?? Util.EmptyString) == (Util.ToSlugCase(CityName) ?? Util.EmptyString) || (c.IBGE.ToString() ?? Util.EmptyString) == (Util.ToSlugCase(CityName) ?? Util.EmptyString)))));
 
-        public static Estado PegarEstadoPeloIBGE(int IBGE) => Estados.FirstOrDefault(x => x.IBGE == IBGE) ?? PegarCidadePeloIBGE(IBGE)?.Estado;
+        public static Estado PegarEstadoPeloIBGE(int IBGE) => Estados.FirstOrDefault(x => x.IBGE == $"{IBGE}".GetFirstChars(2).ToInt()) ?? PegarCidadePeloIBGE(IBGE)?.Estado;
 
         /// <summary>
         /// Procura numeros de telefone em um Texto
@@ -449,7 +449,7 @@ namespace Extensions.BR
         public static Estado PegarEstado(string NomeOuUFOuIBGE)
         {
             NomeOuUFOuIBGE = NomeOuUFOuIBGE.TrimBetween().ToSlugCase();
-            return Estados.FirstOrDefault(x => (x.Nome.ToSlugCase() ?? Util.EmptyString) == (NomeOuUFOuIBGE ?? Util.EmptyString) || (x.UF.ToSlugCase() ?? Util.EmptyString) == (NomeOuUFOuIBGE ?? Util.EmptyString) || (x.IBGE.ToString()) == (NomeOuUFOuIBGE ?? Util.EmptyString));
+            return Estados.FirstOrDefault(x => (x.Nome.ToSlugCase() ?? Util.EmptyString) == (NomeOuUFOuIBGE ?? Util.EmptyString) || (x.UF.ToSlugCase() ?? Util.EmptyString) == (NomeOuUFOuIBGE ?? Util.EmptyString) || (x.IBGE.ToString()) == (NomeOuUFOuIBGE.GetFirstChars(2) ?? Util.EmptyString));
         }
 
         /// <summary>
