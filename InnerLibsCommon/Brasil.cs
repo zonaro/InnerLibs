@@ -322,14 +322,19 @@ namespace Extensions.BR
                     Text = Text.ToLowerInvariant();
                     break;
 
-                case "Tel":
+                case "Telefone":
+                case "Celular":
                     Text = Text.FormatarTelefone();
                     break;
-
                 default:
                     break;
             }
-            return $"{x}: {Text}";
+
+            if (x.IsNotBlank())
+            {
+                Text = $"{x}: {Text}";
+            }
+            return Text;
         }
 
         /// <summary>
@@ -428,8 +433,10 @@ namespace Extensions.BR
             if (Input.PISValido()) return "PIS";
             if (Input.CNHValido()) return "CNH";
             if (Input.IsEmail()) return "Email";
-            if (Input.TelefoneValido()) return "Tel";
             if (Input.IsIP()) return "IP";
+            if (Input.TelefoneValido()) return Input.RemoveMask().Length.IsAny(8, 10) ? "Telefone" : "Celular";
+
+
             return DefaultLabel;
         }
 
