@@ -43,6 +43,28 @@ namespace Extensions
 {
     public static partial class Util
     {
+
+        public static Image GenerateAvatarByName(this string Name)
+        {
+            if (Name.IsNotBlank())
+            {
+                var x = new HSVColor(Name);
+                var parts = Name.SplitAny(PredefinedArrays.WordSplitters).Select(b => b.GetFirstChars());
+                if (parts.Count() > 1)
+                {
+                    x.Name = parts.First() + parts.Last();
+                }
+                else
+                {
+                    x.Name = parts.First();
+                }
+
+                var img = x.ImageSample.CropToCircle();
+                return img;
+            }
+            return new HSVColor().ImageSample.CropToCircle();
+        }
+
         private const int ERROR_LOCK_VIOLATION = 33;
 
         private const int ERROR_SHARING_VIOLATION = 32;
