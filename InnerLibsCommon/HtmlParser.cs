@@ -947,6 +947,7 @@ namespace Extensions.Web
         public static HtmlTag CreateFontAwesomeIcon(string Icon) => new HtmlTag("i").AddClass(Icon);
 
         public static HtmlTag CreateAnchor(string URL, string Text, string Target = "_self", object htmlAttributes = null) => new HtmlTag("a", htmlAttributes, Text).SetAttribute("href", URL, true).SetAttribute("target", Target, true);
+        public static HtmlTag CreateAnchor(Uri URL, string Text, string Target = "_self", object htmlAttributes = null) => CreateAnchor(URL.AbsoluteUri, Text, Target, htmlAttributes);
 
         public static HtmlTag CreateBreakLine() => new HtmlTag("br") { SelfClosing = true };
 
@@ -956,8 +957,7 @@ namespace Extensions.Web
 
         public static HtmlTag CreateImage(Image Img, object htmlAttributes = null) => CreateImage(Img?.ToDataURL(), htmlAttributes);
 
-        public static HtmlTag CreateImage(string URL, object htmlAttributes = null) => new HtmlTag("img", htmlAttributes, null) { SelfClosing = true }
-                      .SetAttribute("src", URL, true);
+        public static HtmlTag CreateImage(string URL, object htmlAttributes = null) => new HtmlTag("img", htmlAttributes, null) { SelfClosing = true }.SetAttribute("src", URL, true);
 
         public static HtmlTag CreateInput(string Name, string Value = null, string Type = "Text", object htmlAttributes = null) => new HtmlTag("input", htmlAttributes, null) { SelfClosing = true }
                               .SetAttribute("name", Name, true)
