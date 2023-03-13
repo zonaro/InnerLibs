@@ -1011,24 +1011,24 @@ namespace Extensions.Web
 
         public static HtmlTag CreateTable<TPoco>(IEnumerable<TPoco> Rows, bool Header) where TPoco : class => CreateTable(Rows, Header, null, null);
 
-        public static HtmlTag CreateTable<TPoco>(IEnumerable<TPoco> Rows, TPoco header, string IDProperty, params string[] properties) where TPoco : class
+        public static HtmlTag CreateTable<TPoco>(IEnumerable<TPoco> Rows, TPoco Header, string IDProperty, params string[] Properties) where TPoco : class
         {
             HtmlTag tag = new HtmlTag("table");
 
-            if (properties?.Any() == true)
+            if (Properties?.Any() == true)
             {
-                properties = properties.Where(x => x.IsNotBlank()).ToArray();
+                Properties = Properties.Where(x => x.IsNotBlank()).ToArray();
             }
             else
             {
-                properties = typeof(TPoco).GetProperties().Select(x => x.Name).ToArray();
+                Properties = typeof(TPoco).GetProperties().Select(x => x.Name).ToArray();
             }
 
-            IEnumerable<PropertyInfo> props(TPoco t) => t.GetProperties().Where(x => x.Name.IsAny(StringComparison.InvariantCultureIgnoreCase, properties));
+            IEnumerable<PropertyInfo> props(TPoco t) => t.GetProperties().Where(x => x.Name.IsAny(StringComparison.InvariantCultureIgnoreCase, Properties));
 
-            if (header != null)
+            if (Header != null)
             {
-                tag.InnerHtml += props(header).SelectJoinString(x => (x.GetValue(header)?.ToString() ?? x.Name).WrapInTag("th")).WrapInTag("tr").ToString().WrapInTag("thead");
+                tag.InnerHtml += props(Header).SelectJoinString(x => (x.GetValue(Header)?.ToString() ?? x.Name).WrapInTag("th")).WrapInTag("tr").ToString().WrapInTag("thead");
             }
 
             if (Rows != null && Rows.Any())
