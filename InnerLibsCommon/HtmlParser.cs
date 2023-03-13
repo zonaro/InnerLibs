@@ -8,20 +8,11 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using Extensions;
 
-
 namespace Extensions.Web
 {
-
-
     internal class HtmlParser
     {
-        #region Private Fields
-
         private Queue<char> q;
-
-        #endregion Private Fields
-
-        #region Private Methods
 
         private char Dequeue() => q.Dequeue();
 
@@ -54,9 +45,7 @@ namespace Extensions.Web
             } while (q.Any() && q.Peek() != '>' && q.Peek(2) != "/>");
 
             return attrs;
-
         }
-
 
         internal KeyValuePair<string, string> GetAttribute()
         {
@@ -222,21 +211,9 @@ namespace Extensions.Web
                 Dequeue();
         }
 
-        #endregion Private Methods
-
-        #region Internal Fields
-
         internal static HtmlParser Instance = new HtmlParser();
 
-        #endregion Internal Fields
-
-        #region Public Properties
-
         public IEnumerable<string> SelfClosingTags { get; set; } = new[] { "area", "base", "br", "col", "embed", "hr", "img", "input", "keygen", "link", "menuitem", "meta", "param", "source", "track", "wbr" };
-
-        #endregion Public Properties
-
-        #region Public Methods
 
         public IEnumerable<HtmlTag> Parse(string source)
         {
@@ -248,35 +225,19 @@ namespace Extensions.Web
             }
             return Array.Empty<HtmlTag>();
         }
-
-        #endregion Public Methods
     }
     public class CSSStyles
     {
-        #region Private Methods
-
         private void ParseStyle() => dic = _tag.GetAttribute("style").Split(";").ToDictionary(x => x.GetBefore(":"), x => x.GetAfter(":"));
-
-        #endregion Private Methods
-
-        #region Internal Fields
 
         internal HtmlTag _tag;
 
         internal Dictionary<string, string> dic = new Dictionary<string, string>();
 
-        #endregion Internal Fields
-
-        #region Public Constructors
-
         public CSSStyles(HtmlTag tag)
         {
             _tag = tag;
         }
-
-        #endregion Public Constructors
-
-        #region Public Properties
 
         public string AlignContent { get => GetStyle("align-content"); set => SetStyle("align-content", value); }
 
@@ -614,10 +575,6 @@ namespace Extensions.Web
 
         public string ZIndex { get => GetStyle("z-index"); set => SetStyle("z-index", value); }
 
-        #endregion Public Properties
-
-        #region Public Methods
-
         public string GetStyle(string name)
         {
             ParseStyle();
@@ -641,8 +598,6 @@ namespace Extensions.Web
         }
 
         public override string ToString() => dic.SelectJoinString(x => $"{x.Key.ToLowerInvariant()}:{x.Value}", ";");
-
-        #endregion Public Methods
     }
 
     /// <summary>
@@ -650,24 +605,14 @@ namespace Extensions.Web
     /// </summary>
     public class HtmlTag : ICloneable
     {
-        #region Private Fields
-
         private readonly CSSStyles _stl;
         private HtmlTag _parent;
         private string _tagname = "div";
         private Dictionary<string, string> attrs = new Dictionary<string, string>();
 
-        #endregion Private Fields
-
-        #region Internal Fields
-
         internal List<HtmlTag> _children = new List<HtmlTag>();
         internal string _content;
         internal bool _selfClosing;
-
-        #endregion Internal Fields
-
-        #region Public Constructors
 
         public HtmlTag() : this(HtmlNodeType.Element)
         {
@@ -702,10 +647,6 @@ namespace Extensions.Web
             this.Type = type;
         }
 
-        #endregion Public Constructors
-
-        #region Public Indexers
-
         [IgnoreDataMember]
         public HtmlTag this[string ID]
         {
@@ -715,10 +656,6 @@ namespace Extensions.Web
                 if (value != null) AddChildren(value.SetID(ID));
             }
         }
-
-        #endregion Public Indexers
-
-        #region Public Properties
 
         /// <summary>
         /// atributos desta tag
@@ -816,7 +753,7 @@ namespace Extensions.Web
         [IgnoreDataMember]
         public int Index => Parent?.Children.GetIndexOf(this) ?? -1;
 
-        //   [IgnoreDataMember]
+        // [IgnoreDataMember]
         public string InnerHtml
         {
             get
@@ -940,10 +877,6 @@ namespace Extensions.Web
 
         public HtmlNodeType Type { get; private set; }
 
-        #endregion Public Properties
-
-        #region Public Methods
-
         public static HtmlTag CreateFontAwesomeIcon(string Icon) => new HtmlTag("i").AddClass(Icon);
 
         public static HtmlTag CreateAnchor(string URL, string Text, string Target = "_self", object htmlAttributes = null) => new HtmlTag("a", htmlAttributes, Text).SetAttribute("href", URL, true).SetAttribute("target", Target, true);
@@ -1045,8 +978,6 @@ namespace Extensions.Web
         public static HtmlTag CreateText(string Text) => new HtmlTag(HtmlNodeType.Text).With(x => x.Content = Text);
 
         public static HtmlTag CreateWhiteSpace() => new HtmlTag(HtmlNodeType.Text).With(x => x._content = "&nbsp;");
-
-
 
         public static implicit operator string(HtmlTag Tag) => Tag?.ToString();
 
@@ -1291,8 +1222,6 @@ namespace Extensions.Web
         public HtmlTag SetProp(string AttrName, bool Value = true) => Value ? SetAttribute(AttrName, AttrName) : RemoveAttribute(AttrName);
 
         public override string ToString() => OuterHtml;
-
-        #endregion Public Methods
     }
     public enum HtmlNodeType
     {
@@ -1300,5 +1229,4 @@ namespace Extensions.Web
         Comment,
         Text
     }
-
 }
