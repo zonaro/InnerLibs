@@ -5957,17 +5957,17 @@ namespace Extensions
         public static TValue GetValueOr<TKey, TValue>(this IDictionary<TKey, TValue> Dic, TKey Key, TValue ReplaceValue = default) => Dic != null && Dic.ContainsKey(Key) ? Dic[Key] : ReplaceValue;
 
         /// <summary>
-        /// Captura o ChaveFormatada de um video do YOUTUBE ou VIMEO em uma URL
+        /// Captura o ID de um video do YOUTUBE ou VIMEO em uma URL
         /// </summary>
         /// <param name="URL">URL do video</param>
         /// <returns>ChaveFormatada do video do youtube ou Vimeo</returns>
         public static string GetVideoID(this Uri URL) => GetVideoID(URL.AbsoluteUri);
 
         /// <summary>
-        /// Captura o ChaveFormatada de um video do youtube em uma URL
+        /// Captura o ID de um video do youtube em uma URL
         /// </summary>
         /// <param name="URL">URL do video</param>
-        /// <returns>ChaveFormatada do video do youtube</returns>
+        /// <returns>ID do video do youtube</returns>
         public static string GetVideoID(this string URL)
         {
             if (URL.IsURL())

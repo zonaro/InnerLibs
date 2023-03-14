@@ -37,7 +37,7 @@ namespace Extensions.Databases
         /// <summary>
         /// Coloca o primeiro valor da primeira linha do primeiro dataset no <see cref="SQLResponse{T}.Data"/>
         /// </summary>
-        /// <remarks>pode tambem ser representado pelas strings "SINGLE", "ChaveFormatada", "KEY"</remarks>
+        /// <remarks>pode tambem ser representado pelas strings "SINGLE", "ID", "KEY"</remarks>
         public const string Value = "VALUE";
 
         /// <summary>
@@ -50,7 +50,7 @@ namespace Extensions.Databases
 
         #region Public Methods
 
-        public static IEnumerable<string> ToList() => new List<string>() { Many, Pair, Row, Value, Values };
+        public static List<string> ToList() => new List<string>() { Many, Pair, Row, Value, Values };
 
         #endregion Public Methods
     }

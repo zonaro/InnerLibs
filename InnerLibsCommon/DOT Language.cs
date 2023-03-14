@@ -75,7 +75,7 @@ namespace Extensions.DOTLanguage
         {
             get => ParentNode.ID.ToFriendlyURL(true) + (Oriented ? " -> " : " -- ") + ChildNode.ID.ToFriendlyURL(true);
 
-            set => Util.WriteDebug("Cannot change ChaveFormatada of a relation");
+            set => Util.WriteDebug("Cannot change ID of a relation");
         }
 
         /// <summary>
@@ -135,7 +135,7 @@ namespace Extensions.DOTLanguage
         #region Public Properties
 
         /// <summary>
-        /// ChaveFormatada deste nó
+        /// ID deste nó
         /// </summary>
         /// <returns></returns>
         public override string ID
