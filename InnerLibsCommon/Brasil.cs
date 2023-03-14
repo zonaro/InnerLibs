@@ -190,7 +190,7 @@ namespace Extensions.BR
         /// <returns></returns>
         public static string FormatarCEP(this string CEP)
         {
-            CEP = CEP.RemoveAny(".", "-").GetBefore(",") ?? Util.EmptyString;
+            CEP = CEP.RemoveMask() ?? Util.EmptyString;
             CEP = CEP.PadLeft(8, '0');
             CEP = CEP.Insert(5, "-");
             if (CEP.CEPValido())
@@ -199,7 +199,7 @@ namespace Extensions.BR
             }
             else
             {
-                throw new FormatException("String is not a valid CEP");
+                return Util.EmptyString;
             }
         }
 
@@ -224,10 +224,7 @@ namespace Extensions.BR
                     CNPJ = CNPJ.ToLong().FormatarCNPJ();
                 }
             }
-            else
-            {
-                throw new FormatException("String is not a valid CNPJ");
-            }
+
 
             return CNPJ;
         }
@@ -489,14 +486,14 @@ namespace Extensions.BR
         /// </summary>
         /// <param name="Telefone"></param>
         /// <returns></returns>
-        public static bool TelefoneValido(this string Telefone) => new Regex(@"\(?\+[0-9]{1,3}\)? ?-?[0-9]{1,3} ?-?[0-9]{3,5} ?-?[0-9]{4}( ?-?[0-9]{3})? ?(\w{1,10}\s?\d{1,6})?", (RegexOptions)((int)RegexOptions.Singleline + (int)RegexOptions.IgnoreCase)).IsMatch(Telefone.RemoveAny("(", ")"));
+        public static bool TelefoneValido(this string Telefone) => Telefone.IsNotBlank() && new Regex(@"\(?\+[0-9]{1,3}\)? ?-?[0-9]{1,3} ?-?[0-9]{3,5} ?-?[0-9]{4}( ?-?[0-9]{3})? ?(\w{1,10}\s?\d{1,6})?", (RegexOptions)((int)RegexOptions.Singleline + (int)RegexOptions.IgnoreCase)).IsMatch(Telefone.RemoveAny("(", ")"));
 
         /// <summary>
         /// Verifica se uma string é um cep válido
         /// </summary>
         /// <param name="CEP"></param>
         /// <returns></returns>
-        public static bool CEPValido(this string CEP) => new Regex(@"^\d{5}-\d{3}$").IsMatch(CEP) || (CEP.RemoveAny("-").IsNumber() && CEP.RemoveAny("-").Length == 8);
+        public static bool CEPValido(this string CEP) => CEP.IsNotBlank() && new Regex(@"^\d{5}-\d{3}$").IsMatch(CEP) || (CEP.RemoveAny("-").IsNumber() && CEP.RemoveAny("-").Length == 8);
 
         /// <summary>
         /// Verifica se a string é um CNH válido
@@ -850,6 +847,7 @@ namespace Extensions.BR
         }
 
         public string ChaveFormatadaTraco => $"{UFFixo}-{MesAno}-{CNPJFixo}-{ModeloFixo}-{SerieFixo}-{NotaFixo}-{FormaEmissaoFixo}-{CodigoFixo}-{DigitoFixo}";
+
         public string ChaveFormatadaComEspacos => Regex.Replace(Chave, ".{4}", "$0 ").TrimEnd();
 
         public int Mes { get; set; }
@@ -859,8 +857,13 @@ namespace Extensions.BR
             get => $"{Ano.FixedLenght(TamanhoMesAno - 2)}{Mes.FixedLenght(TamanhoMesAno - 2)}";
             set
             {
-                Mes = value.RemoveMask().GetFirstChars(2).ToInt();
-                Ano = value.RemoveMask().GetLastChars(2).ToInt();
+
+                if (value.IsNotBlank() && value.RemoveMask().Length == 4)
+                {
+                    Mes = value.RemoveMask().GetFirstChars(2).ToInt();
+                    Ano = value.RemoveMask().GetLastChars(2).ToInt();
+
+                }
             }
         }
 
@@ -868,7 +871,7 @@ namespace Extensions.BR
 
         public string ModeloFixo
         {
-            get => Modelo.FixedLenght(TamanhoModelo);
+            get => Modelo.IfBlank(55).FixedLenght(TamanhoModelo);
             set => Modelo = value.RemoveMaskInt();
         }
 

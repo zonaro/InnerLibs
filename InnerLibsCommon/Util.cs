@@ -7199,7 +7199,7 @@ namespace Extensions
         /// </summary>
         /// <param name="IP">Endereco IP</param>
         /// <returns>TRUE ou FALSE</returns>
-        public static bool IsIP(this string IP) => Regex.IsMatch(IP, @"\b((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$\b");
+        public static bool IsIP(this string IP) => IP.IsNotBlank() && Regex.IsMatch(IP, @"\b((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$\b");
 
         public static bool IsLessThan<T>(this T Value, T MaxValue) where T : IComparable => Value.CompareTo(MaxValue) < 0;
 
