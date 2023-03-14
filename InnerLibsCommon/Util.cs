@@ -5960,7 +5960,7 @@ namespace Extensions
         /// Captura o ID de um video do YOUTUBE ou VIMEO em uma URL
         /// </summary>
         /// <param name="URL">URL do video</param>
-        /// <returns>ChaveFormatada do video do youtube ou Vimeo</returns>
+        /// <returns>ChaveFormatadaTraco do video do youtube ou Vimeo</returns>
         public static string GetVideoID(this Uri URL) => GetVideoID(URL.AbsoluteUri);
 
         /// <summary>

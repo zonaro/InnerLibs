@@ -26,7 +26,8 @@ namespace Extensions.ComplexText
                 var matches = regex.Matches(Text);
                 foreach (Match match in matches)
                 {
-                    Add(new Sentence(match.ToString(), this));
+                    if (match.ToString().IsNotBlank())
+                        Add(new Sentence(match.ToString(), this));
                 }
             }
         }
@@ -49,17 +50,7 @@ namespace Extensions.ComplexText
 
         public override string ToString() => ToString(0);
 
-        public string ToString(int Ident)
-        {
-            string ss = Util.EmptyString;
-            foreach (var s in this)
-            {
-                ss += s.ToString() + " ";
-            }
-
-            //ss = ss.TrimBetween();
-            return ss.PadLeft(ss.Length + Ident);
-        }
+        public string ToString(int Ident) => this.SelectJoinString(Util.WhitespaceChar).Prepend(Util.WhitespaceChar.Repeat(Ident));
 
         #endregion Public Methods
     }
@@ -107,14 +98,13 @@ namespace Extensions.ComplexText
                                 break;
                             }
                         // caso for espaco
-                        case object _ when Convert.ToString(p) == " ":
+                        case object _ when Convert.ToString(p) == Util.WhitespaceChar:
                             {
                                 if (palavra.IsNotBlank())
                                 {
-                                    listabase.Add(palavra); // adiciona a plavra atual
-                                    palavra = Util.EmptyString;
+                                    listabase.Add(palavra); // adiciona a plavra atual                                   
                                 }
-                                // senao, adiciona o proximo caractere a palavra atual
+
                                 palavra = Util.EmptyString;
                                 break;
                             }
@@ -141,7 +131,7 @@ namespace Extensions.ComplexText
                         listabase.Add(".");
                     }
 
-                    // se a ultima sentecao nao for nenhum tipo de pontuacao, adicionamos um ponto a ela
+                    // se a ultima senteca nao for nenhum tipo de pontuacao, adicionamos um ponto a ela
                     if (!listabase.Last().IsInAny(new[] { PredefinedArrays.EndOfSentencePunctuation, PredefinedArrays.MidSentencePunctuation }))
                     {
                         listabase.Add(".");
@@ -195,11 +185,11 @@ namespace Extensions.ComplexText
 
                 if (s.NeedSpaceOnNext)
                 {
-                    sent += " ";
+                    sent += Util.WhitespaceChar;
                 }
             }
 
-            return sent;
+            return sent.Trim();
         }
 
         #endregion Public Methods

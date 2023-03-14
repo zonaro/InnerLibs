@@ -37,10 +37,11 @@ namespace Extensions.BR
 
         public static Image GerarAvatarAleatorio(bool SobrenomeUnico = false) => GerarNomeAleatorio(SobrenomeUnico).GenerateAvatarByName();
 
-        public static AddressInfo GerarEnderecoFake()
+        public static AddressInfo GerarEnderecoFake() => GerarEnderecoFake<AddressInfo>();
+        public static T GerarEnderecoFake<T>() where T : AddressInfo
         {
             var e = Estados.RandomItem();
-            var ad = CriarAddressInfo<AddressInfo>(e.Nome, e.Cidades.RandomItem().Nome);
+            var ad = CriarAddressInfo<T>(e.Nome, e.Cidades.RandomItem().Nome);
             ad.Street = $"{AddressTypes.GetAllAdressTypes().RandomItem().AppendIf(".", x => x.Length < 3)} {GerarNomeAleatorio()}";
             ad.Neighborhood = GerarNomeAleatorio(true).PrependIf(new[] { "Jardim ", "Campos " }.RandomItem(), Util.RandomBool(75));
             ad.Number = Util.RandomNumber(10, 2000).ToString();
@@ -709,6 +710,9 @@ namespace Extensions.BR
 
     public class ChaveNFe
     {
+        public static implicit operator string(ChaveNFe c) => c.ToString();
+        public static implicit operator ChaveNFe(string c) => new ChaveNFe(c);
+
         public const int TamanhoCNPJ = 14;
 
         public const int TamanhoCodigo = 8;
@@ -726,6 +730,28 @@ namespace Extensions.BR
         public const int TamanhoUF = 2;
 
         public const int TamanhoFormaEmissao = 1;
+
+        public string Tipo
+        {
+            get
+            {
+                switch (ModeloFixo)
+                {
+                    case "55":
+                        return "NF-e";
+
+                    case "57":
+                        return "CT-e";
+
+                    case "65":
+                        return "NFC-e";
+
+                    default:
+                        return "DF-e Desconhecido";
+                }
+            }
+            set => ModeloFixo = value.NullIf(x => x.IsNotIn(new[] { "55", "57", "65" })) ?? "0";
+        }
 
         public ChaveNFe()
         {
@@ -756,7 +782,6 @@ namespace Extensions.BR
             this.Codigo = Codigo;
             CalcularDigito();
         }
-
 
         public ChaveNFe(string Chave)
         {
@@ -824,7 +849,8 @@ namespace Extensions.BR
             set => Digito = value?.RemoveMaskInt();
         }
 
-        public string ChaveFormatada => $"{UFFixo}-{MesAno}-{CNPJFixo}-{ModeloFixo}-{SerieFixo}-{NotaFixo}-{FormaEmissaoFixo}-{CodigoFixo}-{DigitoFixo}";
+        public string ChaveFormatadaTraco => $"{UFFixo}-{MesAno}-{CNPJFixo}-{ModeloFixo}-{SerieFixo}-{NotaFixo}-{FormaEmissaoFixo}-{CodigoFixo}-{DigitoFixo}";
+        public string ChaveFormatadaComEspacos => Regex.Replace(Chave, ".{4}", "$0 ").TrimEnd();
 
         public int Mes { get; set; }
 
@@ -917,7 +943,7 @@ namespace Extensions.BR
             return this;
         }
 
-        public override string ToString() => ChaveFormatada.RemoveMask();
+        public override string ToString() => ChaveFormatadaTraco.RemoveMask();
     }
 
     public class Cidade

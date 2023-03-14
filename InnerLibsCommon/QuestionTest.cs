@@ -1016,7 +1016,7 @@ namespace Extensions.QuestionTests
         public override int GetHashCode() => ID.GetHashCode();
 
         /// <summary>
-        /// Pega uma questão por ChaveFormatada
+        /// Pega uma questão por ChaveFormatadaTraco
         /// </summary>
         /// <typeparam name="T">Tipo da Questão</typeparam>
         /// <param name="ID"></param>
@@ -1231,7 +1231,7 @@ namespace Extensions.QuestionTests
         #region Public Properties
 
         /// <summary>
-        /// ChaveFormatada desta imagem
+        /// ChaveFormatadaTraco desta imagem
         /// </summary>
         public string ID => $"{Statement.Question.ID}{this.StatementImages.IndexOf(this) + 1}";
 

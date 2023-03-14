@@ -110,7 +110,7 @@ namespace Extensions.Locations
 
         #region Private Methods
 
-        private static string PropCleaner(string value) => value.IfBlank(Util.EmptyString).TrimAny(true, " ", ".", " ", ",", " ", "-", " ").ToTitle().NullIf(x => x.IsBlank());
+        protected static string PropCleaner(string value) => value.IfBlank(Util.EmptyString).TrimAny(true, " ", ".", " ", ",", " ", "-", " ").ToTitle().NullIf(x => x.IsBlank());
 
         #endregion Private Methods
 
@@ -437,7 +437,7 @@ namespace Extensions.Locations
         public string Number
         {
             get => this[nameof(Number)];
-            set => this[nameof(Number)] = value; //number is different im some cities, better not propclean
+            set => this[nameof(Number)] = value?.Trim(); //number is different im some cities, better not propclean
         }
 
         /// <summary>
@@ -477,10 +477,7 @@ namespace Extensions.Locations
         {
             get => this[nameof(Street)];
 
-            set
-            {
-                this[nameof(Street)] = PropCleaner(value);
-            }
+            set => this[nameof(Street)] = PropCleaner(value);
         }
 
         /// <summary>
