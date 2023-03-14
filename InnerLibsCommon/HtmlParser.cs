@@ -1050,7 +1050,7 @@ namespace Extensions.Web
         public HtmlTag AddTable<TPoco>(IEnumerable<TPoco> Rows) where TPoco : class => AddChildren(CreateTable(Rows));
 
         /// <summary>
-        /// Util a table from <typeparamref name="TPoco"/> classes as a children of this <see cref="HtmlTag"/>
+        /// Generate a table from <typeparamref name="TPoco"/> classes as a children of this <see cref="HtmlTag"/>
         /// </summary>
         /// <typeparam name="TPoco"></typeparam>
         /// <param name="Rows"></param>
