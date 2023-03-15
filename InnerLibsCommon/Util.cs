@@ -10072,6 +10072,9 @@ namespace Extensions
         /// <returns>Uma string contendo uma palavra aleatória</returns>
         public static string RandomWord(int MinLength, int MaxLenght) => RandomWord(RandomNumber(MinLength.SetMinValue(1), MaxLenght.SetMinValue(1)));
 
+
+        public static string RandomUserName() => Util.RandomWord(5) + Util.RandomNumber(1111);
+
         /// <summary>
         /// Gera uma palavra aleatória com o numero de caracteres
         /// </summary>
