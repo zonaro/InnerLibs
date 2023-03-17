@@ -1023,9 +1023,9 @@ namespace Extensions
         public bool UseEscapedUnicode { get; set; } = true;
 
         /// <summary>
-        /// Enable Extensions extensions $types, $type, $map (default = True)
+        /// Enable Extensions extensions $types, $type, $map (default = False)
         /// </summary>
-        public bool UseExtensions { get; set; } = true;
+        public bool UseExtensions { get; set; }
 
         /// <summary>
         /// Use the fast GUID format (default = True)
