@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
 using System.Xml;
 using Extensions;
@@ -707,7 +708,7 @@ namespace Extensions.BR
 
     public class ChaveNFe
     {
-        public static implicit operator string(ChaveNFe c) => c.ToString();
+        public static implicit operator string(ChaveNFe c) => c?.ToString();
         public static implicit operator ChaveNFe(string c) => new ChaveNFe(c);
 
         public const int TamanhoCNPJ = 14;
@@ -780,10 +781,7 @@ namespace Extensions.BR
             CalcularDigito();
         }
 
-        public ChaveNFe(string Chave)
-        {
-            this.Chave = Chave.RemoveMask();
-        }
+        public ChaveNFe(string Chave) => this.Chave = Chave.RemoveMask();
 
         public int Ano { get; set; }
 
@@ -819,20 +817,25 @@ namespace Extensions.BR
         }
 
         public int FormaEmissao { get; set; }
+
+        [IgnoreDataMember]
         public string FormaEmissaoFixo { get => FormaEmissao.FixedLenght(TamanhoFormaEmissao); set => FormaEmissao = value.RemoveMaskInt(); }
 
         public long CNPJ { get; set; }
 
+        [IgnoreDataMember]
         public string CNPJFixo
         {
             get => CNPJ.FixedLenght(TamanhoCNPJ);
             set => CNPJ = value.RemoveMask().ToLong();
         }
 
+        [IgnoreDataMember]
         public string CNPJFormatado { get => CNPJFixo.FormatarCNPJ(); set => CNPJ = value.RemoveMask().IfBlank(0L); }
 
         public int Codigo { get; set; }
 
+        [IgnoreDataMember]
         public string CodigoFixo
         {
             get => Codigo.FixedLenght(TamanhoCodigo);
@@ -840,18 +843,22 @@ namespace Extensions.BR
         }
 
         public int? Digito { get; set; }
+        [IgnoreDataMember]
         public string DigitoFixo
         {
             get => Digito?.FixedLenght(TamanhoDigito);
             set => Digito = value?.RemoveMaskInt();
         }
 
+        [IgnoreDataMember]
         public string ChaveFormatadaTraco => $"{UFFixo}-{MesAno}-{CNPJFixo}-{ModeloFixo}-{SerieFixo}-{NotaFixo}-{FormaEmissaoFixo}-{CodigoFixo}-{DigitoFixo}";
 
+        [IgnoreDataMember]
         public string ChaveFormatadaComEspacos => Regex.Replace(Chave, ".{4}", "$0 ").TrimEnd();
 
         public int Mes { get; set; }
 
+        [IgnoreDataMember]
         public string MesAno
         {
             get => $"{Ano.FixedLenght(TamanhoMesAno - 2)}{Mes.FixedLenght(TamanhoMesAno - 2)}";
@@ -869,12 +876,14 @@ namespace Extensions.BR
 
         public int Modelo { get; set; }
 
+        [IgnoreDataMember]
         public string ModeloFixo
         {
             get => Modelo.IfBlank(55).FixedLenght(TamanhoModelo);
             set => Modelo = value.RemoveMaskInt();
         }
 
+        [IgnoreDataMember]
         public DateTime MesEmissao
         {
             get => new DateTime(2000 + Ano, Mes, 1);
@@ -886,6 +895,7 @@ namespace Extensions.BR
         }
 
         public int Nota { get; set; }
+        [IgnoreDataMember]
         public string NotaFixo
         {
             get => Nota.FixedLenght(TamanhoNota);
@@ -894,16 +904,19 @@ namespace Extensions.BR
 
         public int Serie { get; set; }
 
+        [IgnoreDataMember]
         public string SerieFixo
         {
             get => Serie.FixedLenght(TamanhoSerie);
             set => Serie = value.RemoveMaskInt();
         }
 
+        [IgnoreDataMember]
         public Estado Estado { get => Brasil.PegarEstado($"{UF}"); set => UF = value?.IBGE ?? 0; }
 
         public int UF { get; set; }
 
+        [IgnoreDataMember]
         public string UFFixo
         {
             get => UF.FixedLenght(TamanhoUF);
