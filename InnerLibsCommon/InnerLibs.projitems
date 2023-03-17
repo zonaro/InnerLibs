@@ -33,6 +33,15 @@
     <Compile Include="$(MSBuildThisFileDirectory)DOT Language.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Emoji.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExpressionReplacer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)JSONParser\dynamic.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)JSONParser\Formatter.cs" />
+    <Compile Include="..\InnerLibsCommon\JSONParser\DataSetSchema.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)JSONParser\Helper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)JSONParser\JSON.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)JSONParser\JsonParser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)JSONParser\JsonSerializer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)JSONParser\Reflection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)JSONParser\SafeDictionary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Util.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FileTree.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FileType.cs" />
@@ -42,7 +51,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)HtmlParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)InnerMenu.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IPaginatedEnumerable.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)JSONParser\JSONParser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)JSONParser\JsonFile.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Like.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Mailer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MicroORM\SelectWrapper.cs" />
@@ -71,8 +80,6 @@
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)brasil.xml" />
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Colors.xml" />
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)mimes.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="$(MSBuildThisFileDirectory)Printer\Printer.css" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Printer\Printer.css" />
   </ItemGroup>
 </Project>

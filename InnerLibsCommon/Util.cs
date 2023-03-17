@@ -2884,6 +2884,8 @@ namespace Extensions
             return s;
         }
 
+
+
         public static byte[] DownloadFile(this Uri URL, NameValueCollection Headers = null, Encoding Encoding = null) => DownloadFile($"{URL}", Headers, Encoding);
 
         public static Image DownloadImage(string URL, NameValueCollection Headers = null, Encoding Encoding = null) => DownloadFile(URL, Headers, Encoding).ToImage();

@@ -1,847 +1,849 @@
-﻿
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.Serialization;
 using System.Text;
 
-
-namespace Extensions.ComplexText
+namespace Extensions
 {
 
-
     /// <summary>
-    /// Really simple JSON parser/writer
+    /// This class encodes and decodes JSON strings.
+    /// Spec. details, see http://www.json.org/
     /// </summary>
-    /// <remarks>
-    /// <listheader>Features and Limitations:</listheader>
-    /// <list type="bullet">
-    /// <item>Attempts to parse JSON files with minimal GC allocation</item>
-    /// <item>
-    /// Nice and simple <see cref="FromJson(string)"/> and <see cref="ToJson(object, bool,
-    /// CultureInfo)"/> API
-    /// </item>
-    /// <item>Classes and structs can be parsed too!</item>
-    /// <item>Can parse JSON without type information into <see cref="Dictionary{string, object}"/></item>
-    /// <item>No JIT Emit support to support AOT compilation on iOS</item>
-    /// <item>No JIT Emit support to parse structures quickly</item>
-    /// <item>
-    /// Attempts are made to NOT throw an exception if the JSON is corrupted or invalid: returns
-    /// null instead.
-    /// </item>
-    /// <item>Only public fields and property setters on classes/structs will be written to</item>
-    /// <item>Circular references will throw a <see cref="StackOverflowException"/></item>
-    /// <item>Limited to parsing 2GB JSON files (due to <see cref="int.MaxValue"/>)</item>
-    /// <item>
-    /// Parsing of abstract classes or interfaces is NOT supported and will throw an <see cref="Exception"/>.
-    /// </item>
-    /// <item>Outputs JSON structures from an object</item>
-    /// <item>Will only output public fields and property getters on objects</item>
-    /// </list>
-    /// </remarks>
-    public static class JSONParser
+    internal sealed class JsonParser
     {
-        #region Private Fields
-
-        [ThreadStatic] private static Dictionary<Type, Dictionary<string, FieldInfo>> fieldInfoCache;
-        [ThreadStatic] private static Dictionary<Type, Dictionary<string, PropertyInfo>> propertyInfoCache;
-        [ThreadStatic] private static Stack<List<string>> splitArrayPool;
-        [ThreadStatic] private static StringBuilder stringBuilder;
-
-        #endregion Private Fields
-
-        #region Internal Methods
-
-        internal static int AppendUntilStringEnd(bool appendEscapeCharacter, int startIdx, string json)
+        enum Token
         {
-            stringBuilder.Append(json[startIdx]);
-            for (int i = startIdx + 1; i < json.Length; i++)
-            {
-                if (json[i] == '\\')
-                {
-                    if (appendEscapeCharacter)
-                        stringBuilder.Append(json[i]);
-                    stringBuilder.Append(json[i + 1]);
-                    i++;//Skip next character as it is escaped
-                }
-                else if (json[i] == '"')
-                {
-                    stringBuilder.Append(json[i]);
-                    return i;
-                }
-                else
-                    stringBuilder.Append(json[i]);
-            }
-            return json.Length - 1;
+            None = -1,           // Used to denote no Lookahead available
+            Curly_Open,
+            Curly_Close,
+            Squared_Open,
+            Squared_Close,
+            Colon,
+            Comma,
+            String,
+            Number,
+            True,
+            False,
+            Null//, 
+            //Key
         }
 
-        internal static void AppendValue(StringBuilder stringBuilder, object item, bool IncludeNull, CultureInfo culture)
+
+
+        readonly char[] json;
+        readonly StringBuilder s = new StringBuilder(); // used for inner string parsing " \"\r\n\u1234\'\t " 
+        //readonly myStringBuilder s = new myStringBuilder(); 
+        Token lookAheadToken = Token.None;
+        int index;
+        bool allownonquotedkey = false;
+        int _len = 0;
+        SafeDictionary<string, bool> _lookup;
+        SafeDictionary<Type, bool> _seen;
+        bool _parseJsonType = false;
+
+        internal JsonParser(string json, bool AllowNonQuotedKeys)
         {
-            if (item == null)
-            {
-                stringBuilder.Append("null");
-                return;
-            }
+            this.allownonquotedkey = AllowNonQuotedKeys;
+            this.json = json.ToCharArray();
+            _len = json.Length;
+        }
 
-            Type type = item.GetTypeOf();
+        private void SetupLookup()
+        {
+            _lookup = new SafeDictionary<string, bool>();
+            _seen = new SafeDictionary<Type, bool>();
+            _lookup.Add("$types", true);
+            _lookup.Add("$type", true);
+            _lookup.Add("$i", true);
+            _lookup.Add("$map", true);
+            _lookup.Add("$schema", true);
+            _lookup.Add("k", true);
+            _lookup.Add("v", true);
+        }
 
-            if (type == typeof(string) || type == typeof(char) || type == typeof(FormattableString))
+        public unsafe object Decode(Type objtype)
+        {
+            fixed (char* p = json)
             {
-                stringBuilder.Append('"');
-                string str = item.ToString();
-                for (int i = 0; i < str.Length; ++i)
-                    if (str[i] < ' ' || str[i] == '"' || str[i] == '\\')
+                if (objtype != null)
+                {
+                    if (CheckForTypeInJson(p) == false)
                     {
-                        stringBuilder.Append('\\');
-                        int j = "\"\\\n\r\t\b\f".IndexOf(str[i]);
-                        if (j >= 0)
-                            stringBuilder.Append("\"\\nrtbf"[j]);
-                        else
-                            stringBuilder.AppendFormat(culture, "u{0:X4}", (uint)str[i]);
+                        _parseJsonType = true;
+                        SetupLookup();
+
+                        BuildLookup(objtype);
+
+                        // reset if no properties found
+                        if (_parseJsonType == false || _lookup.Count() == 7)
+                            _lookup = null;
                     }
-                    else stringBuilder.Append(str[i]);
-                stringBuilder.Append('"');
+                }
+                return ParseValue(p);
             }
-            else if (type == typeof(byte) || type == typeof(sbyte))
-            {
-                stringBuilder.Append(item.ToString());
-            }
-            else if (type == typeof(short) || type == typeof(ushort))
-            {
-                stringBuilder.Append(item.ToString());
-            }
-            else if (type == typeof(int) || type == typeof(uint))
-            {
-                stringBuilder.Append(item.ToString());
-            }
-            else if (type == typeof(long) || type == typeof(ulong))
-            {
-                stringBuilder.Append(item.ToString());
-            }
-            else if (type == typeof(float))
-            {
-                stringBuilder.Append(((float)item).ToString(culture));
-            }
-            else if (type == typeof(double))
-            {
-                stringBuilder.Append(((double)item).ToString(culture));
-            }
-            else if (type == typeof(decimal))
-            {
-                stringBuilder.Append(((decimal)item).ToString(culture));
-            }
-            else if (type == typeof(bool))
-            {
-                stringBuilder.Append(((bool)item) ? "true" : "false");
-            }
-            else if (type == typeof(DateTime))
-            {
-                stringBuilder.Append('"');
-                stringBuilder.Append(((DateTime)item).ToString(culture));
-                stringBuilder.Append('"');
-            }
-            else if (type.IsEnum)
-            {
-                stringBuilder.Append(item.ToInt().ToString(culture));
-            }
-            else if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Dictionary<,>))
-            {
-                Type keyType = type.GetGenericArguments()[0];
+        }
 
-                //Refuse to output dictionary keys that aren't compatible json types
-                if (keyType.IsNotIn(new[] { typeof(string), typeof(int), typeof(long), typeof(uint), typeof(ulong), typeof(char) }))
-                {
-                    stringBuilder.Append("{}");
-                    return;
-                }
-
-                stringBuilder.Append('{');
-                IDictionary dict = item as IDictionary;
-                bool isFirst = true;
-                foreach (object key in dict.Keys)
-                {
-                    if (isFirst) isFirst = false; else stringBuilder.Append(',');
-                    stringBuilder.Append('\"');
-                    stringBuilder.Append($"{key}");
-                    stringBuilder.Append("\":");
-                    AppendValue(stringBuilder, dict[key], IncludeNull, culture);
-                }
-                stringBuilder.Append('}');
-            }
-            else if (item is IList)
+        private unsafe bool CheckForTypeInJson(char* p)
+        {
+            int idx = 0;
+            int len = _len > 1000 ? 1000 : _len;
+            while (idx < len)
             {
-                stringBuilder.Append('[');
-                bool isFirst = true;
-                IList list = item as IList;
-                for (int i = 0; i < list.Count; i++)
+                if (p[idx + 0] == '$' &&
+                    p[idx + 1] == 't' &&
+                    p[idx + 2] == 'y' &&
+                    p[idx + 3] == 'p' &&
+                    p[idx + 4] == 'e' &&
+                    p[idx + 5] == 's'
+                    )
+                    return true;
+                idx++;
+            }
+
+            return false;
+        }
+
+        private void BuildGenericTypeLookup(Type t)
+        {
+            if (_seen.TryGetValue(t, out bool _))
+                return;
+
+            foreach (var e in t.GetGenericArguments())
+            {
+                if (e.IsPrimitive)
+                    continue;
+
+                bool isstruct = e.IsValueType && !e.IsEnum;
+
+                if ((e.IsClass || isstruct || e.IsAbstract) && e != typeof(string) && e != typeof(DateTime) && e != typeof(Guid))
                 {
-                    if (isFirst)
-                        isFirst = false;
-                    else
-                        stringBuilder.Append(',');
-                    AppendValue(stringBuilder, list[i], IncludeNull, culture);
+                    BuildLookup(e);
                 }
-                stringBuilder.Append(']');
+            }
+        }
+
+        private void BuildArrayTypeLookup(Type t)
+        {
+            if (_seen.TryGetValue(t, out bool _))
+                return;
+
+            bool isstruct = t.IsValueType && !t.IsEnum;
+
+            if ((t.IsClass || isstruct) && t != typeof(string) && t != typeof(DateTime) && t != typeof(Guid))
+            {
+                BuildLookup(t.GetElementType());
+            }
+        }
+
+        private void BuildLookup(Type objtype)
+        {
+            // build lookup
+            if (objtype == null)
+                return;
+
+            if (objtype == typeof(NameValueCollection) || objtype == typeof(StringDictionary))
+                return;
+
+            //if (objtype == typeof(DataSet) || objtype == typeof(DataTable)) 
+            //    return;
+
+            if (typeof(IDictionary).IsAssignableFrom(objtype))
+                return;
+
+            if (_seen.TryGetValue(objtype, out bool _))
+                return;
+
+            if (objtype.IsGenericType)
+                BuildGenericTypeLookup(objtype);
+
+            else if (objtype.IsArray)
+            {
+                Type t = objtype;
+                BuildArrayTypeLookup(objtype);
             }
             else
             {
-                stringBuilder.Append('{');
+                _seen.Add(objtype, true);
 
-                bool isFirst = true;
-                foreach (var fieldInfo in type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy))
+                foreach (var m in Reflection.Instance.Getproperties(objtype, objtype.FullName, true))
                 {
-                    if (fieldInfo.IsDefined(typeof(IgnoreDataMemberAttribute), true))
-                        continue;
+                    Type t = m.Value.pt;
 
-                    object value = fieldInfo.GetValue(item);
-                    if (value != null || IncludeNull)
+                    _lookup.Add(m.Key, true);
+
+                    if (t.IsArray)
+                        BuildArrayTypeLookup(t);
+
+                    if (t.IsGenericType)
                     {
-                        if (isFirst) isFirst = false; else stringBuilder.Append(',');
-                        stringBuilder.Append('\"');
-                        stringBuilder.Append(Util.GetMemberName(fieldInfo));
-                        stringBuilder.Append("\":");
-                        AppendValue(stringBuilder, value, IncludeNull, culture);
+                        // skip if dictionary
+                        if (typeof(IDictionary).IsAssignableFrom(t))
+                        {
+                            _parseJsonType = false;
+                            return;
+                        }
+                        BuildGenericTypeLookup(t);
                     }
+                    if (t.FullName.IndexOf("System.") == -1)
+                        BuildLookup(t);
                 }
-
-                foreach (var propertyInfo in type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy))
-                {
-                    if (!propertyInfo.CanRead || propertyInfo.IsDefined(typeof(IgnoreDataMemberAttribute), true))
-                        continue;
-
-                    object value = propertyInfo.GetValue(item, null);
-                    if (value != null || IncludeNull)
-                    {
-                        if (isFirst) isFirst = false; else stringBuilder.Append(',');
-                        stringBuilder.Append('\"');
-                        stringBuilder.Append(Util.GetMemberName(propertyInfo));
-                        stringBuilder.Append("\":");
-                        AppendValue(stringBuilder, value, IncludeNull, culture);
-                    }
-                }
-
-                stringBuilder.Append('}');
             }
         }
 
-        internal static Dictionary<string, T> CreateMemberNameDictionary<T>(T[] members) where T : MemberInfo
+        private bool InLookup(string name)
         {
-            Dictionary<string, T> nameToMember = new Dictionary<string, T>(StringComparer.OrdinalIgnoreCase);
-            for (int i = 0; i < members.Length; i++)
-            {
-                T member = members[i];
-                if (member.IsDefined(typeof(IgnoreDataMemberAttribute), true))
-                    continue;
+            if (_lookup == null)
+                return true;
 
-                string name = member.Name;
-                if (member.IsDefined(typeof(DataMemberAttribute), true))
-                {
-                    DataMemberAttribute dataMemberAttribute = (DataMemberAttribute)Attribute.GetCustomAttribute(member, typeof(DataMemberAttribute), true);
-                    if (!string.IsNullOrEmpty(dataMemberAttribute.Name))
-                        name = dataMemberAttribute.Name;
-                }
-
-                nameToMember.Add(name, member);
-            }
-
-            return nameToMember;
+            return _lookup.TryGetValue(name.ToLowerInvariant(), out bool v);
         }
 
-        internal static object ParseAnonymousValue(string json, CultureInfo culture)
+        bool _parseType = false;
+        private unsafe Dictionary<string, object> ParseObject(char* p)
         {
-            culture = culture ?? CultureInfo.InvariantCulture;
-            if (json.Length == 0)
-                return null;
-            if (json.IsWrapped('{'))
-            {
-                List<string> elems = Split(json);
-                if (elems.Count % 2 != 0) elems.Add(null); //or return null?
+            Dictionary<string, object> obj = new Dictionary<string, object>();
 
-                var dict = new Dictionary<string, object>(elems.Count / 2);
-                for (int i = 0; i < elems.Count; i += 2)
-                    dict.SetOrRemove(elems[i].Substring(1, elems[i].Length - 2), ParseAnonymousValue(elems[i + 1], culture));
-                return dict;
-            }
-            if (json.IsWrapped('['))
+            ConsumeToken(); // {
+
+            while (true)
             {
-                return Split(json).Select(x => ParseAnonymousValue(x, culture)).ToList();
-            }
-            if (json.IsWrapped('"'))
-            {
-                return json.Substring(1, json.Length - 2).Replace("\\", string.Empty);
-            }
-            if (char.IsDigit(json.FirstOrDefault()) || json.FirstOrDefault() == '-')
-            {
-                if (json.Contains(culture.NumberFormat.NumberDecimalSeparator))
+                switch (LookAhead(p))
                 {
-                    double.TryParse(json, NumberStyles.Float, culture, out double result);
-                    return result;
-                }
-                else
-                {
-                    _ = int.TryParse(json, out int result);
-                    return result;
-                }
-            }
-            if (json.IsAny("true", "false")) return json.AsBool();
 
-            return null;
-        }
-
-        internal static object ParseObject(Type type, string json, CultureInfo culture)
-        {
-            object instance = FormatterServices.GetUninitializedObject(type);
-
-            //The list is split into key/value pairs only, this means the split must be divisible by 2 to be valid JSON
-            List<string> elems = Split(json);
-            if (elems.Count % 2 != 0)
-                return instance;
-
-            if (!fieldInfoCache.TryGetValue(type, out Dictionary<string, FieldInfo> nameToField))
-            {
-                nameToField = CreateMemberNameDictionary(type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy));
-                fieldInfoCache.Add(type, nameToField);
-            }
-            if (!propertyInfoCache.TryGetValue(type, out Dictionary<string, PropertyInfo> nameToProperty))
-            {
-                nameToProperty = CreateMemberNameDictionary(type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy));
-                propertyInfoCache.Add(type, nameToProperty);
-            }
-
-            for (int i = 0; i < elems.Count; i += 2)
-            {
-                if (elems[i].Length <= 2)
-                    continue;
-                string key = elems[i].Substring(1, elems[i].Length - 2);
-                string value = elems[i + 1];
-
-                if (nameToField.TryGetValue(key, out FieldInfo fieldInfo))
-                    fieldInfo.SetValue(instance, ParseValue(fieldInfo.FieldType, value, culture));
-                else if (nameToProperty.TryGetValue(key, out PropertyInfo propertyInfo))
-                    if (propertyInfo.CanWrite)
-                        propertyInfo.SetValue(instance, ParseValue(propertyInfo.PropertyType, value, culture), null);
-            }
-
-            return instance;
-        }
-
-        internal static object ParseValue(Type type, string json, CultureInfo culture)
-        {
-            culture = culture ?? CultureInfo.InvariantCulture;
-            json = json ?? "null";
-
-            if (json.Equals("null", StringComparison.OrdinalIgnoreCase)) return default;
-            else if (type == typeof(string))
-            {
-                if (json.IsBlank() || json.IsNumber() || json.IsAny(StringComparison.InvariantCultureIgnoreCase, "true", "false")) return json;
-
-                StringBuilder parseStringBuilder = new StringBuilder(json.Length);
-                for (int i = 1; i < json.Length - 1; ++i)
-                {
-                    if (json[i] == '\\' && i + 1 < json.Length - 1)
-                    {
-                        int j = "\"\\nrtbf/".IndexOf(json[i + 1]);
-                        if (j >= 0)
-                        {
-                            parseStringBuilder.Append("\"\\\n\r\t\b\f/"[j]);
-                            ++i;
-                            continue;
-                        }
-                        if (json[i + 1] == 'u' && i + 5 < json.Length - 1)
-                        {
-                            if (uint.TryParse(json.Substring(i + 2, 4), NumberStyles.AllowHexSpecifier, null, out uint c))
-                            {
-                                parseStringBuilder.Append((char)c);
-                                i += 5;
-                                continue;
-                            }
-                        }
-                    }
-                    parseStringBuilder.Append(json[i]);
-                }
-                return parseStringBuilder.ToString();
-            }
-            else if (type.IsPrimitive)
-            {
-                var result = Convert.ChangeType(json, type, culture);
-                return result;
-            }
-            else if (type == typeof(decimal))
-            {
-                decimal.TryParse(json, NumberStyles.Float, culture, out decimal result);
-                return result;
-            }
-            else if (type == typeof(DateTime))
-            {
-                DateTime.TryParse(json.RemoveAny(Util.DoubleQuoteChar), culture, DateTimeStyles.None, out DateTime result);
-                return result;
-            }
-            else if (type.IsEnum)
-            {
-                json = json.IsWrapped(Util.DoubleQuoteChar) ? json.UnWrap(Util.DoubleQuoteChar) : json;
-
-                return json.GetEnumValue(type);
-            }
-            else if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
-            {
-                Type underlyingType = type.GetGenericArguments().FirstOrDefault();
-                return ParseValue(underlyingType, json, culture);
-            }
-            else if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Dictionary<,>))
-            {
-                Type keyType, valueType;
-                {
-                    Type[] args = type.GetGenericArguments();
-                    keyType = args[0];
-                    valueType = args[1];
-                }
-
-                //Refuse to parse dictionary keys that aren't of type string
-                if (keyType != typeof(string))
-                    return null;
-                //Must be a valid dictionary element
-                if (!json.IsWrapped('{'))
-                    return null;
-                //The list is split into key/value pairs only, this means the split must be divisible by 2 to be valid JSON
-                List<string> elems = Split(json);
-                if (elems.Count % 2 != 0)
-                    elems.Add(null);
-
-                var dictionary = (IDictionary)type.GetConstructor(new Type[] { typeof(int) }).Invoke(new object[] { elems.Count / 2 });
-                for (int i = 0; i < elems.Count; i += 2)
-                {
-                    if (elems[i].Length <= 2) continue;
-                    string keyValue = elems[i].Substring(1, elems[i].Length - 2);
-                    object val = ParseValue(valueType, elems[i + 1], culture);
-                    dictionary[keyValue] = val;
-                }
-                return dictionary;
-            }
-            else if (type.IsEnumerable())
-            {
-                object[] elems = null;
-                if (!json.IsWrapped('[')) json = json.Quote('[');
-                Type listType = null;
-                if (type.IsArray)
-                {
-                    listType = type.GetElementType();
-                }
-                else
-                {
-                    listType = type.GetGenericArguments().FirstOrDefault();
-                }
-
-                elems = Split(json).Select(x => ParseValue(listType, x, culture)).ToArray();
-
-                var arr = Array.CreateInstance(listType, elems.Length);
-
-                elems.CopyTo(arr, 0);
-
-                if (type.IsArray) return arr;
-
-                Type concreteListType = typeof(List<>).MakeGenericType(listType);
-
-                return Activator.CreateInstance(concreteListType, new object[] { arr });
-            }
-            else if (type == typeof(object))
-            {
-                return ParseAnonymousValue(json, culture);
-            }
-            else if (json.IsWrapped('{'))
-            {
-                return ParseObject(type, json, culture);
-            }
-
-            return null;
-        }
-
-        //Splits { <value>:<value>, <value>:<value> } and [ <value>, <value> ] into a list of <value> strings
-        internal static List<string> Split(string json)
-        {
-            List<string> splitArray = splitArrayPool.Count > 0 ? splitArrayPool.Pop() : new List<string>();
-            splitArray.Clear();
-            if (json.Length == 2)
-                return splitArray;
-            int parseDepth = 0;
-            stringBuilder.Length = 0;
-            for (int i = 1; i < json.Length - 1; i++)
-            {
-                switch (json[i])
-                {
-                    case '[':
-                    case '{':
-                        parseDepth++;
+                    case Token.Comma:
+                        ConsumeToken();
                         break;
 
-                    case ']':
-                    case '}':
-                        parseDepth--;
-                        break;
-
-                    case '"':
-                        i = AppendUntilStringEnd(true, i, json);
-                        continue;
-                    case ',':
-                    case ':':
-                        if (parseDepth == 0)
-                        {
-                            splitArray.Add(stringBuilder.ToString());
-                            stringBuilder.Length = 0;
-                            continue;
-                        }
-                        break;
-                }
-
-                stringBuilder.Append(json[i]);
-            }
-
-            splitArray.Add(stringBuilder.ToString());
-
-            return splitArray;
-        }
-
-        #endregion Internal Methods
-
-        #region Public Methods
-
-        /// <summary>
-        /// Format a json string
-        /// </summary>
-        /// <param name="jsonString"></param>
-        /// <param name="identSize"></param>
-        /// <returns></returns>
-        public static string FormatJson(this string jsonString, int identSize = 4)
-        {
-            jsonString = jsonString ?? Util.EmptyString;
-
-            if (identSize < 1)
-            {
-                return jsonString;
-            }
-
-            string INDENT_STRING = " ".Repeat(identSize);
-            var indent = 0;
-            var quoted = false;
-            var sb = new StringBuilder();
-            for (var i = 0; i < jsonString.Length; i++)
-            {
-                var ch = jsonString[i];
-                switch (ch)
-                {
-                    case '{':
-                    case '[':
-                        sb.Append(ch);
-                        if (!quoted)
-                        {
-                            sb.AppendLine();
-                            Enumerable.Range(0, ++indent).Each(item => sb.Append(INDENT_STRING));
-                        }
-                        break;
-
-                    case '}':
-                    case ']':
-                        if (!quoted)
-                        {
-                            sb.AppendLine();
-                            Enumerable.Range(0, --indent).Each(item => sb.Append(INDENT_STRING));
-                        }
-                        sb.Append(ch);
-                        break;
-
-                    case '"':
-                        sb.Append(ch);
-                        bool escaped = false;
-                        var index = i;
-                        while (index > 0 && jsonString[--index] == '\\')
-                            escaped = !escaped;
-                        if (!escaped)
-                            quoted = !quoted;
-                        break;
-
-                    case ',':
-                        sb.Append(ch);
-                        if (!quoted)
-                        {
-                            sb.AppendLine();
-                            Enumerable.Range(0, indent).Each(item => sb.Append(INDENT_STRING));
-                        }
-                        break;
-
-                    case ':':
-                        sb.Append(ch);
-                        if (!quoted)
-                            sb.Append(Util.WhitespaceChar);
-                        break;
+                    case Token.Curly_Close:
+                        ConsumeToken();
+                        return obj;
 
                     default:
-                        sb.Append(ch);
+                        // name
+                        string name = ParseKey(p);
+
+                        var n = NextToken(p);
+                        // :
+                        if (n != Token.Colon)
+                        {
+                            throw new Exception("Expected colon at index " + index);
+                        }
+
+                        if (_parseJsonType)
+                        {
+                            if (name == "$types")
+                            {
+                                _parseType = true;
+                                Dictionary<string, object> types = (Dictionary<string, object>)ParseValue(p);
+                                _parseType = false;
+                                // parse $types 
+                                // FIX : performance hit here
+                                if (_lookup == null)
+                                    SetupLookup();
+
+                                foreach (var v in types.Keys)
+                                    BuildLookup(Reflection.Instance.GetTypeFromCache(v, true));
+
+                                obj[name] = types;
+
+                                break;
+                            }
+
+                            if (name == "$schema")
+                            {
+                                _parseType = true;
+                                var value = ParseValue(p);
+                                _parseType = false;
+                                obj[name] = value;
+                                break;
+                            }
+
+                            if (_parseType || InLookup(name))
+                                obj[name] = ParseValue(p);
+                            else
+                                SkipValue(p);
+                        }
+                        else
+                        {
+                            obj[name] = ParseValue(p);
+                        }
                         break;
                 }
             }
-            return sb.ToString();
         }
 
-        public static T FromJson<T>(this string json) => FromJson<T>(json, null);
-
-        public static object FromJson(this string json) => FromJson(json, null);
-
-        public static T FromJson<T>(this string json, CultureInfo culture) => (T)FromJson(json, typeof(T), culture);
-
-        public static object FromJson(this string json, CultureInfo culture) => FromJson(json, typeof(object), culture);
-
-        public static object FromJson(this string json, Type Type, CultureInfo culture)
+        private unsafe void SkipValue(char* p)
         {
-            if (json == null) return default;
-            culture = culture ?? CultureInfo.InvariantCulture;
-            Type = Type ?? typeof(object);
-            // Initialize, if needed, the ThreadStatic variables
-            if (propertyInfoCache == null) propertyInfoCache = new Dictionary<Type, Dictionary<string, PropertyInfo>>();
-            if (fieldInfoCache == null) fieldInfoCache = new Dictionary<Type, Dictionary<string, FieldInfo>>();
-            if (stringBuilder == null) stringBuilder = new StringBuilder();
-            if (splitArrayPool == null) splitArrayPool = new Stack<List<string>>();
-
-            //Remove all whitespace not within strings to make parsing simpler
-            stringBuilder.Length = 0;
-            for (int i = 0; i < json.Length; i++)
+            // optimize skipping
+            switch (LookAhead(p))
             {
-                char c = json[i];
+                case Token.Number:
+                    ParseNumber(p, true);
+                    break;
+
+                case Token.String:
+                    SkipString(p);
+                    break;
+
+                case Token.Curly_Open:
+                    SkipObject(p);
+                    break;
+
+                case Token.Squared_Open:
+                    SkipArray(p);
+                    break;
+
+                case Token.True:
+                    ConsumeToken();
+                    break;
+
+                case Token.False:
+                    ConsumeToken();
+                    break;
+
+                case Token.Null:
+                    ConsumeToken();
+                    break;
+            }
+        }
+
+        private unsafe void SkipObject(char* p)
+        {
+            ConsumeToken(); // {
+
+            while (true)
+            {
+                switch (LookAhead(p))
+                {
+
+                    case Token.Comma:
+                        ConsumeToken();
+                        break;
+
+                    case Token.Curly_Close:
+                        ConsumeToken();
+                        return;
+
+                    default:
+                        // name
+                        SkipString(p);
+
+                        var n = NextToken(p);
+                        // :
+                        if (n != Token.Colon)
+                        {
+                            throw new Exception("Expected colon at index " + index);
+                        }
+                        SkipValue(p);
+                        break;
+                }
+            }
+        }
+
+        private unsafe void SkipArray(char* p)
+        {
+            ConsumeToken(); // [
+
+            while (true)
+            {
+                switch (LookAhead(p))
+                {
+                    case Token.Comma:
+                        ConsumeToken();
+                        break;
+
+                    case Token.Squared_Close:
+                        ConsumeToken();
+                        return;
+
+                    default:
+                        SkipValue(p);
+                        break;
+                }
+            }
+        }
+
+        private unsafe void SkipString(char* p)
+        {
+            ConsumeToken();
+
+            int len = _len;
+
+            // escaped string
+            while (index < len)
+            {
+                var c = p[index++];
                 if (c == '"')
+                    return;
+
+                if (c == '\\')
                 {
-                    i = AppendUntilStringEnd(true, i, json);
-                    continue;
+                    c = p[index++];
+
+                    if (c == 'u')
+                        index += 4;
                 }
-                if (char.IsWhiteSpace(c))
-                    continue;
-
-                stringBuilder.Append(c);
             }
-
-            //Parse the thing!
-            return ParseValue(Type, stringBuilder.ToString(), culture);
         }
 
-        /// <summary>
-        /// Return a new <see cref="JsonFile"/> with latest saved values of the <paramref
-        /// name="current"/><see cref="JsonFile"/>
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="current"></param>
-        /// <returns></returns>
-        public static T Load<T>(this T current) where T : JsonFile => current != null ? JsonFile.Load<T>(current.FilePath, current.EncryptKey, current.ExcludeNull, current.Culture) : null;
-
-        public static string ToJson(this object item, bool IncludeNull = true, CultureInfo culture = null, int formatJsonIdent = 0)
+        private unsafe List<object> ParseArray(char* p)
         {
-            if (item == null)
+            List<object> array = new List<object>();
+            ConsumeToken(); // [
+
+            while (true)
             {
-                return null;
-            }
-
-            culture = culture ?? CultureInfo.InvariantCulture;
-            StringBuilder stringBuilder = new StringBuilder();
-
-            AppendValue(stringBuilder, item, IncludeNull, culture);
-            return stringBuilder.ToString().FormatJson(formatJsonIdent);
-        }
-
-        #endregion Public Methods
-    }
-
-    /// <summary>
-    /// Class that when inherited by a POCO class implements methods to save the values in an
-    /// encrypted Json file
-    /// </summary>
-    /// <remarks>Your POCO class nedd a public, parameterless constructor</remarks>
-    public abstract class JsonFile
-    {
-        #region Private Fields
-
-        private int _ident = 4;
-        private string filePath;
-
-        #endregion Private Fields
-
-        #region Public Properties
-
-        /// <summary>
-        /// The <see cref="CultureInfo"/> used to serialize/deserialize json
-        /// </summary>
-        [IgnoreDataMember] public CultureInfo Culture { get; set; } = CultureInfo.InvariantCulture;
-
-        /// <summary>
-        /// The default file name used to save JsonFiles
-        /// </summary>
-        /// <remarks>
-        /// When <see cref="IsEncrypted"/>, assumes the <see cref="Assembly.Name"/> of current
-        /// executing application, otherwise use the default ".json" extension
-        /// </remarks>
-        [IgnoreDataMember] public string DefaultFileName => $"{this.GetType().Name}.{(IsEncrypted ? this.GetType().Assembly.GetName().Name.ToSnakeCase().ToLower(Culture) : "json")}";
-
-        /// <summary>
-        /// The default path used to save JsonFiles
-        /// </summary>
-        /// <remarks>Uses <see cref="Assembly.Location"/> directory and <see cref="DefaultFileName"/></remarks>
-        [IgnoreDataMember] public string DefaultFilePath => $"{Path.GetDirectoryName(this.GetType().Assembly.Location)}\\{DefaultFileName}";
-
-        /// <summary>
-        /// When not blank, encrypt the json file using this string as Key
-        /// </summary>
-        [IgnoreDataMember] public string EncryptKey { get; set; }
-
-        /// <summary>
-        /// When true, exclude properties and fields with null values from serialization
-        /// </summary>
-        [IgnoreDataMember] public bool ExcludeNull { get; set; }
-
-        /// <summary>
-        /// <see cref="FileInfo"/> of current JsonFile
-        /// </summary>
-        /// <returns></returns>
-        [IgnoreDataMember] public FileInfo File => new FileInfo(FilePath);
-
-        /// <summary>
-        /// The current Path of this JsonFile
-        /// </summary>
-        [IgnoreDataMember]
-        public string FilePath
-        {
-            get
-            {
-                filePath = filePath.NullIf(x => !x.IsFilePath() && !x.IsDirectoryPath()).BlankCoalesce(filePath, DefaultFilePath).FixPath();
-                if (filePath.IsDirectoryPath())
+                switch (LookAhead(p))
                 {
-                    filePath = Path.Combine(filePath, DefaultFileName);
+                    case Token.Comma:
+                        ConsumeToken();
+                        break;
+
+                    case Token.Squared_Close:
+                        ConsumeToken();
+                        return array;
+
+                    default:
+                        array.Add(ParseValue(p));
+                        break;
                 }
-
-                return filePath;
             }
-            set => filePath = value;
         }
 
-        /// <summary>
-        /// Return the number of spaces used to ident the JsonFile
-        /// </summary>
-        /// <remarks>When <see cref="IsEncrypted"/> is true, always return 0.</remarks>
-        [IgnoreDataMember]
-        public int IdentSize
+        private unsafe object ParseValue(char* p)//, bool val)
         {
-            get => IsEncrypted ? 0 : _ident;
-            set => _ident = value.SetMinValue(0);
-        }
-
-        /// <summary>
-        /// Return if this JsonFile will be encrypted using <see cref="EncryptKey"/>
-        /// </summary>
-        [IgnoreDataMember] public bool IsEncrypted => EncryptKey.IsNotBlank();
-
-        /// <summary>
-        /// When true, the final json string will be minified
-        /// </summary>
-        [IgnoreDataMember]
-        public bool IsMinified
-        {
-            get => IdentSize <= 0;
-            set
+            switch (LookAhead(p))
             {
-                if (value)
-                    IdentSize = 0;
-                else if (_ident > 0)
-                    IdentSize = _ident;
+                case Token.Number:
+                    return ParseNumber(p, false);
+
+                case Token.String:
+                    return ParseString(p);
+
+                case Token.Curly_Open:
+                    return ParseObject(p);
+
+                case Token.Squared_Open:
+                    return ParseArray(p);
+
+                case Token.True:
+                    ConsumeToken();
+                    return true;
+
+                case Token.False:
+                    ConsumeToken();
+                    return false;
+
+                case Token.Null:
+                    ConsumeToken();
+                    return null;
+            }
+
+            throw new Exception("Unrecognized token at index " + index);
+        }
+
+        private unsafe string ParseKey(char* p)
+        {
+            if (allownonquotedkey == false || p[index - 1] == '"')
+                return ParseString(p);
+
+            ConsumeToken();
+
+            int len = _len;
+            int run = 0;
+            while (index + run < len)
+            {
+                var c = p[index + run++];
+
+                if (c == ':')
+                {
+                    var str = UnsafeSubstring(p, index, run - 1).Trim();
+                    index += run - 1;
+                    return str;
+                }
+            }
+            throw new Exception("Unable to read key");
+        }
+
+        private unsafe string ParseString(char* p)
+        {
+            ConsumeToken();
+
+            if (s.Length > 0)
+                s.Length = 0;
+
+            int len = _len;
+            int run = 0;
+
+            // non escaped string
+            while (index + run < len)
+            {
+                var c = p[index + run++];
+                if (c == '\\')
+                    break;
+                if (c == '\"')
+                {
+                    var str = UnsafeSubstring(p, index, run - 1);
+                    index += run;
+                    return str;
+                }
+            }
+
+            // escaped string
+            while (index < len)
+            {
+                var c = p[index++];
+                if (c == '"')
+                    return s.ToString();
+
+                if (c != '\\')
+                    s.Append(c);
                 else
-                    IdentSize = 4;
+                    switch (p[index++])
+                    {
+                        case '"':
+                            s.Append('"');
+                            break;
+
+                        case '\\':
+                            s.Append('\\');
+                            break;
+
+                        case '/':
+                            s.Append('/');
+                            break;
+
+                        case 'b':
+                            s.Append('\b');
+                            break;
+
+                        case 'f':
+                            s.Append('\f');
+                            break;
+
+                        case 'n':
+                            s.Append('\n');
+                            break;
+
+                        case 'r':
+                            s.Append('\r');
+                            break;
+
+                        case 't':
+                            s.Append('\t');
+                            break;
+
+                        case 'u':
+                            {
+                                //int remainingLength = l - index;
+                                //if (remainingLength < 4) break;
+
+                                // parse the 32 bit hex into an integer codepoint
+                                uint codePoint = ParseUnicode(p[index], p[index + 1], p[index + 2], p[index + 3]);
+                                s.Append((char)codePoint);
+
+                                // skip 4 chars
+                                index += 4;
+                            }
+                            break;
+                    }
             }
+
+
+            return s.ToString();
         }
 
-        #endregion Public Properties
+        //private unsafe string ParseKey(char* p)
+        //{
+        //    var c = p[index];
+        //    if (c == '"')
+        //        return ParseString(p);
 
-        #region Public Methods
+        //    else if (allownonquotedkey == false)
+        //        throw new Exception("Expecting a double quoted key and AllowNonQuotedKey is disabled");
 
-        /// <summary>
-        /// Load values of a JsonFile into a <typeparamref name="T"/> object
-        /// </summary>
-        /// <typeparam name="T">Object T</typeparam>
-        /// <param name="File">File Path</param>
-        /// <param name="EncryptKey">Encrypt Key. Leave Null or blank to not encrypt</param>
-        /// <param name="ExcludeNull">When true, exclude properties with null values from serialization</param>
-        /// <returns></returns>
-        public static T Load<T>(FileInfo File, string EncryptKey, bool ExcludeNull = false) where T : JsonFile => Load<T>(File?.FullName, EncryptKey, ExcludeNull);
+        //    ConsumeToken();
 
-        /// <inheritdoc cref="Load{T}"/>
-        public static T Load<T>(DirectoryInfo Directory, string EncryptKey, bool ExcludeNull = false) where T : JsonFile => Load<T>(Directory?.FullName, EncryptKey, ExcludeNull);
+        //    int run = 0;
+        //    int l = _len;
 
-        /// <inheritdoc cref="Load{T}"/>
-        public static T Load<T>(FileInfo File, bool ExcludeNull = false) where T : JsonFile => Load<T>(File, null, ExcludeNull);
+        //    while (index + run < l)
+        //    {
+        //        c = p[index + run++];
 
-        /// <inheritdoc cref="Load{T}"/>
-        public static T Load<T>(DirectoryInfo Directory, bool ExcludeNull = false) where T : JsonFile => Load<T>(Directory, null, ExcludeNull);
+        //        if (c == ':' || c == ' ' || c == '\t')
+        //        {
+        //            var s = UnsafeSubstring(p, index, (run - 1));
+        //            index += run - 1;
+        //            return s;
+        //        }
+        //    }
 
-        /// <inheritdoc cref="Load{T}"/>
-        public static T Load<T>(string FileOrDirectoryPath, bool ExcludeNull = false) where T : JsonFile => Load<T>(FileOrDirectoryPath, null, ExcludeNull);
+        //    throw new Exception("Unexpectedly reached end of string");
+        //}
 
-        /// <inheritdoc cref="Load{T}"/>
-        public static T Load<T>() where T : JsonFile => Load<T>(Util.EmptyString, null);
-
-        /// <inheritdoc cref="Load{T}"/>
-        public static T Load<T>(string FileOrDirectoryPath, string EncryptKey, bool ExcludeNull = false, CultureInfo culture = null) where T : JsonFile
+        private uint ParseSingleChar(char c1, uint multipliyer)
         {
-            try
-            {
-                T c = Activator.CreateInstance<T>();
-                c.FilePath = FileOrDirectoryPath;
-                if (c.File.Exists)
-                {
-                    string s = c.File.ReadAllText();
-                    if (EncryptKey.IsNotBlank())
-                    {
-                        s = s.Decrypt(EncryptKey);
-                    }
+            uint p1 = 0;
+            if (c1 >= '0' && c1 <= '9')
+                p1 = (uint)(c1 - '0') * multipliyer;
+            else if (c1 >= 'A' && c1 <= 'F')
+                p1 = (uint)((c1 - 'A') + 10) * multipliyer;
+            else if (c1 >= 'a' && c1 <= 'f')
+                p1 = (uint)((c1 - 'a') + 10) * multipliyer;
+            return p1;
+        }
 
-                    c = s.FromJson<T>(culture);
+        private uint ParseUnicode(char c1, char c2, char c3, char c4)
+        {
+            uint p1 = ParseSingleChar(c1, 0x1000);
+            uint p2 = ParseSingleChar(c2, 0x100);
+            uint p3 = ParseSingleChar(c3, 0x10);
+            uint p4 = ParseSingleChar(c4, 1);
+
+            return p1 + p2 + p3 + p4;
+        }
+
+        private unsafe object ParseNumber(char* p, bool skip)
+        {
+            ConsumeToken();
+
+            // Need to start back one place because the first digit is also a token and would have been consumed
+            var startIndex = index - 1;
+            bool dec = false;
+            bool dob = false;
+            bool run = true;
+            do
+            {
+                if (index == _len)
+                    break;
+                var c = p[index];
+
+                //if ((c >= '0' && c <= '9') || c == '.' || c == '-' || c == '+' || c == 'e' || c == 'E')
+                //{
+                //    if (/*c == '.' ||*/ c == 'e' || c == 'E')
+                //        dob = true;
+                //    if (c == '.')
+                //        dec = true;
+                //    if (++index == _len)
+                //        break;//throw new Exception("Unexpected end of string whilst parsing number");
+                //    continue;
+                //}
+                //run = false;// break;
+
+                switch (c)
+                {
+                    case '0':
+                    case '1':
+                    case '2':
+                    case '3':
+                    case '4':
+                    case '5':
+                    case '6':
+                    case '7':
+                    case '8':
+                    case '9':
+                    case '-':
+                    case '+':
+                        index++;
+                        break;
+                    case 'e':
+                    case 'E':
+                        dob = true;
+                        index++;
+                        break;
+                    case '.':
+                        index++;
+                        dec = true;
+                        break;
+                    default:
+                        run = false;
+                        break;
                 }
 
-                c.FilePath = FileOrDirectoryPath; //need to re-set after deserialize
-                c.EncryptKey = EncryptKey;
-                c.ExcludeNull = ExcludeNull;
-                c.Culture = culture ?? CultureInfo.InvariantCulture;
-                return c;
-            }
-            catch (Exception ex)
+                if (index == _len)
+                    run = false;
+
+            } while (run);
+
+            if (skip)
+                return 0;
+
+            if (dob)
             {
-                throw new NotSupportedException("Your POCO class need a public, parameterless contructor", ex);
+                string s = UnsafeSubstring(p, startIndex, index - startIndex);// json.Substring(startIndex, index - startIndex);
+                return double.Parse(s, NumberFormatInfo.InvariantInfo);
+            }
+            if (dec == false && index - startIndex < 20)// && json[startIndex] != '-')
+                return Helper.CreateLong(json, startIndex, index - startIndex);
+            else
+            {
+                string s = UnsafeSubstring(p, startIndex, index - startIndex);//json.Substring(startIndex, index - startIndex);
+                return //Helper.ParseDecimal(s);
+                   decimal.Parse(s, NumberFormatInfo.InvariantInfo);
             }
         }
 
-        /// <summary>
-        /// Delete the file and return TRUE if file can be re-created
-        /// </summary>
-        /// <returns></returns>
-        public bool Delete() => this.File.DeleteIfExist();
-
-        /// <summary>
-        /// Get the Json String representation of this file.
-        /// </summary>
-        /// <returns></returns>
-        public string GetJson() => this.ToJson(!ExcludeNull, Culture, IdentSize);
-
-        /// <summary>
-        /// Save the current values into a JsonFile
-        /// </summary>
-        /// <returns></returns>
-        public FileInfo Save()
+        private unsafe Token LookAhead(char* p)
         {
-            Culture = Culture ?? CultureInfo.InvariantCulture;
-            var s = GetJson();
-            if (IsEncrypted)
-            {
-                s = s.Encrypt(this.EncryptKey);
-            }
+            if (lookAheadToken != Token.None) return lookAheadToken;
 
-            return s.WriteToFile(this.FilePath);
+            return lookAheadToken = NextTokenCore(p);
         }
 
-        #endregion Public Methods
+        private void ConsumeToken()
+        {
+            lookAheadToken = Token.None;
+        }
+
+        private unsafe Token NextToken(char* p)
+        {
+            var result = lookAheadToken != Token.None ? lookAheadToken : NextTokenCore(p);
+
+            lookAheadToken = Token.None;
+
+            return result;
+        }
+
+        private unsafe void SkipWhitespace(char* p)
+        {
+            // Skip past whitespace
+            do
+            {
+                var c = p[index];
+
+                if (c == '/' && p[index + 1] == '/') // c++ style single line comments
+                {
+                    index++;
+                    index++;
+                    do
+                    {
+                        c = p[index];
+                        if (c == '\r' || c == '\n') break; // read till end of line
+                    }
+                    while (++index < _len);
+                }
+                if (c != ' ' && c != '\t' && c != '\n' && c != '\r')
+                    break;
+                //switch (c)
+                //{
+                //    case ' ':
+                //    case '\t':
+                //    case '\r':
+                //    case '\n':
+                //        break;
+                //    default:
+                //        return;
+                //}
+            } while (++index < _len);
+        }
+
+        private unsafe Token NextTokenCore(char* p)
+        {
+            char c;
+            int len = _len;
+
+            SkipWhitespace(p);
+
+            if (index == len)
+            {
+                throw new Exception("Reached end of string unexpectedly");
+            }
+
+            c = p[index];
+
+            index++;
+
+            switch (c)
+            {
+                case '{':
+                    return Token.Curly_Open;
+
+                case '}':
+                    return Token.Curly_Close;
+
+                case '[':
+                    return Token.Squared_Open;
+
+                case ']':
+                    return Token.Squared_Close;
+
+                case ',':
+                    return Token.Comma;
+
+                case '"':
+                    return Token.String;
+
+                case '0':
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                case '5':
+                case '6':
+                case '7':
+                case '8':
+                case '9':
+                case '-':
+                case '+':
+                case '.':
+                    return Token.Number;
+
+                case ':':
+                    return Token.Colon;
+
+                case 'f':
+                    if (len - index >= 4 &&
+                        p[index + 0] == 'a' &&
+                        p[index + 1] == 'l' &&
+                        p[index + 2] == 's' &&
+                        p[index + 3] == 'e')
+                    {
+                        index += 4;
+                        return Token.False;
+                    }
+                    break;
+
+                case 't':
+                    if (len - index >= 3 &&
+                        p[index + 0] == 'r' &&
+                        p[index + 1] == 'u' &&
+                        p[index + 2] == 'e')
+                    {
+                        index += 3;
+                        return Token.True;
+                    }
+                    break;
+
+                case 'n':
+                    if (len - index >= 3 &&
+                        p[index + 0] == 'u' &&
+                        p[index + 1] == 'l' &&
+                        p[index + 2] == 'l')
+                    {
+                        index += 3;
+                        return Token.Null;
+                    }
+                    break;
+            }
+
+            if (allownonquotedkey)//&& tok == Token.String)
+            {
+                index--;
+                return Token.String;
+            }
+
+            //return tok;
+            else
+                throw new Exception("Could not find token at index " + --index);
+        }
+
+        private static unsafe string UnsafeSubstring(char* p, int startIndex, int length)
+        {
+            return new string(p, startIndex, length);
+        }
     }
 }
