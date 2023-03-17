@@ -729,6 +729,7 @@ namespace Extensions.BR
 
         public const int TamanhoFormaEmissao = 1;
 
+        [IgnoreDataMember]
         public string Tipo
         {
             get
