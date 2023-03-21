@@ -1079,13 +1079,13 @@ namespace Extensions.Dates
         {
             display = display ?? Display;
 
-            string ano = display.YearsWord[Years].Prepend($"{Years} ").NullIf(x => display.YearsWord.ToString().IsBlank());
-            string mes = display.MonthsWord[Months].Prepend($"{Months} ").NullIf(x => display.MonthsWord.ToString().IsBlank());
-            string dia = display.DaysWord[Days].Prepend($"{Days} ").NullIf(x => display.DaysWord.ToString().IsBlank());
-            string horas = display.HoursWord[Hours].Prepend($"{Hours} ").NullIf(x => display.HoursWord.ToString().IsBlank());
-            string minutos = display.MinutesWord[Minutes].Prepend($"{Minutes} ").NullIf(x => display.MinutesWord.ToString().IsBlank());
-            string segundos = display.SecondsWord[Seconds].Prepend($"{Seconds} ").NullIf(x => display.SecondsWord.ToString().IsBlank());
-            string milisegundos = display.MillisecondsWord[Milliseconds].Prepend($"{Milliseconds} ").NullIf(x => display.MillisecondsWord.ToString().IsBlank());
+            string ano = display.YearsWord.ToString(Years).Prepend($"{Years} ").NullIf(x => display.YearsWord.ToString().IsBlank());
+            string mes = display.MonthsWord.ToString(Months).Prepend($"{Months} ").NullIf(x => display.MonthsWord.ToString().IsBlank());
+            string dia = display.DaysWord.ToString(Days).Prepend($"{Days} ").NullIf(x => display.DaysWord.ToString().IsBlank());
+            string horas = display.HoursWord.ToString(Hours).Prepend($"{Hours} ").NullIf(x => display.HoursWord.ToString().IsBlank());
+            string minutos = display.MinutesWord.ToString(Minutes).Prepend($"{Minutes} ").NullIf(x => display.MinutesWord.ToString().IsBlank());
+            string segundos = display.SecondsWord.ToString(Seconds).Prepend($"{Seconds} ").NullIf(x => display.SecondsWord.ToString().IsBlank());
+            string milisegundos = display.MillisecondsWord.ToString(Milliseconds).Prepend($"{Milliseconds} ").NullIf(x => display.MillisecondsWord.ToString().IsBlank());
 
             var flagInt = (int)display.FormatRule;
             if (flagInt >= 1) //skip zero

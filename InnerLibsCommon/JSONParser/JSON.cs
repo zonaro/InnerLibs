@@ -1054,7 +1054,7 @@ namespace Extensions
 
         #region Public Methods
 
-        public void FixValues()
+        internal void FixValues()
         {
             if (UseExtensions == false) // disable conflicting params
             {
@@ -1065,6 +1065,10 @@ namespace Extensions
                 ShowReadOnlyProperties = true;
         }
 
+        /// <summary>
+        /// Create a copy of this instance
+        /// </summary>
+        /// <returns></returns>
         public JSONParameters MakeCopy() => new JSONParameters
         {
             AllowNonQuotedKeys = AllowNonQuotedKeys,

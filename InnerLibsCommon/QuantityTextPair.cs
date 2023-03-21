@@ -1,13 +1,14 @@
 using System;
+using System.Collections;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace Extensions.ComplexText
 {
-
     /// <summary>
     /// Define a pair of words for quantify items
     /// </summary>
-    public class QuantityTextPair
+    public class QuantityTextPair : ITuple
     {
         #region Public Constructors
 
@@ -30,6 +31,8 @@ namespace Extensions.ComplexText
         /// </summary>
         public QuantityTextPair()
         {
+            Plural = "Items";
+            Singular = "Item";
         }
 
         #endregion Public Constructors
@@ -43,38 +46,33 @@ namespace Extensions.ComplexText
         /// <returns></returns>
         public string this[IComparable Number]
         {
-            get
-            {
-                if (Number.IsNumber())
-                {
-                    return Number.ToDecimal().Floor().IsIn(1m, -1m) ? Singular : Plural;
-                }
-                else
-                {
-                    return Util.EmptyString;
-                }
-            }
+            get => Number.IsNumber() ? Number.ToDecimal().Floor().IsIn(1m, -1m) ? Singular : Plural : Util.EmptyString;
 
             set
             {
                 if (Number.IsNumber() && Number.ToDecimal().Floor().IsIn(1m, -1m))
                 {
-                    Singular = value;
+                    Singular = value?.ChangeType<string>();
                 }
                 else
                 {
-                    Plural = value;
+                    Plural = value?.ChangeType<string>();
                 }
             }
         }
+
+        public object this[int Number] => this[Number.ToDecimal()];
+
+        public object this[IEnumerable Items] => this[Items?.Cast<object>()?.Count() ?? 0];
 
         #endregion Public Indexers
 
         #region Public Properties
 
-        public string Plural { get; set; } = "Items";
+        public int Length => 2;
+        public string Plural { get; set; }
 
-        public string Singular { get; set; } = "Item";
+        public string Singular { get; set; }
 
         #endregion Public Properties
 
@@ -82,11 +80,39 @@ namespace Extensions.ComplexText
 
         public static implicit operator QuantityTextPair(string b)
         {
-            var parts = b.SplitAny(":", "/", ";");
-            return new QuantityTextPair(parts.FirstOrDefault().IfBlank("Items"), parts.LastOrDefault().NullIf(parts.FirstOrDefault().IfBlank(Util.EmptyString)));
+            var parts = b?.SplitAny(":", "/", ";", ",").WhereNotBlank().Distinct().ToArray() ?? Array.Empty<string>();
+
+            if (parts.Length == 0)
+            {
+                parts = new[] { "Items", "Item" };
+            }
+
+            if (parts.Length == 1)
+            {
+                parts = new[] { parts.FirstOrDefault(), parts.FirstOrDefault().Singularize() };
+            }
+
+
+            if (parts.Length > 2)
+            {
+                var reference = parts.FirstOrDefault();
+
+                var otherwords = parts.Skip(1).ToArray();
+
+                var maybeother = otherwords.OrderBy(x => x.LevenshteinDistance(reference)).FirstOrDefault();
+
+                parts = new[] { reference, maybeother };
+            }
+
+
+            parts = parts.OrderBy(x => x.Length).ToArray();
+
+
+
+            return new QuantityTextPair(parts.LastOrDefault(), parts.FirstOrDefault());
         }
 
-        public static implicit operator string(QuantityTextPair b) => b.ToString();
+        public static implicit operator string(QuantityTextPair b) => b?.ToString();
 
         public override string ToString() => Plural;
 
@@ -94,9 +120,9 @@ namespace Extensions.ComplexText
 
         public string ToString(decimal Number) => this[Number];
 
-        public string ToString(short Number) => this[Number];
+        public string ToString(short Number) => this[Number] as string;
 
-        public string ToString(int Number) => this[Number];
+        public string ToString(int Number) => this[Number] as string;
 
         public string ToString(double Number) => this[Number];
 
@@ -104,5 +130,4 @@ namespace Extensions.ComplexText
 
         #endregion Public Methods
     }
-
 }

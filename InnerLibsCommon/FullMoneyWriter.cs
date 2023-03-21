@@ -39,7 +39,7 @@ namespace Extensions.NumberWriters
         {
             long dec = Number.GetDecimalPart(DecimalPlaces.LimitRange(0, 3));
             long num = (long)Math.Round(Number.Floor());
-            return (InExtensive(num) + CurrencyCentsName[num].Wrap(" ") + (dec == 0L | DecimalPlaces == 0 ? Util.EmptyString : And.Wrap(" ") + InExtensive(dec) + CurrencyCentsName[dec].Wrap(" "))).ToLowerInvariant().TrimBetween();
+            return $"{InExtensive(num)}{CurrencyCentsName.ToString(num).Wrap(" ")}{(dec == 0L | DecimalPlaces == 0 ? Util.EmptyString : $"{And.Wrap(" ")}{InExtensive(dec)}{CurrencyCentsName.ToString(dec).Wrap(" ")}")}".ToLowerInvariant().TrimBetween();
         }
 
         public override string ToString() => ToString(0m);

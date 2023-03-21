@@ -55,7 +55,7 @@ namespace Extensions.Printers
 
         private class PrinterWriter : TextWriter
         {
-            private Printer p;
+            private readonly Printer p;
 
             public PrinterWriter(Printer p)
             {
@@ -149,7 +149,7 @@ namespace Extensions.Printers
             txw = new PrinterWriter(this);
             if (PrinterName.IsBlank())
             {
-                throw new ArgumentException("Printername cannot be null or empty", "PrinterName");
+                throw new ArgumentException("PrinterName is null or empty", nameof(PrinterName));
             }
             if (Command == null)
             {
@@ -708,7 +708,7 @@ namespace Extensions.Printers
         /// <returns></returns>
         public Printer SaveFile(string FileOrDirectoryPath, bool IncludeHtmlDoc = false)
         {
-            if (DocumentBuffer != null && DocumentBuffer.Count() > 0)
+            if (DocumentBuffer != null && DocumentBuffer.Length > 0)
             {
                 if (FileOrDirectoryPath.IsDirectoryPath())
                 {

@@ -400,7 +400,7 @@ namespace Extensions.ComplexText
 
         public static implicit operator int(TextStructure s) => s.Count;
 
-        public static implicit operator long(TextStructure s) => s.LongCount();
+        public static implicit operator long(TextStructure s) => s.Count;
 
         public static implicit operator string(TextStructure s) => s.ToString();
 

@@ -1836,7 +1836,7 @@ namespace Extensions
                         var valores = SQL.GetArgument(index);
                         var v = ForceArray(valores, typeof(object)).ToList();
                         var param_names = new List<string>();
-                        for (int v_index = 0, loopTo1 = v.Count() - 1; v_index <= loopTo1; v_index++)
+                        for (int v_index = 0, loopTo1 = v.Count - 1; v_index <= loopTo1; v_index++)
                         {
                             var param = cmd.CreateParameter();
                             if (v.Count == 1)
@@ -4203,7 +4203,7 @@ namespace Extensions
         /// <param name="URL">URL do Facebook</param>
         /// <returns></returns>
         public static string GetFacebookUsername(this string URL) => URL.IsURL() && URL.GetDomain().ToLowerInvariant().IsAny("facebook.com", "fb.com")
-               ? Regex.Match(URL.Replace("fb.com", "facebook.com"), @"(?:(?:http|https):\/\/)?(?:www.)?facebook.com\/(?:(?:\w)*#!\/)?(?:pages\/)?(?:[?\w\-]*\/)?(?:profile.php\?id=(?=\d.*))?([\w\-]*)?").Groups[1].Value
+               ? Regex.Match(URL.Replace("fb.com", "facebook.com"), @"(?:(?:http|https):\/\/)?(?:www.)?facebook.com\/(?:(?:\words)*#!\/)?(?:pages\/)?(?:[?\words\-]*\/)?(?:profile.php\?id=(?=\d.*))?([\words\-]*)?").Groups[1].Value
                  : throw new ArgumentException("Invalid Facebook URL", nameof(URL));
 
         /// <summary>
@@ -5837,7 +5837,7 @@ namespace Extensions
         /// <returns></returns>
         public static IEnumerable<string> GetURLSegments(this string URL)
         {
-            var p = new Regex(@"(?<!\?.+)(?<=\/)[\w-.]+(?=[/\r\n?]|$)", (RegexOptions)((int)RegexOptions.Singleline + (int)RegexOptions.IgnoreCase));
+            var p = new Regex(@"(?<!\?.+)(?<=\/)[\words-.]+(?=[/\r\n?]|$)", (RegexOptions)((int)RegexOptions.Singleline + (int)RegexOptions.IgnoreCase));
             var gs = p.Matches(URL);
             foreach (Match g in gs)
             {
@@ -7646,6 +7646,21 @@ namespace Extensions
             return Expression.LessThanOrEqual(MemberExpression, ValueExpression);
         }
 
+
+        public static IEnumerable<(string, string, int)> LevenshteinDistanceList(this IEnumerable<string> Words)
+        {
+            var words = Words.ToArray() ?? Array.Empty<string>();
+            int n = words.Length;
+
+            for (int i = 0; i < n; i++)
+            {
+                for (int j = i + 1; j < n; j++)
+                {
+                    yield return (words[i], words[j], LevenshteinDistance(words[i], words[j]));
+                }
+            }
+        }
+
         /// <summary>
         /// Computa a distancia de Levenshtein entre 2 strings. Distancia Levenshtein representa um
         /// numero de operações de acréscimo, remoção ou substituição de caracteres para que uma
@@ -9120,7 +9135,7 @@ namespace Extensions
             Text = Text.ReplaceMany(" ", "px", " ", ";", ":").ToLowerInvariant().Trim();
             Text = Text.Replace("largura", "width");
             Text = Text.Replace("altura", "height");
-            Text = Text.Replace("l ", "w ");
+            Text = Text.Replace("l ", "words ");
             Text = Text.Replace("a ", "h ");
             try
             {
@@ -9147,14 +9162,14 @@ namespace Extensions
                             break;
                         }
 
-                    case object _ when Text.Like("w*") && !Text.Like("*h*"):
+                    case object _ when Text.Like("words*") && !Text.Like("*h*"):
                         {
-                            s.Width = Convert.ToInt32(Text.GetAfter("w"));
-                            s.Height = Convert.ToInt32(Text.GetAfter("w"));
+                            s.Width = Convert.ToInt32(Text.GetAfter("words"));
+                            s.Height = Convert.ToInt32(Text.GetAfter("words"));
                             break;
                         }
 
-                    case object _ when Text.Like("h*") && !Text.Like("*w*"):
+                    case object _ when Text.Like("h*") && !Text.Like("*words*"):
                         {
                             s.Width = Convert.ToInt32(Text.GetAfter("h"));
                             s.Height = Convert.ToInt32(Text.GetAfter("h"));
@@ -9175,17 +9190,17 @@ namespace Extensions
                             break;
                         }
 
-                    case object _ when Text.Like("w*h*"):
+                    case object _ when Text.Like("words*h*"):
                         {
-                            s.Width = Convert.ToInt32(Text.GetBetween("w", "h"));
+                            s.Width = Convert.ToInt32(Text.GetBetween("words", "h"));
                             s.Height = Convert.ToInt32(Text.GetAfter("h"));
                             break;
                         }
 
-                    case object _ when Text.Like("h*w*"):
+                    case object _ when Text.Like("h*words*"):
                         {
-                            s.Height = Convert.ToInt32(Text.GetBetween("h", "w"));
-                            s.Width = Convert.ToInt32(Text.GetAfter("w"));
+                            s.Height = Convert.ToInt32(Text.GetBetween("h", "words"));
+                            s.Width = Convert.ToInt32(Text.GetAfter("words"));
                             break;
                         }
 
@@ -10097,7 +10112,7 @@ namespace Extensions
                 if (consonant == "q" && word.Length + 3 <= Length)
                 {
                     // check +3 because we'd add 3 characters in this case, the "qu" and the vowel.
-                    // Change 3 to 2 to allow words that end in "qu"
+                    // Change 3 to 2 to allow ww that end in "qu"
                     word += "qu";
                 }
                 else
@@ -10928,6 +10943,8 @@ namespace Extensions
         /// <param name="Number">Numero</param>
         /// <returns></returns>
         public static int RoundInt(this double Number) => Math.Round(Number).ToInt();
+
+
 
         /// <summary>
         /// Arredonda um numero para o valor inteiro mais próximo
@@ -11820,7 +11837,7 @@ namespace Extensions
         public static string Singularize(this string Text)
         {
             var phrase = Text.ApplySpaceOnWrapChars().Split(WhitespaceChar);
-            for (int index = 0, loopTo = phrase.Count() - 1; index <= loopTo; index++)
+            for (int index = 0, loopTo = phrase.Length - 1; index <= loopTo; index++)
             {
                 string endchar = phrase[index].GetLastChars();
                 if (endchar.IsAny(StringComparison.CurrentCultureIgnoreCase, PredefinedArrays.WordSplitters.ToArray()))

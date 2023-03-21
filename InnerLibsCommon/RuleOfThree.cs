@@ -120,11 +120,11 @@ namespace Extensions.Equations
 
             numbers = numbers ?? Array.Empty<T?>();
 
-            if (numbers.Count() < 3)
+            if (numbers.Length < 3)
             {
                 throw new NoNullAllowedException("Three numbers need to be known to make a rule of three");
             }
-            else if (numbers.Count() == 3)
+            else if (numbers.Length == 3)
             {
                 FirstEquation.X = numbers[0];
                 FirstEquation.Y = numbers[1];
