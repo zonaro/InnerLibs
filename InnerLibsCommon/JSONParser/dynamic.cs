@@ -28,10 +28,7 @@ namespace Extensions
                 _dictionary = (IDictionary<string, object>)dictionary;
         }
 
-        public override IEnumerable<string> GetDynamicMemberNames()
-        {
-            return _dictionary.Keys.ToList();
-        }
+        public override IEnumerable<string> GetDynamicMemberNames() => _dictionary.Keys.ToList();
 
         public override bool TryGetIndex(GetIndexBinder binder, Object[] indexes, out Object result)
         {

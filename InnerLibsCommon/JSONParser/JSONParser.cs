@@ -693,10 +693,7 @@ namespace Extensions
             return lookAheadToken = NextTokenCore(p);
         }
 
-        private void ConsumeToken()
-        {
-            lookAheadToken = Token.None;
-        }
+        private void ConsumeToken() => lookAheadToken = Token.None;
 
         private unsafe Token NextToken(char* p)
         {
@@ -840,9 +837,6 @@ namespace Extensions
                 throw new Exception("Could not find token at index " + --index);
         }
 
-        private static unsafe string UnsafeSubstring(char* p, int startIndex, int length)
-        {
-            return new string(p, startIndex, length);
-        }
+        private static unsafe string UnsafeSubstring(char* p, int startIndex, int length) => new string(p, startIndex, length);
     }
 }

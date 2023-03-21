@@ -86,6 +86,7 @@ namespace Extensions.ComplexText
 
 
 
+
         #endregion Public Properties
 
         #region Public Methods

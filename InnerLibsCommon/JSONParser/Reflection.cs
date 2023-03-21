@@ -576,10 +576,7 @@ namespace Extensions
             }
         }
 
-        internal void ResetPropertyCache()
-        {
-            _propertycache = new SafeDictionary<string, Dictionary<string, myPropInfo>>();
-        }
+        internal void ResetPropertyCache() => _propertycache = new SafeDictionary<string, Dictionary<string, myPropInfo>>();
 
         #endregion Internal Methods
 
@@ -630,10 +627,7 @@ namespace Extensions
             return b;
         }
 
-        public static string UnicodeGetString(byte[] b)
-        {
-            return UnicodeGetString(b, 0, b.Length);
-        }
+        public static string UnicodeGetString(byte[] b) => UnicodeGetString(b, 0, b.Length);
 
         public static unsafe string UnicodeGetString(byte[] bytes, int offset, int buflen)
         {
@@ -647,15 +641,9 @@ namespace Extensions
         }
 
         // TODO : optimize utf8
-        public static byte[] UTF8GetBytes(string str)
-        {
-            return utf8.GetBytes(str);
-        }
+        public static byte[] UTF8GetBytes(string str) => utf8.GetBytes(str);
 
-        public static string UTF8GetString(byte[] bytes, int offset, int len)
-        {
-            return utf8.GetString(bytes, offset, len);
-        }
+        public static string UTF8GetString(byte[] bytes, int offset, int len) => utf8.GetString(bytes, offset, len);
 
         public Type[] GetGenericArguments(Type t)
         {
