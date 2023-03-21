@@ -659,7 +659,7 @@ namespace Extensions
 
         public Type[] GetGenericArguments(Type t)
         {
-            Type[] tt = null;
+            Type[] tt;
             if (_genericTypes.TryGetValue(t, out tt))
                 return tt;
             else
@@ -672,7 +672,7 @@ namespace Extensions
 
         public Type GetGenericTypeDefinition(Type t)
         {
-            Type tt = null;
+            Type tt;
             if (_genericTypeDef.TryGetValue(t, out tt))
                 return tt;
             else
@@ -685,7 +685,7 @@ namespace Extensions
 
         public Getters[] GetGetters(Type type, /*bool ShowReadOnlyProperties,*/ List<Type> IgnoreAttributes)
         {
-            Getters[] val = null;
+            Getters[] val;
             if (_getterscache.TryGetValue(type, out val))
                 return val;
 
@@ -782,7 +782,7 @@ namespace Extensions
 
         public Dictionary<string, myPropInfo> Getproperties(Type type, string typename, bool ShowReadOnlyProperties)
         {
-            Dictionary<string, myPropInfo> sd = null;
+            Dictionary<string, myPropInfo> sd;
             if (_propertycache.TryGetValue(typename, out sd))
             {
                 return sd;
@@ -852,7 +852,7 @@ namespace Extensions
 
         public string GetTypeAssemblyName(Type t)
         {
-            string val = "";
+            string val;
             if (_tyname.TryGetValue(t, out val))
                 return val;
             else

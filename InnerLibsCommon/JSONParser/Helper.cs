@@ -294,8 +294,6 @@ namespace Extensions
             int sec;
             int ms = 0;
             int usTicks = 0; // ticks for xxx.x microseconds
-            int th = 0;
-            int tm = 0;
 
             year = CreateInteger(value, 0, 4);
             month = CreateInteger(value, 5, 2);
@@ -327,9 +325,8 @@ namespace Extensions
                 ++p;
 
             // +00:00
-            th = CreateInteger(value, p + 1, 2);
-            tm = CreateInteger(value, p + 1 + 2 + 1, 2);
-
+            int th = CreateInteger(value, p + 1, 2);
+            int tm = CreateInteger(value, p + 1 + 2 + 1, 2);
             if (value[p] == '-')
                 th = -th;
 

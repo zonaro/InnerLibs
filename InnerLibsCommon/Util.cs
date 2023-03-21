@@ -2033,8 +2033,7 @@ namespace Extensions
         /// <returns></returns>
         public static Guid CreateGuidOrDefault(this string Source)
         {
-            Guid g;
-            if (Source.IsNotBlank() || !Guid.TryParse(Source, out g))
+            if (Source.IsNotBlank() || !Guid.TryParse(Source, out Guid g))
             {
                 g = Guid.NewGuid();
             }
@@ -3160,9 +3159,9 @@ namespace Extensions
         public static IEnumerable<T> FilterDateRange<T>(this IEnumerable<T> List, Expression<Func<T, DateTime?>> Property, DateRange Range, DateRangeFilterBehavior? FilterBehavior = null)
                => List.Where(x => Range.Contains(Property.Compile()(x), FilterBehavior ?? Range.FilterBehavior));
 
-        public static IQueryable<T> FilterDateRange<T>(this IQueryable<T> List, Expression<Func<T, DateTime>> Property, DateRange Range, DateRangeFilterBehavior? FilterBehavior = null) => List.Where(Property.IsInDateRange(Range));
+        public static IQueryable<T> FilterDateRange<T>(this IQueryable<T> List, Expression<Func<T, DateTime>> Property, DateRange Range, DateRangeFilterBehavior? FilterBehavior = null) => List.Where(Property.IsInDateRange(Range, FilterBehavior));
 
-        public static IQueryable<T> FilterDateRange<T>(this IQueryable<T> List, Expression<Func<T, DateTime?>> Property, DateRange Range, DateRangeFilterBehavior? FilterBehavior = null) => List.Where(Property.IsInDateRange(Range));
+        public static IQueryable<T> FilterDateRange<T>(this IQueryable<T> List, Expression<Func<T, DateTime?>> Property, DateRange Range, DateRangeFilterBehavior? FilterBehavior = null) => List.Where(Property.IsInDateRange(Range, FilterBehavior));
 
         public static IQueryable<T> FilterRange<T, V>(this IQueryable<T> List, Expression<Func<T, V>> MinProperty, Expression<Func<T, V>> MaxProperty, IEnumerable<V> Values) => List.Where(MinProperty.IsBetweenOrEqual(MaxProperty, Values));
 
@@ -4152,7 +4151,7 @@ namespace Extensions
         /// <summary> Traz o valor de uma <see cref="Enum"> do tipo <typeparamref name="T"/> a
         /// partir de um <paramref name="Value"/> inteiro </summary> <typeparam
         /// name="T"></typeparam> <returns></returns>
-        public static T GetEnumValue<T>(this int? Value) => Value.HasValue ? GetEnumValue<T>($"{Value.Value}") : default(T);
+        public static T GetEnumValue<T>(this int? Value) => Value.HasValue ? GetEnumValue<T>($"{Value.Value}") : default;
 
         /// <summary> Traz o valor de uma <see cref="Enum"> do tipo <typeparamref name="T"/> a
         /// partir de um <paramref name="Value"/> inteiro </summary> <typeparam
@@ -5578,8 +5577,7 @@ namespace Extensions
 
         public static PropertyInfo GetPropertyInfo<TSource, TProperty>(this Expression<Func<TSource, TProperty>> propertyLambda)
         {
-            var propInfo = GetMemberInfo(propertyLambda) as PropertyInfo;
-            if (propInfo is null)
+            if (!(GetMemberInfo(propertyLambda) is PropertyInfo propInfo))
             {
                 throw new ArgumentException(string.Format("Expression '{0}' refers to a field, not a property.", propertyLambda.ToString()));
             }
@@ -5597,7 +5595,7 @@ namespace Extensions
         /// <returns></returns>
         public static PropertyInfo GetPropertyInfo<TSource, TProperty>(this TSource source, Expression<Func<TSource, TProperty>> propertyLambda)
         {
-            var type = typeof(TSource);
+            var type = source.GetTypeOf() ?? typeof(TSource);
             if (!(propertyLambda.Body is MemberExpression member))
             {
                 throw new ArgumentException(string.Format("Expression '{0}' refers to a method, not a property.", propertyLambda.ToString()));
@@ -5650,7 +5648,7 @@ namespace Extensions
         /// <typeparam name="T">Tipo da Matriz</typeparam>
         /// <param name="Array">Matriz</param>
         /// <returns>Um valor do tipo especificado</returns>
-        public static T GetRandomItem<T>(this T[] Array) => Array == null || Array.Length == 0 ? default(T) : Array[RandomNumber(0, Array.Length - 1)];
+        public static T GetRandomItem<T>(this T[] Array) => Array == null || Array.Length == 0 ? default : Array[RandomNumber(0, Array.Length - 1)];
 
         /// <summary>
         /// Retorna o caminho relativo da url
@@ -5687,7 +5685,7 @@ namespace Extensions
             {
                 if (!IsFullQualifiedName)
                 {
-                    FileName = Assembly.GetName().Name + "." + FileName;
+                    FileName = $"{Assembly.GetName().Name}.{FileName}";
                 }
 
                 using (var x = Assembly.GetManifestResourceStream(FileName))
@@ -12702,7 +12700,7 @@ namespace Extensions
         /// </summary>
         /// <param name="ImageURL">Caminho da imagem</param>
         /// <returns>Uma string em formato Util</returns>
-        public static string ToBase64(this Uri ImageURL, ImageFormat OriginalImageFormat, NameValueCollection Headers = null, Encoding Encoding = null) => ImageURL != null ? (ImageURL.DownloadImage(Headers, Encoding)?.ToBase64(OriginalImageFormat)) : null;
+        public static string ToBase64(this Uri ImageURL, ImageFormat OriginalImageFormat, NameValueCollection Headers = null, Encoding Encoding = null) => ImageURL?.DownloadImage(Headers, Encoding)?.ToBase64(OriginalImageFormat);
 
         /// <summary>
         /// Monta um Comando SQL para executar uma procedure especifica para cada item em uma
@@ -15960,7 +15958,7 @@ namespace Extensions
         /// </param>
         /// <param name="[Is]">Compara o resultado com TRUE ou FALSE</param>
         /// <returns></returns>
-        public static IQueryable<T> WhereExpression<T>(this IQueryable<T> List, string PropertyName, string Operator, IEnumerable<IComparable> PropertyValue, bool Is = true, bool Exclusive = true) => List.Where(WhereExpression<T>(PropertyName, Operator, PropertyValue, Is));
+        public static IQueryable<T> WhereExpression<T>(this IQueryable<T> List, string PropertyName, string Operator, IEnumerable<IComparable> PropertyValue, bool Is = true) => List.Where(WhereExpression<T>(PropertyName, Operator, PropertyValue, Is));
 
         public static IEnumerable<T> WhereNotBlank<T>(this IEnumerable<T> List) => List.Where(x => x.IsNotBlank());
 

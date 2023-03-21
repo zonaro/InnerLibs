@@ -399,7 +399,7 @@ namespace Extensions
         bool _TypesWritten = false;
         private void WriteObject(object obj)
         {
-            int i = 0;
+            int i;
             if (_cirobj.TryGetValue(obj, out i) == false)
                 _cirobj.Add(obj, _cirobj.Count + 1);
             else
@@ -440,8 +440,8 @@ namespace Extensions
                     WritePairFast("$type", Reflection.Instance.GetTypeAssemblyName(t));
                 else
                 {
-                    int dt = 0;
                     string ct = Reflection.Instance.GetTypeAssemblyName(t);
+                    int dt;
                     if (_globalTypes.TryGetValue(ct, out dt) == false)
                     {
                         dt = _globalTypes.Count + 1;

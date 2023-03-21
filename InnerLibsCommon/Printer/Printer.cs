@@ -93,9 +93,9 @@ namespace Extensions.Printers
         internal string GetPair(string LeftText, string RightText, int? Columns = default, char CharLine = ' ')
         {
             Columns = Columns ?? GetCurrentColumns();
-            string dots = Util.EmptyString;
             string s1 = $"{LeftText}";
             string s2 = $"{RightText}";
+            string dots;
             if (s2.IsNotBlank() && Columns.Value > 0)
             {
                 dots = GetDotLine(s1, s2, Columns, CharLine);

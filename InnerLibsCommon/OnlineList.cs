@@ -39,7 +39,7 @@ namespace Extensions.Web.Online
         #region Private Fields
 
         private TimeSpan _tolerancetime = new TimeSpan(0, 1, 0);
-        private Func<TUser, TID> idgetter;
+        private readonly Func<TUser, TID> idgetter;
 
         #endregion Private Fields
 
@@ -70,15 +70,9 @@ namespace Extensions.Web.Online
         /// <returns></returns>
         public OnlineUser<TUser, TID> this[TUser User]
         {
-            get
-            {
-                return GetUser(User);
-            }
+            get => GetUser(User);
 
-            set
-            {
-                value = Add(value.User);
-            }
+            set => Add(value?.User);
         }
 
         #endregion Public Indexers
@@ -212,10 +206,7 @@ namespace Extensions.Web.Online
 
                     if (base[ID].IsOnline != Online == true)
                     {
-                        if (OnUserOnlineChanged != null)
-                        {
-                            OnUserOnlineChanged.Invoke(base[ID]);
-                        }
+                        OnUserOnlineChanged?.Invoke(base[ID]);
                     }
                 }
 
@@ -249,7 +240,7 @@ namespace Extensions.Web.Online
         /// <param name="Logdata"></param>
         /// <returns></returns>
         public UserLogEntry<TUser, TID> CreateLog(TUser User, string Message, Uri URL = null, Dictionary<string, string> LogData = null, DateTime? DateAndTime = default)
-        => Log.CreateLog(User, Message, URL, LogData, DateTime.Now);
+        => Log.CreateLog(User, Message, URL, LogData, DateAndTime ?? DateTime.Now);
 
         /// <summary>
         /// Retorna o ID do usuário
@@ -300,13 +291,15 @@ namespace Extensions.Web.Online
                 {
                     if (ii.ID.IsNotIn(Chat.IDs))
                     {
-                        var cvn = new UserConversation<TUser, TID>();
-                        cvn.chatlist = Chat;
-                        cvn.FromUserID = ii.FromUserID.ChangeType<TID>();
-                        cvn.ToUserID = ii.ToUserID.ChangeType<TID>();
-                        cvn.SentDate = ii.SentDate;
-                        cvn.ViewedDate = ii.ViewedDate;
-                        cvn.Message = ii.Message;
+                        var cvn = new UserConversation<TUser, TID>
+                        {
+                            chatlist = Chat,
+                            FromUserID = ii.FromUserID.ChangeType<TID>(),
+                            ToUserID = ii.ToUserID.ChangeType<TID>(),
+                            SentDate = ii.SentDate,
+                            ViewedDate = ii.ViewedDate,
+                            Message = ii.Message
+                        };
                         Chat.Add(cvn);
                     }
                 }
@@ -354,23 +347,27 @@ namespace Extensions.Web.Online
 
         public void SaveChatXML() => Chat.Select(x =>
             {
-                var bkp = new UserConversationBackup();
-                bkp.SentDate = x.SentDate;
-                bkp.Message = x.Message;
-                bkp.FromUserID = x.FromUserID.ToString();
-                bkp.ToUserID = x.ToUserID.ToString();
-                bkp.ViewedDate = x.ViewedDate;
+                var bkp = new UserConversationBackup
+                {
+                    SentDate = x.SentDate,
+                    Message = x.Message,
+                    FromUserID = x.FromUserID.ToString(),
+                    ToUserID = x.ToUserID.ToString(),
+                    ViewedDate = x.ViewedDate
+                };
                 return bkp;
             }).ToList().CreateXmlFile(ChatFile.FullName);
 
         public void SaveLogXML() => Log.Select(x =>
                                                {
-                                                   var bkp = new LogEntryBackup();
-                                                   bkp.DateTime = x.DateTime;
-                                                   bkp.Message = x.Message;
-                                                   bkp.UserID = x.UserID.ToString();
-                                                   bkp.ID = x.ID;
-                                                   bkp.LogData = x.LogData;
+                                                   var bkp = new LogEntryBackup
+                                                   {
+                                                       DateTime = x.DateTime,
+                                                       Message = x.Message,
+                                                       UserID = x.UserID.ToString(),
+                                                       ID = x.ID,
+                                                       LogData = x.LogData
+                                                   };
                                                    return bkp;
                                                }).ToList().CreateXmlFile(LogFile.FullName);
 
@@ -860,16 +857,15 @@ namespace Extensions.Web.Online
                     }
                 }
 
-                var d = new UserLogEntry<TUser, TID>(OnlineList.GetID(User), OnlineList);
-                d.DateTime = (DateTime)DateAndTime;
-                d.Message = Message;
-                d.LogData = LogData;
-                d.URL = URL;
-                OnlineList.Log.Add(d);
-                if (OnlineList.OnCreateLog != null)
+                var d = new UserLogEntry<TUser, TID>(OnlineList.GetID(User), OnlineList)
                 {
-                    OnlineList.OnCreateLog.Invoke(d);
-                }
+                    DateTime = (DateTime)DateAndTime,
+                    Message = Message,
+                    LogData = LogData,
+                    URL = URL
+                };
+                OnlineList.Log.Add(d);
+                OnlineList.OnCreateLog?.Invoke(d);
 
                 return d;
             }

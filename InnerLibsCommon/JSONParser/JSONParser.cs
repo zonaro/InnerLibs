@@ -153,7 +153,7 @@ namespace Extensions
             if (typeof(IDictionary).IsAssignableFrom(objtype))
                 return;
 
-            if (_seen.TryGetValue(objtype, out bool _))
+            if (_seen.TryGetValue(objtype, out _))
                 return;
 
             if (objtype.IsGenericType)
@@ -161,7 +161,6 @@ namespace Extensions
 
             else if (objtype.IsArray)
             {
-                Type t = objtype;
                 BuildArrayTypeLookup(objtype);
             }
             else

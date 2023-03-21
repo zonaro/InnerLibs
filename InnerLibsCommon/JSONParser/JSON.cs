@@ -289,7 +289,6 @@ namespace Extensions
         private object CreateStringKeyDictionary(Dictionary<string, object> reader, Type pt, Type[] types, Dictionary<string, object> globalTypes)
         {
             var col = (IDictionary)Reflection.Instance.FastCreateInstance(pt);
-            Type arraytype = null;
             Type t2 = null;
             if (types != null)
                 t2 = types[1];
@@ -298,13 +297,12 @@ namespace Extensions
             var ga = Reflection.Instance.GetGenericArguments(t2);// t2.GetGenericArguments();
             if (ga.Length > 0)
                 generictype = ga[0];
-            arraytype = t2.GetElementType();
+            Type arraytype = t2.GetElementType();
 
             foreach (KeyValuePair<string, object> values in reader)
             {
                 var key = values.Key;
-                object val = null;
-
+                object val;
                 if (values.Value is Dictionary<string, object>)
                     val = ParseDictionary((Dictionary<string, object>)values.Value, globalTypes, t2, null);
                 else if (types != null && t2.IsArray)
@@ -332,8 +330,8 @@ namespace Extensions
             foreach (var k in parse)
             {
                 _usingglobals = false;
-                object v = k;
                 var a = k as Dictionary<string, object>;
+                object v;
                 if (a != null)
                     v = ParseDictionary(a, globals, it, null);
                 else
@@ -484,15 +482,15 @@ namespace Extensions
 
         internal object ParseDictionary(Dictionary<string, object> d, Dictionary<string, object> globaltypes, Type type, object input)
         {
-            object tn = "";
             if (type == typeof(NameValueCollection))
                 return Helper.CreateNV(d);
             if (type == typeof(StringDictionary))
                 return Helper.CreateSD(d);
 
+            object tn;
             if (d.TryGetValue("$i", out tn))
             {
-                object v = null;
+                object v;
                 _cirrev.TryGetValue((int)(long)tn, out v);
                 return v;
             }
@@ -521,7 +519,7 @@ namespace Extensions
             {
                 if (_usingglobals)
                 {
-                    object tname = "";
+                    object tname;
                     if (globaltypes != null && globaltypes.TryGetValue((string)tn, out tname))
                         tn = tname;
                 }
@@ -540,7 +538,7 @@ namespace Extensions
                 else
                     o = Reflection.Instance.FastCreateInstance(type);
             }
-            int circount = 0;
+            int circount;
             if (_circobj.TryGetValue(o, out circount) == false)
             {
                 circount = _circobj.Count + 1;
