@@ -10,8 +10,6 @@ namespace Extensions.ComplexText
     /// </summary>
     public class QuantityTextPair : ITuple
     {
-        #region Public Constructors
-
         /// <summary>
         /// Create a QuantityTextPair with a Plural word and, optionally, Singular Word
         /// </summary>
@@ -34,10 +32,6 @@ namespace Extensions.ComplexText
             Plural = "Items";
             Singular = "Item";
         }
-
-        #endregion Public Constructors
-
-        #region Public Indexers
 
         /// <summary>
         /// Return the singular or plural word based on <paramref name="Number"/>
@@ -65,18 +59,10 @@ namespace Extensions.ComplexText
 
         public object this[IEnumerable Items] => this[Items?.Cast<object>()?.Count() ?? 0];
 
-        #endregion Public Indexers
-
-        #region Public Properties
-
         public int Length => 2;
         public string Plural { get; set; }
 
         public string Singular { get; set; }
-
-        #endregion Public Properties
-
-        #region Public Methods
 
         public static implicit operator QuantityTextPair(string b)
         {
@@ -92,7 +78,6 @@ namespace Extensions.ComplexText
                 parts = new[] { parts.FirstOrDefault(), parts.FirstOrDefault().Singularize() };
             }
 
-
             if (parts.Length > 2)
             {
                 var reference = parts.FirstOrDefault();
@@ -104,10 +89,7 @@ namespace Extensions.ComplexText
                 parts = new[] { reference, maybeother };
             }
 
-
             parts = parts.OrderBy(x => x.Length).ToArray();
-
-
 
             return new QuantityTextPair(parts.LastOrDefault(), parts.FirstOrDefault());
         }
@@ -127,7 +109,5 @@ namespace Extensions.ComplexText
         public string ToString(double Number) => this[Number];
 
         public string ToString(float Number) => this[Number];
-
-        #endregion Public Methods
     }
 }
