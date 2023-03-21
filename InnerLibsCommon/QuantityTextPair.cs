@@ -64,6 +64,8 @@ namespace Extensions.ComplexText
 
         public string Singular { get; set; }
 
+        public static implicit operator QuantityTextPair(string[] b) => (QuantityTextPair)b?.SelectJoinString("/");
+
         public static implicit operator QuantityTextPair(string b)
         {
             var parts = b?.SplitAny(":", "/", ";", ",").WhereNotBlank().Distinct().ToArray() ?? Array.Empty<string>();

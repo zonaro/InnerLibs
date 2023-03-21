@@ -43,7 +43,6 @@ namespace Extensions
 {
     public static partial class Util
     {
-
         public static Image GenerateAvatarByName(this string Name)
         {
             if (Name.IsNotBlank())
@@ -1945,7 +1944,6 @@ namespace Extensions
         /// </remarks>
         public static DirectoryInfo CreateDirectoryIfNotExists(this string DirectoryName, DateTime? DateAndTime = null)
         {
-
             DirectoryName = DateAndTime.FormatPath(DirectoryName);
 
             if (DirectoryName.IsFilePath())
@@ -2382,7 +2380,6 @@ namespace Extensions
 
                 return doc;
             }
-
         }
 
         /// <summary>
@@ -2882,8 +2879,6 @@ namespace Extensions
 
             return s;
         }
-
-
 
         public static byte[] DownloadFile(this Uri URL, NameValueCollection Headers = null, Encoding Encoding = null) => DownloadFile($"{URL}", Headers, Encoding);
 
@@ -7646,7 +7641,6 @@ namespace Extensions
             return Expression.LessThanOrEqual(MemberExpression, ValueExpression);
         }
 
-
         public static IEnumerable<(string, string, int)> LevenshteinDistanceList(this IEnumerable<string> Words)
         {
             var words = Words.ToArray() ?? Array.Empty<string>();
@@ -7884,6 +7878,10 @@ namespace Extensions
 
             return lockedBitmap;
         }
+
+        public static QuantityTextPair ToQuantityTextPair(this string Text) => (QuantityTextPair)Text;
+
+        public static QuantityTextPair ToQuantityTextPair(this IEnumerable<string> Text) => (QuantityTextPair)(Text?.ToArray());
 
         /// <summary>
         /// Clareia a cor misturando ela com branco
@@ -10087,7 +10085,6 @@ namespace Extensions
         /// <returns>Uma string contendo uma palavra aleatória</returns>
         public static string RandomWord(int MinLength, int MaxLenght) => RandomWord(RandomNumber(MinLength.SetMinValue(1), MaxLenght.SetMinValue(1)));
 
-
         public static string RandomUserName() => Util.RandomWord(5) + Util.RandomNumber(1111);
 
         /// <summary>
@@ -10943,8 +10940,6 @@ namespace Extensions
         /// <param name="Number">Numero</param>
         /// <returns></returns>
         public static int RoundInt(this double Number) => Math.Round(Number).ToInt();
-
-
 
         /// <summary>
         /// Arredonda um numero para o valor inteiro mais próximo
