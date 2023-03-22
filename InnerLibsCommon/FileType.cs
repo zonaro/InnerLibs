@@ -78,7 +78,7 @@ namespace Extensions.Files
         /// </summary>
         /// <param name="MIME">MIME T String</param>
         /// <returns></returns>
-        public static IEnumerable<string> GeTextensions(string MIME, FileTypeList FileTypeList = null)
+        public static IEnumerable<string> GetExtensions(string MIME, FileTypeList FileTypeList = null)
         {
             foreach (FileType item in FileTypeList ?? GetFileTypeList())
             {

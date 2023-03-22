@@ -67,7 +67,7 @@ namespace Extensions.Files
         }
 
         public Dictionary<string, object> ToDictionary()
-        => new { Name, FullName, Title, TypeDescription, Index = this.Parent?.GetIndexOf(this) ?? -1, Children = _children.Select(x => x.ToDictionary()) }.CreateDictionary();
+        => new { Index = this.Parent?.GetIndexOf(this) ?? -1, Title, Name, FullName, Size, ShortSize, TypeDescription, Mime, Children = _children.Select(x => x.ToDictionary()) }.CreateDictionary();
 
         public string ToJson() => ToDictionary().ToNiceJson();
 
@@ -77,11 +77,16 @@ namespace Extensions.Files
 
         public bool IsFile => Path.IsFilePath();
 
+        public long Size => IsFile ? new FileInfo(this.Path).Length : this.Children.Sum(x => x.Size);
+
+        public string ShortSize => this.Size.ToFileSizeString();
+
         public FileTree Parent { get; private set; }
         public DirectoryInfo Directory => new DirectoryInfo(System.IO.Path.GetDirectoryName(Path));
         public string Path => this.FullPath;
         public string Title => Name.FileNameAsTitle();
 
+        public string Mime => IsFile ? GetFileType().ToString() : null;
         public string TypeDescription => IsDirectory ? "Directory" : (GetFileType()?.Description) ?? "FileOrDirectory";
 
         public override string Name => System.IO.Path.GetFileName(this.Path);
