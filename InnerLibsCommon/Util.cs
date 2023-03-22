@@ -2737,6 +2737,32 @@ namespace Extensions
             return default;
         }
 
+        public static T Detach<T>(this List<T> List, Expression<Func<T, bool>> predicate)
+        {
+            if (List != null && predicate != null)
+            {
+                var l = List.FirstOrDefault(predicate.Compile());
+                if (l != null)
+                    List.Remove(l);
+                return l;
+            }
+            return default;
+        }
+
+        public static IEnumerable<T> DetachMany<T>(this List<T> List, Expression<Func<T, bool>> predicate)
+        {
+            if (List != null && predicate != null)
+            {
+                var l = List.Where(predicate.Compile());
+                if (l != null && l.Any())
+                    List.RemoveWhere(predicate);
+                return l;
+            }
+            return default;
+        }
+
+
+
         /// <summary>
         /// Remove itens de uma lista e retorna uma outra lista com estes itens
         /// </summary>
@@ -10483,13 +10509,34 @@ namespace Extensions
         /// <summary>
         /// Renomeia um arquivo e retorna um <see cref="FileInfo"/> do arquivo renomeado
         /// </summary>
+        /// <param name="Directory"></param>
+        /// <param name="Name"></param>
+        /// <param name="KeepOriginalExtension"></param>
+        /// <returns></returns>
+        public static DirectoryInfo Rename(this DirectoryInfo Directory, string Name)
+        {
+            if (Directory != null && Name.IsNotBlank() && Directory.Exists)
+            {
+                var pt = Path.Combine(Directory.Parent.FullName, Name);
+                Directory.MoveTo(pt);
+                Directory = new DirectoryInfo(pt);
+            }
+            return Directory;
+        }
+
+
+
+
+        /// <summary>
+        /// Renomeia um arquivo e retorna um <see cref="FileInfo"/> do arquivo renomeado
+        /// </summary>
         /// <param name="File"></param>
         /// <param name="Name"></param>
         /// <param name="KeepOriginalExtension"></param>
         /// <returns></returns>
         public static FileInfo Rename(this FileInfo File, string Name, bool KeepOriginalExtension = false)
         {
-            if (File != null && Name.IsNotBlank())
+            if (File != null && Name.IsNotBlank() && File.Exists)
             {
                 if (KeepOriginalExtension)
                 {
@@ -16116,11 +16163,11 @@ namespace Extensions
                 if (Bytes.Any())
                 {
                     File.WriteAllBytes(FilePath, Bytes);
-                    WriteDebug(FilePath, "File Written");
+                    WriteDebug(FilePath, "Directory Written");
                 }
                 else
                 {
-                    WriteDebug("Bytes array is empty", "File not Written");
+                    WriteDebug("Bytes array is empty", "Directory not Written");
                 }
 
                 return new FileInfo(FilePath).With(x => { x.LastWriteTime = DateAndTime.Value; });

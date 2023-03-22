@@ -111,7 +111,7 @@ namespace Extensions.Files
 
             try
             {
-                string newmime = Path.GetFileNameWithoutExtension(MimeTypeOrExtensionOrPathOrDataURI);
+                string newmime = Path.GetExtension(MimeTypeOrExtensionOrPathOrDataURI);
                 if (newmime.IsNotBlank())
                 {
                     MimeTypeOrExtensionOrPathOrDataURI = newmime;
