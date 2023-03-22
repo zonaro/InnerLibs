@@ -36,7 +36,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)JSONParser\dynamic.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)JSONParser\Formatter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)JSONParser\DataSetSchema.cs" />
-    <Compile Include="..\InnerLibsCommon\JSONParser\Helper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)JSONParser\Helper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)JSONParser\JSON.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)JSONParser\JsonParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)JSONParser\JsonSerializer.cs" />

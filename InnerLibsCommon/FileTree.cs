@@ -4,26 +4,16 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 
-
 namespace Extensions.Files
 {
-
-
-    public class FileTree
+    public class FileTree : FileSystemInfo
     {
-        #region Private Fields
-
         private List<FileTree> _children = new List<FileTree>();
-
-        private FileSystemInfo info;
-
-        #endregion Private Fields
-
-        #region Internal Constructors
 
         internal FileTree(DirectoryInfo Directory, FileTree parent, string[] FileSearchPatterns)
         {
-            info = Directory;
+            this.OriginalPath = Directory.FullName;
+            this.FullPath = Directory.FullName;
             Parent = parent;
             var f = new List<FileTree>();
             foreach (var d in Directory.GetDirectories())
@@ -48,20 +38,18 @@ namespace Extensions.Files
 
         internal FileTree(FileInfo File, FileTree parent)
         {
-            info = File;
+            this.OriginalPath = File.FullName;
+            this.FullPath = File.FullName;
             Parent = parent;
             _children = new List<FileTree>(new List<FileTree>());
         }
 
-        #endregion Internal Constructors
-
         //TODO: construtor que permite aninhar arquivos relacionados
-
-        #region Internal Methods
 
         internal void Construct(DirectoryInfo Directory, params string[] FileSearchPatterns)
         {
-            info = Directory;
+            this.OriginalPath = Directory.FullName;
+            this.FullPath = Directory.FullName;
             Parent = null;
             FileSearchPatterns = FileSearchPatterns ?? Array.Empty<string>();
             if (!FileSearchPatterns.Any())
@@ -74,12 +62,10 @@ namespace Extensions.Files
             }
         }
 
-        #endregion Internal Methods
-
-        #region Public Constructors
-
         public FileTree(string Path, params string[] FileSearchPatterns)
         {
+            this.OriginalPath = Path;
+
             if (Path.IsDirectoryPath())
             {
                 Construct(new DirectoryInfo(Path), FileSearchPatterns);
@@ -90,59 +76,49 @@ namespace Extensions.Files
             }
             else
             {
-                throw new ArgumentException("Path is not valid");
+                throw new ArgumentException("Path is not valid", nameof(Path));
             }
         }
 
         public FileTree(DirectoryInfo Directory, params string[] FileSearchPatterns) => Construct(Directory, FileSearchPatterns);
 
-        #endregion Public Constructors
-
-        #region Public Properties
-
         public IEnumerable<FileTree> Children => _children.AsEnumerable();
 
-        public DateTime CreationTime => info.CreationTime;
+        public bool IsDirectory => Path.IsDirectoryPath();
 
-        public string Extension => info.Extension;
-        public bool IsDirectory => info is DirectoryInfo;
+        public bool IsFile => Path.IsFilePath();
 
-        public bool IsFile => info is FileInfo;
-
-        public DateTime LastAccessTime => info.LastAccessTime;
-
-        public DateTime LastWriteTime => info.LastWriteTime;
-
-        public string Name => info.Name;
         public FileTree Parent { get; private set; }
-        public string Path => info.FullName;
-        public string Title => info.FileNameAsTitle();
+        public string Path => this.FullPath;
+        public string Title => Name.FileNameAsTitle();
 
         public string TypeDescription => IsDirectory ? "Directory" : (GetFileType()?.Description) ?? "File";
 
-        #endregion Public Properties
+        public override string Name => System.IO.Path.GetFileName(this.Path);
 
-        #region Public Methods
+        public override bool Exists => this.IsDirectory ? Directory.Exists(Path) : File.Exists(Path);
 
         public static implicit operator DirectoryInfo(FileTree Ft) => Ft.IsDirectory ? new DirectoryInfo(Ft.Path) : new FileInfo(Ft.Path).Directory;
 
         public static implicit operator FileInfo(FileTree Ft) => Ft.IsFile ? new FileInfo(Ft.Path) : null;
 
-        public FileType GetFileType()
+        public FileType GetFileType() => IsFile ? FileType.GetFileType(Path) : null;
+
+        public Bitmap GetIcon() => this.GetIcon().ToBitmap();
+
+        public override string ToString() => this.FullName;
+
+        public override void Delete()
         {
-            if (IsFile)
+            if (this.IsDirectory && Exists)
             {
-                return FileType.GetFileType(Path);
+                Directory.Delete(Path);
             }
 
-            return null;
+            if (this.IsFile && Exists)
+            {
+                File.Delete(Path);
+            }
         }
-
-        public Bitmap GetIcon() => info.GetIcon().ToBitmap();
-
-        public override string ToString() => info.Name;
-
-        #endregion Public Methods
     }
-
 }
