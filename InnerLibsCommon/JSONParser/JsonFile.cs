@@ -1,14 +1,11 @@
-﻿
-using System;
+﻿using System;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Runtime.Serialization;
 
-
 namespace Extensions.ComplexText
 {
-
     /// <summary>
     /// Class that when inherited by a POCO class implements methods to save the values in an
     /// encrypted Json file
@@ -16,16 +13,7 @@ namespace Extensions.ComplexText
     /// <remarks>Your POCO class nedd a public, parameterless constructor</remarks>
     public abstract class JsonFile
     {
-        #region Private Fields
-
-        private int _ident = 4;
         private string filePath;
-
-        #endregion Private Fields
-
-        #region Public Properties
-
-
 
         /// <summary>
         /// The default file name used to save JsonFiles
@@ -48,7 +36,7 @@ namespace Extensions.ComplexText
         [IgnoreDataMember] public string EncryptKey { get; set; }
 
         /// <summary>
-        /// Define JSON serialization parameters  
+        /// Define JSON serialization parameters
         /// </summary>
         [IgnoreDataMember] public JSONParameters JsonParameters { get; set; } = new JSONParameters();
 
@@ -77,32 +65,22 @@ namespace Extensions.ComplexText
             set => filePath = value;
         }
 
-
-
         /// <summary>
         /// Return if this JsonFile will be encrypted using <see cref="EncryptKey"/>
         /// </summary>
         [IgnoreDataMember] public bool IsEncrypted => EncryptKey.IsNotBlank();
-
-
-
-
-        #endregion Public Properties
-
-        #region Public Methods
 
         /// <summary>
         /// Load values of a JsonFile into a <typeparamref name="T"/> object
         /// </summary>
         /// <typeparam name="T">Object T</typeparam>
         /// <param name="File">File Path</param>
-        /// <param name="EncryptKey">Encrypt Key. Leave Null or blank to not encrypt</param> 
+        /// <param name="EncryptKey">Encrypt Key. Leave Null or blank to not encrypt</param>
         /// <returns></returns>
         public static T Load<T>(FileInfo File, string EncryptKey, JSONParameters parameters = null) where T : JsonFile => Load<T>(File?.FullName, EncryptKey, parameters);
 
         /// <inheritdoc cref="Load{T}"/>
         public static T Load<T>(DirectoryInfo Directory, string EncryptKey, JSONParameters parameters = null) where T : JsonFile => Load<T>(Directory?.FullName, EncryptKey, parameters);
-
 
         /// <inheritdoc cref="Load{T}"/>
         public static T Load<T>() where T : JsonFile => Load<T>(Util.EmptyString, null);
@@ -110,29 +88,40 @@ namespace Extensions.ComplexText
         /// <inheritdoc cref="Load{T}"/>
         public static T Load<T>(string FileOrDirectoryPath, string EncryptKey, JSONParameters parameters = null) where T : JsonFile
         {
+            T c;
             try
             {
-                T c = Activator.CreateInstance<T>();
-                c.FilePath = FileOrDirectoryPath;
-                c.JsonParameters = parameters ?? JSON.Parameters;
-                if (c.File.Exists)
-                {
-                    string s = c.File.ReadAllText();
-                    if (EncryptKey.IsNotBlank())
-                    {
-                        s = s.Decrypt(EncryptKey);
-                    }
-
-                    c = JSON.FromJson<T>(s, parameters);
-                }
-
-                c.FilePath = FileOrDirectoryPath; //need to re-set after deserialize
-                c.EncryptKey = EncryptKey;
-                return c;
+                c = Activator.CreateInstance<T>();
             }
             catch (Exception ex)
             {
                 throw new NotSupportedException("Your POCO class need a public, parameterless contructor", ex);
+            }
+
+            c.FilePath = FileOrDirectoryPath;
+            c.JsonParameters = parameters ?? JSON.Parameters;
+            c.EncryptKey = EncryptKey;
+            c.Load();
+
+            return c;
+        }
+
+        public void Load()
+        {
+            if (this.File.Exists)
+            {
+                string s = this.File.ReadAllText();
+                if (EncryptKey.IsNotBlank())
+                {
+                    s = s.Decrypt(EncryptKey);
+                }
+                var a = this.FilePath;
+                var b = this.JsonParameters ?? JSON.Parameters;
+                var c = this.EncryptKey;
+                JSON.FillObject(this, s, this.GetType());
+                this.FilePath = a;
+                this.JsonParameters = b;
+                this.EncryptKey = c;
             }
         }
 
@@ -146,15 +135,15 @@ namespace Extensions.ComplexText
         /// Get the Json String representation of this file.
         /// </summary>
         /// <returns></returns>
-        public string GetJson() => this.ToJson(this.JsonParameters ?? JSON.Parameters);
+        public string GetJson(bool Minify = false) => Minify ? this.ToJson(this.JsonParameters ?? JSON.Parameters) : this.ToNiceJson(this.JsonParameters ?? JSON.Parameters);
 
         /// <summary>
         /// Save the current values into a JsonFile
         /// </summary>
         /// <returns></returns>
-        public FileInfo Save()
+        public FileInfo Save(bool Minify = false)
         {
-            var s = GetJson();
+            var s = GetJson(Minify || IsEncrypted);
             if (IsEncrypted)
             {
                 s = s.Encrypt(this.EncryptKey);
@@ -162,7 +151,5 @@ namespace Extensions.ComplexText
 
             return s.WriteToFile(this.FilePath);
         }
-
-        #endregion Public Methods
     }
 }

@@ -800,12 +800,18 @@ namespace Extensions
         /// <param name="input"></param>
         /// <param name="json"></param>
         /// <returns></returns>
-        public static object FillObject(this object input, string json)
+        public static object FillObject(this object input, string json, Type type)
         {
-            Dictionary<string, object> ht = new JsonParser(json, Parameters.AllowNonQuotedKeys).Decode(input.GetType()) as Dictionary<string, object>;
-            if (ht == null) return null;
-            return new deserializer(Parameters).ParseDictionary(ht, null, input.GetType(), input);
+            type = type ?? input?.GetType();
+            Dictionary<string, object> ht = new JsonParser(json, Parameters.AllowNonQuotedKeys).Decode(type) as Dictionary<string, object>;
+            if (ht == null) return default;
+            return new deserializer(Parameters).ParseDictionary(ht, null, type, input);
         }
+
+        public static object FillObject(this object input, string json) => FillObject(input, json, null);
+        public static T FillObject<T>(this T input, string json) => FillObject(input, json, typeof(T)).ChangeType<T>();
+
+
 
         /// <summary>
         /// FromJson a json string and generate a Dictionary&lt;string,object&gt; or
@@ -1021,7 +1027,7 @@ namespace Extensions
         public bool UseEscapedUnicode { get; set; } = true;
 
         /// <summary>
-        /// Enable Extensions extensions $types, $type, $map (default = False)
+        /// Enable JSON extensions $types, $type, $map (default = False)
         /// </summary>
         public bool UseExtensions { get; set; }
 

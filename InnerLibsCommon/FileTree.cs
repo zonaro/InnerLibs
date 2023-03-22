@@ -66,8 +66,7 @@ namespace Extensions.Files
             }
         }
 
-        public Dictionary<string, object> ToDictionary()
-        => new { Index = this.Parent?.GetIndexOf(this) ?? -1, Title, Name, FullName, Size, ShortSize, TypeDescription, Mime, Children = _children.Select(x => x.ToDictionary()) }.CreateDictionary();
+        public Dictionary<string, object> ToDictionary() => new { Index = this.Parent?.GetIndexOf(this) ?? -1, Title, Name, FullName, Size, ShortSize, TypeDescription, Mime, Children = _children.Select(x => x.ToDictionary()) }.CreateDictionary();
 
         public string ToJson() => ToDictionary().ToNiceJson();
 
@@ -97,7 +96,7 @@ namespace Extensions.Files
             {
                 if (this.IsFile)
                     this.FullPath = new FileInfo(Path).Rename(Name, KeepOriginalExtension).FullName;
-                else this.FullPath = new DirectoryInfo(this.Path).Rename(Name).FullName;
+                else this.FullPath = new DirectoryInfo(Path).Rename(Name).FullName;
             }
             return this;
         }
