@@ -5976,17 +5976,17 @@ namespace Extensions
         public static TValue GetValueOr<TKey, TValue>(this IDictionary<TKey, TValue> Dic, TKey Key, TValue ReplaceValue = default) => Dic != null && Dic.ContainsKey(Key) ? Dic[Key] : ReplaceValue;
 
         /// <summary>
-        /// Captura o ID de um video do YOUTUBE ou VIMEO em uma URL
+        /// Captura o Id de um video do YOUTUBE ou VIMEO em uma URL
         /// </summary>
         /// <param name="URL">URL do video</param>
         /// <returns>ChaveFormatadaTraco do video do youtube ou Vimeo</returns>
         public static string GetVideoID(this Uri URL) => GetVideoID(URL.AbsoluteUri);
 
         /// <summary>
-        /// Captura o ID de um video do youtube em uma URL
+        /// Captura o Id de um video do youtube em uma URL
         /// </summary>
         /// <param name="URL">URL do video</param>
-        /// <returns>ID do video do youtube</returns>
+        /// <returns>Id do video do youtube</returns>
         public static string GetVideoID(this string URL)
         {
             if (URL.IsURL())
@@ -9807,13 +9807,13 @@ namespace Extensions
 
         public static string SQLQueryForClass<T>(object InjectionObject = null) => typeof(T).GetAttributeValue<FromSQLAttribute, string>(x => x.SQL).IfBlank($"SELECT * FROM {typeof(T).Name}").Inject(InjectionObject);
 
-        public static HtmlNode QueryLinq(this HtmlNode tags, Func<HtmlNode, bool> query) => QueryLinq(tags.ChildNodes, query);
+        public static HtmlNode QuerySelector(this HtmlNode tags, Func<HtmlNode, bool> query) => QuerySelector(tags.ChildNodes, query);
 
-        public static HtmlNode QueryLinq(this IEnumerable<HtmlNode> tags, Func<HtmlNode, bool> query) => QueryLinqAll(tags, query).FirstOrDefault();
+        public static HtmlNode QuerySelector(this IEnumerable<HtmlNode> tags, Func<HtmlNode, bool> query) => QuerySelectorAll(tags, query).FirstOrDefault();
 
-        public static IEnumerable<HtmlNode> QueryLinqAll(this HtmlNode tags, Func<HtmlNode, bool> query) => QueryLinqAll(tags?.ChildNodes ?? Array.Empty<HtmlNode>(), query);
+        public static IEnumerable<HtmlNode> QuerySelectorAll(this HtmlNode tags, Func<HtmlNode, bool> query) => QuerySelectorAll(tags?.ChildNodes ?? Array.Empty<HtmlNode>(), query);
 
-        public static IEnumerable<HtmlNode> QueryLinqAll(this IEnumerable<HtmlNode> tags, Func<HtmlNode, bool> query) => tags.Traverse(ht => ht.ChildNodes).Where(query);
+        public static IEnumerable<HtmlNode> QuerySelectorAll(this IEnumerable<HtmlNode> tags, Func<HtmlNode, bool> query) => tags.Traverse(ht => ht.ChildNodes).Where(query);
 
         public static HtmlNode QuerySelector(this HtmlNode node, string cssSelector) => node.QuerySelectorAll(cssSelector).FirstOrDefault();
 

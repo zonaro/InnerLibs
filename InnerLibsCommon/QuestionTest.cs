@@ -76,7 +76,7 @@ namespace Extensions.QuestionTests
         public bool Correct { get; set; }
 
         /// <summary>
-        /// ID da alternativa
+        /// Id da alternativa
         /// </summary>
         /// <returns></returns>
         public string ID => Question != null ? $"{Question.ID}A{Number}" : null;
@@ -997,7 +997,7 @@ namespace Extensions.QuestionTests
         /// </summary>
         /// <returns></returns>
         /// <summary>
-        ///ID da prova, para identifica-la como unica
+        ///Id da prova, para identifica-la como unica
         /// </summary>
         /// <returns></returns>
         public QuestionTest GenerateID()
@@ -1007,7 +1007,7 @@ namespace Extensions.QuestionTests
         }
 
         /// <summary>
-        /// Pega uma Alternativa de uma Questão pelo ID
+        /// Pega uma Alternativa de uma Questão pelo Id
         /// </summary>
         /// <param name="ID"></param>
         /// <returns></returns>

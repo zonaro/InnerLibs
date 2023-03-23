@@ -11,11 +11,11 @@ namespace Extensions.Web.Selectors
         {
             foreach (var node in currentNodes)
             {
-                if (node.ID.Equals(this.Selector, StringComparison.InvariantCultureIgnoreCase))
-                    return new[] { node };
+                if (node.Id.Equals(this.Selector, StringComparison.InvariantCultureIgnoreCase))
+                    yield return node;
             }
 
-            return new HtmlNode[0];
+
         }
     }
 }

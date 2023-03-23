@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -603,6 +604,22 @@ namespace Extensions.Web
     /// <summary>
     /// A Helper for generate HTML or XML Tags/Documents
     /// </summary>
+    public class HtmlDocument : HtmlNode, IEnumerable<HtmlNode>
+    {
+        public HtmlDocument() : base() { this.TagName = "html"; }
+
+        public HtmlDocument(string Html) : this()
+        {
+            this.AddChildren(Parse(Html));
+        }
+        IEnumerator<HtmlNode> IEnumerable<HtmlNode>.GetEnumerator() => this._children.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => this._children.GetEnumerator() as IEnumerator;
+    }
+
+    /// <summary>
+    /// A Helper for generate HTML or XML Tags/Documents
+    /// </summary>
     public class HtmlNode : ICloneable
     {
         private readonly CSSStyles _stl;
@@ -650,7 +667,7 @@ namespace Extensions.Web
         [IgnoreDataMember]
         public HtmlNode this[string ID]
         {
-            get => ChildNodes.FirstOrDefault(x => x.ID == ID);
+            get => ChildNodes.FirstOrDefault(x => x.Id == ID);
             set
             {
                 if (value != null) AddChildren(value.SetID(ID));
@@ -691,12 +708,16 @@ namespace Extensions.Web
             }
             set
             {
-                attrs = value ?? attrs;
+                attrs = value ?? new Dictionary<string, string>();
             }
         }
 
         [IgnoreDataMember]
-        public string AttributeString => Attributes.SelectJoinString(x => $"{x.Key.Replace(" ", "-")}={x.Value.Quote()}", " ");
+        public string AttributeString
+        {
+            get => Attributes.SelectJoinString(x => $"{x.Key.Replace(" ", "-")}={x.Value.Quote()}", " ");
+            set => this.Attributes = HtmlNode.ParseTag($"<attr {value} />").Attributes.ToDictionary();
+        }
 
         /// <summary>
         /// Filhos desta tag
@@ -760,7 +781,7 @@ namespace Extensions.Web
 
                     case HtmlNodeType.Comment:
                     case HtmlNodeType.Text:
-                        _content = $"{value}".HtmlEncode();
+                        _content = value?.HtmlEncode() ?? string.Empty;
                         break;
 
                     default:
@@ -770,7 +791,7 @@ namespace Extensions.Web
         }
 
         [IgnoreDataMember]
-        public string ID { get => GetAttribute("id").IfBlank(GetAttribute("ID")); set => SetAttribute("id", value, true); }
+        public string Id { get => GetAttribute("id").BlankCoalesce(GetAttribute("Id"), GetAttribute("ID")); set => SetAttribute("id", value, true); }
 
         [IgnoreDataMember]
         public int Index => ParentNode?.ChildNodes.GetIndexOf(this) ?? -1;
@@ -901,6 +922,34 @@ namespace Extensions.Web
 
         public HtmlNodeType NodeType { get; private set; }
 
+        /// <summary>
+        /// Inject values from <typeparamref name="T"/> object into <see cref="Content"/> and <see cref="Attributes"/> of this
+        /// <see cref="HtmlNode"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public HtmlNode Inject<T>(T obj)
+        {
+            foreach (var att in this.Attributes)
+            {
+                SetAttribute(att.Key, att.Value.Inject(obj));
+            }
+
+            foreach (var el in this.ChildNodes.Traverse(x => x.ChildNodes))
+            {
+                if (el.NodeType == HtmlNodeType.Text || el.NodeType == HtmlNodeType.Comment)
+                {
+                    el.Content = el.Content.Inject(obj);
+
+                    foreach (var att in el.Attributes)
+                    {
+                    }
+                }
+            }
+            return this;
+        }
+
         public static HtmlNode CreateFontAwesomeIcon(string Icon) => new HtmlNode("i").AddClass(Icon);
 
         public static HtmlNode CreateAnchor(string URL, string Text, string Target = "_self", object htmlAttributes = null) => new HtmlNode("a", htmlAttributes, Text).SetAttribute("href", URL, true).SetAttribute("target", Target, true);
@@ -992,7 +1041,7 @@ namespace Extensions.Web
             {
                 tag.InnerHtml += Rows.SelectJoinString(row => props(row).SelectJoinString(column => column.GetValue(row)?.ToString().WrapInTag("td")).WrapInTag("tr").With(w =>
                 {
-                    if (IDProperty.IsNotBlank()) w.SetAttribute("ID", row.GetPropertyValue<object, TPoco>(IDProperty).ToString());
+                    if (IDProperty.IsNotBlank()) w.SetAttribute("Id", row.GetPropertyValue<object, TPoco>(IDProperty).ToString());
                 }).ToString()).WrapInTag("tbody");
             }
 
@@ -1188,7 +1237,7 @@ namespace Extensions.Web
 
         public HtmlNode RemoveChildren(Expression<Func<HtmlNode, bool>> predicate) => RemoveChildren(this.ChildNodes?.Where(predicate?.Compile() ?? (x => false)) ?? Array.Empty<HtmlNode>());
 
-        public HtmlNode RemoveChildren(params string[] IDs) => RemoveChildren(x => IDs.Any(y => x.ID.Equals(y, StringComparison.Ordinal)));
+        public HtmlNode RemoveChildren(params string[] IDs) => RemoveChildren(x => IDs.Any(y => x.Id.Equals(y, StringComparison.Ordinal)));
 
         public HtmlNode RemoveChildren(IEnumerable<HtmlNode> Children)
         {
@@ -1227,7 +1276,7 @@ namespace Extensions.Web
 
         public HtmlNode SetID(string Value)
         {
-            ID = Value;
+            Id = Value;
             return this;
         }
 

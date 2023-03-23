@@ -6,14 +6,11 @@ namespace Extensions.Web
 {
     public abstract class CssSelector
     {
-        #region Constructor
         public CssSelector()
         {
             this.SubSelectors = new List<CssSelector>();
         }
-        #endregion
 
-        #region Properties
         private static readonly CssSelector[] s_Selectors = FindSelectors();
         public abstract string Token { get; }
         protected virtual bool IsSubSelector => false;
@@ -21,9 +18,7 @@ namespace Extensions.Web
 
         public IList<CssSelector> SubSelectors { get; set; }
         public string Selector { get; set; }
-        #endregion
 
-        #region Methods
         protected internal abstract IEnumerable<HtmlNode> FilterCore(IEnumerable<HtmlNode> currentNodes);
 
         public IEnumerable<HtmlNode> Filter(IEnumerable<HtmlNode> currentNodes)
@@ -87,7 +82,5 @@ namespace Extensions.Web
             var rt = types.Select(t => Activator.CreateInstance(t)).Cast<CssSelector>().ToArray();
             return rt;
         }
-
-        #endregion
     }
 }

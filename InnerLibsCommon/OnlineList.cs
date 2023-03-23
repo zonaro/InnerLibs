@@ -29,7 +29,7 @@ namespace Extensions.Web.Online
     /// online/offline em uma aplicação
     /// </summary>
     /// <typeparam name="TUser">Tipo da Classe do usuário</typeparam>
-    /// <typeparam name="TID">Tipo do ID do usuário</typeparam>
+    /// <typeparam name="TID">Tipo do Id do usuário</typeparam>
 
     [Serializable]
     public class OnlineList<TUser, TID> : Dictionary<TID, OnlineUser<TUser, TID>>
@@ -46,10 +46,10 @@ namespace Extensions.Web.Online
         #region Public Constructors
 
         /// <summary>
-        /// Cria uma nova instancia de OnlineList apontando a propriedade do ID do usuario e opcionalmente
+        /// Cria uma nova instancia de OnlineList apontando a propriedade do Id do usuario e opcionalmente
         /// </summary>
         /// <param name="IdProperty">
-        /// Expressão lambda que indica qual propriedade da classe <see cref="TUser"/> é o ID de
+        /// Expressão lambda que indica qual propriedade da classe <see cref="TUser"/> é o Id de
         /// tipo <see cref="TID"/>
         /// </param>
         public OnlineList(Func<TUser, TID> IdProperty)
@@ -64,7 +64,7 @@ namespace Extensions.Web.Online
         #region Public Indexers
 
         /// <summary>
-        /// Retorna um usuario de acordo com seu ID
+        /// Retorna um usuario de acordo com seu Id
         /// </summary>
         /// <param name="User"></param>
         /// <returns></returns>
@@ -243,7 +243,7 @@ namespace Extensions.Web.Online
         => Log.CreateLog(User, Message, URL, LogData, DateAndTime ?? DateTime.Now);
 
         /// <summary>
-        /// Retorna o ID do usuário
+        /// Retorna o Id do usuário
         /// </summary>
         /// <param name="User"></param>
         /// <returns></returns>
@@ -340,7 +340,7 @@ namespace Extensions.Web.Online
         }
 
         /// <summary>
-        /// Remove um usuário desta lista a partir do ID
+        /// Remove um usuário desta lista a partir do Id
         /// </summary>
         /// <param name="ID"></param>
         public new void Remove(TID ID) => this.RemoveIfExist(ID);
@@ -394,7 +394,7 @@ namespace Extensions.Web.Online
         public OnlineUser<TUser, TID> SetOnlineActivity(TUser Obj, string Activity, Uri Url = null, Dictionary<string, string> LogData = null, DateTime? DateTime = default) => Add(Obj, true, Activity, Url, LogData, DateTime);
 
         /// <summary>
-        /// Retorna um usuário desta lista a partir do ID
+        /// Retorna um usuário desta lista a partir do Id
         /// </summary>
         /// <param name="Key"></param>
         /// <returns></returns>
@@ -409,7 +409,7 @@ namespace Extensions.Web.Online
         }
 
         /// <summary>
-        /// Retorna um usuário desta lista a partir do ID
+        /// Retorna um usuário desta lista a partir do Id
         /// </summary>
         /// <param name="Key"></param>
         /// <returns></returns>
@@ -458,7 +458,7 @@ namespace Extensions.Web.Online
         public UserConversation<TUser, TID>[] Conversations => GetConversations();
 
         /// <summary>
-        /// ID deste usuário
+        /// Id deste usuário
         /// </summary>
         /// <returns></returns>
         public TID ID => OnlineList.GetID(User);
@@ -682,7 +682,7 @@ namespace Extensions.Web.Online
         public DateTime SentDate { get; set; } = DateTime.Now;
 
         /// <summary>
-        /// ID do usuário destinatario
+        /// Id do usuário destinatario
         /// </summary>
         /// <returns></returns>
         public TID ToUserID { get; set; }
@@ -910,7 +910,7 @@ namespace Extensions.Web.Online
         public DateTime DateTime { get; set; }
 
         /// <summary>
-        /// ID desta entrada
+        /// Id desta entrada
         /// </summary>
         /// <returns></returns>
         public string ID => new string[] { GetUser().OnlineList.Log.IndexOf(this).ToString(), "-", GetUser().ID.ToString() }.SelectJoinString(Util.EmptyString);
@@ -934,7 +934,7 @@ namespace Extensions.Web.Online
         public Uri URL { get; set; }
 
         /// <summary>
-        /// ID do Usuário
+        /// Id do Usuário
         /// </summary>
         /// <returns></returns>
         public TID UserID { get; set; }

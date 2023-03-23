@@ -36,16 +36,13 @@
     <Compile Include="$(MSBuildThisFileDirectory)HtmlParser\CssSelector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HtmlParser\PseudoClass.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HtmlParser\PseudoClassNameAttribute.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)HtmlParser\PseudoClassSelectors\FirstChildPseudoClass.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)HtmlParser\PseudoClassSelectors\LastChildPseudoClass.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)HtmlParser\PseudoClassSelectors\NotPseudoClass.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)HtmlParser\PseudoClassSelectors\NthChildPseudoClass.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)HtmlParser\Selectors\PseudoClassSelector.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)HtmlParser\Selectors\ThisSelector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HtmlParser\Selectors\AllSelector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HtmlParser\Selectors\AttributeSelector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HtmlParser\Selectors\ClassNameSelector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HtmlParser\Selectors\IdSelector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HtmlParser\Selectors\ImediateChildrenSelector.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)HtmlParser\Selectors\PseudoClassSelector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HtmlParser\Selectors\SiblingImediateSelector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HtmlParser\Selectors\SiblingSelector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HtmlParser\Selectors\TagNameSelector.cs" />
@@ -99,5 +96,8 @@
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Colors.xml" />
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)mimes.xml" />
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Printer\Printer.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)HtmlParser\PseudoClassSelectors\" />
   </ItemGroup>
 </Project>
