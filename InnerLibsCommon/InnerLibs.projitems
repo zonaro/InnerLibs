@@ -97,7 +97,4 @@
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)mimes.xml" />
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Printer\Printer.css" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="$(MSBuildThisFileDirectory)HtmlParser\PseudoClassSelectors\" />
-  </ItemGroup>
 </Project>

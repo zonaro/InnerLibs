@@ -740,7 +740,6 @@ namespace Extensions.Web
         public string Class
         {
             get => Attributes.GetValueOr("class") ?? Util.EmptyString;
-
             set => Attributes["class"] = value;
         }
 
