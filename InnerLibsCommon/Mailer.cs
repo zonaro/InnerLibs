@@ -614,17 +614,17 @@ namespace Extensions.Mail
         /// <summary>
         /// Utiliza um template para o corpo da mensagem
         /// </summary>
-        public FluentMailMessage<T> UseTemplate(HtmlTag Template, string MessageTemplate) => UseTemplate(Template?.OuterHtml ?? Util.EmptyString, new { BodyText = MessageTemplate }).With(x => x.IsBodyHtml = true);
+        public FluentMailMessage<T> UseTemplate(HtmlNode Template, string MessageTemplate) => UseTemplate(Template?.OuterHtml ?? Util.EmptyString, new { BodyText = MessageTemplate }).With(x => x.IsBodyHtml = true);
 
         /// <summary>
         /// Utiliza um template para o corpo da mensagem
         /// </summary>
-        public FluentMailMessage<T> UseTemplate(HtmlTag Template) => UseTemplate(Template?.OuterHtml ?? Util.EmptyString, Util.EmptyString).With(x => x.IsBodyHtml = true);
+        public FluentMailMessage<T> UseTemplate(HtmlNode Template) => UseTemplate(Template?.OuterHtml ?? Util.EmptyString, Util.EmptyString).With(x => x.IsBodyHtml = true);
 
         /// <summary>
         /// Utiliza um template para o corpo da mensagem
         /// </summary>
-        public FluentMailMessage<T> UseTemplate<TMessage>(HtmlTag Template, TMessage MessageTemplate) => UseTemplate(Template?.OuterHtml ?? Util.EmptyString, MessageTemplate).With(x => x.IsBodyHtml = true);
+        public FluentMailMessage<T> UseTemplate<TMessage>(HtmlNode Template, TMessage MessageTemplate) => UseTemplate(Template?.OuterHtml ?? Util.EmptyString, MessageTemplate).With(x => x.IsBodyHtml = true);
 
         /// <summary>
         /// Utiliza um template para o corpo da mensagem
@@ -738,7 +738,7 @@ namespace Extensions.Mail
         /// Configura a mensagem a ser enviada
         /// </summary>
         /// <returns></returns>
-        public FluentMailMessage<T> WithMessage(HtmlTag Text)
+        public FluentMailMessage<T> WithMessage(HtmlNode Text)
         {
             IsBodyHtml = true;
             Body = Text?.ToString() ?? "";

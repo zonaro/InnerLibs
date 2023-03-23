@@ -609,8 +609,7 @@ namespace Extensions
 
         #region Public Properties
 
-        public static Reflection Instance
-        { get { return instance; } }
+        public static Reflection Instance => instance;
 
         #endregion Public Properties
 
@@ -853,7 +852,7 @@ namespace Extensions
 
         #endregion Public Methods
 
-        //private static bool IsAnonymousType(Type type)
+        //private static bool IsAnonymousType(NodeType type)
         //{
         //    // may break in the future if compiler defined names change...
         //    const string CS_ANONYMOUS_PREFIX = "<>f__AnonymousType";

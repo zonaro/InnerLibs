@@ -10,7 +10,7 @@ namespace Extensions.Files
 
 {
     /// <summary>
-    /// Classe que representa um MIME Type
+    /// Classe que representa um MIME NodeType
     /// </summary>
     public class FileType
     {

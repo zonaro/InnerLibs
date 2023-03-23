@@ -1074,13 +1074,13 @@ namespace Extensions.QuestionTests
         }
 
         /// <summary>
-        /// Retorna uma <see cref="HtmlTag" /> contendo um formulário com esta <see cref="QuestionTest" />
+        /// Retorna uma <see cref="HtmlNode" /> contendo um formulário com esta <see cref="QuestionTest" />
         /// </summary>
         /// <returns></returns>
-        public HtmlTag ToHTML()
+        public HtmlNode ToHTML()
         {
-            var form = new HtmlTag("form");
-            var header = new HtmlTag("header").InsertInto(form);
+            var form = new HtmlNode("form");
+            var header = new HtmlNode("header").InsertInto(form);
 
             if (Title.IsNotBlank())
             {
@@ -1088,16 +1088,16 @@ namespace Extensions.QuestionTests
             }
             if (PersonalInfo != null && PersonalInfo.Any())
             {
-                var section = new HtmlTag("section")
+                var section = new HtmlNode("section")
                 .AddClass("personal-info")
                 .InsertInto(header);
 
                 foreach (var inf in PersonalInfo)
                 {
-                    new HtmlTag("div")
+                    new HtmlNode("div")
                     .AddClass("personal-info-item")
                    .AddChildren("label", inf.Key)
-                   .AddChildren(HtmlTag.CreateInput($"{inf.Key}_personalinfo_input", $"{inf.Value}"))
+                   .AddChildren(HtmlNode.CreateInput($"{inf.Key}_personalinfo_input", $"{inf.Value}"))
                    .AddBreakLine()
                    .InsertInto(section);
                 }
@@ -1105,20 +1105,20 @@ namespace Extensions.QuestionTests
 
             header.AddHorizontalRule();
 
-            var list = new HtmlTag("section").AddClass("question-list").InsertInto(form);
+            var list = new HtmlNode("section").AddClass("question-list").InsertInto(form);
 
             foreach (var quest in this.Questions)
             {
-                var sq = new HtmlTag("article").AddClass($"question-{quest.Number}").SetID(quest.ID).InsertInto(list)
+                var sq = new HtmlNode("article").AddClass($"question-{quest.Number}").SetID(quest.ID).InsertInto(list)
                 .AddChildren(quest.Statement.ToString().WrapInTag("h3").AddClass($"question-Text-{quest.Number}"));
 
                 if (quest.Statement.Images.Any())
                 {
-                    var imgpart = new HtmlTag("div").AddClass($"images-{quest.Number}").InsertInto(sq);
+                    var imgpart = new HtmlNode("div").AddClass($"images-{quest.Number}").InsertInto(sq);
                     foreach (var i in quest.Statement.Images)
                     {
-                        new HtmlTag("figure")
-                        .AddChildren(HtmlTag.CreateImage(i.Image).SetAttribute("alt", i.Subtitle).SetID(i.ID).AddClass($"img-{i.Number}"))
+                        new HtmlNode("figure")
+                        .AddChildren(HtmlNode.CreateImage(i.Image).SetAttribute("alt", i.Subtitle).SetID(i.ID).AddClass($"img-{i.Number}"))
                         .AddChildren("figcaption", $"{i.Number} - {i.Subtitle}").AddClass($"cap-{i.Number}")
                         .InsertInto(imgpart);
                     }
@@ -1127,22 +1127,22 @@ namespace Extensions.QuestionTests
 
                 if (quest is DissertativeQuestion diss)
                 {
-                    new HtmlTag("Textarea", diss.Answer).SetID(diss.ID).SetAttribute("name", diss.ID).SetAttribute("rows", $"{diss.Lines}").InsertInto(sq);
+                    new HtmlNode("Textarea", diss.Answer).SetID(diss.ID).SetAttribute("name", diss.ID).SetAttribute("rows", $"{diss.Lines}").InsertInto(sq);
                 }
                 else if (quest is AlternativeQuestion altquest)
                 {
-                    var alts = new HtmlTag("div").AddClass("alt-" + altquest.ID).InsertInto(sq);
+                    var alts = new HtmlNode("div").AddClass("alt-" + altquest.ID).InsertInto(sq);
                     foreach (var alt in altquest.Alternatives)
                     {
-                        var lab = new HtmlTag("label").SetAttribute("for", alt.ID).InsertInto(alts);
+                        var lab = new HtmlNode("label").SetAttribute("for", alt.ID).InsertInto(alts);
 
                         if (altquest is MultipleAlternativeQuestion)
                         {
-                            HtmlTag.CreateInput(alt.Question.ID, alt.ID, "checkbox").SetProp("checked", alt.Checked ?? false).InsertInto(lab);
+                            HtmlNode.CreateInput(alt.Question.ID, alt.ID, "checkbox").SetProp("checked", alt.Checked ?? false).InsertInto(lab);
                         }
                         else
                         {
-                            HtmlTag.CreateInput(alt.Question.ID, alt.ID, "radio").SetProp("checked", alt.Checked ?? false).InsertInto(lab);
+                            HtmlNode.CreateInput(alt.Question.ID, alt.ID, "radio").SetProp("checked", alt.Checked ?? false).InsertInto(lab);
                         }
 
                         lab.AddChildren("span", alt.Text).AddBreakLine();
@@ -1152,7 +1152,7 @@ namespace Extensions.QuestionTests
                 }
                 else if (quest is NumericQuestion num)
                 {
-                    HtmlTag.CreateInput(num.ID, $"{num.Answer}", "number").SetID(num.ID).SetAttribute("min", $"{num.MinValue}").SetAttribute("max", $"{num.MaxValue}").InsertInto(sq);
+                    HtmlNode.CreateInput(num.ID, $"{num.Answer}", "number").SetID(num.ID).SetAttribute("min", $"{num.MinValue}").SetAttribute("max", $"{num.MaxValue}").InsertInto(sq);
                 }
             }
 

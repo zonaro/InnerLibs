@@ -35,7 +35,7 @@ namespace Extensions
                 myPropInfo p = props[kv.Key];
                 object o = p.getter(obj);
                 // blacklist checking
-                Type t = //Type.GetType((string)kv.Value);
+                Type t = //NodeType.GetType((string)kv.Value);
                          Reflection.Instance.GetTypeFromCache((string)kv.Value, true);
                 if (t == typeof(Guid))
                     p.setter(obj, Helper.CreateGuid((string)o));
@@ -147,7 +147,7 @@ namespace Extensions
                     if (ds.Tables.Contains(ms.Info[i]) == false)
                         ds.Tables.Add(ms.Info[i]);
                     // blacklist checking
-                    var t = //Type.GetType(ms.Info[i + 2]);
+                    var t = //NodeType.GetType(ms.Info[i + 2]);
                             Reflection.Instance.GetTypeFromCache(ms.Info[i + 2], true);
                     ds.Tables[ms.Info[i]].Columns.Add(ms.Info[i + 1], t);
                 }
@@ -188,7 +188,7 @@ namespace Extensions
                 for (int i = 0; i < ms.Info.Count; i += 3)
                 {
                     // blacklist checking
-                    var t = //Type.GetType(ms.Info[i + 2]);
+                    var t = //NodeType.GetType(ms.Info[i + 2]);
                             Reflection.Instance.GetTypeFromCache(ms.Info[i + 2], true);
                     dt.Columns.Add(ms.Info[i + 1], t);
                 }

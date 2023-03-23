@@ -2761,8 +2761,6 @@ namespace Extensions
             return default;
         }
 
-
-
         /// <summary>
         /// Remove itens de uma lista e retorna uma outra lista com estes itens
         /// </summary>
@@ -9285,17 +9283,17 @@ namespace Extensions
             return s;
         }
 
-        public static HtmlTag ParseTag(this string HtmlString) => HtmlTag.ParseTag(HtmlString);
+        public static HtmlNode ParseTag(this string HtmlString) => HtmlNode.ParseTag(HtmlString);
 
-        public static HtmlTag ParseTag(this FileInfo File) => HtmlTag.ParseTag(File);
+        public static HtmlNode ParseTag(this FileInfo File) => HtmlNode.ParseTag(File);
 
-        public static HtmlTag ParseTag(this Uri URL) => HtmlTag.ParseTag(URL);
+        public static HtmlNode ParseTag(this Uri URL) => HtmlNode.ParseTag(URL);
 
-        public static IEnumerable<HtmlTag> ParseTags(this string HtmlString) => HtmlTag.Parse(HtmlString);
+        public static IEnumerable<HtmlNode> ParseTags(this string HtmlString) => HtmlNode.Parse(HtmlString);
 
-        public static IEnumerable<HtmlTag> ParseTags(this FileInfo File) => HtmlTag.Parse(File);
+        public static IEnumerable<HtmlNode> ParseTags(this FileInfo File) => HtmlNode.Parse(File);
 
-        public static IEnumerable<HtmlTag> ParseTags(this Uri URL) => HtmlTag.Parse(URL);
+        public static IEnumerable<HtmlNode> ParseTags(this Uri URL) => HtmlNode.Parse(URL);
 
         /// <summary>
         /// Separa as palavras de um texto CamelCase a partir de suas letras maíusculas
@@ -9807,15 +9805,53 @@ namespace Extensions
         /// <returns></returns>
         public static string QuantifyText(this double Quantity, string PluralText) => PluralText.QuantifyText(Quantity);
 
-        public static string QueryForClass<T>(object InjectionObject = null) => typeof(T).GetAttributeValue<FromSQLAttribute, string>(x => x.SQL).IfBlank($"SELECT * FROM {typeof(T).Name}").Inject(InjectionObject);
+        public static string SQLQueryForClass<T>(object InjectionObject = null) => typeof(T).GetAttributeValue<FromSQLAttribute, string>(x => x.SQL).IfBlank($"SELECT * FROM {typeof(T).Name}").Inject(InjectionObject);
 
-        public static HtmlTag QueryLinq(this HtmlTag tags, Func<HtmlTag, bool> query) => QueryLinq(tags.Children, query);
+        public static HtmlNode QueryLinq(this HtmlNode tags, Func<HtmlNode, bool> query) => QueryLinq(tags.ChildNodes, query);
 
-        public static HtmlTag QueryLinq(this IEnumerable<HtmlTag> tags, Func<HtmlTag, bool> query) => QueryLinqAll(tags, query).FirstOrDefault();
+        public static HtmlNode QueryLinq(this IEnumerable<HtmlNode> tags, Func<HtmlNode, bool> query) => QueryLinqAll(tags, query).FirstOrDefault();
 
-        public static IEnumerable<HtmlTag> QueryLinqAll(this HtmlTag tags, Func<HtmlTag, bool> query) => QueryLinqAll(tags?.Children ?? Array.Empty<HtmlTag>(), query);
+        public static IEnumerable<HtmlNode> QueryLinqAll(this HtmlNode tags, Func<HtmlNode, bool> query) => QueryLinqAll(tags?.ChildNodes ?? Array.Empty<HtmlNode>(), query);
 
-        public static IEnumerable<HtmlTag> QueryLinqAll(this IEnumerable<HtmlTag> tags, Func<HtmlTag, bool> query) => tags.Traverse(ht => ht.Children).Where(query);
+        public static IEnumerable<HtmlNode> QueryLinqAll(this IEnumerable<HtmlNode> tags, Func<HtmlNode, bool> query) => tags.Traverse(ht => ht.ChildNodes).Where(query);
+
+        public static HtmlNode QuerySelector(this HtmlNode node, string cssSelector) => node.QuerySelectorAll(cssSelector).FirstOrDefault();
+
+        public static IEnumerable<HtmlNode> QuerySelectorAll(this HtmlNode node, string cssSelector) => new[] { node }.QuerySelectorAll(cssSelector);
+        public static IEnumerable<HtmlNode> QuerySelectorAll(this IEnumerable<HtmlNode> nodes, string cssSelector)
+        {
+            if (cssSelector == null)
+                throw new ArgumentNullException("cssSelector");
+
+            if (cssSelector.Contains(','))
+            {
+                var combinedSelectors = cssSelector.Split(',');
+                var rt = nodes.QuerySelectorAll(combinedSelectors[0]).ToList();
+                foreach (var s in combinedSelectors.Skip(1))
+                    foreach (var n in nodes.QuerySelectorAll(s))
+                        if (!rt.Contains(n))
+                            rt.Add(n);
+
+                return rt;
+            }
+
+            cssSelector = cssSelector.Trim();
+
+            var selectors = CssSelector.Parse(cssSelector);
+
+            bool allowTraverse = true;
+
+            foreach (var selector in selectors)
+            {
+                if (allowTraverse && selector.AllowTraverse)
+                    nodes = Util.Traverse(nodes, x => x.ChildNodes);
+
+                nodes = selector.Filter(nodes);
+                allowTraverse = selector.AllowTraverse;
+            }
+
+            return nodes.Distinct().ToList();
+        }
 
         /// <summary>
         /// Encapsula um texto entre 2 caracteres (normalmente parentesis, chaves, aspas ou colchetes)
@@ -10523,9 +10559,6 @@ namespace Extensions
             }
             return Directory;
         }
-
-
-
 
         /// <summary>
         /// Renomeia um arquivo e retorna um <see cref="FileInfo"/> do arquivo renomeado
@@ -11282,7 +11315,7 @@ namespace Extensions
         /// <returns></returns>
         public static T RunSQLRow<T>(this DbConnection Connection, FormattableString SQL, bool WithSubQueries = false, DbTransaction Transaction = null) where T : class => Connection.RunSQLRow<T>(Connection.CreateCommand(SQL, Transaction), WithSubQueries);
 
-        public static T RunSQLRow<T>(this DbConnection Connection, bool WithSubQueries = false, DbTransaction Transaction = null, object InjectionObject = null) where T : class => RunSQLRow<T>(Connection, QueryForClass<T>(InjectionObject).ToFormattableString(), WithSubQueries, Transaction);
+        public static T RunSQLRow<T>(this DbConnection Connection, bool WithSubQueries = false, DbTransaction Transaction = null, object InjectionObject = null) where T : class => RunSQLRow<T>(Connection, SQLQueryForClass<T>(InjectionObject).ToFormattableString(), WithSubQueries, Transaction);
 
         /// <summary>
         /// Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset
@@ -11291,7 +11324,7 @@ namespace Extensions
         /// <returns></returns>
         public static IEnumerable<T> RunSQLSet<T>(this DbConnection Connection, Select<T> Select, bool WithSubQueries = false, DbTransaction Transaction = null) where T : class => Connection.RunSQLSet<T>(Select.CreateDbCommand(Connection, Transaction), WithSubQueries);
 
-        public static IEnumerable<T> RunSQLSet<T>(this DbConnection Connection, bool WithSubQueries = false, DbTransaction Transaction = null, object InjectionObject = null) where T : class => RunSQLSet<T>(Connection, QueryForClass<T>(InjectionObject).ToFormattableString(), WithSubQueries, Transaction);
+        public static IEnumerable<T> RunSQLSet<T>(this DbConnection Connection, bool WithSubQueries = false, DbTransaction Transaction = null, object InjectionObject = null) where T : class => RunSQLSet<T>(Connection, SQLQueryForClass<T>(InjectionObject).ToFormattableString(), WithSubQueries, Transaction);
 
         /// <summary>
         /// Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset
@@ -16105,11 +16138,11 @@ namespace Extensions
         /// <returns></returns>
         public static string Wrap(this string Text, string OpenWrapText, string CloseWrapText) => $"{OpenWrapText}{Text}{CloseWrapText.IfBlank(OpenWrapText)}";
 
-        public static HtmlTag WrapInTag(this IEnumerable<HtmlTag> Tags, string TagName) => new HtmlTag(TagName).AddChildren(Tags);
+        public static HtmlNode WrapInTag(this IEnumerable<HtmlNode> Tags, string TagName) => new HtmlNode(TagName).AddChildren(Tags);
 
-        public static HtmlTag WrapInTag(this HtmlTag Tag, string TagName) => new HtmlTag(TagName).AddChildren(Tag);
+        public static HtmlNode WrapInTag(this HtmlNode Tag, string TagName) => new HtmlNode(TagName).AddChildren(Tag);
 
-        public static HtmlTag WrapInTag(this string Text, string TagName) => new HtmlTag() { InnerHtml = Text, TagName = TagName };
+        public static HtmlNode WrapInTag(this string Text, string TagName) => new HtmlNode() { InnerHtml = Text, TagName = TagName };
 
         /// <summary>
         /// Write a message using <see cref="Debug.WriteLine(value,category)"/> when <see
