@@ -73,6 +73,18 @@ namespace Extensions.Web.PseudoClassSelectors
         protected override bool CheckNode(HtmlNode node, string parameter) => node.TagName == "input" && node.GetAttribute("type") == "text";
     }
 
+    [PseudoClassName("even")]
+    internal class EvenPseudoClass : PseudoClass
+    {
+        protected override bool CheckNode(HtmlNode node, string parameter) => node.Index.IsEven();
+    }
+
+    [PseudoClassName("odd")]
+    internal class OddPseudoClass : PseudoClass
+    {
+        protected override bool CheckNode(HtmlNode node, string parameter) => node.Index.IsOdd();
+    }
+
     [PseudoClassName("not")]
     internal class NotPseudoClass : PseudoClass
     {

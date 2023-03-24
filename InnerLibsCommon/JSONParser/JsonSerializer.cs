@@ -73,7 +73,7 @@ namespace Extensions
                 obj is byte || obj is short ||
                 obj is sbyte || obj is ushort ||
                 obj is uint || obj is ulong
-            )
+                    )
                 _output.Append(((IConvertible)obj).ToString(NumberFormatInfo.InvariantInfo));
             else if (obj is double || obj is Double)
             {
@@ -441,8 +441,7 @@ namespace Extensions
                 else
                 {
                     string ct = Reflection.Instance.GetTypeAssemblyName(t);
-                    int dt;
-                    if (_globalTypes.TryGetValue(ct, out dt) == false)
+                    if (_globalTypes.TryGetValue(ct, out int dt) == false)
                     {
                         dt = _globalTypes.Count + 1;
                         _globalTypes.Add(ct, dt);

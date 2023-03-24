@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using static Extensions.Web.Tokenizer;
 
 namespace Extensions.Web
 {
@@ -40,7 +41,7 @@ namespace Extensions.Web
         public static IList<CssSelector> Parse(string cssSelector)
         {
             var rt = new List<CssSelector>();
-            var tokens = Tokenizer.GetTokens(cssSelector);
+            var tokens = GetTokens(cssSelector);
             foreach (var token in tokens)
                 rt.Add(ParseSelector(token));
 
@@ -58,13 +59,13 @@ namespace Extensions.Web
                 selector = s_Selectors.Where(s => s.Token.Length > 0).FirstOrDefault(s => token.Filter.StartsWith(s.Token));
 
             if (selector == null)
-                throw new InvalidOperationException("Token inválido: " + token.Filter);
+                throw new InvalidOperationException("Invalid token: " + token.Filter);
 
             selectorType = selector.GetType();
             var rt = (CssSelector)Activator.CreateInstance(selectorType);
 
             string filter = token.Filter.Substring(selector.Token.Length);
-            rt.SubSelectors = token.SubTokens.Select(i => CssSelector.ParseSelector(i)).ToList();
+            rt.SubSelectors = token.SubTokens.Select(i => ParseSelector(i)).ToList();
 
             rt.Selector = filter;
             return rt;
@@ -76,7 +77,7 @@ namespace Extensions.Web
             Func<Type, bool> typeQuery = type => type.IsSubclassOf(typeof(CssSelector)) && !type.IsAbstract;
 
             var defaultTypes = defaultAsm.GetTypes().Where(typeQuery);
-            var types = System.AppDomain.CurrentDomain.GetAssemblies().Where(asm => asm == defaultAsm).SelectMany(asm => asm.GetTypes().Where(typeQuery));
+            var types = AppDomain.CurrentDomain.GetAssemblies().Where(asm => asm == defaultAsm).SelectMany(asm => asm.GetTypes().Where(typeQuery));
             types = defaultTypes.Concat(types);
 
             var rt = types.Select(t => Activator.CreateInstance(t)).Cast<CssSelector>().ToArray();

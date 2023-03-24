@@ -23,7 +23,6 @@ namespace Extensions
             else return value is long vlong ? vlong : Convert.ToInt64(value);
         }
 
-        public static bool BoolConv(object v) => $"{v}".AsBool();
 
         public static DateTime CreateDateTime(string value, bool UseUTCDateTime)
         {

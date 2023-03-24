@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
@@ -604,17 +604,91 @@ namespace Extensions.Web
     /// <summary>
     /// A Helper for generate HTML or XML Tags/Documents
     /// </summary>
-    public class HtmlDocument : HtmlNode, IEnumerable<HtmlNode>
+    public class HtmlDocument : HtmlNode
     {
         public HtmlDocument() : base() { this.TagName = "html"; }
 
         public HtmlDocument(string Html) : this()
         {
-            this.AddChildren(Parse(Html));
+            var temp = ParseDocument(Html);
+            this.AttributeString = temp.AttributeString;
+            this.ChildNodes = temp.ChildNodes;
         }
-        IEnumerator<HtmlNode> IEnumerable<HtmlNode>.GetEnumerator() => this._children.GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator() => this._children.GetEnumerator() as IEnumerator;
+        public HtmlNode Body => this.FindFirst(x => x.TagName.EqualsIgnoreCaseAndAccents("body"));
+        public HtmlNode Head => this.FindFirst(x => x.TagName.EqualsIgnoreCaseAndAccents("head"));
+
+        private HtmlNode headsel => (Head ?? Body ?? this);
+
+        public string Charset
+        {
+            get => this.FindFirst(x => x.TagName == "meta" && x.HasAttribute("charset"))?.GetAttribute("charset");
+            set
+            {
+                if (value.IsNotBlank())
+                {
+                    var m = this.FindFirst(x => x.TagName == "meta" && x.HasAttribute("charset")) ?? new HtmlNode("meta") { SelfClosing = true };
+                    m.SetAttribute("charset", value);
+                    headsel?.AddChildren(m);
+                }
+            }
+        }
+        public HtmlNode SetMeta(string name, string content)
+        {
+            if (name.IsNotBlank())
+            {
+                var m = this.FindFirst(x => x.TagName == "meta" && x.GetAttribute("name") == name) ?? new HtmlNode("meta") { SelfClosing = true };
+                m.SetAttribute("name", name);
+                m.SetAttribute("content", content);
+                headsel?.AddChildren(m);
+                return m;
+            }
+            return null;
+        }
+        public HtmlNode AddStyle(string href)
+        {
+            if (href.IsNotBlank())
+            {
+                var sheet = new HtmlNode("link", new { rel = "stylesheet", href }) { SelfClosing = true };
+                headsel?.AddChildren(sheet);
+                return sheet;
+            }
+            return null;
+        }
+        public HtmlNode AddScript(string src)
+        {
+            if (src.IsNotBlank())
+            {
+                var scripto = new HtmlNode("script", new { src }) { SelfClosing = true };
+                headsel?.AddChildren(scripto);
+                return scripto;
+            }
+            return null;
+        }
+
+        public HtmlNode AddInlineCss(string InnerCss)
+        {
+            if (InnerCss.IsNotBlank())
+            {
+                var stl = new HtmlNode("style");
+                stl.AddText(InnerCss);
+                headsel?.AddChildren(stl);
+                return stl;
+            }
+            return null;
+        }
+
+        public HtmlNode AddInlineScript(string jsString)
+        {
+            if (jsString.IsNotBlank())
+            {
+                var stl = new HtmlNode("script");
+                stl.AddText(jsString);
+                headsel?.AddChildren(stl);
+                return stl;
+            }
+            return null;
+        }
     }
 
     /// <summary>
@@ -634,6 +708,8 @@ namespace Extensions.Web
         public HtmlNode() : this(HtmlNodeType.Element)
         {
         }
+
+        public static explicit operator HtmlNode[](HtmlNode d) => d.ChildNodes.ToArray();
 
         public HtmlNode(HtmlNodeType type) : base()
         {
@@ -922,8 +998,8 @@ namespace Extensions.Web
         public HtmlNodeType NodeType { get; private set; }
 
         /// <summary>
-        /// Inject values from <typeparamref name="T"/> object into <see cref="Content"/> and <see cref="Attributes"/> of this
-        /// <see cref="HtmlNode"/>
+        /// Inject values from <typeparamref name="T"/> object into <see cref="Content"/> and <see
+        /// cref="Attributes"/> of this <see cref="HtmlNode"/>
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="obj"></param>
@@ -951,7 +1027,7 @@ namespace Extensions.Web
 
         public static HtmlNode CreateFontAwesomeIcon(string Icon) => new HtmlNode("i").AddClass(Icon);
 
-        public static HtmlNode CreateAnchor(string URL, string Text, string Target = "_self", object htmlAttributes = null) => new HtmlNode("a", htmlAttributes, Text).SetAttribute("href", URL, true).SetAttribute("target", Target, true);
+        public static HtmlNode CreateAnchor(string URL, string Text, string Target = "_self", object htmlAttributes = null) => new HtmlNode("a", htmlAttributes, Text).SetAttribute("src", URL, true).SetAttribute("target", Target, true);
         public static HtmlNode CreateAnchor(Uri URL, string Text, string Target = "_self", object htmlAttributes = null) => CreateAnchor(URL.AbsoluteUri, Text, Target, htmlAttributes);
 
         public static HtmlNode CreateBreakLine() => new HtmlNode("br") { SelfClosing = true };
@@ -1047,11 +1123,87 @@ namespace Extensions.Web
             return tag;
         }
 
+        public HtmlNode FindLast(string selector) => Find(selector).LastOrDefault();
+        public HtmlNode FindLast(Expression<Func<HtmlNode, bool>> predicate) => Find(predicate).LastOrDefault();
+
+        public IEnumerable<HtmlNode> Find(string selector) => this.QuerySelectorAll(selector).Where(x => x != this);
+        public HtmlNode FindFirst(string selector) => Find(selector).FirstOrDefault();
+        public HtmlNode FindFirst(Expression<Func<HtmlNode, bool>> predicate) => Find(predicate).FirstOrDefault();
+        public IEnumerable<HtmlNode> Find(Expression<Func<HtmlNode, bool>> predicate) => predicate != null ? this.Traverse(x => x.ChildNodes).Where(predicate.Compile()).Where(x => x != this) : default;
+
+        public HtmlNode Closest(Expression<Func<HtmlNode, bool>> predicate) => predicate != null ? this.Traverse(x => x.ParentNode, predicate).LastOrDefault(x => x != this) : null;
+        public HtmlNode Closest(string selector)
+        {
+            var item = this;
+            if (item != null && selector.IsNotBlank())
+            {
+                var current = item.ParentNode;
+                do
+                {
+                    var r = current.QuerySelector(selector);
+                    if (r != null)
+                        return r;
+                    current = current.ParentNode;
+                }
+                while (current != null);
+            }
+            return item;
+        }
+
+        public Dictionary<string, string> GetData() => Attributes.Where(x => x.Key.StartsWith("data-", StringComparison.OrdinalIgnoreCase)).ToDictionary();
+
+        public string GetData(string Key) => GetAttribute("data-" + Key);
+
+        public HtmlNode SetData(string Key, string value, bool RemoveIfBlank = false) => SetAttribute(Key.PrependIf("data-", x => x.IsNotBlank()), value, RemoveIfBlank);
+
         public static HtmlNode CreateText(string Text) => new HtmlNode(HtmlNodeType.Text).With(x => x.Content = Text);
 
         public static HtmlNode CreateWhiteSpace() => new HtmlNode(HtmlNodeType.Text).With(x => x._content = "&nbsp;");
 
         public static implicit operator string(HtmlNode Tag) => Tag?.ToString();
+
+        public static HtmlDocument ParseDocument(Uri URL) => ParseDocument(URL?.DownloadString());
+        public static HtmlDocument ParseDocument(FileInfo File) => File != null && File.Exists ? ParseDocument(File.ReadAllText()) : new HtmlDocument();
+
+        public static HtmlDocument CreateHTMLStandardDocument(string title = null, string description = null, string author = null, string language = null, string charset = null) => ParseDocument(
+            $@"<html lang=""{language.IfBlank(CultureInfo.CurrentCulture.Name)}"">
+                <head>
+                  <title>{title}</title>
+                  <meta charset=""{charset.IfBlank("utf-8")}"">
+                  <meta name=""author"" content=""{author}"">
+                  <meta name=""content"" content=""{description}"">
+                  <meta name=""viewport"" content=""width=device-width, initial-scale=1"">
+                </head>
+                <body>
+                </body>
+              </html>"
+                                                                                                                                                                                                   );
+
+        /// <summary>
+        /// Parse a Html string into a <see cref="HtmlDocument"/> ensuring a HTML node as root of document
+        /// </summary>
+        /// <param name="HtmlString"></param>
+        /// <returns></returns>
+        public static HtmlDocument ParseDocument(string HtmlString)
+        {
+            var n = Parse(HtmlString);
+            var doctag = n.QuerySelector("html");
+            if (doctag != null)
+            {
+                return new HtmlDocument
+                {
+                    ChildNodes = doctag.ChildNodes,
+                    Attributes = doctag.Attributes.ToDictionary()
+                };
+            }
+            else
+            {
+                return new HtmlDocument
+                {
+                    ChildNodes = n
+                };
+            }
+        }
 
         public static IEnumerable<HtmlNode> Parse(string HtmlString) => HtmlString.IsNotBlank() ? HtmlParser.Instance.Parse(HtmlString) : Array.Empty<HtmlNode>();
 
@@ -1263,7 +1415,8 @@ namespace Extensions.Web
 
         public HtmlNode SetAttribute(string AttrName, string Value, bool RemoveIfBlank = false)
         {
-            Attributes.SetOrRemove(AttrName, Value, RemoveIfBlank);
+            if (AttrName.IsNotBlank())
+                Attributes.SetOrRemove(AttrName, Value, RemoveIfBlank);
             return this;
         }
 

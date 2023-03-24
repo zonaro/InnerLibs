@@ -26,7 +26,7 @@ namespace Extensions.Web.Selectors
             int idx = filter.IndexOf('=');
 
             if (idx == 0)
-                throw new InvalidOperationException("Uso inválido de seletor por atributo: " + this.Selector);
+                throw new InvalidOperationException("Invalid use of selector by attribute: " + this.Selector);
 
             if (idx < 0)
                 return (HtmlNode node) => node.Attributes.ContainsKey(filter);
@@ -60,7 +60,7 @@ namespace Extensions.Web.Selectors
                 case '~': return (attr, v) => attr.Split(' ').Contains(v);
             }
 
-            throw new NotSupportedException("Uso inválido de seletor por atributo: " + this.Selector);
+            throw new NotSupportedException("Invalid use of selector by attribute: " + this.Selector);
         }
     }
 }

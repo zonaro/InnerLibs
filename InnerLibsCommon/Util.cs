@@ -4216,6 +4216,8 @@ namespace Extensions
             return Enum.GetValues(typeof(T)).Cast<T>().AsEnumerable();
         }
 
+        public static Dictionary<string, int> GetEnumValuesDictionary<T>() => GetEnumValues<T>().ToDictionary(x => x.GetEnumValueAsString(), x => x.ToInt());
+
         /// <summary>
         /// Captura o Username ou UserID de uma URL do Facebook
         /// </summary>
@@ -9810,6 +9812,7 @@ namespace Extensions
         public static HtmlNode QuerySelector(this HtmlNode tags, Func<HtmlNode, bool> query) => QuerySelector(tags.ChildNodes, query);
 
         public static HtmlNode QuerySelector(this IEnumerable<HtmlNode> tags, Func<HtmlNode, bool> query) => QuerySelectorAll(tags, query).FirstOrDefault();
+        public static HtmlNode QuerySelector(this IEnumerable<HtmlNode> tags, string cssSelector) => QuerySelectorAll(tags, cssSelector).FirstOrDefault();
 
         public static IEnumerable<HtmlNode> QuerySelectorAll(this HtmlNode tags, Func<HtmlNode, bool> query) => QuerySelectorAll(tags?.ChildNodes ?? Array.Empty<HtmlNode>(), query);
 
@@ -9821,7 +9824,7 @@ namespace Extensions
         public static IEnumerable<HtmlNode> QuerySelectorAll(this IEnumerable<HtmlNode> nodes, string cssSelector)
         {
             if (cssSelector == null)
-                throw new ArgumentNullException("cssSelector");
+                throw new ArgumentNullException(nameof(cssSelector));
 
             if (cssSelector.Contains(','))
             {
@@ -9965,9 +9968,7 @@ namespace Extensions
 
         /// <summary>
         /// Gera uma data aleatória a partir de componentes nulos de data
-        /// </summary>
-        /// <param name="Min">Numero minimo, Padrão 0</param>
-        /// <param name="Max">Numero Maximo, Padrão <see cref="int.MaxValue"/></param>
+        /// </summary> 
         /// <returns>Um numero Inteiro</returns>
         public static DateTime RandomDateTime(int? Year = null, int? Month = null, int? Day = null, int? Hour = null, int? Minute = null, int? Second = null)
         {
@@ -15372,15 +15373,16 @@ namespace Extensions
         /// <param name="Item">Itens</param>
         /// <param name="ParentSelector">Seletor das propriedades filhas</param>
         /// <returns></returns>
-        public static IEnumerable<T> Traverse<T>(this T item, Func<T, T> ParentSelector)
+        public static IEnumerable<T> Traverse<T>(this T item, Expression<Func<T, T>> ParentSelector, Expression<Func<T, bool>> Filter = null)
         {
-            if (item != null)
+            if (item != null && ParentSelector != null)
             {
                 var current = item;
                 do
                 {
-                    yield return current;
-                    current = ParentSelector(current);
+                    if (Filter == null || Filter.Compile().Invoke(current))
+                        yield return current;
+                    current = ParentSelector.Compile().Invoke(current);
                 }
                 while (current != null);
             }

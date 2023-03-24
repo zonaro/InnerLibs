@@ -37,7 +37,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)HtmlParser\PseudoClass.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HtmlParser\PseudoClassNameAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HtmlParser\Selectors\PseudoClassSelector.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)HtmlParser\Selectors\ThisSelector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HtmlParser\Selectors\AllSelector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HtmlParser\Selectors\AttributeSelector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HtmlParser\Selectors\ClassNameSelector.cs" />
@@ -46,7 +45,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)HtmlParser\Selectors\SiblingImediateSelector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HtmlParser\Selectors\SiblingSelector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HtmlParser\Selectors\TagNameSelector.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)HtmlParser\Token.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HtmlParser\Tokenizer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)JSONParser\dynamic.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)JSONParser\Formatter.cs" />

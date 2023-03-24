@@ -570,10 +570,10 @@ namespace Extensions
                     {
                         switch (pi.Type)
                         {
-                            case myPropInfoType.Int: oset = (int)Helper.AutoConv(v, _params); break;
+                            case myPropInfoType.Int: oset = Helper.AutoConv(v, _params).ToInt(); break;
                             case myPropInfoType.Long: oset = Helper.AutoConv(v, _params); break;
                             case myPropInfoType.String: oset = v.ToString(); break;
-                            case myPropInfoType.Bool: oset = Helper.BoolConv(v); break;
+                            case myPropInfoType.Bool: oset = $"{v}".AsBool(); break;
                             case myPropInfoType.DateTime: oset = Helper.CreateDateTime((string)v, _params.UseUTCDateTime); break;
                             case myPropInfoType.Enum: oset = Helper.CreateEnum(pi.pt, v); break;
                             case myPropInfoType.Guid: oset = Helper.CreateGuid((string)v); break;
@@ -745,7 +745,7 @@ namespace Extensions
 
                 return parameters;
             }
-            set => parameters = value;
+            set => parameters = value ?? parameters;
         }
 
         #endregion Public Properties
