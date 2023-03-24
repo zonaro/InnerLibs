@@ -1226,6 +1226,7 @@ namespace Extensions.Web
         /// <returns></returns>
         public static HtmlDocument ParseDocument(string HtmlString)
         {
+            if (HtmlString.IsBlank()) return new HtmlDocument();
             var n = Parse(HtmlString);
             var doctag = n.QuerySelector("html");
             if (doctag != null)
@@ -1311,6 +1312,7 @@ namespace Extensions.Web
             if (nodes != null)
             {
                 _selfClosing = false;
+                NodeType = HtmlNodeType.Element;
                 this._children.AddRange(nodes.Where(x => x != null).Each(x => x._parent = this));
             }
 
