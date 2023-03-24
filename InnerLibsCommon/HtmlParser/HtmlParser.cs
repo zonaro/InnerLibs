@@ -606,7 +606,34 @@ namespace Extensions.Web
     /// </summary>
     public class HtmlDocument : HtmlNode
     {
-        public HtmlDocument() : base() { this.TagName = "html"; }
+        public HtmlDocument() : base()
+        {
+            this.TagName = "html";
+        }
+
+        public HtmlDocument(bool CreateBasicStructure) : this()
+        {
+            if (CreateBasicStructure)
+            {
+                AddChildren("head");
+                AddChildren("body");
+            }
+        }
+
+        public HtmlDocument(string title, string description, string author, string language = null, string charset = null) : this(true)
+        {
+            Title = title;
+            Charset = charset.IfBlank("utf-8");
+            Language = language.IfBlank(CultureInfo.CurrentCulture.Name);
+            SetMeta("author", author);
+            SetMeta("content", description);
+            SetMeta("viewport", "width=device-width, initial-scale=1");
+        }
+
+        public HtmlDocument(params HtmlNode[] nodes) : this(true)
+        {
+            Body.AddChildren(nodes);
+        }
 
         public HtmlDocument(string Html) : this()
         {
@@ -615,10 +642,12 @@ namespace Extensions.Web
             this.ChildNodes = temp.ChildNodes;
         }
 
-        public HtmlNode Body => this.FindFirst(x => x.TagName.EqualsIgnoreCaseAndAccents("body"));
         public HtmlNode Head => this.FindFirst(x => x.TagName.EqualsIgnoreCaseAndAccents("head"));
+        public HtmlNode Body => this.FindFirst(x => x.TagName.EqualsIgnoreCaseAndAccents("body"));
 
         private HtmlNode headsel => (Head ?? Body ?? this);
+
+        public override string ToString() => $"<!DOCTYPE html>{base.ToString()}";
 
         public string Charset
         {
@@ -629,6 +658,32 @@ namespace Extensions.Web
                 {
                     var m = this.FindFirst(x => x.TagName == "meta" && x.HasAttribute("charset")) ?? new HtmlNode("meta") { SelfClosing = true };
                     m.SetAttribute("charset", value);
+                    headsel?.AddChildren(m);
+                }
+            }
+        }
+
+        public string Language
+        {
+            get => this.GetAttribute("lang");
+            set
+            {
+                if (value.IsNotBlank())
+                {
+                    this.SetAttribute("lang", value);
+                }
+            }
+        }
+
+        public string Title
+        {
+            get => this.FindFirst(x => x.TagName == "title")?.InnerText;
+            set
+            {
+                if (value.IsNotBlank())
+                {
+                    var m = this.FindFirst(x => x.TagName == "title") ?? new HtmlNode("title");
+                    m.InnerText = value;
                     headsel?.AddChildren(m);
                 }
             }
@@ -734,10 +789,9 @@ namespace Extensions.Web
                 this.Attributes.SetOrRemove(Attr.Key, Attr.Value);
         }
 
-        public HtmlNode(bool selfClosing, HtmlNodeType type)
+        public HtmlNode(bool selfClosing) : this()
         {
             this._selfClosing = selfClosing;
-            this.NodeType = type;
         }
 
         [IgnoreDataMember]
@@ -1165,20 +1219,6 @@ namespace Extensions.Web
         public static HtmlDocument ParseDocument(Uri URL) => ParseDocument(URL?.DownloadString());
         public static HtmlDocument ParseDocument(FileInfo File) => File != null && File.Exists ? ParseDocument(File.ReadAllText()) : new HtmlDocument();
 
-        public static HtmlDocument CreateHTMLStandardDocument(string title = null, string description = null, string author = null, string language = null, string charset = null) => ParseDocument(
-            $@"<html lang=""{language.IfBlank(CultureInfo.CurrentCulture.Name)}"">
-                <head>
-                  <title>{title}</title>
-                  <meta charset=""{charset.IfBlank("utf-8")}"">
-                  <meta name=""author"" content=""{author}"">
-                  <meta name=""content"" content=""{description}"">
-                  <meta name=""viewport"" content=""width=device-width, initial-scale=1"">
-                </head>
-                <body>
-                </body>
-              </html>"
-                                                                                                                                                                                                   );
-
         /// <summary>
         /// Parse a Html string into a <see cref="HtmlDocument"/> ensuring a HTML node as root of document
         /// </summary>
@@ -1230,6 +1270,34 @@ namespace Extensions.Web
                 foreach (var att in dictionary) SetAttribute(att.Key, att.Value);
             }
             return this;
+        }
+        public HtmlNode AddList<T>(bool Ordened, IEnumerable<T> items, Expression<Func<T, string>> ItemHtml, Expression<Func<T, object>> ItemAttribute = null) => AddChildren(CreateList(Ordened, items, ItemHtml, ItemAttribute));
+
+        public static HtmlNode CreateList<T>(bool Ordened, IEnumerable<T> items, Expression<Func<T, string>> ItemHtml, Expression<Func<T, object>> ItemAttribute = null)
+        {
+            var node = new HtmlNode(Ordened ? "ol" : "ul");
+            var arr = (items ?? Array.Empty<T>()).ToArray();
+            for (int i = 0; i < arr.Length; i++)
+            {
+                var item = arr[i];
+                if (item != null)
+                {
+                    var li = new HtmlNode("li");
+                    if (ItemHtml != null)
+                    {
+                        li.InnerHtml = ItemHtml.Compile().Invoke(item);
+                    }
+
+                    if (ItemAttribute != null)
+                    {
+                        li.Attributes = ItemAttribute.Compile().Invoke(item)?.CreateDictionary().ToDictionary(x => x.Key, x => x.Value.ChangeType<string>());
+                    }
+                    node.AddChildren(li);
+                }
+                else node.AddComment($"{typeof(T).Name} at {i} is null");
+
+            }
+            return node;
         }
 
         public HtmlNode AddBreakLine() => AddChildren(CreateBreakLine());
