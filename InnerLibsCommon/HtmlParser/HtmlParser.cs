@@ -633,6 +633,7 @@ namespace Extensions.Web
             SetMeta("viewport", "width=device-width, initial-scale=1");
         }
 
+        public HtmlDocument(FileInfo file) : this(Parse(file.ReadAllText()).ToArray()) { }
         public HtmlDocument(string HtmlString) : this(Parse(HtmlString).ToArray())
         {
 
@@ -671,10 +672,10 @@ namespace Extensions.Web
 
         }
 
-        public HtmlNode Head => this.FindFirst(x => x.TagName.EqualsIgnoreCaseAndAccents("head"));
-        public HtmlNode Body => this.FindFirst(x => x.TagName.EqualsIgnoreCaseAndAccents("body"));
+        public HtmlNode Head => this.FindFirst(x => x.TagName.EqualsIgnoreCaseAndAccents("head")) ?? Body;
+        public HtmlNode Body => this.FindFirst(x => x.TagName.EqualsIgnoreCaseAndAccents("body")) ?? this;
 
-        private HtmlNode headsel => (Head ?? Body ?? this);
+        public FileInfo Save(string filename, bool Ident = true) => this.ToString(Ident).WriteToFile(filename);
 
         public string Charset
         {
@@ -685,7 +686,7 @@ namespace Extensions.Web
                 {
                     var m = this.FindFirst(x => x.TagName == "meta" && x.HasAttribute("charset")) ?? new HtmlNode("meta") { SelfClosing = true };
                     m.SetAttribute("charset", value);
-                    headsel?.AddChildren(m);
+                    Head?.AddChildren(m);
                 }
             }
         }
@@ -711,7 +712,7 @@ namespace Extensions.Web
                 {
                     var m = this.FindFirst(x => x.TagName == "title") ?? new HtmlNode("title");
                     m.InnerText = value;
-                    headsel?.AddChildren(m);
+                    Head.AddChildren(m);
                 }
             }
         }
@@ -722,7 +723,7 @@ namespace Extensions.Web
                 var m = this.FindFirst(x => x.TagName == "meta" && x.GetAttribute("name") == name) ?? new HtmlNode("meta") { SelfClosing = true };
                 m.SetAttribute("name", name);
                 m.SetAttribute("content", content);
-                headsel?.AddChildren(m);
+                Head.AddChildren(m);
                 return m;
             }
             return null;
@@ -732,7 +733,7 @@ namespace Extensions.Web
             if (href.IsNotBlank())
             {
                 var sheet = new HtmlNode("link", new { rel = "stylesheet", href }) { SelfClosing = true };
-                headsel?.AddChildren(sheet);
+                Head.AddChildren(sheet);
                 return sheet;
             }
             return null;
@@ -742,7 +743,7 @@ namespace Extensions.Web
             if (src.IsNotBlank())
             {
                 var scripto = new HtmlNode("script", new { src }) { SelfClosing = true };
-                headsel?.AddChildren(scripto);
+                Body.AddChildren(scripto);
                 return scripto;
             }
             return null;
@@ -754,7 +755,7 @@ namespace Extensions.Web
             {
                 var stl = new HtmlNode("style");
                 stl.AddText(InnerCss);
-                headsel?.AddChildren(stl);
+                Head.AddChildren(stl);
                 return stl;
             }
             return null;
@@ -766,7 +767,7 @@ namespace Extensions.Web
             {
                 var stl = new HtmlNode("script");
                 stl.AddText(jsString);
-                headsel?.AddChildren(stl);
+                Body.AddChildren(stl);
                 return stl;
             }
             return null;
