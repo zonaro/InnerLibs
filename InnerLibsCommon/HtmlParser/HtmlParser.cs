@@ -1224,20 +1224,32 @@ namespace Extensions.Web
                 var doctag = n.QuerySelector("html");
                 if (doctag != null)
                 {
-                    d = new HtmlDocument
-                    {
-                        Attributes = doctag.Attributes.ToDictionary()
-                    };
-
+                    d.AddAttributes(doctag.Attributes.ToDictionary());
                     d.AddChildren(doctag.ChildNodes);
                 }
                 else
                 {
-                    d = new HtmlDocument
+
+                    var headtag = n.QuerySelector("head");
+                    if (headtag != null)
                     {
-                        ChildNodes = n
-                    };
+                        if (d.Head == null)
+                            d.AddChildren(headtag);
+                        else
+                            d.Head.AddChildren(headtag.ChildNodes).AddAttributes(headtag.Attributes);
+                    }
+
+                    var bodytag = n.QuerySelector("body");
+                    if (bodytag != null)
+                    {
+                        if (d.Body == null)
+                            d.AddChildren(bodytag);
+                        else
+                            d.Body.AddChildren(bodytag.ChildNodes).AddAttributes(bodytag.Attributes);
+                    }
+
                 }
+
             }
             return d;
         }
@@ -1254,17 +1266,19 @@ namespace Extensions.Web
 
         public HtmlNode AddAnchor(string URL, string Text, string Target = "_self", object htmlAttributes = null) => AddChildren(CreateAnchor(URL, Text, Target, htmlAttributes));
 
-        public HtmlNode AddAttributes(params (string, string)[] pairs)
-        {
-            pairs = pairs ?? Array.Empty<(string, string)>();
-            return AddAttributes(pairs.ToDictionary(x => x.Item1, x => x.Item2));
-        }
 
-        public HtmlNode AddAttributes(IEnumerable<KeyValuePair<string, string>> dictionary)
+
+
+        public HtmlNode AddAttributes<T>(params T[] pairs)
         {
-            if (dictionary != null)
+            pairs = pairs ?? Array.Empty<T>();
+            foreach (var obj in pairs)
             {
-                foreach (var att in dictionary) SetAttribute(att.Key, att.Value);
+                var dictionary = obj.CreateDictionary();
+                if (dictionary != null)
+                {
+                    foreach (var att in dictionary) SetAttribute(att.Key, $"{att.Value}");
+                }
             }
             return this;
         }
@@ -1397,15 +1411,15 @@ namespace Extensions.Web
 
         public HtmlNode FirstChild(Expression<Func<HtmlNode, bool>> predicate) => predicate != null ? ChildNodes.FirstOrDefault(predicate.Compile()) : FirstChild();
 
-        public string GetAttribute(string key) => Attributes.GetValueOr(key, Util.EmptyString);
+        public string GetAttribute(string key) => Attributes?.GetValueOr(key) ?? Util.EmptyString;
 
-        public bool HasAttribute(string AttrName) => AttrName.IsBlank() ? HasAttributes() : Attributes.ContainsKey(AttrName);
+        public bool HasAttribute(string AttrName) => AttrName.IsBlank() ? this.Attributes?.Any() ?? false : Attributes.ContainsKey(AttrName);
 
         /// <summary>
         /// Determine if attributes property has items.
         /// </summary>
         /// <returns>Returns true if attributes property has items, otherwise false.</returns>
-        public bool HasAttributes() => this.Attributes?.Any() ?? false;
+        public bool HasAttributes() => HasAttribute(null);
 
         /// <summary>
         /// Determine if children property has items.

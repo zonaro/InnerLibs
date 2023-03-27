@@ -1905,18 +1905,31 @@ namespace Extensions
         /// <param name="Obj">valor do objeto</param>
         /// <param name="Keys">Chaves incluidas no dicionario final</param>
         /// <returns></returns>
-        public static Dictionary<string, object> CreateDictionary<T>(this T Obj, params string[] Keys)
+        public static Dictionary<string, object> CreateDictionary(this object Obj, params string[] Keys)
         {
             if (Obj != null)
             {
                 Keys = Keys ?? Array.Empty<string>();
+
+                if (Obj.GetTypeOf() == typeof(IEnumerable<(string, object)>))
+                {
+                    var oo = Obj.ChangeType<IEnumerable<(string, object)>>();
+                    return CreateDictionary(oo.ToDictionary(x => x.Item1, x => x.Item2), Keys);
+                }
+
                 if (Obj.IsDictionary())
                 {
-                    return ((Dictionary<string, object>)(object)Obj).ToDictionary(Keys);
+                    var po = Obj as IDictionary;
+                    var l = new List<KeyValuePair<string, object>>();
+                    foreach (DictionaryEntry kv in po)
+                    {
+                        l.Add(new KeyValuePair<string, object>($"{kv.Key}", (object)kv.Value));
+                    }
+                    return l.ToDictionary(Keys);
                 }
                 else if (Obj.IsTypeOf<NameValueCollection>())
                 {
-                    return ((NameValueCollection)(object)Obj).ToDictionary(Keys);
+                    return ((NameValueCollection)Obj).ToDictionary(Keys);
                 }
                 else
                 {
