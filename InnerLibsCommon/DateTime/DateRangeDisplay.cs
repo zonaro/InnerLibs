@@ -17,7 +17,7 @@ namespace Extensions.Dates
         {
             foreach (var item in this.GetProperties().Where(x => x.Name.EndsWith("Word")))
             {
-                var w = item.Name.TrimLastEqual("Word").ToLowerInvariant();
+                var w = item.Name.RemoveLastEqual("Word").ToLowerInvariant();
                 if (item.PropertyType == typeof(QuantityTextPair))
                 {
                     item.SetValue(this, new QuantityTextPair(w));

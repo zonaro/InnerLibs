@@ -101,6 +101,7 @@ namespace Extensions
         public const string SingleQuoteChar = "\'";
 
         public const string WhitespaceChar = " ";
+        public const string TabChar = "\t";
 
         /// <summary>
         /// Dicionario com os <see cref="Type"/> e seu <see cref="DbType"/> correspondente
@@ -3667,11 +3668,19 @@ namespace Extensions
         /// <param name="Text"></param>
         /// <param name="Action"></param>
         /// <returns></returns>
-        public static string ForEachLine(this string Text, Expression<Func<string, string>> Action)
+        public static string ForEachLine(this string Text, Func<string, string> Action, bool RemoveBlankLines = false)
         {
-            if (Text.IsNotBlank() && Action != null)
+            if (Text.IsNotBlank())
             {
-                Text = Text.SplitAny(PredefinedArrays.BreakLineChars.ToArray()).Select(x => Action.Compile().Invoke(x)).SelectJoinString(Environment.NewLine);
+                if (Action == null)
+                {
+                    Text = Text.SplitAny(PredefinedArrays.BreakLineChars.ToArray()).Where(x => !RemoveBlankLines || x.IsNotBlank()).SelectJoinString(Environment.NewLine);
+
+                }
+                else
+                {
+                    Text = Text.SplitAny(PredefinedArrays.BreakLineChars.ToArray()).Select(x => Action.Invoke(x)).Where(x => !RemoveBlankLines || x.IsNotBlank()).SelectJoinString(Environment.NewLine);
+                }
             }
 
             return Text;
@@ -3935,7 +3944,7 @@ namespace Extensions
             var mm = new Regex(regx, (RegexOptions)((int)RegexOptions.Singleline + (int)RegexOptions.IgnoreCase)).Matches(Text);
             foreach (Match a in mm)
             {
-                lista.Add(a.Value.TrimFirstEqual(Before).TrimLastEqual(After));
+                lista.Add(a.Value.RemoveFirstEqual(Before).RemoveLastEqual(After));
             }
 
             return lista.ToArray();
@@ -6038,7 +6047,7 @@ namespace Extensions
             {
                 if (ExcludeWrapChars)
                 {
-                    lista.Add(a.Value.TrimFirstEqual(Character).TrimLastEqual(Character.GetOppositeWrapChar()));
+                    lista.Add(a.Value.RemoveFirstEqual(Character).RemoveLastEqual(Character.GetOppositeWrapChar()));
                 }
                 else
                 {
@@ -7116,7 +7125,7 @@ namespace Extensions
 
         public static bool IsHexaDecimalColor(this string Text)
         {
-            Text = Text.TrimFirstEqual("#");
+            Text = Text.RemoveFirstEqual("#");
             var myRegex = new Regex("^[a-fA-F0-9]+$");
             return Text.IsNotBlank() && myRegex.IsMatch(Text);
         }
@@ -8633,15 +8642,10 @@ namespace Extensions
         /// <param name="Value">Valor</param>
         /// <param name="TestExpression">Outro Objeto</param>
         /// <returns></returns>
-        public static T NullIf<T>(this T Value, Func<T, bool> TestExpression)
-        {
-            if (TestExpression != null && TestExpression.Invoke(Value))
-            {
-                return default;
-            }
+        public static T NullIf<T>(this T Value, Func<T, bool> TestExpression) => Value.NullIf(TestExpression != null && TestExpression.Invoke(Value));
 
-            return Value;
-        }
+        public static T NullIf<T>(this T Value, bool Test) => Test ? default : Value;
+
 
         /// <summary>
         /// Anula o valor de um objeto se ele for igual a outro objeto
@@ -10512,7 +10516,7 @@ namespace Extensions
             if ((URL.IsURL()))
             {
                 URL = Regex.Replace(URL, @"{([^:]+)\s*:\s*(.+?)(?<!\\)}", EmptyString);
-                URL = URL.TrimLastEqual("/");
+                URL = URL.RemoveLastEqual("/");
             }
             return URL;
         }
@@ -10854,7 +10858,7 @@ namespace Extensions
                     URL = URL.Inject(obj);
                 }
 
-                URL = URL.TrimLastEqual("/");
+                URL = URL.RemoveLastEqual("/");
             }
             return URL;
         }
@@ -11918,7 +11922,7 @@ namespace Extensions
                 string endchar = phrase[index].GetLastChars();
                 if (endchar.IsAny(StringComparison.CurrentCultureIgnoreCase, PredefinedArrays.WordSplitters.ToArray()))
                 {
-                    phrase[index] = phrase[index].TrimLastEqual(endchar);
+                    phrase[index] = phrase[index].RemoveLastEqual(endchar);
                 }
 
                 switch (true)
@@ -11931,62 +11935,62 @@ namespace Extensions
 
                     case object _ when phrase[index].EndsWith("ões"):
                         {
-                            phrase[index] = phrase[index].TrimLastEqual("ões") + "ão";
+                            phrase[index] = phrase[index].RemoveLastEqual("ões") + "ão";
                             break;
                         }
 
                     case object _ when phrase[index].EndsWith("ãos"):
                         {
-                            phrase[index] = phrase[index].TrimLastEqual("ãos") + "ão";
+                            phrase[index] = phrase[index].RemoveLastEqual("ãos") + "ão";
                             break;
                         }
 
                     case object _ when phrase[index].EndsWith("ães"):
                         {
-                            phrase[index] = phrase[index].TrimLastEqual("ães") + "ão";
+                            phrase[index] = phrase[index].RemoveLastEqual("ães") + "ão";
                             break;
                         }
 
                     case object _ when phrase[index].EndsWith("ais"):
                         {
-                            phrase[index] = phrase[index].TrimLastEqual("ais") + "al";
+                            phrase[index] = phrase[index].RemoveLastEqual("ais") + "al";
                             break;
                         }
 
                     case object _ when phrase[index].EndsWith("eis"):
                         {
-                            phrase[index] = phrase[index].TrimLastEqual("eis") + "il";
+                            phrase[index] = phrase[index].RemoveLastEqual("eis") + "il";
                             break;
                         }
 
                     case object _ when phrase[index].EndsWith("éis"):
                         {
-                            phrase[index] = phrase[index].TrimLastEqual("éis") + "el";
+                            phrase[index] = phrase[index].RemoveLastEqual("éis") + "el";
 
                             break;
                         }
 
                     case object _ when phrase[index].EndsWith("ois"):
                         {
-                            phrase[index] = phrase[index].TrimLastEqual("ois") + "ol";
+                            phrase[index] = phrase[index].RemoveLastEqual("ois") + "ol";
                             break;
                         }
 
                     case object _ when phrase[index].EndsWith("uis"):
                         {
-                            phrase[index] = phrase[index].TrimLastEqual("uis") + "ul";
+                            phrase[index] = phrase[index].RemoveLastEqual("uis") + "ul";
                             break;
                         }
 
                     case object _ when phrase[index].EndsWith("es"):
                         {
-                            if (phrase[index].TrimLastEqual("es").EndsWithAny("z", "r"))
+                            if (phrase[index].RemoveLastEqual("es").EndsWithAny("z", "r"))
                             {
-                                phrase[index] = phrase[index].TrimLastEqual("es");
+                                phrase[index] = phrase[index].RemoveLastEqual("es");
                             }
                             else
                             {
-                                phrase[index] = phrase[index].TrimLastEqual("s");
+                                phrase[index] = phrase[index].RemoveLastEqual("s");
                             }
 
                             break;
@@ -11994,13 +11998,13 @@ namespace Extensions
 
                     case object _ when phrase[index].EndsWith("ns"):
                         {
-                            phrase[index] = phrase[index].TrimLastEqual("ns") + "m";
+                            phrase[index] = phrase[index].RemoveLastEqual("ns") + "m";
                             break;
                         }
 
                     case object _ when phrase[index].EndsWith("s"):
                         {
-                            phrase[index] = phrase[index].TrimLastEqual("s");
+                            phrase[index] = phrase[index].RemoveLastEqual("s");
                             break;
                         }
 
@@ -12911,7 +12915,7 @@ namespace Extensions
 
             if (Text.IsNumber()) return Color.FromArgb(Text.ToInt());
 
-            if (Text.IsHexaDecimalColor()) return ColorTranslator.FromHtml("#" + Text.TrimFirstEqual("#"));
+            if (Text.IsHexaDecimalColor()) return ColorTranslator.FromHtml("#" + Text.RemoveFirstEqual("#"));
 
             var maybecolor = FindColor(Text);
             if (maybecolor != null)
@@ -15613,7 +15617,7 @@ namespace Extensions
                 {
                     if (Text.EndsWith(item, comparison))
                     {
-                        Text = Text.TrimLastEqual(item, comparison);
+                        Text = Text.RemoveLastEqual(item, comparison);
                         if (!ContinuouslyRemove)
                         {
                             return Text;
@@ -15655,7 +15659,7 @@ namespace Extensions
         /// </summary>
         /// <param name="Text">Texto</param>
         /// <param name="StartStringTest">Texto inicial que será comparado</param>
-        public static string TrimFirstEqual(this string Text, string StartStringTest, StringComparison comparison = default)
+        public static string RemoveFirstEqual(this string Text, string StartStringTest, StringComparison comparison = default)
         {
             Text = Text ?? "";
             StartStringTest = StartStringTest ?? "";
@@ -15672,7 +15676,7 @@ namespace Extensions
         /// </summary>
         /// <param name="Text">Texto</param>
         /// <param name="EndStringTest">Texto final que será comparado</param>
-        public static string TrimLastEqual(this string Text, string EndStringTest, StringComparison comparison = default)
+        public static string RemoveLastEqual(this string Text, string EndStringTest, StringComparison comparison = default)
         {
             Text = Text ?? "";
             EndStringTest = EndStringTest ?? "";
@@ -15704,7 +15708,7 @@ namespace Extensions
                 {
                     if (Text.StartsWith(item, comparison))
                     {
-                        Text = Text.TrimFirstEqual(item, comparison);
+                        Text = Text.RemoveFirstEqual(item, comparison);
                         if (!ContinuouslyRemove)
                         {
                             return Text;

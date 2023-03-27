@@ -110,7 +110,7 @@ namespace Extensions.Web
             return Text;
         }
 
-        private IEnumerable<HtmlNode> InternalParse(HtmlNode parent = null)
+        private IEnumerable<HtmlNode> InternalParse()
         {
             var list = new List<HtmlNode>();
             HtmlNode node = null;
@@ -128,8 +128,10 @@ namespace Extensions.Web
                 else if (q.Peek(4) == "<!--")
                 {
                     var comment = GetComment();
-                    node = new HtmlNode(HtmlNodeType.Comment) { };
-                    node.Content = comment;
+                    node = new HtmlNode(HtmlNodeType.Comment)
+                    {
+                        Content = comment
+                    };
                     list.Add(node);
                 }
                 else if (c == '<')
@@ -186,7 +188,7 @@ namespace Extensions.Web
                 else if (c == '>')
                 {
                     Dequeue();
-                    node.AddChildren(InternalParse(node));
+                    node.AddChildren(InternalParse());
 
                     list.Add(node);
                 }
@@ -214,7 +216,7 @@ namespace Extensions.Web
 
         internal static HtmlParser Instance = new HtmlParser();
 
-        public IEnumerable<string> SelfClosingTags { get; set; } = new[] { "area", "base", "br", "col", "embed", "hr", "img", "input", "keygen", "link", "menuitem", "meta", "param", "source", "track", "wbr" };
+        public static IEnumerable<string> SelfClosingTags => new[] { "area", "base", "br", "col", "embed", "hr", "img", "input", "keygen", "link", "menuitem", "meta", "param", "source", "track", "wbr", "!doctype" };
 
         public IEnumerable<HtmlNode> Parse(string source)
         {
@@ -647,7 +649,7 @@ namespace Extensions.Web
 
         private HtmlNode headsel => (Head ?? Body ?? this);
 
-        public override string ToString() => $"<!DOCTYPE html>{base.ToString()}";
+
 
         public string Charset
         {
@@ -939,15 +941,14 @@ namespace Extensions.Web
             {
                 switch (this.NodeType)
                 {
-                    case HtmlNodeType.Element:
-                        return ChildNodes.SelectJoinString(x => x.ToString()) ?? "";
 
                     case HtmlNodeType.Text:
                     case HtmlNodeType.Comment:
                         return Content;
-
                     default:
-                        return "";
+                    case HtmlNodeType.Element:
+                        return ToString();
+
                 }
             }
 
@@ -1216,24 +1217,29 @@ namespace Extensions.Web
         /// <returns></returns>
         public static HtmlDocument ParseDocument(string HtmlString)
         {
-            if (HtmlString.IsBlank()) return new HtmlDocument();
-            var n = Parse(HtmlString);
-            var doctag = n.QuerySelector("html");
-            if (doctag != null)
+            var d = new HtmlDocument(true);
+            if (HtmlString.IsNotBlank())
             {
-                return new HtmlDocument
+                var n = Parse(HtmlString);
+                var doctag = n.QuerySelector("html");
+                if (doctag != null)
                 {
-                    ChildNodes = doctag.ChildNodes,
-                    Attributes = doctag.Attributes.ToDictionary()
-                };
-            }
-            else
-            {
-                return new HtmlDocument
+                    d = new HtmlDocument
+                    {
+                        Attributes = doctag.Attributes.ToDictionary()
+                    };
+
+                    d.AddChildren(doctag.ChildNodes);
+                }
+                else
                 {
-                    ChildNodes = n
-                };
+                    d = new HtmlDocument
+                    {
+                        ChildNodes = n
+                    };
+                }
             }
+            return d;
         }
 
         public static IEnumerable<HtmlNode> Parse(string HtmlString) => HtmlString.IsNotBlank() ? HtmlParser.Instance.Parse(HtmlString) : Array.Empty<HtmlNode>();
@@ -1506,22 +1512,40 @@ namespace Extensions.Web
 
         public HtmlNode SetProp(string AttrName, bool Value = true) => Value ? SetAttribute(AttrName, AttrName) : RemoveAttribute(AttrName);
 
+        [IgnoreDataMember]
+        public bool IsElement => this.NodeType == HtmlNodeType.Element;
+
+        [IgnoreDataMember]
+        public bool IsComment => this.NodeType == HtmlNodeType.Comment;
+
+        [IgnoreDataMember]
+        public bool IsText => this.NodeType == HtmlNodeType.Text;
+
         public override string ToString() => ToString(false);
-        public string ToString(bool Ident)
+        public virtual string ToString(bool Ident)
         {
-            var ii = Util.WhitespaceChar.Repeat(DepthLevel).NullIf(x => !Ident);
+            var html = "";
             switch (this.NodeType)
             {
                 case HtmlNodeType.Text:
-                    return $"{ii}{Content}";
+                    html = $"{Content}";
+                    break;
                 case HtmlNodeType.Comment:
-                    return $"{ii}<!-- {Content} -->";
+                    html = $"<!-- {Content} -->";
+                    break;
                 case HtmlNodeType.Element:
                 default:
-                    return $"{ii}<{TagName.IfBlank("div")}{AttributeString.PrependIf(" ", b => b.IsNotBlank())}" + (SelfClosing ? " />" : $">{InnerHtml.AppendIf(Environment.NewLine, Ident).PrependIf(ii, Ident).PrependIf(Environment.NewLine, Ident)}</{TagName.IfBlank("div")}>");
+                    html = $"<{TagName.IfBlank("div")}{AttributeString.PrependIf(" ", b => b.IsNotBlank())}{(SelfClosing ? (TagName.EqualsIgnoreCaseAndAccents("!doctype") ? " >" : " />") : $">{ChildNodes.SelectJoinString(x => x.ToString(Ident))}</{TagName.IfBlank("div")}>")}";
+                    break;
+            }
+            if (Ident)
+            {
+                var tabs = Util.Repeat(Util.TabChar, DepthLevel - 1);
+                html = $"{Environment.NewLine.NullIf(DepthLevel == 0)}{Util.TabChar.NullIf(DepthLevel == 0)}{tabs}{html}{Environment.NewLine}{tabs}";
+
 
             }
-
+            return html;
         }
     }
     public enum HtmlNodeType
