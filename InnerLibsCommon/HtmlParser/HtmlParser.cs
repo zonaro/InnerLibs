@@ -174,7 +174,7 @@ namespace Extensions.Web
                         node._selfClosing = true;
                         list.Add(node);
                     }
-                    else if (node.TagName.Equals("script", StringComparison.OrdinalIgnoreCase))
+                    else if (node.TagName.IfBlank("div").Equals("script", StringComparison.OrdinalIgnoreCase))
                     {
                         Dequeue(); // >
                         node._content = GetUpTo("</script");
