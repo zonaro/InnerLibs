@@ -110,7 +110,7 @@ namespace Extensions.Web
             return Text;
         }
 
-        private IEnumerable<HtmlNode> InternalParse()
+        private IEnumerable<HtmlNode> InternalParse(HtmlNode _p)
         {
             var list = new List<HtmlNode>();
             HtmlNode node = null;
@@ -130,13 +130,14 @@ namespace Extensions.Web
                     var comment = GetComment();
                     node = new HtmlNode(HtmlNodeType.Comment)
                     {
+                        _parent = _p,
                         Content = comment
                     };
                     list.Add(node);
                 }
                 else if (c == '<')
                 {
-                    node = new HtmlNode();
+                    node = new HtmlNode() { _parent = _p };
 
                     Dequeue();
                     node.TagName = GetTagName();
@@ -188,7 +189,7 @@ namespace Extensions.Web
                 else if (c == '>')
                 {
                     Dequeue();
-                    node.AddChildren(InternalParse());
+                    node.AddChildren(InternalParse(node));
 
                     list.Add(node);
                 }
@@ -201,7 +202,7 @@ namespace Extensions.Web
                         Text += Dequeue();
                         if (q.Any() && q.Peek() == '<') break;
                     }
-                    if (Text.IsNotBlank()) list.Add(new HtmlNode(HtmlNodeType.Text) { Content = Text });
+                    if (Text.IsNotBlank()) list.Add(new HtmlNode(HtmlNodeType.Text) { _parent = _p, Content = Text });
                 }
             }
 
@@ -224,7 +225,7 @@ namespace Extensions.Web
             {
                 this.q = new Queue<char>(source);
 
-                return InternalParse();
+                return InternalParse(null);
             }
             return Array.Empty<HtmlNode>();
         }
@@ -632,24 +633,48 @@ namespace Extensions.Web
             SetMeta("viewport", "width=device-width, initial-scale=1");
         }
 
-        public HtmlDocument(params HtmlNode[] nodes) : this(true)
+        public HtmlDocument(string HtmlString) : this(Parse(HtmlString).ToArray())
         {
-            Body.AddChildren(nodes);
+
         }
 
-        public HtmlDocument(string Html) : this()
+        public HtmlDocument(params HtmlNode[] nodes) : this()
         {
-            var temp = ParseDocument(Html);
-            this.AttributeString = temp.AttributeString;
-            this.ChildNodes = temp.ChildNodes;
+            nodes = nodes ?? Array.Empty<HtmlNode>();
+            var headtag = nodes.QuerySelector("head");
+            if (headtag != null)
+            {
+                AddChildren(headtag);
+            }
+            else
+            {
+                AddChildren("head");
+            }
+
+            var bodytag = nodes.QuerySelector("body");
+            if (bodytag != null)
+            {
+                AddChildren(bodytag);
+            }
+            else
+            {
+                AddChildren("body");
+            }
+
+            var doctag = nodes.QuerySelector("html");
+            if (doctag != null)
+            {
+                this.AddChildren(doctag.ChildNodes).AddAttributes(doctag.Attributes);
+            }
+
+            (nodes.QuerySelector("title") ?? this.QuerySelector("title")).InsertInto(this.Head, 0);
+
         }
 
         public HtmlNode Head => this.FindFirst(x => x.TagName.EqualsIgnoreCaseAndAccents("head"));
         public HtmlNode Body => this.FindFirst(x => x.TagName.EqualsIgnoreCaseAndAccents("body"));
 
         private HtmlNode headsel => (Head ?? Body ?? this);
-
-
 
         public string Charset
         {
@@ -754,7 +779,7 @@ namespace Extensions.Web
     public class HtmlNode : ICloneable
     {
         private readonly CSSStyles _stl;
-        private HtmlNode _parent;
+        internal HtmlNode _parent;
         private string _tagname = "div";
         private Dictionary<string, string> attrs = new Dictionary<string, string>();
 
@@ -930,9 +955,6 @@ namespace Extensions.Web
         public HtmlNode PreviousSibling => this.ParentNode?.ChildNodes.FirstOrDefault(x => x.Index == this.Index - 1);
         public HtmlNode NextSibling => this.ParentNode?.ChildNodes.FirstOrDefault(x => x.Index == this.Index + 1);
 
-
-
-
         public int DepthLevel => this.ParentNode?.DepthLevel + 1 ?? 0;
 
         public string InnerHtml
@@ -941,14 +963,13 @@ namespace Extensions.Web
             {
                 switch (this.NodeType)
                 {
-
                     case HtmlNodeType.Text:
                     case HtmlNodeType.Comment:
                         return Content;
+
                     default:
                     case HtmlNodeType.Element:
                         return ToString();
-
                 }
             }
 
@@ -1215,44 +1236,7 @@ namespace Extensions.Web
         /// </summary>
         /// <param name="HtmlString"></param>
         /// <returns></returns>
-        public static HtmlDocument ParseDocument(string HtmlString)
-        {
-            var d = new HtmlDocument(true);
-            if (HtmlString.IsNotBlank())
-            {
-                var n = Parse(HtmlString);
-                var doctag = n.QuerySelector("html");
-                if (doctag != null)
-                {
-                    d.AddAttributes(doctag.Attributes.ToDictionary());
-                    d.AddChildren(doctag.ChildNodes);
-                }
-                else
-                {
-
-                    var headtag = n.QuerySelector("head");
-                    if (headtag != null)
-                    {
-                        if (d.Head == null)
-                            d.AddChildren(headtag);
-                        else
-                            d.Head.AddChildren(headtag.ChildNodes).AddAttributes(headtag.Attributes);
-                    }
-
-                    var bodytag = n.QuerySelector("body");
-                    if (bodytag != null)
-                    {
-                        if (d.Body == null)
-                            d.AddChildren(bodytag);
-                        else
-                            d.Body.AddChildren(bodytag.ChildNodes).AddAttributes(bodytag.Attributes);
-                    }
-
-                }
-
-            }
-            return d;
-        }
+        public static HtmlDocument ParseDocument(string HtmlString) => new HtmlDocument(HtmlString);
 
         public static IEnumerable<HtmlNode> Parse(string HtmlString) => HtmlString.IsNotBlank() ? HtmlParser.Instance.Parse(HtmlString) : Array.Empty<HtmlNode>();
 
@@ -1265,9 +1249,6 @@ namespace Extensions.Web
         public static HtmlNode ParseTag(Uri Url) => Parse(Url).FirstOrDefault();
 
         public HtmlNode AddAnchor(string URL, string Text, string Target = "_self", object htmlAttributes = null) => AddChildren(CreateAnchor(URL, Text, Target, htmlAttributes));
-
-
-
 
         public HtmlNode AddAttributes<T>(params T[] pairs)
         {
@@ -1306,7 +1287,6 @@ namespace Extensions.Web
                     node.AddChildren(li);
                 }
                 else node.AddComment($"{typeof(T).Name} at {i} is null");
-
             }
             return node;
         }
@@ -1317,13 +1297,15 @@ namespace Extensions.Web
 
         public HtmlNode AddChildren(params HtmlNode[] node) => AddChildren((node ?? Array.Empty<HtmlNode>()).AsEnumerable());
 
-        public HtmlNode AddChildren(IEnumerable<HtmlNode> nodes)
+        public HtmlNode AddChildren(IEnumerable<HtmlNode> nodes, bool copy = false)
         {
             if (nodes != null)
             {
-                _selfClosing = false;
-                NodeType = HtmlNodeType.Element;
-                this._children.AddRange(nodes.Where(x => x != null).Each(x => x._parent = this));
+                var nn = nodes.ToArray();
+                for (int i = 0; i < nn.Length; i++)
+                {
+                    nn[i].InsertInto(this, copy);
+                }
             }
 
             return this;
@@ -1433,20 +1415,34 @@ namespace Extensions.Web
 
         public HtmlNode Insert(int Index, string TagName, string InnerHtml = "") => Insert(Index, new HtmlNode(TagName, InnerHtml));
 
-        public HtmlNode Insert(int Index, HtmlNode Tag)
+        public HtmlNode Insert(int Index, HtmlNode Tag, bool copy = false)
         {
-            if (Tag != null && Index >= 0)
+            if (Tag != null)
             {
+                Tag = copy ? Tag.CloneTag() : Tag.Detach();
                 Tag._parent = this;
                 _selfClosing = false;
-                _children.Insert(Index, Tag);
+                NodeType = HtmlNodeType.Element;
+                if (Index >= 0)
+                {
+                    _children.Insert(Index.LimitIndex(_children), Tag);
+                }
+                else
+                {
+                    _children.Add(Tag);
+                };
             }
             return this;
         }
 
-        public HtmlNode InsertInto(HtmlNode ParentTag)
+        public HtmlNode InsertInto(HtmlNode toHtmlNode, bool copy = false) => InsertInto(toHtmlNode, -1, copy);
+        public HtmlNode InsertInto(HtmlNode toHtmlNode, int Index, bool copy = false)
         {
-            ParentTag?.AddChildren(this);
+            if (toHtmlNode != null)
+            {
+                toHtmlNode.Insert(Index, this, copy);
+            }
+
             return this;
         }
 
@@ -1470,6 +1466,8 @@ namespace Extensions.Web
 
         public HtmlNode RemoveChildren(params string[] IDs) => RemoveChildren(x => IDs.Any(y => x.Id.Equals(y, StringComparison.Ordinal)));
 
+        public HtmlNode RemoveChildren(params HtmlNode[] Children) => RemoveChildren(Children?.AsEnumerable());
+
         public HtmlNode RemoveChildren(IEnumerable<HtmlNode> Children)
         {
             foreach (var item in Children ?? Array.Empty<HtmlNode>())
@@ -1487,7 +1485,7 @@ namespace Extensions.Web
         {
             if (ClassName.IsNotBlank() && ClassName.IsIn(ClassList, StringComparer.InvariantCultureIgnoreCase))
             {
-                ClassList = ClassList.Where(x => x != null && x.Equals(ClassName, StringComparison.OrdinalIgnoreCase)).ToArray();
+                ClassList = ClassList.Where(x => x != null && !x.Equals(ClassName, StringComparison.OrdinalIgnoreCase)).ToArray();
             }
 
             return this;
@@ -1544,9 +1542,11 @@ namespace Extensions.Web
                 case HtmlNodeType.Text:
                     html = $"{Content}";
                     break;
+
                 case HtmlNodeType.Comment:
                     html = $"<!-- {Content} -->";
                     break;
+
                 case HtmlNodeType.Element:
                 default:
                     html = $"<{TagName.IfBlank("div")}{AttributeString.PrependIf(" ", b => b.IsNotBlank())}{(SelfClosing ? (TagName.EqualsIgnoreCaseAndAccents("!doctype") ? " >" : " />") : $">{ChildNodes.SelectJoinString(x => x.ToString(Ident))}</{TagName.IfBlank("div")}>")}";
@@ -1556,8 +1556,6 @@ namespace Extensions.Web
             {
                 var tabs = Util.Repeat(Util.TabChar, DepthLevel - 1);
                 html = $"{Environment.NewLine.NullIf(DepthLevel == 0)}{Util.TabChar.NullIf(DepthLevel == 0)}{tabs}{html}{Environment.NewLine}{tabs}";
-
-
             }
             return html;
         }
