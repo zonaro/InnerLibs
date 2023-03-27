@@ -928,6 +928,11 @@ namespace Extensions.Web
         public HtmlNode PreviousSibling => this.ParentNode?.ChildNodes.FirstOrDefault(x => x.Index == this.Index - 1);
         public HtmlNode NextSibling => this.ParentNode?.ChildNodes.FirstOrDefault(x => x.Index == this.Index + 1);
 
+
+
+
+        public int DepthLevel => this.ParentNode?.DepthLevel + 1 ?? 0;
+
         public string InnerHtml
         {
             get
@@ -935,7 +940,7 @@ namespace Extensions.Web
                 switch (this.NodeType)
                 {
                     case HtmlNodeType.Element:
-                        return ChildNodes.SelectJoinString(x => x.OuterHtml) ?? "";
+                        return ChildNodes.SelectJoinString(x => x.ToString()) ?? "";
 
                     case HtmlNodeType.Text:
                     case HtmlNodeType.Comment:
@@ -980,23 +985,8 @@ namespace Extensions.Web
         [IgnoreDataMember]
         public string OuterHtml
         {
-            get
-            {
-                switch (this.NodeType)
-                {
-                    case HtmlNodeType.Element:
-                        return $"<{TagName.IfBlank("div")}{AttributeString.PrependIf(" ", b => b.IsNotBlank())}" + (SelfClosing ? " />" : $">{InnerHtml}</{TagName.IfBlank("div")}>");
+            get => ToString();
 
-                    case HtmlNodeType.Text:
-                        return Content;
-
-                    case HtmlNodeType.Comment:
-                        return $"<!-- {Content} -->";
-
-                    default:
-                        return "";
-                }
-            }
             set
             {
                 if (value.IsNotBlank())
@@ -1516,7 +1506,23 @@ namespace Extensions.Web
 
         public HtmlNode SetProp(string AttrName, bool Value = true) => Value ? SetAttribute(AttrName, AttrName) : RemoveAttribute(AttrName);
 
-        public override string ToString() => OuterHtml;
+        public override string ToString() => ToString(false);
+        public string ToString(bool Ident)
+        {
+            var ii = Util.WhitespaceChar.Repeat(DepthLevel).NullIf(x => !Ident);
+            switch (this.NodeType)
+            {
+                case HtmlNodeType.Text:
+                    return $"{ii}{Content}";
+                case HtmlNodeType.Comment:
+                    return $"{ii}<!-- {Content} -->";
+                case HtmlNodeType.Element:
+                default:
+                    return $"{ii}<{TagName.IfBlank("div")}{AttributeString.PrependIf(" ", b => b.IsNotBlank())}" + (SelfClosing ? " />" : $">{InnerHtml.AppendIf(Environment.NewLine, Ident).PrependIf(ii, Ident).PrependIf(Environment.NewLine, Ident)}</{TagName.IfBlank("div")}>");
+
+            }
+
+        }
     }
     public enum HtmlNodeType
     {
