@@ -667,7 +667,7 @@ namespace Extensions.Web
                 this.AddChildren(doctag.ChildNodes).AddAttributes(doctag.Attributes);
             }
 
-            (nodes.QuerySelector("title") ?? this.QuerySelector("title")).InsertInto(this.Head, 0);
+            (nodes.QuerySelector("title") ?? this.QuerySelector("title"))?.InsertInto(this.Head, 0);
 
         }
 
