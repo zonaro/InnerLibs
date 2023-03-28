@@ -915,6 +915,16 @@ namespace Extensions.Web
             }
         }
 
+        [IgnoreDataMember]
+        public HtmlNode this[int Index]
+        {
+            get => ChildNodes.FirstOrDefault(x => x.Index == Index);
+            set
+            {
+                if (value != null) Insert(Index, value);
+            }
+        }
+
         #endregion Public Indexers
 
         #region Public Properties
