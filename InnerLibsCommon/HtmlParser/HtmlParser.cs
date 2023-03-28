@@ -848,7 +848,7 @@ namespace Extensions.Web
     /// <summary>
     /// A Helper for generate HTML or XML Tags/Documents
     /// </summary>
-    public class HtmlNode : ICloneable
+    public class HtmlNode : ICloneable, IComparable, IComparable<HtmlNode>
     {
         #region Private Fields
 
@@ -960,6 +960,7 @@ namespace Extensions.Web
             get
             {
                 _children = _children ?? new List<HtmlNode>();
+                _children.Sort();
                 return _children;
             }
             set
@@ -1028,7 +1029,18 @@ namespace Extensions.Web
         public string Id { get => GetAttribute("id").BlankCoalesce(GetAttribute("Id"), GetAttribute("ID")); set => SetAttribute("id", value, true); }
 
         [IgnoreDataMember]
-        public int Index => ParentNode?.ChildNodes.GetIndexOf(this) ?? -1;
+        public int Index
+        {
+            get => ParentNode?.ChildNodes.GetIndexOf(this) ?? -1;
+            set
+            {
+                if (ParentNode != null)
+                {
+                    value = value.LimitIndex(ParentNode.ChildNodes);
+                    InsertInto(ParentNode, value);
+                }
+            }
+        }
 
         public string InnerHtml
         {
@@ -1110,7 +1122,7 @@ namespace Extensions.Web
                             this.Attributes.Clear();
                             this.AddAttributes(l.Attributes);
                             ClearChildren();
-                            this.AddChildren(l._children);
+                            this.AddChildren(l.ChildNodes);
                         }
                     }
                     else
@@ -1184,7 +1196,7 @@ namespace Extensions.Web
                 var item = arr[i];
                 if (item != null)
                 {
-                    var li = new HtmlNode("li");
+                    var li = new HtmlNode("option");
                     if (ItemHtml != null)
                     {
                         li.InnerHtml = ItemHtml.Compile().Invoke(item);
@@ -1202,6 +1214,43 @@ namespace Extensions.Web
         }
 
         public static HtmlNode CreateOption(string Name, string Value = null, bool Selected = false) => new HtmlNode("option", null, Name.RemoveHTML()).SetAttribute("value", Value).SetProp("selected", Selected);
+
+        public static HtmlNode CreateSelect<T>(IEnumerable<T> items, Expression<Func<T, string>> ValueSelector, Expression<Func<T, string>> NameSelector = null, Expression<Func<T, bool>> Selected = null, Expression<Func<T, object>> ItemAttribute = null)
+        {
+            var node = new HtmlNode("select");
+            var arr = (items ?? Array.Empty<T>()).ToArray();
+            for (int i = 0; i < arr.Length; i++)
+            {
+                var item = arr[i];
+                if (item != null)
+                {
+                    if (NameSelector != null || ValueSelector != null)
+                    {
+                        var name = (NameSelector ?? ValueSelector).Compile().Invoke(item);
+                        var value = (ValueSelector ?? NameSelector).Compile().Invoke(item);
+                        var selected = false;
+                        if (Selected != null)
+                        {
+                            selected = Selected.Compile().Invoke(item);
+                        }
+
+                        var opt = CreateOption(name, value, selected);
+
+                        if (ItemAttribute != null)
+                        {
+                            opt.Attributes = ItemAttribute.Compile().Invoke(item)?.CreateDictionary().ToDictionary(x => x.Key, x => x.Value.ChangeType<string>());
+                        }
+                        node.AddChildren(opt);
+                    }
+                    else
+                    {
+                        throw new ArgumentException("one of NameSelector or ValueSelector need to be provided");
+                    }
+                }
+                else node.AddComment($"{typeof(T).Name} at {i} is null");
+            }
+            return node;
+        }
 
         public static HtmlNode CreateTable(string[][] Table, bool Header = false) => CreateTable(Table?.To2D(), Header);
 
@@ -1318,10 +1367,8 @@ namespace Extensions.Web
             foreach (var obj in pairs)
             {
                 var dictionary = obj.CreateDictionary();
-                if (dictionary != null)
-                {
-                    foreach (var att in dictionary) SetAttribute(att.Key, $"{att.Value}");
-                }
+                foreach (var att in dictionary) SetAttribute(att.Key, $"{att.Value}");
+
             }
             return this;
         }
@@ -1432,6 +1479,35 @@ namespace Extensions.Web
             return this;
         }
 
+        public int CompareTo(HtmlNode other)
+        {
+            if (other == null || other == this) return 0;
+            if (this.Index > other.Index)
+                return 1;
+            else if (this.Index < other.Index)
+                return -1;
+            else return 0;
+        }
+
+        public int CompareTo(object obj)
+        {
+            if (obj is HtmlNode n)
+            {
+                return CompareTo(n);
+            }
+
+            if (obj is int i)
+            {
+                if (this.Index > i)
+                    return 1;
+                else if (this.Index < i)
+                    return -1;
+                else return 0;
+            }
+
+            return 0;
+        }
+
         /// <summary>
         /// Remove this tag from parent tag
         /// </summary>
@@ -1458,9 +1534,9 @@ namespace Extensions.Web
         /// Return the first child
         /// </summary>
         /// <returns></returns>
-        public HtmlNode FirstChild() => ChildNodes.FirstOrDefault();
+        public HtmlNode FirstChild() => FirstChild(null);
 
-        public HtmlNode FirstChild(Expression<Func<HtmlNode, bool>> predicate) => predicate != null ? ChildNodes.FirstOrDefault(predicate.Compile()) : FirstChild();
+        public HtmlNode FirstChild(Expression<Func<HtmlNode, bool>> predicate) => predicate != null ? ChildNodes.FirstOrDefault(predicate.Compile()) : ChildNodes.FirstOrDefault();
 
         public string GetAttribute(string key) => Attributes?.GetValueOr(key) ?? Util.EmptyString;
 
@@ -1542,17 +1618,23 @@ namespace Extensions.Web
 
         public HtmlNode InsertInto(HtmlNode toHtmlNode, int Index, bool copy = false)
         {
-            if (toHtmlNode != null)
-            {
-                toHtmlNode.Insert(Index, this, copy);
-            }
-
+            toHtmlNode?.Insert(Index, this, copy);
             return this;
         }
 
-        public HtmlNode LastChild() => ChildNodes.LastOrDefault();
+        public HtmlNode LastChild() => LastChild(null);
 
-        public HtmlNode LastChild(Expression<Func<HtmlNode, bool>> predicate) => predicate != null ? ChildNodes.LastOrDefault(predicate.Compile()) : LastChild();
+        public HtmlNode LastChild(Expression<Func<HtmlNode, bool>> predicate) => predicate != null ? ChildNodes.LastOrDefault(predicate.Compile()) : ChildNodes.LastOrDefault();
+
+        public HtmlNode Move(int Increment)
+        {
+            if (Increment > 0) InsertInto(this.ParentNode, this.Index + Increment);
+            return this;
+        }
+
+        public HtmlNode MoveDown(int Increment) => Move(Increment.ForceNegative());
+
+        public HtmlNode MoveUp(int Increment) => Move(Increment.ForcePositive());
 
         public HtmlNode NextSiblingElement()
         {
