@@ -1570,14 +1570,7 @@ namespace Extensions.Web
             return this;
         }
 
-        public HtmlNode RemoveChildren(int Index)
-        {
-
-            RemoveChildren(x => x.Index == Index)
-
-
-            return this;
-        }
+        public HtmlNode RemoveChildren(int Index) => RemoveChildren(x => x.Index == Index);
 
         public HtmlNode RemoveChildren(Expression<Func<HtmlNode, bool>> predicate) => RemoveChildren(this.ChildNodes?.Where(predicate?.Compile() ?? (x => false)) ?? Array.Empty<HtmlNode>());
 
