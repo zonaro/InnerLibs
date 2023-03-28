@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.Serialization;
 
 namespace Extensions.Web
 {
@@ -1570,12 +1572,10 @@ namespace Extensions.Web
 
         public HtmlNode RemoveChildren(int Index)
         {
-            if (Index >= 0 && Index <= _children.Count)
-            {
-                var el = _children[Index];
-                el._parent = null;
-                _children.RemoveAt(Index);
-            }
+
+            RemoveChildren(x => x.Index == Index)
+
+
             return this;
         }
 
