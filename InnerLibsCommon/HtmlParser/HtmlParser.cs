@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Runtime.Serialization;
-using Extensions;
 
 namespace Extensions.Web
 {
@@ -724,6 +721,8 @@ namespace Extensions.Web
             {
                 this.AddChildren(doctag.ChildNodes).AddAttributes(doctag.Attributes);
             }
+
+            (nodes.QuerySelector("title") ?? this.QuerySelector("title"))?.InsertInto(this.Head, 0);
 
             (nodes.QuerySelector("title") ?? this.QuerySelector("title")).InsertInto(this.Head, 0);
         }

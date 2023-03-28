@@ -16230,6 +16230,8 @@ namespace Extensions
             }
         }
 
+        public static Uri ToFileUri(this FileSystemInfo File) => new Uri($@"file://{File?.FullName.Replace(" ", "%20")}");
+
         /// <summary>
         /// Salva um array de bytes em um arquivo
         /// </summary>
