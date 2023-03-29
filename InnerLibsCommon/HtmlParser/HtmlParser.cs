@@ -959,8 +959,7 @@ namespace Extensions.Web
         {
             get
             {
-                _children = _children ?? new List<HtmlNode>();
-                _children.Sort();
+                _children = _children ?? new List<HtmlNode>();            
                 return _children;
             }
             set
