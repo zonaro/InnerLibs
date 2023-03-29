@@ -1,5 +1,6 @@
 ﻿// Copyright (c) 2019-2022 Jonathan Wood (www.softcircuits.com) Licensed under the MIT license.
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -19,8 +20,6 @@ namespace Extensions.Web
     /// </summary>
     public class HtmlCDataNode : HtmlTextNode
     {
-        #region Public Constructors
-
         /// <summary>
         /// Constructs a new <see cref="HtmlCDataNode"/> instance.
         /// </summary>
@@ -33,10 +32,6 @@ namespace Extensions.Web
             Prefix = prefix;
             Suffix = suffix;
         }
-
-        #endregion Public Constructors
-
-        #region Public Properties
 
         /// <summary>
         /// Gets or sets this node's inner content.
@@ -71,31 +66,19 @@ namespace Extensions.Web
             set { }
         }
 
-        #endregion Public Properties
-
-        #region Public Methods
-
         /// <summary>
         /// Converts this node to a string.
         /// </summary>
         public override string ToString() => OuterHtml;
-
-        #endregion Public Methods
     }
 
     /// <summary>
     /// Represents an HTML element (tag) node.
     /// </summary>
-    public class HtmlElementNode : HtmlNode
+    public class HtmlElementNode : HtmlNode, IList<HtmlNode>
     {
-        #region Private Fields
-
         private CSSStyles _stl;
         private Dictionary<string, string> attrs = new Dictionary<string, string>();
-
-        #endregion Private Fields
-
-        #region Public Constructors
 
         /// <summary>
         /// Constructs a new <see cref="HtmlElementNode"/> instance.
@@ -107,7 +90,7 @@ namespace Extensions.Web
         public HtmlElementNode(string TagName)
         {
             this.TagName = TagName.IfBlank("div");
-            ChildNodes = new HtmlNodeCollection(this);
+            _stl = new CSSStyles(this);
         }
 
         public HtmlElementNode(string TagName, string InnerHtml) : this(TagName)
@@ -128,14 +111,10 @@ namespace Extensions.Web
         /// <param name="TagName">Element tag name.</param>
         /// <param name="attributes">Optional element attributes.</param>
         /// <param name="children">Child nodes for this node. Cannot be null.</param>
-        public HtmlElementNode(string TagName, object attributes, HtmlNodeCollection children) : this(TagName, attributes)
+        public HtmlElementNode(string TagName, object attributes, IEnumerable<HtmlNode> children) : this(TagName, attributes)
         {
-            AddChildren(children);
+            Add(children);
         }
-
-        #endregion Public Constructors
-
-        #region Public Indexers
 
         [IgnoreDataMember]
         public HtmlElementNode this[string ID]
@@ -143,7 +122,7 @@ namespace Extensions.Web
             get => ChildNodes.FirstOfType<HtmlElementNode>(x => x.Id == ID);
             set
             {
-                if (value != null) AddChildren(value.SetID(ID));
+                if (value != null) Add(value.SetID(ID));
             }
         }
 
@@ -156,10 +135,6 @@ namespace Extensions.Web
                 if (value != null) Insert(Index, value);
             }
         }
-
-        #endregion Public Indexers
-
-        #region Public Properties
 
         /// <summary>
         /// atributos desta tag
@@ -181,13 +156,19 @@ namespace Extensions.Web
         public string AttributeString
         {
             get => Attributes.SelectJoinString(x => $"{x.Key.Replace(" ", "-")}={x.Value.Quote()}", " ");
-            set => this.Attributes = ParseTag($"<attr {value} />").ChangeType<HtmlElementNode>().Attributes.ToDictionary();
+            set
+            {
+                var i = ParseNode($"<div {value}></div>") as HtmlElementNode;
+                this.Attributes = i.Attributes.ToDictionary();
+            }
         }
 
         /// <summary>
         /// Gets this element's child nodes.
         /// </summary>
-        public HtmlNodeCollection ChildNodes { get; private set; }
+        public IEnumerable<HtmlNode> ChildNodes => this.AsEnumerable();
+
+        private List<HtmlNode> _children = new List<HtmlNode>();
 
         [IgnoreDataMember]
         public string Class
@@ -223,13 +204,47 @@ namespace Extensions.Web
             set
             {
                 // Replaces all existing content
-                ChildNodes.Clear();
+                Clear();
                 if (!string.IsNullOrEmpty(value))
                 {
                     var parser = new HtmlParser();
-                    ChildNodes.SetNodes(parser.ParseChildren(value));
+                    SetNodes(parser.ParseChildren(value));
                 }
             }
+        }
+
+        /// <summary>
+        /// Appends the specified node to the end of the collection. If both the last node in the
+        /// collection and the node being added are of type <see cref="HtmlTextNode"></see>, the two
+        /// text nodes are combined into one text node.
+        /// </summary>
+        /// <param name="node">Node to add.</param>
+        public void Add(HtmlNode node) => Add<HtmlNode>(node);
+        public HtmlElementNode Add<T>(T node) where T : HtmlNode
+        {
+            Insert(-1, node);
+            return this;
+        }
+
+        /// <summary>
+        /// Appends a range of nodes using the <see cref="Add"></see> method to add each one.
+        /// </summary>
+        /// <param name="nodes">List of nodes to add.</param>
+        public void AddRange(IEnumerable<HtmlNode> nodes)
+        {
+            foreach (HtmlNode node in nodes)
+                Add(node);
+        }
+
+        /// <summary>
+        /// Sets the nodes in this collection. Clears any existing nodes.
+        /// </summary>
+        /// <param name="nodes">List of nodes to add.</param>
+        public HtmlElementNode SetNodes(IEnumerable<HtmlNode> nodes)
+        {
+            Clear();
+            AddRange(nodes);
+            return this;
         }
 
         /// <summary>
@@ -249,8 +264,9 @@ namespace Extensions.Web
                 // Open tag
                 builder.Append(HtmlRules.TagStart);
                 builder.Append(TagName);
+                builder.Append(' ');
                 // Note: Attributes returned in non-deterministic order
-                builder.Append(Attributes.ToString());
+                builder.Append(AttributeString);
 
                 // Finish self-closing tag
                 if (IsSelfClosing)
@@ -300,15 +316,15 @@ namespace Extensions.Web
             set
             {
                 // Replaces all existing content
-                ChildNodes.Clear();
+                Clear();
                 if (!string.IsNullOrEmpty(value))
-                    ChildNodes.Add(new HtmlTextNode() { Text = value });
+                    Add(new HtmlTextNode() { Text = value });
             }
         }
 
-        #endregion Public Properties
+        public int Count => _children.Count;
 
-        #region Public Methods
+        public bool IsReadOnly => false;
 
         public static HtmlElementNode CreateAnchor(string URL, string Text, string Target = "_self", object htmlAttributes = null) => new HtmlElementNode("a", htmlAttributes, Text).SetAttribute("src", URL, true).SetAttribute("target", Target, true);
 
@@ -351,7 +367,7 @@ namespace Extensions.Web
                         foreach (var att in ItemAttribute.Compile().Invoke(item)?.CreateDictionary())
                             li.SetAttribute(att.Key, $"{att.Value}");
                     }
-                    node.AddChildren(li);
+                    node.Add(li);
                 }
                 else node.AddComment($"{typeof(T).Name} at {i} is null");
             }
@@ -385,7 +401,7 @@ namespace Extensions.Web
                         {
                             opt.Attributes = ItemAttribute.Compile().Invoke(item)?.CreateDictionary().ToDictionary(x => x.Key, x => x.Value.ChangeType<string>());
                         }
-                        node.AddChildren(opt);
+                        node.Add(opt);
                     }
                     else
                     {
@@ -410,9 +426,9 @@ namespace Extensions.Web
                     for (int j = 0; j < Table.GetLength(1); j++)
                     {
                         Header = Header && i == 0;
-                        row.AddChildren(Header ? "th" : "td", Table[i, j]);
+                        row.Add(Header ? "th" : "td", Table[i, j]);
                     }
-                    tag.AddChildren(row);
+                    tag.Add(row);
                 }
             return tag;
         }
@@ -478,7 +494,7 @@ namespace Extensions.Web
 
         public static implicit operator string(HtmlElementNode Tag) => Tag?.ToString();
 
-        public HtmlElementNode AddAnchor(string URL, string Text, string Target = "_self", object htmlAttributes = null) => AddChildren(CreateAnchor(URL, Text, Target, htmlAttributes));
+        public HtmlElementNode AddAnchor(string URL, string Text, string Target = "_self", object htmlAttributes = null) => Add(CreateAnchor(URL, Text, Target, htmlAttributes));
 
         public HtmlNode AddAttributes<T>(params T[] pairs)
         {
@@ -491,13 +507,17 @@ namespace Extensions.Web
             return this;
         }
 
-        public HtmlElementNode AddBreakLine() => AddChildren(CreateBreakLine());
+        public HtmlElementNode AddBreakLine() => Add(CreateBreakLine());
 
-        public HtmlElementNode AddChildren(string TagName, string InnerHtml = "", Action<HtmlNode> OtherActions = null) => AddChildren(new HtmlElementNode(TagName, InnerHtml).With(OtherActions));
+        public HtmlElementNode Add(string TagName, string InnerHtml = "", Action<HtmlNode> OtherActions = null)
+        {
+            Add(new HtmlElementNode(TagName, InnerHtml).With(OtherActions));
+            return this;
+        }
 
-        public HtmlElementNode AddChildren(params HtmlNode[] node) => AddChildren((node ?? Array.Empty<HtmlNode>()).AsEnumerable());
+        public HtmlElementNode Add(params HtmlNode[] node) => Add((node ?? Array.Empty<HtmlNode>()).AsEnumerable());
 
-        public HtmlElementNode AddChildren(IEnumerable<HtmlNode> nodes, bool copy = false)
+        public HtmlElementNode Add(IEnumerable<HtmlNode> nodes, bool copy = false)
         {
             if (nodes != null)
             {
@@ -521,21 +541,24 @@ namespace Extensions.Web
             return this;
         }
 
-        public HtmlElementNode AddComment(string Comment) => AddChildren(CreateComment(Comment));
+        public HtmlElementNode AddComment(string Comment) => Add(CreateComment(Comment));
 
-        public HtmlElementNode AddHorizontalRule() => AddChildren(CreateHorizontalRule());
+        public HtmlElementNode AddHorizontalRule() => Add(CreateHorizontalRule());
 
-        public HtmlElementNode AddList<T>(bool Ordened, IEnumerable<T> items, Expression<Func<T, string>> ItemHtml, Expression<Func<T, object>> ItemAttribute = null) => AddChildren(CreateList(Ordened, items, ItemHtml, ItemAttribute));
+        public HtmlElementNode AddList<T>(bool Ordened, IEnumerable<T> items, Expression<Func<T, string>> ItemHtml, Expression<Func<T, object>> ItemAttribute = null) => Add(CreateList(Ordened, items, ItemHtml, ItemAttribute));
 
-        public HtmlElementNode AddTable(string[][] Table, bool Header = false) => AddChildren(CreateTable(Table, Header));
+        public HtmlElementNode AddTable(string[][] Table, bool Header = false) => Add(CreateTable(Table, Header));
 
-        public HtmlElementNode AddTable(string[,] Table, bool Header = false) => AddChildren(CreateTable(Table, Header));
-
-        ///<inheritdoc cref="AddTable{TPoco}(IEnumerable{TPoco}, TPoco, string, string[])"/>
-        public HtmlElementNode AddTable<TPoco>(IEnumerable<TPoco> Rows, bool header, string IDProperty, params string[] Properties) where TPoco : class => AddChildren(CreateTable(Rows, header, IDProperty, Properties));
+        public HtmlElementNode AddTable(string[,] Table, bool Header = false) => Add(CreateTable(Table, Header));
 
         ///<inheritdoc cref="AddTable{TPoco}(IEnumerable{TPoco}, TPoco, string, string[])"/>
-        public HtmlElementNode AddTable<TPoco>(IEnumerable<TPoco> Rows) where TPoco : class => AddChildren(CreateTable(Rows));
+        public HtmlElementNode AddTable<TPoco>(IEnumerable<TPoco> Rows, bool header, string IDProperty, params string[] Properties) where TPoco : class => Add(CreateTable(Rows, header, IDProperty, Properties));
+
+        ///<inheritdoc cref="AddTable{TPoco}(IEnumerable{TPoco}, TPoco, string, string[])"/>
+        public HtmlElementNode AddTable<TPoco>(IEnumerable<TPoco> Rows) where TPoco : class
+        {
+            return Add(CreateTable(Rows));
+        }
 
         /// <summary>
         /// Generate a table from <typeparamref name="TPoco"/> classes as a children of this <see cref="HtmlNode"/>
@@ -546,27 +569,34 @@ namespace Extensions.Web
         /// <param name="IDProperty"></param>
         /// <param name="properties"></param>
         /// <returns></returns>
-        public HtmlElementNode AddTable<TPoco>(IEnumerable<TPoco> Rows, TPoco header, string IDProperty, params string[] properties) where TPoco : class => AddChildren(CreateTable(Rows, header, IDProperty, properties));
+        public HtmlElementNode AddTable<TPoco>(IEnumerable<TPoco> Rows, TPoco header, string IDProperty, params string[] properties) where TPoco : class => Add(CreateTable(Rows, header, IDProperty, properties));
 
-        public HtmlElementNode AddText(string Text) => AddChildren(CreateText(Text));
+        public HtmlElementNode AddText(string Text)
+        {
+            Add(CreateText(Text));
+            return this;
+        }
 
         /// <summary>
         /// Add a new <see cref="HtmlNode"/> containing a whitespace
         /// </summary>
         /// <returns></returns>
-        public HtmlElementNode AddWhiteSpace() => AddChildren(CreateWhiteSpace());
+        public HtmlElementNode AddWhiteSpace()
+        {
+            Add(CreateWhiteSpace());
+            return this;
+        }
 
         /// <summary>
         /// Clear all children
         /// </summary>
         /// <returns></returns>
-        public HtmlElementNode ClearChildren()
+        public void Clear()
         {
             while (ChildNodes.Any())
             {
-                RemoveChildren(0);
+                RemoveAt(0);
             }
-            return this;
         }
 
         public HtmlElementNode Closest(Expression<Func<HtmlElementNode, bool>> predicate) => predicate != null ? this.Traverse((HtmlElementNode x) => x.ParentNode, predicate).LastOrDefault(x => x != this) : null;
@@ -617,15 +647,13 @@ namespace Extensions.Web
             return 0;
         }
 
-        public IEnumerable<HtmlNode> Find(string selector) => Util.QuerySelectorAll(this, selector).Where(x => x != this);
-
         public IEnumerable<HtmlNode> Find(Expression<Func<HtmlNode, bool>> predicate) => Traverse().Where(predicate?.Compile() ?? (x => true)).Where(x => x != this);
 
-        public HtmlNode FindFirst(string selector) => Find(selector).FirstOrDefault();
+        public HtmlNode FindFirst(string selector) => this.ChildNodes.QuerySelector(selector);
 
         public HtmlNode FindFirst(Expression<Func<HtmlNode, bool>> predicate) => Find(predicate).FirstOrDefault();
 
-        public HtmlNode FindLast(string selector) => Find(selector).LastOrDefault();
+        public HtmlNode FindLast(string selector) => this.ChildNodes.QuerySelectorAll(selector).LastOrDefault();
 
         public HtmlNode FindLast(Expression<Func<HtmlNode, bool>> predicate) => Find(predicate).LastOrDefault();
 
@@ -692,9 +720,13 @@ namespace Extensions.Web
             return this;
         }
 
-        public HtmlElementNode Insert(int Index, string TagName, string InnerHtml) => Insert(Index, new HtmlElementNode(TagName, InnerHtml), false);
+        public HtmlElementNode Insert(int Index, string TagName, string InnerHtml)
+        {
+            Insert(Index, new HtmlElementNode(TagName, InnerHtml), false);
+            return this;
+        }
 
-        public HtmlElementNode Insert(int Index, HtmlNode Tag, bool copy = false)
+        public void Insert(int Index, HtmlNode Tag, bool copy)
         {
             if (Tag != null)
             {
@@ -703,14 +735,13 @@ namespace Extensions.Web
 
                 if (Index >= 0)
                 {
-                    ChildNodes.Insert(Index.LimitIndex(ChildNodes), Tag);
+                    _children.Insert(Index.LimitIndex(ChildNodes), Tag);
                 }
                 else
                 {
-                    ChildNodes.Add(Tag);
+                    _children.Add(Tag);
                 };
             }
-            return this;
         }
 
         public HtmlNode LastChild() => LastChild(null);
@@ -729,20 +760,20 @@ namespace Extensions.Web
 
         public HtmlNode NextSiblingElement()
         {
-            var rt = this.NextSibling;
+            var rt = this.NextNode;
 
             while (rt != null && rt is HtmlElementNode == false)
-                rt = rt.NextSibling;
+                rt = rt.NextNode;
 
             return rt;
         }
 
         public HtmlNode PreviousSiblingElement()
         {
-            var rt = this.PreviousSibling;
+            var rt = this.PrevNode;
 
             while (rt != null && rt is HtmlElementNode == false)
-                rt = rt.PreviousSibling;
+                rt = rt.PrevNode;
 
             return rt;
         }
@@ -753,25 +784,43 @@ namespace Extensions.Web
             return this;
         }
 
-        public HtmlElementNode RemoveChildren(int Index) => RemoveChildren(x => x.Index == Index);
+        /// <summary>
+        /// Removes the node at the specified position from the collection.
+        /// </summary>
+        /// <param name="index">The position of the item to be removed.</param>
+        /// <remarks>
+        /// Overrides <see cref="List{T}.RemoveAt(int)"/> in order to handle navigation property fixups.
+        /// </remarks>
+        public void RemoveAt(int Index) => Remove(x => x.Index == Index);
 
-        public HtmlElementNode RemoveChildren(Expression<Func<HtmlNode, bool>> predicate) => RemoveChildren(this.ChildNodes.ToArray().Where(predicate?.Compile() ?? (x => false)) ?? Array.Empty<HtmlElementNode>());
+        public HtmlElementNode Remove(Expression<Func<HtmlNode, bool>> predicate) => Remove(this.ChildNodes.ToArray().Where(predicate?.Compile() ?? (x => false)) ?? Array.Empty<HtmlElementNode>());
 
-        public HtmlElementNode RemoveChildren(params string[] IDs) => RemoveChildren(x => x.IsTypeOf<HtmlElementNode>() && IDs.Any(y => ((HtmlElementNode)x).Id.Equals(y, StringComparison.Ordinal)));
+        public HtmlElementNode Remove(params string[] IDs) => Remove(x => x.IsTypeOf<HtmlElementNode>() && IDs.Any(y => ((HtmlElementNode)x).Id.Equals(y, StringComparison.Ordinal)));
 
-        public HtmlElementNode RemoveChildren(params HtmlNode[] Children) => RemoveChildren(Children?.AsEnumerable());
-
-        public HtmlElementNode RemoveChildren(IEnumerable<HtmlNode> Children)
+        public HtmlElementNode Remove(IEnumerable<HtmlNode> Children)
         {
             foreach (var item in Children ?? Array.Empty<HtmlNode>())
             {
-                if (ChildNodes.Contains(item))
-                {
-                    ChildNodes.Remove(item);
-                    item.ParentNode = null;
-                }
+                Remove(item);
             }
             return this;
+        }
+
+        /// <summary>
+        /// Removes the specified node from the collection.
+        /// </summary>
+        /// <param name="node"></param>
+        public bool Remove(HtmlNode item)
+        {
+            if (item != null && item != this && _children.Contains(item))
+            {
+                if (_children.Remove(item))
+                {
+                    item.ParentNode = null;
+                    return true;
+                }
+            }
+            return false;
         }
 
         public HtmlNode RemoveClass(string ClassName)
@@ -818,9 +867,19 @@ namespace Extensions.Web
         /// </summary>
         public override string ToString() => OuterHtml;
 
-        public IEnumerable<HtmlNode> Traverse() => this.ChildNodes.TraverseAll(x => x is HtmlElementNode cc ? cc.ChildNodes : (IEnumerable<HtmlNode>)Array.Empty<HtmlElementNode>());
+        public IEnumerable<HtmlNode> Traverse() => this.ChildNodes.TraverseAll(x => x is HtmlElementNode cc && cc.Any() ? cc.Traverse() : Array.Empty<HtmlElementNode>());
 
-        #endregion Public Methods
+        public int IndexOf(HtmlNode item) => _children.IndexOf(item);
+
+        public void Insert(int index, HtmlNode item) => Insert(index, item, false);
+
+        public bool Contains(HtmlNode item) => _children.Contains(item);
+
+        public void CopyTo(HtmlNode[] array, int arrayIndex) => _children.CopyTo(array, arrayIndex);
+
+        public IEnumerator<HtmlNode> GetEnumerator() => _children.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => _children.GetEnumerator();
     }
 
     /// <summary>
@@ -828,26 +887,20 @@ namespace Extensions.Web
     /// </summary>
     public class HtmlHeaderNode : HtmlElementNode
     {
-        #region Public Properties
-
         /// <summary>
         /// Gets the outer markup.
         /// </summary>
         public override string OuterHtml => string.Concat(HtmlRules.TagStart,
             HtmlRules.HtmlHeaderTag,
-            Attributes.ToString(),
+            " ",
+            AttributeString,
+            " ",
             HtmlRules.TagEnd);
-
-        #endregion Public Properties
-
-        #region Public Methods
 
         /// <summary>
         /// Converts this node to a string.
         /// </summary>
         public override string ToString() => $"<{HtmlRules.HtmlHeaderTag} />";
-
-        #endregion Public Methods
     }
 
     /// <summary>
@@ -855,8 +908,6 @@ namespace Extensions.Web
     /// </summary>
     public abstract class HtmlNode : ICloneable
     {
-        #region Public Properties
-
         public int DepthLevel => this.ParentNode?.DepthLevel + 1 ?? 0;
 
         [IgnoreDataMember]
@@ -890,9 +941,7 @@ namespace Extensions.Web
         /// <summary>
         /// Gets this node's next sibling, or <c>null</c> if this node is the last of its siblings.
         /// </summary>
-        public HtmlNode NextNode { get; internal set; }
-
-        public HtmlNode NextSibling => this.ParentNode?.ChildNodes.FirstOrDefault(x => x.Index == this.Index + 1);
+        public HtmlNode NextNode => this.ParentNode?.ChildNodes.FirstOrDefault(x => x.Index == this.Index + 1);
 
         public string NodeType
         {
@@ -927,12 +976,10 @@ namespace Extensions.Web
         /// </summary>
         public HtmlElementNode ParentNode { get; internal set; }
 
-        public HtmlNode PreviousSibling => this.ParentNode?.ChildNodes.FirstOrDefault(x => x.Index == this.Index - 1);
-
         /// <summary>
         /// Gets this node's previous sibling, or <c>null</c> if this node is the first of its siblings.
         /// </summary>
-        public HtmlNode PrevNode { get; internal set; }
+        public HtmlNode PrevNode => this.ParentNode?.ChildNodes.FirstOrDefault(x => x.Index == this.Index - 1);
 
         /// <summary>
         /// Gets this node's text. No markup is included.
@@ -943,11 +990,7 @@ namespace Extensions.Web
             set { }
         }
 
-        #endregion Public Properties
-
-        #region Public Methods
-
-        public static IEnumerable<HtmlNode> Parse(string HtmlString) => HtmlString.IsNotBlank() ? new HtmlParser().ParseChildren(HtmlString) : Array.Empty<HtmlNode>();
+        public static IEnumerable<HtmlNode> Parse(string HtmlString) => HtmlString.IsNotBlank() ? new HtmlParser().Parse(HtmlString).ChildNodes : Array.Empty<HtmlNode>();
 
         public static IEnumerable<HtmlNode> Parse(Uri URL) => Parse(URL?.DownloadString());
 
@@ -958,13 +1001,13 @@ namespace Extensions.Web
         /// </summary>
         /// <param name="HtmlString"></param>
         /// <returns></returns>
-        public static HtmlDocument ParseDocument(string HtmlString) => new HtmlParser().Parse(HtmlString);
+        public static HtmlDocument ParseDocument(string HtmlString) => new HtmlDocument(HtmlString);
 
-        public static HtmlNode ParseTag(string HtmlString) => Parse(HtmlString).FirstOrDefault();
+        public static HtmlNode ParseNode(string HtmlString) => Parse(HtmlString).FirstOrDefault();
 
-        public static HtmlNode ParseTag(FileInfo File) => Parse(File).FirstOrDefault();
+        public static HtmlNode ParseNode(FileInfo File) => Parse(File).FirstOrDefault();
 
-        public static HtmlNode ParseTag(Uri Url) => Parse(Url).FirstOrDefault();
+        public static HtmlNode ParseNode(Uri Url) => Parse(Url).FirstOrDefault();
 
         /// <inheritdoc cref="CloneTag"/>
         public object Clone() => CloneTag();
@@ -973,7 +1016,7 @@ namespace Extensions.Web
         /// Clone this tag into a new <see cref="HtmlNode"/>
         /// </summary>
         /// <returns></returns>
-        public HtmlNode CloneTag() => HtmlElementNode.ParseTag(OuterHtml);
+        public HtmlNode CloneTag() => ParseNode(OuterHtml);
 
         /// <summary>
         /// Remove this tag from parent tag
@@ -981,7 +1024,7 @@ namespace Extensions.Web
         /// <returns></returns>
         public HtmlNode Detach()
         {
-            this.ParentNode?.RemoveChildren(this);
+            this.ParentNode?.Remove(this);
             return this;
         }
 
@@ -1004,7 +1047,7 @@ namespace Extensions.Web
             HtmlNode node = this;
 
             if (node is HtmlElementNode elementNode && elementNode.ChildNodes.Any())
-                return elementNode.ChildNodes[0];
+                return elementNode.ChildNodes.IfNoIndex(0);
 
             while (node != null)
             {
@@ -1032,15 +1075,13 @@ namespace Extensions.Web
                 node = node.PrevNode;
                 while (node is HtmlElementNode elementNode && elementNode.ChildNodes.Any())
 
-                    node = elementNode.ChildNodes[elementNode.ChildNodes.Count - 1];
+                    node = elementNode.ChildNodes.IfNoIndex(elementNode.ChildNodes.Count() - 1);
 
                 return node;
             }
 
             return node.ParentNode;
         }
-
-        #endregion Public Methods
     }
 
     /// <summary>
@@ -1048,13 +1089,7 @@ namespace Extensions.Web
     /// </summary>
     public class HtmlTextNode : HtmlNode
     {
-        #region Protected Fields
-
         protected string _content;
-
-        #endregion Protected Fields
-
-        #region Public Constructors
 
         /// <summary>
         /// Constructs a new <see cref="HtmlTextNode"/> instance.
@@ -1064,10 +1099,6 @@ namespace Extensions.Web
         {
             this.Text = Text ?? string.Empty;
         }
-
-        #endregion Public Constructors
-
-        #region Public Properties
 
         /// <summary>
         /// Gets or sets this node's raw text.
@@ -1095,16 +1126,10 @@ namespace Extensions.Web
             set => _content = WebUtility.HtmlEncode(value);
         }
 
-        #endregion Public Properties
-
-        #region Public Methods
-
         /// <summary>
         /// Converts this node to a string. (Same as <see cref="Text"/>.)
         /// </summary>
         public override string ToString() => Text;
-
-        #endregion Public Methods
     }
 
     /// <summary>
@@ -1112,26 +1137,18 @@ namespace Extensions.Web
     /// </summary>
     public class XmlHeaderNode : HtmlElementNode
     {
-        #region Public Properties
-
         /// <summary>
         /// Gets the outer markup.
         /// </summary>
         public override string OuterHtml => string.Concat(HtmlRules.TagStart,
             HtmlRules.XmlHeaderTag,
-            Attributes.ToString(),
+            AttributeString,
             "?",
             HtmlRules.TagEnd);
-
-        #endregion Public Properties
-
-        #region Public Methods
 
         /// <summary>
         /// Converts this node to a string.
         /// </summary>
         public override string ToString() => $"<{HtmlRules.XmlHeaderTag} />";
-
-        #endregion Public Methods
     }
 }

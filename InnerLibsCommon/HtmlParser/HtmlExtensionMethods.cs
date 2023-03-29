@@ -29,13 +29,11 @@ namespace Extensions
 
         public static T FirstOfType<T>(this IEnumerable<HtmlNode> nodes, Func<T, bool> predicate) where T : HtmlNode => FindOfType(nodes, predicate).FirstOrDefault();
 
-        public static HtmlNode QuerySelector(this HtmlElementNode tags, Func<HtmlNode, bool> query) => QuerySelector(tags.ChildNodes, query);
 
         public static HtmlNode QuerySelector(this IEnumerable<HtmlNode> tags, Func<HtmlNode, bool> query) => QuerySelectorAll(tags, query).FirstOrDefault();
 
         public static HtmlNode QuerySelector(this IEnumerable<HtmlNode> tags, string cssSelector) => QuerySelectorAll(tags, cssSelector).FirstOrDefault();
 
-        public static HtmlNode QuerySelector(this HtmlNode node, string cssSelector) => QuerySelectorAll(node, cssSelector).FirstOrDefault();
 
         /// <summary>
         /// Recursively finds all nodes for which the given predicate returns true.
@@ -90,9 +88,6 @@ namespace Extensions
                 }
             }
         }
-
-
-        public static IEnumerable<HtmlNode> QuerySelectorAll(this HtmlNode node, string cssSelector) => new[] { node }.QuerySelectorAll(cssSelector);
 
         /// <summary>
         /// Recursively searches the given nodes for ones matching the specified selectors.

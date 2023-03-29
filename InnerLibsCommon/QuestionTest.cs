@@ -1084,7 +1084,7 @@ namespace Extensions.QuestionTests
 
             if (Title.IsNotBlank())
             {
-                header.AddChildren("h1", Title).AddClass("main-title");
+                header.Add("h1", Title).AddClass("main-title");
             }
             if (PersonalInfo != null && PersonalInfo.Any())
             {
@@ -1096,8 +1096,8 @@ namespace Extensions.QuestionTests
                 {
                     new HtmlElementNode("div")
                     .AddClass("personal-info-item")
-                   .AddChildren("label", inf.Key)
-                   .AddChildren(HtmlElementNode.CreateInput($"{inf.Key}_personalinfo_input", $"{inf.Value}"))
+                   .Add("label", inf.Key)
+                   .Add(HtmlElementNode.CreateInput($"{inf.Key}_personalinfo_input", $"{inf.Value}"))
                    .AddBreakLine()
                    .InsertInto(section);
                 }
@@ -1110,7 +1110,7 @@ namespace Extensions.QuestionTests
             foreach (var quest in this.Questions)
             {
                 var sq = new HtmlElementNode("article").AddClass($"question-{quest.Number}").SetID(quest.ID)
-                .AddChildren(quest.Statement.ToString().WrapInTag("h3").AddClass($"question-Text-{quest.Number}")).InsertInto(list) as HtmlElementNode;
+                .Add(quest.Statement.ToString().WrapInTag("h3").AddClass($"question-Text-{quest.Number}")).InsertInto(list) as HtmlElementNode;
 
                 if (quest.Statement.Images.Any())
                 {
@@ -1118,8 +1118,8 @@ namespace Extensions.QuestionTests
                     foreach (var i in quest.Statement.Images)
                     {
                         new HtmlElementNode("figure")
-                        .AddChildren(HtmlElementNode.CreateImage(i.Image).SetAttribute("alt", i.Subtitle).SetID(i.ID).AddClass($"img-{i.Number}"))
-                        .AddChildren("figcaption", $"{i.Number} - {i.Subtitle}").AddClass($"cap-{i.Number}")
+                        .Add(HtmlElementNode.CreateImage(i.Image).SetAttribute("alt", i.Subtitle).SetID(i.ID).AddClass($"img-{i.Number}"))
+                        .Add("figcaption", $"{i.Number} - {i.Subtitle}").AddClass($"cap-{i.Number}")
                         .InsertInto(imgpart);
                     }
 
@@ -1145,7 +1145,7 @@ namespace Extensions.QuestionTests
                             HtmlElementNode.CreateInput(alt.Question.ID, alt.ID, "radio").SetProp("checked", alt.Checked ?? false).InsertInto(lab);
                         }
 
-                        lab.AddChildren("span", alt.Text).AddBreakLine();
+                        lab.Add("span", alt.Text).AddBreakLine();
 
                     }
 

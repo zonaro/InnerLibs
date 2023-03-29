@@ -9302,11 +9302,11 @@ namespace Extensions
             return s;
         }
 
-        public static HtmlNode ParseTag(this string HtmlString) => HtmlNode.ParseTag(HtmlString);
+        public static HtmlNode ParseTag(this string HtmlString) => HtmlNode.ParseNode(HtmlString);
 
-        public static HtmlNode ParseTag(this FileInfo File) => HtmlNode.ParseTag(File);
+        public static HtmlNode ParseTag(this FileInfo File) => HtmlNode.ParseNode(File);
 
-        public static HtmlNode ParseTag(this Uri URL) => HtmlNode.ParseTag(URL);
+        public static HtmlNode ParseTag(this Uri URL) => HtmlNode.ParseNode(URL);
 
         public static IEnumerable<HtmlNode> ParseTags(this string HtmlString) => HtmlNode.Parse(HtmlString);
 
@@ -16115,9 +16115,9 @@ namespace Extensions
         /// <returns></returns>
         public static string Wrap(this string Text, string OpenWrapText, string CloseWrapText) => $"{OpenWrapText}{Text}{CloseWrapText.IfBlank(OpenWrapText)}";
 
-        public static HtmlElementNode WrapInTag(this IEnumerable<HtmlElementNode> Tags, string TagName) => new HtmlElementNode(TagName).AddChildren(Tags);
+        public static HtmlElementNode WrapInTag(this IEnumerable<HtmlElementNode> Tags, string TagName) => new HtmlElementNode(TagName).Add(Tags);
 
-        public static HtmlElementNode WrapInTag(this HtmlElementNode Tag, string TagName) => new HtmlElementNode(TagName).AddChildren(Tag);
+        public static HtmlElementNode WrapInTag(this HtmlElementNode Tag, string TagName) => new HtmlElementNode(TagName).Add(Tag);
 
         public static HtmlElementNode WrapInTag(this string Text, string TagName) => new HtmlElementNode(TagName, InnerHtml: Text);
 

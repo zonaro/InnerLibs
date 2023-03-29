@@ -27,7 +27,7 @@ namespace Extensions.Web
         public HtmlDocument Parse(string html)
         {
             HtmlDocument document = new HtmlDocument();
-            document.RootNodes.SetNodes(ParseChildren(html));
+            document.SetNodes(ParseChildren(html));
             return document;
         }
 
@@ -53,7 +53,7 @@ namespace Extensions.Web
                     CDataDefinition definition = HtmlRules.CDataDefinitions.FirstOrDefault(dd => Parser.MatchesCurrentPosition(dd.StartText, dd.StartComparison));
                     if (definition != null)
                     {
-                        parentNode.ChildNodes.Add(ParseCDataNode(definition));
+                        parentNode.Add(ParseCDataNode(definition));
                         continue;
                     }
 
@@ -96,11 +96,11 @@ namespace Extensions.Web
                         HtmlTagFlag tagFlags = ignoreHtmlRules ? HtmlTagFlag.None : HtmlRules.GetTagFlags(tag);
                         if (tagFlags.HasFlag(HtmlTagFlag.HtmlHeader))
                         {
-                            parentNode.ChildNodes.Add(ParseHtmlHeader());
+                            parentNode.Add(ParseHtmlHeader());
                         }
                         else if (tagFlags.HasFlag(HtmlTagFlag.XmlHeader))
                         {
-                            parentNode.ChildNodes.Add(ParseXmlHeader());
+                            parentNode.Add(ParseXmlHeader());
                         }
                         else
                         {
@@ -125,7 +125,7 @@ namespace Extensions.Web
                             HtmlElementNode node = new HtmlElementNode(tag, attributes);
                             while (!HtmlRules.TagMayContain(parentNode.TagName, tag) && !parentNode.IsTopLevelNode)
                                 parentNode = parentNode.ParentNode;
-                            parentNode.ChildNodes.Add(node);
+                            parentNode.Add(node);
 
                             if (tagFlags.HasFlag(HtmlTagFlag.CData))
                             {
@@ -133,7 +133,7 @@ namespace Extensions.Web
                                 if (!selfClosing)
                                 {
                                     if (ParseToClosingTag(tag, out string content) && content.Length > 0)
-                                        node.ChildNodes.Add(new HtmlCDataNode(string.Empty, string.Empty, content));
+                                        node.Add(new HtmlCDataNode(string.Empty, string.Empty, content));
                                 }
                             }
                             else
@@ -151,11 +151,11 @@ namespace Extensions.Web
                 // Text node: must be at least 1 character (includes '<' that was not part of a tag)
                 string text = Parser.ParseCharacter();
                 text += Parser.ParseTo(HtmlRules.TagStart);
-                parentNode.ChildNodes.Add(new HtmlTextNode(text));
+                parentNode.Add(new HtmlTextNode(text));
             }
 
             // Remove references to temporary parent node
-            parentNode.ChildNodes.ForEach(n => n.ParentNode = null);
+            parentNode.Each(n => n.ParentNode = null);
 
             // Return collection of top-level nodes from nodes just parsed
             return parentNode.ChildNodes;
