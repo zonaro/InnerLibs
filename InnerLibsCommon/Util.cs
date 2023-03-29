@@ -9826,52 +9826,6 @@ namespace Extensions
 
         public static string SQLQueryForClass<T>(object InjectionObject = null) => typeof(T).GetAttributeValue<FromSQLAttribute, string>(x => x.SQL).IfBlank($"SELECT * FROM {typeof(T).Name}").Inject(InjectionObject);
 
-        public static HtmlNode QuerySelector(this HtmlNode tags, Func<HtmlNode, bool> query) => QuerySelector(tags.ChildNodes, query);
-
-        public static HtmlNode QuerySelector(this IEnumerable<HtmlNode> tags, Func<HtmlNode, bool> query) => QuerySelectorAll(tags, query).FirstOrDefault();
-        public static HtmlNode QuerySelector(this IEnumerable<HtmlNode> tags, string cssSelector) => QuerySelectorAll(tags, cssSelector).FirstOrDefault();
-
-        public static IEnumerable<HtmlNode> QuerySelectorAll(this HtmlNode tags, Func<HtmlNode, bool> query) => QuerySelectorAll(tags?.ChildNodes ?? Array.Empty<HtmlNode>(), query);
-
-        public static IEnumerable<HtmlNode> QuerySelectorAll(this IEnumerable<HtmlNode> tags, Func<HtmlNode, bool> query) => tags.Traverse(ht => ht.ChildNodes).Where(query);
-
-        public static HtmlNode QuerySelector(this HtmlNode node, string cssSelector) => node.QuerySelectorAll(cssSelector).FirstOrDefault();
-
-        public static IEnumerable<HtmlNode> QuerySelectorAll(this HtmlNode node, string cssSelector) => new[] { node }.QuerySelectorAll(cssSelector);
-        public static IEnumerable<HtmlNode> QuerySelectorAll(this IEnumerable<HtmlNode> nodes, string cssSelector)
-        {
-            if (cssSelector == null)
-                throw new ArgumentNullException(nameof(cssSelector));
-
-            if (cssSelector.Contains(','))
-            {
-                var combinedSelectors = cssSelector.Split(',');
-                var rt = nodes.QuerySelectorAll(combinedSelectors[0]).ToList();
-                foreach (var s in combinedSelectors.Skip(1))
-                    foreach (var n in nodes.QuerySelectorAll(s))
-                        if (!rt.Contains(n))
-                            rt.Add(n);
-
-                return rt;
-            }
-
-            cssSelector = cssSelector.Trim();
-
-            var selectors = CssSelector.Parse(cssSelector);
-
-            bool allowTraverse = true;
-
-            foreach (var selector in selectors)
-            {
-                if (allowTraverse && selector.AllowTraverse)
-                    nodes = Util.Traverse(nodes, x => x.ChildNodes);
-
-                nodes = selector.Filter(nodes);
-                allowTraverse = selector.AllowTraverse;
-            }
-
-            return nodes.Distinct().ToList();
-        }
 
         /// <summary>
         /// Encapsula um texto entre 2 caracteres (normalmente parentesis, chaves, aspas ou colchetes)
@@ -15382,6 +15336,10 @@ namespace Extensions
             }
         }
 
+
+        public static IEnumerable<T> TraverseAll<T>(this IEnumerable<T> items, Func<T, IEnumerable<T>> ChildSelector, Expression<Func<T, bool>> Filter = null) => items.SelectMany(x => Traverse(x, ChildSelector, true)).Where(Filter?.Compile() ?? (x => true));
+
+
         /// <summary>
         /// Percorre uma Lista de objetos que possuem como propriedade objetos do mesmo tipo e as
         /// unifica recursivamente
@@ -16157,11 +16115,11 @@ namespace Extensions
         /// <returns></returns>
         public static string Wrap(this string Text, string OpenWrapText, string CloseWrapText) => $"{OpenWrapText}{Text}{CloseWrapText.IfBlank(OpenWrapText)}";
 
-        public static HtmlNode WrapInTag(this IEnumerable<HtmlNode> Tags, string TagName) => new HtmlNode(TagName).AddChildren(Tags);
+        public static HtmlElementNode WrapInTag(this IEnumerable<HtmlElementNode> Tags, string TagName) => new HtmlElementNode(TagName).AddChildren(Tags);
 
-        public static HtmlNode WrapInTag(this HtmlNode Tag, string TagName) => new HtmlNode(TagName).AddChildren(Tag);
+        public static HtmlElementNode WrapInTag(this HtmlElementNode Tag, string TagName) => new HtmlElementNode(TagName).AddChildren(Tag);
 
-        public static HtmlNode WrapInTag(this string Text, string TagName) => new HtmlNode() { InnerHtml = Text, TagName = TagName };
+        public static HtmlElementNode WrapInTag(this string Text, string TagName) => new HtmlElementNode(TagName, InnerHtml: Text);
 
         /// <summary>
         /// Write a message using <see cref="Debug.WriteLine(value,category)"/> when <see
