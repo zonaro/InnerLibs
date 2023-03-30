@@ -7,13 +7,22 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Net;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
 
 namespace Extensions.Web
 {
+
+    public class HtmlCommentNode : HtmlCDataNode
+    {
+        public HtmlCommentNode(string comment) : base("<!-- ", " -->", comment)
+        {
+
+        }
+
+    }
+
     /// <summary>
     /// Represents a node that contains CDATA. This data is saved but not parsed. Examples include
     /// CDATA, comments and the content of SCRIPT and STYLE tags.
@@ -62,8 +71,8 @@ namespace Extensions.Web
         /// <summary>
         /// Gets or sets this node's CDATA suffix markup.
         /// </summary>
-        public string Suffix { get; set; } 
-     
+        public string Suffix { get; set; }
+
 
         #endregion Public Properties
 
@@ -328,7 +337,7 @@ namespace Extensions.Web
 
         public static HtmlElementNode CreateBreakLine() => new HtmlElementNode("br");
 
-        public static HtmlCDataNode CreateComment(string Comment) => new HtmlCDataNode("<!--", Comment, "-->");
+        public static HtmlCommentNode CreateComment(string Comment) => new HtmlCommentNode(Comment);
 
         public static HtmlElementNode CreateFontAwesomeIcon(string Icon) => new HtmlElementNode("i").AddClass(Icon);
 
