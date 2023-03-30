@@ -129,7 +129,7 @@ namespace Extensions.Web
         /// <summary>
         /// Gets the source document path. May be empty or <c>null</c> if there was no source file.
         /// </summary>
-        public string Path { get; private set; }
+        public string Path { get;  set; }
 
 
 
