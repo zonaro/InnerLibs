@@ -13,14 +13,11 @@ using System.Text;
 
 namespace Extensions.Web
 {
-
     public class HtmlCommentNode : HtmlCDataNode
     {
         public HtmlCommentNode(string comment) : base("<!-- ", " -->", comment)
         {
-
         }
-
     }
 
     /// <summary>
@@ -29,8 +26,6 @@ namespace Extensions.Web
     /// </summary>
     public class HtmlCDataNode : HtmlTextNode
     {
-        #region Public Constructors
-
         /// <summary>
         /// Constructs a new <see cref="HtmlCDataNode"/> instance.
         /// </summary>
@@ -42,12 +37,6 @@ namespace Extensions.Web
             Prefix = prefix;
             Suffix = suffix;
         }
-
-        #endregion Public Constructors
-
-
-
-        #region Public Properties
 
         /// <summary>
         /// Gets or sets this node's inner content.
@@ -73,19 +62,10 @@ namespace Extensions.Web
         /// </summary>
         public string Suffix { get; set; }
 
-
-        #endregion Public Properties
-
-
-
-        #region Public Methods
-
         /// <summary>
         /// Converts this node to a string.
         /// </summary>
         public override string ToString() => OuterHtml;
-
-        #endregion Public Methods
     }
 
     /// <summary>
@@ -93,15 +73,9 @@ namespace Extensions.Web
     /// </summary>
     public class HtmlElementNode : HtmlNode, IList<HtmlNode>
     {
-        #region Private Fields
-
         private List<HtmlNode> _children = new List<HtmlNode>();
         private CSSStyles _stl;
         private Dictionary<string, string> attrs = new Dictionary<string, string>();
-
-        #endregion Private Fields
-
-        #region Public Constructors
 
         /// <summary>
         /// Constructs a new <see cref="HtmlElementNode"/> instance.
@@ -138,12 +112,6 @@ namespace Extensions.Web
         {
             Add(children);
         }
-
-        #endregion Public Constructors
-
-
-
-        #region Public Properties
 
         /// <summary>
         /// atributos desta tag
@@ -274,7 +242,7 @@ namespace Extensions.Web
         /// <summary>
         /// Gets or sets the tag name.
         /// </summary>
-        public string TagName { get; set; }
+        public string TagName { get; set; } = "div";
 
         /// <summary>
         /// Gets or sets this node's text.
@@ -299,12 +267,6 @@ namespace Extensions.Web
             }
         }
 
-        #endregion Public Properties
-
-
-
-        #region Public Indexers
-
         [IgnoreDataMember]
         public HtmlElementNode this[string ID]
         {
@@ -324,12 +286,6 @@ namespace Extensions.Web
                 if (value != null) Insert(Index, value);
             }
         }
-
-        #endregion Public Indexers
-
-
-
-        #region Public Methods
 
         public static HtmlElementNode CreateAnchor(string URL, string Text, string Target = "_self", object htmlAttributes = null) => new HtmlElementNode("a", htmlAttributes, Text).SetAttribute("src", URL, true).SetAttribute("target", Target, true);
 
@@ -493,7 +449,7 @@ namespace Extensions.Web
             return tag;
         }
 
-        public static HtmlNode CreateText(string Text) => new HtmlTextNode(Text);
+        public static HtmlTextNode CreateText(string Text) => new HtmlTextNode(Text);
 
         public static HtmlNode CreateWhiteSpace() => CreateText("&nbsp;");
 
@@ -513,11 +469,7 @@ namespace Extensions.Web
             return this;
         }
 
-        public HtmlElementNode Add(string TagName, string InnerHtml = "", Action<HtmlElementNode> OtherActions = null)
-        {
-            Add(new HtmlElementNode(TagName, InnerHtml).With(OtherActions));
-            return this;
-        }
+        public HtmlElementNode Add(string TagName, string InnerHtml = "", Action<HtmlElementNode> OtherActions = null) => Add(new HtmlElementNode(TagName, InnerHtml).With(OtherActions));
 
         public HtmlElementNode Add(params HtmlNode[] node) => Add((node ?? Array.Empty<HtmlNode>()).AsEnumerable());
 
@@ -584,10 +536,7 @@ namespace Extensions.Web
         public HtmlElementNode AddTable<TPoco>(IEnumerable<TPoco> Rows, bool header, string IDProperty, params string[] Properties) where TPoco : class => Add(CreateTable(Rows, header, IDProperty, Properties));
 
         ///<inheritdoc cref="AddTable{TPoco}(IEnumerable{TPoco}, TPoco, string, string[])"/>
-        public HtmlElementNode AddTable<TPoco>(IEnumerable<TPoco> Rows) where TPoco : class
-        {
-            return Add(CreateTable(Rows));
-        }
+        public HtmlElementNode AddTable<TPoco>(IEnumerable<TPoco> Rows) where TPoco : class => Add(CreateTable(Rows));
 
         /// <summary>
         /// Generate a table from <typeparamref name="TPoco"/> classes as a children of this <see cref="HtmlNode"/>
@@ -822,6 +771,11 @@ namespace Extensions.Web
         public HtmlElementNode Remove(Expression<Func<HtmlNode, bool>> predicate) => Remove(this.ChildNodes.ToArray().Where(predicate?.Compile() ?? (x => false)) ?? Array.Empty<HtmlElementNode>());
 
         public HtmlElementNode Remove(params string[] IDs) => Remove(x => x.IsTypeOf<HtmlElementNode>() && IDs.Any(y => ((HtmlElementNode)x).Id.Equals(y, StringComparison.Ordinal)));
+        public HtmlElementNode Remove(params int[] Indexes)
+        {
+            Indexes?.Each(x => RemoveAt(x));
+            return this;
+        }
 
         public HtmlElementNode Remove(IEnumerable<HtmlNode> Children)
         {
@@ -920,8 +874,6 @@ namespace Extensions.Web
         public override string ToString() => OuterHtml;
 
         public IEnumerable<HtmlNode> Traverse() => this.ChildNodes.TraverseAll(x => x is HtmlElementNode cc && cc.Any() ? cc.Traverse() : Array.Empty<HtmlElementNode>());
-
-        #endregion Public Methods
     }
 
     /// <summary>
@@ -929,8 +881,6 @@ namespace Extensions.Web
     /// </summary>
     public class HtmlHeaderNode : HtmlElementNode
     {
-        #region Public Properties
-
         /// <summary>
         /// Gets the outer markup.
         /// </summary>
@@ -941,18 +891,10 @@ namespace Extensions.Web
             " ",
             HtmlRules.TagEnd);
 
-        #endregion Public Properties
-
-
-
-        #region Public Methods
-
         /// <summary>
         /// Converts this node to a string.
         /// </summary>
         public override string ToString() => $"<{HtmlRules.HtmlHeaderTag} />";
-
-        #endregion Public Methods
     }
 
     /// <summary>
@@ -960,8 +902,6 @@ namespace Extensions.Web
     /// </summary>
     public abstract class HtmlNode : ICloneable
     {
-        #region Public Properties
-
         public int DepthLevel => this.ParentNode?.DepthLevel + 1 ?? 0;
 
         [IgnoreDataMember]
@@ -1040,12 +980,6 @@ namespace Extensions.Web
             get => string.Empty;
             set { }
         }
-
-        #endregion Public Properties
-
-
-
-        #region Public Methods
 
         public static IEnumerable<HtmlNode> Parse(string HtmlString) => HtmlString.IsNotBlank() ? new HtmlParser().Parse(HtmlString).ChildNodes : Array.Empty<HtmlNode>();
 
@@ -1139,8 +1073,6 @@ namespace Extensions.Web
 
             return node.ParentNode;
         }
-
-        #endregion Public Methods
     }
 
     /// <summary>
@@ -1148,15 +1080,7 @@ namespace Extensions.Web
     /// </summary>
     public class HtmlTextNode : HtmlNode
     {
-        #region Protected Fields
-
         protected string _content;
-
-        #endregion Protected Fields
-
-
-
-        #region Public Constructors
 
         /// <summary>
         /// Constructs a new <see cref="HtmlTextNode"/> instance.
@@ -1166,12 +1090,6 @@ namespace Extensions.Web
         {
             this.Text = Text ?? string.Empty;
         }
-
-        #endregion Public Constructors
-
-
-
-        #region Public Properties
 
         /// <summary>
         /// Gets or sets this node's raw text.
@@ -1196,18 +1114,10 @@ namespace Extensions.Web
             set => _content = value.HtmlEncode();
         }
 
-        #endregion Public Properties
-
-
-
-        #region Public Methods
-
         /// <summary>
         /// Converts this node to a string. (Same as <see cref="Text"/>.)
         /// </summary>
         public override string ToString() => Text;
-
-        #endregion Public Methods
     }
 
     /// <summary>
@@ -1215,8 +1125,6 @@ namespace Extensions.Web
     /// </summary>
     public class XmlHeaderNode : HtmlElementNode
     {
-        #region Public Properties
-
         /// <summary>
         /// Gets the outer markup.
         /// </summary>
@@ -1226,17 +1134,9 @@ namespace Extensions.Web
             "?",
             HtmlRules.TagEnd);
 
-        #endregion Public Properties
-
-
-
-        #region Public Methods
-
         /// <summary>
         /// Converts this node to a string.
         /// </summary>
         public override string ToString() => $"<{HtmlRules.XmlHeaderTag} />";
-
-        #endregion Public Methods
     }
 }

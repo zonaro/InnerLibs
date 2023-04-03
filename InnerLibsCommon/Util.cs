@@ -43,6 +43,9 @@ namespace Extensions
 {
     public static partial class Util
     {
+
+        public static bool IsLastIndex<T>(this IEnumerable<T> list, int index) => index == list.Count() - 1;
+
         public static Image GenerateAvatarByName(this string Name)
         {
             if (Name.IsNotBlank())
