@@ -238,7 +238,7 @@ namespace Extensions.Web
         /// <summary>
         /// Gets or sets the tag name.
         /// </summary>
-        public string TagName { get; set; } = "div";
+        public virtual string TagName { get; set; } = "div";
 
         /// <summary>
         /// Gets or sets this node's text.

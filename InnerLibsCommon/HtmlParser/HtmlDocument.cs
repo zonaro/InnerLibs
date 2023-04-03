@@ -7,16 +7,18 @@ using System.Text;
 namespace Extensions.Web
 {
     /// <summary>
-    /// Holds the nodes of a parsed HTML or XML document. Use the <see cref="this.ChildNodes"/> property
-    /// to access these nodes. Use the <see cref="ToHtml"/> method to convert the nodes back to markup.
+    /// Holds the nodes of a parsed HTML or XML document. Use the <see cref="this.ChildNodes"/>
+    /// property to access these nodes. Use the <see cref="ToHtml"/> method to convert the nodes
+    /// back to markup.
     /// </summary>
     public class HtmlDocument : HtmlElementNode
     {
+        public override string TagName { get => "html"; set { } }
         public HtmlElementNode Body => ChildNodes.FirstOfType<HtmlElementNode>(x => x.TagName.EqualsIgnoreCaseAndAccents("body")) ?? HtmlRoot;
 
         public string Charset
         {
-            get => this.ChildNodes.FirstOfType<HtmlElementNode>(x => x.TagName == "meta" && x.HasAttribute("charset"))?.GetAttribute("charset");
+            get => (this.ChildNodes.FirstOfType<HtmlElementNode>(x => x.TagName == "meta" && x.HasAttribute("charset"))?.GetAttribute("charset")).IfBlank(Encoding?.HeaderName);
             set
             {
                 if (value.IsNotBlank())
@@ -24,6 +26,10 @@ namespace Extensions.Web
                     var m = this.ChildNodes.FirstOfType<HtmlElementNode>(x => x.TagName == "meta" && x.HasAttribute("charset")) ?? new HtmlElementNode("meta");
                     m.SetAttribute("charset", value);
                     Head?.Add(m);
+
+                    Util.TryExecute(() => this.Encoding = Encoding.GetEncoding(value));
+
+                    this.Encoding = this.Encoding ?? new UTF8Encoding();
                 }
             }
         }
@@ -92,7 +98,7 @@ namespace Extensions.Web
             return null;
         }
 
-        public HtmlNode AddStyle(string href)
+        public HtmlElementNode AddStyle(string href)
         {
             if (href.IsNotBlank())
             {
@@ -105,12 +111,7 @@ namespace Extensions.Web
 
         public override string ToString() => this.ToHtml();
 
-        public FileInfo Save() => this.ToString().WriteToFile(File);
-        public FileInfo Save(string filename)
-        {
-            File = filename.ToFileInfo();
-            return Save();
-        }
+        public FileInfo Save() => this.ToString().WriteToFile(File, false, this.Encoding);
 
         public HtmlElementNode SetMeta(string name, string content)
         {
@@ -130,8 +131,7 @@ namespace Extensions.Web
         /// </summary>
         public FileInfo File { get; set; }
 
-
-
+        public Encoding Encoding { get; set; }
 
         /// <summary>
         /// Gets or sets whether the library enforces HTML rules when parsing markup. This setting
@@ -146,19 +146,41 @@ namespace Extensions.Web
         /// <summary> Initializes an empty <see cref="HtmlDocument"> instance. </summary>
         public HtmlDocument() : base()
         {
-
-
+            this.Encoding = new UTF8Encoding();
         }
 
-        public HtmlDocument(FileInfo file) : this()
+        public HtmlDocument(FileInfo file, Encoding encoding = null) : this(file?.ReadAllText(encoding))
         {
             this.File = file;
+            this.Encoding = encoding ?? new UTF8Encoding();
+            this.Charset = this.Encoding.HeaderName;
         }
 
         public HtmlDocument(string HtmlString) : this()
         {
             var n = new HtmlParser().ParseChildren(HtmlString);
             this.SetNodes(n);
+            var head = this.FindOfType<HtmlElementNode>(x => x != this && x.TagName.EqualsIgnoreCaseAndAccents("head"));
+
+            this.Add(head);
+
+            var body = this.FindOfType<HtmlElementNode>(x => x != this && x.TagName.EqualsIgnoreCaseAndAccents("body"));
+
+            this.Add(body);
+
+            var title = this.FindOfType<HtmlElementNode>(x => x != this && x.TagName.EqualsIgnoreCaseAndAccents("title"));
+
+            this.Add(title);
+
+            var html = this.FindOfType<HtmlElementNode>(x => x != this && x.TagName.EqualsIgnoreCaseAndAccents("html"));
+            html.Each(x =>
+            {
+                foreach (var item in x.Attributes.AsEnumerable())
+                {
+                    this.SetAttribute(item.Key, item.Value);
+                }
+                this.Add(x.ChildNodes);
+            });
         }
 
         /// <summary>
@@ -206,37 +228,5 @@ namespace Extensions.Web
         /// </summary>
         /// <returns>A string with the markup for this document.</returns>
         public string ToHtml() => ChildNodes.ToHtml();
-
-        /// <summary>
-        /// Parses an HTML or XML string and returns an <see cref="HtmlDocument"></see> instance
-        /// that contains the parsed nodes.
-        /// </summary>
-        /// <param name="html">The HTML or XML string to parse.</param>
-        /// <returns>
-        /// Returns an <see cref="HtmlDocument"></see> instance that contains the parsed nodes.
-        /// </returns>
-        public static HtmlDocument FromHtml(string html) => new HtmlParser().Parse(html);
-
-        /// <summary>
-        /// Parses an HTML or XML file and returns an <see cref="HtmlDocument"></see> instance that
-        /// contains the parsed nodes.
-        /// </summary>
-        /// <param name="path">The HTML or XML file to parse.</param>
-        /// <returns>
-        /// Returns an <see cref="HtmlDocument"></see> instance that contains the parsed nodes.
-        /// </returns>
-        public static HtmlDocument FromFile(string path) => FromHtml(System.IO.File.ReadAllText(path));
-
-        /// <summary>
-        /// Parses an HTML or XML file and returns an <see cref="HtmlDocument"></see> instance that
-        /// contains the parsed nodes.
-        /// </summary>
-        /// <param name="path">The HTML or XML file to parse.</param>
-        /// <param name="encoding">The encoding applied to the contents of the file.</param>
-        /// <returns>
-        /// Returns an <see cref="HtmlDocument"></see> instance that contains the parsed nodes.
-        /// </returns>
-        public static HtmlDocument FromFile(string path, Encoding encoding) => FromHtml(System.IO.File.ReadAllText(path, encoding));
-
     }
 }
