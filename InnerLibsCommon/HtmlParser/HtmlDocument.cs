@@ -1,5 +1,4 @@
-﻿// Copyright (c) 2019-2022 Jonathan Wood (www.softcircuits.com) Licensed under the MIT license.
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -129,7 +128,7 @@ namespace Extensions.Web
         /// <summary>
         /// Gets the source document path. May be empty or <c>null</c> if there was no source file.
         /// </summary>
-        public string Path { get;  set; }
+        public string Path { get; set; }
 
 
 

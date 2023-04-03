@@ -1,5 +1,4 @@
-﻿// Copyright (c) 2019-2022 Jonathan Wood (www.softcircuits.com) Licensed under the MIT license.
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Extensions.Web;
