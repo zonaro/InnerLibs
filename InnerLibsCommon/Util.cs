@@ -298,19 +298,7 @@ namespace Extensions
         /// <param name="AppendText">Texto adicional</param>
         public static string AppendLine(this string Text, string AppendText) => Text.Append(AppendText).Append(Environment.NewLine);
 
-        public static string AppendUrlParameter(this string Url, string Key, params string[] Value)
-        {
-            if (Url.IsURL())
-            {
-                Url.ParseQueryString();
-                foreach (var v in Value ?? Array.Empty<string>())
-                {
-                    Url += $"&{Key}={v?.UrlEncode()}";
-                }
-                return Url;
-            }
-            throw new ArgumentException("string is not a valid URL", nameof(Url));
-        }
+
 
         /// <summary>
         /// Adiciona texto ao final de uma string enquanto um criterio for cumprido
