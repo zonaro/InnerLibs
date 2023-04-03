@@ -108,10 +108,7 @@ namespace Extensions.Web
         /// <param name="TagName">Element tag name.</param>
         /// <param name="attributes">Optional element attributes.</param>
         /// <param name="children">Child nodes for this node. Cannot be null.</param>
-        public HtmlElementNode(string TagName, object attributes, IEnumerable<HtmlNode> children) : this(TagName, attributes)
-        {
-            Add(children);
-        }
+        public HtmlElementNode(string TagName, object attributes, IEnumerable<HtmlNode> children) : this(TagName, attributes) => Add(children);
 
         /// <summary>
         /// atributos desta tag
