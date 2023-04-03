@@ -47,7 +47,7 @@ namespace Extensions.ComplexText
         [IgnoreDataMember] public FileInfo File => new FileInfo(FilePath);
 
         /// <summary>
-        /// The current Path of this JsonFile
+        /// The current File of this JsonFile
         /// </summary>
         [IgnoreDataMember]
         public string FilePath
@@ -74,7 +74,7 @@ namespace Extensions.ComplexText
         /// Load values of a JsonFile into a <typeparamref name="T"/> object
         /// </summary>
         /// <typeparam name="T">Object T</typeparam>
-        /// <param name="File">File Path</param>
+        /// <param name="File">File File</param>
         /// <param name="EncryptKey">Encrypt Key. Leave Null or blank to not encrypt</param>
         /// <returns></returns>
         public static T Load<T>(FileInfo File, string EncryptKey, JSONParameters parameters = null) where T : JsonFile => Load<T>(File?.FullName, EncryptKey, parameters);

@@ -471,7 +471,7 @@ namespace Extensions.Printers
         {
             if (!Path.IsFilePath())
             {
-                throw new FileNotFoundException("Invalid Path");
+                throw new FileNotFoundException("Invalid File");
             }
 
             if (!File.Exists(Path))
@@ -637,7 +637,7 @@ namespace Extensions.Printers
             }
             else
             {
-                throw new ArgumentException($"FileOrDirectoryPath Is Not a valid Path: {FileOrDirectoryPath}");
+                throw new ArgumentException($"FileOrDirectoryPath Is Not a valid File: {FileOrDirectoryPath}");
             }
 
             return this;
@@ -732,7 +732,7 @@ namespace Extensions.Printers
                 }
                 else
                 {
-                    throw new ArgumentException($"FileOrDirectoryPath is not a valid Path: {FileOrDirectoryPath}");
+                    throw new ArgumentException($"FileOrDirectoryPath is not a valid File: {FileOrDirectoryPath}");
                 }
             }
 

@@ -62,7 +62,7 @@ namespace Extensions.Files
             }
             else
             {
-                throw new ArgumentException("Path is not valid", nameof(Path));
+                throw new ArgumentException("File is not valid", nameof(Path));
             }
         }
 

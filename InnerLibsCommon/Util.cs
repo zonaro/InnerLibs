@@ -13247,7 +13247,7 @@ namespace Extensions
             var x = ToFileSystemInfo(PathParts);
             if (x is DirectoryInfo)
             {
-                throw new Exception("Path is directory");
+                throw new Exception("File is directory");
             }
             return x as FileInfo;
         }

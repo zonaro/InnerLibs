@@ -7,7 +7,7 @@ using System.Text;
 namespace Extensions.Web
 {
     /// <summary>
-    /// Holds the nodes of a parsed HTML or XML document. Use the <see cref="RootNodes"/> property
+    /// Holds the nodes of a parsed HTML or XML document. Use the <see cref="this.ChildNodes"/> property
     /// to access these nodes. Use the <see cref="ToHtml"/> method to convert the nodes back to markup.
     /// </summary>
     public class HtmlDocument : HtmlElementNode
@@ -105,10 +105,10 @@ namespace Extensions.Web
 
         public override string ToString() => this.ToHtml();
 
-        public FileInfo Save() => this.ToString().WriteToFile(Path);
+        public FileInfo Save() => this.ToString().WriteToFile(File);
         public FileInfo Save(string filename)
         {
-            Path = filename;
+            File = filename.ToFileInfo();
             return Save();
         }
 
@@ -128,7 +128,7 @@ namespace Extensions.Web
         /// <summary>
         /// Gets the source document path. May be empty or <c>null</c> if there was no source file.
         /// </summary>
-        public string Path { get; set; }
+        public FileInfo File { get; set; }
 
 
 
@@ -144,10 +144,15 @@ namespace Extensions.Web
         }
 
         /// <summary> Initializes an empty <see cref="HtmlDocument"> instance. </summary>
-        public HtmlDocument()
+        public HtmlDocument() : base()
         {
-            Path = null;
 
+
+        }
+
+        public HtmlDocument(FileInfo file) : this()
+        {
+            this.File = file;
         }
 
         public HtmlDocument(string HtmlString) : this()
@@ -220,7 +225,7 @@ namespace Extensions.Web
         /// <returns>
         /// Returns an <see cref="HtmlDocument"></see> instance that contains the parsed nodes.
         /// </returns>
-        public static HtmlDocument FromFile(string path) => FromHtml(File.ReadAllText(path));
+        public static HtmlDocument FromFile(string path) => FromHtml(System.IO.File.ReadAllText(path));
 
         /// <summary>
         /// Parses an HTML or XML file and returns an <see cref="HtmlDocument"></see> instance that
@@ -231,7 +236,7 @@ namespace Extensions.Web
         /// <returns>
         /// Returns an <see cref="HtmlDocument"></see> instance that contains the parsed nodes.
         /// </returns>
-        public static HtmlDocument FromFile(string path, Encoding encoding) => FromHtml(File.ReadAllText(path, encoding));
+        public static HtmlDocument FromFile(string path, Encoding encoding) => FromHtml(System.IO.File.ReadAllText(path, encoding));
 
     }
 }
