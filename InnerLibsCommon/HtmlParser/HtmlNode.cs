@@ -612,12 +612,11 @@ namespace Extensions.Web
             {
                 return CompareTo(n);
             }
-
-            if (obj is int i)
+            else if (obj.IsNumber())
             {
-                if (this.Index > i)
+                if (this.Index > obj.ToDecimal())
                     return 1;
-                else if (this.Index < i)
+                else if (this.Index < obj.ToDecimal())
                     return -1;
                 else return 0;
             }
@@ -708,28 +707,24 @@ namespace Extensions.Web
             return this;
         }
 
-        public HtmlElementNode Insert(int Index, string TagName, string InnerHtml)
-        {
-            Insert(Index, new HtmlElementNode(TagName, InnerHtml), false);
-            return this;
-        }
+        public HtmlElementNode Insert(int Index, string TagName, string InnerHtml, Action<HtmlElementNode> OtherActions = null) => Insert(Index, new HtmlElementNode(TagName, InnerHtml).With(OtherActions), false);
 
-        public void Insert(int Index, HtmlNode Tag, bool copy)
+        public HtmlElementNode Insert(int Index, HtmlNode Tag, bool copy)
         {
             if (Tag != null)
             {
                 Tag = copy ? Tag.CloneTag() : Tag.Detach();
                 Tag.ParentNode = this;
 
-                if (Index >= 0)
+                if (Index <= -1)
                 {
-                    _children.Insert(Index.LimitIndex(ChildNodes), Tag);
+                    Index = _children.Count - 1;
                 }
-                else
-                {
-                    _children.Add(Tag);
-                };
+
+                _children.Insert(Index.LimitIndex(ChildNodes), Tag);
+
             }
+            return this;
         }
 
         public void Insert(int index, HtmlNode item) => Insert(index, item, false);
@@ -744,28 +739,29 @@ namespace Extensions.Web
             return this;
         }
 
-        public HtmlNode MoveDown(int Increment) => Move(Increment.ForceNegative());
+        public HtmlNode MoveDown(int Increment = 1) => Move(Increment.ForceNegative());
 
-        public HtmlNode MoveUp(int Increment) => Move(Increment.ForcePositive());
+        public HtmlNode MoveUp(int Increment = 1) => Move(Increment.ForcePositive());
 
-        public HtmlNode NextSiblingElement()
+        public HtmlElementNode NextSiblingElement()
         {
             var rt = this.NextNode;
 
             while (rt != null && rt is HtmlElementNode == false)
                 rt = rt.NextNode;
 
-            return rt;
+            return rt as HtmlElementNode;
         }
 
-        public HtmlNode PreviousSiblingElement()
+        public HtmlElementNode PreviousSiblingElement()
         {
+
             var rt = this.PrevNode;
 
             while (rt != null && rt is HtmlElementNode == false)
                 rt = rt.PrevNode;
 
-            return rt;
+            return rt as HtmlElementNode;
         }
 
         public HtmlElementNode Remove(Expression<Func<HtmlNode, bool>> predicate) => Remove(this.ChildNodes.ToArray().Where(predicate?.Compile() ?? (x => false)) ?? Array.Empty<HtmlElementNode>());
@@ -818,7 +814,7 @@ namespace Extensions.Web
             return this;
         }
 
-        public HtmlNode RemoveClass(string ClassName)
+        public HtmlElementNode RemoveClass(string ClassName)
         {
             if (ClassName.IsNotBlank() && ClassName.IsIn(ClassList, StringComparer.InvariantCultureIgnoreCase))
             {
@@ -894,7 +890,7 @@ namespace Extensions.Web
         /// <summary>
         /// Converts this node to a string.
         /// </summary>
-        public override string ToString() => $"<{HtmlRules.HtmlHeaderTag} />";
+        public override string ToString() => OuterHtml;
     }
 
     /// <summary>
@@ -1086,10 +1082,7 @@ namespace Extensions.Web
         /// Constructs a new <see cref="HtmlTextNode"/> instance.
         /// </summary>
         /// <param name="Text">Optional markup for this node.</param>
-        public HtmlTextNode(string Text = null)
-        {
-            this.Text = Text ?? string.Empty;
-        }
+        public HtmlTextNode(string Text = null) => this.Text = Text ?? string.Empty;
 
         /// <summary>
         /// Gets or sets this node's raw text.
@@ -1137,6 +1130,6 @@ namespace Extensions.Web
         /// <summary>
         /// Converts this node to a string.
         /// </summary>
-        public override string ToString() => $"<{HtmlRules.XmlHeaderTag} />";
+        public override string ToString() => OuterHtml;
     }
 }
