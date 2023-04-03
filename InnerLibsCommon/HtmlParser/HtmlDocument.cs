@@ -180,6 +180,7 @@ namespace Extensions.Web
                     this.SetAttribute(item.Key, item.Value);
                 }
                 this.Add(x.ChildNodes);
+                x.Detach();
             });
         }
 
