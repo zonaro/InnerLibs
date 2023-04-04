@@ -867,10 +867,16 @@ namespace Extensions.Web
         public IEnumerable<HtmlNode> Traverse() => this.ChildNodes.TraverseAll(x => x is HtmlElementNode cc && cc.Any() ? cc.Traverse() : Array.Empty<HtmlElementNode>());
     }
 
+
+    public abstract class HeaderNode : HtmlElementNode
+    {
+
+    }
+
     /// <summary>
     /// Represents an HTML header (!DOCTYPE) node.
     /// </summary>
-    public class HtmlHeaderNode : HtmlElementNode
+    public class HtmlHeaderNode : HeaderNode
     {
         /// <summary>
         /// Gets the outer markup.
@@ -1111,7 +1117,7 @@ namespace Extensions.Web
     /// <summary>
     /// Represents an XML header (?xml) node.
     /// </summary>
-    public class XmlHeaderNode : HtmlElementNode
+    public class XmlHeaderNode : HeaderNode
     {
         /// <summary>
         /// Gets the outer markup.

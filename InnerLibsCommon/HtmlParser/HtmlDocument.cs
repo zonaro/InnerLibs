@@ -15,7 +15,7 @@ namespace Extensions.Web
     {
         public override string OuterHtml => $"{this.HeaderNode?.ToString()}{base.OuterHtml}";
         public override string TagName { get => "html"; set => base.TagName = value.IfBlank("html"); }
-        public HtmlElementNode Body => ChildNodes.FirstOfType<HtmlElementNode>(x => x.TagName.EqualsIgnoreCaseAndAccents("body")) ?? HtmlRoot;
+        public HtmlElementNode Body => ChildNodes.FirstOfType<HtmlElementNode>(x => x.TagName.EqualsIgnoreCaseAndAccents("body")) ?? this;
 
         public string Charset
         {
@@ -36,16 +36,15 @@ namespace Extensions.Web
         }
 
         public HtmlElementNode Head => ChildNodes.FirstOfType<HtmlElementNode>(x => x.TagName.EqualsIgnoreCaseAndAccents("head")) ?? Body;
-        public HtmlElementNode HtmlRoot => ChildNodes.FirstOfType<HtmlElementNode>(x => x.TagName.EqualsIgnoreCaseAndAccents("html")) ?? this;
 
         public string Language
         {
-            get => HtmlRoot.GetAttribute("lang");
+            get => this.GetAttribute("lang");
             set
             {
                 if (value.IsNotBlank())
                 {
-                    HtmlRoot.SetAttribute("lang", value);
+                    this.SetAttribute("lang", value);
                 }
             }
         }
@@ -64,12 +63,12 @@ namespace Extensions.Web
 
         public string Title
         {
-            get => HtmlRoot.FindFirst("title")?.InnerHtml;
+            get => this.FindFirst("title")?.InnerHtml;
             set
             {
                 if (value.IsNotBlank())
                 {
-                    var m = HtmlRoot.FindFirst("title") ?? new HtmlElementNode("title");
+                    var m = this.FindFirst("title") ?? new HtmlElementNode("title");
                     m.InnerHtml = value;
                     Head.Add(m);
                 }
@@ -139,15 +138,7 @@ namespace Extensions.Web
             return null;
         }
 
-        public HtmlElementNode GetMeta(string name)
-        {
-            if (name.IsNotBlank())
-            {
-                return this.FirstOfType<HtmlElementNode>(x => x.TagName == "meta" && x.GetAttribute("name") == name);
-
-            }
-            return null;
-        }
+        public HtmlElementNode GetMeta(string name) => name.IsNotBlank() ? this.FirstOfType<HtmlElementNode>(x => x.TagName == "meta" && x.GetAttribute("name") == name) : null;
 
         /// <summary>
         /// Gets the source document path. May be empty or <c>null</c> if there was no source file.
@@ -239,7 +230,7 @@ namespace Extensions.Web
             }
         }
 
-        public HtmlElementNode HeaderNode { get; private set; }
+        public HeaderNode HeaderNode { get; set; }
 
         /// <summary>
         /// Recursively searches this document's nodes for ones matching the specified selector.
@@ -279,6 +270,6 @@ namespace Extensions.Web
         /// </param>
         /// <returns>The matching nodes.</returns>
         public IEnumerable<T> FindOfType<T>(Func<T, bool> predicate) where T : HtmlNode => ChildNodes.FindOfType(predicate);
-        public T FirstOfType<T>(Func<T, bool> predicate) where T : HtmlNode => FindOfType<T>(predicate).FirstOrDefault();
+        public T FirstOfType<T>(Func<T, bool> predicate) where T : HtmlNode => FindOfType(predicate).FirstOrDefault();
     }
 }
