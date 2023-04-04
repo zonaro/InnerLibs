@@ -205,7 +205,7 @@ namespace Extensions.Web
                 // Open tag
                 builder.Append(HtmlRules.TagStart);
                 builder.Append(TagName);
-                builder.Append(' ');
+                builder.Append(AttributeString.IsNotBlank() ? " " : "");
                 // Note: Attributes returned in non-deterministic order
                 builder.Append(AttributeString);
 
@@ -469,6 +469,8 @@ namespace Extensions.Web
 
         public HtmlElementNode Add(params HtmlNode[] node) => Add((node ?? Array.Empty<HtmlNode>()).AsEnumerable());
 
+        public HtmlElementNode Add(params IEnumerable<HtmlNode>[] nodes) => Add(nodes.SelectMany(x => x), false);
+
         public HtmlElementNode Add(IEnumerable<HtmlNode> nodes, bool copy = false)
         {
             if (nodes != null)
@@ -518,11 +520,7 @@ namespace Extensions.Web
         /// Appends a range of nodes using the <see cref="Add"></see> method to add each one.
         /// </summary>
         /// <param name="nodes">List of nodes to add.</param>
-        public void AddRange(IEnumerable<HtmlNode> nodes)
-        {
-            foreach (HtmlNode node in nodes)
-                Add(node);
-        }
+        public void AddRange(IEnumerable<HtmlNode> nodes) => Add(nodes, false);
 
         public HtmlElementNode AddTable(string[][] Table, bool Header = false) => Add(CreateTable(Table, Header));
 
@@ -717,7 +715,8 @@ namespace Extensions.Web
                     Index = _children.Count - 1;
                 }
 
-                _children.Insert(Index.LimitIndex(ChildNodes), Tag);
+                Index = Index.LimitIndex(_children);
+                _children.Insert(Index, Tag);
 
             }
             return this;

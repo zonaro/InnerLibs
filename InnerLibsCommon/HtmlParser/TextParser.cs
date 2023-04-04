@@ -28,10 +28,7 @@ namespace Extensions.Web
         /// </summary>
         /// <param name="text">The text to be parsed. Can be <c>null</c>.</param>
         /// all methods that use regular expressions.</param>
-        public TextParser(string text)
-        {
-            Reset(text);
-        }
+        public TextParser(string text) => Reset(text);
 
         /// <summary>
         /// Sets the text to be parsed and sets the current position to the start of that text.

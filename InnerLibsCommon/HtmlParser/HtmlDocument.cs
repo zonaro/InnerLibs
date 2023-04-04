@@ -8,12 +8,13 @@ namespace Extensions.Web
 {
     /// <summary>
     /// Holds the nodes of a parsed HTML or XML document. Use the <see cref="this.ChildNodes"/>
-    /// property to access these nodes. Use the <see cref="ToHtml"/> method to convert the nodes
+    /// property to access these nodes. Use the <see cref="ToString()"/> method to convert the nodes
     /// back to markup.
     /// </summary>
     public class HtmlDocument : HtmlElementNode
     {
-        public override string TagName { get => "html"; set { } }
+        public override string OuterHtml => $"{this.HeaderNode?.ToString()}{base.OuterHtml}";
+        public override string TagName { get => "html"; set => base.TagName = value.IfBlank("html"); }
         public HtmlElementNode Body => ChildNodes.FirstOfType<HtmlElementNode>(x => x.TagName.EqualsIgnoreCaseAndAccents("body")) ?? HtmlRoot;
 
         public string Charset
@@ -35,7 +36,7 @@ namespace Extensions.Web
         }
 
         public HtmlElementNode Head => ChildNodes.FirstOfType<HtmlElementNode>(x => x.TagName.EqualsIgnoreCaseAndAccents("head")) ?? Body;
-        public HtmlElementNode HtmlRoot => ChildNodes.FirstOfType<HtmlElementNode>(x => x.TagName.EqualsIgnoreCaseAndAccents("html"));
+        public HtmlElementNode HtmlRoot => ChildNodes.FirstOfType<HtmlElementNode>(x => x.TagName.EqualsIgnoreCaseAndAccents("html")) ?? this;
 
         public string Language
         {
@@ -47,6 +48,18 @@ namespace Extensions.Web
                     HtmlRoot.SetAttribute("lang", value);
                 }
             }
+        }
+
+        public string Author
+        {
+            get => GetMeta(nameof(Author));
+            set => SetMeta(nameof(Author), value);
+        }
+
+        public string Description
+        {
+            get => GetMeta(nameof(Description));
+            set => SetMeta(nameof(Description), value);
         }
 
         public string Title
@@ -109,7 +122,7 @@ namespace Extensions.Web
             return null;
         }
 
-        public override string ToString() => this.ToHtml();
+        public override string ToString() => OuterHtml;
 
         public FileInfo Save() => this.ToString().WriteToFile(File, false, this.Encoding);
 
@@ -122,6 +135,16 @@ namespace Extensions.Web
                 m.SetAttribute("content", content);
                 Head.Add(m);
                 return m;
+            }
+            return null;
+        }
+
+        public HtmlElementNode GetMeta(string name)
+        {
+            if (name.IsNotBlank())
+            {
+                return this.FirstOfType<HtmlElementNode>(x => x.TagName == "meta" && x.GetAttribute("name") == name);
+
             }
             return null;
         }
@@ -146,6 +169,7 @@ namespace Extensions.Web
         /// <summary> Initializes an empty <see cref="HtmlDocument"> instance. </summary>
         public HtmlDocument() : base()
         {
+            this.TagName = "html";
             this.Encoding = new UTF8Encoding();
         }
 
@@ -159,30 +183,63 @@ namespace Extensions.Web
         public HtmlDocument(string HtmlString) : this()
         {
             var n = new HtmlParser().ParseChildren(HtmlString);
-            this.SetNodes(n);
-            var head = this.FindOfType<HtmlElementNode>(x => x != this && x.TagName.EqualsIgnoreCaseAndAccents("head"));
+
+            this.Add(n);
+
+            var head = n.FindOfType<HtmlElementNode>(x => x.TagName.EqualsIgnoreCaseAndAccents("head"));
 
             this.Add(head);
 
-            var body = this.FindOfType<HtmlElementNode>(x => x != this && x.TagName.EqualsIgnoreCaseAndAccents("body"));
+            var body = n.FindOfType<HtmlElementNode>(x => x.TagName.EqualsIgnoreCaseAndAccents("body"));
 
             this.Add(body);
 
-            var title = this.FindOfType<HtmlElementNode>(x => x != this && x.TagName.EqualsIgnoreCaseAndAccents("title"));
+            var title = n.FindOfType<HtmlElementNode>(x => x.TagName.EqualsIgnoreCaseAndAccents("title"));
 
-            this.Add(title);
+            Head.Add(title);
 
-            var html = this.FindOfType<HtmlElementNode>(x => x != this && x.TagName.EqualsIgnoreCaseAndAccents("html"));
-            html.Each(x =>
+            var meta = n.FindOfType<HtmlElementNode>(x => x.TagName.EqualsIgnoreCaseAndAccents("meta"));
+
+            Head.Add(meta);
+
+            var hh = n.FindOfType<HtmlHeaderNode>();
+            HtmlNode item = null;
+            do
             {
-                foreach (var item in x.Attributes.AsEnumerable())
+                item = hh?.FirstOrDefault();
+                HeaderNode = item?.Detach() as HtmlHeaderNode ?? HeaderNode;
+                hh = hh?.Where(x => x != item);
+            } while (item != null);
+
+            var xh = n.FindOfType<XmlHeaderNode>();
+            do
+            {
+                item = xh?.FirstOrDefault();
+                HeaderNode = item?.Detach() as XmlHeaderNode ?? HeaderNode;
+                xh = xh?.Where(x => x != item);
+            } while (item != null);
+
+            var html = n.FindOfType<HtmlElementNode>(x => x.TagName.EqualsIgnoreCaseAndAccents("html"));
+            foreach (var x in html)
+            {
+                foreach (var att in x.Attributes.AsEnumerable())
                 {
-                    this.SetAttribute(item.Key, item.Value);
+                    this.SetAttribute(att.Key, att.Value);
                 }
                 this.Add(x.ChildNodes);
-                x.Detach();
-            });
+            }
+
+            var outros = this.Select(x => x as HtmlElementNode)
+                   .WhereNotNull()
+                   .Where(x => x.TagName.EqualsIgnoreCaseAndAccents("html") && x.Any() == false).ToList();
+
+            foreach (var o in outros)
+            {
+                o.Detach();
+            }
         }
+
+        public HtmlElementNode HeaderNode { get; private set; }
 
         /// <summary>
         /// Recursively searches this document's nodes for ones matching the specified selector.
@@ -223,11 +280,5 @@ namespace Extensions.Web
         /// <returns>The matching nodes.</returns>
         public IEnumerable<T> FindOfType<T>(Func<T, bool> predicate) where T : HtmlNode => ChildNodes.FindOfType(predicate);
         public T FirstOfType<T>(Func<T, bool> predicate) where T : HtmlNode => FindOfType<T>(predicate).FirstOrDefault();
-
-        /// <summary>
-        /// Generates an HTML string from the contents of this <see cref="HtmlDocument"></see>.
-        /// </summary>
-        /// <returns>A string with the markup for this document.</returns>
-        public string ToHtml() => ChildNodes.ToHtml();
     }
 }
