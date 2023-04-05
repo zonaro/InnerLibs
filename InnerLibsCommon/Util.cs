@@ -3396,11 +3396,7 @@ namespace Extensions
         /// </summary>
         /// <param name="Text">Texto correspondente</param>
         /// <returns>String fixada</returns>
-        public static string FixHTMLBreakLines(this string Text)
-        {
-            Text = Text.ReplaceMany(Environment.NewLine, "<br/>", "<br />", "<br>");
-            return Text.Replace("&nbsp;", WhitespaceChar);
-        }
+        public static string FixHTMLBreakLines(this string Text) => Text.ReplaceMany(Environment.NewLine, "<br/>", "<br />", "<br>").Replace("&nbsp;", WhitespaceChar);
 
         /// <summary>
         /// Ajusta o tipo da expressão da direita para o tipo da esquerda, quando anulavel
@@ -3458,7 +3454,7 @@ namespace Extensions
         /// Caso <paramref name="FirstValue"/> e/ou <paramref name="SecondValue"/> forem
         /// <b>null</b>, nada acontece
         /// </remarks>
-        public static (T, T) FixOrder<T>(ref T FirstValue, ref T SecondValue) where T : IComparable
+        public static (  T,   T) FixOrder<T>(ref T FirstValue, ref T SecondValue) where T : IComparable
         {
             if (FirstValue != null && SecondValue != null)
             {
@@ -3468,7 +3464,7 @@ namespace Extensions
                 }
             }
 
-            return (FirstValue, SecondValue);
+            return ( FirstValue,  SecondValue);
         }
 
         /// <summary>
