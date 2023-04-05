@@ -378,28 +378,26 @@ namespace Extensions
 
         /// <summary>
         /// Retorna true se <paramref name="Value"/> não estiver em branco, for diferente de NULL,
-        /// 'null' '0', 'not', 'nao', '!' ou 'false'
+        /// 'null' '0', 'not', 'nao', '!', 'no', 'disabled', 'off' ou 'false'
         /// </summary>
         /// <param name="Value"></param>
         /// <returns></returns>
         public static bool AsBool(this string Value)
-        {
-            if (Value == null || Value.IsBlank())
-            {
-                return false;
-            }
-
-            Value = Value.TrimBetween().ToUpperInvariant().RemoveAccents();
+        { 
+            Value = $"{Value?.TrimBetween().ToUpperInvariant().RemoveAccents()}";
             switch (Value)
             {
+                case "":
                 case "!":
                 case "0":
                 case "FALSE":
                 case "NULL":
                 case "NOT":
                 case "NAO":
+                case "NO":
+                case "DISABLED":
+                case "OFF":
                     return false;
-
                 default:
                     return true;
             }
