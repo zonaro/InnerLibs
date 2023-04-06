@@ -3752,7 +3752,7 @@ namespace Extensions
         {
             if (Code.IsNotNumber())
             {
-                throw new FormatException("Code is not number");
+                throw new ArgumentException("Code is not number",nameof(Code));
             }
 
             int i = 0;
@@ -3961,7 +3961,7 @@ namespace Extensions
 
         public static TValue GetAttributeValue<TAttribute, TValue>(this Type type, Expression<Func<TAttribute, TValue>> ValueSelector) where TAttribute : Attribute
         {
-            if (type != null && type.GetCustomAttributes(typeof(TAttribute), true).FirstOrDefault() is TAttribute att && att != null)
+            if (type != null && type.GetCustomAttributes(typeof(TAttribute), true).FirstOrDefault() is TAttribute att  )
             {
                 return att.GetAttributeValue(ValueSelector);
             }

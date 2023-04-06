@@ -30,7 +30,7 @@ namespace Extensions.Web
 
                     Util.TryExecute(() => this.Encoding = Encoding.GetEncoding(value));
 
-                    this.Encoding = this.Encoding ?? new UTF8Encoding();
+                    this.Encoding = this.Encoding ?? new UTF8Encoding(false);
                 }
             }
         }
@@ -161,18 +161,24 @@ namespace Extensions.Web
         public HtmlDocument() : base()
         {
             this.TagName = "html";
-            this.Encoding = new UTF8Encoding();
+            this.Encoding = new UTF8Encoding(false);
         }
+
+        const string DefaultTemplate = "<!doctype html><html lang=\"en\"><head>  <meta charset=\"utf-8\">  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">  <title></title>  <meta name=\"description\" content=\"\">  <meta name=\"author\" content=\"\">  <meta property=\"og:title\" content=\"\">  <meta property=\"og:type\" content=\"website\">  <meta property=\"og:url\" content=\"\">  <meta property=\"og:description\" content=\"\">  <meta property=\"og:image\" content=\"\">  <link rel=\"icon\" href=\"/favicon.ico\"> <link rel=\"apple-touch-icon\" href=\"\">  <link rel=\"stylesheet\" href=\"\"></head><body><script src=\"\"></script></body></html>";
+
+
 
         public HtmlDocument(FileInfo file, Encoding encoding = null) : this(file?.ReadAllText(encoding))
         {
             this.File = file;
-            this.Encoding = encoding ?? new UTF8Encoding();
+            this.Encoding = encoding ?? new UTF8Encoding(false);
             this.Charset = this.Encoding.HeaderName;
         }
 
         public HtmlDocument(string HtmlString) : this()
         {
+
+
             var n = new HtmlParser().ParseChildren(HtmlString);
 
             this.Add(n);
@@ -228,6 +234,8 @@ namespace Extensions.Web
             {
                 o.Detach();
             }
+
+            this.Charset = this.Charset;
         }
 
         public HeaderNode HeaderNode { get; set; }
