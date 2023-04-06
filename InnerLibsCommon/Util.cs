@@ -383,7 +383,7 @@ namespace Extensions
         /// <param name="Value"></param>
         /// <returns></returns>
         public static bool AsBool(this string Value)
-        { 
+        {
             Value = $"{Value?.TrimBetween().ToUpperInvariant().RemoveAccents()}";
             switch (Value)
             {
@@ -3454,7 +3454,7 @@ namespace Extensions
         /// Caso <paramref name="FirstValue"/> e/ou <paramref name="SecondValue"/> forem
         /// <b>null</b>, nada acontece
         /// </remarks>
-        public static (  T,   T) FixOrder<T>(ref T FirstValue, ref T SecondValue) where T : IComparable
+        public static (T, T) FixOrder<T>(ref T FirstValue, ref T SecondValue) where T : IComparable
         {
             if (FirstValue != null && SecondValue != null)
             {
@@ -3464,7 +3464,7 @@ namespace Extensions
                 }
             }
 
-            return ( FirstValue,  SecondValue);
+            return (FirstValue, SecondValue);
         }
 
         /// <summary>
@@ -3752,7 +3752,7 @@ namespace Extensions
         {
             if (Code.IsNotNumber())
             {
-                throw new ArgumentException("Code is not number",nameof(Code));
+                throw new ArgumentException("Code is not number", nameof(Code));
             }
 
             int i = 0;
@@ -3961,7 +3961,7 @@ namespace Extensions
 
         public static TValue GetAttributeValue<TAttribute, TValue>(this Type type, Expression<Func<TAttribute, TValue>> ValueSelector) where TAttribute : Attribute
         {
-            if (type != null && type.GetCustomAttributes(typeof(TAttribute), true).FirstOrDefault() is TAttribute att  )
+            if (type != null && type.GetCustomAttributes(typeof(TAttribute), true).FirstOrDefault() is TAttribute att)
             {
                 return att.GetAttributeValue(ValueSelector);
             }
@@ -4193,7 +4193,7 @@ namespace Extensions
         /// <returns></returns>
         public static string GetEnumValueAsString<T>(this T Value)
         {
-            if (!typeof(T).IsEnum) throw new ArgumentException("type must be an Enumeration type.", nameof(T));
+            if (!typeof(T).IsEnum) throw new ArgumentException("T must be an Enumeration type.", nameof(T));
             return Enum.GetName(typeof(T), Value);
         }
 
@@ -4226,21 +4226,45 @@ namespace Extensions
 
         public static Dictionary<string, int> GetEnumValuesDictionary<T>() => GetEnumValues<T>().ToDictionary(x => x.GetEnumValueAsString(), x => x.ToInt());
 
-        /// <summary>
-        /// Captura o Username ou UserID de uma URL do Facebook
-        /// </summary>
-        /// <param name="URL">URL do Facebook</param>
-        /// <returns></returns>
-        public static string GetFacebookUsername(this string URL) => URL.IsURL() && URL.GetDomain().ToLowerInvariant().IsAny("facebook.com", "fb.com")
-               ? Regex.Match(URL.Replace("fb.com", "facebook.com"), @"(?:(?:http|https):\/\/)?(?:www.)?facebook.com\/(?:(?:\words)*#!\/)?(?:pages\/)?(?:[?\words\-]*\/)?(?:profile.php\?id=(?=\d.*))?([\words\-]*)?").Groups[1].Value
-                 : throw new ArgumentException("Invalid Facebook URL", nameof(URL));
 
         /// <summary>
-        /// Captura o Username ou UserID de uma URL do Facebook
+        /// Return the username of most social websites like facebook, tiktok, instagram and youtube
         /// </summary>
-        /// <param name="URL">URL do Facebook</param>
+        /// <param name="url"></param>
         /// <returns></returns>
-        public static string GetFacebookUsername(this Uri URL) => URL?.AbsoluteUri.GetFacebookUsername();
+        public static string GetSocialUsername(this string url)
+        {
+            string username = "";
+            if (url.IsURL())
+            {
+                var uri = new Uri(url);
+                var host = uri.Host;
+                var segments = uri.Segments;
+
+                username = segments[1];
+
+                if (host.ContainsAny("fb.com", "facebook.com"))
+                {
+                    username = Regex.Match(url.Replace("fb.com", "facebook.com"), @"(?:(?:http|https):\/\/)?(?:www.)?facebook.com\/(?:(?:\words)*#!\/)?(?:pages\/)?(?:[?\words\-]*\/)?(?:profile.php\?id=(?=\d.*))?([\words\-]*)?").Groups[1].Value;
+                }
+                else if (host.Contains("dailymotion.com"))
+                {
+                    username = segments[2];
+                }
+                else if (host.Contains("youtube.com"))
+                {
+                    if (url.ContainsAny("user", "channel"))
+                    {
+                        username = segments[2];
+                    }
+                }
+
+            }
+            return username.TrimStart('@').TrimEnd('/');
+
+        }
+
+
 
         /// <summary>
         /// Traz uma propriedade de um objeto
