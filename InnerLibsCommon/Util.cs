@@ -43,7 +43,10 @@ namespace Extensions
 {
     public static partial class Util
     {
-
+        public static bool IsGuid(this string value)
+        {         
+            return Guid.TryParse(value, out _);
+        }
         public static bool IsLastIndex<T>(this int index, IEnumerable<T> list) => list.IsLastIndex(index);
         public static bool IsLastIndex<T>(this IEnumerable<T> list, int index) => index == list.Count() - 1;
 
