@@ -13,22 +13,27 @@ namespace Extensions.Dictionaries
     /// <summary>
     /// Uma estrutura <see cref="IDictionary"/> que utiliza como Key uma propriedade de Value
     /// </summary>
-    /// <typeparam name="TK">Tipo da Key</typeparam>
+    /// <typeparam name="TKey">Tipo da Key</typeparam>
     /// <typeparam name="TClass">Tipo da</typeparam>
-    public class SelfKeyDictionary<TK, TClass> : IDictionary<TK, TClass>, IDictionary
-            where TK : IComparable
+    public class SelfKeyDictionary<TKey, TClass> : IDictionary<TKey, TClass>, IDictionary
+            where TKey : IComparable
             where TClass : class
     {
         #region Private Fields
 
         private List<TClass> collection = new List<TClass>();
-        private Func<TClass, TK> keyselector;
+        private Func<TClass, TKey> keyselector;
 
         #endregion Private Fields
 
         #region Public Constructors
 
-        public SelfKeyDictionary(Func<TClass, TK> KeySelector)
+        public SelfKeyDictionary(Func<TClass, TKey> KeySelector, Func<TClass, IComparable> AutoSortProperty) : this(KeySelector)
+        {
+            this.AutoSortProperty = AutoSortProperty;
+        }
+
+        public SelfKeyDictionary(Func<TClass, TKey> KeySelector)
         {
             if (KeySelector != null)
             {
@@ -44,11 +49,15 @@ namespace Extensions.Dictionaries
 
         #region Public Indexers
 
-        public object this[object key] { get => this[((TK)key)]; set => this[((TK)key)] = (TClass)value; }
+        public Func<TClass, IComparable> AutoSortProperty { get; set; }
 
-        public TClass this[TK key]
+
+
+        public object this[object key] { get => this[((TKey)key)]; set => this[((TKey)key)] = (TClass)value; }
+
+        public TClass this[TKey key]
         {
-            get => collection.Where(x => keyselector(x).Equals(key)).SingleOrDefault();
+            get => collection.SingleOrDefault(x => keyselector(x).Equals(key));
 
             set
             {
@@ -56,12 +65,24 @@ namespace Extensions.Dictionaries
                 if (indexo > -1)
                 {
                     collection.RemoveAt(indexo);
-                    collection.Insert(indexo, value);
+                    if (value != null)
+                    {
+                        collection.Insert(indexo, value);
+                    }
                 }
                 else
                 {
-                    Add(value);
+                    if (value != null && !ContainsKey(keyselector(value)) && !ContainsKey(key))
+                    {
+                        collection.Add(value);
+                    }
                 }
+
+                if (AutoSortProperty != null)
+                {
+                    collection = collection.OrderBy(x => AutoSortProperty.Invoke(x)).ToList();
+                }
+
             }
         }
 
@@ -77,11 +98,11 @@ namespace Extensions.Dictionaries
 
         public bool IsSynchronized => true;
 
-        public ICollection<TK> Keys => collection?.Select(x => keyselector(x)).ToArray();
+        public ICollection<TKey> Keys => collection?.Select(x => keyselector(x)).ToArray();
 
-        public object SyncRoot => SyncRoot;
+        public object SyncRoot { get; }
 
-        public ICollection<TClass> Values => collection;
+        public ICollection<TClass> Values => collection.ToArray();
 
         ICollection IDictionary.Keys => (ICollection)Keys;
 
@@ -91,18 +112,9 @@ namespace Extensions.Dictionaries
 
         #region Public Methods
 
-        public void Add(TK key, TClass value)
-        {
-            if (value != null)
-            {
-                if (!ContainsKey(keyselector(value)) && !ContainsKey(key))
-                {
-                    collection.Add(value);
-                }
-            }
-        }
+        public void Add(TKey key, TClass value) => this[key] = value;
 
-        public TK Add(TClass Value)
+        public TKey Add(TClass Value)
         {
             if (Value != null)
             {
@@ -115,34 +127,30 @@ namespace Extensions.Dictionaries
 
         public void Add(object key, object value)
         {
-            if (key is TK && value is TClass cvalue)
+            if (key is TKey && value is TClass cvalue)
             {
-                collection.Add(cvalue);
+                Add(cvalue);
             }
         }
 
-        public IEnumerable<TK> AddRange(params TClass[] Values) => AddRange((Values ?? Array.Empty<TClass>()).AsEnumerable());
+        public IEnumerable<TKey> AddRange(params TClass[] Values) => AddRange((Values ?? Array.Empty<TClass>()).AsEnumerable());
 
-        public IEnumerable<TK> AddRange(IEnumerable<TClass> Values)
+        public IEnumerable<TKey> AddRange(IEnumerable<TClass> Values)
         {
             Values = (Values ?? Array.Empty<TClass>()).Where(x => x != null).AsEnumerable();
-            foreach (var value in Values)
-            {
-                Add(value);
-            }
-
+            Values.Each(value => Add(value));
             return Values.Select(x => keyselector(x));
         }
 
         public void Clear() => collection.Clear();
 
-        public bool Contains(KeyValuePair<TK, TClass> item) => collection.Any(x => keyselector(x).Equals(item.Key));
+        public bool Contains(KeyValuePair<TKey, TClass> item) => collection.Any(x => keyselector(x).Equals(item.Key));
 
-        public bool Contains(object key) => key != null && key is TK ckey && ContainsKey(ckey);
+        public bool Contains(object key) => key != null && key is TKey ckey && ContainsKey(ckey);
 
-        public bool ContainsKey(TK key) => Keys.Contains(key);
+        public bool ContainsKey(TKey key) => Keys.Contains(key);
 
-        public void CopyTo(KeyValuePair<TK, TClass>[] array, int arrayIndex) => collection.Select(x => new KeyValuePair<TK, TClass>(keyselector(x), x)).ToArray().CopyTo(array, arrayIndex);
+        public void CopyTo(KeyValuePair<TKey, TClass>[] array, int arrayIndex) => collection.Select(x => new KeyValuePair<TKey, TClass>(keyselector(x), x)).ToArray().CopyTo(array, arrayIndex);
 
         public void CopyTo(Array array, int index)
         {
@@ -158,35 +166,46 @@ namespace Extensions.Dictionaries
 
         }
 
-        public IEnumerator<KeyValuePair<TK, TClass>> GetEnumerator() => collection.Select(x => new KeyValuePair<TK, TClass>(keyselector(x), x)).GetEnumerator();
+        public IEnumerator<KeyValuePair<TKey, TClass>> GetEnumerator() => collection.Select(x => new KeyValuePair<TKey, TClass>(keyselector(x), x)).GetEnumerator();
 
-        public bool Remove(TK key) => ContainsKey(key) && Util.TryExecute(() =>
-                    {
-                        var ii = collection.FirstOrDefault(x => keyselector(x).Equals(key));
-
-                        if (ii != null)
-                        {
-                            collection.Remove(ii);
-                        }
-                    }) == null;
-
-        public bool Remove(TClass Value) => Remove(keyselector(Value));
-
-        public bool Remove(KeyValuePair<TK, TClass> item) => collection.Remove(item.Value);
-
-        public void Remove(object key)
-        {
-            if (key is TK ckey)
-            {
-                collection.Remove(this[ckey]);
-            }
-        }
-
-        public bool TryGetValue(TK key, out TClass value)
+        public bool Remove(TKey key)
         {
             try
             {
-                value = collection.SingleOrDefault(x => keyselector(x).Equals(key));
+                if (ContainsKey(key))
+                {
+                    var ii = this[key];
+
+                    if (ii != null)
+                    {
+                        return collection.Remove(ii);
+                    }
+                }
+            }
+            catch
+            {
+            }
+
+            return false;
+        }
+
+        public bool Remove(TClass Value) => Remove(keyselector(Value));
+
+        public bool Remove(KeyValuePair<TKey, TClass> item) => Remove(item.Key);
+
+        public void Remove(object key)
+        {
+            if (key is TKey ckey)
+            {
+                Remove(ckey);
+            }
+        }
+
+        public bool TryGetValue(TKey key, out TClass value)
+        {
+            try
+            {
+                value = this[key];
                 return value != null;
             }
             catch
@@ -196,13 +215,13 @@ namespace Extensions.Dictionaries
             }
         }
 
-        void ICollection<KeyValuePair<TK, TClass>>.Add(KeyValuePair<TK, TClass> item) => collection.Add(item.Value);
+        void ICollection<KeyValuePair<TKey, TClass>>.Add(KeyValuePair<TKey, TClass> item) => Add(item.Value);
 
-        void IDictionary<TK, TClass>.Add(TK key, TClass value) => Add(key, value);
+        void IDictionary<TKey, TClass>.Add(TKey key, TClass value) => Add(key, value);
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        IDictionaryEnumerator IDictionary.GetEnumerator() => throw new NotImplementedException();
+        IDictionaryEnumerator IDictionary.GetEnumerator() => collection.ToDictionary(x => keyselector(x), x => x).GetEnumerator();
 
         #endregion Public Methods
     }
