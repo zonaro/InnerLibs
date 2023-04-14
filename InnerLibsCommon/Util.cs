@@ -43,33 +43,7 @@ namespace Extensions
 {
     public static partial class Util
     {
-        public static bool IsGuid(this string value)
-        {         
-            return Guid.TryParse(value, out _);
-        }
-        public static bool IsLastIndex<T>(this int index, IEnumerable<T> list) => list.IsLastIndex(index);
-        public static bool IsLastIndex<T>(this IEnumerable<T> list, int index) => index == list.Count() - 1;
-
-        public static Image GenerateAvatarByName(this string Name)
-        {
-            if (Name.IsNotBlank())
-            {
-                var x = new HSVColor(Name);
-                var parts = Name.SplitAny(PredefinedArrays.WordSplitters).Select(b => b.GetFirstChars());
-                if (parts.Count() > 1)
-                {
-                    x.Name = parts.First() + parts.Last();
-                }
-                else
-                {
-                    x.Name = parts.First();
-                }
-
-                var img = x.ImageSample.CropToCircle();
-                return img;
-            }
-            return new HSVColor().ImageSample.CropToCircle();
-        }
+        #region Private Fields
 
         private const int ERROR_LOCK_VIOLATION = 33;
 
@@ -96,6 +70,69 @@ namespace Extensions
 
         private static readonly MethodInfo startsWithMethod = typeof(string).GetMethod("StartsWith", new[] { typeof(string) });
 
+        #endregion Private Fields
+
+        #region Private Methods
+
+        /// <summary>
+        /// Inject a <see cref="Hashtable"/> into <see cref="String"/>
+        /// </summary>
+        /// <param name="formatString"></param>
+        /// <param name="attributes"></param>
+        /// <returns></returns>
+        private static string InjectBase(string formatString, Hashtable attributes, bool IsSQL)
+        {
+            string result = formatString;
+            if (attributes != null && formatString != null)
+            {
+                foreach (string attributeKey in attributes.Keys)
+                {
+                    result = result.InjectSingleValueBase(attributeKey, attributes[attributeKey], IsSQL);
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Replace te found <paramref name="key"/> with <paramref name="replacementValue"/>
+        /// </summary>
+        /// <param name="formatString"></param>
+        /// <param name="key"></param>
+        /// <param name="replacementValue"></param>
+        /// <returns></returns>
+        private static string InjectSingleValueBase(this string formatString, string key, object replacementValue, bool IsSQL = false, CultureInfo cultureInfo = null)
+        {
+            string result = formatString ?? "";
+            var attributeRegex = new Regex("{(" + key + ")(?:}|(?::(.[^}]*)}))");
+            foreach (Match m in attributeRegex.Matches(formatString))
+            {
+                string replacement = m.ToString();
+                if (m.Groups[2].Length > 0)
+                {
+                    string attributeFormatString = string.Format(CultureInfo.InvariantCulture, "{{0:{0}}}", m.Groups[2]);
+                    replacement = string.Format(cultureInfo ?? CultureInfo.CurrentCulture, attributeFormatString, replacementValue);
+                }
+                else
+                {
+                    replacement = (replacementValue ?? default).ToString();
+                }
+
+                if (IsSQL)
+                {
+                    replacement = ToSQLString(replacement);
+                }
+
+                result = result.Replace(m.ToString(), replacement);
+            }
+
+            return result;
+        }
+
+        #endregion Private Methods
+
+        #region Public Fields
+
         public const string DoubleQuoteChar = "\"";
 
         /// <summary>
@@ -107,8 +144,13 @@ namespace Extensions
 
         public const string SingleQuoteChar = "\'";
 
-        public const string WhitespaceChar = " ";
         public const string TabChar = "\t";
+
+        public const string WhitespaceChar = " ";
+
+        #endregion Public Fields
+
+        #region Public Properties
 
         /// <summary>
         /// Dicionario com os <see cref="Type"/> e seu <see cref="DbType"/> correspondente
@@ -152,6 +194,7 @@ namespace Extensions
         /// Retorna uma lista com todas as <see cref="KnowColor"/> convertidas em <see cref="Color"/>
         /// </summary>
         public static IEnumerable<Color> KnowColors => GetEnumValues<KnownColor>().Select(x => Color.FromKnownColor(x));
+
         public static IEnumerable<HSVColor> KnowHSVColors => KnowColors.Select(x => new HSVColor(x));
 
         /// <summary>
@@ -165,6 +208,10 @@ namespace Extensions
         /// Retorna o ano atual
         /// </summary>
         public static int ThisYear => DateTime.Now.Year;
+
+        #endregion Public Properties
+
+        #region Public Methods
 
         /// <summary>
         /// Adciona um parametro a Query String de uma URL
@@ -302,8 +349,6 @@ namespace Extensions
         /// <param name="AppendText">Texto adicional</param>
         public static string AppendLine(this string Text, string AppendText) => Text.Append(AppendText).Append(Environment.NewLine);
 
-
-
         /// <summary>
         /// Adiciona texto ao final de uma string enquanto um criterio for cumprido
         /// </summary>
@@ -316,22 +361,6 @@ namespace Extensions
             while (Test(Text))
             {
                 Text = Text.Append(AppendText);
-            }
-
-            return Text;
-        }
-
-        /// <summary>
-        /// Aplica espacos em todos os caracteres de encapsulamento
-        /// </summary>
-        /// <param name="Text"></param>
-        /// <returns></returns>
-        public static string ApplySpaceOnWrapChars(this string Text)
-        {
-            Text = Text ?? EmptyString;
-            foreach (var c in PredefinedArrays.WordWrappers)
-            {
-                Text = Text.Replace(c, WhitespaceChar + c + WhitespaceChar);
             }
 
             return Text;
@@ -358,6 +387,22 @@ namespace Extensions
             {
                 return false;
             }
+        }
+
+        /// <summary>
+        /// Aplica espacos em todos os caracteres de encapsulamento
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <returns></returns>
+        public static string ApplySpaceOnWrapChars(this string Text)
+        {
+            Text = Text ?? EmptyString;
+            foreach (var c in PredefinedArrays.WordWrappers)
+            {
+                Text = Text.Replace(c, WhitespaceChar + c + WhitespaceChar);
+            }
+
+            return Text;
         }
 
         /// <summary>
@@ -401,6 +446,7 @@ namespace Extensions
                 case "DISABLED":
                 case "OFF":
                     return false;
+
                 default:
                     return true;
             }
@@ -2395,7 +2441,9 @@ namespace Extensions
         /// <param name="obj"></param>
         /// <returns></returns>
         public static FileInfo CreateXmlFile<T>(this T obj, string FilePath, DateTime? DateAndTime = null) where T : class => obj.CreateXML<T>().ToXMLString().WriteToFile(FilePath, DateAndTime: DateAndTime);
+
         public static FileInfo CreateXmlFile<T>(this T obj, DirectoryInfo DirectoryPath, string FileName, DateTime? DateAndTime = null) where T : class => obj.CreateXML<T>().ToXMLString().WriteToFile(DirectoryPath, FileName, DateAndTime: DateAndTime);
+
         public static FileInfo CreateXmlFile<T>(this T obj, DirectoryInfo DirectoryPath, string SubDirectory, string FileName, DateTime? DateAndTime = null) where T : class => obj.CreateXML<T>().ToXMLString().WriteToFile(DirectoryPath, SubDirectory, FileName, DateAndTime: DateAndTime);
 
         /// <summary>
@@ -3332,12 +3380,6 @@ namespace Extensions
         /// <returns></returns>
         public static T FirstOrDefaultExpression<T>(this IQueryable<T> List, string PropertyName, string Operator, object PropertyValue, bool Is = true) => List.FirstOrDefault(WhereExpression<T>(PropertyName, Operator, (IEnumerable<IComparable>)PropertyValue, Is));
 
-        public static string FixedLenght(this int Number, int Lenght) => Number.ToLong().FixedLenght(Lenght);
-        public static string FixedLenght(this long Number, int Lenght) => Number.PadZero(Lenght).GetLastChars(Lenght);
-
-        public static string FixedLenghtByLeft(this string Text, int Lenght, char PaddingChar = '0') => Text.PadLeft(Lenght, PaddingChar).GetLastChars(Lenght);
-        public static string FixedLenghtByRight(this string Text, int Lenght, char PaddingChar = '0') => Text.PadRight(Lenght, PaddingChar).GetFirstChars(Lenght);
-
         /// <summary>
         /// Arruma os caracteres de uma string Util
         /// </summary>
@@ -3354,45 +3396,13 @@ namespace Extensions
             return dummyData;
         }
 
-        public static string ToSentenceCase(this string Text)
-        {
-            Text = Text.Trim().GetFirstChars(1).ToUpperInvariant() + Text.RemoveFirstChars(1);
-            var dots = new[] { "...", ". ", "? ", "! " };
-            List<string> sentences;
-            foreach (var dot in dots)
-            {
-                sentences = Text.Split(dot, StringSplitOptions.None).ToList();
-                for (int index = 0, loopTo = sentences.Count - 1; index <= loopTo; index++)
-                {
-                    sentences[index] = $"{sentences[index].Trim().GetFirstChars(1)?.ToUpperInvariant()}{sentences[index]?.RemoveFirstChars(1)}";
-                }
+        public static string FixedLenght(this int Number, int Lenght) => Number.ToLong().FixedLenght(Lenght);
 
-                Text = sentences.SelectJoinString(dot);
-            }
+        public static string FixedLenght(this long Number, int Lenght) => Number.PadZero(Lenght).GetLastChars(Lenght);
 
-            sentences = Text.Split(WhitespaceChar).ToList();
-            Text = EmptyString;
-            foreach (var c in sentences)
-            {
-                string palavra = c;
-                if (palavra.EndsWith(".") && palavra.Length == 2)
-                {
-                    palavra = palavra.ToUpperInvariant();
-                    Text += palavra;
-                    string proximapalavra = sentences.IfNoIndex(sentences.IndexOf(c) + 1, EmptyString);
-                    if (!(proximapalavra.EndsWith(".") && palavra.Length == 2))
-                    {
-                        Text += WhitespaceChar;
-                    }
-                }
-                else
-                {
-                    Text += c + WhitespaceChar;
-                }
-            }
+        public static string FixedLenghtByLeft(this string Text, int Lenght, char PaddingChar = '0') => Text.PadLeft(Lenght, PaddingChar).GetLastChars(Lenght);
 
-            return Text.RemoveLastChars(1);
-        }
+        public static string FixedLenghtByRight(this string Text, int Lenght, char PaddingChar = '0') => Text.PadRight(Lenght, PaddingChar).GetFirstChars(Lenght);
 
         /// <summary>
         /// Transforma quebras de linha HTML em quebras de linha comuns ao .net
@@ -3677,7 +3687,6 @@ namespace Extensions
                 if (Action == null)
                 {
                     Text = Text.SplitAny(PredefinedArrays.BreakLineChars.ToArray()).Where(x => !RemoveBlankLines || x.IsNotBlank()).SelectJoinString(Environment.NewLine);
-
                 }
                 else
                 {
@@ -3738,6 +3747,27 @@ namespace Extensions
         /// <param name="Args">Objetos de substituição</param>
         /// <returns></returns>
         public static string FormatString(this string Text, params string[] Args) => string.Format(Text, Args);
+
+        public static Image GenerateAvatarByName(this string Name)
+        {
+            if (Name.IsNotBlank())
+            {
+                var x = new HSVColor(Name);
+                var parts = Name.SplitAny(PredefinedArrays.WordSplitters).Select(b => b.GetFirstChars());
+                if (parts.Count() > 1)
+                {
+                    x.Name = parts.First() + parts.Last();
+                }
+                else
+                {
+                    x.Name = parts.First();
+                }
+
+                var img = x.ImageSample.CropToCircle();
+                return img;
+            }
+            return new HSVColor().ImageSample.CropToCircle();
+        }
 
         /// <inheritdoc cref="GenerateBarcodeCheckSum(string)"/>
         public static string GenerateBarcodeCheckSum(long Code) => GenerateBarcodeCheckSum(Code.ToString(CultureInfo.InvariantCulture));
@@ -3800,6 +3830,49 @@ namespace Extensions
 
         /// <inheritdoc cref="GenerateEANFromNumbers(string[])"/>
         public static string GenerateEANFromNumbers(params int[] Numbers) => GenerateEANFromNumbers(Numbers.Select(x => x.ToString()).ToArray());
+
+        /// <summary>
+        /// Gera uma chave de licença para um produto
+        /// </summary>
+        /// <param name="productIdentifier"></param>
+        /// <returns></returns>
+        public static string GenerateLicenseKey(this string productIdentifier)
+        {
+            var enc = Encoding.Unicode.GetEncoder();
+            byte[] unicodeText = new byte[productIdentifier.Length * 2];
+            enc.GetBytes(productIdentifier.ToCharArray(), 0, productIdentifier.Length, unicodeText, 0, true);
+            MD5 md5 = new MD5CryptoServiceProvider();
+            byte[] result = md5.ComputeHash(unicodeText);
+
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < result.Length; i++)
+            {
+                sb.Append(result[i].ToString("X2"));
+            }
+
+            productIdentifier = sb.ToString().Substring(0, 28).ToUpper();
+            char[] serialArray = productIdentifier.ToCharArray();
+            StringBuilder licenseKey = new StringBuilder();
+
+            int j;
+            for (int i = 0; i < 28; i++)
+            {
+                for (j = i; j < 4 + i; j++)
+                {
+                    licenseKey.Append(serialArray[j]);
+                }
+                if (j == 28)
+                {
+                    break;
+                }
+                else
+                {
+                    i = (j) - 1;
+                    licenseKey.Append('-');
+                }
+            }
+            return licenseKey.ToString();
+        }
 
         /// <summary>
         /// Cria uma ParameterExpression utilizando o tipo para gerar um nome amigável
@@ -4228,46 +4301,6 @@ namespace Extensions
         }
 
         public static Dictionary<string, int> GetEnumValuesDictionary<T>() => GetEnumValues<T>().ToDictionary(x => x.GetEnumValueAsString(), x => x.ToInt());
-
-
-        /// <summary>
-        /// Return the username of most social websites like facebook, tiktok, instagram and youtube
-        /// </summary>
-        /// <param name="url"></param>
-        /// <returns></returns>
-        public static string GetSocialUsername(this string url)
-        {
-            string username = "";
-            if (url.IsURL())
-            {
-                var uri = new Uri(url);
-                var host = uri.Host;
-                var segments = uri.Segments;
-
-                username = segments[1];
-
-                if (host.ContainsAny("fb.com", "facebook.com"))
-                {
-                    username = Regex.Match(url.Replace("fb.com", "facebook.com"), @"(?:(?:http|https):\/\/)?(?:www.)?facebook.com\/(?:(?:\words)*#!\/)?(?:pages\/)?(?:[?\words\-]*\/)?(?:profile.php\?id=(?=\d.*))?([\words\-]*)?").Groups[1].Value;
-                }
-                else if (host.Contains("dailymotion.com"))
-                {
-                    username = segments[2];
-                }
-                else if (host.Contains("youtube.com"))
-                {
-                    if (url.ContainsAny("user", "channel"))
-                    {
-                        username = segments[2];
-                    }
-                }
-
-            }
-            return username.TrimStart('@').TrimEnd('/');
-
-        }
-
-
 
         /// <summary>
         /// Traz uma propriedade de um objeto
@@ -5479,49 +5512,6 @@ namespace Extensions
         }
 
         /// <summary>
-        /// Gera uma chave de licença para um produto
-        /// </summary>
-        /// <param name="productIdentifier"></param>
-        /// <returns></returns>
-        public static string GenerateLicenseKey(this string productIdentifier)
-        {
-            var enc = Encoding.Unicode.GetEncoder();
-            byte[] unicodeText = new byte[productIdentifier.Length * 2];
-            enc.GetBytes(productIdentifier.ToCharArray(), 0, productIdentifier.Length, unicodeText, 0, true);
-            MD5 md5 = new MD5CryptoServiceProvider();
-            byte[] result = md5.ComputeHash(unicodeText);
-
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < result.Length; i++)
-            {
-                sb.Append(result[i].ToString("X2"));
-            }
-
-            productIdentifier = sb.ToString().Substring(0, 28).ToUpper();
-            char[] serialArray = productIdentifier.ToCharArray();
-            StringBuilder licenseKey = new StringBuilder();
-
-            int j;
-            for (int i = 0; i < 28; i++)
-            {
-                for (j = i; j < 4 + i; j++)
-                {
-                    licenseKey.Append(serialArray[j]);
-                }
-                if (j == 28)
-                {
-                    break;
-                }
-                else
-                {
-                    i = (j) - 1;
-                    licenseKey.Append('-');
-                }
-            }
-            return licenseKey.ToString();
-        }
-
-        /// <summary>
         /// Retorna o caractere de encapsulamento oposto ao caractere indicado
         /// </summary>
         /// <param name="Text">Caractere</param>
@@ -5827,6 +5817,41 @@ namespace Extensions
             if (row != null)
                 return row.GetValue<T>(ColumnIndex);
             return default;
+        }
+
+        /// <summary>
+        /// Return the username of most social websites like facebook, tiktok, instagram and youtube
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
+        public static string GetSocialUsername(this string url)
+        {
+            string username = "";
+            if (url.IsURL())
+            {
+                var uri = new Uri(url);
+                var host = uri.Host;
+                var segments = uri.Segments;
+
+                username = segments[1];
+
+                if (host.ContainsAny("fb.com", "facebook.com"))
+                {
+                    username = Regex.Match(url.Replace("fb.com", "facebook.com"), @"(?:(?:http|https):\/\/)?(?:www.)?facebook.com\/(?:(?:\words)*#!\/)?(?:pages\/)?(?:[?\words\-]*\/)?(?:profile.php\?id=(?=\d.*))?([\words\-]*)?").Groups[1].Value;
+                }
+                else if (host.Contains("dailymotion.com"))
+                {
+                    username = segments[2];
+                }
+                else if (host.Contains("youtube.com"))
+                {
+                    if (url.ContainsAny("user", "channel"))
+                    {
+                        username = segments[2];
+                    }
+                }
+            }
+            return username.TrimStart('@').TrimEnd('/');
         }
 
         /// <summary>
@@ -6432,17 +6457,8 @@ namespace Extensions
         public static IEnumerable<T> IfNullOrEmpty<T>(this IEnumerable<object[]> Value, IEnumerable<T> ValueIfBlank) => Value != null && Value.Any() ? Value.ChangeIEnumerableType<T, object[]>() : ValueIfBlank;
 
         public static int Increment(this int Num, int Inc = 1) => Num + Inc.SetMinValue(0);
-        public static long Increment(this long Num, long Inc = 1) => Num + Inc.SetMinValue(0L);
 
-        /// <summary>
-        /// Inject the property values of <typeparamref name="T"/> into <paramref name="TemplatedString"/>
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="formatString"></param>
-        /// <param name="injectionObject"></param>
-        /// <returns></returns>
-        public static string InjectInto<T>(this T Obj, string TemplatedString) => TemplatedString.IfBlank(EmptyString).Inject(Obj);
-        public static string InjectSQLInto<T>(this T Obj, string TemplatedString) => TemplatedString.IfBlank(EmptyString).InjectSQL(Obj);
+        public static long Increment(this long Num, long Inc = 1) => Num + Inc.SetMinValue(0L);
 
         /// <summary>
         /// Inject the property values of <typeparamref name="T"/> into <see cref="String"/>
@@ -6463,6 +6479,21 @@ namespace Extensions
             return formatString;
         }
 
+        public static string Inject(this string formatString, Hashtable attributes) => InjectBase(formatString, attributes, false);
+
+        /// <summary>
+        /// Inject the property values of <typeparamref name="T"/> into <paramref name="TemplatedString"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="formatString"></param>
+        /// <param name="injectionObject"></param>
+        /// <returns></returns>
+        public static string InjectInto<T>(this T Obj, string TemplatedString) => TemplatedString.IfBlank(EmptyString).Inject(Obj);
+
+        public static string InjectSingleValue(this string formatString, string key, object replacementValue, CultureInfo cultureInfo = null) => InjectSingleValueBase(formatString, key, replacementValue, false, cultureInfo);
+
+        public static string InjectSingleValueSQL(this string formatString, string key, object replacementValue, CultureInfo cultureInfo = null) => InjectSingleValueBase(formatString, key, replacementValue, true, cultureInfo);
+
         /// <summary>
         /// Inject the property values of <typeparamref name="T"/> into <see cref="String"/>
         /// </summary>
@@ -6482,67 +6513,9 @@ namespace Extensions
             return formatString;
         }
 
-        /// <summary>
-        /// Inject a <see cref="Hashtable"/> into <see cref="String"/>
-        /// </summary>
-        /// <param name="formatString"></param>
-        /// <param name="attributes"></param>
-        /// <returns></returns>
-        private static string InjectBase(string formatString, Hashtable attributes, bool IsSQL)
-        {
-            string result = formatString;
-            if (attributes != null && formatString != null)
-            {
-                foreach (string attributeKey in attributes.Keys)
-                {
-                    result = result.InjectSingleValueBase(attributeKey, attributes[attributeKey], IsSQL);
-                }
-            }
-
-            return result;
-        }
-        public static string Inject(this string formatString, Hashtable attributes) => InjectBase(formatString, attributes, false);
-
         public static string InjectSQL(this string formatString, Hashtable attributes) => InjectBase(formatString, attributes, true);
 
-        /// <summary>
-        /// Replace te found <paramref name="key"/> with <paramref name="replacementValue"/>
-        /// </summary>
-        /// <param name="formatString"></param>
-        /// <param name="key"></param>
-        /// <param name="replacementValue"></param>
-        /// <returns></returns>
-        private static string InjectSingleValueBase(this string formatString, string key, object replacementValue, bool IsSQL = false, CultureInfo cultureInfo = null)
-        {
-            string result = formatString ?? "";
-            var attributeRegex = new Regex("{(" + key + ")(?:}|(?::(.[^}]*)}))");
-            foreach (Match m in attributeRegex.Matches(formatString))
-            {
-                string replacement = m.ToString();
-                if (m.Groups[2].Length > 0)
-                {
-                    string attributeFormatString = string.Format(CultureInfo.InvariantCulture, "{{0:{0}}}", m.Groups[2]);
-                    replacement = string.Format(cultureInfo ?? CultureInfo.CurrentCulture, attributeFormatString, replacementValue);
-                }
-                else
-                {
-                    replacement = (replacementValue ?? default).ToString();
-                }
-
-                if (IsSQL)
-                {
-                    replacement = ToSQLString(replacement);
-                }
-
-                result = result.Replace(m.ToString(), replacement);
-            }
-
-            return result;
-        }
-
-        public static string InjectSingleValue(this string formatString, string key, object replacementValue, CultureInfo cultureInfo = null) => InjectSingleValueBase(formatString, key, replacementValue, false, cultureInfo);
-
-        public static string InjectSingleValueSQL(this string formatString, string key, object replacementValue, CultureInfo cultureInfo = null) => InjectSingleValueBase(formatString, key, replacementValue, true, cultureInfo);
+        public static string InjectSQLInto<T>(this T Obj, string TemplatedString) => TemplatedString.IfBlank(EmptyString).InjectSQL(Obj);
 
         /// <summary>
         /// Insere uma imagem em outra imagem
@@ -7149,6 +7122,11 @@ namespace Extensions
 
         public static bool IsGreaterThanOrEqual<T>(this T Value, T MinValue) where T : IComparable => Value.IsGreaterThan(MinValue) || Value.IsEqual(MinValue);
 
+        public static bool IsGuid(this string value)
+        {
+            return Guid.TryParse(value, out _);
+        }
+
         public static bool IsHexaDecimalColor(this string Text)
         {
             Text = Text.RemoveFirstEqual("#");
@@ -7256,6 +7234,10 @@ namespace Extensions
         /// <param name="IP">Endereco IP</param>
         /// <returns>TRUE ou FALSE</returns>
         public static bool IsIP(this string IP) => IP.IsNotBlank() && Regex.IsMatch(IP, @"\b((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$\b");
+
+        public static bool IsLastIndex<T>(this int index, IEnumerable<T> list) => list.IsLastIndex(index);
+
+        public static bool IsLastIndex<T>(this IEnumerable<T> list, int index) => index == list.Count() - 1;
 
         public static bool IsLessThan<T>(this T Value, T MaxValue) where T : IComparable => Value.CompareTo(MaxValue) < 0;
 
@@ -7662,6 +7644,7 @@ namespace Extensions
             // return the new colour
             return Color.FromArgb(r, g, b);
         }
+
         public static HSVColor Lerp(this HSVColor FromColor, HSVColor ToColor, float Amount) => new HSVColor(Lerp(FromColor.ToDrawingColor(), ToColor.ToDrawingColor(), Amount));
 
         /// <summary>
@@ -7700,20 +7683,6 @@ namespace Extensions
         {
             FixNullable(ref MemberExpression, ref ValueExpression);
             return Expression.LessThanOrEqual(MemberExpression, ValueExpression);
-        }
-
-        public static IEnumerable<(string, string, int)> LevenshteinDistanceList(this IEnumerable<string> Words)
-        {
-            var words = Words.ToArray() ?? Array.Empty<string>();
-            int n = words.Length;
-
-            for (int i = 0; i < n; i++)
-            {
-                for (int j = i + 1; j < n; j++)
-                {
-                    yield return (words[i], words[j], LevenshteinDistance(words[i], words[j]));
-                }
-            }
         }
 
         /// <summary>
@@ -7765,6 +7734,20 @@ namespace Extensions
             }
             // Step 7
             return d[n, m];
+        }
+
+        public static IEnumerable<(string, string, int)> LevenshteinDistanceList(this IEnumerable<string> Words)
+        {
+            var words = Words.ToArray() ?? Array.Empty<string>();
+            int n = words.Length;
+
+            for (int i = 0; i < n; i++)
+            {
+                for (int j = i + 1; j < n; j++)
+                {
+                    yield return (words[i], words[j], LevenshteinDistance(words[i], words[j]));
+                }
+            }
         }
 
         /// <summary>
@@ -7913,6 +7896,35 @@ namespace Extensions
             return Command;
         }
 
+        public static TextStructure LoremIpsum(int ParagraphCount = 5, int SentenceCount = 3, int MinWordCount = 10, int MaxWordCount = 50, int IdentSize = 0, int BreakLinesBetweenParagraph = 0, string[] Words = null)
+        {
+            var sb = new StringBuilder();
+            if (Words == null || Words.Length == 0)
+                Words = new[] { "lorem", "ipsum", "dolor", "sit", "amet", "consectetur", "adipiscing", "elit", "sed", "do", "eiusmod", "tempor", "incididunt", "ut", "labore", "et", "dolore", "magna", "aliqua", "Ut", "enim", "ad", "minim", "veniam", "quis", "nostrud", "exercitation", "ullamco", "laboris", "nisi", "ut", "aliquip", "ex", "ea", "commodo", "consequat", "Duis", "aute", "irure", "dolor", "in", "reprehenderit", "in", "voluptate", "velit", "esse", "cillum", "dolore", "eu", "fugiat", "nulla", "pariatur" };
+
+            for (int i = 0; i < ParagraphCount.SetMinValue(1); i++)
+            {
+                sb.Append(WhitespaceChar.Repeat(IdentSize));
+                for (int j = 0; j < SentenceCount.SetMinValue(1); j++)
+                {
+                    for (int k = 0; k < RandomNumber(MinWordCount.SetMinValue(1), MaxWordCount.SetMinValue(1)); k++)
+                    {
+                        string word = Words.RandomItem();
+                        if (k == 0)
+                        {
+                            word = word.ToSentenceCase();
+                        }
+                        sb.Append(word + WhitespaceChar);
+                    }
+                    sb.Append(PredefinedArrays.EndOfSentencePunctuation.RandomItem());
+                }
+                sb.Append(Environment.NewLine);
+                sb.Append(Environment.NewLine.Repeat(BreakLinesBetweenParagraph)); // Add more newline character between paragraphs
+            }
+
+            return new TextStructure(sb.ToString());
+        }
+
         /// <summary>
         /// Escurece a cor mesclando ela com preto
         /// </summary>
@@ -7939,10 +7951,6 @@ namespace Extensions
 
             return lockedBitmap;
         }
-
-        public static QuantityTextPair ToQuantityTextPair(this string Text) => (QuantityTextPair)Text;
-
-        public static QuantityTextPair ToQuantityTextPair(this IEnumerable<string> Text) => (QuantityTextPair)(Text?.ToArray());
 
         /// <summary>
         /// Clareia a cor misturando ela com branco
@@ -8672,7 +8680,6 @@ namespace Extensions
 
         public static T NullIf<T>(this T Value, bool Test) => Test ? default : Value;
 
-
         /// <summary>
         /// Anula o valor de um objeto se ele for igual a outro objeto
         /// </summary>
@@ -9044,6 +9051,7 @@ namespace Extensions
         public static string PadZero(this string Number, int totalWidth) => Number.IfBlank("0").PadLeft(totalWidth, '0');
 
         public static string PadZero(this int Number, int totalWidth) => Number.ToString(CultureInfo.InvariantCulture).PadZero(totalWidth);
+
         public static string PadZero(this long Number, int totalWidth) => Number.ToString(CultureInfo.InvariantCulture).PadZero(totalWidth);
 
         /// <summary>
@@ -9837,9 +9845,6 @@ namespace Extensions
         /// <returns></returns>
         public static string QuantifyText(this double Quantity, string PluralText) => PluralText.QuantifyText(Quantity);
 
-        public static string SQLQueryForClass<T>(object InjectionObject = null) => typeof(T).GetAttributeValue<FromSQLAttribute, string>(x => x.SQL).IfBlank($"SELECT * FROM {typeof(T).Name}").Inject(InjectionObject);
-
-
         /// <summary>
         /// Encapsula um texto entre 2 caracteres (normalmente parentesis, chaves, aspas ou colchetes)
         /// </summary>
@@ -9952,7 +9957,7 @@ namespace Extensions
 
         /// <summary>
         /// Gera uma data aleatória a partir de componentes nulos de data
-        /// </summary> 
+        /// </summary>
         /// <returns>Um numero Inteiro</returns>
         public static DateTime RandomDateTime(int? Year = null, int? Month = null, int? Day = null, int? Hour = null, int? Minute = null, int? Second = null)
         {
@@ -10017,35 +10022,6 @@ namespace Extensions
         /// <param name="MaxWordCount"></param>
         /// <returns></returns>
         public static TextStructure RandomIpsum(int ParagraphCount = 5, int SentenceCount = 3, int MinWordCount = 10, int MaxWordCount = 50, int IdentSize = 0, int BreakLinesBetweenParagraph = 0, int Words = 300) => LoremIpsum(ParagraphCount, SentenceCount, MinWordCount, MaxWordCount, IdentSize, BreakLinesBetweenParagraph, Enumerable.Range(0, Words).Select(x => RandomWord(2, 14)).ToArray());
-
-        public static TextStructure LoremIpsum(int ParagraphCount = 5, int SentenceCount = 3, int MinWordCount = 10, int MaxWordCount = 50, int IdentSize = 0, int BreakLinesBetweenParagraph = 0, string[] Words = null)
-        {
-            var sb = new StringBuilder();
-            if (Words == null || Words.Length == 0)
-                Words = new[] { "lorem", "ipsum", "dolor", "sit", "amet", "consectetur", "adipiscing", "elit", "sed", "do", "eiusmod", "tempor", "incididunt", "ut", "labore", "et", "dolore", "magna", "aliqua", "Ut", "enim", "ad", "minim", "veniam", "quis", "nostrud", "exercitation", "ullamco", "laboris", "nisi", "ut", "aliquip", "ex", "ea", "commodo", "consequat", "Duis", "aute", "irure", "dolor", "in", "reprehenderit", "in", "voluptate", "velit", "esse", "cillum", "dolore", "eu", "fugiat", "nulla", "pariatur" };
-
-            for (int i = 0; i < ParagraphCount.SetMinValue(1); i++)
-            {
-                sb.Append(WhitespaceChar.Repeat(IdentSize));
-                for (int j = 0; j < SentenceCount.SetMinValue(1); j++)
-                {
-                    for (int k = 0; k < RandomNumber(MinWordCount.SetMinValue(1), MaxWordCount.SetMinValue(1)); k++)
-                    {
-                        string word = Words.RandomItem();
-                        if (k == 0)
-                        {
-                            word = word.ToSentenceCase();
-                        }
-                        sb.Append(word + WhitespaceChar);
-                    }
-                    sb.Append(PredefinedArrays.EndOfSentencePunctuation.RandomItem());
-                }
-                sb.Append(Environment.NewLine);
-                sb.Append(Environment.NewLine.Repeat(BreakLinesBetweenParagraph)); // Add more newline character between paragraphs
-            }
-
-            return new TextStructure(sb.ToString());
-        }
 
         /// <summary>
         /// Sorteia um item da Matriz
@@ -10125,14 +10101,14 @@ namespace Extensions
             return Array.Empty<int>();
         }
 
+        public static string RandomUserName() => Util.RandomWord(5) + Util.RandomNumber(1111);
+
         /// <summary>
         /// Gera uma palavra aleatória com o numero de caracteres entre <paramref name="MinLength"/>
         /// e <paramref name="MaxLenght"/>
         /// </summary>
         /// <returns>Uma string contendo uma palavra aleatória</returns>
         public static string RandomWord(int MinLength, int MaxLenght) => RandomWord(RandomNumber(MinLength.SetMinValue(1), MaxLenght.SetMinValue(1)));
-
-        public static string RandomUserName() => Util.RandomWord(5) + Util.RandomNumber(1111);
 
         /// <summary>
         /// Gera uma palavra aleatória com o numero de caracteres
@@ -10359,6 +10335,23 @@ namespace Extensions
         /// <returns></returns>
         public static string RemoveFirstChars(this string Text, int Quantity = 1) => Text.IsNotBlank() && Text.Length > Quantity && Quantity > 0 ? Text.Remove(0, Quantity) : EmptyString;
 
+        /// <summary>
+        /// Remove um texto do inicio de uma string se ele for um outro texto especificado
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <param name="StartStringTest">Texto inicial que será comparado</param>
+        public static string RemoveFirstEqual(this string Text, string StartStringTest, StringComparison comparison = default)
+        {
+            Text = Text ?? "";
+            StartStringTest = StartStringTest ?? "";
+            if (Text.StartsWith(StartStringTest, comparison))
+            {
+                Text = Text.RemoveFirstChars(StartStringTest.Length);
+            }
+
+            return Text;
+        }
+
         public static string RemoveHTML(this string Text)
         {
             if (Text.IsNotBlank())
@@ -10424,6 +10417,23 @@ namespace Extensions
         /// <param name="Quantity">Quantidade de Caracteres</param>
         /// <returns></returns>
         public static string RemoveLastChars(this string Text, int Quantity = 1) => Text.IsNotBlank() && Text.Length > Quantity && Quantity > 0 ? Text.Substring(0, Text.Length - Quantity) : EmptyString;
+
+        /// <summary>
+        /// Remove um texto do final de uma string se ele for um outro texto
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <param name="EndStringTest">Texto final que será comparado</param>
+        public static string RemoveLastEqual(this string Text, string EndStringTest, StringComparison comparison = default)
+        {
+            Text = Text ?? "";
+            EndStringTest = EndStringTest ?? "";
+            if (Text.EndsWith(EndStringTest, comparison))
+            {
+                Text = Text.RemoveLastChars(EndStringTest.Length);
+            }
+
+            return Text;
+        }
 
         public static string RemoveMask(this string MaskedText, params char[] AllowCharacters)
         {
@@ -12068,6 +12078,26 @@ namespace Extensions
         /// <returns></returns>
         public static string[] SplitAny(this string Text, StringSplitOptions SplitOptions, IEnumerable<string> SplitText) => Text?.SplitAny(SplitOptions, SplitText.ToArray());
 
+        public static IEnumerable<string> SplitChunk(this string input, params int[] chunkSizes)
+        {
+            if (input != null)
+                while (input.Length > 0)
+                {
+                    var size = chunkSizes.IfNoIndex(0, input.Length);
+                    if (size <= 0) size = input.Length;
+                    var chunk = input.GetFirstChars(size);
+                    if (chunk.Length == 0)
+                    {
+                        if (input.Length > 0)
+                            yield return input;
+                        break;
+                    }
+                    yield return chunk;
+                    input = input.RemoveFirstChars(size);
+                    chunkSizes = chunkSizes.Skip(1).ToArray();
+                }
+        }
+
         public static IEnumerable<string> SplitFixedChunk(this string inputString, int chunkSize)
         {
             inputString = inputString ?? EmptyString;
@@ -12092,25 +12122,7 @@ namespace Extensions
             }
         }
 
-        public static IEnumerable<string> SplitChunk(this string input, params int[] chunkSizes)
-        {
-            if (input != null)
-                while (input.Length > 0)
-                {
-                    var size = chunkSizes.IfNoIndex(0, input.Length);
-                    if (size <= 0) size = input.Length;
-                    var chunk = input.GetFirstChars(size);
-                    if (chunk.Length == 0)
-                    {
-                        if (input.Length > 0)
-                            yield return input;
-                        break;
-                    }
-                    yield return chunk;
-                    input = input.RemoveFirstChars(size);
-                    chunkSizes = chunkSizes.Skip(1).ToArray();
-                }
-        }
+        public static string SQLQueryForClass<T>(object InjectionObject = null) => typeof(T).GetAttributeValue<FromSQLAttribute, string>(x => x.SQL).IfBlank($"SELECT * FROM {typeof(T).Name}").Inject(InjectionObject);
 
         /// <summary>
         /// Cria uma <see cref="List{T}"/> e adciona um objeto a ela. Util para tipos anonimos
@@ -12871,6 +12883,8 @@ namespace Extensions
             return Array.Empty<byte>();
         }
 
+        public static string ToCamelCase(this string Text) => Text.PascalCaseSplit().Select((x, i) => i == 0 ? x.ToLowerInvariant() : x.ToTitle()).SelectJoinString("");
+
         /// <summary>
         /// Retorna a <see cref="Color"/> a partir de uma <see cref="ConsoleColor"/>
         /// </summary>
@@ -13331,6 +13345,16 @@ namespace Extensions
         /// <param name="MimeTypeOrExtensionOrPathOrDataURI"></param>
         /// <returns></returns>
         public static FileType ToFileType(this string MimeTypeOrExtensionOrPathOrDataURI) => new FileType(MimeTypeOrExtensionOrPathOrDataURI);
+
+        public static Uri ToFileUri(this FileSystemInfo File) => new Uri($@"file://{File?.FullName.Replace(" ", "%20")}");
+
+        /// <summary>
+        /// Converte um ToType para Single. Retorna Nothing (NULL) se a conversão falhar
+        /// </summary>
+        /// <typeparam name="T">Tipo de origem</typeparam>
+        /// <param name="Value">Variavel com valor</param>
+        /// <returns>Valor convertido em novo ToType</returns>
+        public static float ToFloat<T>(this T Value) => Value.ChangeType<float>();
 
         public static FormattableString ToFormattableString(this string Text, params object[] args) => FormattableStringFactory.Create(Text, args ?? Array.Empty<object>());
 
@@ -14993,6 +15017,10 @@ namespace Extensions
             return l.SelectJoinString(WhitespaceChar);
         }
 
+        public static QuantityTextPair ToQuantityTextPair(this string Text) => (QuantityTextPair)Text;
+
+        public static QuantityTextPair ToQuantityTextPair(this IEnumerable<string> Text) => (QuantityTextPair)(Text?.ToArray());
+
         /// <summary>
         /// Retorna um dicionário em QueryString
         /// </summary>
@@ -15071,6 +15099,46 @@ namespace Extensions
             return resultado.ToString();
         }
 
+        public static string ToSentenceCase(this string Text)
+        {
+            Text = Text.Trim().GetFirstChars(1).ToUpperInvariant() + Text.RemoveFirstChars(1);
+            var dots = new[] { "...", ". ", "? ", "! " };
+            List<string> sentences;
+            foreach (var dot in dots)
+            {
+                sentences = Text.Split(dot, StringSplitOptions.None).ToList();
+                for (int index = 0, loopTo = sentences.Count - 1; index <= loopTo; index++)
+                {
+                    sentences[index] = $"{sentences[index].Trim().GetFirstChars(1)?.ToUpperInvariant()}{sentences[index]?.RemoveFirstChars(1)}";
+                }
+
+                Text = sentences.SelectJoinString(dot);
+            }
+
+            sentences = Text.Split(WhitespaceChar).ToList();
+            Text = EmptyString;
+            foreach (var c in sentences)
+            {
+                string palavra = c;
+                if (palavra.EndsWith(".") && palavra.Length == 2)
+                {
+                    palavra = palavra.ToUpperInvariant();
+                    Text += palavra;
+                    string proximapalavra = sentences.IfNoIndex(sentences.IndexOf(c) + 1, EmptyString);
+                    if (!(proximapalavra.EndsWith(".") && palavra.Length == 2))
+                    {
+                        Text += WhitespaceChar;
+                    }
+                }
+                else
+                {
+                    Text += c + WhitespaceChar;
+                }
+            }
+
+            return Text.RemoveLastChars(1);
+        }
+
         /// <summary>
         /// Converte um ToType para short. Retorna Nothing (NULL) se a conversão falhar
         /// </summary>
@@ -15078,14 +15146,6 @@ namespace Extensions
         /// <param name="Value">Variavel com valor</param>
         /// <returns>Valor convertido em novo ToType</returns>
         public static double ToShort<T>(this T Value) => Value.ChangeType<short>();
-
-        /// <summary>
-        /// Converte um ToType para Single. Retorna Nothing (NULL) se a conversão falhar
-        /// </summary>
-        /// <typeparam name="T">Tipo de origem</typeparam>
-        /// <param name="Value">Variavel com valor</param>
-        /// <returns>Valor convertido em novo ToType</returns>
-        public static float ToFloat<T>(this T Value) => Value.ChangeType<float>();
 
         /// <summary>
         /// Prepara uma string para se tornar uma URL amigavel (remove caracteres nao permitidos e
@@ -15104,8 +15164,6 @@ namespace Extensions
         /// <param name="Text"></param>
         /// <returns></returns>
         public static string ToSnakeCase(this string Text) => Text.Replace(WhitespaceChar, "_").ToLowerInvariant();
-
-        public static string ToCamelCase(this string Text) => Text.PascalCaseSplit().Select((x, i) => i == 0 ? x.ToLowerInvariant() : x.ToTitle()).SelectJoinString("");
 
         ///<summary> Monta um Comando SQL para executar um SELECT com
         /// filtros a partir de um <see cref="NameValueCollection" />
@@ -15349,10 +15407,6 @@ namespace Extensions
             }
         }
 
-
-        public static IEnumerable<T> TraverseAll<T>(this IEnumerable<T> items, Func<T, IEnumerable<T>> ChildSelector, Expression<Func<T, bool>> Filter = null) => items.SelectMany(x => Traverse(x, ChildSelector, true)).Where(Filter?.Compile() ?? (x => true));
-
-
         /// <summary>
         /// Percorre uma Lista de objetos que possuem como propriedade objetos do mesmo tipo e as
         /// unifica recursivamente
@@ -15416,6 +15470,8 @@ namespace Extensions
         /// <param name="ChildSelector">Seletor das propriedades filhas</param>
         /// <returns></returns>
         public static IEnumerable<P> Traverse<T, P>(this T Item, Func<T, IEnumerable<T>> ChildSelector, Func<T, IQueryable<P>> PropertySelector, bool IncludeMe = false) => Item.Traverse(ChildSelector, IncludeMe).SelectMany(PropertySelector);
+
+        public static IEnumerable<T> TraverseAll<T>(this IEnumerable<T> items, Func<T, IEnumerable<T>> ChildSelector, Expression<Func<T, bool>> Filter = null) => items.SelectMany(x => Traverse(x, ChildSelector, true)).Where(Filter?.Compile() ?? (x => true));
 
         /// <summary>
         /// Remove os excessos de uma cor de fundo de uma imagem deixando apenas seu conteudo
@@ -15637,40 +15693,6 @@ namespace Extensions
         /// <param name="EndStringTest">Conjunto de textos que serão comparados</param>
         /// <returns></returns>
         public static string TrimEndAny(this string Text, StringComparison comparison, params string[] EndStringTest) => Text.TrimEndAny(true, comparison, EndStringTest);
-
-        /// <summary>
-        /// Remove um texto do inicio de uma string se ele for um outro texto especificado
-        /// </summary>
-        /// <param name="Text">Texto</param>
-        /// <param name="StartStringTest">Texto inicial que será comparado</param>
-        public static string RemoveFirstEqual(this string Text, string StartStringTest, StringComparison comparison = default)
-        {
-            Text = Text ?? "";
-            StartStringTest = StartStringTest ?? "";
-            if (Text.StartsWith(StartStringTest, comparison))
-            {
-                Text = Text.RemoveFirstChars(StartStringTest.Length);
-            }
-
-            return Text;
-        }
-
-        /// <summary>
-        /// Remove um texto do final de uma string se ele for um outro texto
-        /// </summary>
-        /// <param name="Text">Texto</param>
-        /// <param name="EndStringTest">Texto final que será comparado</param>
-        public static string RemoveLastEqual(this string Text, string EndStringTest, StringComparison comparison = default)
-        {
-            Text = Text ?? "";
-            EndStringTest = EndStringTest ?? "";
-            if (Text.EndsWith(EndStringTest, comparison))
-            {
-                Text = Text.RemoveLastChars(EndStringTest.Length);
-            }
-
-            return Text;
-        }
 
         /// <summary>
         /// Remove o final de uma string se ela for igual a qualquer um dos valores correspondentes
@@ -16201,8 +16223,6 @@ namespace Extensions
             }
         }
 
-        public static Uri ToFileUri(this FileSystemInfo File) => new Uri($@"file://{File?.FullName.Replace(" ", "%20")}");
-
         /// <summary>
         /// Salva um array de bytes em um arquivo
         /// </summary>
@@ -16249,6 +16269,10 @@ namespace Extensions
 
         public static FileInfo WriteToFile(this string Text, DirectoryInfo Directory, string SubDirectory, string FileName, bool Append = false, Encoding Enconding = null, DateTime? DateAndTime = null) => Text.WriteToFile(Path.Combine(Directory?.FullName, SubDirectory, Path.GetFileName(FileName)), Append, Enconding, DateAndTime);
 
+        #endregion Public Methods
+
+        #region Public Enums
+
         public enum LogicConcatenationOperator
         {
             AND,
@@ -16292,5 +16316,7 @@ namespace Extensions
             /// </summary>
             M = 1000
         }
+
+        #endregion Public Enums
     }
 }

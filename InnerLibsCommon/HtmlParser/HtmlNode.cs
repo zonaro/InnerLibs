@@ -390,6 +390,10 @@ namespace Extensions.Web
             return tag;
         }
 
+        public static HtmlElementNode CreateJavascriptObject<T>(T obj, string varName, bool useLet = false) => new HtmlElementNode("script", $"{useLet.AsIf("let", "var")} {varName.IfBlank(typeof(T).Name.ToFriendlyPathName())} = {obj?.ToJson() ?? "{}"}");
+
+        public HtmlElementNode AddavascriptObject<T>(T obj, string varName, bool useLet = false) => this.Add(CreateJavascriptObject(obj, varName, useLet));
+
         public static HtmlElementNode CreateTable<TPoco>(IEnumerable<TPoco> Rows, bool header, string IDProperty, params string[] Properties) where TPoco : class
         {
             TPoco h = null;

@@ -24,9 +24,14 @@ namespace Extensions
         internal JSONSerializer(JSONParameters param)
         {
             if (param.OverrideObjectHashCodeChecking)
+            {
                 _cirobj = new Dictionary<object, int>(10, ReferenceEqualityComparer.Default);
+            }
             else
+            {
                 _cirobj = new Dictionary<object, int>();
+            }
+
             _params = param;
             _useEscapedUnicode = _params.UseEscapedUnicode;
             _MAX_DEPTH = _params.SerializerMaxDepth;
@@ -43,7 +48,11 @@ namespace Extensions
                 var pendingSeparator = false;
                 foreach (var kv in _globalTypes)
                 {
-                    if (pendingSeparator) sb.Append(',');
+                    if (pendingSeparator)
+                    {
+                        sb.Append(',');
+                    }
+
                     pendingSeparator = true;
                     sb.Append('\"');
                     sb.Append(kv.Key);
@@ -60,13 +69,28 @@ namespace Extensions
         private void WriteValue(object obj)
         {
             if (obj == null || obj is DBNull)
+            {
                 _output.Append("null");
+            }
             else if (obj is string || obj is char)
-                WriteString(obj.ToString());
-            else if (obj is Guid)
-                WriteGuid((Guid)obj);
-            else if (obj is bool)
-                _output.Append(((bool)obj) ? "true" : "false"); // conform to standard
+            {
+                if ((_params.SerializeBlankStringsAsNull && obj.IsBlank()))
+                {
+                    _output.Append("null");
+                }
+                else
+                {
+                    WriteString(obj.ToString());
+                }
+            }
+            else if (obj is Guid guid)
+            {
+                WriteGuid(guid);
+            }
+            else if (obj is bool boolean)
+            {
+                _output.Append(boolean ? "true" : "false"); // conform to standard
+            }
             else if (
                 obj is int || obj is long ||
                 obj is decimal ||
@@ -74,12 +98,16 @@ namespace Extensions
                 obj is sbyte || obj is ushort ||
                 obj is uint || obj is ulong
                     )
+            {
                 _output.Append(((IConvertible)obj).ToString(NumberFormatInfo.InvariantInfo));
+            }
             else if (obj is double || obj is Double)
             {
                 double d = (double)obj;
                 if (double.IsNaN(d))
+                {
                     _output.Append("\"NaN\"");
+                }
                 else if (double.IsInfinity(d))
                 {
                     _output.Append('\"');
@@ -87,13 +115,17 @@ namespace Extensions
                     _output.Append('\"');
                 }
                 else
+                {
                     _output.Append(((IConvertible)obj).ToString(NumberFormatInfo.InvariantInfo));
+                }
             }
             else if (obj is float || obj is Single)
             {
                 float d = (float)obj;
                 if (float.IsNaN(d))
+                {
                     _output.Append("\"NaN\"");
+                }
                 else if (float.IsInfinity(d))
                 {
                     _output.Append('\"');
@@ -101,44 +133,76 @@ namespace Extensions
                     _output.Append('\"');
                 }
                 else
+                {
                     _output.Append(((IConvertible)obj).ToString(NumberFormatInfo.InvariantInfo));
+                }
             }
             else if (obj is DateTime)
+            {
                 WriteDateTime((DateTime)obj);
+            }
             else if (obj is DateTimeOffset)
+            {
                 WriteDateTimeOffset((DateTimeOffset)obj);
+            }
             else if (obj is TimeSpan)
+            {
                 _output.Append(((TimeSpan)obj).Ticks);
+            }
             else if (_params.KVStyleStringDictionary == false &&
                 obj is IEnumerable<KeyValuePair<string, object>>)
-
+            {
                 WriteStringDictionary((IEnumerable<KeyValuePair<string, object>>)obj);
+            }
             else if (_params.KVStyleStringDictionary == false && obj is IDictionary &&
                 obj.GetType().IsGenericType && Reflection.Instance.GetGenericArguments(obj.GetType())[0] == typeof(string))
-
+            {
                 WriteStringDictionary((IDictionary)obj);
-            else if (obj is IDictionary)
-                WriteDictionary((IDictionary)obj);
+            }
+            else if (obj is IDictionary dictionary)
+            {
+                WriteDictionary(dictionary);
+            }
             else if (obj is DataSet)
+            {
                 WriteDataset((DataSet)obj);
+            }
             else if (obj is DataTable)
+            {
                 this.WriteDataTable((DataTable)obj);
-            else if (obj is byte[])
-                WriteBytes((byte[])obj);
-            else if (obj is StringDictionary)
-                WriteSD((StringDictionary)obj);
-            else if (obj is NameValueCollection)
-                WriteNV((NameValueCollection)obj);
-            else if (obj is Array)
-                WriteArrayRanked((Array)obj);
-            else if (obj is IEnumerable)
-                WriteArray((IEnumerable)obj);
-            else if (obj is Enum)
-                WriteEnum((Enum)obj);
+            }
+            else if (obj is byte[] v)
+            {
+                WriteBytes(v);
+            }
+            else if (obj is StringDictionary dictionary1)
+            {
+                WriteSD(dictionary1);
+            }
+            else if (obj is NameValueCollection collection)
+            {
+                WriteNV(collection);
+            }
+            else if (obj is Array array)
+            {
+                WriteArrayRanked(array);
+            }
+            else if (obj is IEnumerable enumerable)
+            {
+                WriteArray(enumerable);
+            }
+            else if (obj is Enum @enum)
+            {
+                WriteEnum(@enum);
+            }
             else if (Reflection.Instance.IsTypeRegistered(obj.GetType()))
+            {
                 WriteCustom(obj);
+            }
             else
+            {
                 WriteObject(obj);
+            }
         }
 
         private void WriteDateTimeOffset(DateTimeOffset d)
@@ -152,13 +216,20 @@ namespace Extensions
             _output.Append(ticks.ToString("0000000", NumberFormatInfo.InvariantInfo));
 
             if (_params.UseUTCDateTime)
+            {
                 _output.Append('Z');
+            }
             else
             {
                 if (d.Offset.Hours > 0)
+                {
                     _output.Append('+');
+                }
                 else
+                {
                     _output.Append('-');
+                }
+
                 _output.Append(d.Offset.Hours.ToString("00", NumberFormatInfo.InvariantInfo));
                 _output.Append(':');
                 _output.Append(d.Offset.Minutes.ToString("00", NumberFormatInfo.InvariantInfo));
@@ -180,11 +251,20 @@ namespace Extensions
                 }
                 else
                 {
-                    if (pendingSeparator) _output.Append(',');
+                    if (pendingSeparator)
+                    {
+                        _output.Append(',');
+                    }
+
                     if (_params.SerializeToLowerCaseNames)
+                    {
                         WritePair(key.ToLowerInvariant(), nameValueCollection[key]);
+                    }
                     else
+                    {
                         WritePair(key, nameValueCollection[key]);
+                    }
+
                     pendingSeparator = true;
                 }
             }
@@ -204,13 +284,21 @@ namespace Extensions
                 }
                 else
                 {
-                    if (pendingSeparator) _output.Append(',');
+                    if (pendingSeparator)
+                    {
+                        _output.Append(',');
+                    }
 
                     string k = (string)entry.Key;
                     if (_params.SerializeToLowerCaseNames)
+                    {
                         WritePair(k.ToLowerInvariant(), entry.Value);
+                    }
                     else
+                    {
                         WritePair(k, entry.Value);
+                    }
+
                     pendingSeparator = true;
                 }
             }
@@ -219,8 +307,7 @@ namespace Extensions
 
         private void WriteCustom(object obj)
         {
-            Reflection.Serialize s;
-            Reflection.Instance._customSerializer.TryGetValue(obj.GetType(), out s);
+            Reflection.Instance._customSerializer.TryGetValue(obj.GetType(), out Reflection.Serialize s);
             WriteStringFast(s(obj));
         }
 
@@ -228,17 +315,25 @@ namespace Extensions
         {
             // FEATURE : optimize enum write
             if (_params.UseValuesOfEnums)
+            {
                 WriteValue(Convert.ToInt32(e));
+            }
             else
+            {
                 WriteStringFast(e.ToString());
+            }
         }
 
         private void WriteGuid(Guid g)
         {
             if (_params.UseFastGuid == false)
+            {
                 WriteStringFast(g.ToString());
+            }
             else
+            {
                 WriteBytes(g.ToByteArray());
+            }
         }
 
         private void WriteBytes(byte[] bytes) => WriteStringFast(Convert.ToBase64String(bytes, 0, bytes.Length, Base64FormattingOptions.None));
@@ -248,7 +343,9 @@ namespace Extensions
             // datetime format standard : yyyy-MM-dd HH:mm:ss
             DateTime dt = dateTime;
             if (_params.UseUTCDateTime)
+            {
                 dt = dateTime.ToUniversalTime();
+            }
 
             write_date_value(dt);
 
@@ -259,7 +356,9 @@ namespace Extensions
             }
 
             if (_params.UseUTCDateTime)
+            {
                 _output.Append('Z');
+            }
 
             _output.Append('\"');
         }
@@ -282,7 +381,10 @@ namespace Extensions
 
         private DataSetSchema GetSchema(DataTable ds)
         {
-            if (ds == null) return null;
+            if (ds == null)
+            {
+                return null;
+            }
 
             DataSetSchema m = new DataSetSchema();
             m.Info = new List<string>();
@@ -293,9 +395,13 @@ namespace Extensions
                 m.Info.Add(ds.TableName);
                 m.Info.Add(c.ColumnName);
                 if (_params.FullyQualifiedDataSetSchema)
+                {
                     m.Info.Add(c.DataType.AssemblyQualifiedName);
+                }
                 else
+                {
                     m.Info.Add(c.DataType.ToString());
+                }
             }
             // FEATURE : serialize relations and constraints here
 
@@ -304,7 +410,10 @@ namespace Extensions
 
         private DataSetSchema GetSchema(DataSet ds)
         {
-            if (ds == null) return null;
+            if (ds == null)
+            {
+                return null;
+            }
 
             DataSetSchema m = new DataSetSchema();
             m.Info = new List<string>();
@@ -317,9 +426,13 @@ namespace Extensions
                     m.Info.Add(t.TableName);
                     m.Info.Add(c.ColumnName);
                     if (_params.FullyQualifiedDataSetSchema)
+                    {
                         m.Info.Add(c.DataType.AssemblyQualifiedName);
+                    }
                     else
+                    {
                         m.Info.Add(c.DataType.ToString());
+                    }
                 }
             }
             // FEATURE : serialize relations and constraints here
@@ -347,7 +460,11 @@ namespace Extensions
             bool tablesep = false;
             foreach (DataTable table in ds.Tables)
             {
-                if (tablesep) _output.Append(',');
+                if (tablesep)
+                {
+                    _output.Append(',');
+                }
+
                 tablesep = true;
                 WriteDataTableData(table);
             }
@@ -364,14 +481,22 @@ namespace Extensions
             bool rowseparator = false;
             foreach (DataRow row in table.Rows)
             {
-                if (rowseparator) _output.Append(',');
+                if (rowseparator)
+                {
+                    _output.Append(',');
+                }
+
                 rowseparator = true;
                 _output.Append('[');
 
                 bool pendingSeperator = false;
                 foreach (DataColumn column in cols)
                 {
-                    if (pendingSeperator) _output.Append(',');
+                    if (pendingSeperator)
+                    {
+                        _output.Append(',');
+                    }
+
                     WriteValue(row[column]);
                     pendingSeperator = true;
                 }
@@ -401,7 +526,9 @@ namespace Extensions
         {
             int i;
             if (_cirobj.TryGetValue(obj, out i) == false)
+            {
                 _cirobj.Add(obj, _cirobj.Count + 1);
+            }
             else
             {
                 if (_current_depth > 0 && _params.InlineCircularReferences == false)
@@ -414,7 +541,9 @@ namespace Extensions
                 }
             }
             if (_params.UsingGlobalTypes == false)
+            {
                 _output.Append('{');
+            }
             else
             {
                 if (_TypesWritten == false)
@@ -424,12 +553,16 @@ namespace Extensions
                     //_output = new StringBuilder();
                 }
                 else
+                {
                     _output.Append('{');
+                }
             }
             _TypesWritten = true;
             _current_depth++;
             if (_current_depth > _MAX_DEPTH)
+            {
                 throw new Exception("Serializer encountered maximum depth of " + _MAX_DEPTH);
+            }
 
             Dictionary<string, string> map = new Dictionary<string, string>();
             Type t = obj.GetType();
@@ -437,7 +570,9 @@ namespace Extensions
             if (_params.UseExtensions)
             {
                 if (_params.UsingGlobalTypes == false)
+                {
                     WritePairFast("$type", Reflection.Instance.GetTypeAssemblyName(t));
+                }
                 else
                 {
                     string ct = Reflection.Instance.GetTypeAssemblyName(t);
@@ -457,7 +592,10 @@ namespace Extensions
             {
                 var p = g[ii];
                 if (_params.ShowReadOnlyProperties == false && p.ReadOnly)
+                {
                     continue;
+                }
+
                 object o = p.Getter(obj);
                 if (_params.SerializeNullValues == false && (o == null || o is DBNull))
                 {
@@ -466,18 +604,30 @@ namespace Extensions
                 else
                 {
                     if (append)
+                    {
                         _output.Append(',');
+                    }
+
                     if (p.memberName != null)
+                    {
                         WritePair(p.memberName, o);
+                    }
                     else if (_params.SerializeToLowerCaseNames)
+                    {
                         WritePair(p.lcName, o);
+                    }
                     else
+                    {
                         WritePair(p.Name, o);
+                    }
+
                     if (o != null && _params.UseExtensions)
                     {
                         Type tt = o.GetType();
                         if (tt == typeof(object))
+                        {
                             map.Add(p.Name, tt.ToString());
+                        }
                     }
                     append = true;
                 }
@@ -517,7 +667,10 @@ namespace Extensions
 
             foreach (object obj in array)
             {
-                if (pendingSeperator) _output.Append(',');
+                if (pendingSeperator)
+                {
+                    _output.Append(',');
+                }
 
                 WriteValue(obj);
 
@@ -529,7 +682,9 @@ namespace Extensions
         private void WriteArrayRanked(Array array)
         {
             if (array.Rank == 1)
+            {
                 WriteArray(array);
+            }
             else
             {
                 // FIXx : use getlength
@@ -542,7 +697,10 @@ namespace Extensions
 
                 foreach (object obj in array)
                 {
-                    if (pendingSeperator) _output.Append(',');
+                    if (pendingSeperator)
+                    {
+                        _output.Append(',');
+                    }
 
                     WriteValue(obj);
 
@@ -565,13 +723,21 @@ namespace Extensions
                 }
                 else
                 {
-                    if (pendingSeparator) _output.Append(',');
+                    if (pendingSeparator)
+                    {
+                        _output.Append(',');
+                    }
 
                     string k = (string)entry.Key;
                     if (_params.SerializeToLowerCaseNames)
+                    {
                         WritePair(k.ToLowerInvariant(), entry.Value);
+                    }
                     else
+                    {
                         WritePair(k, entry.Value);
+                    }
+
                     pendingSeparator = true;
                 }
             }
@@ -589,13 +755,22 @@ namespace Extensions
                 }
                 else
                 {
-                    if (pendingSeparator) _output.Append(',');
+                    if (pendingSeparator)
+                    {
+                        _output.Append(',');
+                    }
+
                     string k = entry.Key;
 
                     if (_params.SerializeToLowerCaseNames)
+                    {
                         WritePair(k.ToLowerInvariant(), entry.Value);
+                    }
                     else
+                    {
                         WritePair(k, entry.Value);
+                    }
+
                     pendingSeparator = true;
                 }
             }
@@ -604,22 +779,27 @@ namespace Extensions
 
         private void WriteDictionary(IDictionary dic)
         {
-            _output.Append('[');
+            _output.Append('{');
 
             bool pendingSeparator = false;
 
             foreach (DictionaryEntry entry in dic)
             {
-                if (pendingSeparator) _output.Append(',');
-                _output.Append('{');
-                WritePair("k", entry.Key);
-                _output.Append(',');
-                WritePair("v", entry.Value);
-                _output.Append('}');
+                if (pendingSeparator)
+                {
+                    _output.Append(',');
+                }
 
+                //_output.Append('{');
+                //WritePair("k", entry.Key);
+                //_output.Append(',');
+                //WritePair("v", entry.Value);
+                //_output.Append('}');
+
+                WritePair($"{entry.Key}", entry.Value);
                 pendingSeparator = true;
             }
-            _output.Append(']');
+            _output.Append('}');
         }
 
         private void WriteStringFast(string s)
@@ -644,7 +824,9 @@ namespace Extensions
                     if (c >= ' ' && c < 128 && c != '\"' && c != '\\')
                     {
                         if (runIndex == -1)
+                        {
                             runIndex = index;
+                        }
 
                         continue;
                     }
@@ -654,7 +836,9 @@ namespace Extensions
                     if (c != '\t' && c != '\n' && c != '\r' && c != '\"' && c != '\\' && c != '\0')// && c != ':' && c!=',')
                     {
                         if (runIndex == -1)
+                        {
                             runIndex = index;
+                        }
 
                         continue;
                     }
@@ -681,14 +865,18 @@ namespace Extensions
                             _output.Append(((int)c).ToString("X4", NumberFormatInfo.InvariantInfo));
                         }
                         else
+                        {
                             _output.Append(c);
+                        }
 
                         break;
                 }
             }
 
             if (runIndex != -1)
+            {
                 _output.Append(s, runIndex, s.Length - runIndex);
+            }
 
             _output.Append('\"');
         }
