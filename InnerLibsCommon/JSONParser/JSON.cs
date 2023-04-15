@@ -1005,6 +1005,7 @@ namespace Extensions
         /// Serialize null values to the output (default = True)
         /// </summary>
         public bool SerializeNullValues { get; set; } = true;
+        public bool SerializeBlankStringsAsNull { get; set; } = false;
 
         /// <summary>
         /// Maximum depth for circular references in inline mode (default = 20)
@@ -1032,9 +1033,9 @@ namespace Extensions
         public bool UseExtensions { get; set; }
 
         /// <summary>
-        /// Use the fast GUID format (default = True)
+        /// Use the fast GUID format (default = False)
         /// </summary>
-        public bool UseFastGuid { get; set; } = true;
+        public bool UseFastGuid { get; set; } = false;
 
         /// <summary>
         /// Use the optimized fast Dataset Schema format (default = True)

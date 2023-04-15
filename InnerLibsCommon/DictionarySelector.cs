@@ -221,7 +221,10 @@ namespace Extensions.Dictionaries
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        IDictionaryEnumerator IDictionary.GetEnumerator() => collection.ToDictionary(x => keyselector(x), x => x).GetEnumerator();
+        IDictionaryEnumerator IDictionary.GetEnumerator()
+        {
+            return (this.ToDictionary(x => x.Key, x => x.Value) as IDictionary).GetEnumerator();
+        }
 
         #endregion Public Methods
     }
