@@ -11,6 +11,14 @@ namespace Extensions.Console
     /// </summary>
     public static class Cnsl
     {
+        #region Public Delegates
+
+        public delegate void MenuAction();
+
+        #endregion Public Delegates
+
+
+
         #region Public Methods
 
         /// <summary>
@@ -181,7 +189,6 @@ namespace Extensions.Console
         /// <param name="CustomColoredWords">Lista com as palavras e suas respectivas cores</param>
         public static string ConsoleWriteLine(this string Text, Dictionary<string, ConsoleColor> CustomColoredWords, int BreakLines = 1) => Text.ConsoleWrite(CustomColoredWords, BreakLines.SetMinValue(1));
 
-
         /// <summary>
         /// Escreve uma linha no console usando uma cor especifica
         /// </summary>
@@ -258,8 +265,6 @@ namespace Extensions.Console
             return ValueIfNull;
         }
 
-
-
         /// <summary>
         /// Retorna o valor de um argumento de uma linha de comando
         /// </summary>
@@ -288,7 +293,58 @@ namespace Extensions.Console
             Key = System.Console.ReadKey().Key;
             return Key;
         }
+        /// <summary>
+        /// Escreve um menu e aguarda a seleção de um deles pelo usuário
+        /// </summary>
+        /// <param name="Title"></param>
+        /// <param name="MenuQuestion"></param>
+        /// <param name="menuItems"></param>
+        /// <returns></returns>
+        public static int Menu(this string Title, string MenuQuestion, params (string, Action<int>)[] menuItems)
+        {
+            menuItems = menuItems ?? Array.Empty<(string , Action<int> )>();
+            int choice = -1;
+            do
+            {
+                ConsoleWriteLine(Title);
+                for (int i = 0; i < menuItems.Length; i++)
+                {
+                    ConsoleWriteLine($" {i + 1}. {menuItems.IfNoIndex(i).Item1}");
+                }
+                ConsoleBreakLine();
+                ConsoleWrite(MenuQuestion + Util.WhitespaceChar);
+                var line = System.Console.ReadLine();
+                if (line.IsNumber())
+                {
+                    choice = line.ToDecimal().RoundInt();
+
+                    if (choice > 0 && choice <= menuItems.Length)
+                    {
+                        menuItems.IfNoIndex(choice - 1).Item2?.Invoke(choice);
+                        return choice;
+                    }
+                }
+                
+            } while (choice < 0 || choice >= menuItems.Length);
+            return 0;
+        }
 
         #endregion Public Methods
+
+
+
+        #region Public Classes + Structs
+
+        public class MenuItem
+        {
+            #region Public Properties
+
+            public MenuAction Action { get; set; }
+            public string Title { get; set; }
+
+            #endregion Public Properties
+        }
+
+        #endregion Public Classes + Structs
     }
 }

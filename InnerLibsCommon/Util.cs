@@ -400,6 +400,7 @@ namespace Extensions
                 case "NO":
                 case "DISABLED":
                 case "OFF":
+                case "N":
                     return false;
                 default:
                     return true;
