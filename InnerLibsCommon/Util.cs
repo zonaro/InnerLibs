@@ -208,6 +208,8 @@ namespace Extensions
         /// Retorna o ano atual
         /// </summary>
         public static int ThisYear => DateTime.Now.Year;
+        
+        public static int ThisMonth => DateTime.Now.Month;
 
         #endregion Public Properties
 
