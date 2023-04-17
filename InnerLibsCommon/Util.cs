@@ -208,7 +208,7 @@ namespace Extensions
         /// Retorna o ano atual
         /// </summary>
         public static int ThisYear => DateTime.Now.Year;
-        
+
         public static int ThisMonth => DateTime.Now.Month;
 
         #endregion Public Properties
@@ -368,7 +368,7 @@ namespace Extensions
             return Text;
         }
 
-        public static bool ApplyColorMatrix(Image img, ColorMatrix cm)
+        public static Image ApplyColorMatrix(Image img, ColorMatrix cm)
         {
             try
             {
@@ -383,11 +383,12 @@ namespace Extensions
                 // draw the copy of the source image back over the original image, applying the ColorMatrix
                 g.DrawImage(bmp, rc, 0, 0, img.Width, img.Height, GraphicsUnit.Pixel, imgattr);
                 g.Dispose();
-                return true;
+                return bmp;
+                
             }
             catch
             {
-                return false;
+                return null;
             }
         }
 
@@ -6135,8 +6136,8 @@ namespace Extensions
         {
             var copia = new Bitmap(img);
             var cm = new ColorMatrix(new float[][] { new float[] { 0.299f, 0.299f, 0.299f, 0f, 0f }, new float[] { 0.587f, 0.587f, 0.587f, 0f, 0f }, new float[] { 0.114f, 0.114f, 0.114f, 0f, 0f }, new float[] { 0f, 0f, 0f, 1f, 0f }, new float[] { 0f, 0f, 0f, 0f, 1f } });
-            ApplyColorMatrix(copia, cm);
-            return copia;
+            return ApplyColorMatrix(copia, cm);
+           
         }
 
         public static IEnumerable<HSVColor> GrayscalePallette(int Amount) => MonochromaticPallette(Color.White, Amount);
@@ -8623,8 +8624,8 @@ namespace Extensions
         {
             var copia = new Bitmap(img);
             var cm = new ColorMatrix(new float[][] { new float[] { -1, 0f, 0f, 0f, 0f }, new float[] { 0f, -1, 0f, 0f, 0f }, new float[] { 0f, 0f, -1, 0f, 0f }, new float[] { 0f, 0f, 0f, 1f, 0f }, new float[] { 0f, 0f, 0f, 0f, 1f } });
-            ApplyColorMatrix(copia, cm);
-            return copia;
+            return ApplyColorMatrix(copia, cm);
+            
         }
 
         /// <summary>
@@ -15384,8 +15385,8 @@ namespace Extensions
             var cm = new ColorMatrix(new float[][] { new float[] { 1f, 0f, 0f, 0f, 0f }, new float[] { 0f, 1f, 0f, 0f, 0f }, new float[] { 0f, 0f, 1f, 0f, 0f }, new float[] { 0f, 0f, 0f, 1f, 0f }, new float[] { sr, sg, sb, sa, 1f } });
 
             // apply the matrix to the image
-            ApplyColorMatrix(copia, cm);
-            return copia;
+          return  ApplyColorMatrix(copia, cm);
+         
         }
 
         /// <summary>
