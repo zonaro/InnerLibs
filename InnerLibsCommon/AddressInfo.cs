@@ -235,14 +235,7 @@ namespace Extensions.Locations
             {
                 if (key.IsNotBlank())
                 {
-                    if (value.IsNotBlank())
-                    {
-                        details[key.ToLowerInvariant()] = value.TrimAny(" ");
-                    }
-                    else if (ContainsKey(key))
-                    {
-                        Remove(key);
-                    }
+                    details.SetOrRemove(key.ToLowerInvariant(), value.Trim().NullIf(x => x.IsBlank()));
                 }
             }
         }

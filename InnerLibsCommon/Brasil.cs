@@ -93,7 +93,6 @@ namespace Extensions.BR
                                 node["Name"].InnerText,
                                 node["IBGE"].InnerText.ToInt(),
                                 node["DDD"].InnerText.ToInt(),
-                                e,
                                 node["SIAFI"].InnerText,
                                 node["TimeZone"].InnerText,
                                 node["Latitude"].InnerText.ToDecimal(),
@@ -963,14 +962,13 @@ namespace Extensions.BR
         public override string ToString() => ChaveFormatadaTraco.RemoveMask();
     }
 
-    public class Cidade
+    public partial class Cidade
     {
-        public Cidade(string Name, int IBGE, int DDD, Estado Estado, string SIAFI, string TimeZone, decimal Latitude, decimal Longitude, bool Capital) : base()
+        public Cidade(string Name, int IBGE, int DDD, string SIAFI, string TimeZone, decimal Latitude, decimal Longitude, bool Capital) : base()
         {
             this.Nome = Name;
             this.IBGE = IBGE;
             this.DDD = DDD;
-            this.Estado = Estado;
             this.SIAFI = SIAFI;
             this.TimeZone = TimeZone;
             this.Latitude = Latitude;
@@ -980,12 +978,16 @@ namespace Extensions.BR
 
         public bool Capital { get; }
         public int DDD { get; }
+
+        [DataMember(Name = "ibge_id")]
         public int IBGE { get; }
         public decimal Latitude { get; }
         public decimal Longitude { get; }
         public string Nome { get; }
-        public string SIAFI { get; }
-        public Estado Estado { get; } = new Estado(null);
+
+        [DataMember(Name = "siafi_id")]
+        public string SIAFI { get; internal set; }
+        public Estado Estado => Brasil.PegarEstado($"{IBGE}");
         public string TimeZone { get; }
 
         public override string ToString() => Nome;
@@ -994,7 +996,7 @@ namespace Extensions.BR
     /// <summary>
     /// Objeto que representa um estado do Brasil e seus respectivos detalhes
     /// </summary>
-    public class Estado
+    public partial class Estado
     {
         /// <summary>
         /// Sigla do estado
