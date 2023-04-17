@@ -36,7 +36,7 @@ namespace Extensions.BR
 
     public class EstabelecimentoInfo : Locations.AddressInfo
     {
-        public string Cnpj { get; set; }
+        public string Cnpj { get => this[nameof(Cnpj)]?.NullIf(x => !x.CNPJValido()); set => this[nameof(Cnpj)] = value; }
         public List<AtividadeSecundariaInfo> AtividadesSecundarias { get; set; }
         public string CnpjRaiz { get => this[nameof(CnpjRaiz)]; set => this[nameof(CnpjRaiz)] = value; }
         public string CnpjOrdem { get => this[nameof(CnpjOrdem)]; set => this[nameof(CnpjOrdem)] = value; }
@@ -124,8 +124,8 @@ namespace Extensions.BR
         public string DataOpcaoSimples { get; set; }
         public DateTime? DataExclusaoSimples { get; set; }
         public string Mei { get; set; }
-        public object DataOpcaoMei { get; set; }
-        public object DataExclusaoMei { get; set; }
+        public DateTime? DataOpcaoMei { get; set; }
+        public DateTime? DataExclusaoMei { get; set; }
         public DateTime? AtualizadoEm { get; set; }
     }
 
