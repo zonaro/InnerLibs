@@ -1,12 +1,6 @@
-
-
-
-
-
 // CNPJInfo myDeserializedClass = JsonConvert.DeserializeObject<CNPJInfo>(myJsonResponse);
 using System;
 using System.Collections.Generic;
-
 
 namespace Extensions.BR
 {
@@ -31,8 +25,6 @@ namespace Extensions.BR
         public string Subclasse { get; set; }
         public string Descricao { get; set; }
     }
-
-
 
     public class EstabelecimentoInfo : Locations.AddressInfo
     {
@@ -94,9 +86,6 @@ namespace Extensions.BR
         public string ComexId { get; set; }
     }
 
-
-
-
     public class DescricaoInfo
     {
         public string Id { get; set; }
@@ -143,5 +132,4 @@ namespace Extensions.BR
         public DescricaoInfo QualificacaoSocio { get; set; }
         public DescricaoInfo QualificacaoRepresentante { get; set; }
     }
-
 }
