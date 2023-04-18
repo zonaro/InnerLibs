@@ -94,6 +94,30 @@ namespace Extensions.BR
 
     public class CNPJInfo
     {
+        public static CNPJInfo Consultar(string CNPJ)
+        {
+            if (CNPJ.CNPJValido())
+            {
+                dynamic x = new Uri("https://publica.cnpj.ws/cnpj/" + CNPJ.RemoveMask()).DownloadJson();
+
+                var info = new CNPJInfo();
+                info.CnpjRaiz = x[nameof(CnpjRaiz)] as string;
+                info.RazaoSocial = x[nameof(RazaoSocial)] as string;
+                info.CapitalSocial = x[nameof(CapitalSocial)] as string;
+                info.ResponsavelFederativo = x[nameof(ResponsavelFederativo)] as string;
+                info.AtualizadoEm = x[nameof(AtualizadoEm)] as DateTime?;
+                info.Porte = x[nameof(Porte)] as DescricaoInfo;
+                info.NaturezaJuridica = x[nameof(NaturezaJuridica)] as NaturezaJuridica;
+                info.QualificacaoDoResponsavel = x[nameof(QualificacaoDoResponsavel)] as DescricaoInfo;
+                info.Socios = x[nameof(Socios)] as List<SocioInfo>;
+                info.Simples = x[nameof(Simples)] as SimplesInfo;
+                info.Estabelecimento = x[nameof(Estabelecimento)] as EstabelecimentoInfo;
+                return info;
+            }
+            else throw new ArgumentException("CNPJ Inválido", nameof(CNPJ));
+
+        }
+
         public string CnpjRaiz { get; set; }
         public string RazaoSocial { get; set; }
         public string CapitalSocial { get; set; }
