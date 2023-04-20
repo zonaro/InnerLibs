@@ -790,7 +790,7 @@ namespace Extensions
             imageAttributes.SetColorMatrix(new ColorMatrix(ptsArray), ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
             imageAttributes.SetGamma(Gamma, ColorAdjustType.Bitmap);
             var g = Graphics.FromImage(adjustedImage);
-            g.DrawImage(originalimage, new Rectangle(0, 0, adjustedImage.Width, adjustedImage.Height), 0, 0, originalimage.Width, originalimage.Height, GraphicsUnit.Pixel, imageAttributes);
+            g.DrawImage(originalimage, new System.Drawing.Rectangle(0, 0, adjustedImage.Width, adjustedImage.Height), 0, 0, originalimage.Width, originalimage.Height, GraphicsUnit.Pixel, imageAttributes);
             return adjustedImage;
         }
 
@@ -1460,12 +1460,12 @@ namespace Extensions
                 {
                     if (VerticalFlow)
                     {
-                        g.DrawImage(image, new Rectangle(0, offset, image.Width, image.Height));
+                        g.DrawImage(image, new System.Drawing.Rectangle(0, offset, image.Width, image.Height));
                         offset += image.Height;
                     }
                     else
                     {
-                        g.DrawImage(image, new Rectangle(offset, 0, image.Width, image.Height));
+                        g.DrawImage(image, new System.Drawing.Rectangle(offset, 0, image.Width, image.Height));
                         offset += image.Width;
                     }
                 }
@@ -2523,7 +2523,7 @@ namespace Extensions
                 g.PixelOffsetMode = PixelOffsetMode.HighQuality;
                 g.CompositingQuality = CompositingQuality.HighQuality;
                 g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                g.DrawImage(Image, new Rectangle(0, 0, bitmap.Width, bitmap.Height), new Rectangle(left, top, srcWidth, srcHeight), GraphicsUnit.Pixel);
+                g.DrawImage(Image, new System.Drawing.Rectangle(0, 0, bitmap.Width, bitmap.Height), new System.Drawing.Rectangle(left, top, srcWidth, srcHeight), GraphicsUnit.Pixel);
                 finalImage = bitmap;
             }
 
@@ -9418,12 +9418,12 @@ namespace Extensions
         public static Image Pixelate(this Image Image, int PixelateSize = 1)
         {
             if (Image == null) return null;
-            var rectangle = new Rectangle(0, 0, Image.Width, Image.Height);
+            var rectangle = new System.Drawing.Rectangle(0, 0, Image.Width, Image.Height);
             PixelateSize++;
             var pixelated = new Bitmap(Image.Width, Image.Height);
             using (var graphics = Graphics.FromImage(pixelated))
             {
-                graphics.DrawImage(Image, new Rectangle(0, 0, Image.Width, Image.Height), new Rectangle(0, 0, Image.Width, Image.Height), GraphicsUnit.Pixel);
+                graphics.DrawImage(Image, new System.Drawing.Rectangle(0, 0, Image.Width, Image.Height), new System.Drawing.Rectangle(0, 0, Image.Width, Image.Height), GraphicsUnit.Pixel);
             }
 
             int xx = rectangle.X;
