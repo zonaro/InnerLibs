@@ -4682,6 +4682,13 @@ namespace Extensions
         /// <typeparam name="T">Tipo do IEnumerable e do valor</typeparam>
         /// <param name="Arr">Array</param>
         /// <returns></returns>
+        public static IEnumerable<int> GetIndexesOf<T>(this IEnumerable<T> Arr, params T[] items)
+        {
+            foreach (var i in items ?? Array.Empty<T>())
+            {
+                yield return Arr.GetIndexOf(i);
+            }
+        }
         public static int GetIndexOf<T>(this IEnumerable<T> Arr, T item)
         {
             try
