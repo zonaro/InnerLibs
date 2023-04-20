@@ -38,6 +38,7 @@ using Extensions.Files;
 using Extensions.Locations;
 using Extensions.Pagination;
 using Extensions.Web;
+using HES.Objects;
 
 namespace Extensions
 {
@@ -374,7 +375,7 @@ namespace Extensions
             {
                 var bmp = new Bitmap(img); // create a copy of the source image
                 var imgattr = new ImageAttributes();
-                var rc = new Rectangle(0, 0, img.Width, img.Height);
+                var rc = new System.Drawing.Rectangle(0, 0, img.Width, img.Height);
                 var g = Graphics.FromImage(img);
 
                 // associate the ColorMatrix object with an ImageAttributes object
@@ -384,7 +385,7 @@ namespace Extensions
                 g.DrawImage(bmp, rc, 0, 0, img.Width, img.Height, GraphicsUnit.Pixel, imgattr);
                 g.Dispose();
                 return bmp;
-                
+
             }
             catch
             {
@@ -644,7 +645,7 @@ namespace Extensions
         /// <param name="BlurSize"></param>
         /// <param name="rectangle"></param>
         /// <returns></returns>
-        public static Image Blur(this Image Img, int BlurSize = 5) => Blur(Img, BlurSize, new Rectangle(0, 0, Img.Width, Img.Height));
+        public static Image Blur(this Image Img, int BlurSize = 5) => Blur(Img, BlurSize, new System.Drawing.Rectangle(0, 0, Img.Width, Img.Height));
 
         /// <summary>
         /// Aplica um borrão a uma determinada parte da imagem
@@ -653,17 +654,17 @@ namespace Extensions
         /// <param name="BlurSize"></param>
         /// <param name="rectangle"></param>
         /// <returns></returns>
-        public static unsafe Image Blur(this Image Img, int BlurSize, Rectangle rectangle)
+        public static unsafe Image Blur(this Image Img, int BlurSize, System.Drawing.Rectangle rectangle)
         {
             Bitmap blurred = new Bitmap(Img.Width, Img.Height);
 
             // make an exact copy of the bitmap provided
             using (Graphics graphics = Graphics.FromImage(blurred))
-                graphics.DrawImage(Img, new Rectangle(0, 0, Img.Width, Img.Height),
-                    new Rectangle(0, 0, Img.Width, Img.Height), GraphicsUnit.Pixel);
+                graphics.DrawImage(Img, new System.Drawing.Rectangle(0, 0, Img.Width, Img.Height),
+                    new System.Drawing.Rectangle(0, 0, Img.Width, Img.Height), GraphicsUnit.Pixel);
 
             // Lock the bitmap's bits
-            BitmapData blurredData = blurred.LockBits(new Rectangle(0, 0, Img.Width, Img.Height), ImageLockMode.ReadWrite, blurred.PixelFormat);
+            BitmapData blurredData = blurred.LockBits(new System.Drawing.Rectangle(0, 0, Img.Width, Img.Height), ImageLockMode.ReadWrite, blurred.PixelFormat);
 
             // Get bits per pixel for current PixelFormat
             int bitsPerPixel = Image.GetPixelFormatSize(blurred.PixelFormat);
@@ -4685,12 +4686,34 @@ namespace Extensions
         {
             try
             {
-                return Arr.ToList().IndexOf(item);
+                if (Arr is IList<T> lista) return lista.IndexOf(item);
+                else if (Arr is IList lista2) return lista2.IndexOf(item);
+                else
+                {
+
+                    int index = 0;
+                    foreach (var element in Arr)
+                    {
+                        if (element.Equals(item))
+                            return index;
+                        index++;
+                    }
+
+                }
             }
             catch
             {
-                return -1;
+                try
+                {
+                    return Arr.ToList().IndexOf(item);
+                }
+                catch
+                {
+
+
+                }
             }
+            return -1;
         }
 
         public static IEnumerable<Type> GetInheritedClasses<T>() where T : class => GetInheritedClasses(typeof(T));
@@ -6137,7 +6160,7 @@ namespace Extensions
             var copia = new Bitmap(img);
             var cm = new ColorMatrix(new float[][] { new float[] { 0.299f, 0.299f, 0.299f, 0f, 0f }, new float[] { 0.587f, 0.587f, 0.587f, 0f, 0f }, new float[] { 0.114f, 0.114f, 0.114f, 0f, 0f }, new float[] { 0f, 0f, 0f, 1f, 0f }, new float[] { 0f, 0f, 0f, 0f, 1f } });
             return ApplyColorMatrix(copia, cm);
-           
+
         }
 
         public static IEnumerable<HSVColor> GrayscalePallette(int Amount) => MonochromaticPallette(Color.White, Amount);
@@ -8625,7 +8648,7 @@ namespace Extensions
             var copia = new Bitmap(img);
             var cm = new ColorMatrix(new float[][] { new float[] { -1, 0f, 0f, 0f, 0f }, new float[] { 0f, -1, 0f, 0f, 0f }, new float[] { 0f, 0f, -1, 0f, 0f }, new float[] { 0f, 0f, 0f, 1f, 0f }, new float[] { 0f, 0f, 0f, 0f, 1f } });
             return ApplyColorMatrix(copia, cm);
-            
+
         }
 
         /// <summary>
@@ -15385,8 +15408,8 @@ namespace Extensions
             var cm = new ColorMatrix(new float[][] { new float[] { 1f, 0f, 0f, 0f, 0f }, new float[] { 0f, 1f, 0f, 0f, 0f }, new float[] { 0f, 0f, 1f, 0f, 0f }, new float[] { 0f, 0f, 0f, 1f, 0f }, new float[] { sr, sg, sb, sa, 1f } });
 
             // apply the matrix to the image
-          return  ApplyColorMatrix(copia, cm);
-         
+            return ApplyColorMatrix(copia, cm);
+
         }
 
         /// <summary>
