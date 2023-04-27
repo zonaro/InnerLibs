@@ -38,7 +38,7 @@ using Extensions.Files;
 using Extensions.Locations;
 using Extensions.Pagination;
 using Extensions.Web;
-using HES.Objects;
+using Microsoft.Ajax.Utilities;
 
 namespace Extensions
 {
@@ -4724,3383 +4724,3303 @@ namespace Extensions
 
                 }
             }
-         
+
             return -1;
         }
 
-    public static IEnumerable<Type> GetInheritedClasses<T>() where T : class => GetInheritedClasses(typeof(T));
+        public static IEnumerable<Type> GetInheritedClasses<T>() where T : class => GetInheritedClasses(typeof(T));
 
-    public static IEnumerable<Type> GetInheritedClasses(this Type MyType) =>
-        //if you want the abstract classes drop the !TheType.IsAbstract but it is probably to instance so its a good idea to keep it.
-        Assembly.GetAssembly(MyType).GetTypes().Where(TheType => TheType.IsClass && !TheType.IsAbstract && TheType.IsSubclassOf(MyType));
+        public static IEnumerable<Type> GetInheritedClasses(this Type MyType) =>
+            //if you want the abstract classes drop the !TheType.IsAbstract but it is probably to instance so its a good idea to keep it.
+            Assembly.GetAssembly(MyType).GetTypes().Where(TheType => TheType.IsClass && !TheType.IsAbstract && TheType.IsSubclassOf(MyType));
 
-    public static IEnumerable<string> GetIPs() => GetLocalIP().Union(new[] { GetPublicIP() });
+        public static IEnumerable<string> GetIPs() => GetLocalIP().Union(new[] { GetPublicIP() });
 
-    public static string GetLastChars(this string Text, int Number = 1) => Text.IsNotBlank() ? Text.Length < Number || Number < 0 ? Text : Text.Substring(Text.Length - Number) : EmptyString;
+        public static string GetLastChars(this string Text, int Number = 1) => Text.IsNotBlank() ? Text.Length < Number || Number < 0 ? Text : Text.Substring(Text.Length - Number) : EmptyString;
 
-    /// <summary>
-    /// Retorna o nome do diretorio onde o arquivo se encontra
-    /// </summary>
-    /// <param name="Path">Caminho do arquivo</param>
-    /// <returns>o nome do diretório sem o caminho</returns>
-    public static string GetLatestDirectoryName(this FileInfo Path) => System.IO.Path.GetDirectoryName(Path.DirectoryName);
+        /// <summary>
+        /// Retorna o nome do diretorio onde o arquivo se encontra
+        /// </summary>
+        /// <param name="Path">Caminho do arquivo</param>
+        /// <returns>o nome do diretório sem o caminho</returns>
+        public static string GetLatestDirectoryName(this FileInfo Path) => System.IO.Path.GetDirectoryName(Path.DirectoryName);
 
-    public static IEnumerable<string> GetLocalIP()
-    {
-        var host = Dns.GetHostEntry(Dns.GetHostName());
-        foreach (var ip in host.AddressList)
+        public static IEnumerable<string> GetLocalIP()
         {
-            if (ip.AddressFamily == AddressFamily.InterNetwork)
+            var host = Dns.GetHostEntry(Dns.GetHostName());
+            foreach (var ip in host.AddressList)
             {
-                yield return ip.ToString().Trim();
-            }
-        }
-    }
-
-    public static MemberInfo GetMemberInfo<TSource, TProperty>(this Expression<Func<TSource, TProperty>> propertyLambda)
-    {
-        MemberExpression member;
-        switch (propertyLambda.Body)
-        {
-            case UnaryExpression unaryExpression:
-                member = (MemberExpression)unaryExpression.Operand;
-                break;
-
-            default:
-                member = propertyLambda.Body as MemberExpression;
-                break;
-        }
-        if (member is null)
-        {
-            throw new ArgumentException($"Expression '{propertyLambda}' refers to a method, not a property.");
-        }
-
-        return member.Member;
-    }
-
-    public static string GetMemberName(MemberInfo member)
-    {
-        if (member != null)
-        {
-            if (member.IsDefined(typeof(DataMemberAttribute), true))
-            {
-                DataMemberAttribute dataMemberAttribute = (DataMemberAttribute)Attribute.GetCustomAttribute(member, typeof(DataMemberAttribute), true);
-                if (!string.IsNullOrEmpty(dataMemberAttribute.Name))
-                    return dataMemberAttribute.Name;
-            }
-
-            return member.Name;
-        }
-        return null;
-    }
-
-    /// <summary>
-    /// Retorna N caracteres de uma string a partir do caractere encontrado no centro
-    /// </summary>
-    /// <param name="Text"></param>
-    /// <param name="Length"></param>
-    /// <returns></returns>
-    public static string GetMiddleChars(this string Text, int Length)
-    {
-        Text = Text.IfBlank(EmptyString);
-        if (Text.Length >= Length)
-        {
-            if (Text.Length % 2 != 0)
-            {
-                try
+                if (ip.AddressFamily == AddressFamily.InterNetwork)
                 {
-                    return Text.Substring((int)Math.Round(Text.Length / 2d - 1d), Length);
+                    yield return ip.ToString().Trim();
                 }
-                catch
-                {
-                    return Text.GetMiddleChars(Length - 1);
-                }
-            }
-            else
-            {
-                return Text.RemoveLastChars(1).GetMiddleChars(Length);
             }
         }
 
-        return Text;
-    }
-
-    /// <summary>
-    /// Retorna uma lista com as N cores mais utilizadas na imagem
-    /// </summary>
-    /// <param name="Image">Imagem</param>
-    /// <returns>uma lista de Color</returns>
-    public static IEnumerable<HSVColor> GetMostUsedColors(this Image Image, int Count) => new Bitmap(Image).GetMostUsedColors().Take(Count);
-
-    /// <summary>
-    /// Retorna uma lista com as cores utilizadas na imagem
-    /// </summary>
-    /// <param name="Image">Imagem</param>
-    /// <returns>uma lista de Color</returns>
-    public static IEnumerable<HSVColor> GetMostUsedColors(this Image Image) => Image.ColorPallette().Keys;
-
-    /// <summary>
-    /// Retorna a cor negativa de uma cor
-    /// </summary>
-    /// <param name="TheColor">Cor</param>
-    /// <returns></returns>
-    public static Color GetNegativeColor(this Color TheColor) => Color.FromArgb(255 - TheColor.R, 255 - TheColor.G, 255 - TheColor.B);
-
-    /// <summary>
-    /// Retorna o <see cref="Type"/> equivalente a <typeparamref name="T"/> ou o <see
-    /// cref="Type"/> do objeto <see cref="Nullable{T}"/>
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="Obj"></param>
-    /// <returns>
-    /// o tipo do objeto ou o tipo do objeto anulavel ou o prorio objeto se ele for um <see cref="Type"/>
-    /// </returns>
-    public static Type GetNullableTypeOf<T>(this T Obj)
-    {
-        var tt = Obj.GetTypeOf();
-        tt = Nullable.GetUnderlyingType(tt) ?? tt;
-        return tt;
-    }
-
-    /// <summary>
-    /// Retorna uma expressão de comparação para um ou mais valores e uma ou mais propriedades
-    /// </summary>
-    /// <param name="Member"></param>
-    /// <param name="[Operator]"></param>
-    /// <param name="PropertyValues"></param>
-    /// <param name="Conditional"></param>
-    /// <returns></returns>
-    public static BinaryExpression GetOperatorExpression(Expression Member, string Operator, IEnumerable<IComparable> PropertyValues, FilterConditional Conditional = FilterConditional.Or)
-    {
-        PropertyValues = PropertyValues ?? Array.Empty<IComparable>();
-        bool comparewith = !Operator.StartsWithAny("!");
-        if (comparewith == false)
+        public static MemberInfo GetMemberInfo<TSource, TProperty>(this Expression<Func<TSource, TProperty>> propertyLambda)
         {
-            Operator = Operator.TrimStartAny(false, "!");
+            MemberExpression member;
+            switch (propertyLambda.Body)
+            {
+                case UnaryExpression unaryExpression:
+                    member = (MemberExpression)unaryExpression.Operand;
+                    break;
+
+                default:
+                    member = propertyLambda.Body as MemberExpression;
+                    break;
+            }
+            if (member is null)
+            {
+                throw new ArgumentException($"Expression '{propertyLambda}' refers to a method, not a property.");
+            }
+
+            return member.Member;
         }
 
-        BinaryExpression body = null;
-        // Dim body As Expression = Nothing
-        switch (Operator.ToLowerInvariant().IfBlank("equal"))
+        public static string GetMemberName(MemberInfo member)
         {
-            case "blank":
-            case "compareblank":
-            case "isblank":
-            case "isempty":
-            case "empty":
+            if (member != null)
+            {
+                if (member.IsDefined(typeof(DataMemberAttribute), true))
                 {
-                    foreach (var item in PropertyValues)
-                    {
-                        var exp = Expression.Equal(Member, Expression.Constant(EmptyString, Member?.Type));
-                        switch (body)
-                        {
-                            case null:
-                                body = exp;
-                                break;
-
-                            default:
-                                if (Conditional == FilterConditional.And)
-                                {
-                                    body = Expression.AndAlso(body, exp);
-                                }
-                                else
-                                {
-                                    body = Expression.OrElse(body, exp);
-                                }
-
-                                break;
-                        }
-
-                        if (comparewith == false)
-                        {
-                            body = Expression.Equal(exp, Expression.Constant(false));
-                        }
-                    }
-
-                    break;
+                    DataMemberAttribute dataMemberAttribute = (DataMemberAttribute)Attribute.GetCustomAttribute(member, typeof(DataMemberAttribute), true);
+                    if (!string.IsNullOrEmpty(dataMemberAttribute.Name))
+                        return dataMemberAttribute.Name;
                 }
 
-            case "isnull":
-            case "comparenull":
-            case "null":
-            case "nothing":
-            case "isnothing":
-                {
-                    foreach (var item in PropertyValues)
-                    {
-                        var exp = Expression.Equal(Member, Expression.Constant(null, Member.Type));
-                        if (body == null)
-                        {
-                            body = exp;
-                        }
-                        else if (Conditional == FilterConditional.And)
-                        {
-                            body = Expression.AndAlso(body, exp);
-                        }
-                        else
-                        {
-                            body = Expression.OrElse(body, exp);
-                        }
-
-                        if (comparewith == false)
-                        {
-                            body = Expression.Equal(exp, Expression.Constant(false));
-                        }
-                    }
-
-                    break;
-                }
-
-            case "=":
-            case "==":
-            case "equal":
-            case "===":
-            case "equals":
-                {
-                    foreach (var item in PropertyValues)
-                    {
-                        object exp = null;
-                        try
-                        {
-                            exp = Member.Equal(CreateConstant(Member, item));
-                        }
-                        catch
-                        {
-                            exp = Expression.Constant(false);
-                            continue;
-                        }
-
-                        if (body == null)
-                        {
-                            body = (BinaryExpression)exp;
-                        }
-                        else if (Conditional == FilterConditional.And)
-                        {
-                            body = Expression.AndAlso(body, (Expression)exp);
-                        }
-                        else
-                        {
-                            body = Expression.OrElse(body, (Expression)exp);
-                        }
-
-                        if (comparewith == false)
-                        {
-                            body = Expression.Equal((Expression)exp, Expression.Constant(false));
-                        }
-                    }
-
-                    break;
-                }
-
-            case ">=":
-            case "greaterthanorequal":
-            case "greaterorequal":
-            case "greaterequal":
-            case "greatequal":
-                {
-                    foreach (var ii in PropertyValues)
-                    {
-                        var item = ii;
-                        if (!(item.GetNullableTypeOf() == typeof(DateTime)) && item.IsNotNumber() && item.ToString().IsNotBlank())
-                        {
-                            item = item.ToString().Length;
-                        }
-
-                        object exp = null;
-                        try
-                        {
-                            exp = GreaterThanOrEqual(Member, CreateConstant(Member, item));
-                        }
-                        catch
-                        {
-                            exp = Expression.Constant(false);
-                            continue;
-                        }
-
-                        if (body == null)
-                        {
-                            body = (BinaryExpression)exp;
-                        }
-                        else if (Conditional == FilterConditional.And)
-                        {
-                            body = Expression.AndAlso(body, (Expression)exp);
-                        }
-                        else
-                        {
-                            body = Expression.OrElse(body, (Expression)exp);
-                        }
-
-                        if (comparewith == false)
-                        {
-                            body = Expression.Equal((Expression)exp, Expression.Constant(false));
-                        }
-                    }
-
-                    break;
-                }
-
-            case "<=":
-            case "lessthanorequal":
-            case "lessorequal":
-            case "lessequal":
-                {
-                    foreach (var ii in PropertyValues)
-                    {
-                        var item = ii;
-                        if (!ReferenceEquals(item.GetNullableTypeOf(), typeof(DateTime)) && item.IsNotNumber() && item.ToString().IsNotBlank())
-                        {
-                            item = item.ToString().Length;
-                        }
-
-                        object exp = null;
-                        try
-                        {
-                            exp = LessThanOrEqual(Member, CreateConstant(Member, item));
-                        }
-                        catch
-                        {
-                            exp = Expression.Constant(false);
-                            continue;
-                        }
-
-                        if (body == null)
-                        {
-                            body = (BinaryExpression)exp;
-                        }
-                        else if (Conditional == FilterConditional.And)
-                        {
-                            body = Expression.AndAlso(body, (Expression)exp);
-                        }
-                        else
-                        {
-                            body = Expression.OrElse(body, (Expression)exp);
-                        }
-
-                        if (comparewith == false)
-                        {
-                            body = Expression.Equal((Expression)exp, Expression.Constant(false));
-                        }
-                    }
-
-                    break;
-                }
-
-            case ">":
-            case "greaterthan":
-            case "greater":
-            case "great":
-                {
-                    foreach (var item in PropertyValues)
-                    {
-                        Expression exp = null;
-                        try
-                        {
-                            exp = GreaterThan(Member, CreateConstant(Member, item));
-                        }
-                        catch
-                        {
-                            continue;
-                        }
-
-                        if (body == null)
-                        {
-                            body = (BinaryExpression)exp;
-                        }
-                        else if (Conditional == FilterConditional.And)
-                        {
-                            body = Expression.AndAlso(body, exp);
-                        }
-                        else
-                        {
-                            body = Expression.OrElse(body, exp);
-                        }
-
-                        if (comparewith == false)
-                        {
-                            body = Expression.Equal(exp, Expression.Constant(false));
-                        }
-                    }
-
-                    break;
-                }
-
-            case "<":
-            case "lessthan":
-            case "less":
-                {
-                    foreach (var item in PropertyValues)
-                    {
-                        object exp = null;
-                        try
-                        {
-                            exp = LessThan(Member, CreateConstant(Member, item));
-                        }
-                        catch
-                        {
-                            continue;
-                        }
-
-                        if (body == null)
-                        {
-                            body = (BinaryExpression)exp;
-                        }
-                        else if (Conditional == FilterConditional.And)
-                        {
-                            body = Expression.AndAlso(body, (Expression)exp);
-                        }
-                        else
-                        {
-                            body = Expression.OrElse(body, (Expression)exp);
-                        }
-
-                        if (comparewith == false)
-                        {
-                            body = Expression.Equal((Expression)exp, Expression.Constant(false));
-                        }
-                    }
-
-                    break;
-                }
-
-            case "<>":
-            case "notequal":
-            case "different":
-                {
-                    foreach (var item in PropertyValues)
-                    {
-                        object exp = null;
-                        try
-                        {
-                            exp = NotEqual(Member, CreateConstant(Member, item));
-                        }
-                        catch
-                        {
-                            continue;
-                        }
-
-                        if (body == null)
-                        {
-                            body = (BinaryExpression)exp;
-                        }
-                        else if (Conditional == FilterConditional.And)
-                        {
-                            body = Expression.AndAlso(body, (Expression)exp);
-                        }
-                        else
-                        {
-                            body = Expression.OrElse(body, (Expression)exp);
-                        }
-
-                        if (comparewith == false)
-                        {
-                            body = Expression.Equal((Expression)exp, Expression.Constant(false));
-                        }
-                    }
-
-                    break;
-                }
-
-            case "betweenequal":
-            case "betweenorequal":
-            case "btweq":
-            case "=><=":
-                {
-                    if (PropertyValues.Count() > 1)
-                    {
-                        if (Member.Type == typeof(string))
-                        {
-                            body = Expression.And(GetOperatorExpression(Member, "starts".PrependIf("!", !comparewith), new[] { PropertyValues.First() }, Conditional), GetOperatorExpression(Member, "ends".PrependIf("!", !comparewith), new[] { PropertyValues.Last() }, Conditional));
-                        }
-                        else
-                        {
-                            var ge = GetOperatorExpression(Member, "greaterequal".PrependIf("!", !comparewith), new[] { PropertyValues.Min() }, Conditional);
-                            var le = GetOperatorExpression(Member, "lessequal".PrependIf("!", !comparewith), new[] { PropertyValues.Max() }, Conditional);
-                            body = Expression.And(ge, le);
-                        }
-                    }
-                    else
-                    {
-                        body = GetOperatorExpression(Member, "=".PrependIf("!", !comparewith), PropertyValues, Conditional);
-                    }
-
-                    break;
-                }
-
-            case "><":
-            case "startend":
-            case "startends":
-            case "btw":
-            case "between":
-                {
-                    if (PropertyValues.Count() > 1)
-                    {
-                        switch (Member.Type)
-                        {
-                            case var case1 when case1 == typeof(string):
-                                {
-                                    body = Expression.And(GetOperatorExpression(Member, "starts".PrependIf("!", !comparewith), new[] { PropertyValues.First() }, Conditional), GetOperatorExpression(Member, "ends".PrependIf("!", !comparewith), new[] { PropertyValues.Last() }, Conditional));
-                                    break;
-                                }
-
-                            default:
-                                {
-                                    body = Expression.And(GetOperatorExpression(Member, "greater".PrependIf("!", !comparewith), new[] { PropertyValues.Min() }, Conditional), GetOperatorExpression(Member, "less".PrependIf("!", !comparewith), new[] { PropertyValues.Max() }, Conditional));
-                                    break;
-                                }
-                        }
-                    }
-                    else
-                    {
-                        body = GetOperatorExpression(Member, "=".PrependIf("!", !comparewith), PropertyValues, Conditional);
-                    }
-
-                    break;
-                }
-
-            case "starts":
-            case "start":
-            case "startwith":
-            case "startswith":
-                {
-                    switch (Member.Type)
-                    {
-                        case var case2 when case2 == typeof(string):
-                            {
-                                foreach (var item in PropertyValues)
-                                {
-                                    object exp = null;
-                                    try
-                                    {
-                                        exp = Expression.Equal(Expression.Call(Member, startsWithMethod, Expression.Constant(item.ToString())), Expression.Constant(comparewith));
-                                    }
-                                    catch
-                                    {
-                                        continue;
-                                    }
-
-                                    if (body == null)
-                                    {
-                                        body = (BinaryExpression)exp;
-                                    }
-                                    else if (Conditional == FilterConditional.And)
-                                    {
-                                        body = Expression.AndAlso(body, (Expression)exp);
-                                    }
-                                    else
-                                    {
-                                        body = Expression.OrElse(body, (Expression)exp);
-                                    }
-
-                                    if (comparewith == false)
-                                    {
-                                        body = Expression.Equal((Expression)exp, Expression.Constant(false));
-                                    }
-                                }
-
-                                break;
-                            }
-
-                        default:
-                            {
-                                body = GetOperatorExpression(Member, ">=", PropertyValues, Conditional);
-                                break;
-                            }
-                    }
-
-                    break;
-                }
-
-            case "ends":
-            case "end":
-            case "endwith":
-            case "endswith":
-                {
-                    switch (Member.Type)
-                    {
-                        case var case3 when case3 == typeof(string):
-                            {
-                                foreach (var item in PropertyValues)
-                                {
-                                    object exp = null;
-                                    try
-                                    {
-                                        exp = Expression.Equal(Expression.Call(Member, endsWithMethod, Expression.Constant(item.ToString())), Expression.Constant(comparewith));
-                                    }
-                                    catch
-                                    {
-                                        continue;
-                                    }
-
-                                    if (body == null)
-                                    {
-                                        body = (BinaryExpression)exp;
-                                    }
-                                    else if (Conditional == FilterConditional.And)
-                                    {
-                                        body = Expression.AndAlso(body, (Expression)exp);
-                                    }
-                                    else
-                                    {
-                                        body = Expression.OrElse(body, (Expression)exp);
-                                    }
-
-                                    if (comparewith == false)
-                                    {
-                                        body = Expression.Equal((Expression)exp, Expression.Constant(false));
-                                    }
-                                }
-
-                                break;
-                            }
-
-                        default:
-                            {
-                                body = GetOperatorExpression(Member, "lessequal".PrependIf("!", !comparewith), PropertyValues, Conditional);
-                                break;
-                            }
-                    }
-
-                    break;
-                }
-
-            case "like":
-            case "contains":
-                {
-                    switch (Member.Type)
-                    {
-                        case var case4 when case4 == typeof(string):
-                            {
-                                foreach (var item in PropertyValues)
-                                {
-                                    object exp = null;
-                                    try
-                                    {
-                                        exp = Expression.Equal(Expression.Call(Member, containsMethod, Expression.Constant(item.ToString())), Expression.Constant(comparewith));
-                                    }
-                                    catch
-                                    {
-                                        continue;
-                                    }
-
-                                    if (body == null)
-                                    {
-                                        body = (BinaryExpression)exp;
-                                    }
-                                    else if (Conditional == FilterConditional.And)
-                                    {
-                                        body = Expression.AndAlso(body, (Expression)exp);
-                                    }
-                                    else
-                                    {
-                                        body = Expression.OrElse(body, (Expression)exp);
-                                    }
-
-                                    if (comparewith == false)
-                                    {
-                                        body = Expression.Equal((Expression)exp, Expression.Constant(false));
-                                    }
-                                }
-
-                                break;
-                            }
-
-                        default:
-                            {
-                                body = GetOperatorExpression(Member, "equal".PrependIf("!", !comparewith), PropertyValues, Conditional);
-                                break;
-                            }
-                    }
-
-                    break;
-                }
-
-            case "isin":
-            case "inside":
-                {
-                    switch (Member.Type)
-                    {
-                        case var case5 when case5 == typeof(string):
-                            {
-                                foreach (var item in PropertyValues)
-                                {
-                                    object exp = null;
-                                    try
-                                    {
-                                        exp = Expression.Equal(Expression.Call(Expression.Constant(item.ToString()), containsMethod, Member), Expression.Constant(comparewith));
-                                    }
-                                    catch
-                                    {
-                                        continue;
-                                    }
-
-                                    if (body == null)
-                                    {
-                                        body = (BinaryExpression)exp;
-                                    }
-                                    else if (Conditional == FilterConditional.And)
-                                    {
-                                        body = Expression.AndAlso(body, (Expression)exp);
-                                    }
-                                    else
-                                    {
-                                        body = Expression.OrElse(body, (Expression)exp);
-                                    }
-
-                                    if (comparewith == false)
-                                    {
-                                        body = Expression.Equal((Expression)exp, Expression.Constant(false));
-                                    }
-                                }
-
-                                break;
-                            }
-
-                        default:
-                            {
-                                // 'TODO: implementar busca de array de inteiro,data etc
-                                body = GetOperatorExpression(Member, "equal".PrependIf("!", !comparewith), PropertyValues, Conditional);
-                                break;
-                            }
-                    }
-
-                    break;
-                }
-
-            case "cross":
-            case "crosscontains":
-            case "insidecontains":
-                {
-                    switch (Member.Type)
-                    {
-                        case var case6 when case6 == typeof(string):
-                            {
-                                foreach (var item in PropertyValues)
-                                {
-                                    object exp = null;
-                                    try
-                                    {
-                                        exp = Expression.Equal(Expression.OrElse(Expression.Call(Expression.Constant(item.ToString()), containsMethod, Member), Expression.Call(Member, containsMethod, Expression.Constant(item.ToString()))), Expression.Constant(comparewith));
-                                    }
-                                    catch
-                                    {
-                                        continue;
-                                    }
-
-                                    if (body == null)
-                                    {
-                                        body = (BinaryExpression)exp;
-                                    }
-                                    else if (Conditional == FilterConditional.And)
-                                    {
-                                        body = Expression.AndAlso(body, (Expression)exp);
-                                    }
-                                    else
-                                    {
-                                        body = Expression.OrElse(body, (Expression)exp);
-                                    }
-
-                                    if (comparewith == false)
-                                    {
-                                        body = Expression.Equal((Expression)exp, Expression.Constant(false));
-                                    }
-                                }
-
-                                break;
-                            }
-
-                        default:
-                            {
-                                //TODO: implementar busca de array de inteiro,data etc
-                                body = GetOperatorExpression(Member, "equal".PrependIf("!", !comparewith), PropertyValues, Conditional);
-                                break;
-                            }
-                    }
-
-                    break;
-                }
-
-            default: // Executa um metodo com o nome definido pelo usuario que retorna uma expression compativel
+                return member.Name;
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Retorna N caracteres de uma string a partir do caractere encontrado no centro
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <param name="Length"></param>
+        /// <returns></returns>
+        public static string GetMiddleChars(this string Text, int Length)
+        {
+            Text = Text.IfBlank(EmptyString);
+            if (Text.Length >= Length)
+            {
+                if (Text.Length % 2 != 0)
                 {
                     try
                     {
-                        var metodo = Member.Type.GetMethods().FirstOrDefault(x => (x.Name.ToLowerInvariant() ?? EmptyString) == (Operator.ToLowerInvariant() ?? EmptyString));
-                        Expression exp = (Expression)metodo.Invoke(null, new[] { PropertyValues });
-                        exp = Expression.Equal(Expression.Invoke(exp, new[] { Member }), Expression.Constant(comparewith));
-                        if (body == null)
-                        {
-                            body = (BinaryExpression)exp;
-                        }
-                        else if (Conditional == FilterConditional.And)
-                        {
-                            body = Expression.AndAlso(body, exp);
-                        }
-                        else
-                        {
-                            body = Expression.OrElse(body, exp);
-                        }
+                        return Text.Substring((int)Math.Round(Text.Length / 2d - 1d), Length);
                     }
                     catch
                     {
+                        return Text.GetMiddleChars(Length - 1);
                     }
-
-                    break;
                 }
-        }
-
-        return body;
-    }
-
-    /// <summary>
-    /// Retorna o caractere de encapsulamento oposto ao caractere indicado
-    /// </summary>
-    /// <param name="Text">Caractere</param>
-    /// <returns></returns>
-    public static string GetOppositeWrapChar(this string Text)
-    {
-        switch (Text.GetFirstChars() ?? EmptyString)
-        {
-            case DoubleQuoteChar: return DoubleQuoteChar;
-            case SingleQuoteChar: return SingleQuoteChar;
-            case "(": return ")";
-            case ")": return "(";
-            case "[": return "]";
-            case "]": return "[";
-            case "{": return "}";
-            case "}": return "{";
-            case "<": return ">";
-            case ">": return "<";
-            case @"\": return "/";
-            case "/": return @"\";
-            case "¿": return "?";
-            case "?": return "¿";
-            case "!": return "¡";
-            case "¡": return "!";
-            case ".": return ".";
-            case ":": return ":";
-            case ";": return ";";
-            case "_": return "_";
-            case "*": return "*";
-            default: return Text;
-        }
-    }
-
-    public static char GetOppositeWrapChar(this char c) => $"{c}".GetOppositeWrapChar().FirstOrDefault();
-
-    /// <inheritdoc cref="GetOrdinal(long)"/>
-    public static string GetOrdinal(this int Number) => Number.ToLong().GetOrdinal();
-
-    /// <inheritdoc cref="GetOrdinal(long)"/>
-    public static string GetOrdinal(this decimal Number) => Number.ToLong().GetOrdinal();
-
-    /// <inheritdoc cref="GetOrdinal(long)"/>
-    public static string GetOrdinal(this short Number) => Number.ToLong().GetOrdinal();
-
-    /// <inheritdoc cref="GetOrdinal(long)"/>
-    public static string GetOrdinal(this double Number) => Number.ToLong().GetOrdinal();
-
-    /// <summary>
-    /// Returns the ordinal suffix for given <paramref name="Number"/>
-    /// </summary>
-    /// <param name="Number"></param>
-    /// <returns></returns>
-    public static string GetOrdinal(this long Number)
-    {
-        switch (Number)
-        {
-            case 1L:
-            case -1L: return $"st";
-            case 2L:
-            case -2L: return $"nd";
-            case 3L:
-            case -3L: return $"rd";
-            default: return $"th";
-        }
-    }
-
-    /// <summary>
-    /// Traz uma Lista com todas as propriedades de um objeto
-    /// </summary>
-    /// <param name="MyObject">Objeto</param>
-    /// <returns></returns>
-    public static IEnumerable<PropertyInfo> GetProperties<T>(this T MyObject, BindingFlags BindAttr) => MyObject.GetTypeOf().GetProperties(BindAttr).ToList();
-
-    /// <summary>
-    /// Traz uma Lista com todas as propriedades de um objeto
-    /// </summary>
-    /// <param name="MyObject">Objeto</param>
-    /// <returns></returns>
-    public static IEnumerable<PropertyInfo> GetProperties<T>(this T MyObject) => MyObject.GetTypeOf().GetProperties().ToList();
-
-    /// <summary>
-    /// Traz uma propriedade de um objeto
-    /// </summary>
-    /// <param name="MyObject">Objeto</param>
-    /// <returns></returns>
-    public static PropertyInfo GetProperty<T>(this T MyObject, string Name) => MyObject.GetTypeOf().GetProperties().SingleOrDefault(x => (x.Name ?? EmptyString) == (Name ?? EmptyString));
-
-    /// <summary>
-    /// Retorna uma <see cref="Hashtable"/> das propriedades de um objeto
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="properties"></param>
-    /// <returns></returns>
-    public static Hashtable GetPropertyHash<T>(T properties)
-    {
-        Hashtable values = null;
-        if (properties != null)
-        {
-            values = new Hashtable();
-            var props = TypeDescriptor.GetProperties(properties);
-            foreach (PropertyDescriptor prop in props)
-            {
-                values.Add(prop.Name, prop.GetValue(properties));
-            }
-        }
-
-        return values;
-    }
-
-    public static PropertyInfo GetPropertyInfo<TSource, TProperty>(this Expression<Func<TSource, TProperty>> propertyLambda)
-    {
-        if (!(GetMemberInfo(propertyLambda) is PropertyInfo propInfo))
-        {
-            throw new ArgumentException(string.Format("Expression '{0}' refers to a field, not a property.", propertyLambda.ToString()));
-        }
-
-        return propInfo;
-    }
-
-    /// <summary>
-    /// Retorna as informacoes de uma propriedade a partir de um seletor
-    /// </summary>
-    /// <typeparam name="TSource"></typeparam>
-    /// <typeparam name="TProperty"></typeparam>
-    /// <param name="source"></param>
-    /// <param name="propertyLambda"></param>
-    /// <returns></returns>
-    public static PropertyInfo GetPropertyInfo<TSource, TProperty>(this TSource source, Expression<Func<TSource, TProperty>> propertyLambda)
-    {
-        var type = source.GetTypeOf() ?? typeof(TSource);
-        if (!(propertyLambda.Body is MemberExpression member))
-        {
-            throw new ArgumentException(string.Format("Expression '{0}' refers to a method, not a property.", propertyLambda.ToString()));
-        }
-
-        if (!(member.Member is PropertyInfo propInfo))
-        {
-            throw new ArgumentException(string.Format("Expression '{0}' refers to a field, not a property.", propertyLambda.ToString()));
-        }
-
-        if (type != propInfo.ReflectedType && !type.IsSubclassOf(propInfo.ReflectedType))
-        {
-            throw new ArgumentException(string.Format("Expression '{0}' refers to a property that is not from type {1}.", propertyLambda.ToString(), type));
-        }
-
-        return propInfo;
-    }
-
-    /// <summary>
-    /// Traz o valor de uma propriedade de um objeto
-    /// </summary>
-    /// <param name="MyObject">Objeto</param>
-    /// <returns></returns>
-    public static T GetPropertyValue<T, O>(this O MyObject, string Name) where O : class
-    {
-        if (MyObject != null)
-        {
-            var prop = MyObject.GetProperty(Name);
-            if (prop != null && prop.CanRead)
-            {
-                return (T)prop.GetValue(MyObject);
-            }
-        }
-
-        return default;
-    }
-
-    public static string GetPublicIP()
-    {
-        var IP = EmptyString;
-        var z = TryExecute(() => IP = DownloadString("https://ipv4.icanhazip.com/"));
-        if (z != null) WriteDebug(z);
-        IP = IP.Trim().NullIf(x => !x.IsIP());
-        return IP.Trim();
-    }
-
-    /// <summary>
-    /// Sorteia um item da Lista
-    /// </summary>
-    /// <typeparam name="T">Tipo da Matriz</typeparam>
-    /// <param name="Array">Matriz</param>
-    /// <returns>Um valor do tipo especificado</returns>
-    public static T GetRandomItem<T>(this T[] Array) => Array == null || Array.Length == 0 ? default : Array[RandomNumber(0, Array.Length - 1)];
-
-    /// <summary>
-    /// Retorna o caminho relativo da url
-    /// </summary>
-    /// <param name="URL">Url</param>
-    /// <returns></returns>
-    public static string GetRelativeURL(this Uri URL, bool WithQueryString = true) => WithQueryString ? URL.PathAndQuery : URL.AbsolutePath;
-
-    /// <summary>
-    /// Retorna o caminho relativo da url
-    /// </summary>
-    /// <param name="URL">Url</param>
-    /// <returns></returns>
-    public static string GetRelativeURL(this string URL, bool WithQueryString = true) => URL.IsURL() ? new Uri(URL).GetRelativeURL(WithQueryString) : null;
-
-    /// <summary>
-    /// Pega os bytes de um arquivo embutido no assembly
-    /// </summary>
-    /// <param name="FileName"></param>
-    /// <returns></returns>
-    public static byte[] GetResourceBytes(this Assembly Assembly, string FileName) => Assembly.GetManifestResourceStream(FileName)?.ToBytes() ?? Array.Empty<byte>();
-
-    public static byte[] GetResourceBytes(string FileName) => GetResourceBytes(Assembly.GetExecutingAssembly(), FileName);
-
-    /// <summary>
-    /// Pega o texto de um arquivo embutido no assembly
-    /// </summary>
-    /// <param name="FileName">Nome do arquivo embutido dentro do assembly (Embedded Resource)</param>
-    /// <returns></returns>
-    public static string GetResourceFileText(this Assembly Assembly, string FileName, bool IsFullQualifiedName = false)
-    {
-        string txt = null;
-        if (Assembly != null && FileName.IsNotBlank())
-        {
-            if (!IsFullQualifiedName)
-            {
-                FileName = $"{Assembly.GetName().Name}.{FileName}";
-            }
-
-            using (var x = Assembly.GetManifestResourceStream(FileName))
-            {
-                if (x != null)
+                else
                 {
-                    using (var r = new StreamReader(x))
+                    return Text.RemoveLastChars(1).GetMiddleChars(Length);
+                }
+            }
+
+            return Text;
+        }
+
+        /// <summary>
+        /// Retorna uma lista com as N cores mais utilizadas na imagem
+        /// </summary>
+        /// <param name="Image">Imagem</param>
+        /// <returns>uma lista de Color</returns>
+        public static IEnumerable<HSVColor> GetMostUsedColors(this Image Image, int Count) => new Bitmap(Image).GetMostUsedColors().Take(Count);
+
+        /// <summary>
+        /// Retorna uma lista com as cores utilizadas na imagem
+        /// </summary>
+        /// <param name="Image">Imagem</param>
+        /// <returns>uma lista de Color</returns>
+        public static IEnumerable<HSVColor> GetMostUsedColors(this Image Image) => Image.ColorPallette().Keys;
+
+        /// <summary>
+        /// Retorna a cor negativa de uma cor
+        /// </summary>
+        /// <param name="TheColor">Cor</param>
+        /// <returns></returns>
+        public static Color GetNegativeColor(this Color TheColor) => Color.FromArgb(255 - TheColor.R, 255 - TheColor.G, 255 - TheColor.B);
+
+        /// <summary>
+        /// Retorna o <see cref="Type"/> equivalente a <typeparamref name="T"/> ou o <see
+        /// cref="Type"/> do objeto <see cref="Nullable{T}"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Obj"></param>
+        /// <returns>
+        /// o tipo do objeto ou o tipo do objeto anulavel ou o prorio objeto se ele for um <see cref="Type"/>
+        /// </returns>
+        public static Type GetNullableTypeOf<T>(this T Obj)
+        {
+            var tt = Obj.GetTypeOf();
+            tt = Nullable.GetUnderlyingType(tt) ?? tt;
+            return tt;
+        }
+
+        /// <summary>
+        /// Retorna uma expressão de comparação para um ou mais valores e uma ou mais propriedades
+        /// </summary>
+        /// <param name="Member"></param>
+        /// <param name="[Operator]"></param>
+        /// <param name="PropertyValues"></param>
+        /// <param name="Conditional"></param>
+        /// <returns></returns>
+        public static BinaryExpression GetOperatorExpression(Expression Member, string Operator, IEnumerable<IComparable> PropertyValues, FilterConditional Conditional = FilterConditional.Or)
+        {
+            PropertyValues = PropertyValues ?? Array.Empty<IComparable>();
+            bool comparewith = !Operator.StartsWithAny("!");
+            if (comparewith == false)
+            {
+                Operator = Operator.TrimStartAny(false, "!");
+            }
+
+            BinaryExpression body = null;
+            // Dim body As Expression = Nothing
+            switch (Operator.ToLowerInvariant().IfBlank("equal"))
+            {
+                case "blank":
+                case "compareblank":
+                case "isblank":
+                case "isempty":
+                case "empty":
                     {
-                        txt = r.ReadToEnd();
+                        foreach (var item in PropertyValues)
+                        {
+                            var exp = Expression.Equal(Member, Expression.Constant(EmptyString, Member?.Type));
+                            switch (body)
+                            {
+                                case null:
+                                    body = exp;
+                                    break;
+
+                                default:
+                                    if (Conditional == FilterConditional.And)
+                                    {
+                                        body = Expression.AndAlso(body, exp);
+                                    }
+                                    else
+                                    {
+                                        body = Expression.OrElse(body, exp);
+                                    }
+
+                                    break;
+                            }
+
+                            if (comparewith == false)
+                            {
+                                body = Expression.Equal(exp, Expression.Constant(false));
+                            }
+                        }
+
+                        break;
                     }
-                };
+
+                case "isnull":
+                case "comparenull":
+                case "null":
+                case "nothing":
+                case "isnothing":
+                    {
+                        foreach (var item in PropertyValues)
+                        {
+                            var exp = Expression.Equal(Member, Expression.Constant(null, Member.Type));
+                            if (body == null)
+                            {
+                                body = exp;
+                            }
+                            else if (Conditional == FilterConditional.And)
+                            {
+                                body = Expression.AndAlso(body, exp);
+                            }
+                            else
+                            {
+                                body = Expression.OrElse(body, exp);
+                            }
+
+                            if (comparewith == false)
+                            {
+                                body = Expression.Equal(exp, Expression.Constant(false));
+                            }
+                        }
+
+                        break;
+                    }
+
+                case "=":
+                case "==":
+                case "equal":
+                case "===":
+                case "equals":
+                    {
+                        foreach (var item in PropertyValues)
+                        {
+                            object exp = null;
+                            try
+                            {
+                                exp = Member.Equal(CreateConstant(Member, item));
+                            }
+                            catch
+                            {
+                                exp = Expression.Constant(false);
+                                continue;
+                            }
+
+                            if (body == null)
+                            {
+                                body = (BinaryExpression)exp;
+                            }
+                            else if (Conditional == FilterConditional.And)
+                            {
+                                body = Expression.AndAlso(body, (Expression)exp);
+                            }
+                            else
+                            {
+                                body = Expression.OrElse(body, (Expression)exp);
+                            }
+
+                            if (comparewith == false)
+                            {
+                                body = Expression.Equal((Expression)exp, Expression.Constant(false));
+                            }
+                        }
+
+                        break;
+                    }
+
+                case ">=":
+                case "greaterthanorequal":
+                case "greaterorequal":
+                case "greaterequal":
+                case "greatequal":
+                    {
+                        foreach (var ii in PropertyValues)
+                        {
+                            var item = ii;
+                            if (!(item.GetNullableTypeOf() == typeof(DateTime)) && item.IsNotNumber() && item.ToString().IsNotBlank())
+                            {
+                                item = item.ToString().Length;
+                            }
+
+                            object exp = null;
+                            try
+                            {
+                                exp = GreaterThanOrEqual(Member, CreateConstant(Member, item));
+                            }
+                            catch
+                            {
+                                exp = Expression.Constant(false);
+                                continue;
+                            }
+
+                            if (body == null)
+                            {
+                                body = (BinaryExpression)exp;
+                            }
+                            else if (Conditional == FilterConditional.And)
+                            {
+                                body = Expression.AndAlso(body, (Expression)exp);
+                            }
+                            else
+                            {
+                                body = Expression.OrElse(body, (Expression)exp);
+                            }
+
+                            if (comparewith == false)
+                            {
+                                body = Expression.Equal((Expression)exp, Expression.Constant(false));
+                            }
+                        }
+
+                        break;
+                    }
+
+                case "<=":
+                case "lessthanorequal":
+                case "lessorequal":
+                case "lessequal":
+                    {
+                        foreach (var ii in PropertyValues)
+                        {
+                            var item = ii;
+                            if (!ReferenceEquals(item.GetNullableTypeOf(), typeof(DateTime)) && item.IsNotNumber() && item.ToString().IsNotBlank())
+                            {
+                                item = item.ToString().Length;
+                            }
+
+                            object exp = null;
+                            try
+                            {
+                                exp = LessThanOrEqual(Member, CreateConstant(Member, item));
+                            }
+                            catch
+                            {
+                                exp = Expression.Constant(false);
+                                continue;
+                            }
+
+                            if (body == null)
+                            {
+                                body = (BinaryExpression)exp;
+                            }
+                            else if (Conditional == FilterConditional.And)
+                            {
+                                body = Expression.AndAlso(body, (Expression)exp);
+                            }
+                            else
+                            {
+                                body = Expression.OrElse(body, (Expression)exp);
+                            }
+
+                            if (comparewith == false)
+                            {
+                                body = Expression.Equal((Expression)exp, Expression.Constant(false));
+                            }
+                        }
+
+                        break;
+                    }
+
+                case ">":
+                case "greaterthan":
+                case "greater":
+                case "great":
+                    {
+                        foreach (var item in PropertyValues)
+                        {
+                            Expression exp = null;
+                            try
+                            {
+                                exp = GreaterThan(Member, CreateConstant(Member, item));
+                            }
+                            catch
+                            {
+                                continue;
+                            }
+
+                            if (body == null)
+                            {
+                                body = (BinaryExpression)exp;
+                            }
+                            else if (Conditional == FilterConditional.And)
+                            {
+                                body = Expression.AndAlso(body, exp);
+                            }
+                            else
+                            {
+                                body = Expression.OrElse(body, exp);
+                            }
+
+                            if (comparewith == false)
+                            {
+                                body = Expression.Equal(exp, Expression.Constant(false));
+                            }
+                        }
+
+                        break;
+                    }
+
+                case "<":
+                case "lessthan":
+                case "less":
+                    {
+                        foreach (var item in PropertyValues)
+                        {
+                            object exp = null;
+                            try
+                            {
+                                exp = LessThan(Member, CreateConstant(Member, item));
+                            }
+                            catch
+                            {
+                                continue;
+                            }
+
+                            if (body == null)
+                            {
+                                body = (BinaryExpression)exp;
+                            }
+                            else if (Conditional == FilterConditional.And)
+                            {
+                                body = Expression.AndAlso(body, (Expression)exp);
+                            }
+                            else
+                            {
+                                body = Expression.OrElse(body, (Expression)exp);
+                            }
+
+                            if (comparewith == false)
+                            {
+                                body = Expression.Equal((Expression)exp, Expression.Constant(false));
+                            }
+                        }
+
+                        break;
+                    }
+
+                case "<>":
+                case "notequal":
+                case "different":
+                    {
+                        foreach (var item in PropertyValues)
+                        {
+                            object exp = null;
+                            try
+                            {
+                                exp = NotEqual(Member, CreateConstant(Member, item));
+                            }
+                            catch
+                            {
+                                continue;
+                            }
+
+                            if (body == null)
+                            {
+                                body = (BinaryExpression)exp;
+                            }
+                            else if (Conditional == FilterConditional.And)
+                            {
+                                body = Expression.AndAlso(body, (Expression)exp);
+                            }
+                            else
+                            {
+                                body = Expression.OrElse(body, (Expression)exp);
+                            }
+
+                            if (comparewith == false)
+                            {
+                                body = Expression.Equal((Expression)exp, Expression.Constant(false));
+                            }
+                        }
+
+                        break;
+                    }
+
+                case "betweenequal":
+                case "betweenorequal":
+                case "btweq":
+                case "=><=":
+                    {
+                        if (PropertyValues.Count() > 1)
+                        {
+                            if (Member.Type == typeof(string))
+                            {
+                                body = Expression.And(GetOperatorExpression(Member, "starts".PrependIf("!", !comparewith), new[] { PropertyValues.First() }, Conditional), GetOperatorExpression(Member, "ends".PrependIf("!", !comparewith), new[] { PropertyValues.Last() }, Conditional));
+                            }
+                            else
+                            {
+                                var ge = GetOperatorExpression(Member, "greaterequal".PrependIf("!", !comparewith), new[] { PropertyValues.Min() }, Conditional);
+                                var le = GetOperatorExpression(Member, "lessequal".PrependIf("!", !comparewith), new[] { PropertyValues.Max() }, Conditional);
+                                body = Expression.And(ge, le);
+                            }
+                        }
+                        else
+                        {
+                            body = GetOperatorExpression(Member, "=".PrependIf("!", !comparewith), PropertyValues, Conditional);
+                        }
+
+                        break;
+                    }
+
+                case "><":
+                case "startend":
+                case "startends":
+                case "btw":
+                case "between":
+                    {
+                        if (PropertyValues.Count() > 1)
+                        {
+                            switch (Member.Type)
+                            {
+                                case var case1 when case1 == typeof(string):
+                                    {
+                                        body = Expression.And(GetOperatorExpression(Member, "starts".PrependIf("!", !comparewith), new[] { PropertyValues.First() }, Conditional), GetOperatorExpression(Member, "ends".PrependIf("!", !comparewith), new[] { PropertyValues.Last() }, Conditional));
+                                        break;
+                                    }
+
+                                default:
+                                    {
+                                        body = Expression.And(GetOperatorExpression(Member, "greater".PrependIf("!", !comparewith), new[] { PropertyValues.Min() }, Conditional), GetOperatorExpression(Member, "less".PrependIf("!", !comparewith), new[] { PropertyValues.Max() }, Conditional));
+                                        break;
+                                    }
+                            }
+                        }
+                        else
+                        {
+                            body = GetOperatorExpression(Member, "=".PrependIf("!", !comparewith), PropertyValues, Conditional);
+                        }
+
+                        break;
+                    }
+
+                case "starts":
+                case "start":
+                case "startwith":
+                case "startswith":
+                    {
+                        switch (Member.Type)
+                        {
+                            case var case2 when case2 == typeof(string):
+                                {
+                                    foreach (var item in PropertyValues)
+                                    {
+                                        object exp = null;
+                                        try
+                                        {
+                                            exp = Expression.Equal(Expression.Call(Member, startsWithMethod, Expression.Constant(item.ToString())), Expression.Constant(comparewith));
+                                        }
+                                        catch
+                                        {
+                                            continue;
+                                        }
+
+                                        if (body == null)
+                                        {
+                                            body = (BinaryExpression)exp;
+                                        }
+                                        else if (Conditional == FilterConditional.And)
+                                        {
+                                            body = Expression.AndAlso(body, (Expression)exp);
+                                        }
+                                        else
+                                        {
+                                            body = Expression.OrElse(body, (Expression)exp);
+                                        }
+
+                                        if (comparewith == false)
+                                        {
+                                            body = Expression.Equal((Expression)exp, Expression.Constant(false));
+                                        }
+                                    }
+
+                                    break;
+                                }
+
+                            default:
+                                {
+                                    body = GetOperatorExpression(Member, ">=", PropertyValues, Conditional);
+                                    break;
+                                }
+                        }
+
+                        break;
+                    }
+
+                case "ends":
+                case "end":
+                case "endwith":
+                case "endswith":
+                    {
+                        switch (Member.Type)
+                        {
+                            case var case3 when case3 == typeof(string):
+                                {
+                                    foreach (var item in PropertyValues)
+                                    {
+                                        object exp = null;
+                                        try
+                                        {
+                                            exp = Expression.Equal(Expression.Call(Member, endsWithMethod, Expression.Constant(item.ToString())), Expression.Constant(comparewith));
+                                        }
+                                        catch
+                                        {
+                                            continue;
+                                        }
+
+                                        if (body == null)
+                                        {
+                                            body = (BinaryExpression)exp;
+                                        }
+                                        else if (Conditional == FilterConditional.And)
+                                        {
+                                            body = Expression.AndAlso(body, (Expression)exp);
+                                        }
+                                        else
+                                        {
+                                            body = Expression.OrElse(body, (Expression)exp);
+                                        }
+
+                                        if (comparewith == false)
+                                        {
+                                            body = Expression.Equal((Expression)exp, Expression.Constant(false));
+                                        }
+                                    }
+
+                                    break;
+                                }
+
+                            default:
+                                {
+                                    body = GetOperatorExpression(Member, "lessequal".PrependIf("!", !comparewith), PropertyValues, Conditional);
+                                    break;
+                                }
+                        }
+
+                        break;
+                    }
+
+                case "like":
+                case "contains":
+                    {
+                        switch (Member.Type)
+                        {
+                            case var case4 when case4 == typeof(string):
+                                {
+                                    foreach (var item in PropertyValues)
+                                    {
+                                        object exp = null;
+                                        try
+                                        {
+                                            exp = Expression.Equal(Expression.Call(Member, containsMethod, Expression.Constant(item.ToString())), Expression.Constant(comparewith));
+                                        }
+                                        catch
+                                        {
+                                            continue;
+                                        }
+
+                                        if (body == null)
+                                        {
+                                            body = (BinaryExpression)exp;
+                                        }
+                                        else if (Conditional == FilterConditional.And)
+                                        {
+                                            body = Expression.AndAlso(body, (Expression)exp);
+                                        }
+                                        else
+                                        {
+                                            body = Expression.OrElse(body, (Expression)exp);
+                                        }
+
+                                        if (comparewith == false)
+                                        {
+                                            body = Expression.Equal((Expression)exp, Expression.Constant(false));
+                                        }
+                                    }
+
+                                    break;
+                                }
+
+                            default:
+                                {
+                                    body = GetOperatorExpression(Member, "equal".PrependIf("!", !comparewith), PropertyValues, Conditional);
+                                    break;
+                                }
+                        }
+
+                        break;
+                    }
+
+                case "isin":
+                case "inside":
+                    {
+                        switch (Member.Type)
+                        {
+                            case var case5 when case5 == typeof(string):
+                                {
+                                    foreach (var item in PropertyValues)
+                                    {
+                                        object exp = null;
+                                        try
+                                        {
+                                            exp = Expression.Equal(Expression.Call(Expression.Constant(item.ToString()), containsMethod, Member), Expression.Constant(comparewith));
+                                        }
+                                        catch
+                                        {
+                                            continue;
+                                        }
+
+                                        if (body == null)
+                                        {
+                                            body = (BinaryExpression)exp;
+                                        }
+                                        else if (Conditional == FilterConditional.And)
+                                        {
+                                            body = Expression.AndAlso(body, (Expression)exp);
+                                        }
+                                        else
+                                        {
+                                            body = Expression.OrElse(body, (Expression)exp);
+                                        }
+
+                                        if (comparewith == false)
+                                        {
+                                            body = Expression.Equal((Expression)exp, Expression.Constant(false));
+                                        }
+                                    }
+
+                                    break;
+                                }
+
+                            default:
+                                {
+                                    // 'TODO: implementar busca de array de inteiro,data etc
+                                    body = GetOperatorExpression(Member, "equal".PrependIf("!", !comparewith), PropertyValues, Conditional);
+                                    break;
+                                }
+                        }
+
+                        break;
+                    }
+
+                case "cross":
+                case "crosscontains":
+                case "insidecontains":
+                    {
+                        switch (Member.Type)
+                        {
+                            case var case6 when case6 == typeof(string):
+                                {
+                                    foreach (var item in PropertyValues)
+                                    {
+                                        object exp = null;
+                                        try
+                                        {
+                                            exp = Expression.Equal(Expression.OrElse(Expression.Call(Expression.Constant(item.ToString()), containsMethod, Member), Expression.Call(Member, containsMethod, Expression.Constant(item.ToString()))), Expression.Constant(comparewith));
+                                        }
+                                        catch
+                                        {
+                                            continue;
+                                        }
+
+                                        if (body == null)
+                                        {
+                                            body = (BinaryExpression)exp;
+                                        }
+                                        else if (Conditional == FilterConditional.And)
+                                        {
+                                            body = Expression.AndAlso(body, (Expression)exp);
+                                        }
+                                        else
+                                        {
+                                            body = Expression.OrElse(body, (Expression)exp);
+                                        }
+
+                                        if (comparewith == false)
+                                        {
+                                            body = Expression.Equal((Expression)exp, Expression.Constant(false));
+                                        }
+                                    }
+
+                                    break;
+                                }
+
+                            default:
+                                {
+                                    //TODO: implementar busca de array de inteiro,data etc
+                                    body = GetOperatorExpression(Member, "equal".PrependIf("!", !comparewith), PropertyValues, Conditional);
+                                    break;
+                                }
+                        }
+
+                        break;
+                    }
+
+                default: // Executa um metodo com o nome definido pelo usuario que retorna uma expression compativel
+                    {
+                        try
+                        {
+                            var metodo = Member.Type.GetMethods().FirstOrDefault(x => (x.Name.ToLowerInvariant() ?? EmptyString) == (Operator.ToLowerInvariant() ?? EmptyString));
+                            Expression exp = (Expression)metodo.Invoke(null, new[] { PropertyValues });
+                            exp = Expression.Equal(Expression.Invoke(exp, new[] { Member }), Expression.Constant(comparewith));
+                            if (body == null)
+                            {
+                                body = (BinaryExpression)exp;
+                            }
+                            else if (Conditional == FilterConditional.And)
+                            {
+                                body = Expression.AndAlso(body, exp);
+                            }
+                            else
+                            {
+                                body = Expression.OrElse(body, exp);
+                            }
+                        }
+                        catch
+                        {
+                        }
+
+                        break;
+                    }
+            }
+
+            return body;
+        }
+
+        /// <summary>
+        /// Retorna o caractere de encapsulamento oposto ao caractere indicado
+        /// </summary>
+        /// <param name="Text">Caractere</param>
+        /// <returns></returns>
+        public static string GetOppositeWrapChar(this string Text)
+        {
+            switch (Text.GetFirstChars() ?? EmptyString)
+            {
+                case DoubleQuoteChar: return DoubleQuoteChar;
+                case SingleQuoteChar: return SingleQuoteChar;
+                case "(": return ")";
+                case ")": return "(";
+                case "[": return "]";
+                case "]": return "[";
+                case "{": return "}";
+                case "}": return "{";
+                case "<": return ">";
+                case ">": return "<";
+                case @"\": return "/";
+                case "/": return @"\";
+                case "¿": return "?";
+                case "?": return "¿";
+                case "!": return "¡";
+                case "¡": return "!";
+                case ".": return ".";
+                case ":": return ":";
+                case ";": return ";";
+                case "_": return "_";
+                case "*": return "*";
+                default: return Text;
             }
         }
 
-        return txt;
-    }
+        public static char GetOppositeWrapChar(this char c) => $"{c}".GetOppositeWrapChar().FirstOrDefault();
 
-    public static RotateFlipType GetRotateFlip(this Image Img)
-    {
-        var rft = RotateFlipType.RotateNoneFlipNone;
-        foreach (PropertyItem p in Img.PropertyItems)
+        /// <inheritdoc cref="GetOrdinal(long)"/>
+        public static string GetOrdinal(this int Number) => Number.ToLong().GetOrdinal();
+
+        /// <inheritdoc cref="GetOrdinal(long)"/>
+        public static string GetOrdinal(this decimal Number) => Number.ToLong().GetOrdinal();
+
+        /// <inheritdoc cref="GetOrdinal(long)"/>
+        public static string GetOrdinal(this short Number) => Number.ToLong().GetOrdinal();
+
+        /// <inheritdoc cref="GetOrdinal(long)"/>
+        public static string GetOrdinal(this double Number) => Number.ToLong().GetOrdinal();
+
+        /// <summary>
+        /// Returns the ordinal suffix for given <paramref name="Number"/>
+        /// </summary>
+        /// <param name="Number"></param>
+        /// <returns></returns>
+        public static string GetOrdinal(this long Number)
         {
-            if (p.Id == 274)
+            switch (Number)
             {
-                short orientation = BitConverter.ToInt16(p.Value, 0);
-                switch (orientation)
+                case 1L:
+                case -1L: return $"st";
+                case 2L:
+                case -2L: return $"nd";
+                case 3L:
+                case -3L: return $"rd";
+                default: return $"th";
+            }
+        }
+
+        /// <summary>
+        /// Traz uma Lista com todas as propriedades de um objeto
+        /// </summary>
+        /// <param name="MyObject">Objeto</param>
+        /// <returns></returns>
+        public static IEnumerable<PropertyInfo> GetProperties<T>(this T MyObject, BindingFlags BindAttr) => MyObject.GetTypeOf().GetProperties(BindAttr).ToList();
+
+        /// <summary>
+        /// Traz uma Lista com todas as propriedades de um objeto
+        /// </summary>
+        /// <param name="MyObject">Objeto</param>
+        /// <returns></returns>
+        public static IEnumerable<PropertyInfo> GetProperties<T>(this T MyObject) => MyObject.GetTypeOf().GetProperties().ToList();
+
+        /// <summary>
+        /// Traz uma propriedade de um objeto
+        /// </summary>
+        /// <param name="MyObject">Objeto</param>
+        /// <returns></returns>
+        public static PropertyInfo GetProperty<T>(this T MyObject, string Name) => MyObject.GetTypeOf().GetProperties().SingleOrDefault(x => (x.Name ?? EmptyString) == (Name ?? EmptyString));
+
+        /// <summary>
+        /// Retorna uma <see cref="Hashtable"/> das propriedades de um objeto
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="properties"></param>
+        /// <returns></returns>
+        public static Hashtable GetPropertyHash<T>(T properties)
+        {
+            Hashtable values = null;
+            if (properties != null)
+            {
+                values = new Hashtable();
+                var props = TypeDescriptor.GetProperties(properties);
+                foreach (PropertyDescriptor prop in props)
                 {
-                    case 1:
-                        {
-                            rft = RotateFlipType.RotateNoneFlipNone;
-                            break;
-                        }
-
-                    case 3:
-                        {
-                            rft = RotateFlipType.Rotate180FlipNone;
-                            break;
-                        }
-
-                    case 6:
-                        {
-                            rft = RotateFlipType.Rotate90FlipNone;
-                            break;
-                        }
-
-                    case 8:
-                        {
-                            rft = RotateFlipType.Rotate270FlipNone;
-                            break;
-                        }
+                    values.Add(prop.Name, prop.GetValue(properties));
                 }
             }
+
+            return values;
         }
 
-        return rft;
-    }
-
-    public static T GetSingleValue<T>(this DataSet data, string ColumnNameOrIndex)
-    {
-        var row = data?.GetFirstRow();
-        return row != null ? row.GetValue<T>(ColumnNameOrIndex) : default;
-    }
-
-    public static T GetSingleValue<T>(this DataSet data, int ColumnIndex = 0)
-    {
-        var row = data?.GetFirstRow();
-        if (row != null)
-            return row.GetValue<T>(ColumnIndex);
-        return default;
-    }
-
-    public static T GetSingleValue<T>(this DataTable table, string ColumnNameOrIndex)
-    {
-        var row = table?.GetFirstRow();
-        if (row != null)
-            return row.GetValue<T>(ColumnNameOrIndex);
-        return default;
-    }
-
-    public static T GetSingleValue<T>(this DataTable table, int ColumnIndex = 0)
-    {
-        var row = table?.GetFirstRow();
-        if (row != null)
-            return row.GetValue<T>(ColumnIndex);
-        return default;
-    }
-
-    /// <summary>
-    /// Return the username of most social websites like facebook, tiktok, instagram and youtube
-    /// </summary>
-    /// <param name="url"></param>
-    /// <returns></returns>
-    public static string GetSocialUsername(this string url)
-    {
-        string username = "";
-        if (url.IsURL())
+        public static PropertyInfo GetPropertyInfo<TSource, TProperty>(this Expression<Func<TSource, TProperty>> propertyLambda)
         {
-            var uri = new Uri(url);
-            var host = uri.Host;
-            var segments = uri.Segments;
-
-            username = segments[1];
-
-            if (host.ContainsAny("fb.com", "facebook.com"))
+            if (!(GetMemberInfo(propertyLambda) is PropertyInfo propInfo))
             {
-                username = Regex.Match(url.Replace("fb.com", "facebook.com"), @"(?:(?:http|https):\/\/)?(?:www.)?facebook.com\/(?:(?:\words)*#!\/)?(?:pages\/)?(?:[?\words\-]*\/)?(?:profile.php\?id=(?=\d.*))?([\words\-]*)?").Groups[1].Value;
+                throw new ArgumentException(string.Format("Expression '{0}' refers to a field, not a property.", propertyLambda.ToString()));
             }
-            else if (host.Contains("dailymotion.com"))
+
+            return propInfo;
+        }
+
+        /// <summary>
+        /// Retorna as informacoes de uma propriedade a partir de um seletor
+        /// </summary>
+        /// <typeparam name="TSource"></typeparam>
+        /// <typeparam name="TProperty"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="propertyLambda"></param>
+        /// <returns></returns>
+        public static PropertyInfo GetPropertyInfo<TSource, TProperty>(this TSource source, Expression<Func<TSource, TProperty>> propertyLambda)
+        {
+            var type = source.GetTypeOf() ?? typeof(TSource);
+            if (!(propertyLambda.Body is MemberExpression member))
             {
-                username = segments[2];
+                throw new ArgumentException(string.Format("Expression '{0}' refers to a method, not a property.", propertyLambda.ToString()));
             }
-            else if (host.Contains("youtube.com"))
+
+            if (!(member.Member is PropertyInfo propInfo))
             {
-                if (url.ContainsAny("user", "channel"))
+                throw new ArgumentException(string.Format("Expression '{0}' refers to a field, not a property.", propertyLambda.ToString()));
+            }
+
+            if (type != propInfo.ReflectedType && !type.IsSubclassOf(propInfo.ReflectedType))
+            {
+                throw new ArgumentException(string.Format("Expression '{0}' refers to a property that is not from type {1}.", propertyLambda.ToString(), type));
+            }
+
+            return propInfo;
+        }
+
+        /// <summary>
+        /// Traz o valor de uma propriedade de um objeto
+        /// </summary>
+        /// <param name="MyObject">Objeto</param>
+        /// <returns></returns>
+        public static T GetPropertyValue<T, O>(this O MyObject, string Name) where O : class
+        {
+            if (MyObject != null)
+            {
+                var prop = MyObject.GetProperty(Name);
+                if (prop != null && prop.CanRead)
+                {
+                    return (T)prop.GetValue(MyObject);
+                }
+            }
+
+            return default;
+        }
+
+        public static string GetPublicIP()
+        {
+            var IP = EmptyString;
+            var z = TryExecute(() => IP = DownloadString("https://ipv4.icanhazip.com/"));
+            if (z != null) WriteDebug(z);
+            IP = IP.Trim().NullIf(x => !x.IsIP());
+            return IP.Trim();
+        }
+
+        /// <summary>
+        /// Sorteia um item da Lista
+        /// </summary>
+        /// <typeparam name="T">Tipo da Matriz</typeparam>
+        /// <param name="Array">Matriz</param>
+        /// <returns>Um valor do tipo especificado</returns>
+        public static T GetRandomItem<T>(this T[] Array) => Array == null || Array.Length == 0 ? default : Array[RandomNumber(0, Array.Length - 1)];
+
+        /// <summary>
+        /// Retorna o caminho relativo da url
+        /// </summary>
+        /// <param name="URL">Url</param>
+        /// <returns></returns>
+        public static string GetRelativeURL(this Uri URL, bool WithQueryString = true) => WithQueryString ? URL.PathAndQuery : URL.AbsolutePath;
+
+        /// <summary>
+        /// Retorna o caminho relativo da url
+        /// </summary>
+        /// <param name="URL">Url</param>
+        /// <returns></returns>
+        public static string GetRelativeURL(this string URL, bool WithQueryString = true) => URL.IsURL() ? new Uri(URL).GetRelativeURL(WithQueryString) : null;
+
+        /// <summary>
+        /// Pega os bytes de um arquivo embutido no assembly
+        /// </summary>
+        /// <param name="FileName"></param>
+        /// <returns></returns>
+        public static byte[] GetResourceBytes(this Assembly Assembly, string FileName) => Assembly.GetManifestResourceStream(FileName)?.ToBytes() ?? Array.Empty<byte>();
+
+        public static byte[] GetResourceBytes(string FileName) => GetResourceBytes(Assembly.GetExecutingAssembly(), FileName);
+
+        /// <summary>
+        /// Pega o texto de um arquivo embutido no assembly
+        /// </summary>
+        /// <param name="FileName">Nome do arquivo embutido dentro do assembly (Embedded Resource)</param>
+        /// <returns></returns>
+        public static string GetResourceFileText(this Assembly Assembly, string FileName, bool IsFullQualifiedName = false)
+        {
+            string txt = null;
+            if (Assembly != null && FileName.IsNotBlank())
+            {
+                if (!IsFullQualifiedName)
+                {
+                    FileName = $"{Assembly.GetName().Name}.{FileName}";
+                }
+
+                using (var x = Assembly.GetManifestResourceStream(FileName))
+                {
+                    if (x != null)
+                    {
+                        using (var r = new StreamReader(x))
+                        {
+                            txt = r.ReadToEnd();
+                        }
+                    };
+                }
+            }
+
+            return txt;
+        }
+
+        public static RotateFlipType GetRotateFlip(this Image Img)
+        {
+            var rft = RotateFlipType.RotateNoneFlipNone;
+            foreach (PropertyItem p in Img.PropertyItems)
+            {
+                if (p.Id == 274)
+                {
+                    short orientation = BitConverter.ToInt16(p.Value, 0);
+                    switch (orientation)
+                    {
+                        case 1:
+                            {
+                                rft = RotateFlipType.RotateNoneFlipNone;
+                                break;
+                            }
+
+                        case 3:
+                            {
+                                rft = RotateFlipType.Rotate180FlipNone;
+                                break;
+                            }
+
+                        case 6:
+                            {
+                                rft = RotateFlipType.Rotate90FlipNone;
+                                break;
+                            }
+
+                        case 8:
+                            {
+                                rft = RotateFlipType.Rotate270FlipNone;
+                                break;
+                            }
+                    }
+                }
+            }
+
+            return rft;
+        }
+
+        public static T GetSingleValue<T>(this DataSet data, string ColumnNameOrIndex)
+        {
+            var row = data?.GetFirstRow();
+            return row != null ? row.GetValue<T>(ColumnNameOrIndex) : default;
+        }
+
+        public static T GetSingleValue<T>(this DataSet data, int ColumnIndex = 0)
+        {
+            var row = data?.GetFirstRow();
+            if (row != null)
+                return row.GetValue<T>(ColumnIndex);
+            return default;
+        }
+
+        public static T GetSingleValue<T>(this DataTable table, string ColumnNameOrIndex)
+        {
+            var row = table?.GetFirstRow();
+            if (row != null)
+                return row.GetValue<T>(ColumnNameOrIndex);
+            return default;
+        }
+
+        public static T GetSingleValue<T>(this DataTable table, int ColumnIndex = 0)
+        {
+            var row = table?.GetFirstRow();
+            if (row != null)
+                return row.GetValue<T>(ColumnIndex);
+            return default;
+        }
+
+        /// <summary>
+        /// Return the username of most social websites like facebook, tiktok, instagram and youtube
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
+        public static string GetSocialUsername(this string url)
+        {
+            string username = "";
+            if (url.IsURL())
+            {
+                var uri = new Uri(url);
+                var host = uri.Host;
+                var segments = uri.Segments;
+
+                username = segments[1];
+
+                if (host.ContainsAny("fb.com", "facebook.com"))
+                {
+                    username = Regex.Match(url.Replace("fb.com", "facebook.com"), @"(?:(?:http|https):\/\/)?(?:www.)?facebook.com\/(?:(?:\words)*#!\/)?(?:pages\/)?(?:[?\words\-]*\/)?(?:profile.php\?id=(?=\d.*))?([\words\-]*)?").Groups[1].Value;
+                }
+                else if (host.Contains("dailymotion.com"))
                 {
                     username = segments[2];
                 }
+                else if (host.Contains("youtube.com"))
+                {
+                    if (url.ContainsAny("user", "channel"))
+                    {
+                        username = segments[2];
+                    }
+                }
             }
+            return username.TrimStart('@').TrimEnd('/');
         }
-        return username.TrimStart('@').TrimEnd('/');
-    }
 
-    /// <summary>
-    /// Corta um texto para exibir um numero máximo de caracteres ou na primeira quebra de linha.
-    /// </summary>
-    /// <param name="Text"></param>
-    /// <param name="TextLength"></param>
-    /// <param name="Ellipsis"></param>
-    /// <returns></returns>
-    public static string GetTextPreview(this string Text, int TextLength, string Ellipsis = "...", bool BeforeNewLine = true)
-    {
-        if (Text.IsBlank() || Text?.Length <= TextLength || TextLength <= 0)
+        /// <summary>
+        /// Corta um texto para exibir um numero máximo de caracteres ou na primeira quebra de linha.
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <param name="TextLength"></param>
+        /// <param name="Ellipsis"></param>
+        /// <returns></returns>
+        public static string GetTextPreview(this string Text, int TextLength, string Ellipsis = "...", bool BeforeNewLine = true)
         {
-            return Text;
-        }
-        else
-        {
-            if (BeforeNewLine)
+            if (Text.IsBlank() || Text?.Length <= TextLength || TextLength <= 0)
             {
-                Text = Text.TrimCarriage().GetBefore(Environment.NewLine);
-                if (TextLength == 0) return Text;
-            }
-
-            return $"{Text.GetFirstChars(TextLength)}{Ellipsis ?? ""}";
-        }
-    }
-
-    /// <summary>
-    /// Retorna um <see cref="Type"/> de um <see cref="DbType"/>
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="Type"></param>
-    /// <param name="DefaultType"></param>
-    /// <returns></returns>
-    public static Type GetTypeFromDb(this DbType Type, Type DefaultType = null) => DbTypes.Where(x => x.Value == Type).Select(x => x.Key).FirstOrDefault() ?? DefaultType ?? typeof(object);
-
-    /// <summary>
-    /// Retorna o <see cref="Type"/> do objeto mesmo se ele for nulo
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="Obj"></param>
-    /// <returns>o tipo do objeto ou o prorio objeto se ele for um <see cref="Type"/></returns>
-    public static Type GetTypeOf<T>(this T Obj)
-    {
-        if (Obj is Type istype)
-        {
-            return istype;
-        }
-        else
-        {
-            try
-            {
-                return Obj.GetType();
-            }
-            catch { }
-        }
-        return typeof(T);
-    }
-
-    /// <summary>
-    /// Retorna os segmentos de uma url
-    /// </summary>
-    /// <param name="URL"></param>
-    /// <returns></returns>
-    public static IEnumerable<string> GetURLSegments(this string URL)
-    {
-        var p = new Regex(@"(?<!\?.+)(?<=\/)[\words-.]+(?=[/\r\n?]|$)", (RegexOptions)((int)RegexOptions.Singleline + (int)RegexOptions.IgnoreCase));
-        var gs = p.Matches(URL);
-        foreach (Match g in gs)
-        {
-            yield return g.Value;
-        }
-    }
-
-    public static T GetValue<T>(this DataRow row, int ColumnIndex = 0)
-    {
-        try
-        {
-            return ChangeType<T>(row != null ? row[ColumnIndex] : default);
-        }
-        catch
-        {
-            return default;
-        }
-    }
-
-    public static T GetValue<T>(this DataRow row, string ColumnNameOrIndex)
-    {
-        try
-        {
-            return ChangeType<T>(row != null ? row[ColumnNameOrIndex] : default);
-        }
-        catch
-        {
-            if (ColumnNameOrIndex.IsNumber())
-            {
-                return GetValue<T>(row, ColumnNameOrIndex.ToInt());
-            }
-        }
-        return default;
-    }
-
-    /// <inheritdoc cref="GetValue{T}(DataRow, string, Expression{Func{object, object}})"/>
-    public static string GetValue(this DataRow row, string Name = null, Expression<Func<object, object>> valueParser = null) => GetValue<string>(row, Name, valueParser);
-
-    /// <summary>
-    /// Retorna o valor da coluna <paramref name="Name"/> de uma <see cref="DataRow"/>
-    /// convertido para <typeparamref name="T"/> e previamente tratado pela função <paramref name="valueParser"/>
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="row"></param>
-    /// <param name="Name"></param>
-    /// <param name="valueParser"></param>
-    /// <returns></returns>
-    public static T GetValue<T>(this DataRow row, string Name = null, Expression<Func<object, object>> valueParser = null)
-    {
-        try
-        {
-            if (row == null)
-            {
-                throw new ArgumentException("Row is null");
-            }
-
-            object v = null;
-
-            if (Name.IsNotBlank() && Name.IsNotNumber())
-            {
-                v = row[Name];
+                return Text;
             }
             else
             {
-                v = row[Name.IfBlank(0)];
-            }
+                if (BeforeNewLine)
+                {
+                    Text = Text.TrimCarriage().GetBefore(Environment.NewLine);
+                    if (TextLength == 0) return Text;
+                }
 
-            if (v == null || v == DBNull.Value)
-            {
-                return default;
-            }
-
-            if (valueParser != null)
-            {
-                v = valueParser.Compile().Invoke(v);
-            }
-
-            return typeof(T).IsEnum ? v.ToString().GetEnumValue<T>() : v.ChangeType<T>();
-        }
-        catch (Exception ex)
-        {
-            LogWriter.WriteLine(ex.ToFullExceptionString());
-            return default;
-        }
-    }
-
-    public static string GetValue(this DataTable Table, string Name = null, Expression<Func<object, object>> valueParser = null) => GetValue<string>(Table, Name, valueParser);
-
-    public static string GetValue(this DataSet Data, string Name = null, Expression<Func<object, object>> valueParser = null) => GetValue<string>(Data, Name, valueParser);
-
-    public static T GetValue<T>(this DataSet Data, string Name = null, Expression<Func<object, object>> valueParser = null)
-    {
-        var r = Data.GetFirstRow();
-        return r == null ? default : r.GetValue<T>(Name, valueParser);
-    }
-
-    public static T GetValue<T>(this DataTable Table, string Name = null, Expression<Func<object, object>> valueParser = null)
-    {
-        var r = Table.GetFirstRow();
-        return r == null ? default : r.GetValue<T>(Name, valueParser);
-    }
-
-    /// <summary>
-    /// Tries to get a value from <see cref="Dictionary{TKey, TValue}"/>. if fails, return
-    /// <paramref name="ReplaceValue"/>
-    /// </summary>
-    /// <typeparam name="TKey"></typeparam>
-    /// <typeparam name="TValue"></typeparam>
-    /// <param name="Dic"></param>
-    /// <param name="Key"></param>
-    /// <param name="ReplaceValue"></param>
-    /// <remarks>
-    /// if <paramref name="ReplaceValue"/> is not provided. the default value for type
-    /// <typeparamref name="TValue"/> is returned
-    /// </remarks>
-    /// <returns></returns>
-    public static TValue GetValueOr<TKey, TValue>(this IDictionary<TKey, TValue> Dic, TKey Key, TValue ReplaceValue = default) => Dic != null && Dic.ContainsKey(Key) ? Dic[Key] : ReplaceValue;
-
-    /// <summary>
-    /// Captura o Id de um video do YOUTUBE ou VIMEO em uma URL
-    /// </summary>
-    /// <param name="URL">URL do video</param>
-    /// <returns>ChaveFormatadaTraco do video do youtube ou Vimeo</returns>
-    public static string GetVideoID(this Uri URL) => GetVideoID(URL.AbsoluteUri);
-
-    /// <summary>
-    /// Captura o Id de um video do youtube em uma URL
-    /// </summary>
-    /// <param name="URL">URL do video</param>
-    /// <returns>Id do video do youtube</returns>
-    public static string GetVideoID(this string URL)
-    {
-        if (URL.IsURL())
-        {
-            if (URL.GetDomain().ContainsAny("youtube", "youtu"))
-            {
-                return Regex.Match(URL.ReplaceNone("&feature=youtu.be"), @"(?:https?:\/\/)?(?:www\.)?youtu(?:.be\/|be\.com\/watch\?v=|be\.com\/v\/)(.{8,})").Groups[1].Value;
-            }
-            else if (URL.GetDomain().ContainsAny("vimeo"))
-            {
-                return Regex.Match(URL, @"vimeo\.com/(?:.*#|.*/videos/)?([0-9]+)").Groups[1].Value;
+                return $"{Text.GetFirstChars(TextLength)}{Ellipsis ?? ""}";
             }
         }
 
-        throw new ArgumentException("Invalid Youtube or Vimeo URL", nameof(URL));
-    }
+        /// <summary>
+        /// Retorna um <see cref="Type"/> de um <see cref="DbType"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Type"></param>
+        /// <param name="DefaultType"></param>
+        /// <returns></returns>
+        public static Type GetTypeFromDb(this DbType Type, Type DefaultType = null) => DbTypes.Where(x => x.Value == Type).Select(x => x.Key).FirstOrDefault() ?? DefaultType ?? typeof(object);
 
-    /// <summary>
-    /// Retorna uma lista de palavras encontradas no texto em ordem alfabetica
-    /// </summary>
-    /// <param name="Text"></param>
-    /// <returns></returns>
-    public static IOrderedEnumerable<string> GetWords(this string Text)
-    {
-        var txt = new List<string>();
-        var palavras = Text.TrimBetween().FixHTMLBreakLines().ToLowerInvariant().RemoveHTML().Split(PredefinedArrays.WordSplitters.ToArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
-        foreach (var w in palavras)
+        /// <summary>
+        /// Retorna o <see cref="Type"/> do objeto mesmo se ele for nulo
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Obj"></param>
+        /// <returns>o tipo do objeto ou o prorio objeto se ele for um <see cref="Type"/></returns>
+        public static Type GetTypeOf<T>(this T Obj)
         {
-            txt.Add(w);
-        }
-
-        return txt.Distinct().OrderBy(x => x);
-    }
-
-    /// <summary>
-    /// Captura todas as sentenças que estão entre aspas ou parentesis ou chaves ou colchetes em
-    /// um texto
-    /// </summary>
-    /// <param name="Text">Texto</param>
-    /// <returns></returns>
-    public static string[] GetWrappedText(this string Text, string Character = DoubleQuoteChar, bool ExcludeWrapChars = true)
-    {
-        var lista = new List<string>();
-        string regx = $"{Character.RegexEscape()}(.*?){Character.GetOppositeWrapChar().RegexEscape()}";
-        var mm = new Regex(regx, (RegexOptions)((int)RegexOptions.Singleline + (int)RegexOptions.IgnoreCase)).Matches(Text);
-        foreach (Match a in mm)
-        {
-            if (ExcludeWrapChars)
+            if (Obj is Type istype)
             {
-                lista.Add(a.Value.RemoveFirstEqual(Character).RemoveLastEqual(Character.GetOppositeWrapChar()));
+                return istype;
             }
             else
-            {
-                lista.Add(a.Value);
-            }
-        }
-
-        return lista.ToArray();
-    }
-
-    /// <summary>
-    /// Captura a Thumbnail de um video do youtube
-    /// </summary>
-    /// <param name="URL">Url do Youtube</param>
-    /// <returns></returns>
-    public static Image GetYoutubeThumbnail(string URL) => DownloadImage($"http://img.youtube.com/vi/{GetVideoID(URL)}/hqdefault.jpg");
-
-    /// <summary>
-    /// Captura a Thumbnail de um video do youtube
-    /// </summary>
-    /// <param name="URL">Url do Youtube</param>
-    /// <returns></returns>
-    public static Image GetYoutubeThumbnail(this Uri URL) => GetYoutubeThumbnail(URL?.AbsoluteUri);
-
-    /// <summary>
-    /// Converte uma Imagem para Escala de cinza
-    /// </summary>
-    /// <param name="img">imagem original</param>
-    /// <returns></returns>
-    public static Image Grayscale(this Image img)
-    {
-        var copia = new Bitmap(img);
-        var cm = new ColorMatrix(new float[][] { new float[] { 0.299f, 0.299f, 0.299f, 0f, 0f }, new float[] { 0.587f, 0.587f, 0.587f, 0f, 0f }, new float[] { 0.114f, 0.114f, 0.114f, 0f, 0f }, new float[] { 0f, 0f, 0f, 1f, 0f }, new float[] { 0f, 0f, 0f, 0f, 1f } });
-        return ApplyColorMatrix(copia, cm);
-
-    }
-
-    public static IEnumerable<HSVColor> GrayscalePallette(int Amount) => MonochromaticPallette(Color.White, Amount);
-
-    /// <summary>
-    /// Constroi uma expressão Maior que
-    /// </summary>
-    /// <param name="MemberExpression"></param>
-    /// <param name="ValueExpression"></param>
-    /// <returns></returns>
-    public static BinaryExpression GreaterThan(this Expression MemberExpression, Expression ValueExpression)
-    {
-        FixNullable(ref MemberExpression, ref ValueExpression);
-        return Expression.GreaterThan(MemberExpression, ValueExpression);
-    }
-
-    /// <summary>
-    /// Constroi uma expressão Maior ou Igual
-    /// </summary>
-    /// <param name="MemberExpression"></param>
-    /// <param name="ValueExpression"></param>
-    /// <returns></returns>
-    public static BinaryExpression GreaterThanOrEqual(this Expression MemberExpression, Expression ValueExpression)
-    {
-        FixNullable(ref MemberExpression, ref ValueExpression);
-        return Expression.GreaterThanOrEqual(MemberExpression, ValueExpression);
-    }
-
-    /// <summary>
-    /// Agrupa e conta os itens de uma lista a partir de uma propriedade
-    /// </summary>
-    /// <typeparam name="Type"></typeparam>
-    /// <typeparam name="Group"></typeparam>
-    /// <param name="obj"></param>
-    /// <param name="GroupSelector"></param>
-    /// <returns></returns>
-    public static Dictionary<Group, long> GroupAndCountBy<Type, Group>(this IEnumerable<Type> obj, Func<Type, Group> GroupSelector) => obj.GroupBy(GroupSelector).Select(x => new KeyValuePair<Group, long>(x.Key, x.LongCount())).ToDictionary();
-
-    /// <summary>
-    /// Agrupa itens de uma lista a partir de uma propriedade e conta os resultados de cada
-    /// grupo a partir de outra propriedade do mesmo objeto
-    /// </summary>
-    /// <typeparam name="Type"></typeparam>
-    /// <typeparam name="Group"></typeparam>
-    /// <typeparam name="Count"></typeparam>
-    /// <param name="obj"></param>
-    /// <param name="GroupSelector"></param>
-    /// <param name="CountObjectBy"></param>
-    /// <returns></returns>
-    public static Dictionary<Group, Dictionary<Count, long>> GroupAndCountSubGroupBy<Type, Group, Count>(this IEnumerable<Type> obj, Func<Type, Group> GroupSelector, Func<Type, Count> CountObjectBy)
-    {
-        var dic_of_dic = obj.GroupBy(GroupSelector).Select(x => new KeyValuePair<Group, Dictionary<Count, long>>(x.Key, x.GroupBy(CountObjectBy).ToDictionary(y => y.Key, y => y.LongCount()))).ToDictionary();
-        dic_of_dic.Values.MergeKeys();
-
-        return dic_of_dic;
-    }
-
-    /// <summary>
-    /// Agrupa itens de uma lista a partir de duas propriedades de um objeto resultado em um
-    /// grupo com subgrupos daquele objeto
-    /// </summary>
-    /// <typeparam name="Type"></typeparam>
-    /// <typeparam name="Group"></typeparam>
-    /// <typeparam name="SubGroup"></typeparam>
-    /// <param name="obj"></param>
-    /// <param name="GroupSelector"></param>
-    /// <param name="SubGroupSelector"></param>
-    /// <returns></returns>
-    public static Dictionary<Group, Dictionary<SubGroup, IEnumerable<Type>>> GroupAndSubGroupBy<Type, Group, SubGroup>(this IEnumerable<Type> obj, Func<Type, Group> GroupSelector, Func<Type, SubGroup> SubGroupSelector)
-    {
-        var dic_of_dic = obj.GroupBy(GroupSelector).Select(x => new KeyValuePair<Group, Dictionary<SubGroup, IEnumerable<Type>>>(x.Key, x.GroupBy(SubGroupSelector).ToDictionary(y => y.Key, y => y.AsEnumerable()))).ToDictionary();
-        dic_of_dic.Values.MergeKeys();
-        return dic_of_dic;
-    }
-
-    /// <summary>
-    /// Criar um <see cref="Dictionary"/> agrupando os itens em páginas de um tamanho especifico
-    /// </summary>
-    /// <typeparam name="Tsource"></typeparam>
-    /// <param name="source"></param>
-    /// <param name="PageSize"></param>
-    /// <returns></returns>
-    public static Dictionary<long, IEnumerable<Tsource>> GroupByPage<Tsource>(this IQueryable<Tsource> source, int PageSize) => source.AsEnumerable().GroupByPage(PageSize);
-
-    /// <summary>
-    /// Criar um <see cref="Dictionary"/> agrupando os itens em páginas de um tamanho especifico
-    /// </summary>
-    /// <typeparam name="Tsource"></typeparam>
-    /// <param name="source"></param>
-    /// <param name="PageSize"></param>
-    /// <returns></returns>
-    public static Dictionary<long, IEnumerable<Tsource>> GroupByPage<Tsource>(this IEnumerable<Tsource> source, int PageSize) => source.Select((item, index) => new { item, Page = index / (double)PageSize.SetMinValue(1) }).GroupBy(g => g.Page.FloorLong() + 1L, x => x.item).ToDictionary();
-
-    /// <summary>
-    /// Verifica se um atributo foi definido em uma propriedade de uma classe
-    /// </summary>
-    /// <param name="target"></param>
-    /// <param name="attribType"></param>
-    /// <returns></returns>
-    public static bool HasAttribute(this PropertyInfo target, Type attribType) => target?.GetCustomAttributes(attribType, false).Any() ?? false;
-
-    /// <summary>
-    /// Verifica se um atributo foi definido em uma propriedade de uma classe
-    /// </summary>
-    /// <param name="target"></param>
-    /// <returns></returns>
-    public static bool HasAttribute<T>(this PropertyInfo target) => target?.HasAttribute(typeof(T)) ?? false;
-
-    /// <summary>
-    /// Check if number has decimal part
-    /// </summary>
-    /// <param name="Value"></param>
-    /// <returns></returns>
-    public static bool HasDecimalPart(this decimal Value) => !(Value.ForcePositive() % 1m == 0m) && Value.ForcePositive() > 0m;
-
-    /// <summary>
-    /// Verifica se um numero possui parte decimal
-    /// </summary>
-    /// <param name="Value"></param>
-    /// <returns></returns>
-    public static bool HasDecimalPart(this double Value) => Value.ToDecimal().HasDecimalPart();
-
-    /// <summary>
-    /// Verifica se um diretório possui subdiretórios
-    /// </summary>
-    /// <param name="Directory">Diretório</param>
-    /// <returns></returns>
-    public static bool HasDirectories(this DirectoryInfo Directory) => Directory?.GetDirectories().Any() ?? false;
-
-    /// <summary>
-    /// Verifica se um diretório possui arquivos
-    /// </summary>
-    /// <param name="Directory">Diretório</param>
-    /// <returns></returns>
-    public static bool HasFiles(this DirectoryInfo Directory) => Directory?.GetFiles().Any() ?? false;
-
-    public static bool HasLength(this string Text, int Length) => Text != null && Text.Length == Length;
-
-    public static bool HasMaxLength(this string Text, int Length) => Text != null && Text.Length <= Length;
-
-    public static bool HasMinLength(this string Text, int Length) => Text != null && Text.Length >= Length;
-
-    /// <summary>
-    /// Verifica se um tipo possui uma propriedade
-    /// </summary>
-    /// <param name="Type"></param>
-    /// <param name="PropertyName"></param>
-    /// <returns></returns>
-    public static bool HasProperty(this Type Type, string PropertyName, bool GetPrivate = false)
-    {
-        if (Type != null && PropertyName.IsNotBlank())
-        {
-            var parts = new List<string>();
-            bool stop = false;
-            string current = EmptyString;
-            for (int i = 0, loopTo = PropertyName.Length - 1; i <= loopTo; i++)
-            {
-                if (PropertyName[i] != '.')
-                {
-                    current += $"{PropertyName[i]}";
-                }
-
-                if (PropertyName[i] == '[')
-                {
-                    stop = true;
-                }
-
-                if (PropertyName[i] == ']')
-                {
-                    stop = false;
-                }
-
-                if (PropertyName[i] == '.' && !stop || i == PropertyName.Length - 1)
-                {
-                    parts.Add(current.ToString());
-                    current = EmptyString;
-                }
-            }
-
-            PropertyInfo prop;
-            string propname = parts.First().GetBefore("[");
-            if (GetPrivate)
-            {
-                prop = Type.GetProperty(propname, (BindingFlags)((int)BindingFlags.Public + (int)BindingFlags.NonPublic + (int)BindingFlags.Instance));
-            }
-            else
-            {
-                prop = Type.GetProperty(propname);
-            }
-
-            bool exist = prop != null;
-            parts.RemoveAt(0);
-            if (exist && parts.Count > 0)
-            {
-                exist = prop.PropertyType.HasProperty(parts.First(), GetPrivate);
-            }
-
-            return exist;
-        }
-
-        return false;
-    }
-
-    /// <summary>
-    /// Verifica se um tipo possui uma propriedade
-    /// </summary>
-    /// <param name="Obj"></param>
-    /// <param name="Name"></param>
-    /// <returns></returns>
-    public static bool HasProperty(this object Obj, string Name) => Obj?.GetType().HasProperty(Name, true) ?? false;
-
-    public static T Hide<T>(this T dir) where T : FileSystemInfo
-    {
-        if (dir != null && dir.Exists)
-        {
-            if (!dir.Attributes.HasFlag(FileAttributes.Hidden))
-            {
-                dir.Attributes |= FileAttributes.Hidden;
-            }
-        }
-        return dir;
-    }
-
-    /// <summary>
-    /// Retorna um texto com entidades HTML convertidas para caracteres e tags BR em breaklines
-    /// </summary>
-    /// <param name="Text">string HTML</param>
-    /// <returns>String HTML corrigido</returns>
-    public static string HtmlDecode(this string Text) => WebUtility.HtmlDecode(EmptyString + Text).ReplaceMany(Environment.NewLine, "<br/>", "<br />", "<br>");
-
-    /// <summary>
-    /// Escapa o texto HTML
-    /// </summary>
-    /// <param name="Text">string HTML</param>
-    /// <returns>String HTML corrigido</returns>
-    public static string HtmlEncode(this string Text) => WebUtility.HtmlEncode(EmptyString + Text.ReplaceMany("<br>", PredefinedArrays.BreakLineChars.ToArray()));
-
-    /// <summary>
-    /// Verifica se uma variavel está vazia, em branco ou nula e retorna um outro valor caso TRUE
-    /// </summary>
-    /// <typeparam name="T">Tipo da Variavel</typeparam>
-    /// <param name="Value">Valor</param>
-    /// <param name="ValueIfBlank">Valor se estiver em branco</param>
-    /// <returns></returns>
-    public static T IfBlank<T>(this object Value, T ValueIfBlank = default) => Value.IsBlank() ? ValueIfBlank : ChangeType<T>(Value);
-
-    /// <summary>
-    /// Tenta retornar um valor de um IEnumerable a partir de um Index especifico. retorna um
-    /// valor default se o index nao existir ou seu valor for branco ou null
-    /// </summary>
-    /// <typeparam name="T">Tipo do IEnumerable e do valor</typeparam>
-    /// <param name="Arr">Array</param>
-    /// <param name="Index">Posicao</param>
-    /// <param name="ValueIfBlankOrNoIndex">Valor se o mesmo nao existir</param>
-    /// <returns></returns>
-    public static T IfBlankOrNoIndex<T>(this IEnumerable<T> Arr, int Index, T ValueIfBlankOrNoIndex) => (Arr ?? Array.Empty<T>()).IfNoIndex(Index, ValueIfBlankOrNoIndex).IfBlank(ValueIfBlankOrNoIndex);
-
-    /// <summary>
-    /// Tenta retornar um valor de um IEnumerable a partir de um Index especifico. retorna um
-    /// valor default se o index nao existir
-    /// </summary>
-    /// <typeparam name="T">Tipo do IEnumerable e do valor</typeparam>
-    /// <param name="Arr">Array</param>
-    /// <param name="Index">Posicao</param>
-    /// <param name="ValueIfNoIndex">Valor se o mesmo nao existir</param>
-    /// <returns></returns>
-    public static T IfNoIndex<T>(this IEnumerable<T> Arr, int Index, T ValueIfNoIndex = default)
-    {
-        var item = (Arr ?? Array.Empty<T>()).ElementAtOrDefault(Index);
-        return item == null ? ValueIfNoIndex : item;
-    }
-
-    /// <summary>
-    /// Executa uma função para uma variavel se a mesma nao estiver em branco ( <see cref="IsBlank{T}())"/>
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="Value"></param>
-    /// <param name="ExpressionIfBlank"></param>
-    /// <returns></returns>
-    public static T IfNotBlank<T>(this T Value, Expression<Func<T, T>> ExpressionIfBlank)
-    {
-        if (Value.IsNotBlank())
-        {
-            if (ExpressionIfBlank != null)
             {
                 try
                 {
-                    return ExpressionIfBlank.Compile().Invoke(Value);
+                    return Obj.GetType();
                 }
                 catch { }
             }
-        }
-        return Value;
-    }
-
-    /// <summary>
-    /// Verifica se um array está vazio ou nula e retorna um outro valor caso TRUE
-    /// </summary>
-    /// <typeparam name="T">Tipo da Variavel</typeparam>
-    /// <param name="Value">Valor</param>
-    /// <param name="ValuesIfBlank">Valor se estiver em branco</param>
-    /// <returns></returns>
-    public static T[] IfNullOrEmpty<T>(this object[] Value, params T[] ValuesIfBlank) => Value == null || !Value.Any() ? ValuesIfBlank ?? Array.Empty<T>() : Value.ChangeArrayType<T, object>();
-
-    /// <summary>
-    /// Verifica se um array está vazio ou nula e retorna um outro valor caso TRUE
-    /// </summary>
-    /// <typeparam name="T">Tipo da Variavel</typeparam>
-    /// <param name="Value">Valor</param>
-    /// <param name="ValuesIfBlank">Valor se estiver em branco</param>
-    /// <returns></returns>
-    public static IEnumerable<T> IfNullOrEmpty<T>(this IEnumerable<object[]> Value, params T[] ValuesIfBlank) => Value != null && Value.Any() ? Value.ChangeIEnumerableType<T, object[]>() : ValuesIfBlank;
-
-    /// <summary>
-    /// Verifica se um array está vazio ou nula e retorna um outro valor caso TRUE
-    /// </summary>
-    /// <typeparam name="T">Tipo da Variavel</typeparam>
-    /// <param name="Value">Valor</param>
-    /// <param name="ValueIfBlank">Valor se estiver em branco</param>
-    /// <returns></returns>
-    public static IEnumerable<T> IfNullOrEmpty<T>(this IEnumerable<object[]> Value, IEnumerable<T> ValueIfBlank) => Value != null && Value.Any() ? Value.ChangeIEnumerableType<T, object[]>() : ValueIfBlank;
-
-    public static int Increment(this int Num, int Inc = 1) => Num + Inc.SetMinValue(0);
-
-    public static long Increment(this long Num, long Inc = 1) => Num + Inc.SetMinValue(0L);
-
-    /// <summary>
-    /// Inject the property values of <typeparamref name="T"/> into <see cref="String"/>
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="formatString"></param>
-    /// <param name="injectionObject"></param>
-    /// <returns></returns>
-    public static string Inject<T>(this string formatString, T injectionObject)
-    {
-        if (injectionObject != null)
-        {
-            return injectionObject.IsDictionary()
-                ? formatString.Inject(new Hashtable((IDictionary)injectionObject))
-                : formatString.Inject(GetPropertyHash(injectionObject));
+            return typeof(T);
         }
 
-        return formatString;
-    }
-
-    public static string Inject(this string formatString, Hashtable attributes) => InjectBase(formatString, attributes, false);
-
-    /// <summary>
-    /// Inject the property values of <typeparamref name="T"/> into <paramref name="TemplatedString"/>
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="formatString"></param>
-    /// <param name="injectionObject"></param>
-    /// <returns></returns>
-    public static string InjectInto<T>(this T Obj, string TemplatedString) => TemplatedString.IfBlank(EmptyString).Inject(Obj);
-
-    public static string InjectSingleValue(this string formatString, string key, object replacementValue, CultureInfo cultureInfo = null) => InjectSingleValueBase(formatString, key, replacementValue, false, cultureInfo);
-
-    public static string InjectSingleValueSQL(this string formatString, string key, object replacementValue, CultureInfo cultureInfo = null) => InjectSingleValueBase(formatString, key, replacementValue, true, cultureInfo);
-
-    /// <summary>
-    /// Inject the property values of <typeparamref name="T"/> into <see cref="String"/>
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="formatString"></param>
-    /// <param name="injectionObject"></param>
-    /// <returns></returns>
-    public static string InjectSQL<T>(this string formatString, T injectionObject)
-    {
-        if (injectionObject != null)
+        /// <summary>
+        /// Retorna os segmentos de uma url
+        /// </summary>
+        /// <param name="URL"></param>
+        /// <returns></returns>
+        public static IEnumerable<string> GetURLSegments(this string URL)
         {
-            return injectionObject.IsDictionary()
-                ? formatString.InjectSQL(new Hashtable((IDictionary)injectionObject))
-                : formatString.InjectSQL(GetPropertyHash(injectionObject));
-        }
-
-        return formatString;
-    }
-
-    public static string InjectSQL(this string formatString, Hashtable attributes) => InjectBase(formatString, attributes, true);
-
-    public static string InjectSQLInto<T>(this T Obj, string TemplatedString) => TemplatedString.IfBlank(EmptyString).InjectSQL(Obj);
-
-    /// <summary>
-    /// Insere uma imagem em outra imagem
-    /// </summary>
-    /// <param name="Image">Imagem</param>
-    /// <param name="InsertedImage">Imagem de Marca Dagua</param>
-    /// <param name="X">Posição X</param>
-    /// <param name="Y">Posição Y</param>
-    /// <returns></returns>
-    public static Image Insert(this Image Image, Image InsertedImage, int X = -1, int Y = -1)
-    {
-        var bm_Resultado = new Bitmap(Image);
-        var bm_marcaDagua = new Bitmap(InsertedImage.Resize(bm_Resultado.Width - 5, bm_Resultado.Height - 5));
-        if (X < 0)
-            X = (bm_Resultado.Width - bm_marcaDagua.Width) / 2;
-        if (Y < 0)
-            Y = (bm_Resultado.Height - bm_marcaDagua.Height) / 2;
-        var gr = Graphics.FromImage(bm_Resultado);
-        gr.DrawImage(bm_marcaDagua, X, Y);
-        return bm_Resultado;
-    }
-
-    public static string Interpolate(this string Text, params string[] Texts)
-    {
-        Text = Text.IfBlank(EmptyString);
-        Texts = Texts ?? Array.Empty<string>();
-
-        var s = Texts.ToList();
-        s.Insert(0, Text);
-
-        var ns = EmptyString;
-        var len = s.Max(x => x.Length);
-        for (int i = 0; i < len; i++)
-        {
-            foreach (var item in s)
+            var p = new Regex(@"(?<!\?.+)(?<=\/)[\words-.]+(?=[/\r\n?]|$)", (RegexOptions)((int)RegexOptions.Singleline + (int)RegexOptions.IgnoreCase));
+            var gs = p.Matches(URL);
+            foreach (Match g in gs)
             {
-                ns += item.AsEnumerable().IfNoIndex(i, WhitespaceChar.FirstOrDefault());
+                yield return g.Value;
             }
         }
 
-        return ns;
-    }
-
-    /// <summary>
-    /// Verifica se uma palavra é um Anagrama de outra palavra
-    /// </summary>
-    /// <param name="Text"></param>
-    /// <param name="AnotherText"></param>
-    /// <returns></returns>
-    public static bool IsAnagramOf(this string Text, string AnotherText)
-    {
-        var char1 = Text?.ToLowerInvariant().ToCharArray() ?? Array.Empty<char>();
-        var char2 = AnotherText?.ToLowerInvariant().ToCharArray() ?? Array.Empty<char>();
-        Array.Sort(char1);
-        Array.Sort(char2);
-        string NewWord1 = new string(char1);
-        string NewWord2 = new string(char2);
-        return NewWord1 == NewWord2;
-    }
-
-    /// <summary>
-    /// Compara se uma string é igual a outras strings
-    /// </summary>
-    /// <param name="Text">string principal</param>
-    /// <param name="Texts">strings para comparar</param>
-    /// <returns>TRUE se alguma das strings for igual a principal</returns>
-    public static bool IsAny(this string Text, params string[] Texts) => Text.IsAny(default, Texts);
-
-    /// <summary>
-    /// Compara se uma string é igual a outras strings
-    /// </summary>
-    /// <param name="Text">string principal</param>
-    /// <param name="Texts">strings para comparar</param>
-    /// <returns>TRUE se alguma das strings for igual a principal</returns>
-    public static bool IsAny(this string Text, StringComparison Comparison, params string[] Texts) => (Texts ?? Array.Empty<string>()).Any(x => Text.Equals(x, Comparison));
-
-    public static bool IsAny<T>(this T obj, params T[] others) => others?.Any(x => x.Equals(obj)) ?? false;
-
-    public static bool IsArray<T>(T Obj)
-    {
-        try
+        public static T GetValue<T>(this DataRow row, int ColumnIndex = 0)
         {
-            var ValueType = Obj.GetType();
-            return !(ValueType == typeof(string)) && ValueType.IsArray; //  GetType(T).IsAssignableFrom(ValueType.GetElementType())
-        }
-        catch
-        {
-            return false;
-        }
-    }
-
-    /// <summary>
-    /// Verifica se o tipo é um array de um objeto especifico
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="Type"></param>
-    /// <returns></returns>
-    public static bool IsArrayOf<T>(this Type Type) => Type == typeof(T[]);
-
-    /// <summary>
-    /// Verifica se o tipo é um array de um objeto especifico
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="Obj"></param>
-    /// <returns></returns>
-    public static bool IsArrayOf<T>(this object Obj) => Obj.GetTypeOf().IsArrayOf<T>();
-
-    /// <summary>
-    /// Retorna verdadeiro se identificar que a string é base64
-    /// </summary>
-    /// <param name="base64String"></param>
-    /// <returns></returns>
-    public static bool IsBase64(this string base64String)
-    {
-        // Credit: oybek https://stackoverflow.com/users/794764/oybek
-        if (string.IsNullOrWhiteSpace(base64String) ||
-            base64String.Length % 4 != 0 ||
-            base64String.Contains(" ") ||
-            base64String.Contains("\t") ||
-            base64String.Contains("\r") ||
-            base64String.Contains("\n"))
-        {
-            return false;
-        }
-
-        try
-        {
-            Convert.FromBase64String(base64String);
-            return true;
-        }
-        catch
-        {
-            //ignore
-        }
-
-        return false;
-    }
-
-    public static Expression<Func<T, bool>> IsBetween<T, V>(this Expression<Func<T, V>> MinProperty, Expression<Func<T, V>> MaxProperty, IEnumerable<V> Values)
-    {
-        var exp = false.CreateWhereExpression<T>();
-        foreach (var item in Values ?? Array.Empty<V>())
-        {
-            exp = exp.Or(WhereExpression(MinProperty, "<", new[] { (IComparable)item }).And(WhereExpression(MaxProperty, ">", new[] { (IComparable)item })));
-        }
-
-        return exp;
-    }
-
-    public static Expression<Func<T, bool>> IsBetween<T, V>(this Expression<Func<T, V>> MinProperty, Expression<Func<T, V>> MaxProperty, params V[] Values)
-           => MinProperty.IsBetween(MaxProperty, Values.AsEnumerable());
-
-    public static Expression<Func<T, bool>> IsBetween<T, V>(this Expression<Func<T, V>> Property, V MinValue, V MaxValue)
-    {
-        if (MinValue.Equals(MaxValue))
-        {
-            return IsEqual(Property, MinValue);
-        }
-        else
-        {
-            return WhereExpression(Property, "between", new[] { (IComparable)MinValue, (IComparable)MaxValue });
-        }
-    }
-
-    public static Expression<Func<T, bool>> IsBetween<T>(this Expression<Func<T, DateTime>> Property, DateRange DateRange)
-    {
-        if (DateRange.IsSingleDateTime())
-        {
-            return IsEqual(Property, DateRange.StartDate);
-        }
-        else
-        {
-            return WhereExpression(Property, "between", new IComparable[] { DateRange.StartDate, DateRange.EndDate });
-        }
-    }
-
-    public static Expression<Func<T, bool>> IsBetween<T>(this Expression<Func<T, DateTime?>> Property, DateRange DateRange)
-    {
-        if (DateRange.IsSingleDateTime())
-        {
-            return IsEqual(Property, DateRange.StartDate);
-        }
-        else
-        {
-            return WhereExpression(Property, "between", new IComparable[] { (DateTime?)DateRange.StartDate, (DateTime?)DateRange.EndDate });
-        }
-    }
-
-    /// <summary>
-    /// Verifica se <paramref name="Value"/> é igual a <paramref name="MinValue"/> ou está entre
-    /// <paramref name="MinValue"/> e <paramref name="MaxValue"/>
-    /// </summary>
-    /// <remarks>
-    /// Retorna <b>true</b> se <paramref name="Value"/> for igual a <paramref name="MinValue"/>.
-    /// Retorna <b>false</b> se <paramref name="Value"/> for igual a <paramref
-    /// name="MaxValue"/>. <br/> Utilize <see cref="IsBetweenOrEqual(IComparable, IComparable,
-    /// IComparable)"/> para incluir <paramref name="MaxValue"/> ou <see
-    /// cref="IsBetweenExclusive(IComparable, IComparable, IComparable)"/> para excluir
-    /// <paramref name="MinValue"/>
-    /// </remarks>
-    /// <param name="Value">Numero</param>
-    /// <param name="MinValue">Primeiro comparador</param>
-    /// <param name="MaxValue">Segundo comparador</param>
-    /// <returns></returns>
-    public static bool IsBetween<T>(this T Value, T MinValue, T MaxValue) where T : IComparable
-    {
-        FixOrder(ref MinValue, ref MaxValue);
-        return MinValue.IsEqual(MaxValue) ? Value.IsEqual(MinValue) : Value.IsGreaterThanOrEqual(MinValue) && Value.IsLessThan(MaxValue);
-    }
-
-    /// <summary>
-    /// Verifica se <paramref name="Value"/> está entre <paramref name="MinValue"/> e <paramref name="MaxValue"/>
-    /// </summary>
-    /// <remarks>
-    /// Retorna <see cref="false"/> se <paramref name="Value"/> for igual a <paramref
-    /// name="MinValue"/> ou <paramref name="MaxValue"/>. <br/> Utilize <see
-    /// cref="IsBetween(IComparable, IComparable, IComparable)"/> para incluir <paramref
-    /// name="MinValue"/> ou <see cref="IsBetweenOrEqual(IComparable, IComparable,
-    /// IComparable)"/> para incluir ambos
-    /// </remarks>
-    /// <param name="Value">Numero</param>
-    /// <param name="MinValue">Primeiro comparador</param>
-    /// <param name="MaxValue">Segundo comparador</param>
-    /// <returns></returns>
-    public static bool IsBetweenExclusive<T>(this T Value, T MinValue, T MaxValue) where T : IComparable
-    {
-        FixOrder(ref MinValue, ref MaxValue);
-        return !MinValue.IsEqual(MaxValue) && Value.IsGreaterThan(MinValue) && Value.IsLessThan(MaxValue);
-    }
-
-    public static Expression<Func<T, bool>> IsBetweenOrEqual<T, V>(this Expression<Func<T, V>> MinProperty, Expression<Func<T, V>> MaxProperty, IEnumerable<V> Values)
-    {
-        var exp = false.CreateWhereExpression<T>();
-        foreach (var item in Values ?? Array.Empty<V>())
-        {
-            exp = exp.Or(WhereExpression(MinProperty, "<=", new[] { (IComparable)item }).And(WhereExpression(MaxProperty, ">=", new[] { (IComparable)item })));
-        }
-
-        return exp;
-    }
-
-    public static Expression<Func<T, bool>> IsBetweenOrEqual<T, V>(this Expression<Func<T, V>> MinProperty, Expression<Func<T, V>> MaxProperty, params V[] Values)
-           => MinProperty.IsBetweenOrEqual(MaxProperty, Values.AsEnumerable());
-
-    public static Expression<Func<T, bool>> IsBetweenOrEqual<T, V>(this Expression<Func<T, V>> Property, V MinValue, V MaxValue)
-    {
-        if (MinValue.Equals(MaxValue))
-        {
-            return IsEqual(Property, MinValue);
-        }
-        else
-        {
-            return WhereExpression(Property, "betweenorequal", new IComparable[] { (IComparable)MinValue, (IComparable)MaxValue });
-        }
-    }
-
-    /// <summary>
-    /// Verifica se <paramref name="Value"/> é igual ou está entre <paramref name="MinValue"/> e
-    /// <paramref name="MaxValue"/>
-    /// </summary>
-    /// <remarks>
-    /// Retorna <b>true</b> se <paramref name="Value"/> for igual a <paramref name="MinValue"/>
-    /// ou <paramref name="MaxValue"/>. <br/> Utilize <see cref="IsBetween(IComparable,
-    /// IComparable, IComparable)"/> para excluir <paramref name="MaxValue"/> ou <see
-    /// cref="IsBetweenExclusive(IComparable, IComparable, IComparable)"/> para excluir ambos
-    /// </remarks>
-    /// <param name="Value">Numero</param>
-    /// <param name="MinValue">Primeiro comparador</param>
-    /// <param name="MaxValue">Segundo comparador</param>
-    /// <returns></returns>
-    public static bool IsBetweenOrEqual<T>(this T Value, T MinValue, T MaxValue) where T : IComparable
-    {
-        FixOrder(ref MinValue, ref MaxValue);
-        return Value.IsGreaterThanOrEqual(MinValue) && Value.IsLessThanOrEqual(MaxValue);
-    }
-
-    /// <summary>
-    /// Verifica se uma variavel está em branco. (nula, vazia ou somente brancos para string,
-    /// null ou 0 para tipos primitivos, null ou ToString() em branco para tipos de referencia.
-    /// Null ou vazio para arrays)
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="Value"></param>
-    /// <returns></returns>
-    public static bool IsBlank(this object Value)
-    {
-        try
-        {
-            if (Value != null)
+            try
             {
-                var tipo = Value.GetTypeOf();
+                return ChangeType<T>(row != null ? row[ColumnIndex] : default);
+            }
+            catch
+            {
+                return default;
+            }
+        }
 
-                if (tipo.IsNumericType())
+        public static T GetValue<T>(this DataRow row, string ColumnNameOrIndex)
+        {
+            try
+            {
+                return ChangeType<T>(row != null ? row[ColumnNameOrIndex] : default);
+            }
+            catch
+            {
+                if (ColumnNameOrIndex.IsNumber())
                 {
-                    return Value.ChangeType<decimal>() == 0;
+                    return GetValue<T>(row, ColumnNameOrIndex.ToInt());
                 }
-                else if (Value is FormattableString fs)
+            }
+            return default;
+        }
+
+        /// <inheritdoc cref="GetValue{T}(DataRow, string, Expression{Func{object, object}})"/>
+        public static string GetValue(this DataRow row, string Name = null, Expression<Func<object, object>> valueParser = null) => GetValue<string>(row, Name, valueParser);
+
+        /// <summary>
+        /// Retorna o valor da coluna <paramref name="Name"/> de uma <see cref="DataRow"/>
+        /// convertido para <typeparamref name="T"/> e previamente tratado pela função <paramref name="valueParser"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="row"></param>
+        /// <param name="Name"></param>
+        /// <param name="valueParser"></param>
+        /// <returns></returns>
+        public static T GetValue<T>(this DataRow row, string Name = null, Expression<Func<object, object>> valueParser = null)
+        {
+            try
+            {
+                if (row == null)
                 {
-                    return IsBlank($"{fs}".ToUpperInvariant());
+                    throw new ArgumentException("Row is null");
                 }
-                else if (Value is bool b)
+
+                object v = null;
+
+                if (Name.IsNotBlank() && Name.IsNotNumber())
                 {
-                    return !b;
+                    v = row[Name];
                 }
-                else if (Value is string s)
+                else
                 {
-                    return string.IsNullOrWhiteSpace($"{s}".RemoveAny(PredefinedArrays.BreakLineChars.ToArray()));
+                    v = row[Name.IfBlank(0)];
                 }
-                else if (Value is char c)
+
+                if (v == null || v == DBNull.Value)
                 {
-                    return string.IsNullOrWhiteSpace($"{c}".RemoveAny(PredefinedArrays.BreakLineChars.ToArray()));
+                    return default;
                 }
-                else if (Value is DateTime time)
+
+                if (valueParser != null)
                 {
-                    return time.Equals(DateTime.MinValue);
+                    v = valueParser.Compile().Invoke(v);
                 }
-                else if (Value is TimeSpan span)
+
+                return typeof(T).IsEnum ? v.ToString().GetEnumValue<T>() : v.ChangeType<T>();
+            }
+            catch (Exception ex)
+            {
+                LogWriter.WriteLine(ex.ToFullExceptionString());
+                return default;
+            }
+        }
+
+        public static string GetValue(this DataTable Table, string Name = null, Expression<Func<object, object>> valueParser = null) => GetValue<string>(Table, Name, valueParser);
+
+        public static string GetValue(this DataSet Data, string Name = null, Expression<Func<object, object>> valueParser = null) => GetValue<string>(Data, Name, valueParser);
+
+        public static T GetValue<T>(this DataSet Data, string Name = null, Expression<Func<object, object>> valueParser = null)
+        {
+            var r = Data.GetFirstRow();
+            return r == null ? default : r.GetValue<T>(Name, valueParser);
+        }
+
+        public static T GetValue<T>(this DataTable Table, string Name = null, Expression<Func<object, object>> valueParser = null)
+        {
+            var r = Table.GetFirstRow();
+            return r == null ? default : r.GetValue<T>(Name, valueParser);
+        }
+
+        /// <summary>
+        /// Tries to get a value from <see cref="Dictionary{TKey, TValue}"/>. if fails, return
+        /// <paramref name="ReplaceValue"/>
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="Dic"></param>
+        /// <param name="Key"></param>
+        /// <param name="ReplaceValue"></param>
+        /// <remarks>
+        /// if <paramref name="ReplaceValue"/> is not provided. the default value for type
+        /// <typeparamref name="TValue"/> is returned
+        /// </remarks>
+        /// <returns></returns>
+        public static TValue GetValueOr<TKey, TValue>(this IDictionary<TKey, TValue> Dic, TKey Key, TValue ReplaceValue = default) => Dic != null && Dic.ContainsKey(Key) ? Dic[Key] : ReplaceValue;
+
+        /// <summary>
+        /// Captura o Id de um video do YOUTUBE ou VIMEO em uma URL
+        /// </summary>
+        /// <param name="URL">URL do video</param>
+        /// <returns>ChaveFormatadaTraco do video do youtube ou Vimeo</returns>
+        public static string GetVideoID(this Uri URL) => GetVideoID(URL.AbsoluteUri);
+
+        /// <summary>
+        /// Captura o Id de um video do youtube em uma URL
+        /// </summary>
+        /// <param name="URL">URL do video</param>
+        /// <returns>Id do video do youtube</returns>
+        public static string GetVideoID(this string URL)
+        {
+            if (URL.IsURL())
+            {
+                if (URL.GetDomain().ContainsAny("youtube", "youtu"))
                 {
-                    return span.Equals(TimeSpan.MinValue);
+                    return Regex.Match(URL.ReplaceNone("&feature=youtu.be"), @"(?:https?:\/\/)?(?:www\.)?youtu(?:.be\/|be\.com\/watch\?v=|be\.com\/v\/)(.{8,})").Groups[1].Value;
                 }
-                else if (Value is DateTimeOffset off)
+                else if (URL.GetDomain().ContainsAny("vimeo"))
                 {
-                    return off.Equals(DateTimeOffset.MinValue);
+                    return Regex.Match(URL, @"vimeo\.com/(?:.*#|.*/videos/)?([0-9]+)").Groups[1].Value;
                 }
-                else if (Value.IsEnumerableNotString() && Value is IEnumerable enumerable)
+            }
+
+            throw new ArgumentException("Invalid Youtube or Vimeo URL", nameof(URL));
+        }
+
+        /// <summary>
+        /// Retorna uma lista de palavras encontradas no texto em ordem alfabetica
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <returns></returns>
+        public static IOrderedEnumerable<string> GetWords(this string Text)
+        {
+            var txt = new List<string>();
+            var palavras = Text.TrimBetween().FixHTMLBreakLines().ToLowerInvariant().RemoveHTML().Split(PredefinedArrays.WordSplitters.ToArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
+            foreach (var w in palavras)
+            {
+                txt.Add(w);
+            }
+
+            return txt.Distinct().OrderBy(x => x);
+        }
+
+        /// <summary>
+        /// Captura todas as sentenças que estão entre aspas ou parentesis ou chaves ou colchetes em
+        /// um texto
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <returns></returns>
+        public static string[] GetWrappedText(this string Text, string Character = DoubleQuoteChar, bool ExcludeWrapChars = true)
+        {
+            var lista = new List<string>();
+            string regx = $"{Character.RegexEscape()}(.*?){Character.GetOppositeWrapChar().RegexEscape()}";
+            var mm = new Regex(regx, (RegexOptions)((int)RegexOptions.Singleline + (int)RegexOptions.IgnoreCase)).Matches(Text);
+            foreach (Match a in mm)
+            {
+                if (ExcludeWrapChars)
                 {
-                    foreach (object item in enumerable)
+                    lista.Add(a.Value.RemoveFirstEqual(Character).RemoveLastEqual(Character.GetOppositeWrapChar()));
+                }
+                else
+                {
+                    lista.Add(a.Value);
+                }
+            }
+
+            return lista.ToArray();
+        }
+
+        /// <summary>
+        /// Captura a Thumbnail de um video do youtube
+        /// </summary>
+        /// <param name="URL">Url do Youtube</param>
+        /// <returns></returns>
+        public static Image GetYoutubeThumbnail(string URL) => DownloadImage($"http://img.youtube.com/vi/{GetVideoID(URL)}/hqdefault.jpg");
+
+        /// <summary>
+        /// Captura a Thumbnail de um video do youtube
+        /// </summary>
+        /// <param name="URL">Url do Youtube</param>
+        /// <returns></returns>
+        public static Image GetYoutubeThumbnail(this Uri URL) => GetYoutubeThumbnail(URL?.AbsoluteUri);
+
+        /// <summary>
+        /// Converte uma Imagem para Escala de cinza
+        /// </summary>
+        /// <param name="img">imagem original</param>
+        /// <returns></returns>
+        public static Image Grayscale(this Image img)
+        {
+            var copia = new Bitmap(img);
+            var cm = new ColorMatrix(new float[][] { new float[] { 0.299f, 0.299f, 0.299f, 0f, 0f }, new float[] { 0.587f, 0.587f, 0.587f, 0f, 0f }, new float[] { 0.114f, 0.114f, 0.114f, 0f, 0f }, new float[] { 0f, 0f, 0f, 1f, 0f }, new float[] { 0f, 0f, 0f, 0f, 1f } });
+            return ApplyColorMatrix(copia, cm);
+
+        }
+
+        public static IEnumerable<HSVColor> GrayscalePallette(int Amount) => MonochromaticPallette(Color.White, Amount);
+
+        /// <summary>
+        /// Constroi uma expressão Maior que
+        /// </summary>
+        /// <param name="MemberExpression"></param>
+        /// <param name="ValueExpression"></param>
+        /// <returns></returns>
+        public static BinaryExpression GreaterThan(this Expression MemberExpression, Expression ValueExpression)
+        {
+            FixNullable(ref MemberExpression, ref ValueExpression);
+            return Expression.GreaterThan(MemberExpression, ValueExpression);
+        }
+
+        /// <summary>
+        /// Constroi uma expressão Maior ou Igual
+        /// </summary>
+        /// <param name="MemberExpression"></param>
+        /// <param name="ValueExpression"></param>
+        /// <returns></returns>
+        public static BinaryExpression GreaterThanOrEqual(this Expression MemberExpression, Expression ValueExpression)
+        {
+            FixNullable(ref MemberExpression, ref ValueExpression);
+            return Expression.GreaterThanOrEqual(MemberExpression, ValueExpression);
+        }
+
+        /// <summary>
+        /// Agrupa e conta os itens de uma lista a partir de uma propriedade
+        /// </summary>
+        /// <typeparam name="Type"></typeparam>
+        /// <typeparam name="Group"></typeparam>
+        /// <param name="obj"></param>
+        /// <param name="GroupSelector"></param>
+        /// <returns></returns>
+        public static Dictionary<Group, long> GroupAndCountBy<Type, Group>(this IEnumerable<Type> obj, Func<Type, Group> GroupSelector) => obj.GroupBy(GroupSelector).Select(x => new KeyValuePair<Group, long>(x.Key, x.LongCount())).ToDictionary();
+
+        /// <summary>
+        /// Agrupa itens de uma lista a partir de uma propriedade e conta os resultados de cada
+        /// grupo a partir de outra propriedade do mesmo objeto
+        /// </summary>
+        /// <typeparam name="Type"></typeparam>
+        /// <typeparam name="Group"></typeparam>
+        /// <typeparam name="Count"></typeparam>
+        /// <param name="obj"></param>
+        /// <param name="GroupSelector"></param>
+        /// <param name="CountObjectBy"></param>
+        /// <returns></returns>
+        public static Dictionary<Group, Dictionary<Count, long>> GroupAndCountSubGroupBy<Type, Group, Count>(this IEnumerable<Type> obj, Func<Type, Group> GroupSelector, Func<Type, Count> CountObjectBy)
+        {
+            var dic_of_dic = obj.GroupBy(GroupSelector).Select(x => new KeyValuePair<Group, Dictionary<Count, long>>(x.Key, x.GroupBy(CountObjectBy).ToDictionary(y => y.Key, y => y.LongCount()))).ToDictionary();
+            dic_of_dic.Values.MergeKeys();
+
+            return dic_of_dic;
+        }
+
+        /// <summary>
+        /// Agrupa itens de uma lista a partir de duas propriedades de um objeto resultado em um
+        /// grupo com subgrupos daquele objeto
+        /// </summary>
+        /// <typeparam name="Type"></typeparam>
+        /// <typeparam name="Group"></typeparam>
+        /// <typeparam name="SubGroup"></typeparam>
+        /// <param name="obj"></param>
+        /// <param name="GroupSelector"></param>
+        /// <param name="SubGroupSelector"></param>
+        /// <returns></returns>
+        public static Dictionary<Group, Dictionary<SubGroup, IEnumerable<Type>>> GroupAndSubGroupBy<Type, Group, SubGroup>(this IEnumerable<Type> obj, Func<Type, Group> GroupSelector, Func<Type, SubGroup> SubGroupSelector)
+        {
+            var dic_of_dic = obj.GroupBy(GroupSelector).Select(x => new KeyValuePair<Group, Dictionary<SubGroup, IEnumerable<Type>>>(x.Key, x.GroupBy(SubGroupSelector).ToDictionary(y => y.Key, y => y.AsEnumerable()))).ToDictionary();
+            dic_of_dic.Values.MergeKeys();
+            return dic_of_dic;
+        }
+
+        /// <summary>
+        /// Criar um <see cref="Dictionary"/> agrupando os itens em páginas de um tamanho especifico
+        /// </summary>
+        /// <typeparam name="Tsource"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="PageSize"></param>
+        /// <returns></returns>
+        public static Dictionary<long, IEnumerable<Tsource>> GroupByPage<Tsource>(this IQueryable<Tsource> source, int PageSize) => source.AsEnumerable().GroupByPage(PageSize);
+
+        /// <summary>
+        /// Criar um <see cref="Dictionary"/> agrupando os itens em páginas de um tamanho especifico
+        /// </summary>
+        /// <typeparam name="Tsource"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="PageSize"></param>
+        /// <returns></returns>
+        public static Dictionary<long, IEnumerable<Tsource>> GroupByPage<Tsource>(this IEnumerable<Tsource> source, int PageSize) => source.Select((item, index) => new { item, Page = index / (double)PageSize.SetMinValue(1) }).GroupBy(g => g.Page.FloorLong() + 1L, x => x.item).ToDictionary();
+
+        /// <summary>
+        /// Verifica se um atributo foi definido em uma propriedade de uma classe
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="attribType"></param>
+        /// <returns></returns>
+        public static bool HasAttribute(this PropertyInfo target, Type attribType) => target?.GetCustomAttributes(attribType, false).Any() ?? false;
+
+        /// <summary>
+        /// Verifica se um atributo foi definido em uma propriedade de uma classe
+        /// </summary>
+        /// <param name="target"></param>
+        /// <returns></returns>
+        public static bool HasAttribute<T>(this PropertyInfo target) => target?.HasAttribute(typeof(T)) ?? false;
+
+        /// <summary>
+        /// Check if number has decimal part
+        /// </summary>
+        /// <param name="Value"></param>
+        /// <returns></returns>
+        public static bool HasDecimalPart(this decimal Value) => !(Value.ForcePositive() % 1m == 0m) && Value.ForcePositive() > 0m;
+
+        /// <summary>
+        /// Verifica se um numero possui parte decimal
+        /// </summary>
+        /// <param name="Value"></param>
+        /// <returns></returns>
+        public static bool HasDecimalPart(this double Value) => Value.ToDecimal().HasDecimalPart();
+
+        /// <summary>
+        /// Verifica se um diretório possui subdiretórios
+        /// </summary>
+        /// <param name="Directory">Diretório</param>
+        /// <returns></returns>
+        public static bool HasDirectories(this DirectoryInfo Directory) => Directory?.GetDirectories().Any() ?? false;
+
+        /// <summary>
+        /// Verifica se um diretório possui arquivos
+        /// </summary>
+        /// <param name="Directory">Diretório</param>
+        /// <returns></returns>
+        public static bool HasFiles(this DirectoryInfo Directory) => Directory?.GetFiles().Any() ?? false;
+
+        public static bool HasLength(this string Text, int Length) => Text != null && Text.Length == Length;
+
+        public static bool HasMaxLength(this string Text, int Length) => Text != null && Text.Length <= Length;
+
+        public static bool HasMinLength(this string Text, int Length) => Text != null && Text.Length >= Length;
+
+        /// <summary>
+        /// Verifica se um tipo possui uma propriedade
+        /// </summary>
+        /// <param name="Type"></param>
+        /// <param name="PropertyName"></param>
+        /// <returns></returns>
+        public static bool HasProperty(this Type Type, string PropertyName, bool GetPrivate = false)
+        {
+            if (Type != null && PropertyName.IsNotBlank())
+            {
+                var parts = new List<string>();
+                bool stop = false;
+                string current = EmptyString;
+                for (int i = 0, loopTo = PropertyName.Length - 1; i <= loopTo; i++)
+                {
+                    if (PropertyName[i] != '.')
                     {
-                        if (item.IsNotBlank())
+                        current += $"{PropertyName[i]}";
+                    }
+
+                    if (PropertyName[i] == '[')
+                    {
+                        stop = true;
+                    }
+
+                    if (PropertyName[i] == ']')
+                    {
+                        stop = false;
+                    }
+
+                    if (PropertyName[i] == '.' && !stop || i == PropertyName.Length - 1)
+                    {
+                        parts.Add(current.ToString());
+                        current = EmptyString;
+                    }
+                }
+
+                PropertyInfo prop;
+                string propname = parts.First().GetBefore("[");
+                if (GetPrivate)
+                {
+                    prop = Type.GetProperty(propname, (BindingFlags)((int)BindingFlags.Public + (int)BindingFlags.NonPublic + (int)BindingFlags.Instance));
+                }
+                else
+                {
+                    prop = Type.GetProperty(propname);
+                }
+
+                bool exist = prop != null;
+                parts.RemoveAt(0);
+                if (exist && parts.Count > 0)
+                {
+                    exist = prop.PropertyType.HasProperty(parts.First(), GetPrivate);
+                }
+
+                return exist;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Verifica se um tipo possui uma propriedade
+        /// </summary>
+        /// <param name="Obj"></param>
+        /// <param name="Name"></param>
+        /// <returns></returns>
+        public static bool HasProperty(this object Obj, string Name) => Obj?.GetType().HasProperty(Name, true) ?? false;
+
+        public static T Hide<T>(this T dir) where T : FileSystemInfo
+        {
+            if (dir != null && dir.Exists)
+            {
+                if (!dir.Attributes.HasFlag(FileAttributes.Hidden))
+                {
+                    dir.Attributes |= FileAttributes.Hidden;
+                }
+            }
+            return dir;
+        }
+
+        /// <summary>
+        /// Retorna um texto com entidades HTML convertidas para caracteres e tags BR em breaklines
+        /// </summary>
+        /// <param name="Text">string HTML</param>
+        /// <returns>String HTML corrigido</returns>
+        public static string HtmlDecode(this string Text) => WebUtility.HtmlDecode(EmptyString + Text).ReplaceMany(Environment.NewLine, "<br/>", "<br />", "<br>");
+
+        /// <summary>
+        /// Escapa o texto HTML
+        /// </summary>
+        /// <param name="Text">string HTML</param>
+        /// <returns>String HTML corrigido</returns>
+        public static string HtmlEncode(this string Text) => WebUtility.HtmlEncode(EmptyString + Text.ReplaceMany("<br>", PredefinedArrays.BreakLineChars.ToArray()));
+
+        /// <summary>
+        /// Verifica se uma variavel está vazia, em branco ou nula e retorna um outro valor caso TRUE
+        /// </summary>
+        /// <typeparam name="T">Tipo da Variavel</typeparam>
+        /// <param name="Value">Valor</param>
+        /// <param name="ValueIfBlank">Valor se estiver em branco</param>
+        /// <returns></returns>
+        public static T IfBlank<T>(this object Value, T ValueIfBlank = default) => Value.IsBlank() ? ValueIfBlank : ChangeType<T>(Value);
+
+        /// <summary>
+        /// Tenta retornar um valor de um IEnumerable a partir de um Index especifico. retorna um
+        /// valor default se o index nao existir ou seu valor for branco ou null
+        /// </summary>
+        /// <typeparam name="T">Tipo do IEnumerable e do valor</typeparam>
+        /// <param name="Arr">Array</param>
+        /// <param name="Index">Posicao</param>
+        /// <param name="ValueIfBlankOrNoIndex">Valor se o mesmo nao existir</param>
+        /// <returns></returns>
+        public static T IfBlankOrNoIndex<T>(this IEnumerable<T> Arr, int Index, T ValueIfBlankOrNoIndex) => (Arr ?? Array.Empty<T>()).IfNoIndex(Index, ValueIfBlankOrNoIndex).IfBlank(ValueIfBlankOrNoIndex);
+
+        /// <summary>
+        /// Tenta retornar um valor de um IEnumerable a partir de um Index especifico. retorna um
+        /// valor default se o index nao existir
+        /// </summary>
+        /// <typeparam name="T">Tipo do IEnumerable e do valor</typeparam>
+        /// <param name="Arr">Array</param>
+        /// <param name="Index">Posicao</param>
+        /// <param name="ValueIfNoIndex">Valor se o mesmo nao existir</param>
+        /// <returns></returns>
+        public static T IfNoIndex<T>(this IEnumerable<T> Arr, int Index, T ValueIfNoIndex = default)
+        {
+            var item = (Arr ?? Array.Empty<T>()).ElementAtOrDefault(Index);
+            return item == null ? ValueIfNoIndex : item;
+        }
+
+        /// <summary>
+        /// Executa uma função para uma variavel se a mesma nao estiver em branco ( <see cref="IsBlank{T}())"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Value"></param>
+        /// <param name="ExpressionIfBlank"></param>
+        /// <returns></returns>
+        public static T IfNotBlank<T>(this T Value, Expression<Func<T, T>> ExpressionIfBlank)
+        {
+            if (Value.IsNotBlank())
+            {
+                if (ExpressionIfBlank != null)
+                {
+                    try
+                    {
+                        return ExpressionIfBlank.Compile().Invoke(Value);
+                    }
+                    catch { }
+                }
+            }
+            return Value;
+        }
+
+        /// <summary>
+        /// Verifica se um array está vazio ou nula e retorna um outro valor caso TRUE
+        /// </summary>
+        /// <typeparam name="T">Tipo da Variavel</typeparam>
+        /// <param name="Value">Valor</param>
+        /// <param name="ValuesIfBlank">Valor se estiver em branco</param>
+        /// <returns></returns>
+        public static T[] IfNullOrEmpty<T>(this object[] Value, params T[] ValuesIfBlank) => Value == null || !Value.Any() ? ValuesIfBlank ?? Array.Empty<T>() : Value.ChangeArrayType<T, object>();
+
+        /// <summary>
+        /// Verifica se um array está vazio ou nula e retorna um outro valor caso TRUE
+        /// </summary>
+        /// <typeparam name="T">Tipo da Variavel</typeparam>
+        /// <param name="Value">Valor</param>
+        /// <param name="ValuesIfBlank">Valor se estiver em branco</param>
+        /// <returns></returns>
+        public static IEnumerable<T> IfNullOrEmpty<T>(this IEnumerable<object[]> Value, params T[] ValuesIfBlank) => Value != null && Value.Any() ? Value.ChangeIEnumerableType<T, object[]>() : ValuesIfBlank;
+
+        /// <summary>
+        /// Verifica se um array está vazio ou nula e retorna um outro valor caso TRUE
+        /// </summary>
+        /// <typeparam name="T">Tipo da Variavel</typeparam>
+        /// <param name="Value">Valor</param>
+        /// <param name="ValueIfBlank">Valor se estiver em branco</param>
+        /// <returns></returns>
+        public static IEnumerable<T> IfNullOrEmpty<T>(this IEnumerable<object[]> Value, IEnumerable<T> ValueIfBlank) => Value != null && Value.Any() ? Value.ChangeIEnumerableType<T, object[]>() : ValueIfBlank;
+
+        public static int Increment(this int Num, int Inc = 1) => Num + Inc.SetMinValue(0);
+
+        public static long Increment(this long Num, long Inc = 1) => Num + Inc.SetMinValue(0L);
+
+        /// <summary>
+        /// Inject the property values of <typeparamref name="T"/> into <see cref="String"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="formatString"></param>
+        /// <param name="injectionObject"></param>
+        /// <returns></returns>
+        public static string Inject<T>(this string formatString, T injectionObject)
+        {
+            if (injectionObject != null)
+            {
+                return injectionObject.IsDictionary()
+                    ? formatString.Inject(new Hashtable((IDictionary)injectionObject))
+                    : formatString.Inject(GetPropertyHash(injectionObject));
+            }
+
+            return formatString;
+        }
+
+        public static string Inject(this string formatString, Hashtable attributes) => InjectBase(formatString, attributes, false);
+
+        /// <summary>
+        /// Inject the property values of <typeparamref name="T"/> into <paramref name="TemplatedString"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="formatString"></param>
+        /// <param name="injectionObject"></param>
+        /// <returns></returns>
+        public static string InjectInto<T>(this T Obj, string TemplatedString) => TemplatedString.IfBlank(EmptyString).Inject(Obj);
+
+        public static string InjectSingleValue(this string formatString, string key, object replacementValue, CultureInfo cultureInfo = null) => InjectSingleValueBase(formatString, key, replacementValue, false, cultureInfo);
+
+        public static string InjectSingleValueSQL(this string formatString, string key, object replacementValue, CultureInfo cultureInfo = null) => InjectSingleValueBase(formatString, key, replacementValue, true, cultureInfo);
+
+        /// <summary>
+        /// Inject the property values of <typeparamref name="T"/> into <see cref="String"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="formatString"></param>
+        /// <param name="injectionObject"></param>
+        /// <returns></returns>
+        public static string InjectSQL<T>(this string formatString, T injectionObject)
+        {
+            if (injectionObject != null)
+            {
+                return injectionObject.IsDictionary()
+                    ? formatString.InjectSQL(new Hashtable((IDictionary)injectionObject))
+                    : formatString.InjectSQL(GetPropertyHash(injectionObject));
+            }
+
+            return formatString;
+        }
+
+        public static string InjectSQL(this string formatString, Hashtable attributes) => InjectBase(formatString, attributes, true);
+
+        public static string InjectSQLInto<T>(this T Obj, string TemplatedString) => TemplatedString.IfBlank(EmptyString).InjectSQL(Obj);
+
+        /// <summary>
+        /// Insere uma imagem em outra imagem
+        /// </summary>
+        /// <param name="Image">Imagem</param>
+        /// <param name="InsertedImage">Imagem de Marca Dagua</param>
+        /// <param name="X">Posição X</param>
+        /// <param name="Y">Posição Y</param>
+        /// <returns></returns>
+        public static Image Insert(this Image Image, Image InsertedImage, int X = -1, int Y = -1)
+        {
+            var bm_Resultado = new Bitmap(Image);
+            var bm_marcaDagua = new Bitmap(InsertedImage.Resize(bm_Resultado.Width - 5, bm_Resultado.Height - 5));
+            if (X < 0)
+                X = (bm_Resultado.Width - bm_marcaDagua.Width) / 2;
+            if (Y < 0)
+                Y = (bm_Resultado.Height - bm_marcaDagua.Height) / 2;
+            var gr = Graphics.FromImage(bm_Resultado);
+            gr.DrawImage(bm_marcaDagua, X, Y);
+            return bm_Resultado;
+        }
+
+        public static string Interpolate(this string Text, params string[] Texts)
+        {
+            Text = Text.IfBlank(EmptyString);
+            Texts = Texts ?? Array.Empty<string>();
+
+            var s = Texts.ToList();
+            s.Insert(0, Text);
+
+            var ns = EmptyString;
+            var len = s.Max(x => x.Length);
+            for (int i = 0; i < len; i++)
+            {
+                foreach (var item in s)
+                {
+                    ns += item.AsEnumerable().IfNoIndex(i, WhitespaceChar.FirstOrDefault());
+                }
+            }
+
+            return ns;
+        }
+
+        /// <summary>
+        /// Verifica se uma palavra é um Anagrama de outra palavra
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <param name="AnotherText"></param>
+        /// <returns></returns>
+        public static bool IsAnagramOf(this string Text, string AnotherText)
+        {
+            var char1 = Text?.ToLowerInvariant().ToCharArray() ?? Array.Empty<char>();
+            var char2 = AnotherText?.ToLowerInvariant().ToCharArray() ?? Array.Empty<char>();
+            Array.Sort(char1);
+            Array.Sort(char2);
+            string NewWord1 = new string(char1);
+            string NewWord2 = new string(char2);
+            return NewWord1 == NewWord2;
+        }
+
+        /// <summary>
+        /// Compara se uma string é igual a outras strings
+        /// </summary>
+        /// <param name="Text">string principal</param>
+        /// <param name="Texts">strings para comparar</param>
+        /// <returns>TRUE se alguma das strings for igual a principal</returns>
+        public static bool IsAny(this string Text, params string[] Texts) => Text.IsAny(default, Texts);
+
+        /// <summary>
+        /// Compara se uma string é igual a outras strings
+        /// </summary>
+        /// <param name="Text">string principal</param>
+        /// <param name="Texts">strings para comparar</param>
+        /// <returns>TRUE se alguma das strings for igual a principal</returns>
+        public static bool IsAny(this string Text, StringComparison Comparison, params string[] Texts) => (Texts ?? Array.Empty<string>()).Any(x => Text.Equals(x, Comparison));
+
+        public static bool IsAny<T>(this T obj, params T[] others) => others?.Any(x => x.Equals(obj)) ?? false;
+
+        public static bool IsArray<T>(T Obj)
+        {
+            try
+            {
+                var ValueType = Obj.GetType();
+                return !(ValueType == typeof(string)) && ValueType.IsArray; //  GetType(T).IsAssignableFrom(ValueType.GetElementType())
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Verifica se o tipo é um array de um objeto especifico
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Type"></param>
+        /// <returns></returns>
+        public static bool IsArrayOf<T>(this Type Type) => Type == typeof(T[]);
+
+        /// <summary>
+        /// Verifica se o tipo é um array de um objeto especifico
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Obj"></param>
+        /// <returns></returns>
+        public static bool IsArrayOf<T>(this object Obj) => Obj.GetTypeOf().IsArrayOf<T>();
+
+        /// <summary>
+        /// Retorna verdadeiro se identificar que a string é base64
+        /// </summary>
+        /// <param name="base64String"></param>
+        /// <returns></returns>
+        public static bool IsBase64(this string base64String)
+        {
+            // Credit: oybek https://stackoverflow.com/users/794764/oybek
+            if (string.IsNullOrWhiteSpace(base64String) ||
+                base64String.Length % 4 != 0 ||
+                base64String.Contains(" ") ||
+                base64String.Contains("\t") ||
+                base64String.Contains("\r") ||
+                base64String.Contains("\n"))
+            {
+                return false;
+            }
+
+            try
+            {
+                Convert.FromBase64String(base64String);
+                return true;
+            }
+            catch
+            {
+                //ignore
+            }
+
+            return false;
+        }
+
+        public static Expression<Func<T, bool>> IsBetween<T, V>(this Expression<Func<T, V>> MinProperty, Expression<Func<T, V>> MaxProperty, IEnumerable<V> Values)
+        {
+            var exp = false.CreateWhereExpression<T>();
+            foreach (var item in Values ?? Array.Empty<V>())
+            {
+                exp = exp.Or(WhereExpression(MinProperty, "<", new[] { (IComparable)item }).And(WhereExpression(MaxProperty, ">", new[] { (IComparable)item })));
+            }
+
+            return exp;
+        }
+
+        public static Expression<Func<T, bool>> IsBetween<T, V>(this Expression<Func<T, V>> MinProperty, Expression<Func<T, V>> MaxProperty, params V[] Values)
+               => MinProperty.IsBetween(MaxProperty, Values.AsEnumerable());
+
+        public static Expression<Func<T, bool>> IsBetween<T, V>(this Expression<Func<T, V>> Property, V MinValue, V MaxValue)
+        {
+            if (MinValue.Equals(MaxValue))
+            {
+                return IsEqual(Property, MinValue);
+            }
+            else
+            {
+                return WhereExpression(Property, "between", new[] { (IComparable)MinValue, (IComparable)MaxValue });
+            }
+        }
+
+        public static Expression<Func<T, bool>> IsBetween<T>(this Expression<Func<T, DateTime>> Property, DateRange DateRange)
+        {
+            if (DateRange.IsSingleDateTime())
+            {
+                return IsEqual(Property, DateRange.StartDate);
+            }
+            else
+            {
+                return WhereExpression(Property, "between", new IComparable[] { DateRange.StartDate, DateRange.EndDate });
+            }
+        }
+
+        public static Expression<Func<T, bool>> IsBetween<T>(this Expression<Func<T, DateTime?>> Property, DateRange DateRange)
+        {
+            if (DateRange.IsSingleDateTime())
+            {
+                return IsEqual(Property, DateRange.StartDate);
+            }
+            else
+            {
+                return WhereExpression(Property, "between", new IComparable[] { (DateTime?)DateRange.StartDate, (DateTime?)DateRange.EndDate });
+            }
+        }
+
+        /// <summary>
+        /// Verifica se <paramref name="Value"/> é igual a <paramref name="MinValue"/> ou está entre
+        /// <paramref name="MinValue"/> e <paramref name="MaxValue"/>
+        /// </summary>
+        /// <remarks>
+        /// Retorna <b>true</b> se <paramref name="Value"/> for igual a <paramref name="MinValue"/>.
+        /// Retorna <b>false</b> se <paramref name="Value"/> for igual a <paramref
+        /// name="MaxValue"/>. <br/> Utilize <see cref="IsBetweenOrEqual(IComparable, IComparable,
+        /// IComparable)"/> para incluir <paramref name="MaxValue"/> ou <see
+        /// cref="IsBetweenExclusive(IComparable, IComparable, IComparable)"/> para excluir
+        /// <paramref name="MinValue"/>
+        /// </remarks>
+        /// <param name="Value">Numero</param>
+        /// <param name="MinValue">Primeiro comparador</param>
+        /// <param name="MaxValue">Segundo comparador</param>
+        /// <returns></returns>
+        public static bool IsBetween<T>(this T Value, T MinValue, T MaxValue) where T : IComparable
+        {
+            FixOrder(ref MinValue, ref MaxValue);
+            return MinValue.IsEqual(MaxValue) ? Value.IsEqual(MinValue) : Value.IsGreaterThanOrEqual(MinValue) && Value.IsLessThan(MaxValue);
+        }
+
+        /// <summary>
+        /// Verifica se <paramref name="Value"/> está entre <paramref name="MinValue"/> e <paramref name="MaxValue"/>
+        /// </summary>
+        /// <remarks>
+        /// Retorna <see cref="false"/> se <paramref name="Value"/> for igual a <paramref
+        /// name="MinValue"/> ou <paramref name="MaxValue"/>. <br/> Utilize <see
+        /// cref="IsBetween(IComparable, IComparable, IComparable)"/> para incluir <paramref
+        /// name="MinValue"/> ou <see cref="IsBetweenOrEqual(IComparable, IComparable,
+        /// IComparable)"/> para incluir ambos
+        /// </remarks>
+        /// <param name="Value">Numero</param>
+        /// <param name="MinValue">Primeiro comparador</param>
+        /// <param name="MaxValue">Segundo comparador</param>
+        /// <returns></returns>
+        public static bool IsBetweenExclusive<T>(this T Value, T MinValue, T MaxValue) where T : IComparable
+        {
+            FixOrder(ref MinValue, ref MaxValue);
+            return !MinValue.IsEqual(MaxValue) && Value.IsGreaterThan(MinValue) && Value.IsLessThan(MaxValue);
+        }
+
+        public static Expression<Func<T, bool>> IsBetweenOrEqual<T, V>(this Expression<Func<T, V>> MinProperty, Expression<Func<T, V>> MaxProperty, IEnumerable<V> Values)
+        {
+            var exp = false.CreateWhereExpression<T>();
+            foreach (var item in Values ?? Array.Empty<V>())
+            {
+                exp = exp.Or(WhereExpression(MinProperty, "<=", new[] { (IComparable)item }).And(WhereExpression(MaxProperty, ">=", new[] { (IComparable)item })));
+            }
+
+            return exp;
+        }
+
+        public static Expression<Func<T, bool>> IsBetweenOrEqual<T, V>(this Expression<Func<T, V>> MinProperty, Expression<Func<T, V>> MaxProperty, params V[] Values)
+               => MinProperty.IsBetweenOrEqual(MaxProperty, Values.AsEnumerable());
+
+        public static Expression<Func<T, bool>> IsBetweenOrEqual<T, V>(this Expression<Func<T, V>> Property, V MinValue, V MaxValue)
+        {
+            if (MinValue.Equals(MaxValue))
+            {
+                return IsEqual(Property, MinValue);
+            }
+            else
+            {
+                return WhereExpression(Property, "betweenorequal", new IComparable[] { (IComparable)MinValue, (IComparable)MaxValue });
+            }
+        }
+
+        /// <summary>
+        /// Verifica se <paramref name="Value"/> é igual ou está entre <paramref name="MinValue"/> e
+        /// <paramref name="MaxValue"/>
+        /// </summary>
+        /// <remarks>
+        /// Retorna <b>true</b> se <paramref name="Value"/> for igual a <paramref name="MinValue"/>
+        /// ou <paramref name="MaxValue"/>. <br/> Utilize <see cref="IsBetween(IComparable,
+        /// IComparable, IComparable)"/> para excluir <paramref name="MaxValue"/> ou <see
+        /// cref="IsBetweenExclusive(IComparable, IComparable, IComparable)"/> para excluir ambos
+        /// </remarks>
+        /// <param name="Value">Numero</param>
+        /// <param name="MinValue">Primeiro comparador</param>
+        /// <param name="MaxValue">Segundo comparador</param>
+        /// <returns></returns>
+        public static bool IsBetweenOrEqual<T>(this T Value, T MinValue, T MaxValue) where T : IComparable
+        {
+            FixOrder(ref MinValue, ref MaxValue);
+            return Value.IsGreaterThanOrEqual(MinValue) && Value.IsLessThanOrEqual(MaxValue);
+        }
+
+        /// <summary>
+        /// Verifica se uma variavel está em branco. (nula, vazia ou somente brancos para string,
+        /// null ou 0 para tipos primitivos, null ou ToString() em branco para tipos de referencia.
+        /// Null ou vazio para arrays)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Value"></param>
+        /// <returns></returns>
+        public static bool IsBlank(this object Value)
+        {
+            try
+            {
+                if (Value != null)
+                {
+                    var tipo = Value.GetTypeOf();
+
+                    if (tipo.IsNumericType())
+                    {
+                        return Value.ChangeType<decimal>() == 0;
+                    }
+                    else if (Value is FormattableString fs)
+                    {
+                        return IsBlank($"{fs}".ToUpperInvariant());
+                    }
+                    else if (Value is bool b)
+                    {
+                        return !b;
+                    }
+                    else if (Value is string s)
+                    {
+                        return string.IsNullOrWhiteSpace($"{s}".RemoveAny(PredefinedArrays.BreakLineChars.ToArray()));
+                    }
+                    else if (Value is char c)
+                    {
+                        return string.IsNullOrWhiteSpace($"{c}".RemoveAny(PredefinedArrays.BreakLineChars.ToArray()));
+                    }
+                    else if (Value is DateTime time)
+                    {
+                        return time.Equals(DateTime.MinValue);
+                    }
+                    else if (Value is TimeSpan span)
+                    {
+                        return span.Equals(TimeSpan.MinValue);
+                    }
+                    else if (Value is DateTimeOffset off)
+                    {
+                        return off.Equals(DateTimeOffset.MinValue);
+                    }
+                    else if (Value.IsEnumerableNotString() && Value is IEnumerable enumerable)
+                    {
+                        foreach (object item in enumerable)
                         {
-                            return false;
+                            if (item.IsNotBlank())
+                            {
+                                return false;
+                            }
                         }
                     }
                 }
             }
-        }
-        catch (Exception ex)
-        {
-            WriteDebug(ex);
-        }
-        return true;
-    }
-
-    /// <summary>
-    /// Verifica se uma String está em branco
-    /// </summary>
-    /// <param name="Text">Uma string</param>
-    /// <returns>TRUE se estivar vazia ou em branco, caso contrario FALSE</returns>
-    public static bool IsBlank(this FormattableString Text) => Text == null || $"{Text}".IsBlank();
-
-    public static bool IsBool<T>(this T Obj) => GetNullableTypeOf(Obj) == typeof(bool) || $"{Obj}".ToLowerInvariant().IsIn("true", "false");
-
-    public static bool IsBroken(this DbConnection Connection) => Connection != null && (Connection.State == ConnectionState.Broken);
-
-    public static bool IsClosed(this DbConnection Connection) => Connection != null && (Connection.State == ConnectionState.Closed);
-
-    public static bool IsCloseWrapChar(this string Text) => Text.GetFirstChars().IsIn(PredefinedArrays.CloseWrappers);
-
-    public static bool IsCloseWrapChar(this char c) => IsCloseWrapChar($"{c}");
-
-    /// <summary>
-    /// Verifica se o computador está conectado com a internet
-    /// </summary>
-    /// <returns></returns>
-    public static bool IsConnected(string Test = "http://google.com")
-    {
-        try
-        {
-            using (var client = new WebClient())
+            catch (Exception ex)
             {
-                using (var stream = client.OpenRead(Test))
+                WriteDebug(ex);
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Verifica se uma String está em branco
+        /// </summary>
+        /// <param name="Text">Uma string</param>
+        /// <returns>TRUE se estivar vazia ou em branco, caso contrario FALSE</returns>
+        public static bool IsBlank(this FormattableString Text) => Text == null || $"{Text}".IsBlank();
+
+        public static bool IsBool<T>(this T Obj) => GetNullableTypeOf(Obj) == typeof(bool) || $"{Obj}".ToLowerInvariant().IsIn("true", "false");
+
+        public static bool IsBroken(this DbConnection Connection) => Connection != null && (Connection.State == ConnectionState.Broken);
+
+        public static bool IsClosed(this DbConnection Connection) => Connection != null && (Connection.State == ConnectionState.Closed);
+
+        public static bool IsCloseWrapChar(this string Text) => Text.GetFirstChars().IsIn(PredefinedArrays.CloseWrappers);
+
+        public static bool IsCloseWrapChar(this char c) => IsCloseWrapChar($"{c}");
+
+        /// <summary>
+        /// Verifica se o computador está conectado com a internet
+        /// </summary>
+        /// <returns></returns>
+        public static bool IsConnected(string Test = "http://google.com")
+        {
+            try
+            {
+                using (var client = new WebClient())
+                {
+                    using (var stream = client.OpenRead(Test))
+                    {
+                        return true;
+                    }
+                }
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public static bool IsConnecting(this DbConnection Connection) => Connection != null && (Connection.State == ConnectionState.Connecting);
+
+        public static bool IsCrossLikeAny(this string Text, IEnumerable<string> Patterns) => (Patterns ?? Array.Empty<string>()).Any((Func<string, bool>)(x => Like(Text.IfBlank(EmptyString), x) || Like(x, Text)));
+
+        /// <summary>
+        /// Verifica se uma cor é escura
+        /// </summary>
+        /// <param name="TheColor">Cor</param>
+        /// <returns></returns>
+        public static bool IsDark(this Color TheColor) => new HSVColor(TheColor).IsDark();
+
+        /// <summary>
+        /// Retorna TRUE se o texto for um dataurl valido
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <returns></returns>
+        public static bool IsDataURL(this string Text)
+        {
+            try
+            {
+                return new Web.DataURI(Text).ToString().IsNotBlank();
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public static bool IsDate(this string Obj)
+        {
+            try
+            {
+                return DateTime.TryParse(Obj, out _);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public static bool IsDate<T>(this T Obj) => GetNullableTypeOf(Obj) == typeof(DateTime) || $"{Obj}".IsDate();
+
+        /// <summary>
+        /// Verifica se o objeto é um iDictionary
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public static bool IsDictionary(this object obj) => IsGenericOf(obj, typeof(IDictionary<,>)) || IsGenericOf(obj, typeof(IDictionary));
+
+        /// <summary>
+        /// Verifica se uma string é um caminho de diretório válido
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <returns>TRUE se o caminho for válido</returns>
+        public static bool IsDirectoryPath(this string Text)
+        {
+            if (Text.IsBlank())
+            {
+                return false;
+            }
+
+            Text = Text.Trim();
+            try
+            {
+                if (Directory.Exists(Text))
+                {
+                    return true;
+                }
+
+                if (File.Exists(Text))
+                {
+                    return false;
+                }
+            }
+            catch { }
+
+            try
+            {
+                // if has trailing slash then it's a directory
+
+                if (new string[] { Convert.ToString(Path.DirectorySeparatorChar, CultureInfo.InvariantCulture), Convert.ToString(Path.AltDirectorySeparatorChar, CultureInfo.InvariantCulture) }.Any(x => Text.EndsWith(x, StringComparison.InvariantCultureIgnoreCase)))
+                {
+                    return true;
+                }
+                // ends with slash if has extension then its a file; directory otherwise
+                return string.IsNullOrWhiteSpace(Path.GetExtension(Text));
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public static bool IsDomain(this string Text) => Text.IsNotBlank() && $"http://{Text}".IsURL();
+
+        /// <summary>
+        /// Verifica se um determinado texto é um email
+        /// </summary>
+        /// <param name="Text">Texto a ser validado</param>
+        /// <returns>TRUE se for um email, FALSE se não for email</returns>
+        public static bool IsEmail(this string Text) => Text.IsNotBlank() && new Regex(@"(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|Util.Empty(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*Util.Empty)@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])").IsMatch(Text);
+
+        /// <summary>
+        /// Verifica se um diretório está vazio
+        /// </summary>
+        /// <param name="Directory">Diretório</param>
+        /// <returns></returns>
+        public static bool IsEmpty(this DirectoryInfo Directory) => !Directory.HasFiles() && !Directory.HasDirectories();
+
+        /// <summary>
+        /// Verifica se o objeto é um enumeravel (lista)
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <remarks>NÃO considera strings (IEnumerable{char}) como true</remarks>
+        /// <returns></returns>
+        public static bool IsEnumerable(this object obj) => IsGenericOf(obj, typeof(IEnumerable<>)) || IsGenericOf(obj, typeof(IEnumerable));
+
+        public static bool IsEnumerableNotString(this object obj) => IsEnumerable(obj) && GetTypeOf(obj) != typeof(string);
+
+        public static Expression<Func<T, bool>> IsEqual<T, V>(this Expression<Func<T, V>> Property, V Value) => WhereExpression(Property, "equal", new[] { (IComparable)Value });
+
+        public static bool IsEqual<T>(this T Value, T EqualsToValue) where T : IComparable => Value.Equals(EqualsToValue);
+
+        /// <summary>
+        /// Verifica se um numero é par
+        /// </summary>
+        /// <param name="Value">Valor</param>
+        /// <returns></returns>
+        public static bool IsEven(this decimal Value) => Value % 2m == 0m;
+
+        /// <summary>
+        /// Verifica se um numero é par
+        /// </summary>
+        /// <param name="Value">Valor</param>
+        /// <returns></returns>
+        public static bool IsEven(this int Value) => Value % 2 == 0;
+
+        /// <summary>
+        /// Verifica se um numero é par
+        /// </summary>
+        /// <param name="Value">Valor</param>
+        /// <returns></returns>
+        public static bool IsEven(this short Value) => Value % 2 == 0;
+
+        /// <summary>
+        /// Verifica se um numero é par
+        /// </summary>
+        /// <param name="Value">Valor</param>
+        /// <returns></returns>
+        public static bool IsEven(this float Value) => Value % 2f == 0f;
+
+        /// <summary>
+        /// Verifica se um numero é par
+        /// </summary>
+        /// <param name="Value">Valor</param>
+        /// <returns></returns>
+        public static bool IsEven(this long Value) => Value % 2L == 0L;
+
+        /// <summary>
+        /// Verifica se um numero é par
+        /// </summary>
+        /// <param name="Value">Valor</param>
+        /// <returns></returns>
+        public static bool IsEven(this double Value) => Value % 2d == 0d;
+
+        public static bool IsExecuting(this DbConnection Connection) => Connection != null && (Connection.State == ConnectionState.Executing);
+
+        /// <summary>
+        /// Verifica se uma string é um caminho de arquivo válido
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <returns>TRUE se o caminho for válido</returns>
+        public static bool IsFilePath(this string Text)
+        {
+            if (Text.IsBlank())
+            {
+                return false;
+            }
+
+            Text = Text.Trim();
+            try
+            {
+                if (Directory.Exists(Text))
+                {
+                    return false;
+                }
+
+                if (File.Exists(Text))
                 {
                     return true;
                 }
             }
-        }
-        catch
-        {
-            return false;
-        }
-    }
-
-    public static bool IsConnecting(this DbConnection Connection) => Connection != null && (Connection.State == ConnectionState.Connecting);
-
-    public static bool IsCrossLikeAny(this string Text, IEnumerable<string> Patterns) => (Patterns ?? Array.Empty<string>()).Any((Func<string, bool>)(x => Like(Text.IfBlank(EmptyString), x) || Like(x, Text)));
-
-    /// <summary>
-    /// Verifica se uma cor é escura
-    /// </summary>
-    /// <param name="TheColor">Cor</param>
-    /// <returns></returns>
-    public static bool IsDark(this Color TheColor) => new HSVColor(TheColor).IsDark();
-
-    /// <summary>
-    /// Retorna TRUE se o texto for um dataurl valido
-    /// </summary>
-    /// <param name="Text"></param>
-    /// <returns></returns>
-    public static bool IsDataURL(this string Text)
-    {
-        try
-        {
-            return new Web.DataURI(Text).ToString().IsNotBlank();
-        }
-        catch
-        {
-            return false;
-        }
-    }
-
-    public static bool IsDate(this string Obj)
-    {
-        try
-        {
-            return DateTime.TryParse(Obj, out _);
-        }
-        catch
-        {
-            return false;
-        }
-    }
-
-    public static bool IsDate<T>(this T Obj) => GetNullableTypeOf(Obj) == typeof(DateTime) || $"{Obj}".IsDate();
-
-    /// <summary>
-    /// Verifica se o objeto é um iDictionary
-    /// </summary>
-    /// <param name="obj"></param>
-    /// <returns></returns>
-    public static bool IsDictionary(this object obj) => IsGenericOf(obj, typeof(IDictionary<,>)) || IsGenericOf(obj, typeof(IDictionary));
-
-    /// <summary>
-    /// Verifica se uma string é um caminho de diretório válido
-    /// </summary>
-    /// <param name="Text">Texto</param>
-    /// <returns>TRUE se o caminho for válido</returns>
-    public static bool IsDirectoryPath(this string Text)
-    {
-        if (Text.IsBlank())
-        {
-            return false;
-        }
-
-        Text = Text.Trim();
-        try
-        {
-            if (Directory.Exists(Text))
-            {
-                return true;
-            }
-
-            if (File.Exists(Text))
-            {
-                return false;
-            }
-        }
-        catch { }
-
-        try
-        {
-            // if has trailing slash then it's a directory
-
-            if (new string[] { Convert.ToString(Path.DirectorySeparatorChar, CultureInfo.InvariantCulture), Convert.ToString(Path.AltDirectorySeparatorChar, CultureInfo.InvariantCulture) }.Any(x => Text.EndsWith(x, StringComparison.InvariantCultureIgnoreCase)))
-            {
-                return true;
-            }
-            // ends with slash if has extension then its a file; directory otherwise
-            return string.IsNullOrWhiteSpace(Path.GetExtension(Text));
-        }
-        catch
-        {
-            return false;
-        }
-    }
-
-    public static bool IsDomain(this string Text) => Text.IsNotBlank() && $"http://{Text}".IsURL();
-
-    /// <summary>
-    /// Verifica se um determinado texto é um email
-    /// </summary>
-    /// <param name="Text">Texto a ser validado</param>
-    /// <returns>TRUE se for um email, FALSE se não for email</returns>
-    public static bool IsEmail(this string Text) => Text.IsNotBlank() && new Regex(@"(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|Util.Empty(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*Util.Empty)@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])").IsMatch(Text);
-
-    /// <summary>
-    /// Verifica se um diretório está vazio
-    /// </summary>
-    /// <param name="Directory">Diretório</param>
-    /// <returns></returns>
-    public static bool IsEmpty(this DirectoryInfo Directory) => !Directory.HasFiles() && !Directory.HasDirectories();
-
-    /// <summary>
-    /// Verifica se o objeto é um enumeravel (lista)
-    /// </summary>
-    /// <param name="obj"></param>
-    /// <remarks>NÃO considera strings (IEnumerable{char}) como true</remarks>
-    /// <returns></returns>
-    public static bool IsEnumerable(this object obj) => IsGenericOf(obj, typeof(IEnumerable<>)) || IsGenericOf(obj, typeof(IEnumerable));
-
-    public static bool IsEnumerableNotString(this object obj) => IsEnumerable(obj) && GetTypeOf(obj) != typeof(string);
-
-    public static Expression<Func<T, bool>> IsEqual<T, V>(this Expression<Func<T, V>> Property, V Value) => WhereExpression(Property, "equal", new[] { (IComparable)Value });
-
-    public static bool IsEqual<T>(this T Value, T EqualsToValue) where T : IComparable => Value.Equals(EqualsToValue);
-
-    /// <summary>
-    /// Verifica se um numero é par
-    /// </summary>
-    /// <param name="Value">Valor</param>
-    /// <returns></returns>
-    public static bool IsEven(this decimal Value) => Value % 2m == 0m;
-
-    /// <summary>
-    /// Verifica se um numero é par
-    /// </summary>
-    /// <param name="Value">Valor</param>
-    /// <returns></returns>
-    public static bool IsEven(this int Value) => Value % 2 == 0;
-
-    /// <summary>
-    /// Verifica se um numero é par
-    /// </summary>
-    /// <param name="Value">Valor</param>
-    /// <returns></returns>
-    public static bool IsEven(this short Value) => Value % 2 == 0;
-
-    /// <summary>
-    /// Verifica se um numero é par
-    /// </summary>
-    /// <param name="Value">Valor</param>
-    /// <returns></returns>
-    public static bool IsEven(this float Value) => Value % 2f == 0f;
-
-    /// <summary>
-    /// Verifica se um numero é par
-    /// </summary>
-    /// <param name="Value">Valor</param>
-    /// <returns></returns>
-    public static bool IsEven(this long Value) => Value % 2L == 0L;
-
-    /// <summary>
-    /// Verifica se um numero é par
-    /// </summary>
-    /// <param name="Value">Valor</param>
-    /// <returns></returns>
-    public static bool IsEven(this double Value) => Value % 2d == 0d;
-
-    public static bool IsExecuting(this DbConnection Connection) => Connection != null && (Connection.State == ConnectionState.Executing);
-
-    /// <summary>
-    /// Verifica se uma string é um caminho de arquivo válido
-    /// </summary>
-    /// <param name="Text">Texto</param>
-    /// <returns>TRUE se o caminho for válido</returns>
-    public static bool IsFilePath(this string Text)
-    {
-        if (Text.IsBlank())
-        {
-            return false;
-        }
-
-        Text = Text.Trim();
-        try
-        {
-            if (Directory.Exists(Text))
-            {
-                return false;
-            }
-
-            if (File.Exists(Text))
-            {
-                return true;
-            }
-        }
-        catch
-        {
-        }
-        try
-        {
-            // if has extension then its a file; directory otherwise
-            return !Text.EndsWith(Convert.ToString(Path.DirectorySeparatorChar, CultureInfo.InvariantCulture), StringComparison.InvariantCultureIgnoreCase) && Path.GetExtension(Text).IsNotBlank();
-        }
-        catch { return false; }
-    }
-
-    public static bool IsGenericOf(this object obj, Type GenericType)
-    {
-        var type = obj.GetTypeOf();
-
-        if (type == null || GenericType == null) return false;
-        if (type == GenericType) return true;
-        if (type.IsGenericType && type.GetGenericTypeDefinition() == GenericType) return true;
-        if (GenericType.IsGenericType && GenericType.GetGenericTypeDefinition().IsAssignableFrom(type)) return true;
-        if (GenericType.IsAssignableFrom(type)) return true;
-        if (type.GetInterfaces().Append(type).Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == GenericType)) return true;
-        return false;
-    }
-
-    /// <summary>
-    /// Verifica se um valor de tipo generico é maior que outro
-    /// </summary>
-    /// <returns></returns>
-    public static bool IsGreaterThan<T>(this T Value, T MinValue) where T : IComparable => Value.CompareTo(MinValue) > 0;
-
-    public static bool IsGreaterThanOrEqual<T>(this T Value, T MinValue) where T : IComparable => Value.IsGreaterThan(MinValue) || Value.IsEqual(MinValue);
-
-    public static bool IsGuid(this string value)
-    {
-        return Guid.TryParse(value, out _);
-    }
-
-    public static bool IsHexaDecimalColor(this string Text)
-    {
-        Text = Text.RemoveFirstEqual("#");
-        var myRegex = new Regex("^[a-fA-F0-9]+$");
-        return Text.IsNotBlank() && myRegex.IsMatch(Text);
-    }
-
-    /// <summary>
-    /// Verifica se o objeto existe dentro de uma Lista, coleção ou array.
-    /// </summary>
-    /// <typeparam name="T">Tipo do objeto</typeparam>
-    /// <param name="Obj">objeto</param>
-    /// <param name="List">Lista</param>
-    /// <returns></returns>
-    public static bool IsIn<T>(this T Obj, params T[] List) => Obj.IsIn((List ?? Array.Empty<T>()).ToList());
-
-    public static bool IsIn<T>(this T Obj, IEqualityComparer<T> Comparer = null, params T[] List) => Obj.IsIn((List ?? Array.Empty<T>()).ToList(), Comparer);
-
-    /// <summary>
-    /// Verifica se o objeto existe dentro de uma Lista, coleção ou array.
-    /// </summary>
-    /// <typeparam name="T">Tipo do objeto</typeparam>
-    /// <param name="Obj">objeto</param>
-    /// <param name="List">Lista</param>
-    /// <returns></returns>
-    public static bool IsIn<T>(this T Obj, IEnumerable<T> List, IEqualityComparer<T> Comparer = null) => Comparer is null ? List.Contains(Obj) : List.Contains(Obj, Comparer);
-
-    public static bool IsIn<T>(this T Obj, string Text, StringComparison? Comparer = null) => Comparer == null ? Text?.Contains(Obj.ToString()) ?? false : Text?.Contains(Obj.ToString(), Comparer.Value) ?? false;
-
-    /// <summary>
-    /// Verifica se o objeto existe dentro de uma ou mais Listas, coleções ou arrays.
-    /// </summary>
-    /// <typeparam name="T">Tipo do objeto</typeparam>
-    /// <param name="Obj">objeto</param>
-    /// <param name="List">Lista</param>
-    /// <returns></returns>
-    public static bool IsInAny<T>(this T Obj, IEnumerable<T>[] List, IEqualityComparer<T> Comparer = null) => (List ?? Array.Empty<IEnumerable<T>>()).Any(x => Obj.IsIn(x, Comparer));
-
-    public static Expression<Func<T, bool>> IsInDateRange<T>(this Expression<Func<T, DateTime>> Property, DateRange DateRange, DateRangeFilterBehavior? FilterBehavior = null)
-    {
-        if (DateRange.IsSingleDateTime())
-        {
-            return IsEqual(Property, DateRange.StartDate);
-        }
-
-        var icomp = new IComparable[] { DateRange.StartDate, DateRange.EndDate };
-        switch (FilterBehavior ?? DateRange.FilterBehavior)
-        {
-            case DateRangeFilterBehavior.BetweenExclusive: return WhereExpression(Property, "between", icomp);
-            case DateRangeFilterBehavior.Between: return WhereExpression(Property, "between", icomp).Or(WhereExpression(Property, "equal", new IComparable[] { DateRange.StartDate }));
-            case DateRangeFilterBehavior.BetweenOrEqual:
-            default: return WhereExpression(Property, "betweenorequal", icomp);
-        }
-    }
-
-    public static Expression<Func<T, bool>> IsInDateRange<T>(this Expression<Func<T, DateTime?>> Property, DateRange DateRange, DateRangeFilterBehavior? FilterBehavior = null)
-    {
-        if (DateRange.IsSingleDateTime())
-        {
-            return IsEqual(Property, (DateTime?)DateRange.StartDate);
-        }
-
-        var icomp = new IComparable[] { (DateTime?)DateRange.StartDate, (DateTime?)DateRange.EndDate };
-        switch (FilterBehavior ?? DateRange.FilterBehavior)
-        {
-            case DateRangeFilterBehavior.BetweenExclusive: return WhereExpression(Property, "between", icomp);
-            case DateRangeFilterBehavior.Between: return WhereExpression(Property, "between", icomp).Or(IsEqual(Property, (DateTime?)DateRange.StartDate));
-            case DateRangeFilterBehavior.BetweenOrEqual:
-            default: return WhereExpression(Property, "betweenorequal", icomp);
-        }
-    }
-
-    public static bool IsInUse(this FileInfo File)
-    {
-        //Try-Catch so we dont crash the program and can check the exception
-        try
-        {
-            if (File.Exists)
-            {
-                using (FileStream fileStream = System.IO.File.Open(File.FullName, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
-                {
-                    fileStream?.Close();
-                }
-            }
-        }
-        catch (IOException ex)
-        {
-            //THE FUNKY MAGIC - TO SEE IF THIS FILE REALLY IS LOCKED!!!
-
-            int errorCode = Marshal.GetHRForException(ex) & ((1 << 16) - 1);
-
-            if (errorCode == ERROR_SHARING_VIOLATION || errorCode == ERROR_LOCK_VIOLATION)
-            {
-                return true;
-            }
-        }
-        finally
-        { }
-        return false;
-    }
-
-    /// <summary>
-    /// Verifica se a string é um endereço IP válido
-    /// </summary>
-    /// <param name="IP">Endereco IP</param>
-    /// <returns>TRUE ou FALSE</returns>
-    public static bool IsIP(this string IP) => IP.IsNotBlank() && Regex.IsMatch(IP, @"\b((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$\b");
-
-    public static bool IsLastIndex<T>(this int index, IEnumerable<T> list) => list.IsLastIndex(index);
-
-    public static bool IsLastIndex<T>(this IEnumerable<T> list, int index) => index == list.Count() - 1;
-
-    public static bool IsLessThan<T>(this T Value, T MaxValue) where T : IComparable => Value.CompareTo(MaxValue) < 0;
-
-    public static bool IsLessThanOrEqual<T>(this T Value, T MaxValue) where T : IComparable => Value.IsLessThan(MaxValue) || Value.IsEqual(MaxValue);
-
-    /// <summary>
-    /// Verifica se uma cor é clara
-    /// </summary>
-    /// <param name="TheColor">Cor</param>
-    /// <returns></returns>
-    public static bool IsLight(this Color TheColor) => !TheColor.IsDark();
-
-    /// <summary>
-    /// Verifica se um texto existe em uma determinada lista usando comparação com caratere curinga
-    /// </summary>
-    /// <param name="Text"></param>
-    /// <param name="Patterns"></param>
-    /// <returns></returns>
-    public static bool IsLikeAny(this string Text, IEnumerable<string> Patterns) => (Patterns ?? Array.Empty<string>()).Any((Func<string, bool>)(x => Like(Text.IfBlank(EmptyString), x)));
-
-    /// <summary>
-    /// Verifica se um texto existe em uma determinada lista usando comparação com caratere curinga
-    /// </summary>
-    /// <param name="Text"></param>
-    /// <param name="Patterns"></param>
-    /// <returns></returns>
-    public static bool IsLikeAny(this string Text, params string[] Patterns) => Text.IsLikeAny((Patterns ?? Array.Empty<string>()).AsEnumerable());
-
-    /// <summary>
-    /// Verifica se o objeto é uma lista
-    /// </summary>
-    /// <param name="obj"></param>
-    /// <returns></returns>
-    public static bool IsList(this object obj) => IsGenericOf(obj, typeof(List<>));
-
-    /// <summary>
-    /// Compara se uma string nao é igual a outras strings
-    /// </summary>
-    /// <param name="Text">string principal</param>
-    /// <param name="Texts">strings para comparar</param>
-    /// <returns>TRUE se nenhuma das strings for igual a principal</returns>
-    public static bool IsNotAny(this string Text, params string[] Texts) => !Text.IsAny(Texts);
-
-    /// <summary>
-    /// Compara se uma string nao é igual a outras strings
-    /// </summary>
-    /// <param name="Text">string principal</param>
-    /// <param name="Texts">strings para comparar</param>
-    /// <returns>TRUE se alguma das strings for igual a principal</returns>
-    public static bool IsNotAny(this string Text, StringComparison Comparison, params string[] Texts) => !Text.IsAny(Comparison, Texts);
-
-    /// <summary>
-    /// Verifica se uma String não está em branco
-    /// </summary>
-    /// <param name="Text">Uma string</param>
-    /// <returns>FALSE se estiver nula, vazia ou em branco, caso contrario TRUE</returns>
-    public static bool IsNotBlank(this object Value) => !IsBlank(Value);
-
-    /// <summary>
-    /// Verifica se uma String não está em branco
-    /// </summary>
-    /// <param name="Text">Uma string</param>
-    /// <returns>FALSE se estiver nula, vazia ou em branco, caso contrario TRUE</returns>
-    public static bool IsNotBlank(this FormattableString Text) => Text != null && IsNotBlank(FormattableString.Invariant(Text));
-
-    /// <summary>
-    /// Verifica se um diretório não está vazio
-    /// </summary>
-    /// <param name="Directory">Diretório</param>
-    /// <returns></returns>
-    public static bool IsNotEmpty(this DirectoryInfo Directory) => !Directory.IsEmpty();
-
-    /// <summary>
-    /// Verifica se o não objeto existe dentro de uma Lista, coleção ou array.
-    /// </summary>
-    /// <typeparam name="T">Tipo do objeto</typeparam>
-    /// <param name="Obj">objeto</param>
-    /// <param name="List">Lista</param>
-    /// <returns></returns>
-    public static bool IsNotIn<T>(this T Obj, IEnumerable<T> List, IEqualityComparer<T> Comparer = null) => !Obj.IsIn(List, Comparer);
-
-    /// <summary>
-    /// Verifica se o objeto não existe dentro de um texto
-    /// </summary>
-    /// <typeparam name="T">Tipo do objeto</typeparam>
-    /// <param name="Obj">objeto</param>
-    /// <param name="TExt">Texto</param>
-    /// <returns></returns>
-    public static bool IsNotIn<T>(this T Obj, string Text, StringComparison? Comparer = null) => !Obj.IsIn(Text, Comparer);
-
-    /// <summary>
-    /// Checks if a <paramref name="List"/> is not <b>null</b> and contains at least one item
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="List"></param>
-    /// <returns></returns>
-    public static bool IsNotNullOrEmpty<T>(this IEnumerable<T> List) => (List ?? Array.Empty<T>()).Any();
-
-    /// <summary>
-    /// Verifica se o valor não é um numero
-    /// </summary>
-    /// <param name="Value">Valor a ser verificado, pode ser qualquer objeto</param>
-    /// <returns>FALSE se for um numero, TRUE se não for um numero</returns>
-    public static bool IsNotNumber(this object Value) => !Value.IsNumber();
-
-    public static bool IsNullableType(this Type t) => t != null && t.IsGenericType && Nullable.GetUnderlyingType(t) != null;
-
-    public static bool IsNullableType<T>(this T Obj) => IsNullableType(Obj.GetTypeOf());
-
-    /// <summary>
-    /// Verifica se um objeto é de um determinado tipo
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="Obj"></param>
-    /// <returns></returns>
-    public static bool IsNullableTypeOf<T>(this object Obj) => Obj.IsNullableTypeOf(typeof(T));
-
-    /// <summary>
-    /// Verifica se um objeto é de um determinado tipo
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="Obj"></param>
-    /// <returns></returns>
-    public static bool IsNullableTypeOf<T>(this T Obj, Type Type) => Obj.GetNullableTypeOf() == Type.GetNullableTypeOf();
-
-    /// <summary>
-    /// Checks if a <paramref name="List"/> is <b>null</b> or empty
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="List"></param>
-    /// <returns></returns>
-    public static bool IsNullOrEmpty<T>(this IEnumerable<T> List) => !List.IsNotNullOrEmpty();
-
-    /// <summary>
-    /// Verifica se o valor é um numero
-    /// </summary>
-    /// <param name="Value">Valor a ser verificado, pode ser qualquer objeto</param>
-    /// <returns>TRUE se for um numero, FALSE se não for um numero</returns>
-    public static bool IsNumber(this object Value)
-    {
-        try
-        {
-            if ($"{Value}".ToCharArray().All(x => char.IsNumber(x)))
-            {
-                return true;
-            }
-            Convert.ToDecimal(Value, CultureInfo.InvariantCulture);
-            return Value != null && $"{Value}".IsIP() == false && ((Value.GetType() == typeof(DateTime)) == false);
-        }
-        catch
-        {
-            return false;
-        }
-    }
-
-    /// <summary>
-    /// Verifica se o objeto é do tipo numérico.
-    /// </summary>
-    /// <remarks>Boolean is not considered numeric.</remarks>
-    public static bool IsNumericType<T>(this T Obj) => Obj.GetNullableTypeOf().IsIn(PredefinedArrays.NumericTypes);
-
-    /// <summary>
-    /// Verifica se um numero é impar
-    /// </summary>
-    /// <param name="Value">Valor</param>
-    /// <returns></returns>
-    public static bool IsOdd(this decimal Value) => !Value.IsEven();
-
-    /// <summary>
-    /// Verifica se um numero é impar
-    /// </summary>
-    /// <param name="Value">Valor</param>
-    /// <returns></returns>
-    public static bool IsOdd(this int Value) => !Value.IsEven();
-
-    /// <summary>
-    /// Verifica se um numero é impar
-    /// </summary>
-    /// <param name="Value">Valor</param>
-    /// <returns></returns>
-    public static bool IsOdd(this long Value) => !Value.IsEven();
-
-    /// <summary>
-    /// Verifica se um numero é impar
-    /// </summary>
-    /// <param name="Value">Valor</param>
-    /// <returns></returns>
-    public static bool IsOdd(this short Value) => !Value.IsEven();
-
-    /// <summary>
-    /// Verifica se um numero é impar
-    /// </summary>
-    /// <param name="Value">Valor</param>
-    /// <returns></returns>
-    public static bool IsOdd(this float Value) => !Value.IsEven();
-
-    public static bool IsOpen(this DbConnection Connection) => Connection != null && (Connection.State == ConnectionState.Open);
-
-    /// <summary>
-    /// Retorna o caractere de encapsulamento oposto ao caractere indicado
-    /// </summary>
-    /// <param name="Text">Caractere</param>
-    /// <returns></returns>
-    public static bool IsOpenWrapChar(this string Text) => Text.GetFirstChars().IsIn(PredefinedArrays.OpenWrappers);
-
-    public static bool IsOpenWrapChar(this char c) => IsOpenWrapChar($"{c}");
-
-    /// <summary>
-    /// Verifica se uma palavra ou frase é idêntica da direita para a esqueda bem como da
-    /// esqueda para direita
-    /// </summary>
-    /// <param name="Text">Texto</param>
-    /// <param name="IgnoreWhiteSpaces">Ignora os espaços na hora de comparar</param>
-    /// <returns></returns>
-    public static bool IsPalindrome(this string Text, bool IgnoreWhiteSpaces = true)
-    {
-        Text = Text ?? EmptyString;
-        if (IgnoreWhiteSpaces)
-        {
-            Text = Text.RemoveAny(WhitespaceChar);
-        }
-
-        return Text == Text.Reverse().SelectJoinString();
-    }
-
-    /// <summary>
-    /// Verifica se uma string é um caminho de arquivo ou diretório válido
-    /// </summary>
-    /// <param name="Text">Texto</param>
-    /// <returns>TRUE se o caminho for válido</returns>
-    public static bool IsPath(this string Text) => Text.IsDirectoryPath() || Text.IsFilePath();
-
-    /// <summary>
-    /// Verifica se uma cor é legivel sobre outra
-    /// </summary>
-    /// <param name="Color"></param>
-    /// <param name="BackgroundColor"></param>
-    /// <param name="Size"></param>
-    /// <returns></returns>
-    public static bool IsReadable(this Color Color, Color BackgroundColor, int Size = 10)
-    {
-        if (Color.A == 0)
-            return false;
-        if (BackgroundColor.A == 0)
-            return true;
-        double diff = BackgroundColor.R * 0.299d + BackgroundColor.G * 0.587d + BackgroundColor.B * 0.114d - Color.R * 0.299d - Color.G * 0.587d - Color.B * 0.114d;
-        return !(diff < 1.5d + 141.162d * Math.Pow(0.975d, Size)) && diff > -0.5d - 154.709d * Math.Pow(0.99d, Size);
-    }
-
-    /// <summary>
-    /// Verifica se um objeto é de um determinado tipo
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="Obj"></param>
-    /// <returns></returns>
-    public static bool IsTypeOf<T>(this object Obj) => Obj.IsTypeOf(typeof(T));
-
-    /// <summary>
-    /// Verifica se um objeto é de um determinado tipo
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="Obj"></param>
-    /// <returns></returns>
-    public static bool IsTypeOf<T>(this T Obj, Type Type) => Obj.GetTypeOf() == Type.GetTypeOf();
-
-    /// <summary>
-    /// Verifica se um determinado texto é uma URL válida
-    /// </summary>
-    /// <param name="Text">Texto a ser verificado</param>
-    /// <returns>TRUE se for uma URL, FALSE se não for uma URL válida</returns>
-    public static bool IsURL(this string Text) => Text.IsNotBlank() && Uri.TryCreate(Text.Trim(), UriKind.Absolute, out _) && !Text.Trim().Contains(" ");
-
-    /// <summary>
-    /// Verifica se o dominio é válido (existe) em uma URL ou email
-    /// </summary>
-    /// <param name="DomainOrEmail">Uma String contendo a URL ou email</param>
-    /// <returns>TRUE se o dominio existir, FALSE se o dominio não existir</returns>
-    /// <remarks>Retornara sempre false quando nao houver conexao com a internet</remarks>
-    public static bool IsValidDomain(this string DomainOrEmail)
-    {
-        IPHostEntry ObjHost;
-        if (DomainOrEmail.IsEmail() == true)
-        {
-            DomainOrEmail = "http://" + DomainOrEmail.GetAfter("@");
-        }
-        if (DomainOrEmail.IsURL())
-        {
-            try
-            {
-                string HostName = new Uri(DomainOrEmail).Host;
-                ObjHost = Dns.GetHostEntry(HostName);
-                return (ObjHost?.HostName ?? EmptyString) == (HostName ?? EmptyString);
-            }
             catch
             {
             }
+            try
+            {
+                // if has extension then its a file; directory otherwise
+                return !Text.EndsWith(Convert.ToString(Path.DirectorySeparatorChar, CultureInfo.InvariantCulture), StringComparison.InvariantCultureIgnoreCase) && Path.GetExtension(Text).IsNotBlank();
+            }
+            catch { return false; }
         }
-        return false;
-    }
 
-    /// <summary>
-    /// Verifica se um numero é um EAN válido
-    /// </summary>
-    /// <param name="Code"></param>
-    /// <returns></returns>
-    /// <exception cref="FormatException"></exception>
-    public static bool IsValidEAN(this string Code)
-    {
-        if (Code == null || Code.IsNotNumber() || Code.Length < 3)
+        public static bool IsGenericOf(this object obj, Type GenericType)
         {
+            var type = obj.GetTypeOf();
+
+            if (type == null || GenericType == null) return false;
+            if (type == GenericType) return true;
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == GenericType) return true;
+            if (GenericType.IsGenericType && GenericType.GetGenericTypeDefinition().IsAssignableFrom(type)) return true;
+            if (GenericType.IsAssignableFrom(type)) return true;
+            if (type.GetInterfaces().Append(type).Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == GenericType)) return true;
             return false;
         }
 
-        var bar = Code.RemoveLastChars();
-        var ver = Code.GetLastChars();
-        return GenerateBarcodeCheckSum(bar) == ver;
-    }
+        /// <summary>
+        /// Verifica se um valor de tipo generico é maior que outro
+        /// </summary>
+        /// <returns></returns>
+        public static bool IsGreaterThan<T>(this T Value, T MinValue) where T : IComparable => Value.CompareTo(MinValue) > 0;
 
-    public static bool IsValidEAN(this int Code) => Code.ToString(CultureInfo.InvariantCulture).PadLeft(12, '0').ToString().IsValidEAN();
+        public static bool IsGreaterThanOrEqual<T>(this T Value, T MinValue) where T : IComparable => Value.IsGreaterThan(MinValue) || Value.IsEqual(MinValue);
 
-    public static bool IsValueType(this Type T) => T.IsIn(PredefinedArrays.ValueTypes);
-
-    public static bool IsValueType<T>(this T Obj) => Obj.GetNullableTypeOf().IsValueType();
-
-    public static bool IsVisible<T>(this T dir) where T : FileSystemInfo => dir != null && dir.Exists && dir.Attributes.HasFlag(FileAttributes.Hidden) == false;
-
-    /// <summary>
-    /// Verifica se um numero é inteiro (não possui casas decimais)
-    /// </summary>
-    /// <param name="Number"></param>
-    /// <returns></returns>
-    public static bool IsWholeNumber(this decimal Number) => !Number.HasDecimalPart();
-
-    /// <summary>
-    /// Verifica se um numero é inteiro (não possui casas decimais)
-    /// </summary>
-    /// <param name="Number"></param>
-    /// <returns></returns>
-    public static bool IsWholeNumber(this double Number) => !Number.HasDecimalPart();
-
-    public static bool IsWrapped(this string Text) => PredefinedArrays.OpenWrappers.Any(x => IsWrapped(Text, x.FirstOrDefault()));
-
-    public static bool IsWrapped(this string Text, string OpenWrapText, string CloseWrapText = null) => IsWrapped(Text, StringComparison.CurrentCultureIgnoreCase, OpenWrapText, CloseWrapText);
-
-    public static bool IsWrapped(this string Text, StringComparison stringComparison, string OpenWrapText, string CloseWrapText = null)
-    {
-        if (Text.IsNotBlank())
+        public static bool IsGuid(this string value)
         {
-            OpenWrapText = OpenWrapText.IfBlank("");
-            CloseWrapText = CloseWrapText.IfBlank("");
-            if (OpenWrapText.Length == 1 && (CloseWrapText.IsBlank() || CloseWrapText.Length == 1))
+            return Guid.TryParse(value, out _);
+        }
+
+        public static bool IsHexaDecimalColor(this string Text)
+        {
+            Text = Text.RemoveFirstEqual("#");
+            var myRegex = new Regex("^[a-fA-F0-9]+$");
+            return Text.IsNotBlank() && myRegex.IsMatch(Text);
+        }
+
+        /// <summary>
+        /// Verifica se o objeto existe dentro de uma Lista, coleção ou array.
+        /// </summary>
+        /// <typeparam name="T">Tipo do objeto</typeparam>
+        /// <param name="Obj">objeto</param>
+        /// <param name="List">Lista</param>
+        /// <returns></returns>
+        public static bool IsIn<T>(this T Obj, params T[] List) => Obj.IsIn((List ?? Array.Empty<T>()).ToList());
+
+        public static bool IsIn<T>(this T Obj, IEqualityComparer<T> Comparer = null, params T[] List) => Obj.IsIn((List ?? Array.Empty<T>()).ToList(), Comparer);
+
+        /// <summary>
+        /// Verifica se o objeto existe dentro de uma Lista, coleção ou array.
+        /// </summary>
+        /// <typeparam name="T">Tipo do objeto</typeparam>
+        /// <param name="Obj">objeto</param>
+        /// <param name="List">Lista</param>
+        /// <returns></returns>
+        public static bool IsIn<T>(this T Obj, IEnumerable<T> List, IEqualityComparer<T> Comparer = null) => Comparer is null ? List.Contains(Obj) : List.Contains(Obj, Comparer);
+
+        public static bool IsIn<T>(this T Obj, string Text, StringComparison? Comparer = null) => Comparer == null ? Text?.Contains(Obj.ToString()) ?? false : Text?.Contains(Obj.ToString(), Comparer.Value) ?? false;
+
+        /// <summary>
+        /// Verifica se o objeto existe dentro de uma ou mais Listas, coleções ou arrays.
+        /// </summary>
+        /// <typeparam name="T">Tipo do objeto</typeparam>
+        /// <param name="Obj">objeto</param>
+        /// <param name="List">Lista</param>
+        /// <returns></returns>
+        public static bool IsInAny<T>(this T Obj, IEnumerable<T>[] List, IEqualityComparer<T> Comparer = null) => (List ?? Array.Empty<IEnumerable<T>>()).Any(x => Obj.IsIn(x, Comparer));
+
+        public static Expression<Func<T, bool>> IsInDateRange<T>(this Expression<Func<T, DateTime>> Property, DateRange DateRange, DateRangeFilterBehavior? FilterBehavior = null)
+        {
+            if (DateRange.IsSingleDateTime())
             {
-                return CloseWrapText.IsBlank()
-                    ? IsWrapped(Text, OpenWrapText.FirstOrDefault())
-                    : IsWrapped(Text, OpenWrapText.FirstOrDefault(), CloseWrapText.FirstOrDefault());
-            }
-            else
-                return Text.StartsWith(OpenWrapText, stringComparison) && Text.EndsWith(CloseWrapText, stringComparison);
-        }
-        return false;
-    }
-
-    public static bool IsWrapped(this string Text, char OpenWrapChar) => IsWrapped(Text, OpenWrapChar, OpenWrapChar.GetOppositeWrapChar());
-
-    public static bool IsWrapped(this string Text, char OpenWrapChar, char CloseWrapChar)
-    {
-        Text = Text?.Trim() ?? "";
-        OpenWrapChar = OpenWrapChar.IsCloseWrapChar() ? OpenWrapChar.GetOppositeWrapChar() : OpenWrapChar;
-        return Text.FirstOrDefault() == OpenWrapChar && Text.LastOrDefault() == CloseWrapChar;
-    }
-
-    /// <summary>
-    /// Retorna o ultimo objeto de uma lista ou um objeto especifico se a lista estiver vazia
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="source"></param>
-    /// <param name="Alternate"></param>
-    /// <returns></returns>
-    public static T LastOr<T>(this IEnumerable<T> source, params T[] Alternate) => source?.Any() ?? false ? source.Last() : (Alternate ?? Array.Empty<T>()).AsEnumerable().NullCoalesce();
-
-    public static T LastOr<T>(this IEnumerable<T> source, Func<T, bool> predicade, params T[] Alternate) => source?.Any(predicade) ?? false ? source.Last(predicade) : (Alternate ?? Array.Empty<T>()).AsEnumerable().NullCoalesce();
-
-    /// <summary>
-    /// Mescla duas cores usando <see cref="Lerp"/>
-    /// </summary>
-    /// <param name="FromColor">Cor</param>
-    /// <param name="ToColor">Outra cor</param>
-    /// <param name="amount">Indice de mesclagem</param>
-    /// <returns></returns>
-    public static Color Lerp(this Color FromColor, Color ToColor, float Amount)
-    {
-        // start colours as lerp-able floats
-        float sr = FromColor.R;
-        float sg = FromColor.G;
-        float sb = FromColor.B;
-        // end colours as lerp-able floats
-        float er = ToColor.R;
-        float eg = ToColor.G;
-        float eb = ToColor.B;
-        // lerp the colours to get the difference
-        byte r = (byte)Math.Round(sr.Lerp(er, Amount));
-        byte g = (byte)Math.Round(sg.Lerp(eg, Amount));
-        byte b = (byte)Math.Round(sb.Lerp(eb, Amount));
-        // return the new colour
-        return Color.FromArgb(r, g, b);
-    }
-
-    public static HSVColor Lerp(this HSVColor FromColor, HSVColor ToColor, float Amount) => new HSVColor(Lerp(FromColor.ToDrawingColor(), ToColor.ToDrawingColor(), Amount));
-
-    /// <summary>
-    /// Realiza um calculo de interpolação Linear
-    /// </summary>
-    /// <param name="Start"></param>
-    /// <param name="End"></param>
-    /// <param name="Amount"></param>
-    /// <returns></returns>
-    public static float Lerp(this float Start, float End, float Amount)
-    {
-        float difference = End - Start;
-        float adjusted = difference * Amount;
-        return Start + adjusted;
-    }
-
-    /// <summary>
-    /// Constroi uma expressão Menor que
-    /// </summary>
-    /// <param name="MemberExpression"></param>
-    /// <param name="ValueExpression"></param>
-    /// <returns></returns>
-    public static BinaryExpression LessThan(this Expression MemberExpression, Expression ValueExpression)
-    {
-        FixNullable(ref MemberExpression, ref ValueExpression);
-        return Expression.LessThan(MemberExpression, ValueExpression);
-    }
-
-    /// <summary>
-    /// Constroi uma expressão Menor ou igual
-    /// </summary>
-    /// <param name="MemberExpression"></param>
-    /// <param name="ValueExpression"></param>
-    /// <returns></returns>
-    public static BinaryExpression LessThanOrEqual(this Expression MemberExpression, Expression ValueExpression)
-    {
-        FixNullable(ref MemberExpression, ref ValueExpression);
-        return Expression.LessThanOrEqual(MemberExpression, ValueExpression);
-    }
-
-    /// <summary>
-    /// Computa a distancia de Levenshtein entre 2 strings. Distancia Levenshtein representa um
-    /// numero de operações de acréscimo, remoção ou substituição de caracteres para que uma
-    /// string se torne outra
-    /// </summary>
-    public static int LevenshteinDistance(this string Text1, string Text2)
-    {
-        Text1 = Text1 ?? EmptyString;
-        Text2 = Text2 ?? EmptyString;
-        int n = Text1.Length;
-        int m = Text2.Length;
-        var d = new int[n + 1 + 1, m + 1 + 1];
-
-        // Step 1
-        if (n == 0)
-        {
-            return m;
-        }
-
-        if (m == 0)
-        {
-            return n;
-        }
-
-        // Step 2
-        for (int i = 0, loopTo = n; i <= loopTo; i++)
-        {
-            d[i, 0] = i;
-        }
-
-        for (int j = 0, loopTo1 = m; j <= loopTo1; j++)
-        {
-            d[0, j] = j;
-        }
-
-        // Step 3
-        for (int i = 1, loopTo2 = n; i <= loopTo2; i++)
-        {
-            // Step 4
-            for (int j = 1, loopTo3 = m; j <= loopTo3; j++)
-            {
-                // Step 5
-                int cost = Text2[j - 1] == Text1[i - 1] ? 0 : 1;
-                // Step 6
-                d[i, j] = Math.Min(Math.Min(d[i - 1, j] + 1, d[i, j - 1] + 1), d[i - 1, j - 1] + cost);
-            }
-        }
-        // Step 7
-        return d[n, m];
-    }
-
-    public static IEnumerable<(string, string, int)> LevenshteinDistanceList(this IEnumerable<string> Words)
-    {
-        var words = Words.ToArray() ?? Array.Empty<string>();
-        int n = words.Length;
-
-        for (int i = 0; i < n; i++)
-        {
-            for (int j = i + 1; j < n; j++)
-            {
-                yield return (words[i], words[j], LevenshteinDistance(words[i], words[j]));
-            }
-        }
-    }
-
-    /// <summary>
-    /// compara 2 strings usando wildcards
-    /// </summary>
-    /// <param name="source"></param>
-    /// <param name="Pattern"></param>
-    /// <returns></returns>
-    public static bool Like(this string source, string Pattern) => new Like(Pattern).Matches(source);
-
-    public static int LimitIndex<T>(this int Int, IEnumerable<T> Collection) => Int.LimitRange<int>(0, Collection.Count() - 1);
-
-    public static long LimitIndex<T>(this long Lng, IEnumerable<T> Collection) => Lng.LimitRange<long>(0, Collection.LongCount() - 1L);
-
-    /// <summary>
-    /// Limita um range para um numero
-    /// </summary>
-    /// <param name="Number">Numero</param>
-    /// <param name="MinValue">Valor Minimo para o numero</param>
-    /// <param name="MaxValue">Valor máximo para o numero</param>
-    /// <returns></returns>
-    public static T LimitRange<T>(this IComparable Number, IComparable MinValue = null, IComparable MaxValue = null) where T : IComparable
-    {
-        if (MaxValue != null)
-        {
-            Number = Number.IsLessThan(MaxValue.ChangeType<T>()) ? Number.ChangeType<T>() : MaxValue.ChangeType<T>();
-        }
-
-        if (MinValue != null)
-        {
-            Number = Number.IsGreaterThan(MinValue.ChangeType<T>()) ? Number.ChangeType<T>() : MinValue.ChangeType<T>();
-        }
-
-        return (T)Number;
-    }
-
-    /// <summary>
-    /// Limita um range para um caractere
-    /// </summary>
-    /// <param name="Number">Numero</param>
-    /// <param name="MinValue">Valor Minimo para o numero</param>
-    /// <param name="MaxValue">Valor máximo para o numero</param>
-    /// <returns></returns>
-    public static string LimitRange(this string Number, string MinValue = null, string MaxValue = null) => Number.LimitRange<string>(MinValue, MaxValue);
-
-    /// <summary>
-    /// Limita um range para um caractere
-    /// </summary>
-    /// <param name="Number">Numero</param>
-    /// <param name="MinValue">Valor Minimo para o numero</param>
-    /// <param name="MaxValue">Valor máximo para o numero</param>
-    /// <returns></returns>
-    public static char LimitRange(this char Number, char? MinValue = null, char? MaxValue = null) => Number.LimitRange<char>(MinValue, MaxValue);
-
-    /// <summary>
-    /// Limita um range para um numero
-    /// </summary>
-    /// <param name="Number">Numero</param>
-    /// <param name="MinValue">Valor Minimo para o numero</param>
-    /// <param name="MaxValue">Valor máximo para o numero</param>
-    /// <returns></returns>
-    public static float LimitRange(this float Number, IComparable MinValue = null, IComparable MaxValue = null) => Number.LimitRange<float>(MinValue, MaxValue);
-
-    /// <summary>
-    /// Limita um range para um numero
-    /// </summary>
-    /// <param name="Number">Numero</param>
-    /// <param name="MinValue">Valor Minimo para o numero</param>
-    /// <param name="MaxValue">Valor máximo para o numero</param>
-    /// <returns></returns>
-    public static int LimitRange(this int Number, IComparable MinValue = null, IComparable MaxValue = null) => Number.LimitRange<int>(MinValue, MaxValue);
-
-    /// <summary>
-    /// Limita um range para um numero
-    /// </summary>
-    /// <param name="Number">Numero</param>
-    /// <param name="MinValue">Valor Minimo para o numero</param>
-    /// <param name="MaxValue">Valor máximo para o numero</param>
-    /// <returns></returns>
-    public static decimal LimitRange(this decimal Number, IComparable MinValue = null, IComparable MaxValue = null) => Number.LimitRange<decimal>(MinValue, MaxValue);
-
-    /// <summary>
-    /// Limita um range para um numero
-    /// </summary>
-    /// <param name="Number">Numero</param>
-    /// <param name="MinValue">Valor Minimo para o numero</param>
-    /// <param name="MaxValue">Valor máximo para o numero</param>
-    /// <returns></returns>
-    public static long LimitRange(this double Number, IComparable MinValue = null, IComparable MaxValue = null) => (long)Math.Round(Number.LimitRange<double>(MinValue, MaxValue));
-
-    /// <summary>
-    /// Limita um range para um numero
-    /// </summary>
-    /// <param name="Number">Numero</param>
-    /// <param name="MinValue">Valor Minimo para o numero</param>
-    /// <param name="MaxValue">Valor máximo para o numero</param>
-    /// <returns></returns>
-    public static long LimitRange(this long Number, IComparable MinValue = null, IComparable MaxValue = null) => Number.LimitRange<long>(MinValue, MaxValue);
-
-    /// <summary>
-    /// Limita um range para um numero
-    /// </summary>
-    /// <param name="Number">Numero</param>
-    /// <param name="MinValue">Valor Minimo para o numero</param>
-    /// <param name="MaxValue">Valor máximo para o numero</param>
-    /// <returns></returns>
-    public static DateTime LimitRange(this DateTime Number, IComparable MinValue = null, IComparable MaxValue = null) => Number.LimitRange<DateTime>(MinValue, MaxValue);
-
-    /// <summary>
-    /// Utiliza o <see cref="TextWriter"/> especificado em <see cref="LogWriter"/> para escrever
-    /// o comando
-    /// </summary>
-    /// <param name="Command"></param>
-    /// <returns></returns>
-    public static DbCommand LogCommand(this DbCommand Command, TextWriter LogWriter = null)
-    {
-        Util.LogWriter = Util.LogWriter ?? new DebugTextWriter();
-        LogWriter = LogWriter ?? Util.LogWriter;
-        LogWriter.WriteLine(Environment.NewLine);
-        LogWriter.WriteLine("=".Repeat(10));
-        if (Command != null)
-        {
-            foreach (DbParameter item in Command.Parameters)
-            {
-                string bx = $"Parameter: @{item.ParameterName}{Environment.NewLine}Value: {item.Value}{Environment.NewLine}T: {item.DbType}{Environment.NewLine}Precision/Scale: {item.Precision}/{item.Scale}";
-                LogWriter.WriteLine(bx);
-                LogWriter.WriteLine("-".Repeat(10));
+                return IsEqual(Property, DateRange.StartDate);
             }
 
-            LogWriter.WriteLine($"Command: {Command.CommandText}");
-            LogWriter.WriteLine("/".Repeat(10));
-
-            if (Command.Transaction != null)
+            var icomp = new IComparable[] { DateRange.StartDate, DateRange.EndDate };
+            switch (FilterBehavior ?? DateRange.FilterBehavior)
             {
-                LogWriter.WriteLine($"Transaction Isolation Level: {Command.Transaction.IsolationLevel}");
-            }
-            else
-            {
-                LogWriter.WriteLine($"No transaction specified");
+                case DateRangeFilterBehavior.BetweenExclusive: return WhereExpression(Property, "between", icomp);
+                case DateRangeFilterBehavior.Between: return WhereExpression(Property, "between", icomp).Or(WhereExpression(Property, "equal", new IComparable[] { DateRange.StartDate }));
+                case DateRangeFilterBehavior.BetweenOrEqual:
+                default: return WhereExpression(Property, "betweenorequal", icomp);
             }
         }
-        else LogWriter.WriteLine("Command is NULL");
-        LogWriter.WriteLine("=".Repeat(10));
-        LogWriter.WriteLine(Environment.NewLine);
 
-        return Command;
-    }
-
-    public static TextStructure LoremIpsum(int ParagraphCount = 5, int SentenceCount = 3, int MinWordCount = 10, int MaxWordCount = 50, int IdentSize = 0, int BreakLinesBetweenParagraph = 0, string[] Words = null)
-    {
-        var sb = new StringBuilder();
-        if (Words == null || Words.Length == 0)
-            Words = new[] { "lorem", "ipsum", "dolor", "sit", "amet", "consectetur", "adipiscing", "elit", "sed", "do", "eiusmod", "tempor", "incididunt", "ut", "labore", "et", "dolore", "magna", "aliqua", "Ut", "enim", "ad", "minim", "veniam", "quis", "nostrud", "exercitation", "ullamco", "laboris", "nisi", "ut", "aliquip", "ex", "ea", "commodo", "consequat", "Duis", "aute", "irure", "dolor", "in", "reprehenderit", "in", "voluptate", "velit", "esse", "cillum", "dolore", "eu", "fugiat", "nulla", "pariatur" };
-
-        for (int i = 0; i < ParagraphCount.SetMinValue(1); i++)
+        public static Expression<Func<T, bool>> IsInDateRange<T>(this Expression<Func<T, DateTime?>> Property, DateRange DateRange, DateRangeFilterBehavior? FilterBehavior = null)
         {
-            sb.Append(WhitespaceChar.Repeat(IdentSize));
-            for (int j = 0; j < SentenceCount.SetMinValue(1); j++)
+            if (DateRange.IsSingleDateTime())
             {
-                for (int k = 0; k < RandomNumber(MinWordCount.SetMinValue(1), MaxWordCount.SetMinValue(1)); k++)
+                return IsEqual(Property, (DateTime?)DateRange.StartDate);
+            }
+
+            var icomp = new IComparable[] { (DateTime?)DateRange.StartDate, (DateTime?)DateRange.EndDate };
+            switch (FilterBehavior ?? DateRange.FilterBehavior)
+            {
+                case DateRangeFilterBehavior.BetweenExclusive: return WhereExpression(Property, "between", icomp);
+                case DateRangeFilterBehavior.Between: return WhereExpression(Property, "between", icomp).Or(IsEqual(Property, (DateTime?)DateRange.StartDate));
+                case DateRangeFilterBehavior.BetweenOrEqual:
+                default: return WhereExpression(Property, "betweenorequal", icomp);
+            }
+        }
+
+        public static bool IsInUse(this FileInfo File)
+        {
+            //Try-Catch so we dont crash the program and can check the exception
+            try
+            {
+                if (File.Exists)
                 {
-                    string word = Words.RandomItem();
-                    if (k == 0)
+                    using (FileStream fileStream = System.IO.File.Open(File.FullName, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
                     {
-                        word = word.ToSentenceCase();
+                        fileStream?.Close();
                     }
-                    sb.Append(word + WhitespaceChar);
-                }
-                sb.Append(PredefinedArrays.EndOfSentencePunctuation.RandomItem());
-            }
-            sb.Append(Environment.NewLine);
-            sb.Append(Environment.NewLine.Repeat(BreakLinesBetweenParagraph)); // Add more newline character between paragraphs
-        }
-
-        return new TextStructure(sb.ToString());
-    }
-
-    /// <summary>
-    /// Escurece a cor mesclando ela com preto
-    /// </summary>
-    /// <param name="TheColor">Cor</param>
-    /// <param name="percent">porcentagem de mesclagem</param>
-    /// <returns></returns>
-    public static Color MakeDarker(this Color TheColor, float Percent = 50f) => TheColor.MergeWith(Color.Black, Percent);
-
-    public static Image MakeDarker(this Image img, float percent = 50f)
-    {
-        var lockedBitmap = new Bitmap(img);
-        for (int y = 0, loopTo = lockedBitmap.Height - 1; y <= loopTo; y++)
-        {
-            for (int x = 0, loopTo1 = lockedBitmap.Width - 1; x <= loopTo1; x++)
-            {
-                var oldColor = lockedBitmap.GetPixel(x, y);
-                if (!oldColor.CompareARGB(true, Color.Transparent, Color.Black, Color.White))
-                {
-                    var newColor = oldColor.MakeDarker(percent);
-                    lockedBitmap.SetPixel(x, y, newColor);
                 }
             }
+            catch (IOException ex)
+            {
+                //THE FUNKY MAGIC - TO SEE IF THIS FILE REALLY IS LOCKED!!!
+
+                int errorCode = Marshal.GetHRForException(ex) & ((1 << 16) - 1);
+
+                if (errorCode == ERROR_SHARING_VIOLATION || errorCode == ERROR_LOCK_VIOLATION)
+                {
+                    return true;
+                }
+            }
+            finally
+            { }
+            return false;
         }
 
-        return lockedBitmap;
-    }
+        /// <summary>
+        /// Verifica se a string é um endereço IP válido
+        /// </summary>
+        /// <param name="IP">Endereco IP</param>
+        /// <returns>TRUE ou FALSE</returns>
+        public static bool IsIP(this string IP) => IP.IsNotBlank() && Regex.IsMatch(IP, @"\b((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$\b");
 
-    /// <summary>
-    /// Clareia a cor misturando ela com branco
-    /// </summary>
-    /// <param name="TheColor">Cor</param>
-    /// <param name="percent">Porcentagem de mesclagem</param>
-    /// <returns></returns>
-    public static Color MakeLighter(this Color TheColor, float Percent = 50f) => TheColor.MergeWith(Color.White, Percent);
+        public static bool IsLastIndex<T>(this int index, IEnumerable<T> list) => list.IsLastIndex(index);
 
-    public static Image MakeLighter(this Image img, float percent = 50f)
-    {
-        var lockedBitmap = new Bitmap(img);
-        for (int y = 0, loopTo = lockedBitmap.Height - 1; y <= loopTo; y++)
+        public static bool IsLastIndex<T>(this IEnumerable<T> list, int index) => index == list.Count() - 1;
+
+        public static bool IsLessThan<T>(this T Value, T MaxValue) where T : IComparable => Value.CompareTo(MaxValue) < 0;
+
+        public static bool IsLessThanOrEqual<T>(this T Value, T MaxValue) where T : IComparable => Value.IsLessThan(MaxValue) || Value.IsEqual(MaxValue);
+
+        /// <summary>
+        /// Verifica se uma cor é clara
+        /// </summary>
+        /// <param name="TheColor">Cor</param>
+        /// <returns></returns>
+        public static bool IsLight(this Color TheColor) => !TheColor.IsDark();
+
+        /// <summary>
+        /// Verifica se um texto existe em uma determinada lista usando comparação com caratere curinga
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <param name="Patterns"></param>
+        /// <returns></returns>
+        public static bool IsLikeAny(this string Text, IEnumerable<string> Patterns) => (Patterns ?? Array.Empty<string>()).Any((Func<string, bool>)(x => Like(Text.IfBlank(EmptyString), x)));
+
+        /// <summary>
+        /// Verifica se um texto existe em uma determinada lista usando comparação com caratere curinga
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <param name="Patterns"></param>
+        /// <returns></returns>
+        public static bool IsLikeAny(this string Text, params string[] Patterns) => Text.IsLikeAny((Patterns ?? Array.Empty<string>()).AsEnumerable());
+
+        /// <summary>
+        /// Verifica se o objeto é uma lista
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public static bool IsList(this object obj) => IsGenericOf(obj, typeof(List<>));
+
+        /// <summary>
+        /// Compara se uma string nao é igual a outras strings
+        /// </summary>
+        /// <param name="Text">string principal</param>
+        /// <param name="Texts">strings para comparar</param>
+        /// <returns>TRUE se nenhuma das strings for igual a principal</returns>
+        public static bool IsNotAny(this string Text, params string[] Texts) => !Text.IsAny(Texts);
+
+        /// <summary>
+        /// Compara se uma string nao é igual a outras strings
+        /// </summary>
+        /// <param name="Text">string principal</param>
+        /// <param name="Texts">strings para comparar</param>
+        /// <returns>TRUE se alguma das strings for igual a principal</returns>
+        public static bool IsNotAny(this string Text, StringComparison Comparison, params string[] Texts) => !Text.IsAny(Comparison, Texts);
+
+        /// <summary>
+        /// Verifica se uma String não está em branco
+        /// </summary>
+        /// <param name="Text">Uma string</param>
+        /// <returns>FALSE se estiver nula, vazia ou em branco, caso contrario TRUE</returns>
+        public static bool IsNotBlank(this object Value) => !IsBlank(Value);
+
+        /// <summary>
+        /// Verifica se uma String não está em branco
+        /// </summary>
+        /// <param name="Text">Uma string</param>
+        /// <returns>FALSE se estiver nula, vazia ou em branco, caso contrario TRUE</returns>
+        public static bool IsNotBlank(this FormattableString Text) => Text != null && IsNotBlank(FormattableString.Invariant(Text));
+
+        /// <summary>
+        /// Verifica se um diretório não está vazio
+        /// </summary>
+        /// <param name="Directory">Diretório</param>
+        /// <returns></returns>
+        public static bool IsNotEmpty(this DirectoryInfo Directory) => !Directory.IsEmpty();
+
+        /// <summary>
+        /// Verifica se o não objeto existe dentro de uma Lista, coleção ou array.
+        /// </summary>
+        /// <typeparam name="T">Tipo do objeto</typeparam>
+        /// <param name="Obj">objeto</param>
+        /// <param name="List">Lista</param>
+        /// <returns></returns>
+        public static bool IsNotIn<T>(this T Obj, IEnumerable<T> List, IEqualityComparer<T> Comparer = null) => !Obj.IsIn(List, Comparer);
+
+        /// <summary>
+        /// Verifica se o objeto não existe dentro de um texto
+        /// </summary>
+        /// <typeparam name="T">Tipo do objeto</typeparam>
+        /// <param name="Obj">objeto</param>
+        /// <param name="TExt">Texto</param>
+        /// <returns></returns>
+        public static bool IsNotIn<T>(this T Obj, string Text, StringComparison? Comparer = null) => !Obj.IsIn(Text, Comparer);
+
+        /// <summary>
+        /// Checks if a <paramref name="List"/> is not <b>null</b> and contains at least one item
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="List"></param>
+        /// <returns></returns>
+        public static bool IsNotNullOrEmpty<T>(this IEnumerable<T> List) => (List ?? Array.Empty<T>()).Any();
+
+        /// <summary>
+        /// Verifica se o valor não é um numero
+        /// </summary>
+        /// <param name="Value">Valor a ser verificado, pode ser qualquer objeto</param>
+        /// <returns>FALSE se for um numero, TRUE se não for um numero</returns>
+        public static bool IsNotNumber(this object Value) => !Value.IsNumber();
+
+        public static bool IsNullableType(this Type t) => t != null && t.IsGenericType && Nullable.GetUnderlyingType(t) != null;
+
+        public static bool IsNullableType<T>(this T Obj) => IsNullableType(Obj.GetTypeOf());
+
+        /// <summary>
+        /// Verifica se um objeto é de um determinado tipo
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Obj"></param>
+        /// <returns></returns>
+        public static bool IsNullableTypeOf<T>(this object Obj) => Obj.IsNullableTypeOf(typeof(T));
+
+        /// <summary>
+        /// Verifica se um objeto é de um determinado tipo
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Obj"></param>
+        /// <returns></returns>
+        public static bool IsNullableTypeOf<T>(this T Obj, Type Type) => Obj.GetNullableTypeOf() == Type.GetNullableTypeOf();
+
+        /// <summary>
+        /// Checks if a <paramref name="List"/> is <b>null</b> or empty
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="List"></param>
+        /// <returns></returns>
+        public static bool IsNullOrEmpty<T>(this IEnumerable<T> List) => !List.IsNotNullOrEmpty();
+
+        /// <summary>
+        /// Verifica se o valor é um numero
+        /// </summary>
+        /// <param name="Value">Valor a ser verificado, pode ser qualquer objeto</param>
+        /// <returns>TRUE se for um numero, FALSE se não for um numero</returns>
+        public static bool IsNumber(this object Value)
         {
-            for (int x = 0, loopTo1 = lockedBitmap.Width - 1; x <= loopTo1; x++)
+            try
             {
-                var oldColor = lockedBitmap.GetPixel(x, y);
-                if (!oldColor.CompareARGB(true, Color.Transparent, Color.Black, Color.White))
+                Value = $"{Value}".NullIf(x => x.IsBlank());
+                if (Value is null) return false;
+                if (Value.ToCharArray().All(x => !char.IsWhiteSpace(x) && char.IsNumber(x)))
                 {
-                    var newColor = oldColor.MakeLighter(percent);
-                    lockedBitmap.SetPixel(x, y, newColor);
+                    return true;
+                }
+                Convert.ToDecimal(Value, CultureInfo.InvariantCulture);
+                return $"{Value}".IsIP() == false && ((Value.GetType() == typeof(DateTime)) == false);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Verifica se o objeto é do tipo numérico.
+        /// </summary>
+        /// <remarks>Boolean is not considered numeric.</remarks>
+        public static bool IsNumericType<T>(this T Obj) => Obj.GetNullableTypeOf().IsIn(PredefinedArrays.NumericTypes);
+
+        /// <summary>
+        /// Verifica se um numero é impar
+        /// </summary>
+        /// <param name="Value">Valor</param>
+        /// <returns></returns>
+        public static bool IsOdd(this decimal Value) => !Value.IsEven();
+
+        /// <summary>
+        /// Verifica se um numero é impar
+        /// </summary>
+        /// <param name="Value">Valor</param>
+        /// <returns></returns>
+        public static bool IsOdd(this int Value) => !Value.IsEven();
+
+        /// <summary>
+        /// Verifica se um numero é impar
+        /// </summary>
+        /// <param name="Value">Valor</param>
+        /// <returns></returns>
+        public static bool IsOdd(this long Value) => !Value.IsEven();
+
+        /// <summary>
+        /// Verifica se um numero é impar
+        /// </summary>
+        /// <param name="Value">Valor</param>
+        /// <returns></returns>
+        public static bool IsOdd(this short Value) => !Value.IsEven();
+
+        /// <summary>
+        /// Verifica se um numero é impar
+        /// </summary>
+        /// <param name="Value">Valor</param>
+        /// <returns></returns>
+        public static bool IsOdd(this float Value) => !Value.IsEven();
+
+        public static bool IsOpen(this DbConnection Connection) => Connection != null && (Connection.State == ConnectionState.Open);
+
+        /// <summary>
+        /// Retorna o caractere de encapsulamento oposto ao caractere indicado
+        /// </summary>
+        /// <param name="Text">Caractere</param>
+        /// <returns></returns>
+        public static bool IsOpenWrapChar(this string Text) => Text.GetFirstChars().IsIn(PredefinedArrays.OpenWrappers);
+
+        public static bool IsOpenWrapChar(this char c) => IsOpenWrapChar($"{c}");
+
+        /// <summary>
+        /// Verifica se uma palavra ou frase é idêntica da direita para a esqueda bem como da
+        /// esqueda para direita
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <param name="IgnoreWhiteSpaces">Ignora os espaços na hora de comparar</param>
+        /// <returns></returns>
+        public static bool IsPalindrome(this string Text, bool IgnoreWhiteSpaces = true)
+        {
+            Text = Text ?? EmptyString;
+            if (IgnoreWhiteSpaces)
+            {
+                Text = Text.RemoveAny(WhitespaceChar);
+            }
+
+            return Text == Text.Reverse().SelectJoinString();
+        }
+
+        /// <summary>
+        /// Verifica se uma string é um caminho de arquivo ou diretório válido
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <returns>TRUE se o caminho for válido</returns>
+        public static bool IsPath(this string Text) => Text.IsDirectoryPath() || Text.IsFilePath();
+
+        /// <summary>
+        /// Verifica se uma cor é legivel sobre outra
+        /// </summary>
+        /// <param name="Color"></param>
+        /// <param name="BackgroundColor"></param>
+        /// <param name="Size"></param>
+        /// <returns></returns>
+        public static bool IsReadable(this Color Color, Color BackgroundColor, int Size = 10)
+        {
+            if (Color.A == 0)
+                return false;
+            if (BackgroundColor.A == 0)
+                return true;
+            double diff = BackgroundColor.R * 0.299d + BackgroundColor.G * 0.587d + BackgroundColor.B * 0.114d - Color.R * 0.299d - Color.G * 0.587d - Color.B * 0.114d;
+            return !(diff < 1.5d + 141.162d * Math.Pow(0.975d, Size)) && diff > -0.5d - 154.709d * Math.Pow(0.99d, Size);
+        }
+
+        /// <summary>
+        /// Verifica se um objeto é de um determinado tipo
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Obj"></param>
+        /// <returns></returns>
+        public static bool IsTypeOf<T>(this object Obj) => Obj.IsTypeOf(typeof(T));
+
+        /// <summary>
+        /// Verifica se um objeto é de um determinado tipo
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Obj"></param>
+        /// <returns></returns>
+        public static bool IsTypeOf<T>(this T Obj, Type Type) => Obj.GetTypeOf() == Type.GetTypeOf();
+
+        /// <summary>
+        /// Verifica se um determinado texto é uma URL válida
+        /// </summary>
+        /// <param name="Text">Texto a ser verificado</param>
+        /// <returns>TRUE se for uma URL, FALSE se não for uma URL válida</returns>
+        public static bool IsURL(this string Text) => Text.IsNotBlank() && Uri.TryCreate(Text.Trim(), UriKind.Absolute, out _) && !Text.Trim().Contains(" ");
+
+        /// <summary>
+        /// Verifica se o dominio é válido (existe) em uma URL ou email
+        /// </summary>
+        /// <param name="DomainOrEmail">Uma String contendo a URL ou email</param>
+        /// <returns>TRUE se o dominio existir, FALSE se o dominio não existir</returns>
+        /// <remarks>Retornara sempre false quando nao houver conexao com a internet</remarks>
+        public static bool IsValidDomain(this string DomainOrEmail)
+        {
+            IPHostEntry ObjHost;
+            if (DomainOrEmail.IsEmail() == true)
+            {
+                DomainOrEmail = "http://" + DomainOrEmail.GetAfter("@");
+            }
+            if (DomainOrEmail.IsURL())
+            {
+                try
+                {
+                    string HostName = new Uri(DomainOrEmail).Host;
+                    ObjHost = Dns.GetHostEntry(HostName);
+                    return (ObjHost?.HostName ?? EmptyString) == (HostName ?? EmptyString);
+                }
+                catch
+                {
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Verifica se um numero é um EAN válido
+        /// </summary>
+        /// <param name="Code"></param>
+        /// <returns></returns>
+        /// <exception cref="FormatException"></exception>
+        public static bool IsValidEAN(this string Code)
+        {
+            if (Code == null || Code.IsNotNumber() || Code.Length < 3)
+            {
+                return false;
+            }
+
+            var bar = Code.RemoveLastChars();
+            var ver = Code.GetLastChars();
+            return GenerateBarcodeCheckSum(bar) == ver;
+        }
+
+        public static bool IsValidEAN(this int Code) => Code.ToString(CultureInfo.InvariantCulture).PadLeft(12, '0').ToString().IsValidEAN();
+
+        public static bool IsValueType(this Type T) => T.IsIn(PredefinedArrays.ValueTypes);
+
+        public static bool IsValueType<T>(this T Obj) => Obj.GetNullableTypeOf().IsValueType();
+
+        public static bool IsVisible<T>(this T dir) where T : FileSystemInfo => dir != null && dir.Exists && dir.Attributes.HasFlag(FileAttributes.Hidden) == false;
+
+        /// <summary>
+        /// Verifica se um numero é inteiro (não possui casas decimais)
+        /// </summary>
+        /// <param name="Number"></param>
+        /// <returns></returns>
+        public static bool IsWholeNumber(this decimal Number) => !Number.HasDecimalPart();
+
+        /// <summary>
+        /// Verifica se um numero é inteiro (não possui casas decimais)
+        /// </summary>
+        /// <param name="Number"></param>
+        /// <returns></returns>
+        public static bool IsWholeNumber(this double Number) => !Number.HasDecimalPart();
+
+        public static bool IsWrapped(this string Text) => PredefinedArrays.OpenWrappers.Any(x => IsWrapped(Text, x.FirstOrDefault()));
+
+        public static bool IsWrapped(this string Text, string OpenWrapText, string CloseWrapText = null) => IsWrapped(Text, StringComparison.CurrentCultureIgnoreCase, OpenWrapText, CloseWrapText);
+
+        public static bool IsWrapped(this string Text, StringComparison stringComparison, string OpenWrapText, string CloseWrapText = null)
+        {
+            if (Text.IsNotBlank())
+            {
+                OpenWrapText = OpenWrapText.IfBlank("");
+                CloseWrapText = CloseWrapText.IfBlank("");
+                if (OpenWrapText.Length == 1 && (CloseWrapText.IsBlank() || CloseWrapText.Length == 1))
+                {
+                    return CloseWrapText.IsBlank()
+                        ? IsWrapped(Text, OpenWrapText.FirstOrDefault())
+                        : IsWrapped(Text, OpenWrapText.FirstOrDefault(), CloseWrapText.FirstOrDefault());
+                }
+                else
+                    return Text.StartsWith(OpenWrapText, stringComparison) && Text.EndsWith(CloseWrapText, stringComparison);
+            }
+            return false;
+        }
+
+        public static bool IsWrapped(this string Text, char OpenWrapChar) => IsWrapped(Text, OpenWrapChar, OpenWrapChar.GetOppositeWrapChar());
+
+        public static bool IsWrapped(this string Text, char OpenWrapChar, char CloseWrapChar)
+        {
+            Text = Text?.Trim() ?? "";
+            OpenWrapChar = OpenWrapChar.IsCloseWrapChar() ? OpenWrapChar.GetOppositeWrapChar() : OpenWrapChar;
+            return Text.FirstOrDefault() == OpenWrapChar && Text.LastOrDefault() == CloseWrapChar;
+        }
+
+        /// <summary>
+        /// Retorna o ultimo objeto de uma lista ou um objeto especifico se a lista estiver vazia
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="Alternate"></param>
+        /// <returns></returns>
+        public static T LastOr<T>(this IEnumerable<T> source, params T[] Alternate) => source?.Any() ?? false ? source.Last() : (Alternate ?? Array.Empty<T>()).AsEnumerable().NullCoalesce();
+
+        public static T LastOr<T>(this IEnumerable<T> source, Func<T, bool> predicade, params T[] Alternate) => source?.Any(predicade) ?? false ? source.Last(predicade) : (Alternate ?? Array.Empty<T>()).AsEnumerable().NullCoalesce();
+
+        /// <summary>
+        /// Mescla duas cores usando <see cref="Lerp"/>
+        /// </summary>
+        /// <param name="FromColor">Cor</param>
+        /// <param name="ToColor">Outra cor</param>
+        /// <param name="amount">Indice de mesclagem</param>
+        /// <returns></returns>
+        public static Color Lerp(this Color FromColor, Color ToColor, float Amount)
+        {
+            // start colours as lerp-able floats
+            float sr = FromColor.R;
+            float sg = FromColor.G;
+            float sb = FromColor.B;
+            // end colours as lerp-able floats
+            float er = ToColor.R;
+            float eg = ToColor.G;
+            float eb = ToColor.B;
+            // lerp the colours to get the difference
+            byte r = (byte)Math.Round(sr.Lerp(er, Amount));
+            byte g = (byte)Math.Round(sg.Lerp(eg, Amount));
+            byte b = (byte)Math.Round(sb.Lerp(eb, Amount));
+            // return the new colour
+            return Color.FromArgb(r, g, b);
+        }
+
+        public static HSVColor Lerp(this HSVColor FromColor, HSVColor ToColor, float Amount) => new HSVColor(Lerp(FromColor.ToDrawingColor(), ToColor.ToDrawingColor(), Amount));
+
+        /// <summary>
+        /// Realiza um calculo de interpolação Linear
+        /// </summary>
+        /// <param name="Start"></param>
+        /// <param name="End"></param>
+        /// <param name="Amount"></param>
+        /// <returns></returns>
+        public static float Lerp(this float Start, float End, float Amount)
+        {
+            float difference = End - Start;
+            float adjusted = difference * Amount;
+            return Start + adjusted;
+        }
+
+        /// <summary>
+        /// Constroi uma expressão Menor que
+        /// </summary>
+        /// <param name="MemberExpression"></param>
+        /// <param name="ValueExpression"></param>
+        /// <returns></returns>
+        public static BinaryExpression LessThan(this Expression MemberExpression, Expression ValueExpression)
+        {
+            FixNullable(ref MemberExpression, ref ValueExpression);
+            return Expression.LessThan(MemberExpression, ValueExpression);
+        }
+
+        /// <summary>
+        /// Constroi uma expressão Menor ou igual
+        /// </summary>
+        /// <param name="MemberExpression"></param>
+        /// <param name="ValueExpression"></param>
+        /// <returns></returns>
+        public static BinaryExpression LessThanOrEqual(this Expression MemberExpression, Expression ValueExpression)
+        {
+            FixNullable(ref MemberExpression, ref ValueExpression);
+            return Expression.LessThanOrEqual(MemberExpression, ValueExpression);
+        }
+
+        /// <summary>
+        /// Computa a distancia de Levenshtein entre 2 strings. Distancia Levenshtein representa um
+        /// numero de operações de acréscimo, remoção ou substituição de caracteres para que uma
+        /// string se torne outra
+        /// </summary>
+        public static int LevenshteinDistance(this string Text1, string Text2)
+        {
+            Text1 = Text1 ?? EmptyString;
+            Text2 = Text2 ?? EmptyString;
+            int n = Text1.Length;
+            int m = Text2.Length;
+            var d = new int[n + 1 + 1, m + 1 + 1];
+
+            // Step 1
+            if (n == 0)
+            {
+                return m;
+            }
+
+            if (m == 0)
+            {
+                return n;
+            }
+
+            // Step 2
+            for (int i = 0, loopTo = n; i <= loopTo; i++)
+            {
+                d[i, 0] = i;
+            }
+
+            for (int j = 0, loopTo1 = m; j <= loopTo1; j++)
+            {
+                d[0, j] = j;
+            }
+
+            // Step 3
+            for (int i = 1, loopTo2 = n; i <= loopTo2; i++)
+            {
+                // Step 4
+                for (int j = 1, loopTo3 = m; j <= loopTo3; j++)
+                {
+                    // Step 5
+                    int cost = Text2[j - 1] == Text1[i - 1] ? 0 : 1;
+                    // Step 6
+                    d[i, j] = Math.Min(Math.Min(d[i - 1, j] + 1, d[i, j - 1] + 1), d[i - 1, j - 1] + cost);
+                }
+            }
+            // Step 7
+            return d[n, m];
+        }
+
+        public static IEnumerable<(string, string, int)> LevenshteinDistanceList(this IEnumerable<string> Words)
+        {
+            var words = Words.ToArray() ?? Array.Empty<string>();
+            int n = words.Length;
+
+            for (int i = 0; i < n; i++)
+            {
+                for (int j = i + 1; j < n; j++)
+                {
+                    yield return (words[i], words[j], LevenshteinDistance(words[i], words[j]));
                 }
             }
         }
 
-        return lockedBitmap;
-    }
+        /// <summary>
+        /// compara 2 strings usando wildcards
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="Pattern"></param>
+        /// <returns></returns>
+        public static bool Like(this string source, string Pattern) => new Like(Pattern).Matches(source);
 
-    public static T Map<T>(this DataRow Row, params object[] args) where T : class
-    {
-        T d;
-        if (args.Any())
-        {
-            d = (T)Activator.CreateInstance(typeof(T), args);
-        }
-        else
-        {
-            d = Activator.CreateInstance<T>();
-        }
+        public static int LimitIndex<T>(this int Int, IEnumerable<T> Collection) => Int.LimitRange<int>(0, Collection.Count() - 1);
 
-        if (Row?.Table?.Columns != null)
-            for (int ii = 0; ii < Row.Table.Columns.Count; ii++)
+        public static long LimitIndex<T>(this long Lng, IEnumerable<T> Collection) => Lng.LimitRange<long>(0, Collection.LongCount() - 1L);
+
+        /// <summary>
+        /// Limita um range para um numero
+        /// </summary>
+        /// <param name="Number">Numero</param>
+        /// <param name="MinValue">Valor Minimo para o numero</param>
+        /// <param name="MaxValue">Valor máximo para o numero</param>
+        /// <returns></returns>
+        public static T LimitRange<T>(this IComparable Number, IComparable MinValue = null, IComparable MaxValue = null) where T : IComparable
+        {
+            if (MaxValue != null)
             {
-                var col = Row.Table.Columns[ii];
-                string name = col.ColumnName;
-                var value = Row.GetValue(name);
-                if (d is Dictionary<string, object> dic)
+                Number = Number.IsLessThan(MaxValue.ChangeType<T>()) ? Number.ChangeType<T>() : MaxValue.ChangeType<T>();
+            }
+
+            if (MinValue != null)
+            {
+                Number = Number.IsGreaterThan(MinValue.ChangeType<T>()) ? Number.ChangeType<T>() : MinValue.ChangeType<T>();
+            }
+
+            return (T)Number;
+        }
+
+        /// <summary>
+        /// Limita um range para um caractere
+        /// </summary>
+        /// <param name="Number">Numero</param>
+        /// <param name="MinValue">Valor Minimo para o numero</param>
+        /// <param name="MaxValue">Valor máximo para o numero</param>
+        /// <returns></returns>
+        public static string LimitRange(this string Number, string MinValue = null, string MaxValue = null) => Number.LimitRange<string>(MinValue, MaxValue);
+
+        /// <summary>
+        /// Limita um range para um caractere
+        /// </summary>
+        /// <param name="Number">Numero</param>
+        /// <param name="MinValue">Valor Minimo para o numero</param>
+        /// <param name="MaxValue">Valor máximo para o numero</param>
+        /// <returns></returns>
+        public static char LimitRange(this char Number, char? MinValue = null, char? MaxValue = null) => Number.LimitRange<char>(MinValue, MaxValue);
+
+        /// <summary>
+        /// Limita um range para um numero
+        /// </summary>
+        /// <param name="Number">Numero</param>
+        /// <param name="MinValue">Valor Minimo para o numero</param>
+        /// <param name="MaxValue">Valor máximo para o numero</param>
+        /// <returns></returns>
+        public static float LimitRange(this float Number, IComparable MinValue = null, IComparable MaxValue = null) => Number.LimitRange<float>(MinValue, MaxValue);
+
+        /// <summary>
+        /// Limita um range para um numero
+        /// </summary>
+        /// <param name="Number">Numero</param>
+        /// <param name="MinValue">Valor Minimo para o numero</param>
+        /// <param name="MaxValue">Valor máximo para o numero</param>
+        /// <returns></returns>
+        public static int LimitRange(this int Number, IComparable MinValue = null, IComparable MaxValue = null) => Number.LimitRange<int>(MinValue, MaxValue);
+
+        /// <summary>
+        /// Limita um range para um numero
+        /// </summary>
+        /// <param name="Number">Numero</param>
+        /// <param name="MinValue">Valor Minimo para o numero</param>
+        /// <param name="MaxValue">Valor máximo para o numero</param>
+        /// <returns></returns>
+        public static decimal LimitRange(this decimal Number, IComparable MinValue = null, IComparable MaxValue = null) => Number.LimitRange<decimal>(MinValue, MaxValue);
+
+        /// <summary>
+        /// Limita um range para um numero
+        /// </summary>
+        /// <param name="Number">Numero</param>
+        /// <param name="MinValue">Valor Minimo para o numero</param>
+        /// <param name="MaxValue">Valor máximo para o numero</param>
+        /// <returns></returns>
+        public static long LimitRange(this double Number, IComparable MinValue = null, IComparable MaxValue = null) => (long)Math.Round(Number.LimitRange<double>(MinValue, MaxValue));
+
+        /// <summary>
+        /// Limita um range para um numero
+        /// </summary>
+        /// <param name="Number">Numero</param>
+        /// <param name="MinValue">Valor Minimo para o numero</param>
+        /// <param name="MaxValue">Valor máximo para o numero</param>
+        /// <returns></returns>
+        public static long LimitRange(this long Number, IComparable MinValue = null, IComparable MaxValue = null) => Number.LimitRange<long>(MinValue, MaxValue);
+
+        /// <summary>
+        /// Limita um range para um numero
+        /// </summary>
+        /// <param name="Number">Numero</param>
+        /// <param name="MinValue">Valor Minimo para o numero</param>
+        /// <param name="MaxValue">Valor máximo para o numero</param>
+        /// <returns></returns>
+        public static DateTime LimitRange(this DateTime Number, IComparable MinValue = null, IComparable MaxValue = null) => Number.LimitRange<DateTime>(MinValue, MaxValue);
+
+        /// <summary>
+        /// Utiliza o <see cref="TextWriter"/> especificado em <see cref="LogWriter"/> para escrever
+        /// o comando
+        /// </summary>
+        /// <param name="Command"></param>
+        /// <returns></returns>
+        public static DbCommand LogCommand(this DbCommand Command, TextWriter LogWriter = null)
+        {
+            Util.LogWriter = Util.LogWriter ?? new DebugTextWriter();
+            LogWriter = LogWriter ?? Util.LogWriter;
+            LogWriter.WriteLine(Environment.NewLine);
+            LogWriter.WriteLine("=".Repeat(10));
+            if (Command != null)
+            {
+                foreach (DbParameter item in Command.Parameters)
                 {
-                    dic.Set(name, value);
+                    string bx = $"Parameter: @{item.ParameterName}{Environment.NewLine}Value: {item.Value}{Environment.NewLine}T: {item.DbType}{Environment.NewLine}Precision/Scale: {item.Precision}/{item.Scale}";
+                    LogWriter.WriteLine(bx);
+                    LogWriter.WriteLine("-".Repeat(10));
                 }
-                else if (d is NameValueCollection nvc)
+
+                LogWriter.WriteLine($"Command: {Command.CommandText}");
+                LogWriter.WriteLine("/".Repeat(10));
+
+                if (Command.Transaction != null)
                 {
-                    nvc.Add(name, $"{value}");
+                    LogWriter.WriteLine($"Transaction Isolation Level: {Command.Transaction.IsolationLevel}");
                 }
                 else
                 {
-                    var PropInfos = GetTypeOf(d).FindProperties(name);
-                    var FieldInfos = GetTypeOf(d).FindFields(name).Where(x => x.Name.IsNotIn(PropInfos.Select(y => y.Name)));
-                    foreach (var info in PropInfos)
-                    {
-                        if (info.CanWrite)
-                        {
-                            if (value == null || ReferenceEquals(value.GetType(), typeof(DBNull)))
-                            {
-                                info.SetValue(d, null);
-                            }
-                            else
-                            {
-                                info.SetValue(d, ChangeType(value, info.PropertyType));
-                            }
-                        }
-                    }
+                    LogWriter.WriteLine($"No transaction specified");
+                }
+            }
+            else LogWriter.WriteLine("Command is NULL");
+            LogWriter.WriteLine("=".Repeat(10));
+            LogWriter.WriteLine(Environment.NewLine);
 
-                    foreach (var info in FieldInfos)
+            return Command;
+        }
+
+        public static TextStructure LoremIpsum(int ParagraphCount = 5, int SentenceCount = 3, int MinWordCount = 10, int MaxWordCount = 50, int IdentSize = 0, int BreakLinesBetweenParagraph = 0, string[] Words = null)
+        {
+            var sb = new StringBuilder();
+            if (Words == null || Words.Length == 0)
+                Words = new[] { "lorem", "ipsum", "dolor", "sit", "amet", "consectetur", "adipiscing", "elit", "sed", "do", "eiusmod", "tempor", "incididunt", "ut", "labore", "et", "dolore", "magna", "aliqua", "Ut", "enim", "ad", "minim", "veniam", "quis", "nostrud", "exercitation", "ullamco", "laboris", "nisi", "ut", "aliquip", "ex", "ea", "commodo", "consequat", "Duis", "aute", "irure", "dolor", "in", "reprehenderit", "in", "voluptate", "velit", "esse", "cillum", "dolore", "eu", "fugiat", "nulla", "pariatur" };
+
+            for (int i = 0; i < ParagraphCount.SetMinValue(1); i++)
+            {
+                sb.Append(WhitespaceChar.Repeat(IdentSize));
+                for (int j = 0; j < SentenceCount.SetMinValue(1); j++)
+                {
+                    for (int k = 0; k < RandomNumber(MinWordCount.SetMinValue(1), MaxWordCount.SetMinValue(1)); k++)
                     {
-                        if (ReferenceEquals(value.GetType(), typeof(DBNull)))
+                        string word = Words.RandomItem();
+                        if (k == 0)
                         {
-                            info.SetValue(d, null);
+                            word = word.ToSentenceCase();
                         }
-                        else
-                        {
-                            info.SetValue(d, ChangeType(value, info.FieldType));
-                        }
+                        sb.Append(word + WhitespaceChar);
+                    }
+                    sb.Append(PredefinedArrays.EndOfSentencePunctuation.RandomItem());
+                }
+                sb.Append(Environment.NewLine);
+                sb.Append(Environment.NewLine.Repeat(BreakLinesBetweenParagraph)); // Add more newline character between paragraphs
+            }
+
+            return new TextStructure(sb.ToString());
+        }
+
+        /// <summary>
+        /// Escurece a cor mesclando ela com preto
+        /// </summary>
+        /// <param name="TheColor">Cor</param>
+        /// <param name="percent">porcentagem de mesclagem</param>
+        /// <returns></returns>
+        public static Color MakeDarker(this Color TheColor, float Percent = 50f) => TheColor.MergeWith(Color.Black, Percent);
+
+        public static Image MakeDarker(this Image img, float percent = 50f)
+        {
+            var lockedBitmap = new Bitmap(img);
+            for (int y = 0, loopTo = lockedBitmap.Height - 1; y <= loopTo; y++)
+            {
+                for (int x = 0, loopTo1 = lockedBitmap.Width - 1; x <= loopTo1; x++)
+                {
+                    var oldColor = lockedBitmap.GetPixel(x, y);
+                    if (!oldColor.CompareARGB(true, Color.Transparent, Color.Black, Color.White))
+                    {
+                        var newColor = oldColor.MakeDarker(percent);
+                        lockedBitmap.SetPixel(x, y, newColor);
                     }
                 }
             }
-        return d;
-    }
 
-    public static IEnumerable<T> Map<T>(this DataTable Data, params object[] args) where T : class
-    {
-        var l = new List<T>();
-        args = args ?? Array.Empty<object>();
-        if (Data != null)
-            for (int i = 0; i < Data.Rows.Count; i++) l.Add(Data.Rows[i].Map<T>(args));
+            return lockedBitmap;
+        }
 
-        return l.AsEnumerable();
-    }
+        /// <summary>
+        /// Clareia a cor misturando ela com branco
+        /// </summary>
+        /// <param name="TheColor">Cor</param>
+        /// <param name="percent">Porcentagem de mesclagem</param>
+        /// <returns></returns>
+        public static Color MakeLighter(this Color TheColor, float Percent = 50f) => TheColor.MergeWith(Color.White, Percent);
 
-    /// <summary>
-    /// Mapeia o resultado de um <see cref="DbDataReader"/> para um <see cref="object"/>, <see
-    /// cref="Dictionary{TKey, TValue}"/> ou <see cref="NameValueCollection"/>
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="Reader"></param>
-    /// <returns></returns>
-    public static IEnumerable<T> Map<T>(this DbDataReader Reader, params object[] args) where T : class
-    {
-        var l = new List<T>();
-        args = args ?? Array.Empty<object>();
-        while (Reader != null && Reader.Read())
+        public static Image MakeLighter(this Image img, float percent = 50f)
+        {
+            var lockedBitmap = new Bitmap(img);
+            for (int y = 0, loopTo = lockedBitmap.Height - 1; y <= loopTo; y++)
+            {
+                for (int x = 0, loopTo1 = lockedBitmap.Width - 1; x <= loopTo1; x++)
+                {
+                    var oldColor = lockedBitmap.GetPixel(x, y);
+                    if (!oldColor.CompareARGB(true, Color.Transparent, Color.Black, Color.White))
+                    {
+                        var newColor = oldColor.MakeLighter(percent);
+                        lockedBitmap.SetPixel(x, y, newColor);
+                    }
+                }
+            }
+
+            return lockedBitmap;
+        }
+
+        public static T Map<T>(this DataRow Row, params object[] args) where T : class
         {
             T d;
             if (args.Any())
@@ -8112,4311 +8032,4334 @@ namespace Extensions
                 d = Activator.CreateInstance<T>();
             }
 
-            for (int i = 0, loopTo = Reader.FieldCount - 1; i <= loopTo; i++)
-            {
-                string name = Reader.GetName(i);
-                var value = Reader.GetValue(i);
-                if (typeof(T) == typeof(Dictionary<string, object>))
+            if (Row?.Table?.Columns != null)
+                for (int ii = 0; ii < Row.Table.Columns.Count; ii++)
                 {
-                    ((Dictionary<string, object>)(object)d).Set(name, value);
-                }
-                else if (typeof(T) == typeof(NameValueCollection))
-                {
-                    ((NameValueCollection)(object)d).Add(name, $"{value}");
-                }
-                else
-                {
-                    var propnames = name.PropertyNamesFor().ToList();
-                    var PropInfos = GetTypeOf(d).GetProperties().Where(x => x.GetCustomAttributes<ColumnNameAttribute>().SelectMany(n => n.Names).Contains(x.Name) || x.Name.IsIn(propnames, StringComparer.InvariantCultureIgnoreCase));
-                    var FieldInfos = GetTypeOf(d).GetFields().Where(x => x.GetCustomAttributes<ColumnNameAttribute>().SelectMany(n => n.Names).Contains(x.Name) || x.Name.IsIn(propnames, StringComparer.InvariantCultureIgnoreCase)).Where(x => x.Name.IsNotIn(PropInfos.Select(y => y.Name)));
-                    foreach (var info in PropInfos)
+                    var col = Row.Table.Columns[ii];
+                    string name = col.ColumnName;
+                    var value = Row.GetValue(name);
+                    if (d is Dictionary<string, object> dic)
                     {
-                        if (info.CanWrite)
+                        dic.Set(name, value);
+                    }
+                    else if (d is NameValueCollection nvc)
+                    {
+                        nvc.Add(name, $"{value}");
+                    }
+                    else
+                    {
+                        var PropInfos = GetTypeOf(d).FindProperties(name);
+                        var FieldInfos = GetTypeOf(d).FindFields(name).Where(x => x.Name.IsNotIn(PropInfos.Select(y => y.Name)));
+                        foreach (var info in PropInfos)
                         {
-                            if (value == null || ReferenceEquals(value.GetType(), typeof(DBNull)))
+                            if (info.CanWrite)
+                            {
+                                if (value == null || ReferenceEquals(value.GetType(), typeof(DBNull)))
+                                {
+                                    info.SetValue(d, null);
+                                }
+                                else
+                                {
+                                    info.SetValue(d, ChangeType(value, info.PropertyType));
+                                }
+                            }
+                        }
+
+                        foreach (var info in FieldInfos)
+                        {
+                            if (ReferenceEquals(value.GetType(), typeof(DBNull)))
                             {
                                 info.SetValue(d, null);
                             }
                             else
                             {
-                                info.SetValue(d, ChangeType(value, info.PropertyType));
+                                info.SetValue(d, ChangeType(value, info.FieldType));
                             }
                         }
                     }
-
-                    foreach (var info in FieldInfos)
-                    {
-                        if (ReferenceEquals(value.GetType(), typeof(DBNull)))
-                        {
-                            info.SetValue(d, null);
-                        }
-                        else
-                        {
-                            info.SetValue(d, ChangeType(value, info.FieldType));
-                        }
-                    }
                 }
-            }
-
-            l.Add(d);
+            return d;
         }
 
-        return l.AsEnumerable();
-    }
-
-    public static T MapFirst<T>(this DataSet Data, params object[] args) where T : class => Data.GetFirstRow().Map<T>(args);
-
-    public static T MapFirst<T>(this DataTable Data, params object[] args) where T : class => Data.GetFirstRow().Map<T>(args);
-
-    /// <summary>
-    /// Mapeia a primeira linha de um datareader para uma classe POCO do tipo <typeparamref name="T"/>
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="Reader"></param>
-    /// <param name="args">argumentos para o construtor da classe</param>
-    /// <returns></returns>
-    public static T MapFirst<T>(this DbDataReader Reader, params object[] args) where T : class => Reader.Map<T>(args).FirstOrDefault();
-
-    /// <summary>
-    /// Mapeia os resultsets de um datareader para um <see cref="IEnumerable(Of IEnumerable(Of
-    /// Dictionary(Of String, Object)))"/>
-    /// </summary>
-    /// <param name="Reader"></param>
-    /// <returns></returns>
-    public static IEnumerable<IEnumerable<Dictionary<string, object>>> MapMany(this DbDataReader Reader)
-    {
-        var l = new List<IEnumerable<Dictionary<string, object>>>();
-        if (Reader != null)
+        public static IEnumerable<T> Map<T>(this DataTable Data, params object[] args) where T : class
         {
-            do
-            {
-                l.Add(Reader.Map<Dictionary<string, object>>());
-            }
-            while (Reader.NextResult());
+            var l = new List<T>();
+            args = args ?? Array.Empty<object>();
+            if (Data != null)
+                for (int i = 0; i < Data.Rows.Count; i++) l.Add(Data.Rows[i].Map<T>(args));
+
+            return l.AsEnumerable();
         }
 
-        return l.AsEnumerable();
-    }
-
-    /// <summary>
-    /// Mapeia os resultsets de um datareader para uma tupla de tipos especificos
-    /// </summary>
-    /// <param name="Reader"></param>
-    /// <returns></returns>
-    public static Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>, IEnumerable<T5>> MapMany<T1, T2, T3, T4, T5>(this DbDataReader Reader)
-        where T1 : class
-        where T2 : class
-        where T3 : class
-        where T4 : class
-        where T5 : class
-    {
-        IEnumerable<T1> o1 = null;
-        IEnumerable<T2> o2 = null;
-        IEnumerable<T3> o3 = null;
-        IEnumerable<T4> o4 = null;
-        IEnumerable<T5> o5 = null;
-        if (Reader != null)
+        /// <summary>
+        /// Mapeia o resultado de um <see cref="DbDataReader"/> para um <see cref="object"/>, <see
+        /// cref="Dictionary{TKey, TValue}"/> ou <see cref="NameValueCollection"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Reader"></param>
+        /// <returns></returns>
+        public static IEnumerable<T> Map<T>(this DbDataReader Reader, params object[] args) where T : class
         {
-            o1 = Reader.Map<T1>();
-            if (Reader.NextResult())
+            var l = new List<T>();
+            args = args ?? Array.Empty<object>();
+            while (Reader != null && Reader.Read())
             {
-                o2 = Reader.Map<T2>();
-            }
-
-            if (Reader.NextResult())
-            {
-                o3 = Reader.Map<T3>();
-            }
-
-            if (Reader.NextResult())
-            {
-                o4 = Reader.Map<T4>();
-            }
-
-            if (Reader.NextResult())
-            {
-                o5 = Reader.Map<T5>();
-            }
-        }
-
-        return Tuple.Create(o1, o2, o3, o4, o5);
-    }
-
-    /// <summary>
-    /// Mapeia os resultsets de um datareader para uma tupla de tipos especificos
-    /// </summary>
-    /// <param name="Reader"></param>
-    /// <returns></returns>
-    public static Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>> MapMany<T1, T2, T3, T4>(this DbDataReader Reader)
-        where T1 : class
-        where T2 : class
-        where T3 : class
-        where T4 : class
-    {
-        IEnumerable<T1> o1 = null;
-        IEnumerable<T2> o2 = null;
-        IEnumerable<T3> o3 = null;
-        IEnumerable<T4> o4 = null;
-        if (Reader != null)
-        {
-            o1 = Reader.Map<T1>();
-            if (Reader.NextResult())
-            {
-                o2 = Reader.Map<T2>();
-            }
-
-            if (Reader.NextResult())
-            {
-                o3 = Reader.Map<T3>();
-            }
-
-            if (Reader.NextResult())
-            {
-                o4 = Reader.Map<T4>();
-            }
-        }
-
-        return Tuple.Create(o1, o2, o3, o4);
-    }
-
-    /// <summary>
-    /// Mapeia os resultsets de um datareader para uma tupla de tipos especificos
-    /// </summary>
-    /// <param name="Reader"></param>
-    /// <returns></returns>
-    public static Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>> MapMany<T1, T2, T3>(this DbDataReader Reader)
-        where T1 : class
-        where T2 : class
-        where T3 : class
-    {
-        IEnumerable<T1> o1 = null;
-        IEnumerable<T2> o2 = null;
-        IEnumerable<T3> o3 = null;
-        if (Reader != null)
-        {
-            o1 = Reader.Map<T1>();
-            if (Reader.NextResult())
-            {
-                o2 = Reader.Map<T2>();
-            }
-
-            if (Reader.NextResult())
-            {
-                o3 = Reader.Map<T3>();
-            }
-        }
-
-        return Tuple.Create(o1, o2, o3);
-    }
-
-    /// <summary>
-    /// Mapeia os resultsets de um datareader para uma tupla de tipos especificos
-    /// </summary>
-    /// <param name="Reader"></param>
-    /// <returns></returns>
-    public static Tuple<IEnumerable<T1>, IEnumerable<T2>> MapMany<T1, T2>(this DbDataReader Reader)
-        where T1 : class
-        where T2 : class
-    {
-        IEnumerable<T1> o1 = null;
-        IEnumerable<T2> o2 = null;
-        if (Reader != null)
-        {
-            o1 = Reader.Map<T1>();
-            if (Reader.NextResult())
-            {
-                o2 = Reader.Map<T2>();
-            }
-        }
-
-        return Tuple.Create(o1, o2);
-    }
-
-    /// <summary>
-    /// Mescla varios dicionarios em um unico dicionario. Quando uma key existir em mais de um
-    /// dicionario os valores sao agrupados em arrays
-    /// </summary>
-    /// <typeparam name="T">Tipo da Key, Deve ser igual para todos os dicionarios</typeparam>
-    /// <param name="FirstDictionary">Dicionario Principal</param>
-    /// <param name="Dictionaries">Outros dicionarios</param>
-    /// <returns></returns>
-    public static Dictionary<T, object> Merge<T>(this Dictionary<T, object> FirstDictionary, params Dictionary<T, object>[] Dictionaries)
-    {
-        // dicionario que está sendo gerado a partir dos outros
-        var result = new Dictionary<T, object>();
-
-        Dictionaries = Dictionaries ?? Array.Empty<Dictionary<T, object>>();
-        // adiciona o primeiro dicionario ao array principal e exclui dicionarios vazios
-        Dictionaries = Dictionaries.Union(new[] { FirstDictionary }).Where(x => x.Count > 0).ToArray();
-
-        // cria um array de keys unicas a partir de todos os dicionarios
-        var keys = Dictionaries.SelectMany(x => x.Keys.ToArray()).Distinct();
-
-        // para cada chave encontrada
-        foreach (var key in keys)
-        {
-            // para cada dicionario a ser mesclado
-            foreach (var dic in Dictionaries)
-            {
-                // dicionario tem a chave?
-                if (dic.ContainsKey(key))
+                T d;
+                if (args.Any())
                 {
-                    // resultado ja tem a chave atual adicionada?
-                    if (result.ContainsKey(key))
+                    d = (T)Activator.CreateInstance(typeof(T), args);
+                }
+                else
+                {
+                    d = Activator.CreateInstance<T>();
+                }
+
+                for (int i = 0, loopTo = Reader.FieldCount - 1; i <= loopTo; i++)
+                {
+                    string name = Reader.GetName(i);
+                    var value = Reader.GetValue(i);
+                    if (typeof(T) == typeof(Dictionary<string, object>))
                     {
-                        // lista que vai mesclar tudo
-                        var lista = new List<object>();
-
-                        // chave do resultado é um array?
-                        if (IsArray(result[key]))
+                        ((Dictionary<string, object>)(object)d).Set(name, value);
+                    }
+                    else if (typeof(T) == typeof(NameValueCollection))
+                    {
+                        ((NameValueCollection)(object)d).Add(name, $"{value}");
+                    }
+                    else
+                    {
+                        var propnames = name.PropertyNamesFor().ToList();
+                        var PropInfos = GetTypeOf(d).GetProperties().Where(x => x.GetCustomAttributes<ColumnNameAttribute>().SelectMany(n => n.Names).Contains(x.Name) || x.Name.IsIn(propnames, StringComparer.InvariantCultureIgnoreCase));
+                        var FieldInfos = GetTypeOf(d).GetFields().Where(x => x.GetCustomAttributes<ColumnNameAttribute>().SelectMany(n => n.Names).Contains(x.Name) || x.Name.IsIn(propnames, StringComparer.InvariantCultureIgnoreCase)).Where(x => x.Name.IsNotIn(PropInfos.Select(y => y.Name)));
+                        foreach (var info in PropInfos)
                         {
-                            lista.AddRange((IEnumerable<object>)result[key]);
-                        }
-                        else
-                        {
-                            lista.Add(result[key]);
-                        }
-                        // chave do dicionario é um array?
-                        if (IsArray(dic[key]))
-                        {
-                            lista.AddRange((IEnumerable<object>)dic[key]);
-                        }
-                        else
-                        {
-                            lista.Add(dic[key]);
-                        }
-
-                        // transforma a lista em um resultado
-                        if (lista.Count > 0)
-                        {
-                            if (lista.Count > 1)
+                            if (info.CanWrite)
                             {
-                                result[key] = lista.ToArray();
+                                if (value == null || ReferenceEquals(value.GetType(), typeof(DBNull)))
+                                {
+                                    info.SetValue(d, null);
+                                }
+                                else
+                                {
+                                    info.SetValue(d, ChangeType(value, info.PropertyType));
+                                }
+                            }
+                        }
+
+                        foreach (var info in FieldInfos)
+                        {
+                            if (ReferenceEquals(value.GetType(), typeof(DBNull)))
+                            {
+                                info.SetValue(d, null);
                             }
                             else
                             {
-                                result[key] = lista.First();
+                                info.SetValue(d, ChangeType(value, info.FieldType));
                             }
                         }
                     }
-                    else if (dic[key].GetType() != typeof(string) && (IsArray(dic[key]) || dic[key].IsList()))
+                }
+
+                l.Add(d);
+            }
+
+            return l.AsEnumerable();
+        }
+
+        public static T MapFirst<T>(this DataSet Data, params object[] args) where T : class => Data.GetFirstRow().Map<T>(args);
+
+        public static T MapFirst<T>(this DataTable Data, params object[] args) where T : class => Data.GetFirstRow().Map<T>(args);
+
+        /// <summary>
+        /// Mapeia a primeira linha de um datareader para uma classe POCO do tipo <typeparamref name="T"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Reader"></param>
+        /// <param name="args">argumentos para o construtor da classe</param>
+        /// <returns></returns>
+        public static T MapFirst<T>(this DbDataReader Reader, params object[] args) where T : class => Reader.Map<T>(args).FirstOrDefault();
+
+        /// <summary>
+        /// Mapeia os resultsets de um datareader para um <see cref="IEnumerable(Of IEnumerable(Of
+        /// Dictionary(Of String, Object)))"/>
+        /// </summary>
+        /// <param name="Reader"></param>
+        /// <returns></returns>
+        public static IEnumerable<IEnumerable<Dictionary<string, object>>> MapMany(this DbDataReader Reader)
+        {
+            var l = new List<IEnumerable<Dictionary<string, object>>>();
+            if (Reader != null)
+            {
+                do
+                {
+                    l.Add(Reader.Map<Dictionary<string, object>>());
+                }
+                while (Reader.NextResult());
+            }
+
+            return l.AsEnumerable();
+        }
+
+        /// <summary>
+        /// Mapeia os resultsets de um datareader para uma tupla de tipos especificos
+        /// </summary>
+        /// <param name="Reader"></param>
+        /// <returns></returns>
+        public static Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>, IEnumerable<T5>> MapMany<T1, T2, T3, T4, T5>(this DbDataReader Reader)
+            where T1 : class
+            where T2 : class
+            where T3 : class
+            where T4 : class
+            where T5 : class
+        {
+            IEnumerable<T1> o1 = null;
+            IEnumerable<T2> o2 = null;
+            IEnumerable<T3> o3 = null;
+            IEnumerable<T4> o4 = null;
+            IEnumerable<T5> o5 = null;
+            if (Reader != null)
+            {
+                o1 = Reader.Map<T1>();
+                if (Reader.NextResult())
+                {
+                    o2 = Reader.Map<T2>();
+                }
+
+                if (Reader.NextResult())
+                {
+                    o3 = Reader.Map<T3>();
+                }
+
+                if (Reader.NextResult())
+                {
+                    o4 = Reader.Map<T4>();
+                }
+
+                if (Reader.NextResult())
+                {
+                    o5 = Reader.Map<T5>();
+                }
+            }
+
+            return Tuple.Create(o1, o2, o3, o4, o5);
+        }
+
+        /// <summary>
+        /// Mapeia os resultsets de um datareader para uma tupla de tipos especificos
+        /// </summary>
+        /// <param name="Reader"></param>
+        /// <returns></returns>
+        public static Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>> MapMany<T1, T2, T3, T4>(this DbDataReader Reader)
+            where T1 : class
+            where T2 : class
+            where T3 : class
+            where T4 : class
+        {
+            IEnumerable<T1> o1 = null;
+            IEnumerable<T2> o2 = null;
+            IEnumerable<T3> o3 = null;
+            IEnumerable<T4> o4 = null;
+            if (Reader != null)
+            {
+                o1 = Reader.Map<T1>();
+                if (Reader.NextResult())
+                {
+                    o2 = Reader.Map<T2>();
+                }
+
+                if (Reader.NextResult())
+                {
+                    o3 = Reader.Map<T3>();
+                }
+
+                if (Reader.NextResult())
+                {
+                    o4 = Reader.Map<T4>();
+                }
+            }
+
+            return Tuple.Create(o1, o2, o3, o4);
+        }
+
+        /// <summary>
+        /// Mapeia os resultsets de um datareader para uma tupla de tipos especificos
+        /// </summary>
+        /// <param name="Reader"></param>
+        /// <returns></returns>
+        public static Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>> MapMany<T1, T2, T3>(this DbDataReader Reader)
+            where T1 : class
+            where T2 : class
+            where T3 : class
+        {
+            IEnumerable<T1> o1 = null;
+            IEnumerable<T2> o2 = null;
+            IEnumerable<T3> o3 = null;
+            if (Reader != null)
+            {
+                o1 = Reader.Map<T1>();
+                if (Reader.NextResult())
+                {
+                    o2 = Reader.Map<T2>();
+                }
+
+                if (Reader.NextResult())
+                {
+                    o3 = Reader.Map<T3>();
+                }
+            }
+
+            return Tuple.Create(o1, o2, o3);
+        }
+
+        /// <summary>
+        /// Mapeia os resultsets de um datareader para uma tupla de tipos especificos
+        /// </summary>
+        /// <param name="Reader"></param>
+        /// <returns></returns>
+        public static Tuple<IEnumerable<T1>, IEnumerable<T2>> MapMany<T1, T2>(this DbDataReader Reader)
+            where T1 : class
+            where T2 : class
+        {
+            IEnumerable<T1> o1 = null;
+            IEnumerable<T2> o2 = null;
+            if (Reader != null)
+            {
+                o1 = Reader.Map<T1>();
+                if (Reader.NextResult())
+                {
+                    o2 = Reader.Map<T2>();
+                }
+            }
+
+            return Tuple.Create(o1, o2);
+        }
+
+        /// <summary>
+        /// Mescla varios dicionarios em um unico dicionario. Quando uma key existir em mais de um
+        /// dicionario os valores sao agrupados em arrays
+        /// </summary>
+        /// <typeparam name="T">Tipo da Key, Deve ser igual para todos os dicionarios</typeparam>
+        /// <param name="FirstDictionary">Dicionario Principal</param>
+        /// <param name="Dictionaries">Outros dicionarios</param>
+        /// <returns></returns>
+        public static Dictionary<T, object> Merge<T>(this Dictionary<T, object> FirstDictionary, params Dictionary<T, object>[] Dictionaries)
+        {
+            // dicionario que está sendo gerado a partir dos outros
+            var result = new Dictionary<T, object>();
+
+            Dictionaries = Dictionaries ?? Array.Empty<Dictionary<T, object>>();
+            // adiciona o primeiro dicionario ao array principal e exclui dicionarios vazios
+            Dictionaries = Dictionaries.Union(new[] { FirstDictionary }).Where(x => x.Count > 0).ToArray();
+
+            // cria um array de keys unicas a partir de todos os dicionarios
+            var keys = Dictionaries.SelectMany(x => x.Keys.ToArray()).Distinct();
+
+            // para cada chave encontrada
+            foreach (var key in keys)
+            {
+                // para cada dicionario a ser mesclado
+                foreach (var dic in Dictionaries)
+                {
+                    // dicionario tem a chave?
+                    if (dic.ContainsKey(key))
                     {
-                        result.Add(key, dic[key].ChangeType<object[]>());
+                        // resultado ja tem a chave atual adicionada?
+                        if (result.ContainsKey(key))
+                        {
+                            // lista que vai mesclar tudo
+                            var lista = new List<object>();
+
+                            // chave do resultado é um array?
+                            if (IsArray(result[key]))
+                            {
+                                lista.AddRange((IEnumerable<object>)result[key]);
+                            }
+                            else
+                            {
+                                lista.Add(result[key]);
+                            }
+                            // chave do dicionario é um array?
+                            if (IsArray(dic[key]))
+                            {
+                                lista.AddRange((IEnumerable<object>)dic[key]);
+                            }
+                            else
+                            {
+                                lista.Add(dic[key]);
+                            }
+
+                            // transforma a lista em um resultado
+                            if (lista.Count > 0)
+                            {
+                                if (lista.Count > 1)
+                                {
+                                    result[key] = lista.ToArray();
+                                }
+                                else
+                                {
+                                    result[key] = lista.First();
+                                }
+                            }
+                        }
+                        else if (dic[key].GetType() != typeof(string) && (IsArray(dic[key]) || dic[key].IsList()))
+                        {
+                            result.Add(key, dic[key].ChangeType<object[]>());
+                        }
+                        else
+                        {
+                            result.Add(key, dic[key]);
+                        }
                     }
-                    else
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Mescla varios <see cref="NameValueCollection"/> em um unico <see cref="NameValueCollection"/>
+        /// </summary>
+        /// <param name="Collections"></param>
+        /// <returns></returns>
+        public static NameValueCollection Merge(this IEnumerable<NameValueCollection> Collections)
+        {
+            Collections = Collections ?? new List<NameValueCollection>();
+            var all = new NameValueCollection();
+            foreach (var i in Collections)
+            {
+                all.Add(i);
+            }
+
+            return all;
+        }
+
+        /// <summary>
+        /// Mescla varios <see cref="NameValueCollection"/> em um unico <see cref="NameValueCollection"/>
+        /// </summary>
+        /// <param name="OtherCollections"></param>
+        /// <returns></returns>
+        public static NameValueCollection Merge(this NameValueCollection FirstCollection, params NameValueCollection[] OtherCollections)
+        {
+            OtherCollections = OtherCollections ?? Array.Empty<NameValueCollection>();
+            OtherCollections = new[] { FirstCollection }.Union(OtherCollections).ToArray();
+            return OtherCollections.Merge();
+        }
+
+        /// <summary>
+        /// Aplica as mesmas keys a todos os dicionarios de uma lista
+        /// </summary>
+        /// <typeparam name="TKey">Tipo da key</typeparam>
+        /// <typeparam name="TValue">Tipo do Valor</typeparam>
+        /// <param name="Dics">Dicionarios</param>
+        /// <param name="AditionalKeys">
+        /// Chaves para serem incluidas nos dicionários mesmo se não existirem em nenhum deles
+        /// </param>
+        public static IEnumerable<Dictionary<TKey, TValue>> MergeKeys<TKey, TValue>(this IEnumerable<Dictionary<TKey, TValue>> Dics, params TKey[] AditionalKeys)
+        {
+            AditionalKeys = AditionalKeys ?? Array.Empty<TKey>();
+            Dics = Dics ?? Array.Empty<Dictionary<TKey, TValue>>();
+            var chave = Dics.SelectMany(x => x.Keys).Distinct().Union(AditionalKeys);
+            foreach (var dic in Dics)
+            {
+                if (dic != null)
+                    foreach (var key in chave)
                     {
-                        result.Add(key, dic[key]);
+                        if (!dic.ContainsKey(key))
+                        {
+                            dic[key] = default;
+                        }
                     }
+            }
+            return Dics.Select(x => x.OrderBy(y => y.Key).ToDictionary());
+        }
+
+        /// <summary>
+        /// Mescla duas cores a partir de uma porcentagem
+        /// </summary>
+        /// <param name="TheColor">Cor principal</param>
+        /// <param name="AnotherColor">Cor de mesclagem</param>
+        /// <param name="Percent">Porcentagem de mescla</param>
+        /// <returns></returns>
+        public static Color MergeWith(this Color TheColor, Color AnotherColor, float Percent = 50f) => TheColor.Lerp(AnotherColor, Percent / 100f);
+
+        /// <summary>
+        /// Mescla duas cores a partir de uma porcentagem
+        /// </summary>
+        /// <param name="TheColor">Cor principal</param>
+        /// <param name="AnotherColor">Cor de mesclagem</param>
+        /// <param name="Percent">Porcentagem de mescla</param>
+        /// <returns></returns>
+        public static HSVColor MergeWith(this HSVColor TheColor, HSVColor AnotherColor, float Percent = 50f) => TheColor.Lerp(AnotherColor, Percent / 100f);
+
+        /// <summary>
+        /// Minifica uma folha de estilo CSS
+        /// </summary>
+        /// <param name="CSS">String contendo o CSS</param>
+        /// <returns></returns>
+        public static string MinifyCSS(this string CSS, bool PreserveComments = false)
+        {
+            if (CSS.IsNotBlank())
+            {
+                CSS = Regex.Replace(CSS, "[a-zA-Z]+#", "#");
+                CSS = Regex.Replace(CSS, @"[\n\r]+\s*", EmptyString);
+                CSS = Regex.Replace(CSS, @"\s+", " ");
+                CSS = Regex.Replace(CSS, @"\s?([:,;{}])\s?", "$1");
+                CSS = CSS.Replace(";}", "}");
+                CSS = Regex.Replace(CSS, @"([\s:]0)(px|pt|%|em)", "$1");
+                // Remove comments from CSS
+                if (PreserveComments == false)
+                {
+                    CSS = Regex.Replace(CSS, @"/\*[\d\D]*?\*/", EmptyString);
                 }
             }
+
+            return CSS;
         }
 
-        return result;
-    }
-
-    /// <summary>
-    /// Mescla varios <see cref="NameValueCollection"/> em um unico <see cref="NameValueCollection"/>
-    /// </summary>
-    /// <param name="Collections"></param>
-    /// <returns></returns>
-    public static NameValueCollection Merge(this IEnumerable<NameValueCollection> Collections)
-    {
-        Collections = Collections ?? new List<NameValueCollection>();
-        var all = new NameValueCollection();
-        foreach (var i in Collections)
+        /// <summary>
+        /// Gera uma paleta de cores monocromatica com <paramref name="Amount"/> amostras a partir
+        /// de uma <paramref name="Color"/> base.
+        /// </summary>
+        /// <param name="Color"></param>
+        /// <param name="Amount"></param>
+        /// <returns></returns>
+        /// <remarks>A distancia entre as cores será maior se a quantidade de amostras for pequena</remarks>
+        public static IEnumerable<HSVColor> MonochromaticPallette(Color Color, int Amount)
         {
-            all.Add(i);
+            var t = new RuleOfThree<int>(Amount, 100, 1, default);
+            var Percent = t.UnknownValue?.ToFloat();
+            Color = Color.White.MergeWith(Color);
+            var l = new List<Color>();
+            for (int index = 1, loopTo = Amount; index <= loopTo; index++)
+            {
+                Color = Color.MakeDarker((float)Percent);
+                l.Add(Color);
+            }
+
+            return l.ToHSVColorList();
         }
 
-        return all;
-    }
+        public static Image Monochrome(this Image Image, Color Color, float Alpha = 0f) => Image.Grayscale().Translate(Color.R, Color.G, Color.B, Alpha);
 
-    /// <summary>
-    /// Mescla varios <see cref="NameValueCollection"/> em um unico <see cref="NameValueCollection"/>
-    /// </summary>
-    /// <param name="OtherCollections"></param>
-    /// <returns></returns>
-    public static NameValueCollection Merge(this NameValueCollection FirstCollection, params NameValueCollection[] OtherCollections)
-    {
-        OtherCollections = OtherCollections ?? Array.Empty<NameValueCollection>();
-        OtherCollections = new[] { FirstCollection }.Union(OtherCollections).ToArray();
-        return OtherCollections.Merge();
-    }
+        /// <summary>
+        /// Retorna TRUE se a maioria dos testes em uma lista retornarem o valor correspondente
+        /// </summary>
+        /// <param name="List"></param>
+        /// <returns></returns>
+        public static bool Most<T>(this IEnumerable<T> List, Func<T, bool> predicate, bool Result = true) => List.Select(predicate).Most(Result);
 
-    /// <summary>
-    /// Aplica as mesmas keys a todos os dicionarios de uma lista
-    /// </summary>
-    /// <typeparam name="TKey">Tipo da key</typeparam>
-    /// <typeparam name="TValue">Tipo do Valor</typeparam>
-    /// <param name="Dics">Dicionarios</param>
-    /// <param name="AditionalKeys">
-    /// Chaves para serem incluidas nos dicionários mesmo se não existirem em nenhum deles
-    /// </param>
-    public static IEnumerable<Dictionary<TKey, TValue>> MergeKeys<TKey, TValue>(this IEnumerable<Dictionary<TKey, TValue>> Dics, params TKey[] AditionalKeys)
-    {
-        AditionalKeys = AditionalKeys ?? Array.Empty<TKey>();
-        Dics = Dics ?? Array.Empty<Dictionary<TKey, TValue>>();
-        var chave = Dics.SelectMany(x => x.Keys).Distinct().Union(AditionalKeys);
-        foreach (var dic in Dics)
+        /// <summary>
+        /// Retorna TRUE se a maioria dos testes em uma lista retornarem o valor correspondente
+        /// </summary>
+        /// <param name="List"></param>
+        /// <returns></returns>
+        public static bool Most(this IEnumerable<bool> List, bool Result = true)
         {
-            if (dic != null)
-                foreach (var key in chave)
+            if (List.Count() > 0)
+            {
+                var arr = List.DistinctCount();
+                if (arr.ContainsKey(true) && arr.ContainsKey(false))
                 {
-                    if (!dic.ContainsKey(key))
+                    return arr[Result] > arr[!Result];
+                }
+                else
+                {
+                    return arr.First().Key == Result;
+                }
+            }
+
+            return false == Result;
+        }
+
+        /// <summary>
+        /// Retorna TRUE se a maioria dos testes em uma lista retornarem false
+        /// </summary>
+        /// <param name="List"></param>
+        /// <returns></returns>
+        public static bool MostFalse<T>(this IEnumerable<T> List, Func<T, bool> predicate) => MostFalse(List.Select(predicate).ToArray());
+
+        /// <summary>
+        /// Retorna TRUE se a maioria dos testes em uma lista retornarem FALSE
+        /// </summary>
+        /// <param name="Tests"></param>
+        /// <returns></returns>
+        public static bool MostFalse(params bool[] Tests) => (Tests ?? Array.Empty<bool>()).Most(false);
+
+        /// <summary>
+        /// Retorna TRUE se a maioria dos testes em uma lista retornarem true
+        /// </summary>
+        /// <param name="List"></param>
+        /// <returns></returns>
+        public static bool MostTrue<T>(this IEnumerable<T> List, Func<T, bool> predicate) => MostTrue(List.Select(predicate).ToArray());
+
+        /// <summary>
+        /// Retorna TRUE se a maioria dos testes em uma lista retornarem TRUE
+        /// </summary>
+        /// <param name="Tests"></param>
+        /// <returns></returns>
+        public static bool MostTrue(params bool[] Tests) => (Tests ?? Array.Empty<bool>()).Most(true);
+
+        public static DirectoryInfo MoveDirectory(DirectoryInfo sourcePath, DirectoryInfo targetPath)
+        {
+            if (sourcePath.Exists)
+            {
+                targetPath = targetPath.CreateDirectoryIfNotExists();
+                var files = Directory.EnumerateFiles(sourcePath.FullName, "*", SearchOption.AllDirectories).GroupBy(s => Path.GetDirectoryName(s));
+                foreach (var folder in files)
+                {
+                    var targetFolder = folder.Key.Replace(sourcePath.FullName, targetPath.FullName);
+                    Directory.CreateDirectory(targetFolder);
+                    foreach (var file in folder)
                     {
-                        dic[key] = default;
+                        var targetFile = Path.Combine(targetFolder, Path.GetFileName(file));
+                        if (File.Exists(targetFile)) File.Delete(targetFile);
+                        File.Move(file, targetFile);
                     }
                 }
-        }
-        return Dics.Select(x => x.OrderBy(y => y.Key).ToDictionary());
-    }
-
-    /// <summary>
-    /// Mescla duas cores a partir de uma porcentagem
-    /// </summary>
-    /// <param name="TheColor">Cor principal</param>
-    /// <param name="AnotherColor">Cor de mesclagem</param>
-    /// <param name="Percent">Porcentagem de mescla</param>
-    /// <returns></returns>
-    public static Color MergeWith(this Color TheColor, Color AnotherColor, float Percent = 50f) => TheColor.Lerp(AnotherColor, Percent / 100f);
-
-    /// <summary>
-    /// Mescla duas cores a partir de uma porcentagem
-    /// </summary>
-    /// <param name="TheColor">Cor principal</param>
-    /// <param name="AnotherColor">Cor de mesclagem</param>
-    /// <param name="Percent">Porcentagem de mescla</param>
-    /// <returns></returns>
-    public static HSVColor MergeWith(this HSVColor TheColor, HSVColor AnotherColor, float Percent = 50f) => TheColor.Lerp(AnotherColor, Percent / 100f);
-
-    /// <summary>
-    /// Minifica uma folha de estilo CSS
-    /// </summary>
-    /// <param name="CSS">String contendo o CSS</param>
-    /// <returns></returns>
-    public static string MinifyCSS(this string CSS, bool PreserveComments = false)
-    {
-        if (CSS.IsNotBlank())
-        {
-            CSS = Regex.Replace(CSS, "[a-zA-Z]+#", "#");
-            CSS = Regex.Replace(CSS, @"[\n\r]+\s*", EmptyString);
-            CSS = Regex.Replace(CSS, @"\s+", " ");
-            CSS = Regex.Replace(CSS, @"\s?([:,;{}])\s?", "$1");
-            CSS = CSS.Replace(";}", "}");
-            CSS = Regex.Replace(CSS, @"([\s:]0)(px|pt|%|em)", "$1");
-            // Remove comments from CSS
-            if (PreserveComments == false)
-            {
-                CSS = Regex.Replace(CSS, @"/\*[\d\D]*?\*/", EmptyString);
+                Directory.Delete(sourcePath.FullName, true);
             }
+
+            return targetPath;
         }
 
-        return CSS;
-    }
-
-    /// <summary>
-    /// Gera uma paleta de cores monocromatica com <paramref name="Amount"/> amostras a partir
-    /// de uma <paramref name="Color"/> base.
-    /// </summary>
-    /// <param name="Color"></param>
-    /// <param name="Amount"></param>
-    /// <returns></returns>
-    /// <remarks>A distancia entre as cores será maior se a quantidade de amostras for pequena</remarks>
-    public static IEnumerable<HSVColor> MonochromaticPallette(Color Color, int Amount)
-    {
-        var t = new RuleOfThree<int>(Amount, 100, 1, default);
-        var Percent = t.UnknownValue?.ToFloat();
-        Color = Color.White.MergeWith(Color);
-        var l = new List<Color>();
-        for (int index = 1, loopTo = Amount; index <= loopTo; index++)
+        /// <summary>
+        /// Move os itens de uma lista para outra
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="FromList"></param>
+        /// <param name="ToList"></param>
+        /// <param name="Indexes"></param>
+        /// <returns></returns>
+        public static List<T> MoveItems<T>(this List<T> FromList, ref List<T> ToList, params int[] Indexes)
         {
-            Color = Color.MakeDarker((float)Percent);
-            l.Add(Color);
-        }
-
-        return l.ToHSVColorList();
-    }
-
-    public static Image Monochrome(this Image Image, Color Color, float Alpha = 0f) => Image.Grayscale().Translate(Color.R, Color.G, Color.B, Alpha);
-
-    /// <summary>
-    /// Retorna TRUE se a maioria dos testes em uma lista retornarem o valor correspondente
-    /// </summary>
-    /// <param name="List"></param>
-    /// <returns></returns>
-    public static bool Most<T>(this IEnumerable<T> List, Func<T, bool> predicate, bool Result = true) => List.Select(predicate).Most(Result);
-
-    /// <summary>
-    /// Retorna TRUE se a maioria dos testes em uma lista retornarem o valor correspondente
-    /// </summary>
-    /// <param name="List"></param>
-    /// <returns></returns>
-    public static bool Most(this IEnumerable<bool> List, bool Result = true)
-    {
-        if (List.Count() > 0)
-        {
-            var arr = List.DistinctCount();
-            if (arr.ContainsKey(true) && arr.ContainsKey(false))
+            ToList = ToList ?? new List<T>();
+            if (FromList != null)
             {
-                return arr[Result] > arr[!Result];
-            }
-            else
-            {
-                return arr.First().Key == Result;
-            }
-        }
-
-        return false == Result;
-    }
-
-    /// <summary>
-    /// Retorna TRUE se a maioria dos testes em uma lista retornarem false
-    /// </summary>
-    /// <param name="List"></param>
-    /// <returns></returns>
-    public static bool MostFalse<T>(this IEnumerable<T> List, Func<T, bool> predicate) => MostFalse(List.Select(predicate).ToArray());
-
-    /// <summary>
-    /// Retorna TRUE se a maioria dos testes em uma lista retornarem FALSE
-    /// </summary>
-    /// <param name="Tests"></param>
-    /// <returns></returns>
-    public static bool MostFalse(params bool[] Tests) => (Tests ?? Array.Empty<bool>()).Most(false);
-
-    /// <summary>
-    /// Retorna TRUE se a maioria dos testes em uma lista retornarem true
-    /// </summary>
-    /// <param name="List"></param>
-    /// <returns></returns>
-    public static bool MostTrue<T>(this IEnumerable<T> List, Func<T, bool> predicate) => MostTrue(List.Select(predicate).ToArray());
-
-    /// <summary>
-    /// Retorna TRUE se a maioria dos testes em uma lista retornarem TRUE
-    /// </summary>
-    /// <param name="Tests"></param>
-    /// <returns></returns>
-    public static bool MostTrue(params bool[] Tests) => (Tests ?? Array.Empty<bool>()).Most(true);
-
-    public static DirectoryInfo MoveDirectory(DirectoryInfo sourcePath, DirectoryInfo targetPath)
-    {
-        if (sourcePath.Exists)
-        {
-            targetPath = targetPath.CreateDirectoryIfNotExists();
-            var files = Directory.EnumerateFiles(sourcePath.FullName, "*", SearchOption.AllDirectories).GroupBy(s => Path.GetDirectoryName(s));
-            foreach (var folder in files)
-            {
-                var targetFolder = folder.Key.Replace(sourcePath.FullName, targetPath.FullName);
-                Directory.CreateDirectory(targetFolder);
-                foreach (var file in folder)
+                Indexes = Indexes?.Where(x => x.IsBetween(0, FromList.Count - 1)).ToArray() ?? Array.Empty<int>();
+                foreach (var index in Indexes)
                 {
-                    var targetFile = Path.Combine(targetFolder, Path.GetFileName(file));
-                    if (File.Exists(targetFile)) File.Delete(targetFile);
-                    File.Move(file, targetFile);
+                    var item = FromList.Detach(index);
+                    try
+                    {
+                        ToList.Insert(index, item);
+                    }
+                    catch
+                    {
+                        ToList.Add(item);
+                    }
                 }
             }
-            Directory.Delete(sourcePath.FullName, true);
+            return ToList;
         }
 
-        return targetPath;
-    }
-
-    /// <summary>
-    /// Move os itens de uma lista para outra
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="FromList"></param>
-    /// <param name="ToList"></param>
-    /// <param name="Indexes"></param>
-    /// <returns></returns>
-    public static List<T> MoveItems<T>(this List<T> FromList, ref List<T> ToList, params int[] Indexes)
-    {
-        ToList = ToList ?? new List<T>();
-        if (FromList != null)
+        /// <summary>
+        /// Inverte as cores de uma imagem
+        /// </summary>
+        /// <param name="Img"></param>
+        /// <returns></returns>
+        public static Image Negative(this Image img)
         {
-            Indexes = Indexes?.Where(x => x.IsBetween(0, FromList.Count - 1)).ToArray() ?? Array.Empty<int>();
-            foreach (var index in Indexes)
+            var copia = new Bitmap(img);
+            var cm = new ColorMatrix(new float[][] { new float[] { -1, 0f, 0f, 0f, 0f }, new float[] { 0f, -1, 0f, 0f, 0f }, new float[] { 0f, 0f, -1, 0f, 0f }, new float[] { 0f, 0f, 0f, 1f, 0f }, new float[] { 0f, 0f, 0f, 0f, 1f } });
+            return ApplyColorMatrix(copia, cm);
+
+        }
+
+        /// <summary>
+        /// Constroi uma expressão diferente de
+        /// </summary>
+        /// <param name="MemberExpression"></param>
+        /// <param name="ValueExpression"></param>
+        /// <returns></returns>
+        public static BinaryExpression NotEqual(this Expression MemberExpression, Expression ValueExpression)
+        {
+            FixNullable(ref MemberExpression, ref ValueExpression);
+            return Expression.NotEqual(MemberExpression, ValueExpression);
+        }
+
+        /// <summary>
+        /// Verifica se dois ou mais valores são nulos e retorna o primeiro elemento que possuir um valor
+        /// </summary>
+        /// <typeparam name="T">Tipo</typeparam>
+        /// <param name="First">Primeiro Item</param>
+        /// <param name="N">Outros itens</param>
+        /// <returns></returns>
+        public static T? NullCoalesce<T>(this T? First, params T?[] N) where T : struct => (T?)(T)First ?? N.NullCoalesce<T>();
+
+        /// <summary>
+        /// Verifica se dois ou mais valores são nulos e retorna o primeiro elemento que possuir um valor
+        /// </summary>
+        /// <typeparam name="T">Tipo</typeparam>
+        /// <param name="List">Outros itens</param>
+        /// <returns></returns>
+        public static T? NullCoalesce<T>(this IEnumerable<T?> List) where T : struct => List?.FirstOrDefault(x => x.HasValue) ?? default;
+
+        /// <summary>
+        /// Verifica se dois ou mais valores são nulos e retorna o primeiro elemento que possuir um valor
+        /// </summary>
+        /// <typeparam name="T">Tipo</typeparam>
+        /// <param name="First">Primeiro Item</param>
+        /// <param name="N">Outros itens</param>
+        /// <returns></returns>
+        public static T NullCoalesce<T>(this T First, params T[] N) where T : class => First ?? NullCoalesce((N ?? Array.Empty<T>()).AsEnumerable());
+
+        /// <summary>
+        /// Verifica se dois ou mais valores são nulos e retorna o primeiro elemento que possuir um valor
+        /// </summary>
+        /// <typeparam name="T">Tipo</typeparam>
+        /// <param name="List">Outros itens</param>
+        /// <returns></returns>
+        public static T NullCoalesce<T>(this IEnumerable<T> List) => List == null ? default : List.FirstOrDefault(x => x != null);
+
+        /// <summary>
+        /// Anula o valor de um objeto se ele for igual a outro objeto
+        /// </summary>
+        /// <param name="Value">Valor</param>
+        /// <param name="TestExpression">Outro Objeto</param>
+        /// <returns></returns>
+        public static T NullIf<T>(this T Value, Func<T, bool> TestExpression) => Value.NullIf(TestExpression != null && TestExpression.Invoke(Value));
+
+        public static T NullIf<T>(this T Value, bool Test) => Test ? default : Value;
+
+        /// <summary>
+        /// Anula o valor de um objeto se ele for igual a outro objeto
+        /// </summary>
+        /// <param name="Value">Valor</param>
+        /// <param name="TestValue">Outro Objeto</param>
+        /// <returns></returns>
+        public static T NullIf<T>(this T Value, T TestValue) where T : class
+        {
+            if (Value != null && Value.Equals(TestValue))
             {
-                var item = FromList.Detach(index);
-                try
-                {
-                    ToList.Insert(index, item);
-                }
-                catch
-                {
-                    ToList.Add(item);
-                }
+                return null;
             }
+
+            return Value;
         }
-        return ToList;
-    }
 
-    /// <summary>
-    /// Inverte as cores de uma imagem
-    /// </summary>
-    /// <param name="Img"></param>
-    /// <returns></returns>
-    public static Image Negative(this Image img)
-    {
-        var copia = new Bitmap(img);
-        var cm = new ColorMatrix(new float[][] { new float[] { -1, 0f, 0f, 0f, 0f }, new float[] { 0f, -1, 0f, 0f, 0f }, new float[] { 0f, 0f, -1, 0f, 0f }, new float[] { 0f, 0f, 0f, 1f, 0f }, new float[] { 0f, 0f, 0f, 0f, 1f } });
-        return ApplyColorMatrix(copia, cm);
-
-    }
-
-    /// <summary>
-    /// Constroi uma expressão diferente de
-    /// </summary>
-    /// <param name="MemberExpression"></param>
-    /// <param name="ValueExpression"></param>
-    /// <returns></returns>
-    public static BinaryExpression NotEqual(this Expression MemberExpression, Expression ValueExpression)
-    {
-        FixNullable(ref MemberExpression, ref ValueExpression);
-        return Expression.NotEqual(MemberExpression, ValueExpression);
-    }
-
-    /// <summary>
-    /// Verifica se dois ou mais valores são nulos e retorna o primeiro elemento que possuir um valor
-    /// </summary>
-    /// <typeparam name="T">Tipo</typeparam>
-    /// <param name="First">Primeiro Item</param>
-    /// <param name="N">Outros itens</param>
-    /// <returns></returns>
-    public static T? NullCoalesce<T>(this T? First, params T?[] N) where T : struct => (T?)(T)First ?? N.NullCoalesce<T>();
-
-    /// <summary>
-    /// Verifica se dois ou mais valores são nulos e retorna o primeiro elemento que possuir um valor
-    /// </summary>
-    /// <typeparam name="T">Tipo</typeparam>
-    /// <param name="List">Outros itens</param>
-    /// <returns></returns>
-    public static T? NullCoalesce<T>(this IEnumerable<T?> List) where T : struct => List?.FirstOrDefault(x => x.HasValue) ?? default;
-
-    /// <summary>
-    /// Verifica se dois ou mais valores são nulos e retorna o primeiro elemento que possuir um valor
-    /// </summary>
-    /// <typeparam name="T">Tipo</typeparam>
-    /// <param name="First">Primeiro Item</param>
-    /// <param name="N">Outros itens</param>
-    /// <returns></returns>
-    public static T NullCoalesce<T>(this T First, params T[] N) where T : class => First ?? NullCoalesce((N ?? Array.Empty<T>()).AsEnumerable());
-
-    /// <summary>
-    /// Verifica se dois ou mais valores são nulos e retorna o primeiro elemento que possuir um valor
-    /// </summary>
-    /// <typeparam name="T">Tipo</typeparam>
-    /// <param name="List">Outros itens</param>
-    /// <returns></returns>
-    public static T NullCoalesce<T>(this IEnumerable<T> List) => List == null ? default : List.FirstOrDefault(x => x != null);
-
-    /// <summary>
-    /// Anula o valor de um objeto se ele for igual a outro objeto
-    /// </summary>
-    /// <param name="Value">Valor</param>
-    /// <param name="TestExpression">Outro Objeto</param>
-    /// <returns></returns>
-    public static T NullIf<T>(this T Value, Func<T, bool> TestExpression) => Value.NullIf(TestExpression != null && TestExpression.Invoke(Value));
-
-    public static T NullIf<T>(this T Value, bool Test) => Test ? default : Value;
-
-    /// <summary>
-    /// Anula o valor de um objeto se ele for igual a outro objeto
-    /// </summary>
-    /// <param name="Value">Valor</param>
-    /// <param name="TestValue">Outro Objeto</param>
-    /// <returns></returns>
-    public static T NullIf<T>(this T Value, T TestValue) where T : class
-    {
-        if (Value != null && Value.Equals(TestValue))
+        /// <summary>
+        /// Anula o valor de um objeto se ele for igual a outro objeto
+        /// </summary>
+        /// <param name="Value">Valor</param>
+        /// <param name="TestValue">Outro Objeto</param>
+        /// <returns></returns>
+        public static T? NullIf<T>(this T? Value, T? TestValue) where T : struct
         {
+            if (Value.HasValue && Value.Equals(TestValue))
+            {
+                Value = default;
+            }
+
+            return Value;
+        }
+
+        /// <summary>
+        /// Anula o valor de uma string se ela for igual a outra string
+        /// </summary>
+        /// <param name="Value">Valor</param>
+        /// <param name="TestValue">Outro Objeto</param>
+        /// <returns></returns>
+        public static string NullIf(this string Value, string TestValue, StringComparison ComparisonType = StringComparison.InvariantCultureIgnoreCase)
+        {
+            if (Value == null || Value.Equals(TestValue, ComparisonType))
+            {
+                Value = null;
+            }
+
+            return Value;
+        }
+
+        /// <summary>
+        /// Substitui todas as propriedades nulas de uma classe pelos seus valores Default
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Obj"></param>
+        /// <returns></returns>
+        public static T NullPropertiesAsDefault<T>(this T Obj, bool IncludeVirtual = false) where T : class
+        {
+            TryExecute(() => Obj = Obj ?? Activator.CreateInstance<T>());
+            if (Obj != null)
+                foreach (var item in Obj.GetProperties())
+                {
+                    if (item.CanRead && item.CanWrite && item.GetValue(Obj) is null)
+                    {
+                        switch (item.PropertyType)
+                        {
+                            case var @case when @case == typeof(string):
+                                {
+                                    item.SetValue(Obj, EmptyString);
+                                    break;
+                                }
+
+                            default:
+                                {
+                                    bool IsVirtual = item.GetAccessors().All(x => x.IsVirtual) && IncludeVirtual;
+                                    if (item.IsValueType() || IsVirtual)
+                                    {
+                                        var o = Activator.CreateInstance(item.PropertyType.GetNullableTypeOf());
+                                        item.SetValue(Obj, o);
+                                    }
+
+                                    break;
+                                }
+                        }
+                    }
+                }
+
+            return Obj;
+        }
+
+        /// <summary>
+        /// Verifica se somente um unico elemento corresponde a condição
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="List"></param>
+        /// <param name="predicate"></param>
+        /// <returns></returns>
+        public static bool OnlyOneOf<T>(this IEnumerable<T> List, Func<T, bool> predicate) => List?.Count(predicate) == 1;
+
+        public static TConnection OpenConnection<TConnection>(this ConnectionStringParser connection) where TConnection : DbConnection
+        {
+            if (connection != null)
+            {
+                TConnection dbcon = Activator.CreateInstance<TConnection>();
+                dbcon.ConnectionString = connection.ConnectionString;
+                dbcon.Open();
+                return dbcon;
+            }
             return null;
         }
 
-        return Value;
-    }
-
-    /// <summary>
-    /// Anula o valor de um objeto se ele for igual a outro objeto
-    /// </summary>
-    /// <param name="Value">Valor</param>
-    /// <param name="TestValue">Outro Objeto</param>
-    /// <returns></returns>
-    public static T? NullIf<T>(this T? Value, T? TestValue) where T : struct
-    {
-        if (Value.HasValue && Value.Equals(TestValue))
+        /// <summary>
+        /// Concatena uma expressão com outra usando o operador OR (||)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="FirstExpression"></param>
+        /// <param name="OtherExpressions"></param>
+        /// <returns></returns>
+        public static Expression<Func<T, bool>> Or<T>(this Expression<Func<T, bool>> FirstExpression, params Expression<Func<T, bool>>[] OtherExpressions)
         {
-            Value = default;
-        }
-
-        return Value;
-    }
-
-    /// <summary>
-    /// Anula o valor de uma string se ela for igual a outra string
-    /// </summary>
-    /// <param name="Value">Valor</param>
-    /// <param name="TestValue">Outro Objeto</param>
-    /// <returns></returns>
-    public static string NullIf(this string Value, string TestValue, StringComparison ComparisonType = StringComparison.InvariantCultureIgnoreCase)
-    {
-        if (Value == null || Value.Equals(TestValue, ComparisonType))
-        {
-            Value = null;
-        }
-
-        return Value;
-    }
-
-    /// <summary>
-    /// Substitui todas as propriedades nulas de uma classe pelos seus valores Default
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="Obj"></param>
-    /// <returns></returns>
-    public static T NullPropertiesAsDefault<T>(this T Obj, bool IncludeVirtual = false) where T : class
-    {
-        TryExecute(() => Obj = Obj ?? Activator.CreateInstance<T>());
-        if (Obj != null)
-            foreach (var item in Obj.GetProperties())
+            FirstExpression = FirstExpression ?? false.CreateWhereExpression<T>();
+            foreach (var item in OtherExpressions ?? Array.Empty<Expression<Func<T, bool>>>())
             {
-                if (item.CanRead && item.CanWrite && item.GetValue(Obj) is null)
+                if (item != null)
                 {
-                    switch (item.PropertyType)
+                    var invokedExpr = Expression.Invoke(item, FirstExpression.Parameters.Cast<Expression>());
+                    FirstExpression = Expression.Lambda<Func<T, bool>>(Expression.OrElse(FirstExpression.Body, invokedExpr), FirstExpression.Parameters);
+                }
+            }
+
+            return FirstExpression;
+        }
+
+        /// <summary>
+        /// Orderna uma lista a partir da aproximação de um deerminado campo com uma string
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="items"></param>
+        /// <param name="PropertySelector"></param>
+        /// <param name="Ascending"></param>
+        /// <param name="Searches"></param>
+        /// <returns></returns>
+        public static IOrderedEnumerable<T> OrderByLike<T>(this IEnumerable<T> items, Func<T, string> PropertySelector, bool Ascending, params string[] Searches) where T : class => items.ThenByLike(PropertySelector, Ascending, Searches);
+
+        public static IOrderedEnumerable<T> OrderByMany<T>(this IEnumerable<T> Data, params Expression<Func<T, object>>[] Selectors) => Data.OrderByMany(true, Selectors);
+
+        public static IOrderedEnumerable<T> OrderByMany<T>(this IEnumerable<T> Data, bool Ascending, params Expression<Func<T, object>>[] Selectors)
+        {
+            Selectors = Selectors ?? Array.Empty<Expression<Func<T, object>>>();
+            if (Selectors.IsNullOrEmpty())
+            {
+                Expression<Func<T, object>> dd = x => true;
+                Selectors = new[] { dd };
+            }
+            foreach (var Selector in Selectors)
+            {
+                if (Selector != null)
+                {
+                    if (Data is IOrderedEnumerable<T> datav)
                     {
-                        case var @case when @case == typeof(string):
-                            {
-                                item.SetValue(Obj, EmptyString);
-                                break;
-                            }
-
-                        default:
-                            {
-                                bool IsVirtual = item.GetAccessors().All(x => x.IsVirtual) && IncludeVirtual;
-                                if (item.IsValueType() || IsVirtual)
-                                {
-                                    var o = Activator.CreateInstance(item.PropertyType.GetNullableTypeOf());
-                                    item.SetValue(Obj, o);
-                                }
-
-                                break;
-                            }
+                        Data = Ascending ? datav.ThenBy(Selector.Compile()) : (IEnumerable<T>)datav.ThenByDescending(Selector.Compile());
+                    }
+                    else if (Data is IEnumerable<T>)
+                    {
+                        Data = Ascending ? Data.OrderBy(Selector.Compile()) : (IEnumerable<T>)Data.OrderByDescending(Selector.Compile());
                     }
                 }
             }
 
-        return Obj;
-    }
-
-    /// <summary>
-    /// Verifica se somente um unico elemento corresponde a condição
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="List"></param>
-    /// <param name="predicate"></param>
-    /// <returns></returns>
-    public static bool OnlyOneOf<T>(this IEnumerable<T> List, Func<T, bool> predicate) => List?.Count(predicate) == 1;
-
-    public static TConnection OpenConnection<TConnection>(this ConnectionStringParser connection) where TConnection : DbConnection
-    {
-        if (connection != null)
-        {
-            TConnection dbcon = Activator.CreateInstance<TConnection>();
-            dbcon.ConnectionString = connection.ConnectionString;
-            dbcon.Open();
-            return dbcon;
+            return (IOrderedEnumerable<T>)Data;
         }
-        return null;
-    }
 
-    /// <summary>
-    /// Concatena uma expressão com outra usando o operador OR (||)
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="FirstExpression"></param>
-    /// <param name="OtherExpressions"></param>
-    /// <returns></returns>
-    public static Expression<Func<T, bool>> Or<T>(this Expression<Func<T, bool>> FirstExpression, params Expression<Func<T, bool>>[] OtherExpressions)
-    {
-        FirstExpression = FirstExpression ?? false.CreateWhereExpression<T>();
-        foreach (var item in OtherExpressions ?? Array.Empty<Expression<Func<T, bool>>>())
+        public static IOrderedQueryable<T> OrderByMany<T>(this IQueryable<T> Data, params Expression<Func<T, object>>[] Selectors) => Data.OrderByMany(true, Selectors);
+
+        public static IOrderedQueryable<T> OrderByMany<T>(this IQueryable<T> Data, bool Ascending, params Expression<Func<T, object>>[] Selectors)
         {
-            if (item != null)
+            Selectors = Selectors ?? Array.Empty<Expression<Func<T, object>>>();
+            if (Selectors.IsNullOrEmpty())
             {
-                var invokedExpr = Expression.Invoke(item, FirstExpression.Parameters.Cast<Expression>());
-                FirstExpression = Expression.Lambda<Func<T, bool>>(Expression.OrElse(FirstExpression.Body, invokedExpr), FirstExpression.Parameters);
+                Expression<Func<T, object>> dd = x => true;
+                Selectors = new[] { dd };
             }
-        }
-
-        return FirstExpression;
-    }
-
-    /// <summary>
-    /// Orderna uma lista a partir da aproximação de um deerminado campo com uma string
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="items"></param>
-    /// <param name="PropertySelector"></param>
-    /// <param name="Ascending"></param>
-    /// <param name="Searches"></param>
-    /// <returns></returns>
-    public static IOrderedEnumerable<T> OrderByLike<T>(this IEnumerable<T> items, Func<T, string> PropertySelector, bool Ascending, params string[] Searches) where T : class => items.ThenByLike(PropertySelector, Ascending, Searches);
-
-    public static IOrderedEnumerable<T> OrderByMany<T>(this IEnumerable<T> Data, params Expression<Func<T, object>>[] Selectors) => Data.OrderByMany(true, Selectors);
-
-    public static IOrderedEnumerable<T> OrderByMany<T>(this IEnumerable<T> Data, bool Ascending, params Expression<Func<T, object>>[] Selectors)
-    {
-        Selectors = Selectors ?? Array.Empty<Expression<Func<T, object>>>();
-        if (Selectors.IsNullOrEmpty())
-        {
-            Expression<Func<T, object>> dd = x => true;
-            Selectors = new[] { dd };
-        }
-        foreach (var Selector in Selectors)
-        {
-            if (Selector != null)
+            foreach (var Selector in Selectors)
             {
-                if (Data is IOrderedEnumerable<T> datav)
+                if (Selector != null)
                 {
-                    Data = Ascending ? datav.ThenBy(Selector.Compile()) : (IEnumerable<T>)datav.ThenByDescending(Selector.Compile());
-                }
-                else if (Data is IEnumerable<T>)
-                {
-                    Data = Ascending ? Data.OrderBy(Selector.Compile()) : (IEnumerable<T>)Data.OrderByDescending(Selector.Compile());
-                }
-            }
-        }
-
-        return (IOrderedEnumerable<T>)Data;
-    }
-
-    public static IOrderedQueryable<T> OrderByMany<T>(this IQueryable<T> Data, params Expression<Func<T, object>>[] Selectors) => Data.OrderByMany(true, Selectors);
-
-    public static IOrderedQueryable<T> OrderByMany<T>(this IQueryable<T> Data, bool Ascending, params Expression<Func<T, object>>[] Selectors)
-    {
-        Selectors = Selectors ?? Array.Empty<Expression<Func<T, object>>>();
-        if (Selectors.IsNullOrEmpty())
-        {
-            Expression<Func<T, object>> dd = x => true;
-            Selectors = new[] { dd };
-        }
-        foreach (var Selector in Selectors)
-        {
-            if (Selector != null)
-            {
-                if (Data is IOrderedQueryable<T> datav)
-                {
-                    Data = Ascending ? datav.ThenBy(Selector) : (IQueryable<T>)datav.ThenByDescending(Selector);
-                }
-                else if (Data is IQueryable<T>)
-                {
-                    Data = Ascending ? Data.OrderBy(Selector) : (IQueryable<T>)Data.OrderByDescending(Selector);
-                }
-            }
-        }
-
-        return (IOrderedQueryable<T>)Data;
-    }
-
-    public static IOrderedEnumerable<T> OrderByManyDescending<T>(this IEnumerable<T> Data, params Expression<Func<T, object>>[] Selectors) => Data.OrderByMany(false, Selectors);
-
-    public static IOrderedQueryable<T> OrderByManyDescending<T>(this IQueryable<T> Data, params Expression<Func<T, object>>[] Selectors) => Data.OrderByMany(false, Selectors);
-
-    /// <summary>
-    /// Return a <see cref="IEnumerable{AddressInfo}"/> sorted according to the distance between
-    /// locations (Traveler Salesman Problem)
-    /// </summary>
-    /// <param name="address"></param>
-    /// <returns></returns>
-    /// <remarks>
-    /// The first item in <paramref name="address"/> will be used as the start of travel and end
-    /// of travel (if <paramref name="returnToStart"/> is true)
-    /// </remarks>
-    public static IEnumerable<AddressInfo> OrderByNearestNeighbor(this IEnumerable<AddressInfo> address, bool returnToStart = true) => OrderByNearestNeighbor(address, null, returnToStart);
-
-    public static IEnumerable<AddressInfo> OrderByNearestNeighbor(this IEnumerable<AddressInfo> address, double[,] distanceMatrix, bool returnToStart = true)
-    {
-        var locations = address.ToArray();
-        distanceMatrix = distanceMatrix ?? address.GetDistanceMatrix();
-        List<int> tour = new List<int>();
-        if (distanceMatrix.Length > 0)
-        {
-            int numLocations = distanceMatrix.GetLength(0);
-
-            // Start the tour at the first location
-            tour.Add(0);
-
-            int currentLocation = 0;
-            while (tour.Count < numLocations)
-            {
-                int nextLocation = -1;
-                double minDistance = double.MaxValue;
-
-                // Find the nearest unvisited location
-                for (int i = 0; i < numLocations; i++)
-                {
-                    if (i == currentLocation || tour.Contains(i))
+                    if (Data is IOrderedQueryable<T> datav)
                     {
-                        continue;
+                        Data = Ascending ? datav.ThenBy(Selector) : (IQueryable<T>)datav.ThenByDescending(Selector);
                     }
-
-                    double distance = distanceMatrix[currentLocation, i];
-                    if (distance < minDistance)
+                    else if (Data is IQueryable<T>)
                     {
-                        minDistance = distance;
-                        nextLocation = i;
-                    }
-                }
-
-                tour.Add(nextLocation);
-                currentLocation = nextLocation;
-            }
-
-            // Return to the starting location
-            if (returnToStart) tour.Add(0);
-
-            locations = tour.Select(x => locations[x]).ToArray();
-        }
-
-        return locations;
-    }
-
-    /// <summary>
-    /// Order a list following another list order
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <typeparam name="TOrder"></typeparam>
-    /// <param name="Items"></param>
-    /// <param name="Property"></param>
-    /// <param name="Order"></param>
-    /// <returns></returns>
-    public static IEnumerable<T> OrderByPredefinedOrder<T, TOrder>(this IEnumerable<T> Source, Expression<Func<T, TOrder>> PropertySelector, params TOrder[] order)
-    {
-        Source = Source ?? Array.Empty<T>();
-        if (PropertySelector == null) throw new ArgumentException("Property selector is null");
-        var p = PropertySelector.Compile();
-        var lookup = Source.ToLookup(p, t => t);
-        if (order.IsNotNullOrEmpty())
-        {
-            foreach (var id in order)
-            {
-                foreach (var t in lookup[id])
-                {
-                    yield return t;
-                }
-            }
-        }
-        else
-        {
-            foreach (var item in Source)
-            {
-                yield return item;
-            }
-        }
-    }
-
-    public static IOrderedQueryable<T> OrderByProperty<T>(this IQueryable<T> source, string[] SortProperty, bool Ascending = true) => ThenByProperty(source, SortProperty, Ascending);
-
-    public static IOrderedEnumerable<T> OrderByProperty<T>(this IEnumerable<T> source, string[] SortProperty, bool Ascending = true) => ThenByProperty(source, SortProperty, Ascending);
-
-    /// <summary>
-    /// Randomiza a ordem de um <see cref="IEnumerable"/>
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="items"></param>
-    /// <returns></returns>
-    public static IOrderedEnumerable<T> OrderByRandom<T>(this IEnumerable<T> items) => items.OrderBy(x => Guid.NewGuid());
-
-    /// <summary>
-    /// Randomiza a ordem de um <see cref="IQueryable"/>
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="items"></param>
-    /// <returns></returns>
-    public static IOrderedQueryable<T> OrderByRandom<T>(this IQueryable<T> items) => items.OrderBy(x => Guid.NewGuid());
-
-    /// <summary>
-    /// Ordena um <see cref="IEnumerable"/> priorizando valores especificos a uma condição no
-    /// inicio da coleção e então segue a ordem padrão para os outros.
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <typeparam name="DefaultOrderItem"></typeparam>
-    /// <param name="items">colecao</param>
-    /// <param name="Priority">Seletores que define a prioridade da ordem dos itens</param>
-    /// <returns></returns>
-    public static IOrderedEnumerable<T> OrderByWithPriority<T>(this IEnumerable<T> items, params Func<T, bool>[] Priority)
-    {
-        if (items != null)
-        {
-            Priority = Priority ?? Array.Empty<Func<T, bool>>();
-
-            return items.OrderByDescending(x => Priority.Sum(y => y(x).ToInt()));
-        }
-        return null;
-    }
-
-    public static Expression<Func<T, bool>> OrSearch<T>(this Expression<Func<T, bool>> FirstExpression, IEnumerable<string> Text, params Expression<Func<T, string>>[] Properties)
-           => (FirstExpression ?? false.CreateWhereExpression<T>()).Or(Text.SearchExpression(Properties));
-
-    public static Expression<Func<T, bool>> OrSearch<T>(this Expression<Func<T, bool>> FirstExpression, string Text, params Expression<Func<T, string>>[] Properties)
-           => (FirstExpression ?? false.CreateWhereExpression<T>()).Or(Text.SearchExpression(Properties));
-
-    /// <summary>
-    /// Adciona caracteres ao inicio e final de uma string enquanto o <see
-    /// cref="string.Length"/> de <paramref name="Text"/> for menor que <paramref name="TotalLength"/>
-    /// </summary>
-    /// <param name="Text">Texto</param>
-    /// <param name="TotalLength">Tamanho total</param>
-    /// <param name="PaddingChar">Caractere</param>
-    /// <returns></returns>
-    public static string Pad(this string Text, int TotalLength, char PaddingChar = ' ')
-    {
-        Text = Text ?? EmptyString;
-        if (Text.Length < TotalLength)
-        {
-            while (Text.Length < TotalLength)
-            {
-                Text = Text.Wrap(PaddingChar.ToString());
-            }
-
-            if (Text.Length > TotalLength)
-            {
-                Text = Text.RemoveLastChars();
-            }
-        }
-
-        return Text;
-    }
-
-    public static string PadZero(this string Number, int totalWidth) => Number.IfBlank("0").PadLeft(totalWidth, '0');
-
-    public static string PadZero(this int Number, int totalWidth) => Number.ToString(CultureInfo.InvariantCulture).PadZero(totalWidth);
-
-    public static string PadZero(this long Number, int totalWidth) => Number.ToString(CultureInfo.InvariantCulture).PadZero(totalWidth);
-
-    /// <summary>
-    /// Reduz um <see cref="IQueryable"/> em uma página especifica
-    /// </summary>
-    /// <typeparam name="TSource"></typeparam>
-    /// <param name="Source"></param>
-    /// <param name="PageNumber"></param>
-    /// <param name="PageSize"></param>
-    /// <returns></returns>
-    public static IQueryable<TSource> Page<TSource>(this IQueryable<TSource> Source, int PageNumber, int PageSize) => PageNumber <= 0 ? Source : Source.Skip((PageNumber - 1) * PageSize).Take(PageSize);
-
-    /// <summary>
-    /// Reduz um <see cref="IEnumerable"/> em uma página especifica
-    /// </summary>
-    /// <typeparam name="TSource"></typeparam>
-    /// <param name="Source"></param>
-    /// <param name="PageNumber"></param>
-    /// <param name="PageSize"></param>
-    /// <returns></returns>
-    public static IEnumerable<TSource> Page<TSource>(this IEnumerable<TSource> Source, int PageNumber, int PageSize)
-    {
-        if (PageNumber <= 0)
-        {
-            return Source;
-        }
-
-        return Source.Skip((PageNumber - 1).SetMinValue(0) * PageSize).Take(PageSize);
-    }
-
-    public static IEnumerable<(T, T)> PairUp<T>(this IEnumerable<T> source)
-    {
-        if (source != null)
-            using (var iterator = source.GetEnumerator())
-                while (iterator.MoveNext())
-                    yield return (iterator.Current, iterator.MoveNext() ? iterator.Current : default);
-    }
-
-    /// <summary>
-    /// limpa um texto deixando apenas os caracteres alfanumericos.
-    /// </summary>
-    /// <param name="Text"></param>
-    /// <returns></returns>
-    public static string ParseAlphaNumeric(this string Text)
-    {
-        var l = new List<string>();
-        foreach (var item in Text.Split(WhitespaceChar, StringSplitOptions.RemoveEmptyEntries))
-        {
-            l.Add(Regex.Replace(item, "[^A-Za-z0-9]", EmptyString));
-        }
-
-        return l.SelectJoinString(WhitespaceChar);
-    }
-
-    /// <summary>
-    /// Parseia uma ConnectionString em um <see cref="ConnectionStringParser"/>
-    /// </summary>
-    /// <param name="ConnectionString"></param>
-    /// <returns></returns>
-    public static ConnectionStringParser ParseConnectionString(this string ConnectionString) => new ConnectionStringParser(ConnectionString);
-
-    /// <summary>
-    /// Remove caracteres não numéricos de uma string
-    /// </summary>
-    /// <param name="Text">Texto</param>
-    /// <returns></returns>
-    public static string ParseDigits(this string Text, CultureInfo Culture = null)
-    {
-        Culture = Culture ?? CultureInfo.CurrentCulture;
-        string strDigits = EmptyString;
-        if (string.IsNullOrEmpty(Text))
-        {
-            return strDigits;
-        }
-
-        foreach (char c in Text.ToCharArray())
-        {
-            if (char.IsDigit(c) || c == Convert.ToChar(Culture.NumberFormat.NumberDecimalSeparator))
-            {
-                strDigits += $"{c}";
-            }
-        }
-
-        return strDigits;
-    }
-
-    /// <summary>
-    /// Remove caracteres não numéricos de uma string
-    /// </summary>
-    /// <param name="Text">Texto</param>
-    /// <returns></returns>
-    public static T ParseDigits<T>(this string Text, CultureInfo Culture = null) where T : IConvertible => Text.ParseDigits(Culture).ChangeType<T>();
-
-    public static NameValueCollection ParseQueryString(this Uri URL) => URL?.Query.ParseQueryString();
-
-    /// <summary>
-    /// Transforma uma <see cref="string"/> em um <see cref="NameValueCollection"/>
-    /// </summary>
-    /// <param name="QueryString">string contendo uma querystring valida</param>
-    /// <param name="Keys">Quando especificado, inclui apenas estas entradas no <see cref="NameValueCollection"/></param>
-    /// <returns></returns>
-    public static NameValueCollection ParseQueryString(this string QueryString, params string[] Keys)
-    {
-        if (QueryString.IsURL())
-        {
-            return ParseQueryString(new Uri(QueryString).Query, Keys);
-        }
-        else
-        {
-            Keys = Keys ?? Array.Empty<string>();
-            var queryParameters = new NameValueCollection();
-            var querySegments = QueryString?.Split('&') ?? Array.Empty<string>();
-            foreach (string segment in querySegments)
-            {
-                var parts = segment.Split('=');
-                if (parts.Any())
-                {
-                    string key = parts.First().TrimStartAny(WhitespaceChar, "?");
-                    string val = EmptyString;
-                    if (parts.Skip(1).Any())
-                    {
-                        val = parts[1].Trim().UrlDecode();
-                    }
-                    if (Keys.Contains(key) || Keys.Any() == false)
-                    {
-                        queryParameters.Add(key, val);
+                        Data = Ascending ? Data.OrderBy(Selector) : (IQueryable<T>)Data.OrderByDescending(Selector);
                     }
                 }
             }
 
-            return queryParameters;
+            return (IOrderedQueryable<T>)Data;
         }
-    }
 
-    /// <summary>
-    /// Interpreta uma string de diversas formas e a transforma em um <see cref="Size"/>
-    /// </summary>
-    /// <param name="Text">Texto</param>
-    /// <returns></returns>
-    public static Size ParseSize(this string Text)
-    {
-        var s = new Size();
-        Text = Text.ReplaceMany(" ", "px", " ", ";", ":").ToLowerInvariant().Trim();
-        Text = Text.Replace("largura", "width");
-        Text = Text.Replace("altura", "height");
-        Text = Text.Replace("l ", "words ");
-        Text = Text.Replace("a ", "h ");
-        try
+        public static IOrderedEnumerable<T> OrderByManyDescending<T>(this IEnumerable<T> Data, params Expression<Func<T, object>>[] Selectors) => Data.OrderByMany(false, Selectors);
+
+        public static IOrderedQueryable<T> OrderByManyDescending<T>(this IQueryable<T> Data, params Expression<Func<T, object>>[] Selectors) => Data.OrderByMany(false, Selectors);
+
+        /// <summary>
+        /// Return a <see cref="IEnumerable{AddressInfo}"/> sorted according to the distance between
+        /// locations (Traveler Salesman Problem)
+        /// </summary>
+        /// <param name="address"></param>
+        /// <returns></returns>
+        /// <remarks>
+        /// The first item in <paramref name="address"/> will be used as the start of travel and end
+        /// of travel (if <paramref name="returnToStart"/> is true)
+        /// </remarks>
+        public static IEnumerable<AddressInfo> OrderByNearestNeighbor(this IEnumerable<AddressInfo> address, bool returnToStart = true) => OrderByNearestNeighbor(address, null, returnToStart);
+
+        public static IEnumerable<AddressInfo> OrderByNearestNeighbor(this IEnumerable<AddressInfo> address, double[,] distanceMatrix, bool returnToStart = true)
         {
-            switch (true)
+            var locations = address.ToArray();
+            distanceMatrix = distanceMatrix ?? address.GetDistanceMatrix();
+            List<int> tour = new List<int>();
+            if (distanceMatrix.Length > 0)
             {
-                case object _ when Text.IsNumber():
-                    {
-                        s.Width = Convert.ToInt32(Text);
-                        s.Height = s.Width;
-                        break;
-                    }
+                int numLocations = distanceMatrix.GetLength(0);
 
-                case object _ when Text.Like("width*") && !Text.Like("*height*"):
-                    {
-                        s.Width = Convert.ToInt32(Text.GetAfter("width"));
-                        s.Height = Convert.ToInt32(Text.GetAfter("width"));
-                        break;
-                    }
+                // Start the tour at the first location
+                tour.Add(0);
 
-                case object _ when Text.Like("height*") && !Text.Like("*width*"):
-                    {
-                        s.Width = Convert.ToInt32(Text.GetAfter("height"));
-                        s.Height = Convert.ToInt32(Text.GetAfter("height"));
-                        break;
-                    }
-
-                case object _ when Text.Like("words*") && !Text.Like("*h*"):
-                    {
-                        s.Width = Convert.ToInt32(Text.GetAfter("words"));
-                        s.Height = Convert.ToInt32(Text.GetAfter("words"));
-                        break;
-                    }
-
-                case object _ when Text.Like("h*") && !Text.Like("*words*"):
-                    {
-                        s.Width = Convert.ToInt32(Text.GetAfter("h"));
-                        s.Height = Convert.ToInt32(Text.GetAfter("h"));
-                        break;
-                    }
-
-                case object _ when Text.Like("width*height*"):
-                    {
-                        s.Width = Convert.ToInt32(Text.GetBetween("width", "height"));
-                        s.Height = Convert.ToInt32(Text.GetAfter("height"));
-                        break;
-                    }
-
-                case object _ when Text.Like("height*width*"):
-                    {
-                        s.Height = Convert.ToInt32(Text.GetBetween("height", "width"));
-                        s.Width = Convert.ToInt32(Text.GetAfter("width"));
-                        break;
-                    }
-
-                case object _ when Text.Like("words*h*"):
-                    {
-                        s.Width = Convert.ToInt32(Text.GetBetween("words", "h"));
-                        s.Height = Convert.ToInt32(Text.GetAfter("h"));
-                        break;
-                    }
-
-                case object _ when Text.Like("h*words*"):
-                    {
-                        s.Height = Convert.ToInt32(Text.GetBetween("h", "words"));
-                        s.Width = Convert.ToInt32(Text.GetAfter("words"));
-                        break;
-                    }
-
-                case object _ when Text.Like("*x*"):
-                    {
-                        s.Width = Convert.ToInt32(Text.Split(new[] { "x" }, StringSplitOptions.RemoveEmptyEntries)[0]);
-                        s.Height = Convert.ToInt32(Text.Split(new[] { "x" }, StringSplitOptions.RemoveEmptyEntries)[1]);
-                        break;
-                    }
-
-                case object _ when Text.Like("*by*"):
-                    {
-                        s.Width = Convert.ToInt32(Text.Split(new[] { "by" }, StringSplitOptions.RemoveEmptyEntries)[0]);
-                        s.Height = Convert.ToInt32(Text.Split(new[] { "by" }, StringSplitOptions.RemoveEmptyEntries)[1]);
-                        break;
-                    }
-
-                case object _ when Text.Like("*por*"):
-                    {
-                        s.Width = Convert.ToInt32(Text.Split(new[] { "por" }, StringSplitOptions.RemoveEmptyEntries)[0]);
-                        s.Height = Convert.ToInt32(Text.Split(new[] { "por" }, StringSplitOptions.RemoveEmptyEntries)[1]);
-                        break;
-                    }
-
-                case object _ when Text.Like("*,*"):
-                    {
-                        s.Width = Convert.ToInt32(Text.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries)[0]);
-                        s.Height = Convert.ToInt32(Text.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries)[1]);
-                        break;
-                    }
-
-                case object _ when Text.Like("*-*"):
-                    {
-                        s.Width = Convert.ToInt32(Text.Split(new[] { "-" }, StringSplitOptions.RemoveEmptyEntries)[0]);
-                        s.Height = Convert.ToInt32(Text.Split(new[] { "-" }, StringSplitOptions.RemoveEmptyEntries)[1]);
-                        break;
-                    }
-
-                case object _ when Text.Like("*_*"):
-                    {
-                        s.Width = Convert.ToInt32(Text.Split(new[] { "_" }, StringSplitOptions.RemoveEmptyEntries)[0]);
-                        s.Height = Convert.ToInt32(Text.Split(new[] { "_" }, StringSplitOptions.RemoveEmptyEntries)[1]);
-                        break;
-                    }
-
-                default:
-                    {
-                        s.Width = Convert.ToInt32(Text.Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries)[0]);
-                        s.Height = Convert.ToInt32(Text.Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries)[1]);
-                        break;
-                    }
-            }
-        }
-        catch
-        {
-        }
-
-        return s;
-    }
-
-    public static HtmlNode ParseTag(this string HtmlString) => HtmlNode.ParseNode(HtmlString);
-
-    public static HtmlNode ParseTag(this FileInfo File) => HtmlNode.ParseNode(File);
-
-    public static HtmlNode ParseTag(this Uri URL) => HtmlNode.ParseNode(URL);
-
-    public static IEnumerable<HtmlNode> ParseTags(this string HtmlString) => HtmlNode.Parse(HtmlString);
-
-    public static IEnumerable<HtmlNode> ParseTags(this FileInfo File) => HtmlNode.Parse(File);
-
-    public static IEnumerable<HtmlNode> ParseTags(this Uri URL) => HtmlNode.Parse(URL);
-
-    /// <summary>
-    /// Separa as palavras de um texto CamelCase a partir de suas letras maíusculas
-    /// </summary>
-    /// <param name="Text"></param>
-    /// <returns></returns>
-    public static string PascalCaseAdjust(this string Text)
-    {
-        Text = Text.IfBlank(EmptyString);
-        var chars = Text.ToArray();
-        Text = EmptyString;
-        int uppercount = 0;
-        foreach (var c in chars)
-        {
-            if (char.IsUpper(c))
-            {
-                if (!(uppercount > 0))
+                int currentLocation = 0;
+                while (tour.Count < numLocations)
                 {
-                    Text += WhitespaceChar;
-                }
+                    int nextLocation = -1;
+                    double minDistance = double.MaxValue;
 
-                uppercount++;
-            }
-            else
-            {
-                if (uppercount > 1)
-                {
-                    Text += WhitespaceChar;
-                }
-
-                uppercount = 0;
-            }
-
-            Text += $"{c}";
-        }
-
-        return Text.Trim();
-    }
-
-    /// <summary>
-    /// Transforma um texto em CamelCase em um array de palavras a partir de suas letras maíusculas
-    /// </summary>
-    /// <param name="Text"></param>
-    /// <returns></returns>
-    public static IEnumerable<string> PascalCaseSplit(this string Text) => Text.PascalCaseAdjust().Split(WhitespaceChar);
-
-    public static string Peek(this Queue<char> queue, int take) => new String(queue.Take(take).ToArray());
-
-    /// <summary>
-    /// Pixeliza uma imagem
-    /// </summary>
-    /// <param name="Image"></param>
-    /// <param name="PixelateSize"></param>
-    /// <returns></returns>
-    public static Image Pixelate(this Image Image, int PixelateSize = 1)
-    {
-        if (Image == null) return null;
-        var rectangle = new System.Drawing.Rectangle(0, 0, Image.Width, Image.Height);
-        PixelateSize++;
-        var pixelated = new Bitmap(Image.Width, Image.Height);
-        using (var graphics = Graphics.FromImage(pixelated))
-        {
-            graphics.DrawImage(Image, new System.Drawing.Rectangle(0, 0, Image.Width, Image.Height), new System.Drawing.Rectangle(0, 0, Image.Width, Image.Height), GraphicsUnit.Pixel);
-        }
-
-        int xx = rectangle.X;
-        while (xx < rectangle.X + rectangle.Width && xx < Image.Width)
-        {
-            int yy = rectangle.Y;
-            while (yy < rectangle.Y + rectangle.Height && yy < Image.Height)
-            {
-                int offsetX = (int)Math.Round(PixelateSize / 2d);
-                int offsetY = (int)Math.Round(PixelateSize / 2d);
-                while (xx + offsetX >= Image.Width)
-                    offsetX -= 1;
-                while (yy + offsetY >= Image.Height)
-                    offsetY -= 1;
-                var pixel = pixelated.GetPixel(xx + offsetX, yy + offsetY);
-                int x = xx;
-                while (x < xx + PixelateSize && x < Image.Width)
-                {
-                    int y = yy;
-                    while (y < yy + PixelateSize && y < Image.Height)
+                    // Find the nearest unvisited location
+                    for (int i = 0; i < numLocations; i++)
                     {
-                        pixelated.SetPixel(x, y, pixel);
-                        y += 1;
-                    }
-
-                    x += 1;
-                }
-
-                yy += PixelateSize;
-            }
-
-            xx += PixelateSize;
-        }
-
-        return pixelated;
-    }
-
-    /// <summary>
-    /// Retorna uma string em sua forma poop
-    /// </summary>
-    /// <param name="Words"></param>
-    /// <returns></returns>
-    public static string[] Poopfy(params string[] Words)
-    {
-        var p = new List<string>();
-        foreach (var Text in Words ?? Array.Empty<string>())
-        {
-            decimal l = (decimal)(Text.Length / 2d);
-            l = l.Floor();
-            if (!Text.GetFirstChars((int)Math.Round(l)).Last().ToString().ToLowerInvariant().IsIn(PredefinedArrays.LowerVowels))
-            {
-                l = l.ToInt() - 1;
-            }
-
-            p.Add(Text.GetFirstChars((int)Math.Round(l)).Trim() + Text.GetFirstChars((int)Math.Round(l)).Reverse().ToList().SelectJoinString().ToLowerInvariant().Trim() + Text.RemoveFirstChars((int)Math.Round(l)).TrimStartAny(PredefinedArrays.LowerConsonants.ToArray()));
-        }
-
-        return p.ToArray();
-    }
-
-    /// <summary>
-    /// Retorna uma string em sua forma poop
-    /// </summary>
-    /// <param name="Text"></param>
-    /// <returns></returns>
-    public static string Poopfy(this string Text) => Poopfy(Text.SplitAny(PredefinedArrays.WordSplitters)).SelectJoinString(WhitespaceChar);
-
-    /// <summary>
-    /// Return a Idented XML string
-    /// </summary>
-    /// <param name="Document"></param>
-    /// <returns></returns>
-    public static string PreetyPrint(this XmlDocument Document)
-    {
-        string Result = EmptyString;
-        if (Document != null)
-        {
-            var mStream = new MemoryStream();
-            var writer = new XmlTextWriter(mStream, Encoding.Unicode);
-            try
-            {
-                writer.Formatting = Formatting.Indented;
-
-                // Write the XML into a formatting XmlTextWriter
-                Document.WriteContentTo(writer);
-                writer.Flush();
-                mStream.Flush();
-
-                // Have to rewind the MemoryStream in order to read its contents.
-                mStream.Position = 0L;
-
-                // Read MemoryStream contents into a StreamReader.
-                var sReader = new StreamReader(mStream);
-
-                // Extract the text from the StreamReader.
-                Result = sReader.ReadToEnd();
-            }
-            catch (XmlException)
-            {
-            }
-            finally
-            {
-                mStream.Close();
-                writer.Close();
-                mStream.Dispose();
-                writer.Dispose();
-            }
-        }
-
-        return Result;
-    }
-
-    /// <summary>
-    /// Adiciona texto ao começo de uma string
-    /// </summary>
-    /// <param name="Text">Texto</param>
-    /// <param name="PrependText">Texto adicional</param>
-    public static string Prepend(this string Text, string PrependText)
-    {
-        Text = Text ?? EmptyString;
-        PrependText = PrependText ?? EmptyString;
-        Text = PrependText + Text;
-        return Text;
-    }
-
-    /// <summary>
-    /// Adiciona texto ao final de uma string se um criterio for cumprido
-    /// </summary>
-    /// <param name="Text">Texto</param>
-    /// <param name="PrependText">Texto adicional</param>
-    /// <param name="Test">Teste</param>
-    public static string PrependIf(this string Text, string PrependText, Func<string, bool> Test = null)
-    {
-        Text = Text ?? EmptyString;
-        PrependText = PrependText ?? EmptyString;
-        return Text.PrependIf(PrependText, (Test ?? (x => false))(Text));
-    }
-
-    /// <summary>
-    /// Adiciona texto ao começo de uma string se um criterio for cumprido
-    /// </summary>
-    /// <param name="Text">Texto</param>
-    /// <param name="PrependText">Texto adicional</param>
-    /// <param name="Test">Teste</param>
-    public static string PrependIf(this string Text, string PrependText, bool Test)
-    {
-        Text = Text ?? EmptyString;
-        PrependText = PrependText ?? EmptyString;
-        return Test ? Text.Prepend(PrependText) : Text;
-    }
-
-    /// <summary>
-    /// Adiciona texto ao inicio de uma string com uma quebra de linha no final do <paramref name="PrependText"/>
-    /// </summary>
-    /// <param name="Text">Texto</param>
-    /// <param name="PrependText">Texto adicional</param>
-    public static string PrependLine(this string Text, string PrependText) => Text.Prepend(Environment.NewLine).Prepend(PrependText);
-
-    /// <summary>
-    /// Adiciona texto ao inicio de uma string enquanto um criterio for cumprido
-    /// </summary>
-    /// <param name="Text">Texto</param>
-    /// <param name="PrependText">Texto adicional</param>
-    /// <param name="Test">Teste</param>
-    public static string PrependWhile(this string Text, string PrependText, Func<string, bool> Test)
-    {
-        Test = Test ?? (x => false);
-
-        while (Test(Text))
-        {
-            Text = Text.Prepend(PrependText);
-        }
-
-        return Text;
-    }
-
-    /// <summary>
-    /// Retorna a string especificada se o valor boolean for verdadeiro
-    /// </summary>
-    /// <param name="Text"></param>
-    /// <param name="BooleanValue"></param>
-    /// <returns></returns>
-    public static string PrintIf(this string Text, bool BooleanValue) => BooleanValue ? Text : EmptyString;
-
-    /// <summary>
-    /// Processa uma propriedade de uma classe marcada com <see cref="FromSQL"/>
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="Connection"></param>
-    /// <param name="d"></param>
-    /// <param name="PropertyName"></param>
-    /// <param name="Recursive"></param>
-    /// <returns></returns>
-    public static T ProccessSubQuery<T>(this DbConnection Connection, T d, string PropertyName, bool Recursive = false)
-    {
-        if (d != null)
-        {
-            var prop = d.GetProperty(PropertyName);
-            if (prop != null)
-            {
-                var attr = prop.GetCustomAttributes<FromSQLAttribute>(true).FirstOrDefault();
-                string Sql = attr.SQL.Inject(d);
-                bool gen = prop.PropertyType.IsGenericType;
-                bool lista = gen && prop.PropertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>));
-                bool enume = gen && prop.PropertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(IEnumerable<>));
-                bool cole = gen && prop.PropertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(ICollection<>));
-                if (lista || enume || cole)
-                {
-                    IList baselist = (IList)Activator.CreateInstance(prop.PropertyType);
-                    var eltipo = prop.PropertyType.GetGenericArguments().FirstOrDefault();
-                    foreach (var x in Connection.RunSQLSet(Sql.ToFormattableString()))
-                    {
-                        baselist.Add(x.CreateOrSetObject(null, eltipo));
-                    }
-
-                    prop.SetValue(d, baselist);
-                    if (Recursive)
-                    {
-                        foreach (var uu in baselist)
+                        if (i == currentLocation || tour.Contains(i))
                         {
-                            Connection.ProccessSubQuery(uu, Recursive);
+                            continue;
+                        }
+
+                        double distance = distanceMatrix[currentLocation, i];
+                        if (distance < minDistance)
+                        {
+                            minDistance = distance;
+                            nextLocation = i;
                         }
                     }
 
-                    return d;
+                    tour.Add(nextLocation);
+                    currentLocation = nextLocation;
                 }
-                else if (prop.PropertyType.IsClass)
+
+                // Return to the starting location
+                if (returnToStart) tour.Add(0);
+
+                locations = tour.Select(x => locations[x]).ToArray();
+            }
+
+            return locations;
+        }
+
+        /// <summary>
+        /// Order a list following another list order
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TOrder"></typeparam>
+        /// <param name="Items"></param>
+        /// <param name="Property"></param>
+        /// <param name="Order"></param>
+        /// <returns></returns>
+        public static IEnumerable<T> OrderByPredefinedOrder<T, TOrder>(this IEnumerable<T> Source, Expression<Func<T, TOrder>> PropertySelector, params TOrder[] order)
+        {
+            Source = Source ?? Array.Empty<T>();
+            if (PropertySelector == null) throw new ArgumentException("Property selector is null");
+            var p = PropertySelector.Compile();
+            var lookup = Source.ToLookup(p, t => t);
+            if (order.IsNotNullOrEmpty())
+            {
+                foreach (var id in order)
                 {
-                    if (prop.GetValue(d) == null)
+                    foreach (var t in lookup[id])
                     {
-                        var oo = Connection.RunSQLRow(Sql.ToFormattableString()).CreateOrSetObject(null, prop.PropertyType);
-                        prop.SetValue(d, oo);
-                        if (Recursive)
-                        {
-                            Connection.ProccessSubQuery(oo, Recursive);
-                        }
+                        yield return t;
                     }
-
-                    return d;
-                }
-                else if (prop.PropertyType.IsValueType)
-                {
-                    if (prop.GetValue(d) == null)
-                    {
-                        var oo = Connection.RunSQLValue(Sql.ToFormattableString());
-                        prop.SetValue(d, ChangeType(oo, prop.PropertyType));
-                        if (Recursive)
-                        {
-                            Connection.ProccessSubQuery(oo, Recursive);
-                        }
-                    }
-
-                    return d;
-                }
-            }
-        }
-
-        return d;
-    }
-
-    /// <summary>
-    /// Processa todas as propriedades de uma classe marcadas com <see cref="FromSQL"/>
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="Connection"></param>
-    /// <param name="d"></param>
-    /// <param name="Recursive"></param>
-    /// <returns></returns>
-    public static T ProccessSubQuery<T>(this DbConnection Connection, T d, bool Recursive = false) where T : class
-    {
-        foreach (var prop in GetProperties(d).Where(x => x.HasAttribute<FromSQLAttribute>()))
-        {
-            Connection.ProccessSubQuery(d, prop.Name, Recursive);
-        }
-
-        return d;
-    }
-
-    public static Expression PropertyExpression(this ParameterExpression Parameter, string PropertyName)
-    {
-        Expression prop = Parameter;
-        if (PropertyName.IfBlank("this") != "this")
-        {
-            foreach (var name in PropertyName.SplitAny(".", "/"))
-            {
-                prop = Expression.Property(prop, name);
-            }
-        }
-
-        return prop;
-    }
-
-    public static IEnumerable<string> PropertyNamesFor(this string Name)
-    {
-        var propnames = new List<string>();
-
-        if (Name.IsNotBlank())
-        {
-            if (Name.StartsWith("_", StringComparison.InvariantCultureIgnoreCase))
-            {
-                propnames.Add(Name.TrimStart('_').Replace(" ", "_").Replace("-", "_").Replace("~", "_"));
-            }
-            string propname1 = Name.Trim().Replace(" ", "_").Replace("-", "_").Replace("~", "_");
-            string propname3 = Name.Trim().Replace(" ", EmptyString).Replace("-", EmptyString).Replace("~", EmptyString);
-            string propname2 = propname1.RemoveAccents();
-            string propname4 = propname3.RemoveAccents();
-            propnames.AddRange(new[] { Name, propname1, propname2, propname3, propname4 });
-            propnames.AddRange(propnames.Select(x => $"_{x}").ToArray());
-            return propnames.Where(x => x.Contains(" ") == false).Distinct();
-        }
-        return Array.Empty<string>();
-    }
-
-    /// <summary>
-    /// Retorna o texto a na sua forma singular ou plural de acordo com uma quantidade
-    /// determinada em uma lista ou um valor numérico encontrado no primeiro parametro.
-    /// </summary>
-    /// <param name="PluralText">Texto no plural</param>
-    /// <returns></returns>
-    /// <example>texto = $"{2} pães"</example>
-    public static string QuantifyText(this FormattableString PluralText)
-    {
-        if (PluralText.IsNotBlank() && PluralText.ArgumentCount > 0)
-        {
-            decimal numero = 0m;
-            string str = PluralText.Format.QuantifyText(PluralText.GetArguments().FirstOrDefault(), ref numero);
-            str = str.Replace("{0}", $"{numero}");
-            for (int index = 1, loopTo = PluralText.GetArguments().Length - 1; index <= loopTo; index++)
-            {
-                str = str.Replace($"{{{index}}}", $"{PluralText.GetArgument(index)}");
-            }
-
-            return str;
-        }
-
-        return $"{PluralText}";
-    }
-
-    /// <summary>
-    /// Retorna o texto a na sua forma singular ou plural de acordo com uma quantidade
-    /// determinada em uma lista ou um valor numérico.
-    /// </summary>
-    /// <param name="PluralText">Texto no plural</param>
-    /// <param name="Quantity">Quantidade de Itens</param>
-    /// <returns></returns>
-    public static string QuantifyText(this string PluralText, object Quantity)
-    {
-        decimal d = 0m;
-        return PluralText.QuantifyText(Quantity, ref d);
-    }
-
-    /// <summary>
-    /// Retorna o texto a na sua forma singular ou plural de acordo com uma quantidade
-    /// determinada em uma lista ou um valor numérico.
-    /// </summary>
-    /// <param name="PluralText">Texto no plural</param>
-    /// <param name="QuantityOrListOrBoolean">Quantidade de Itens</param>
-    /// <param name="OutQuantity">Devolve a quantidade encontrada em <paramref name="QuantityOrListOrBoolean"/></param>
-    /// <returns></returns>
-    public static string QuantifyText(this string PluralText, object QuantityOrListOrBoolean, ref decimal OutQuantity)
-    {
-        bool forceSingular = false;
-        if (QuantityOrListOrBoolean == null)
-        {
-            OutQuantity = 0m;
-        }
-        else if (QuantityOrListOrBoolean is bool b)
-        {
-            //em portugues, quando a quantidade maixa de itens é 1, zero também é singular
-            OutQuantity = b ? 1 : 0;
-            forceSingular = true;
-        }
-        else if (QuantityOrListOrBoolean.IsNumber())
-        {
-            OutQuantity = (QuantityOrListOrBoolean).ToDecimal();
-        }
-        else if (typeof(IList).IsAssignableFrom(QuantityOrListOrBoolean.GetType()))
-        {
-            OutQuantity = ((IList)QuantityOrListOrBoolean).Count;
-        }
-        else if (typeof(IDictionary).IsAssignableFrom(QuantityOrListOrBoolean.GetType()))
-        {
-            var dic = (IDictionary)QuantityOrListOrBoolean;
-            OutQuantity = dic.Count;
-        }
-        else if (typeof(Array).IsAssignableFrom(QuantityOrListOrBoolean.GetType()))
-        {
-            var arr = (Array)QuantityOrListOrBoolean;
-            OutQuantity = (arr).Length;
-        }
-        else
-        {
-            if (!decimal.TryParse(QuantityOrListOrBoolean.ToString(), out OutQuantity))
-            {
-                WriteDebug("Quantity parsing fail");
-            }
-        }
-        return forceSingular || OutQuantity.Floor() == 1m || OutQuantity.Floor() == -1 ? PluralText.Singularize() : PluralText;
-    }
-
-    /// <summary>
-    /// Retorna o texto a na sua forma singular ou plural de acordo com um numero determinado.
-    /// </summary>
-    /// <param name="PluralText">Texto no plural</param>
-    /// <param name="List">Lista com itens</param>
-    /// <returns></returns>
-    public static string QuantifyText<T>(this IEnumerable<T> List, string PluralText) => PluralText.QuantifyText(List ?? Array.Empty<T>());
-
-    /// <summary>
-    /// Retorna o texto a na sua forma singular ou plural de acordo com um numero determinado.
-    /// </summary>
-    /// <param name="PluralText">Texto no plural</param>
-    /// <param name="Quantity">Quantidade de Itens</param>
-    /// <returns></returns>
-    public static string QuantifyText(this int Quantity, string PluralText) => PluralText.QuantifyText(Quantity);
-
-    /// <summary>
-    /// Retorna o texto a na sua forma singular ou plural de acordo com um numero determinado.
-    /// </summary>
-    /// <param name="PluralText">Texto no plural</param>
-    /// <param name="Quantity">Quantidade de Itens</param>
-    /// <returns></returns>
-    public static string QuantifyText(this decimal Quantity, string PluralText) => PluralText.QuantifyText(Quantity);
-
-    /// <summary>
-    /// Retorna o texto a na sua forma singular ou plural de acordo com um numero determinado.
-    /// </summary>
-    /// <param name="PluralText">Texto no plural</param>
-    /// <param name="Quantity">Quantidade de Itens</param>
-    /// <returns></returns>
-    public static string QuantifyText(this short Quantity, string PluralText) => PluralText.QuantifyText(Quantity);
-
-    /// <summary>
-    /// Retorna o texto a na sua forma singular ou plural de acordo com um numero determinado.
-    /// </summary>
-    /// <param name="PluralText">Texto no plural</param>
-    /// <param name="Quantity">Quantidade de Itens</param>
-    /// <returns></returns>
-    public static string QuantifyText(this long Quantity, string PluralText) => PluralText.QuantifyText(Quantity);
-
-    /// <summary>
-    /// Retorna o texto a na sua forma singular ou plural de acordo com um numero determinado.
-    /// </summary>
-    /// <param name="PluralText">Texto no plural</param>
-    /// <param name="Quantity">Quantidade de Itens</param>
-    /// <returns></returns>
-    public static string QuantifyText(this double Quantity, string PluralText) => PluralText.QuantifyText(Quantity);
-
-    /// <summary>
-    /// Encapsula um texto entre 2 caracteres (normalmente parentesis, chaves, aspas ou colchetes)
-    /// </summary>
-    /// <param name="Text">Texto</param>
-    /// <param name="OpenQuoteChar">Caractere de encapsulamento</param>
-    /// <returns></returns>
-    public static string Quote(this string Text, char OpenQuoteChar = '"')
-    {
-        if (Convert.ToBoolean(OpenQuoteChar.ToString().IsCloseWrapChar()))
-        {
-            OpenQuoteChar = OpenQuoteChar.GetOppositeWrapChar();
-        }
-
-        return $"{OpenQuoteChar}{Text}{OpenQuoteChar.GetOppositeWrapChar()}";
-    }
-
-    /// <summary>
-    /// Encapsula um tento entre 2 textos (normalmente parentesis, chaves, aspas ou colchetes)
-    /// se uma condição for cumprida
-    /// </summary>
-    /// <param name="Text">Texto</param>
-    /// <param name="QuoteChar">Caractere de encapsulamento</param>
-    /// <returns></returns>
-    public static string QuoteIf(this string Text, bool Condition, char QuoteChar = '"') => Condition ? Text.Quote(QuoteChar) : Text;
-
-    /// <summary>
-    /// Gera um valor boolean aleatorio considerando uma porcentagem de chance
-    /// </summary>
-    /// <returns>TRUE ou FALSE.</returns>
-    public static bool RandomBool(int Percent) => RandomBool(x => x <= Percent, 0, 100);
-
-    /// <summary>
-    /// Gera um valor boolean aleatorio considerando uma condição de comparação com um numero
-    /// gerado aleatóriamente
-    /// </summary>
-    /// <param name="Min">Numero minimo, Padrão 0</param>
-    /// <param name="Max">Numero Maximo, Padrão 999999</param>
-    /// <returns>TRUE ou FALSE</returns>
-    public static bool RandomBool(Func<int, bool> Condition, int Min = 0, int Max = int.MaxValue) => Condition(RandomNumber(Min, Max));
-
-    /// <summary>
-    /// Gera um valor boolean aleatorio
-    /// </summary>
-    /// <returns>TRUE ou FALSE</returns>
-    public static bool RandomBool() => RandomNumber(0, 1).ToBool();
-
-    /// <summary>
-    /// Gera uma cor aleatória misturando ou não os canais RGB
-    /// </summary>
-    /// <param name="Red">-1 para Random ou de 0 a 255 para especificar o valor</param>
-    /// <param name="Green">-1 para Random ou de 0 a 255 para especificar o valor</param>
-    /// <param name="Blue">-1 para Random ou de 0 a 255 para especificar o valor</param>
-    /// <returns></returns>
-    public static Color RandomColor(int Red = -1, int Green = -1, int Blue = -1, int Alpha = 255)
-    {
-        Red = Red.SetMinValue(-1);
-        Green = Green.SetMinValue(-1);
-        Blue = Blue.SetMinValue(-1);
-
-        Red = (Red < 0 ? RandomNumber(0, 255) : Red).LimitRange<int>(0, 255);
-        Green = (Green < 0 ? RandomNumber(0, 255) : Green).LimitRange<int>(0, 255);
-        Blue = (Blue < 0 ? RandomNumber(0, 255) : Blue).LimitRange<int>(0, 255);
-        Alpha = Alpha.LimitRange<int>(0, 255);
-        return Color.FromArgb(Alpha, Red, Green, Blue);
-    }
-
-    /// <summary>
-    /// Gera uma lista com <paramref name="Quantity"/> cores diferentes
-    /// </summary>
-    /// <param name="Quantity">Quantidade máxima de cores</param>
-    /// <param name="Red"></param>
-    /// <param name="Green"></param>
-    /// <param name="Blue"></param>
-    /// <remarks></remarks>
-    /// <returns></returns>
-    public static IEnumerable<Color> RandomColorList(int Quantity, int Red = -1, int Green = -1, int Blue = -1)
-    {
-        Red = Red.SetMinValue(-1);
-        Green = Green.SetMinValue(-1);
-        Blue = Blue.SetMinValue(-1);
-
-        var l = new List<Color>();
-        if (Red == Green && Green == Blue && Blue != -1)
-        {
-            l.Add(Color.FromArgb(Red, Green, Blue));
-            return l;
-        }
-
-        int errorcount = 0;
-        while (l.Count < Quantity)
-        {
-            var r = RandomColor(Red, Green, Blue);
-            if (l.Any(x => (x.ToHexadecimal() ?? EmptyString) == (r.ToHexadecimal() ?? EmptyString)))
-            {
-                errorcount++;
-                if (errorcount == Quantity)
-                {
-                    return l;
                 }
             }
             else
             {
-                errorcount = 0;
-                l.Add(r);
-            }
-        }
-
-        return l;
-    }
-
-    /// <summary>
-    /// Gera uma data aleatória a partir de componentes nulos de data
-    /// </summary>
-    /// <returns>Um numero Inteiro</returns>
-    public static DateTime RandomDateTime(int? Year = null, int? Month = null, int? Day = null, int? Hour = null, int? Minute = null, int? Second = null)
-    {
-        Year = (Year ?? RandomNumber(DateTime.MinValue.Year, DateTime.MaxValue.Year)).ForcePositive().LimitRange(DateTime.MinValue.Year, DateTime.MaxValue.Year);
-        Month = (Month ?? RandomNumber(DateTime.MinValue.Month, DateTime.MaxValue.Month)).ForcePositive().LimitRange(1, 12);
-        Day = (Day ?? RandomNumber(DateTime.MinValue.Day, DateTime.MaxValue.Day)).ForcePositive().LimitRange(1, 31);
-        Hour = (Hour ?? RandomNumber(DateTime.MinValue.Hour, DateTime.MaxValue.Hour)).ForcePositive().LimitRange(1, 31);
-        Minute = (Minute ?? RandomNumber(DateTime.MinValue.Minute, DateTime.MaxValue.Minute)).ForcePositive().LimitRange(0, 59);
-        Second = (Second ?? RandomNumber(DateTime.MinValue.Second, DateTime.MaxValue.Second)).ForcePositive().LimitRange(0, 59);
-
-        DateTime randomCreated = DateTime.Now;
-        while (TryExecute(() => randomCreated = new DateTime(Year.Value, Month.Value, Day.Value, Hour.Value, Minute.Value, Second.Value)) != null)
-        {
-            Day--;
-        }
-
-        return randomCreated;
-    }
-
-    /// <summary>
-    /// Gera uma data aleatória entre 2 datas
-    /// </summary>
-    /// <param name="Min">Data Minima</param>
-    /// <param name="Max">Data Maxima</param>
-    /// <returns>Um numero Inteiro</returns>
-    public static DateTime RandomDateTime(DateTime? MinDate, DateTime? MaxDate = null)
-    {
-        var Min = (MinDate ?? RandomDateTime()).Ticks;
-        var Max = (MaxDate ?? RandomDateTime()).Ticks;
-        FixOrder(ref Min, ref Max);
-        return new DateTime(RandomNumber(Min, Max));
-    }
-
-    /// <summary>
-    /// Gera um EAN aleatório com digito verificador válido
-    /// </summary>
-    /// <param name="Len"></param>
-    /// <returns></returns>
-    public static string RandomEAN(int Len) => RandomFixLenghtNumber(Len.SetMinValue(2) - 1).ToString().AppendBarcodeCheckSum();
-
-    /// <summary>
-    /// Gera um numero aleatório de comprimento fixo
-    /// </summary>
-    /// <param name="Len"></param>
-    /// <returns></returns>
-    public static string RandomFixLenghtNumber(int Len = 8)
-    {
-        var n = EmptyString;
-        for (int i = 0; i < Len; i++)
-        {
-            n += PredefinedArrays.NumberChars.RandomItem();
-        }
-        return n;
-    }
-
-    /// <summary>
-    /// Gera um texto aleatorio
-    /// </summary>
-    /// <param name="ParagraphCount">Quantidade de paragrafos</param>
-    /// <param name="SentenceCount">QUantidade de sentenças por paragrafo</param>
-    /// <param name="MinWordCount"></param>
-    /// <param name="MaxWordCount"></param>
-    /// <returns></returns>
-    public static TextStructure RandomIpsum(int ParagraphCount = 5, int SentenceCount = 3, int MinWordCount = 10, int MaxWordCount = 50, int IdentSize = 0, int BreakLinesBetweenParagraph = 0, int Words = 300) => LoremIpsum(ParagraphCount, SentenceCount, MinWordCount, MaxWordCount, IdentSize, BreakLinesBetweenParagraph, Enumerable.Range(0, Words).Select(x => RandomWord(2, 14)).ToArray());
-
-    /// <summary>
-    /// Sorteia um item da Matriz
-    /// </summary>
-    /// <typeparam name="Type">Tipo da Matriz</typeparam>
-    /// <param name="Array">Matriz</param>
-    /// <returns>Um valor do tipo especificado</returns>
-    public static Type RandomItem<Type>(params Type[] Array) => Array.GetRandomItem();
-
-    public static T RandomItem<T>(this IEnumerable<T> l) => l.RandomItemOr();
-
-    public static T RandomItem<T>(this IEnumerable<T> l, Func<T, bool> predicade) => l.RandomItemOr(predicade);
-
-    public static T RandomItemOr<T>(this IEnumerable<T> l, params T[] Alternate) => l.TakeRandom().FirstOr(Alternate);
-
-    public static T RandomItemOr<T>(this IEnumerable<T> l, Func<T, bool> predicade, params T[] Alternate) => l.TakeRandom(predicade).FirstOr(Alternate);
-
-    /// <summary>
-    /// Gera um numero Aleatório entre 2 números
-    /// </summary>
-    /// <param name="Min">Numero minimo, Padrão 0</param>
-    /// <param name="Max">Numero Maximo, Padrão <see cref="int.MaxValue"/></param>
-    /// <returns>Um numero Inteiro</returns>
-    public static int RandomNumber(int Min = 0, int Max = int.MaxValue)
-    {
-        FixOrder(ref Min, ref Max);
-        return Min == Max ? Min : init_rnd.Next(Min, Max == int.MaxValue ? int.MaxValue : Max + 1);
-    }
-
-    /// <summary>
-    /// Gera um numero Aleatório entre 2 números
-    /// </summary>
-    /// <param name="Min">Numero minimo, Padrão 0</param>
-    /// <param name="Max">Numero Maximo, Padrão <see cref="long.MaxValue"/></param>
-    /// <returns>Um numero Inteiro</returns>
-    public static long RandomNumber(long Min, long Max = long.MaxValue)
-    {
-        FixOrder(ref Min, ref Max);
-        if (Min == Max)
-        {
-            return Min;
-        }
-        else
-        {
-            Max = Max == long.MaxValue ? long.MaxValue : Max + 1;
-            byte[] buf = new byte[8];
-            init_rnd.NextBytes(buf);
-            long longRand = BitConverter.ToInt64(buf, 0);
-            return Math.Abs(longRand % (Max - Min)) + Min;
-        }
-    }
-
-    /// <summary>
-    /// Gera uma Lista com numeros Aleatórios entre 2 números
-    /// </summary>
-    /// <param name="Min">Numero minimo, Padrão 0</param>
-    /// <param name="Max">Numero Maximo, Padrão <see cref="int.MaxValue"/></param>
-    /// <returns>Um numero Inteiro</returns>
-    public static IEnumerable<int> RandomNumberList(int Count, int Min = 0, int Max = int.MaxValue, bool UniqueNumbers = true)
-    {
-        if (Count > 0)
-        {
-            if (Max == Min) return new int[] { Min };
-            if (UniqueNumbers)
-            {
-                if (Max < int.MaxValue) Max++;
-                FixOrder(ref Min, ref Max);
-                var l = Enumerable.Range(Min, Max - Min).OrderByRandom().ToList();
-                while (l.Count > Count) l.RemoveAt(0);
-                return l;
-            }
-            else
-            {
-                return Enumerable.Range(1, Count).Select(e => RandomNumber(Min, Max));
-            }
-        }
-        return Array.Empty<int>();
-    }
-
-    public static string RandomUserName() => Util.RandomWord(5) + Util.RandomNumber(1111);
-
-    /// <summary>
-    /// Gera uma palavra aleatória com o numero de caracteres entre <paramref name="MinLength"/>
-    /// e <paramref name="MaxLenght"/>
-    /// </summary>
-    /// <returns>Uma string contendo uma palavra aleatória</returns>
-    public static string RandomWord(int MinLength, int MaxLenght) => RandomWord(RandomNumber(MinLength.SetMinValue(1), MaxLenght.SetMinValue(1)));
-
-    /// <summary>
-    /// Gera uma palavra aleatória com o numero de caracteres
-    /// </summary>
-    /// <param name="Length">Tamanho da palavra</param>
-    /// <returns>Uma string contendo uma palavra aleatória</returns>
-    public static string RandomWord(int Length = 0)
-    {
-        Length = Length < 1 ? RandomNumber(2, 15) : Length;
-        string word = EmptyString;
-        if (Length == 1)
-        {
-            return RandomItem(PredefinedArrays.Vowels.ToArray());
-        }
-
-        // Util the word in consonant / vowel pairs
-        while (word.Length < Length)
-        {
-            // Add the consonant
-            string consonant = PredefinedArrays.LowerConsonants.RandomItem();
-            if (consonant == "q" && word.Length + 3 <= Length)
-            {
-                // check +3 because we'd add 3 characters in this case, the "qu" and the vowel.
-                // Change 3 to 2 to allow ww that end in "qu"
-                word += "qu";
-            }
-            else
-            {
-                while (consonant == "q")
+                foreach (var item in Source)
                 {
-                    // ReplaceFrom an orphaned "q"
-                    consonant = PredefinedArrays.LowerConsonants.RandomItem();
+                    yield return item;
+                }
+            }
+        }
+
+        public static IOrderedQueryable<T> OrderByProperty<T>(this IQueryable<T> source, string[] SortProperty, bool Ascending = true) => ThenByProperty(source, SortProperty, Ascending);
+
+        public static IOrderedEnumerable<T> OrderByProperty<T>(this IEnumerable<T> source, string[] SortProperty, bool Ascending = true) => ThenByProperty(source, SortProperty, Ascending);
+
+        /// <summary>
+        /// Randomiza a ordem de um <see cref="IEnumerable"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="items"></param>
+        /// <returns></returns>
+        public static IOrderedEnumerable<T> OrderByRandom<T>(this IEnumerable<T> items) => items.OrderBy(x => Guid.NewGuid());
+
+        /// <summary>
+        /// Randomiza a ordem de um <see cref="IQueryable"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="items"></param>
+        /// <returns></returns>
+        public static IOrderedQueryable<T> OrderByRandom<T>(this IQueryable<T> items) => items.OrderBy(x => Guid.NewGuid());
+
+        /// <summary>
+        /// Ordena um <see cref="IEnumerable"/> priorizando valores especificos a uma condição no
+        /// inicio da coleção e então segue a ordem padrão para os outros.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="DefaultOrderItem"></typeparam>
+        /// <param name="items">colecao</param>
+        /// <param name="Priority">Seletores que define a prioridade da ordem dos itens</param>
+        /// <returns></returns>
+        public static IOrderedEnumerable<T> OrderByWithPriority<T>(this IEnumerable<T> items, params Func<T, bool>[] Priority)
+        {
+            if (items != null)
+            {
+                Priority = Priority ?? Array.Empty<Func<T, bool>>();
+
+                return items.OrderByDescending(x => Priority.Sum(y => y(x).ToInt()));
+            }
+            return null;
+        }
+
+        public static Expression<Func<T, bool>> OrSearch<T>(this Expression<Func<T, bool>> FirstExpression, IEnumerable<string> Text, params Expression<Func<T, string>>[] Properties)
+               => (FirstExpression ?? false.CreateWhereExpression<T>()).Or(Text.SearchExpression(Properties));
+
+        public static Expression<Func<T, bool>> OrSearch<T>(this Expression<Func<T, bool>> FirstExpression, string Text, params Expression<Func<T, string>>[] Properties)
+               => (FirstExpression ?? false.CreateWhereExpression<T>()).Or(Text.SearchExpression(Properties));
+
+        /// <summary>
+        /// Adciona caracteres ao inicio e final de uma string enquanto o <see
+        /// cref="string.Length"/> de <paramref name="Text"/> for menor que <paramref name="TotalLength"/>
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <param name="TotalLength">Tamanho total</param>
+        /// <param name="PaddingChar">Caractere</param>
+        /// <returns></returns>
+        public static string Pad(this string Text, int TotalLength, char PaddingChar = ' ')
+        {
+            Text = Text ?? EmptyString;
+            if (Text.Length < TotalLength)
+            {
+                while (Text.Length < TotalLength)
+                {
+                    Text = Text.Wrap(PaddingChar.ToString());
                 }
 
-                if (word.Length + 1 <= Length)
+                if (Text.Length > TotalLength)
                 {
-                    // Only add a consonant if there's enough room remaining
-                    word += consonant;
+                    Text = Text.RemoveLastChars();
                 }
             }
 
-            if (word.Length + 1 <= Length)
-            {
-                // Only add a vowel if there's enough room remaining
-                word += PredefinedArrays.LowerVowels.RandomItem();
-            }
-        }
-
-        return word;
-    }
-
-    /// <summary>
-    /// Rankeia um <see cref="IEnumerable{TObject}"/> a partir de uma propriedade definida por
-    /// <paramref name="ValueSelector"/> guardando sua posição no <paramref name="RankSelector"/>
-    /// </summary>
-    /// <typeparam name="TObject"></typeparam>
-    /// <typeparam name="TValue"></typeparam>
-    /// <typeparam name="TRank"></typeparam>
-    /// <param name="values"></param>
-    /// <param name="ValueSelector"></param>
-    /// <param name="RankSelector"></param>
-    /// <returns></returns>
-    public static IOrderedEnumerable<TObject> Rank<TObject, TValue, TRank>(this IEnumerable<TObject> values, Expression<Func<TObject, TValue>> ValueSelector, Expression<Func<TObject, TRank>> RankSelector) where TObject : class where TValue : IComparable where TRank : IComparable
-    {
-        if (values != null)
-        {
-            if (ValueSelector != null)
-            {
-                values = values.OrderByDescending(ValueSelector.Compile());
-
-                if (RankSelector != null)
-                {
-                    var filtered = values.Select(ValueSelector.Compile()).Distinct().ToList();
-                    foreach (TObject item in values)
-                    {
-                        item.SetPropertyValue(RankSelector, (filtered.IndexOf((ValueSelector.Compile().Invoke(item))) + 1).ChangeType<TRank>());
-                    }
-                    return values.OrderBy(RankSelector.Compile());
-                }
-                return values as IOrderedEnumerable<TObject>;
-            }
-            return values.OrderBy(x => 0);
-        }
-        return null;
-    }
-
-    /// <summary>
-    /// Retorna o conteudo de um arquivo de texto
-    /// </summary>
-    /// <param name="File">Arquivo</param>
-    /// <returns></returns>
-    public static string ReadAllText(this FileInfo File, Encoding encoding = null) => File != null && File.Exists ? System.IO.File.ReadAllText(File.FullName, encoding ?? Encoding.UTF8) : EmptyString;
-
-    public static IEnumerable<string> ReadManyText(this DirectoryInfo directory, SearchOption Option, params string[] Patterns) => directory.SearchFiles(Option, Patterns).Select(x => x.ReadAllText());
-
-    public static IEnumerable<string> ReadManyText(this DirectoryInfo directory, params string[] Patterns) => directory.ReadManyText(SearchOption.TopDirectoryOnly, Patterns);
-
-    public static IEnumerable<string> ReduceToDifference(this IEnumerable<string> Texts, bool FromStart = false, string BreakAt = null) => ReduceToDifference(Texts, out _, FromStart, BreakAt);
-
-    public static IEnumerable<string> ReduceToDifference(this IEnumerable<string> Texts, out string RemovedPart, bool FromStart = false, string BreakAt = null)
-    {
-        RemovedPart = EmptyString;
-        Texts = Texts ?? Array.Empty<string>();
-        var arr = Texts.WhereNotBlank().ToArray();
-        while (arr.Distinct().Count() > 1 && !arr.Any(x => BreakAt.IsNotBlank() && (FromStart ? x.StartsWith(BreakAt) : x.EndsWith(BreakAt))) && arr.All(x => FromStart ? x.StartsWith(arr.FirstOrDefault().GetFirstChars()) : x.EndsWith(arr.FirstOrDefault().GetLastChars())))
-        {
-            arr = arr.Select(x => FromStart ? x.RemoveFirstChars() : x.RemoveLastChars()).ToArray();
-        }
-
-        if (BreakAt.IsNotBlank())
-        {
-            arr = arr.Select(x => FromStart ? x.TrimStartAny(false, BreakAt) : x.TrimEndAny(false, BreakAt)).ToArray();
-            //Difference = FromStart ? Difference.Prepend(BreakAt) : Difference.Append(BreakAt);
-        }
-
-        RemovedPart = FromStart ? RemovedPart.Prepend(Texts.FirstOrDefault().TrimEndAny(arr.FirstOrDefault())) : RemovedPart.Append(Texts.FirstOrDefault().TrimStartAny(arr.FirstOrDefault()));
-
-        return arr;
-    }
-
-    /// <summary>
-    /// Agrupa e conta os itens de uma lista a partir de uma propriedade
-    /// </summary>
-    /// <typeparam name="Type"></typeparam>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="obj"></param>
-    /// <param name="GroupSelector"></param>
-    /// <returns></returns>
-    public static Dictionary<T, long> ReduceToTop<T>(this Dictionary<T, long> obj, int First, T OtherLabel)
-    {
-        var grouped = obj.OrderByDescending(x => x.Value);
-        return grouped.Take(First).Union(new[] { new KeyValuePair<T, long>(OtherLabel, grouped.Skip(First).Sum(s => s.Value)) }).ToDictionary();
-    }
-
-    public static Dictionary<TGroup, Dictionary<TCount, long>> ReduceToTop<TGroup, TCount>(this Dictionary<TGroup, Dictionary<TCount, long>> Grouped, int First, TCount OtherLabel)
-    {
-        if (Grouped != null)
-        {
-            foreach (var item in Grouped.ToArray())
-            {
-                var gp = item.Value.OrderByDescending(x => x.Value).ToDictionary();
-                Grouped[item.Key] = gp.Take(First).Union(new[] { new KeyValuePair<TCount, long>(OtherLabel, gp.Skip(First).Sum(s => s.Value)) }).ToDictionary();
-            }
-
-            Grouped.Values.MergeKeys();
-        }
-        return Grouped;
-    }
-
-    /// <summary>
-    /// Escapa caracteres exclusivos de uma regex
-    /// </summary>
-    /// <param name="Text"></param>
-    /// <returns></returns>
-    public static string RegexEscape(this string Text)
-    {
-        string newstring = EmptyString;
-        foreach (var c in Text.ToArray())
-        {
-            if (c.IsIn(PredefinedArrays.RegexChars))
-            {
-                newstring += @"\" + c;
-            }
-            else
-            {
-                newstring += Convert.ToString(c);
-            }
-        }
-
-        return newstring;
-    }
-
-    /// <summary>
-    /// Remove os acentos de uma string
-    /// </summary>
-    /// <param name="Text">Texto</param>
-    /// <returns>String sem os acentos</returns>
-    public static string RemoveAccents(this string Text)
-    {
-        if (Text == null)
-        {
             return Text;
         }
 
-        string s = Text.Normalize(NormalizationForm.FormD);
-        var sb = new StringBuilder();
-        int k = 0;
-        while (k < s.Length)
+        public static string PadZero(this string Number, int totalWidth) => Number.IfBlank("0").PadLeft(totalWidth, '0');
+
+        public static string PadZero(this int Number, int totalWidth) => Number.ToString(CultureInfo.InvariantCulture).PadZero(totalWidth);
+
+        public static string PadZero(this long Number, int totalWidth) => Number.ToString(CultureInfo.InvariantCulture).PadZero(totalWidth);
+
+        /// <summary>
+        /// Reduz um <see cref="IQueryable"/> em uma página especifica
+        /// </summary>
+        /// <typeparam name="TSource"></typeparam>
+        /// <param name="Source"></param>
+        /// <param name="PageNumber"></param>
+        /// <param name="PageSize"></param>
+        /// <returns></returns>
+        public static IQueryable<TSource> Page<TSource>(this IQueryable<TSource> Source, int PageNumber, int PageSize) => PageNumber <= 0 ? Source : Source.Skip((PageNumber - 1) * PageSize).Take(PageSize);
+
+        /// <summary>
+        /// Reduz um <see cref="IEnumerable"/> em uma página especifica
+        /// </summary>
+        /// <typeparam name="TSource"></typeparam>
+        /// <param name="Source"></param>
+        /// <param name="PageNumber"></param>
+        /// <param name="PageSize"></param>
+        /// <returns></returns>
+        public static IEnumerable<TSource> Page<TSource>(this IEnumerable<TSource> Source, int PageNumber, int PageSize)
         {
-            var uc = CharUnicodeInfo.GetUnicodeCategory(s[k]);
-            if (uc != UnicodeCategory.NonSpacingMark)
+            if (PageNumber <= 0)
             {
-                sb.Append(s[k]);
+                return Source;
             }
 
-            k++;
+            return Source.Skip((PageNumber - 1).SetMinValue(0) * PageSize).Take(PageSize);
         }
 
-        return sb.ToString();
-    }
-
-    /// <summary>
-    /// Remove várias strings de uma string
-    /// </summary>
-    /// <param name="Text">Texto</param>
-    /// <param name="Values">Strings a serem removidas</param>
-    /// <returns>Uma string com os valores removidos</returns>
-    public static string RemoveAny(this string Text, params string[] Values) => Text.ReplaceMany(EmptyString, Values ?? Array.Empty<string>());
-
-    public static string RemoveAny(this string Text, params char[] Values) => Text.RemoveAny(Values.Select(x => x.ToString()).ToArray());
-
-    /// <summary>
-    /// Remove os acentos de uma string
-    /// </summary>
-    /// <param name="Text">Texto</param>
-    /// <returns>String sem os acentos</returns>
-    public static string RemoveDiacritics(this string Text) => Text.RemoveAccents();
-
-    /// <summary>
-    /// Remove os X primeiros caracteres
-    /// </summary>
-    /// <param name="Text">Texto</param>
-    /// <param name="Quantity">Quantidade de Caracteres</param>
-    /// <returns></returns>
-    public static string RemoveFirstChars(this string Text, int Quantity = 1) => Text.IsNotBlank() && Text.Length > Quantity && Quantity > 0 ? Text.Remove(0, Quantity) : EmptyString;
-
-    /// <summary>
-    /// Remove um texto do inicio de uma string se ele for um outro texto especificado
-    /// </summary>
-    /// <param name="Text">Texto</param>
-    /// <param name="StartStringTest">Texto inicial que será comparado</param>
-    public static string RemoveFirstEqual(this string Text, string StartStringTest, StringComparison comparison = default)
-    {
-        Text = Text ?? "";
-        StartStringTest = StartStringTest ?? "";
-        if (Text.StartsWith(StartStringTest, comparison))
+        public static IEnumerable<(T, T)> PairUp<T>(this IEnumerable<T> source)
         {
-            Text = Text.RemoveFirstChars(StartStringTest.Length);
+            if (source != null)
+                using (var iterator = source.GetEnumerator())
+                    while (iterator.MoveNext())
+                        yield return (iterator.Current, iterator.MoveNext() ? iterator.Current : default);
         }
 
-        return Text;
-    }
-
-    public static string RemoveHTML(this string Text)
-    {
-        if (Text.IsNotBlank())
+        /// <summary>
+        /// limpa um texto deixando apenas os caracteres alfanumericos.
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <returns></returns>
+        public static string ParseAlphaNumeric(this string Text)
         {
-            return Regex.Replace(Text.ReplaceMany(Environment.NewLine, "<br/>", "<br>", "<br />"), "<.*?>", EmptyString).HtmlDecode();
-        }
-
-        return Text;
-    }
-
-    /// <summary>
-    /// Remove de um dicionario as respectivas Keys se as mesmas existirem
-    /// </summary>
-    /// <typeparam name="TKey"></typeparam>
-    /// <typeparam name="Tvalue"></typeparam>
-    /// <param name="dic"></param>
-    /// <param name="Keys"></param>
-    public static IDictionary<TKey, TValue> RemoveIfExist<TKey, TValue>(this IDictionary<TKey, TValue> dic, params TKey[] Keys)
-    {
-        if (dic != null)
-            foreach (var k in (Keys ?? Array.Empty<TKey>()).Where(x => dic.ContainsKey(x)))
+            var l = new List<string>();
+            foreach (var item in Text.Split(WhitespaceChar, StringSplitOptions.RemoveEmptyEntries))
             {
-                dic.Remove(k);
+                l.Add(Regex.Replace(item, "[^A-Za-z0-9]", EmptyString));
             }
 
-        return dic;
-    }
+            return l.SelectJoinString(WhitespaceChar);
+        }
 
-    /// <summary>
-    /// Remove de um dicionario os valores encontrados pelo predicate
-    /// </summary>
-    /// <typeparam name="TKey"></typeparam>
-    /// <typeparam name="Tvalue"></typeparam>
-    /// <param name="dic"></param>
-    /// <param name="predicate"></param>
-    public static IDictionary<TKey, TValue> RemoveIfExist<TKey, TValue>(this IDictionary<TKey, TValue> dic, Func<KeyValuePair<TKey, TValue>, bool> predicate) => dic.RemoveIfExist(dic.Where(predicate).Select(x => x.Key).ToArray());
+        /// <summary>
+        /// Parseia uma ConnectionString em um <see cref="ConnectionStringParser"/>
+        /// </summary>
+        /// <param name="ConnectionString"></param>
+        /// <returns></returns>
+        public static ConnectionStringParser ParseConnectionString(this string ConnectionString) => new ConnectionStringParser(ConnectionString);
 
-    /// <summary>
-    /// Remove <paramref name="Count"/> elementos de uma <paramref name="List"/>
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="List"></param>
-    /// <param name="Count"></param>
-    /// <returns></returns>
-    public static List<T> RemoveLast<T>(this List<T> List, int Count = 1)
-    {
-        if (List != null)
-            for (int index = 1, loopTo = Count; index <= loopTo; index++)
+        /// <summary>
+        /// Remove caracteres não numéricos de uma string
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <returns></returns>
+        public static string ParseDigits(this string Text, CultureInfo Culture = null)
+        {
+            Culture = Culture ?? CultureInfo.CurrentCulture;
+            string strDigits = EmptyString;
+            if (string.IsNullOrEmpty(Text))
             {
-                if (List.Any())
+                return strDigits;
+            }
+
+            foreach (char c in Text.ToCharArray())
+            {
+                if (char.IsDigit(c) || c == Convert.ToChar(Culture.NumberFormat.NumberDecimalSeparator))
                 {
-                    List.RemoveAt(List.Count - 1);
+                    strDigits += $"{c}";
                 }
             }
 
-        return List;
-    }
-
-    /// <summary>
-    /// Remove os X ultimos caracteres
-    /// </summary>
-    /// <param name="Text">Texto</param>
-    /// <param name="Quantity">Quantidade de Caracteres</param>
-    /// <returns></returns>
-    public static string RemoveLastChars(this string Text, int Quantity = 1) => Text.IsNotBlank() && Text.Length > Quantity && Quantity > 0 ? Text.Substring(0, Text.Length - Quantity) : EmptyString;
-
-    /// <summary>
-    /// Remove um texto do final de uma string se ele for um outro texto
-    /// </summary>
-    /// <param name="Text">Texto</param>
-    /// <param name="EndStringTest">Texto final que será comparado</param>
-    public static string RemoveLastEqual(this string Text, string EndStringTest, StringComparison comparison = default)
-    {
-        Text = Text ?? "";
-        EndStringTest = EndStringTest ?? "";
-        if (Text.EndsWith(EndStringTest, comparison))
-        {
-            Text = Text.RemoveLastChars(EndStringTest.Length);
+            return strDigits;
         }
 
-        return Text;
-    }
+        /// <summary>
+        /// Remove caracteres não numéricos de uma string
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <returns></returns>
+        public static T ParseDigits<T>(this string Text, CultureInfo Culture = null) where T : IConvertible => Text.ParseDigits(Culture).ChangeType<T>();
 
-    public static string RemoveMask(this string MaskedText, params char[] AllowCharacters)
-    {
-        if (MaskedText.IsNotBlank())
+        public static NameValueCollection ParseQueryString(this Uri URL) => URL?.Query.ParseQueryString();
+
+        /// <summary>
+        /// Transforma uma <see cref="string"/> em um <see cref="NameValueCollection"/>
+        /// </summary>
+        /// <param name="QueryString">string contendo uma querystring valida</param>
+        /// <param name="Keys">Quando especificado, inclui apenas estas entradas no <see cref="NameValueCollection"/></param>
+        /// <returns></returns>
+        public static NameValueCollection ParseQueryString(this string QueryString, params string[] Keys)
         {
-            string ns = "";
-            foreach (char c in MaskedText)
+            if (QueryString.IsURL())
             {
-                if (c.ToString().IsNumber() || c.IsIn(AllowCharacters))
-                {
-                    ns += c;
-                }
-            }
-            return ns;
-        }
-        return MaskedText;
-    }
-
-    public static int RemoveMaskInt(this string MaskedText, params char[] AllowCharacters) => RemoveMask(MaskedText, AllowCharacters).ToInt();
-
-    public static long RemoveMaskLong(this string MaskedText, params char[] AllowCharacters) => RemoveMask(MaskedText, AllowCharacters).ToLong();
-
-    /// <summary>
-    /// Remove caracteres não prantáveis de uma string
-    /// </summary>
-    /// <param name="Text">Texto</param>
-    /// <returns>String corrigida</returns>
-    public static string RemoveNonPrintable(this string Text)
-    {
-        foreach (char c in Text.ToCharArray())
-        {
-            if (char.IsControl(c))
-            {
-                Text = Text.ReplaceNone(Convert.ToString(c));
-            }
-        }
-
-        return Text.Trim();
-    }
-
-    /// <summary>
-    /// Remove um parametro da Query String de uma URL
-    /// </summary>
-    /// <param name="Url">Uri</param>
-    /// <param name="Key">Nome do parâmetro</param>
-    /// <param name="Values">Valor do Parâmetro</param>
-    /// <returns></returns>
-    public static Uri RemoveParameter(this Uri Url, params string[] Keys)
-    {
-        var UriBuilder = new UriBuilder(Url);
-        var query = UriBuilder.Query.ParseQueryString();
-        Keys = Keys != null && Keys.Any() ? Keys : query.AllKeys;
-        foreach (var k in Keys)
-        {
-            try
-            {
-                query.Remove(k);
-            }
-            catch
-            {
-            }
-        }
-
-        UriBuilder.Query = query.ToQueryString();
-        return UriBuilder.Uri;
-    }
-
-    public static string RemoveUrlParameters(this string URL)
-    {
-        if ((URL.IsURL()))
-        {
-            URL = Regex.Replace(URL, @"{([^:]+)\s*:\s*(.+?)(?<!\\)}", EmptyString);
-            URL = URL.RemoveLastEqual("/");
-        }
-        return URL;
-    }
-
-    public static string RemoveUrlParameters(Uri URL) => RemoveUrlParameters(URL?.ToString());
-
-    public static List<T> RemoveWhere<T>(this List<T> list, Expression<Func<T, bool>> predicate)
-    {
-        if (list != null)
-        {
-            if (predicate != null)
-            {
-                while (true)
-                {
-                    var obj = list.FirstOrDefault(predicate.Compile());
-                    if (obj != null)
-                    {
-                        list.Remove(obj);
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-            }
-        }
-
-        return list;
-    }
-
-    /// <summary>
-    /// Renomeia um arquivo e retorna um <see cref="FileInfo"/> do arquivo renomeado
-    /// </summary>
-    /// <param name="Directory"></param>
-    /// <param name="Name"></param>
-    /// <param name="KeepOriginalExtension"></param>
-    /// <returns></returns>
-    public static DirectoryInfo Rename(this DirectoryInfo Directory, string Name)
-    {
-        if (Directory != null && Name.IsNotBlank() && Directory.Exists)
-        {
-            var pt = Path.Combine(Directory.Parent.FullName, Name);
-            Directory.MoveTo(pt);
-            Directory = new DirectoryInfo(pt);
-        }
-        return Directory;
-    }
-
-    /// <summary>
-    /// Renomeia um arquivo e retorna um <see cref="FileInfo"/> do arquivo renomeado
-    /// </summary>
-    /// <param name="File"></param>
-    /// <param name="Name"></param>
-    /// <param name="KeepOriginalExtension"></param>
-    /// <returns></returns>
-    public static FileInfo Rename(this FileInfo File, string Name, bool KeepOriginalExtension = false)
-    {
-        if (File != null && Name.IsNotBlank() && File.Exists)
-        {
-            if (KeepOriginalExtension)
-            {
-                Name = $"{Path.GetFileNameWithoutExtension(Name)}.{File.Extension.Trim('.')}";
-            }
-
-            var pt = Path.Combine(File.DirectoryName, Name);
-            File.MoveTo(pt);
-            File = new FileInfo(pt);
-        }
-        return File;
-    }
-
-    /// <summary>
-    /// Repete uma string um numero determinado de vezes
-    /// </summary>
-    /// <param name="Text"></param>
-    /// <param name="Times"></param>
-    /// <returns></returns>
-    public static string Repeat(this string Text, int Times = 2)
-    {
-        var ns = EmptyString;
-        while (Times > 0)
-        {
-            ns += Text;
-            Times--;
-        }
-        return ns;
-    }
-
-    /// <summary>
-    /// Faz uma busca em todos os elementos do array e aplica um ReplaceFrom comum
-    /// </summary>
-    /// <param name="Strings">Array de strings</param>
-    /// <param name="OldValue">Valor antigo que será substituido</param>
-    /// <param name="NewValue">Valor utilizado para substituir o valor antigo</param>
-    /// <param name="ReplaceIfEquals">
-    /// Se TRUE, realiza o replace se o valor no array for idêntico ao Valor antigo, se FALSE
-    /// realiza um ReplaceFrom em quaisquer valores antigos encontrados dentro do valor do array
-    /// </param>
-    /// <returns></returns>
-    public static string[] Replace(this string[] Strings, string OldValue, string NewValue, bool ReplaceIfEquals = true)
-    {
-        var NewArray = Strings;
-        for (int index = 0, loopTo = Strings.Length - 1; index <= loopTo; index++)
-        {
-            if (ReplaceIfEquals)
-            {
-                if ((NewArray[index] ?? EmptyString) == (OldValue ?? EmptyString))
-                {
-                    NewArray[index] = NewValue;
-                }
+                return ParseQueryString(new Uri(QueryString).Query, Keys);
             }
             else
             {
-                NewArray[index] = NewArray[index].Replace(OldValue, NewValue);
+                Keys = Keys ?? Array.Empty<string>();
+                var queryParameters = new NameValueCollection();
+                var querySegments = QueryString?.Split('&') ?? Array.Empty<string>();
+                foreach (string segment in querySegments)
+                {
+                    var parts = segment.Split('=');
+                    if (parts.Any())
+                    {
+                        string key = parts.First().TrimStartAny(WhitespaceChar, "?");
+                        string val = EmptyString;
+                        if (parts.Skip(1).Any())
+                        {
+                            val = parts[1].Trim().UrlDecode();
+                        }
+                        if (Keys.Contains(key) || Keys.Any() == false)
+                        {
+                            queryParameters.Add(key, val);
+                        }
+                    }
+                }
+
+                return queryParameters;
             }
         }
 
-        return NewArray;
-    }
-
-    /// <summary>
-    /// Faz uma busca em todos os elementos de uma lista e aplica um ReplaceFrom comum
-    /// </summary>
-    /// <param name="Strings">Array de strings</param>
-    /// <param name="OldValue">Valor antigo que será substituido</param>
-    /// <param name="NewValue">Valor utilizado para substituir o valor antigo</param>
-    /// <param name="ReplaceIfEquals">
-    /// Se TRUE, realiza o replace se o valor no array for idêntico ao Valor antigo, se FALSE
-    /// realiza um ReplaceFrom em quaisquer valores antigos encontrados dentro do valor do array
-    /// </param>
-    /// <returns></returns>
-    public static IEnumerable<string> Replace(this IEnumerable<string> Strings, string OldValue, string NewValue, bool ReplaceIfEquals = true) => Strings.ToArray().Replace(OldValue, NewValue, ReplaceIfEquals).ToList();
-
-    /// <summary>
-    /// Retorna um novo <see cref="FileInfo"/> substituindo a extensão original por <paramref name="Extension"/>
-    /// </summary>
-    /// <param name="Info"></param>
-    /// <param name="Extension"></param>
-    /// <returns></returns>
-    public static FileInfo ReplaceExtension(this FileInfo Info, string Extension)
-    {
-        if (Info != null)
-            return new FileInfo(Path.Combine(Info.DirectoryName, $"{Info.GetFileNameWithoutExtension()}.{Extension.IfBlank("bin").TrimStart('.')}").FixPath());
-        return null;
-    }
-
-    /// <summary>
-    /// Substitui a primeira ocorrencia de um texto por outro
-    /// </summary>
-    /// <param name="Text"></param>
-    /// <param name="OldText"></param>
-    /// <param name="NewText"></param>
-    /// <returns></returns>
-    public static string ReplaceFirst(this string Text, string OldText, string NewText = EmptyString, StringComparison Comparison = StringComparison.CurrentCulture)
-    {
-        if (Text.Contains(OldText))
+        /// <summary>
+        /// Interpreta uma string de diversas formas e a transforma em um <see cref="Size"/>
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <returns></returns>
+        public static Size ParseSize(this string Text)
         {
-            Text = Text.Insert(Text.IndexOf(OldText, Comparison), NewText);
-            Text = Text.Remove(Text.IndexOf(OldText, Comparison), 1);
-        }
-
-        return Text;
-    }
-
-    /// <summary>
-    /// Aplica varios replaces a um texto a partir de um <see cref="IDictionary"/>
-    /// </summary>
-    public static string ReplaceFrom(this string Text, IDictionary<string, string> Dic)
-    {
-        if (Dic != null && Text.IsNotBlank())
-        {
-            foreach (var p in Dic)
-            {
-                Text = Text.Replace(p.Key, p.Value);
-            }
-        }
-
-        return Text;
-    }
-
-    /// <summary>
-    /// Aplica varios replaces a um texto a partir de um <see cref="IDictionary"/>
-    /// </summary>
-    public static string ReplaceFrom<T>(this string Text, IDictionary<string, T> Dic)
-    {
-        if (Dic != null && Text.IsNotBlank())
-        {
-            foreach (var p in Dic)
+            var s = new Size();
+            Text = Text.ReplaceMany(" ", "px", " ", ";", ":").ToLowerInvariant().Trim();
+            Text = Text.Replace("largura", "width");
+            Text = Text.Replace("altura", "height");
+            Text = Text.Replace("l ", "words ");
+            Text = Text.Replace("a ", "h ");
+            try
             {
                 switch (true)
                 {
-                    case object _ when p.Value.IsDictionary():
+                    case object _ when Text.IsNumber():
                         {
-                            Text = Text.ReplaceFrom((IDictionary<string, object>)p.Value);
+                            s.Width = Convert.ToInt32(Text);
+                            s.Height = s.Width;
                             break;
                         }
 
-                    case object _ when typeof(T).IsAssignableFrom(typeof(Array)):
+                    case object _ when Text.Like("width*") && !Text.Like("*height*"):
                         {
-                            foreach (var item in ForceArray(p.Value, typeof(T)))
-                            {
-                                Text = Text.ReplaceMany(p.Key, ForceArray(p.Value, typeof(T)).Cast<string>().ToArray());
-                            }
+                            s.Width = Convert.ToInt32(Text.GetAfter("width"));
+                            s.Height = Convert.ToInt32(Text.GetAfter("width"));
+                            break;
+                        }
 
+                    case object _ when Text.Like("height*") && !Text.Like("*width*"):
+                        {
+                            s.Width = Convert.ToInt32(Text.GetAfter("height"));
+                            s.Height = Convert.ToInt32(Text.GetAfter("height"));
+                            break;
+                        }
+
+                    case object _ when Text.Like("words*") && !Text.Like("*h*"):
+                        {
+                            s.Width = Convert.ToInt32(Text.GetAfter("words"));
+                            s.Height = Convert.ToInt32(Text.GetAfter("words"));
+                            break;
+                        }
+
+                    case object _ when Text.Like("h*") && !Text.Like("*words*"):
+                        {
+                            s.Width = Convert.ToInt32(Text.GetAfter("h"));
+                            s.Height = Convert.ToInt32(Text.GetAfter("h"));
+                            break;
+                        }
+
+                    case object _ when Text.Like("width*height*"):
+                        {
+                            s.Width = Convert.ToInt32(Text.GetBetween("width", "height"));
+                            s.Height = Convert.ToInt32(Text.GetAfter("height"));
+                            break;
+                        }
+
+                    case object _ when Text.Like("height*width*"):
+                        {
+                            s.Height = Convert.ToInt32(Text.GetBetween("height", "width"));
+                            s.Width = Convert.ToInt32(Text.GetAfter("width"));
+                            break;
+                        }
+
+                    case object _ when Text.Like("words*h*"):
+                        {
+                            s.Width = Convert.ToInt32(Text.GetBetween("words", "h"));
+                            s.Height = Convert.ToInt32(Text.GetAfter("h"));
+                            break;
+                        }
+
+                    case object _ when Text.Like("h*words*"):
+                        {
+                            s.Height = Convert.ToInt32(Text.GetBetween("h", "words"));
+                            s.Width = Convert.ToInt32(Text.GetAfter("words"));
+                            break;
+                        }
+
+                    case object _ when Text.Like("*x*"):
+                        {
+                            s.Width = Convert.ToInt32(Text.Split(new[] { "x" }, StringSplitOptions.RemoveEmptyEntries)[0]);
+                            s.Height = Convert.ToInt32(Text.Split(new[] { "x" }, StringSplitOptions.RemoveEmptyEntries)[1]);
+                            break;
+                        }
+
+                    case object _ when Text.Like("*by*"):
+                        {
+                            s.Width = Convert.ToInt32(Text.Split(new[] { "by" }, StringSplitOptions.RemoveEmptyEntries)[0]);
+                            s.Height = Convert.ToInt32(Text.Split(new[] { "by" }, StringSplitOptions.RemoveEmptyEntries)[1]);
+                            break;
+                        }
+
+                    case object _ when Text.Like("*por*"):
+                        {
+                            s.Width = Convert.ToInt32(Text.Split(new[] { "por" }, StringSplitOptions.RemoveEmptyEntries)[0]);
+                            s.Height = Convert.ToInt32(Text.Split(new[] { "por" }, StringSplitOptions.RemoveEmptyEntries)[1]);
+                            break;
+                        }
+
+                    case object _ when Text.Like("*,*"):
+                        {
+                            s.Width = Convert.ToInt32(Text.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries)[0]);
+                            s.Height = Convert.ToInt32(Text.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries)[1]);
+                            break;
+                        }
+
+                    case object _ when Text.Like("*-*"):
+                        {
+                            s.Width = Convert.ToInt32(Text.Split(new[] { "-" }, StringSplitOptions.RemoveEmptyEntries)[0]);
+                            s.Height = Convert.ToInt32(Text.Split(new[] { "-" }, StringSplitOptions.RemoveEmptyEntries)[1]);
+                            break;
+                        }
+
+                    case object _ when Text.Like("*_*"):
+                        {
+                            s.Width = Convert.ToInt32(Text.Split(new[] { "_" }, StringSplitOptions.RemoveEmptyEntries)[0]);
+                            s.Height = Convert.ToInt32(Text.Split(new[] { "_" }, StringSplitOptions.RemoveEmptyEntries)[1]);
                             break;
                         }
 
                     default:
                         {
-                            Text = Text.Replace(p.Key, p.Value.ToString());
+                            s.Width = Convert.ToInt32(Text.Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries)[0]);
+                            s.Height = Convert.ToInt32(Text.Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries)[1]);
                             break;
                         }
                 }
             }
-        }
-
-        return Text;
-    }
-
-    /// <summary>
-    /// Aplica um replace a um texto baseando-se em um <see cref="IDictionary"/>.
-    /// </summary>
-    public static string ReplaceFrom(this string Text, IDictionary<string, string[]> Dic, StringComparison Comparison = StringComparison.InvariantCultureIgnoreCase)
-    {
-        if (Dic != null && Text.IsNotBlank())
-        {
-            foreach (var p in Dic)
+            catch
             {
-                Text = Text.SensitiveReplace(p.Key, p.Value, Comparison);
             }
+
+            return s;
         }
 
-        return Text;
-    }
+        public static HtmlNode ParseTag(this string HtmlString) => HtmlNode.ParseNode(HtmlString);
 
-    /// <summary>
-    /// Aplica um replace a um texto baseando-se em um <see cref="IDictionary"/>.
-    /// </summary>
-    public static string ReplaceFrom(this string Text, IDictionary<string[], string> Dic, StringComparison Comparison = StringComparison.InvariantCultureIgnoreCase)
-    {
-        if (Dic != null && Text.IsNotBlank())
+        public static HtmlNode ParseTag(this FileInfo File) => HtmlNode.ParseNode(File);
+
+        public static HtmlNode ParseTag(this Uri URL) => HtmlNode.ParseNode(URL);
+
+        public static IEnumerable<HtmlNode> ParseTags(this string HtmlString) => HtmlNode.Parse(HtmlString);
+
+        public static IEnumerable<HtmlNode> ParseTags(this FileInfo File) => HtmlNode.Parse(File);
+
+        public static IEnumerable<HtmlNode> ParseTags(this Uri URL) => HtmlNode.Parse(URL);
+
+        /// <summary>
+        /// Separa as palavras de um texto CamelCase a partir de suas letras maíusculas
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <returns></returns>
+        public static string PascalCaseAdjust(this string Text)
         {
-            foreach (var p in Dic)
+            Text = Text.IfBlank(EmptyString);
+            var chars = Text.ToArray();
+            Text = EmptyString;
+            int uppercount = 0;
+            foreach (var c in chars)
             {
-                Text = Text.SensitiveReplace(p.Value, p.Key.ToArray(), Comparison);
-            }
-        }
-
-        return Text;
-    }
-
-    /// <summary>
-    /// Aplica um replace a um texto baseando-se em um <see cref="IDictionary"/>.
-    /// </summary>
-    public static string ReplaceFrom(this string Text, IDictionary<string[], string[]> Dic, StringComparison Comparison = StringComparison.InvariantCultureIgnoreCase)
-    {
-        if (Dic != null && Text.IsNotBlank())
-        {
-            foreach (var p in Dic)
-            {
-                var froms = p.Key.ToList();
-                var tos = p.Value.ToList();
-                while (froms.Count > tos.Count)
+                if (char.IsUpper(c))
                 {
-                    tos.Add(EmptyString);
-                }
-
-                for (int i = 0, loopTo = froms.Count - 1; i <= loopTo; i++)
-                {
-                    Text = Text.SensitiveReplace(froms[i], tos[i], Comparison);
-                }
-            }
-        }
-
-        return Text;
-    }
-
-    /// <summary>
-    /// Substitui a ultima ocorrencia de um texto por outro
-    /// </summary>
-    /// <param name="Text"></param>
-    /// <param name="OldText"></param>
-    /// <param name="NewText"></param>
-    /// <returns></returns>
-    public static string ReplaceLast(this string Text, string OldText, string NewText = EmptyString)
-    {
-        if (Text != null)
-            if (Text.Contains(OldText))
-            {
-                Text = Text.Insert(Text.LastIndexOf(OldText), NewText);
-                Text = Text.Remove(Text.LastIndexOf(OldText), 1);
-            }
-
-        return Text;
-    }
-
-    /// <summary>
-    /// Retorna uma nova sequência na qual todas as ocorrências de uma String especificada são
-    /// substituídas por um novo valor.
-    /// </summary>
-    /// <param name="Text">Texto</param>
-    /// <param name="NewValue">Novo Valor</param>
-    /// <param name="OldValues">Valores a serem substituido por um novo valor</param>
-    /// <returns></returns>
-    public static string ReplaceMany(this string Text, string NewValue, params string[] OldValues)
-    {
-        Text = Text ?? EmptyString;
-        foreach (var word in (OldValues ?? Array.Empty<string>()).Where(x => x.Length > 0))
-        {
-            Text = Text.Replace(word, NewValue);
-        }
-
-        return Text;
-    }
-
-    /// <summary>
-    /// Retorna uma nova sequência na qual todas as ocorrências de uma String especificada são
-    /// substituídas por vazio.
-    /// </summary>
-    /// <param name="Text">Texto</param>
-    /// <param name="OldValue">Valor a ser substituido por vazio</param>
-    /// <returns>String corrigida</returns>
-    public static string ReplaceNone(this string Text, string OldValue) => Text.Replace(OldValue, EmptyString);
-
-    /// <summary>
-    /// Substitui os parametros de rota de uma URL por valores de um objeto
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="obj"></param>
-    /// <param name="URL"></param>
-    /// <returns></returns>
-    public static string ReplaceUrlParameters<T>(this string URL, T obj)
-    {
-        if (URL.IsURL())
-        {
-            URL = Regex.Replace(URL, @"{([^:]+)\s*:\s*(.+?)(?<!\\)}", "{$1}");
-            if (obj != null)
-            {
-                URL = URL.Inject(obj);
-            }
-
-            URL = URL.RemoveLastEqual("/");
-        }
-        return URL;
-    }
-
-    public static string ReplaceUrlParameters<T>(Uri URL, T obj) => ReplaceUrlParameters(URL?.ToString(), obj);
-
-    /// <summary>
-    /// Redimensiona e converte uma Imagem
-    /// </summary>
-    /// <param name="Original">Imagem Original</param>
-    /// <param name="ResizeExpression">uma string contendo uma expressão de tamanho</param>
-    /// <param name="OnlyResizeIfWider">
-    /// Indica se a imagem deve ser redimensionada apenas se sua largura for maior que a especificada
-    /// </param>
-    /// <returns></returns>
-    public static Image Resize(this Image Original, string ResizeExpression, bool OnlyResizeIfWider = true)
-    {
-        if (ResizeExpression.Contains("%"))
-        {
-            return Original.ResizePercent(ResizeExpression, OnlyResizeIfWider);
-        }
-        else
-        {
-            var s = ResizeExpression.ParseSize();
-            return Original.Resize(s, OnlyResizeIfWider);
-        }
-    }
-
-    /// <summary>
-    /// Redimensiona e converte uma Imagem
-    /// </summary>
-    /// <param name="Original">Imagem Original</param>
-    /// <param name="Size">Tamanho</param>
-    /// <param name="OnlyResizeIfWider">
-    /// Indica se a imagem deve ser redimensionada apenas se sua largura for maior que a especificada
-    /// </param>
-    /// <returns></returns>
-    public static Image Resize(this Image Original, Size Size, bool OnlyResizeIfWider = true) => Original.Resize(Size.Width, Size.Height, OnlyResizeIfWider);
-
-    /// <summary>
-    /// Redimensiona e converte uma Imagem
-    /// </summary>
-    /// <param name="Original">Imagem Original</param>
-    /// <param name="NewWidth">Nova Largura</param>
-    /// <param name="MaxHeight">Altura máxima</param>
-    /// <param name="OnlyResizeIfWider">
-    /// Indica se a imagem deve ser redimensionada apenas se sua largura for maior que a especificada
-    /// </param>
-    /// <returns></returns>
-    public static Image Resize(this Image Original, int NewWidth, int MaxHeight, bool OnlyResizeIfWider = true)
-    {
-        Image fullsizeImage = new Bitmap(Original);
-        if (OnlyResizeIfWider)
-        {
-            if (fullsizeImage.Width <= NewWidth)
-            {
-                NewWidth = fullsizeImage.Width;
-            }
-        }
-
-        int newHeight = (int)Math.Round(fullsizeImage.Height * NewWidth / (double)fullsizeImage.Width);
-        if (newHeight > MaxHeight)
-        {
-            // Resize with height instead
-            NewWidth = (int)Math.Round(fullsizeImage.Width * MaxHeight / (double)fullsizeImage.Height);
-            newHeight = MaxHeight;
-        }
-
-        fullsizeImage = fullsizeImage.GetThumbnailImage(NewWidth, newHeight, null, IntPtr.Zero);
-        fullsizeImage.RotateFlip(Original.GetRotateFlip());
-        return fullsizeImage;
-    }
-
-    /// <summary>
-    /// redimensiona e Cropa uma imagem, aproveitando a maior parte dela
-    /// </summary>
-    /// <param name="Image"></param>
-    /// <param name="Width"></param>
-    /// <param name="Height"></param>
-    /// <returns></returns>
-    public static Image ResizeCrop(this Image Image, int Width, int Height) => Image.Resize(Width, Height, false).Crop(Width, Height);
-
-    /// <summary>
-    /// redimensiona e Cropa uma imagem, aproveitando a maior parte dela
-    /// </summary>
-    /// <param name="Image"></param>
-    /// <param name="Width"></param>
-    /// <param name="Height"></param>
-    /// <returns></returns>
-    public static Image ResizeCrop(this Image Image, int Width, int Height, bool OnlyResizeIfWider) => Image.Resize(Width, Height, OnlyResizeIfWider).Crop(Width, Height);
-
-    /// <summary>
-    /// Redimensiona uma imagem para o tamanho definido por uma porcentagem
-    /// </summary>
-    /// <param name="Original"></param>
-    /// <param name="Percent">Porcentagem ( no formato '30% 'ou '20% x 10%')</param>
-    /// <param name="OnlyResizeIfWider"></param>
-    /// <returns></returns>
-    public static Image ResizePercent(this Image Original, string Percent, bool OnlyResizeIfWider = true)
-    {
-        var size = new Size();
-        if (Percent.Contains("x"))
-        {
-            var parts = Percent.Split("x");
-            if (parts[0].TrimBetween().EndsWith("%"))
-            {
-                parts[0] = parts[0].TrimBetween().CalculateValueFromPercent(Original.Width).RoundDecimal().ToString();
-            }
-
-            if (parts[1].TrimBetween().EndsWith("%"))
-            {
-                parts[1] = parts[1].TrimBetween().CalculateValueFromPercent(Original.Height).RoundDecimal().ToString();
-            }
-
-            size = new Size(parts[0].ToInt(), parts[1].ToInt());
-        }
-        else
-        {
-            if (Percent.TrimBetween().EndsWith("%"))
-            {
-                Percent = Percent.Trim('%').TrimBetween();
-            }
-
-            if (Percent.IsNumber())
-            {
-                size.Width = Convert.ToInt32(Percent.ToInt().CalculateValueFromPercent(Original.Width).RoundDecimal().ToString());
-                size.Height = Convert.ToInt32(Percent.ToInt().CalculateValueFromPercent(Original.Height).RoundDecimal().ToString());
-            }
-        }
-
-        return Original.Resize(size, OnlyResizeIfWider);
-    }
-
-    public static Image ResizePercent(this Image Original, decimal Percent, bool OnlyResizeIfWider = true) => Original.ResizePercent(Percent.ToPercentString(), OnlyResizeIfWider);
-
-    /// <summary>
-    /// Arredonda um numero para o valor inteiro mais próximo
-    /// </summary>
-    /// <param name="Number">Numero</param>
-    /// <returns></returns>
-    public static decimal RoundDecimal(this decimal Number, int? Decimals = default) => Decimals.HasValue ? Math.Round(Number, Decimals.Value.ForcePositive()) : Math.Round(Number);
-
-    public static decimal RoundDecimal(this double Number, int? Decimals = default) => Decimals.HasValue ? Math.Round(Number.ToDecimal(), Decimals.Value.ForcePositive()) : Math.Round(Number.ToDecimal());
-
-    /// <summary>
-    /// Arredonda um numero para o valor inteiro mais próximo
-    /// </summary>
-    /// <param name="Number">Numero</param>
-    /// <returns></returns>
-    public static double RoundDouble(this double Number, int? Decimals = default) => Decimals.HasValue ? Math.Round(Number, Decimals.Value.ForcePositive()) : Math.Round(Number);
-
-    public static double RoundDouble(this decimal Number, int? Decimals = default) => Decimals.HasValue ? Math.Round(Number.ToDouble(), Decimals.Value.ForcePositive()) : Math.Round(Number.ToDouble());
-
-    /// <summary>
-    /// Arredonda um numero para o valor inteiro mais próximo
-    /// </summary>
-    /// <param name="Number">Numero</param>
-    /// <returns></returns>
-    public static int RoundInt(this decimal Number) => Math.Round(Number).ToInt();
-
-    /// <summary>
-    /// Arredonda um numero para o valor inteiro mais próximo
-    /// </summary>
-    /// <param name="Number">Numero</param>
-    /// <returns></returns>
-    public static int RoundInt(this double Number) => Math.Round(Number).ToInt();
-
-    /// <summary>
-    /// Arredonda um numero para o valor inteiro mais próximo
-    /// </summary>
-    /// <param name="Number">Numero</param>
-    /// <returns></returns>
-    public static long RoundLong(this decimal Number) => Math.Round(Number).ToLong();
-
-    /// <summary>
-    /// Arredonda um numero para o valor inteiro mais próximo
-    /// </summary>
-    /// <param name="Number">Numero</param>
-    /// <returns></returns>
-    public static long RoundLong(this double Number) => Math.Round(Number).ToLong();
-
-    /// <summary>
-    /// Retorna os resultado da primeira coluna de uma consulta SQL como um array do tipo
-    /// <typeparamref name="T"/>
-    /// </summary>
-    public static IEnumerable<T> RunSQLArray<T>(this DbConnection Connection, DbCommand Command) => Connection.RunSQLArray(Command).Select(x => x == null ? default : x.ChangeType<T>());
-
-    /// <summary>
-    /// Retorna os resultado da primeira coluna de uma consulta SQL como um array do tipo
-    /// <typeparamref name="T"/>
-    /// </summary>
-    public static IEnumerable<T> RunSQLArray<T>(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLArray<T>(Connection.CreateCommand(SQL, Transaction));
-
-    /// <summary>
-    /// Retorna os resultado da primeira coluna de uma consulta SQL como um array
-    /// </summary>
-    public static IEnumerable<object> RunSQLArray(this DbConnection Connection, DbCommand Command) => Connection.RunSQLSet(Command).Select(x => x.Values.FirstOrDefault());
-
-    /// <summary>
-    /// Retorna os resultado da primeira coluna de uma consulta SQL como um array
-    /// </summary>
-    public static IEnumerable<object> RunSQLArray(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLArray(Connection.CreateCommand(SQL, Transaction));
-
-    /// <summary>
-    /// Executa uma query SQL parametrizada e retorna os resultados mapeados em listas de <see
-    /// cref="Dictionary{TKey, TValue}"/>
-    /// </summary>
-    /// <param name="Connection"></param>
-    /// <param name="SQL"></param>
-    /// <returns></returns>
-    public static IEnumerable<IEnumerable<Dictionary<string, object>>> RunSQLMany(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLMany(Connection.CreateCommand(SQL, Transaction));
-
-    /// <summary>
-    /// Executa uma query SQL e retorna todos os seus resultsets mapeados em uma <see
-    /// cref="IEnumerable{IEnumerable{Dictionary{String, Object}}}"/>
-    /// </summary>
-    /// <param name="Connection"></param>
-    /// <param name="Command"></param>
-    /// <returns></returns>
-    public static IEnumerable<IEnumerable<Dictionary<string, object>>> RunSQLMany(this DbConnection Connection, DbCommand Command)
-    {
-        IEnumerable<IEnumerable<Dictionary<string, object>>> resposta;
-        using (var reader = Connection.RunSQLReader(Command))
-        {
-            resposta = reader.MapMany();
-        }
-
-        return resposta;
-    }
-
-    /// <summary>
-    /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de
-    /// tipos específicos
-    /// </summary>
-    /// <param name="Connection"></param>
-    /// <param name="SQL"></param>
-    /// <returns></returns>
-    public static Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>, IEnumerable<T5>> RunSQLMany<T1, T2, T3, T4, T5>(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null)
-        where T1 : class
-        where T2 : class
-        where T3 : class
-        where T4 : class
-        where T5 : class => Connection.RunSQLMany<T1, T2, T3, T4, T5>(Connection.CreateCommand(SQL, Transaction));
-
-    /// <summary>
-    /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de
-    /// tipos especificos
-    /// </summary>
-    /// <param name="Connection"></param>
-    /// <param name="Command"></param>
-    /// <returns></returns>
-    public static Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>, IEnumerable<T5>> RunSQLMany<T1, T2, T3, T4, T5>(this DbConnection Connection, DbCommand Command)
-        where T1 : class
-        where T2 : class
-        where T3 : class
-        where T4 : class
-        where T5 : class
-    {
-        Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>, IEnumerable<T5>> resposta;
-        using (var reader = Connection.RunSQLReader(Command))
-        {
-            resposta = reader.MapMany<T1, T2, T3, T4, T5>();
-        }
-
-        return resposta;
-    }
-
-    /// <summary>
-    /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de
-    /// tipos especificos
-    /// </summary>
-    /// <param name="Connection"></param>
-    /// <param name="SQL"></param>
-    /// <returns></returns>
-    public static Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>> RunSQLMany<T1, T2, T3, T4>(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null)
-        where T1 : class
-        where T2 : class
-        where T3 : class
-        where T4 : class => Connection.RunSQLMany<T1, T2, T3, T4>(Connection.CreateCommand(SQL, Transaction));
-
-    /// <summary>
-    /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de
-    /// tipos especificos
-    /// </summary>
-    /// <param name="Connection"></param>
-    /// <param name="Command"></param>
-    /// <returns></returns>
-    public static Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>> RunSQLMany<T1, T2, T3, T4>(this DbConnection Connection, DbCommand Command)
-        where T1 : class
-        where T2 : class
-        where T3 : class
-        where T4 : class
-    {
-        Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>> resposta;
-        using (var reader = Connection.RunSQLReader(Command))
-        {
-            resposta = reader.MapMany<T1, T2, T3, T4>();
-        }
-
-        return resposta;
-    }
-
-    /// <summary>
-    /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de
-    /// tipos especificos
-    /// </summary>
-    /// <param name="Connection"></param>
-    /// <param name="SQL"></param>
-    /// <returns></returns>
-    public static Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>> RunSQLMany<T1, T2, T3>(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null)
-        where T1 : class
-        where T2 : class
-        where T3 : class => Connection.RunSQLMany<T1, T2, T3>(Connection.CreateCommand(SQL, Transaction));
-
-    /// <summary>
-    /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de
-    /// tipos especificos
-    /// </summary>
-    /// <param name="Connection"></param>
-    /// <param name="Command"></param>
-    /// <returns></returns>
-    public static Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>> RunSQLMany<T1, T2, T3>(this DbConnection Connection, DbCommand Command)
-        where T1 : class
-        where T2 : class
-        where T3 : class
-    {
-        Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>> resposta;
-        using (var reader = Connection.RunSQLReader(Command))
-        {
-            resposta = reader.MapMany<T1, T2, T3>();
-        }
-
-        return resposta;
-    }
-
-    /// <summary>
-    /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de
-    /// tipos especificos
-    /// </summary>
-    /// <param name="Connection"></param>
-    /// <param name="SQL"></param>
-    /// <returns></returns>
-    public static Tuple<IEnumerable<T1>, IEnumerable<T2>> RunSQLMany<T1, T2>(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null)
-        where T1 : class
-        where T2 : class => Connection.RunSQLMany<T1, T2>(Connection.CreateCommand(SQL, Transaction));
-
-    /// <summary>
-    /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de
-    /// tipos especificos
-    /// </summary>
-    /// <param name="Connection"></param>
-    /// <param name="Command"></param>
-    /// <returns></returns>
-    public static Tuple<IEnumerable<T1>, IEnumerable<T2>> RunSQLMany<T1, T2>(this DbConnection Connection, DbCommand Command)
-        where T1 : class
-        where T2 : class
-    {
-        Tuple<IEnumerable<T1>, IEnumerable<T2>> resposta;
-        using (var reader = Connection.RunSQLReader(Command))
-        {
-            resposta = reader.MapMany<T1, T2>();
-        }
-
-        return resposta;
-    }
-
-    /// <summary>
-    /// Executa um comando SQL e retorna o numero de linhas afetadas
-    /// </summary>
-    /// <param name="Connection"></param>
-    /// <param name="SQL"></param>
-    /// <returns></returns>
-    public static int RunSQLNone(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLNone(Connection.CreateCommand(SQL, Transaction));
-
-    /// <summary>
-    /// Executa um comando SQL e retorna o numero de linhas afetadas
-    /// </summary>
-    public static int RunSQLNone(this DbConnection Connection, DbCommand Command) => BeforeRunCommand(ref Connection, ref Command).ExecuteNonQuery();
-
-    /// <summary>
-    /// Retorna os resultado das primeiras e ultimas colunas de uma consulta SQL como pares em
-    /// um <see cref="Dictionary{Object, Object}"/>
-    /// </summary>
-    public static Dictionary<object, object> RunSQLPairs(this DbConnection Connection, DbCommand SQL) => Connection.RunSQLSet(SQL).DistinctBy(x => x.Values.FirstOrDefault()).ToDictionary(x => x.Values.FirstOrDefault(), x => x.Values.LastOrDefault());
-
-    /// <summary>
-    /// Retorna os resultado das primeiras e ultimas colunas de uma consulta SQL como pares em
-    /// um <see cref="Dictionary{object,object}"/>
-    /// </summary>
-    public static Dictionary<object, object> RunSQLPairs(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLPairs(Connection.CreateCommand(SQL, Transaction));
-
-    /// <summary>
-    /// Retorna os resultado das primeiras e ultimas colunas de uma consulta SQL como pares em
-    /// um <see cref="Dictionary{K, V}"/>
-    /// </summary>
-    public static Dictionary<TK, TV> RunSQLPairs<TK, TV>(this DbConnection Connection, DbCommand SQL) => Connection.RunSQLPairs(SQL).ToDictionary(x => x.Key.ChangeType<TK>(), x => x.Value.ChangeType<TV>());
-
-    /// <summary>
-    /// Retorna os resultado das primeiras e ultimas colunas de uma consulta SQL como pares em
-    /// um <see cref="Dictionary{K, V}"/>
-    /// </summary>
-    public static Dictionary<TK, TV> RunSQLPairs<TK, TV>(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLPairs<TK, TV>(Connection.CreateCommand(SQL, Transaction));
-
-    /// <summary>
-    /// Executa um comando SQL e retorna o <see cref="DbDataReader"/> com os resultados
-    /// </summary>
-    public static DbDataReader RunSQLReader(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLReader(Connection.CreateCommand(SQL, Transaction));
-
-    /// <summary>
-    /// Executa um comando SQL e retorna o <see cref="DbDataReader"/> com os resultados
-    /// </summary>
-    public static DbDataReader RunSQLReader(this DbConnection Connection, DbCommand Command) => BeforeRunCommand(ref Connection, ref Command).ExecuteReader();
-
-    /// <summary>
-    /// Executa uma query SQL parametrizada e retorna os resultados da primeira linha como um
-    /// <typeparamref name="T"/>
-    /// </summary>
-    /// <returns></returns>
-    public static T RunSQLRow<T>(this DbConnection Connection, Select<T> Select, bool WithSubQueries = false, DbTransaction Transaction = null) where T : class => Connection.RunSQLRow<T>(Select.CreateDbCommand(Connection, Transaction), WithSubQueries);
-
-    /// <summary>
-    /// Executa uma query SQL parametrizada e retorna o resultado da primeira linha mapeada para
-    /// um <see cref="Dictionary{String, Object}"/>
-    /// </summary>
-    public static Dictionary<string, object> RunSQLRow(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLRow<Dictionary<string, object>>(SQL, false, Transaction);
-
-    /// <summary>
-    /// Executa uma query SQL parametrizada e retorna o resultado da primeira linha mapeada para
-    /// um <see cref="Dictionary{String, Object}"/>
-    /// </summary>
-    public static Dictionary<string, object> RunSQLRow(this DbConnection Connection, DbCommand SQL) => Connection.RunSQLRow<Dictionary<string, object>>(SQL);
-
-    /// <summary>
-    /// Executa uma query SQL parametrizada e retorna o resultado da primeira linha mapeada para
-    /// uma classe POCO do tipo <typeparamref name="T"/>
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="Connection"></param>
-    /// <param name="SQL"></param>
-    /// <returns></returns>
-    public static T RunSQLRow<T>(this DbConnection Connection, DbCommand SQL, bool WithSubQueries = false) where T : class
-    {
-        var x = Connection.RunSQLSet<T>(SQL, false).FirstOrDefault();
-        if (x != null && WithSubQueries)
-        {
-            Connection.ProccessSubQuery(x, WithSubQueries);
-        }
-
-        return x ?? default;
-    }
-
-    /// <summary>
-    /// Executa uma query SQL parametrizada e retorna o resultado da primeira linha mapeada para
-    /// uma classe POCO do tipo <typeparamref name="T"/>
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="Connection"></param>
-    /// <param name="SQL"></param>
-    /// <returns></returns>
-    public static T RunSQLRow<T>(this DbConnection Connection, FormattableString SQL, bool WithSubQueries = false, DbTransaction Transaction = null) where T : class => Connection.RunSQLRow<T>(Connection.CreateCommand(SQL, Transaction), WithSubQueries);
-
-    public static T RunSQLRow<T>(this DbConnection Connection, bool WithSubQueries = false, DbTransaction Transaction = null, object InjectionObject = null) where T : class => RunSQLRow<T>(Connection, SQLQueryForClass<T>(InjectionObject).ToFormattableString(), WithSubQueries, Transaction);
-
-    /// <summary>
-    /// Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset
-    /// mapeados para uma lista de <typeparamref name="T"/>
-    /// </summary>
-    /// <returns></returns>
-    public static IEnumerable<T> RunSQLSet<T>(this DbConnection Connection, Select<T> Select, bool WithSubQueries = false, DbTransaction Transaction = null) where T : class => Connection.RunSQLSet<T>(Select.CreateDbCommand(Connection, Transaction), WithSubQueries);
-
-    public static IEnumerable<T> RunSQLSet<T>(this DbConnection Connection, bool WithSubQueries = false, DbTransaction Transaction = null, object InjectionObject = null) where T : class => RunSQLSet<T>(Connection, SQLQueryForClass<T>(InjectionObject).ToFormattableString(), WithSubQueries, Transaction);
-
-    /// <summary>
-    /// Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset
-    /// mapeados para uma lista de <see cref="Dictionary{String, Object}"/>
-    /// </summary>
-    /// <param name="Connection"></param>
-    /// <param name="SQL"></param>
-    /// <returns></returns>
-    public static IEnumerable<Dictionary<string, object>> RunSQLSet(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLSet<Dictionary<string, object>>(SQL, false, Transaction);
-
-    /// <summary>
-    /// Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset
-    /// mapeados para uma lista de <see cref="Dictionary(Of String, Object)"/>
-    /// </summary>
-    public static IEnumerable<Dictionary<string, object>> RunSQLSet(this DbConnection Connection, DbCommand SQL) => Connection.RunSQLSet<Dictionary<string, object>>(SQL);
-
-    /// <summary>
-    /// Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset
-    /// mapeados para uma lista de classe POCO do tipo <typeparamref name="T"/>
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="Connection"></param>
-    /// <param name="SQL"></param>
-    /// <returns></returns>
-    public static IEnumerable<T> RunSQLSet<T>(this DbConnection Connection, FormattableString SQL, bool WithSubQueries = false, DbTransaction Transaction = null) where T : class => Connection.RunSQLSet<T>(Connection.CreateCommand(SQL, Transaction), WithSubQueries);
-
-    /// <summary>
-    /// Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset
-    /// mapeados para uma lista de classe POCO do tipo <typeparamref name="T"/>
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="Connection"></param>
-    /// <param name="SQL"></param>
-    /// <returns></returns>
-    public static IEnumerable<T> RunSQLSet<T>(this DbConnection Connection, DbCommand SQL, bool WithSubQueries = false) where T : class
-        => Connection.RunSQLMany(SQL)?.FirstOrDefault()?.Select(x =>
-        {
-            T v = (T)x.CreateOrSetObject(null, typeof(T));
-            if (WithSubQueries)
-            {
-                Connection.ProccessSubQuery(v, WithSubQueries);
-            }
-            return v;
-        }).AsEnumerable();
-
-    /// <summary>
-    /// Retorna o primeiro resultado da primeira coluna de uma consulta SQL
-    /// </summary>
-    /// <param name="Connection"></param>
-    /// <param name="Command"></param>
-    /// <returns></returns>
-    public static object RunSQLValue(this DbConnection Connection, DbCommand Command) => BeforeRunCommand(ref Connection, ref Command).ExecuteScalar();
-
-    /// <summary>
-    /// Retorna o valor da primeira coluna da primeira linha uma consulta SQL
-    /// </summary>
-    public static object RunSQLValue(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLValue(Connection.CreateCommand(SQL, Transaction));
-
-    /// <summary>
-    /// Retorna o valor da primeira coluna da primeira linha uma consulta SQL como um tipo
-    /// <typeparamref name="T"/>
-    /// </summary>
-    public static T RunSQLValue<T>(this DbConnection Connection, DbCommand Command)
-    {
-        if (!typeof(T).IsValueType())
-        {
-            throw new ArgumentException("The type param T is not a value type or string");
-        }
-        var vv = Connection.RunSQLValue(Command);
-        return vv != null && vv != DBNull.Value ? vv.ChangeType<T>() : default;
-    }
-
-    /// <summary>
-    /// Retorna o valor da primeira coluna da primeira linha uma consulta SQL como um tipo
-    /// <typeparamref name="T"/>
-    /// </summary>
-    public static T RunSQLValue<T>(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLValue<T>(Connection.CreateCommand(SQL, Transaction));
-
-    /// <summary>
-    /// Salva um anexo para um diretório
-    /// </summary>
-    /// <param name="attachment"></param>
-    /// <param name="Directory"></param>
-    /// <returns></returns>
-    public static FileInfo SaveMailAttachment(this Attachment attachment, DirectoryInfo Directory, DateTime? DateAndTime = null) => attachment.SaveMailAttachment(Directory.FullName, DateAndTime);
-
-    /// <summary>
-    /// Salva um anexo para um caminho
-    /// </summary>
-    /// <param name="attachment"></param>
-    /// <param name="FilePath"></param>
-    /// <returns></returns>
-    public static FileInfo SaveMailAttachment(this Attachment attachment, string FilePath, DateTime? DateAndTime = null)
-    {
-        if (attachment != null)
-        {
-            if (FilePath.IsDirectoryPath())
-            {
-                FilePath = FilePath + @"\" + attachment.Name.IfBlank(attachment.ContentId);
-            }
-
-            return attachment.ToBytes().WriteToFile(FilePath, DateAndTime);
-        }
-
-        return null;
-    }
-
-    /// <summary>
-    /// Retorna uma lista de arquivos ou diretórios baseado em um ou mais padrões de pesquisas
-    /// </summary>
-    /// <param name="Directory">Diretório</param>
-    /// <param name="SearchOption">
-    /// Especifica se a pesquisa ocorrerá apenas no diretório ou em todos os subdiretórios também
-    /// </param>
-    /// <param name="Searches">Padrões de pesquisa (*.txt, arquivo.*, *)</param>
-    /// <returns></returns>
-    public static IEnumerable<FileSystemInfo> Search(this DirectoryInfo Directory, SearchOption SearchOption, params string[] Searches)
-    {
-        var FilteredList = new List<FileSystemInfo>();
-        foreach (string pattern in (Searches ?? Array.Empty<string>()).SelectMany(z => z.SplitAny(":", "|")).Where(x => x.IsNotBlank()).DefaultIfEmpty("*"))
-        {
-            if (Directory != null)
-                FilteredList.AddRange(Directory.GetFileSystemInfos(pattern.Trim(), SearchOption));
-        }
-
-        return FilteredList;
-    }
-
-    /// <summary>
-    /// Retorna um <see cref="IQueryable{T}"/> procurando em varios campos diferentes de uma entidade
-    /// </summary>
-    /// <typeparam name="T">Tipo da Entidade</typeparam>
-    /// <param name="Table">Tabela da Entidade</param>
-    /// <param name="SearchTerms">Termos da pesquisa</param>
-    /// <param name="Properties">Propriedades onde <paramref name="SearchTerms"/> serão procurados</param>
-    /// <returns></returns>
-    public static IQueryable<T> Search<T>(this IQueryable<T> Table, IEnumerable<string> SearchTerms, params Expression<Func<T, string>>[] Properties) where T : class
-    {
-        Properties = Properties ?? Array.Empty<Expression<Func<T, string>>>();
-        SearchTerms = SearchTerms ?? Array.Empty<string>().AsEnumerable();
-        return Table.Where(SearchTerms.SearchExpression(Properties));
-    }
-
-    public static IQueryable<T> Search<T>(this IQueryable<T> Table, string SearchTerm, params Expression<Func<T, string>>[] Properties) where T : class => Search(Table, new[] { SearchTerm }, Properties);
-
-    /// <summary>
-    /// Retorna uma lista de arquivos ou diretórios baseado em um ou mais padrões de pesquisas
-    /// dentro de um range de 2 datas
-    /// </summary>
-    /// <param name="Directory">Diretório</param>
-    /// <param name="SearchOption">
-    /// Especifica se a pesquisa ocorrerá apenas no diretório ou em todos os subdiretórios também
-    /// </param>
-    /// <param name="Searches">Padrões de pesquisa (*.txt, arquivo.*, *)</param>
-    /// <param name="FirstDate">Data Inicial</param>
-    /// <param name="SecondDate">Data Final</param>
-    /// <returns></returns>
-    public static IEnumerable<FileSystemInfo> SearchBetween(this DirectoryInfo Directory, DateTime FirstDate, DateTime SecondDate, SearchOption SearchOption, params string[] Searches)
-    {
-        FixOrder(ref FirstDate, ref SecondDate);
-        return Directory.Search(SearchOption, Searches).Where(file => file.LastWriteTime >= FirstDate && file.LastWriteTime <= SecondDate).OrderByDescending(f => f.LastWriteTime.Year <= 1601 ? f.CreationTime : f.LastWriteTime).ToList();
-    }
-
-    /// <summary>
-    /// Retorna uma lista de diretórios baseado em um ou mais padrões de pesquisas
-    /// </summary>
-    /// <param name="Directory">Diretório</param>
-    /// <param name="SearchOption">
-    /// Especifica se a pesquisa ocorrerá apenas no diretório ou em todos os subdiretórios também
-    /// </param>
-    /// <param name="Searches">Padrões de pesquisa (*.txt, arquivo.*, *)</param>
-    /// <returns></returns>
-    public static IEnumerable<DirectoryInfo> SearchDirectories(this DirectoryInfo Directory, SearchOption SearchOption, params string[] Searches)
-    {
-        var FilteredList = new List<DirectoryInfo>();
-        foreach (string pattern in (Searches ?? Array.Empty<string>()).Where(x => x.IsNotBlank()).DefaultIfEmpty("*"))
-        {
-            if (Directory != null)
-                FilteredList.AddRange(Directory.GetDirectories(pattern.Trim(), SearchOption));
-        }
-
-        return FilteredList;
-    }
-
-    /// <summary>
-    /// Retorna uma lista de arquivos baseado em um ou mais padrões de pesquisas dentro de um
-    /// range de 2 datas
-    /// </summary>
-    /// <param name="Directory">Diretório</param>
-    /// <param name="SearchOption">
-    /// Especifica se a pesquisa ocorrerá apenas no diretório ou em todos os subdiretórios também
-    /// </param>
-    /// <param name="Searches">Padrões de pesquisa (*.txt, arquivo.*, *)</param>
-    /// <param name="FirstDate">Data Inicial</param>
-    /// <param name="SecondDate">Data Final</param>
-    /// <returns></returns>
-    public static IEnumerable<DirectoryInfo> SearchDirectoriesBetween(this DirectoryInfo Directory, DateTime FirstDate, DateTime SecondDate, SearchOption SearchOption, params string[] Searches)
-    {
-        FixOrder(ref FirstDate, ref SecondDate);
-        return Directory.SearchDirectories(SearchOption, Searches).Where(file => file.LastWriteTime >= FirstDate && file.LastWriteTime <= SecondDate).OrderByDescending(f => f.LastWriteTime.Year <= 1601 ? f.CreationTime : f.LastWriteTime).ToList();
-    }
-
-    public static Expression<Func<T, bool>> SearchExpression<T>(this IEnumerable<string> Text, params Expression<Func<T, string>>[] Properties)
-    {
-        Properties = Properties ?? Array.Empty<Expression<Func<T, string>>>();
-        Text = Text?.WhereNotBlank() ?? Array.Empty<string>();
-
-        var predi = (!Text.Any()).CreateWhereExpression<T>();
-
-        foreach (var prop in Properties)
-        {
-            foreach (var s in Text)
-            {
-                if (s.IsNotBlank())
-                {
-                    var param = prop.Parameters.First();
-                    var con = Expression.Constant(s);
-                    var lk = Expression.Call(prop.Body, containsMethod, con);
-                    var lbd = Expression.Lambda<Func<T, bool>>(lk, param);
-                    predi = predi.Or(lbd);
-                }
-            }
-        }
-
-        return predi;
-    }
-
-    public static Expression<Func<T, bool>> SearchExpression<T>(this string Text, params Expression<Func<T, string>>[] Properties)
-    => (new[] { Text }).SearchExpression(Properties);
-
-    /// <summary>
-    /// Retorna uma lista de arquivos baseado em um ou mais padrões de pesquisas
-    /// </summary>
-    /// <param name="Directory">Diretório</param>
-    /// <param name="SearchOption">
-    /// Especifica se a pesquisa ocorrerá apenas no diretório ou em todos os subdiretórios também
-    /// </param>
-    /// <param name="Searches">Padrões de pesquisa (*.txt, arquivo.*, *)</param>
-    /// <returns></returns>
-    public static IEnumerable<FileInfo> SearchFiles(this DirectoryInfo Directory, SearchOption SearchOption, params string[] Searches) => (Searches ?? Array.Empty<string>()).Where(x => x.IsNotBlank()).DefaultIfEmpty("*").SelectMany(x => Directory.GetFiles(x.Trim(), SearchOption));
-
-    /// <summary>
-    /// Retorna uma lista de arquivos baseado em um ou mais padrões de pesquisas dentro de um
-    /// range de 2 datas
-    /// </summary>
-    /// <param name="Directory">Diretório</param>
-    /// <param name="SearchOption">
-    /// Especifica se a pesquisa ocorrerá apenas no diretório ou em todos os subdiretórios também
-    /// </param>
-    /// <param name="Searches">Padrões de pesquisa (*.txt, arquivo.*, *)</param>
-    /// <param name="FirstDate">Data Inicial</param>
-    /// <param name="SecondDate">Data Final</param>
-    /// <returns></returns>
-    public static IEnumerable<FileInfo> SearchFilesBetween(this DirectoryInfo Directory, DateTime FirstDate, DateTime SecondDate, SearchOption SearchOption, params string[] Searches)
-    {
-        FixOrder(ref FirstDate, ref SecondDate);
-        return Directory.SearchFiles(SearchOption, Searches).Where(file => file.LastWriteTime.IsBetween(FirstDate, SecondDate)).OrderByDescending(f => f.LastWriteTime.Year <= 1601 ? f.CreationTime : f.LastWriteTime).ToList();
-    }
-
-    /// <summary>
-    /// Retorna um <see cref="IQueryable{ClassType}"/> procurando em varios campos diferentes de
-    /// uma entidade
-    /// </summary>
-    /// <typeparam name="TClass">Tipo da Entidade</typeparam>
-    /// <param name="Table">Tabela da Entidade</param>
-    /// <param name="SearchTerms">Termos da pesquisa</param>
-    /// <param name="Properties">Propriedades onde <paramref name="SearchTerms"/> serão procurados</param>
-    /// <returns></returns>
-    public static IOrderedEnumerable<TClass> SearchInOrder<TClass>(this IEnumerable<TClass> Table, IEnumerable<string> SearchTerms, bool Ascending, params Expression<Func<TClass, string>>[] Properties) where TClass : class
-    {
-        IOrderedEnumerable<TClass> SearchRet = default;
-        Properties = Properties ?? Array.Empty<Expression<Func<TClass, string>>>();
-        SearchTerms = SearchTerms ?? Array.Empty<string>().AsEnumerable();
-        SearchRet = null;
-        Table = Table.Where(SearchTerms.SearchExpression(Properties).Compile());
-        foreach (var prop in Properties)
-        {
-            SearchRet = (SearchRet ?? Table.OrderBy(x => true)).ThenByLike(prop.Compile(), Ascending, SearchTerms.ToArray());
-        }
-
-        return SearchRet;
-    }
-
-    public static IOrderedEnumerable<TClass> SearchInOrder<TClass>(this IEnumerable<TClass> Table, IEnumerable<string> SearchTerms, params Expression<Func<TClass, string>>[] Properties) where TClass : class => SearchInOrder(Table, SearchTerms, true, Properties);
-
-    public static IOrderedQueryable<TClass> SearchInOrder<TClass>(this IQueryable<TClass> Table, IEnumerable<string> SearchTerms, params Expression<Func<TClass, string>>[] Properties) where TClass : class
-    {
-        var SearchRet = Table.Search(SearchTerms, Properties).OrderBy(x => true);
-        foreach (var prop in Properties)
-        {
-            SearchRet = SearchRet.ThenByLike(SearchTerms, prop);
-        }
-
-        return SearchRet;
-    }
-
-    /// <summary>
-    /// Une todos os valores de um objeto em uma unica string
-    /// </summary>
-    /// <param name="Array">Objeto com os valores</param>
-    /// <param name="Separator">Separador entre as strings</param>
-    /// <returns>string</returns>
-    public static string SelectJoinString<Type>(string Separator, params Type[] Array) => Array.SelectJoinString(Separator);
-
-    /// <summary>
-    /// Une todos os valores de um objeto em uma unica string
-    /// </summary>
-    /// <param name="List">Objeto com os valores</param>
-    /// <param name="Separator">Separador entre as strings</param>
-    /// <returns>string</returns>
-    public static string SelectJoinString<Type>(this List<Type> List, string Separator = EmptyString) => List.ToArray().SelectJoinString(Separator);
-
-    /// <summary>
-    /// Seleciona e une em uma unica string varios elementos
-    /// </summary>
-    /// <typeparam name="TSource"></typeparam>
-    /// <param name="Source"></param>
-    /// <param name="Separator"></param>
-    /// <returns></returns>
-    public static string SelectJoinString<TSource>(this IEnumerable<TSource> Source, string Separator = EmptyString) => Source.SelectJoinString(null, Separator);
-
-    /// <summary>
-    /// Seleciona e une em uma unica string varios elementos
-    /// </summary>
-    /// <typeparam name="TSource"></typeparam>
-    /// <param name="Source"></param>
-    /// <param name="Selector"></param>
-    /// <param name="Separator"></param>
-    /// <returns></returns>
-    public static string SelectJoinString<TSource>(this IEnumerable<TSource> Source, Func<TSource, string> Selector, string Separator = EmptyString)
-    {
-        Selector = Selector ?? (x => $"{x}");
-        Source = Source ?? Array.Empty<TSource>();
-        return Source.Any() ? String.Join(Separator, Source.Select(Selector).ToArray()) : EmptyString;
-    }
-
-    public static IEnumerable<String> SelectLike(this IEnumerable<String> source, String Pattern) => source.Where(x => x.Like(Pattern));
-
-    /// <summary>
-    /// Seleciona e une em uma unica string varios elementos enumeraveis
-    /// </summary>
-    /// <typeparam name="TSource"></typeparam>
-    /// <param name="Source"></param>
-    /// <param name="Selector"></param>
-    /// <param name="Separator"></param>
-    /// <returns></returns>
-    public static string SelectManyJoinString<TSource>(this IEnumerable<TSource> Source, Func<TSource, IEnumerable<string>> Selector = null, string Separator = EmptyString) => SelectJoinString(Source.SelectMany(Selector ?? (x => (new[] { x.ToString() }))), Separator);
-
-    /// <summary>
-    /// Seleciona e une em uma unica string varios elementos enumeraveis
-    /// </summary>
-    /// <typeparam name="TSource"></typeparam>
-    /// <param name="Source"></param>
-    /// <param name="Selector"></param>
-    /// <param name="Separator"></param>
-    /// <returns></returns>
-    public static string SelectManyJoinString<TSource>(this IQueryable<TSource> Source, Func<TSource, IEnumerable<string>> Selector = null, string Separator = EmptyString) => Source.AsEnumerable().SelectManyJoinString(Selector, Separator);
-
-    /// <summary>
-    /// Realiza um replace em uma string usando um tipo especifico de comparacao
-    /// </summary>
-    /// <param name="Text"></param>
-    /// <param name="NewValue"></param>
-    /// <param name="OldValue"></param>
-    /// <param name="ComparisonType"></param>
-    /// <returns></returns>
-    public static string SensitiveReplace(this string Text, string OldValue, string NewValue, StringComparison ComparisonType = StringComparison.InvariantCulture) => Text.SensitiveReplace(NewValue, new[] { OldValue }, ComparisonType);
-
-    /// <summary>
-    /// Realiza um replace em uma string usando um tipo especifico de comparacao
-    /// </summary>
-    /// <param name="Text"></param>
-    /// <param name="NewValue"></param>
-    /// <param name="OldValues"></param>
-    /// <param name="ComparisonType"></param>
-    /// <returns></returns>
-    public static string SensitiveReplace(this string Text, string NewValue, IEnumerable<string> OldValues, StringComparison ComparisonType = StringComparison.InvariantCulture)
-    {
-        if (Text.IsNotBlank())
-        {
-            foreach (var oldvalue in OldValues ?? new[] { EmptyString })
-            {
-                NewValue = NewValue ?? EmptyString;
-                if (!oldvalue.Equals(NewValue, ComparisonType))
-                {
-                    int foundAt;
-                    do
+                    if (!(uppercount > 0))
                     {
-                        foundAt = Text.IndexOf(oldvalue, 0, ComparisonType);
-                        if (foundAt > -1)
-                        {
-                            Text = Text.Remove(foundAt, oldvalue.Length).Insert(foundAt, NewValue);
-                        }
+                        Text += WhitespaceChar;
                     }
-                    while (foundAt != -1);
-                }
-            }
-        }
 
-        return Text;
-    }
-
-    /// <summary>
-    /// Adciona ou substitui um valor a este <see cref="Dictionary(Of TKey, TValue)"/> e retorna
-    /// a mesma instancia deste <see cref="Dictionary(Of TKey, TValue)"/>
-    /// </summary>
-    /// <typeparam name="TKey">Tipo da Key</typeparam>
-    /// <typeparam name="TValue">Tipo do valor</typeparam>
-    /// <param name="Key">Valor da key</param>
-    /// <param name="Value">Valor do Value</param>
-    /// <returns>o mesmo objeto do tipo <see cref="Dictionary"/> que chamou este método</returns>
-    public static IDictionary<TKey, TValue> Set<TKey, TValue, TK, TV>(this IDictionary<TKey, TValue> Dic, TK Key, TV Value)
-    {
-        if (Key != null && Dic != null)
-        {
-            Dic[Key.ChangeType<TKey>()] = Value.ChangeType<TValue>();
-        }
-
-        return Dic;
-    }
-
-    /// <summary>
-    /// Limita o valor Maximo de um numero
-    /// </summary>
-    /// <param name="Number">Numero</param>
-    /// <param name="MaxValue">Valor Maximo</param>
-    /// <returns></returns>
-    public static T SetMaxValue<T>(this T Number, T MaxValue) where T : IComparable => Number.LimitRange<T>(MaxValue: MaxValue);
-
-    /// <summary>
-    /// Limita o valor minimo de um numero
-    /// </summary>
-    /// <param name="Number">Numero</param>
-    /// <param name="MinValue">Valor Maximo</param>
-    /// <returns></returns>
-    public static T SetMinValue<T>(this T Number, T MinValue) where T : IComparable => Number.LimitRange<T>(MinValue: MinValue);
-
-    public static T SetOrRemove<T, TK, TV>(this T Dictionary, KeyValuePair<TK, TV> Pair) where T : IDictionary<TK, TV>
-    {
-        Dictionary?.SetOrRemove(Pair.Key, Pair.Value);
-        return Dictionary;
-    }
-
-    public static IDictionary<TKey, string> SetOrRemove<TKey, TK>(this IDictionary<TKey, string> Dic, TK Key, string Value, bool NullIfBlank) => Dic.SetOrRemove(Key, NullIfBlank.AsIf(Value.NullIf(x => x.IsBlank()), Value));
-
-    public static IDictionary<TKey, TValue> SetOrRemove<TKey, TValue, TK, TV>(this IDictionary<TKey, TValue> Dic, TK Key, TV Value)
-    {
-        if (Dic != null && Key != null)
-        {
-            if (Value != null)
-            {
-                Dic[Key.ChangeType<TKey>()] = Value.ChangeType<TValue>();
-            }
-            else
-            {
-                Dic.RemoveIfExist(Key.ChangeType<TKey>());
-            }
-        }
-
-        return Dic;
-    }
-
-    /// <summary>
-    /// Seta o valor de uma propriedade de um objeto
-    /// </summary>
-    /// <param name="MyObject">Objeto</param>
-    /// <param name="PropertyName">Nome da properiedade</param>
-    /// <param name="Value">Valor da propriedade definida por <paramref name="PropertyName"/></param>
-    /// <typeparam name="T">
-    /// Tipo do <paramref name="Value"/> da propriedade definida por <paramref name="PropertyName"/>
-    /// </typeparam>
-    public static T SetPropertyValue<T>(this T MyObject, string PropertyName, object Value) where T : class
-    {
-        if (PropertyName.IsNotBlank() && MyObject != null)
-        {
-            var props = MyObject.GetProperties();
-
-            var prop = props.FirstOrDefault(p => p != null && p.CanWrite && p.Name.IsAny(PropertyNamesFor(PropertyName).ToArray()));
-
-            if (prop != null)
-                if (Value is DBNull)
-                {
-                    prop.SetValue(MyObject, null);
+                    uppercount++;
                 }
                 else
                 {
-                    prop.SetValue(MyObject, ChangeType(Value, prop.PropertyType));
+                    if (uppercount > 1)
+                    {
+                        Text += WhitespaceChar;
+                    }
+
+                    uppercount = 0;
                 }
+
+                Text += $"{c}";
+            }
+
+            return Text.Trim();
         }
 
-        return MyObject;
-    }
+        /// <summary>
+        /// Transforma um texto em CamelCase em um array de palavras a partir de suas letras maíusculas
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <returns></returns>
+        public static IEnumerable<string> PascalCaseSplit(this string Text) => Text.PascalCaseAdjust().Split(WhitespaceChar);
 
-    public static T SetPropertyValue<T, TProp>(this T obj, Expression<Func<T, TProp>> Selector, TProp Value) where T : class
-    {
-        obj?.SetPropertyValue(obj.GetPropertyInfo(Selector).Name, Value);
-        return obj;
-    }
+        public static string Peek(this Queue<char> queue, int take) => new String(queue.Take(take).ToArray());
 
-    public static Task SetTimeout(int milliseconds, Action action) => Task.Delay(milliseconds).ContinueWith(async (t) =>
-                                                                                 {
-                                                                                     TryExecute(action);
-                                                                                     t.Dispose();
-                                                                                 });
-
-    public static T SetValuesIn<T>(this Dictionary<string, object> Dic) => (T)Dic.CreateOrSetObject(null, typeof(T));
-
-    /// <summary>
-    /// Seta as propriedades de uma classe a partir de um dictionary
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="Dic"></param>
-    /// <summary>
-    /// Seta as propriedades e campos de uma classe a partir de um dictionary
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="Dic"></param>
-    /// <param name="Obj"></param>
-    public static T SetValuesIn<T>(this Dictionary<string, object> Dic, T obj, params object[] args) => (T)Dic.CreateOrSetObject(obj, typeof(T), args);
-
-    /// <summary>
-    /// Seta as propriedades e campos de uma classe a partir de um dictionary
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="Dic"></param>
-    /// <param name="Obj"></param>
-    public static T SetValuesIn<T>(this Dictionary<string, object> Dic, T obj) => (T)Dic.CreateOrSetObject(obj, typeof(T), null);
-
-    public static T Show<T>(this T dir) where T : FileSystemInfo
-    {
-        if (dir != null && dir.Exists)
+        /// <summary>
+        /// Pixeliza uma imagem
+        /// </summary>
+        /// <param name="Image"></param>
+        /// <param name="PixelateSize"></param>
+        /// <returns></returns>
+        public static Image Pixelate(this Image Image, int PixelateSize = 1)
         {
-            if (dir.Attributes.HasFlag(FileAttributes.Hidden))
+            if (Image == null) return null;
+            var rectangle = new System.Drawing.Rectangle(0, 0, Image.Width, Image.Height);
+            PixelateSize++;
+            var pixelated = new Bitmap(Image.Width, Image.Height);
+            using (var graphics = Graphics.FromImage(pixelated))
             {
-                dir.Attributes &= ~FileAttributes.Hidden;
-            }
-        }
-        return dir;
-    }
-
-    /// <summary>
-    /// Randomiza a ordem dos itens de um Array
-    /// </summary>
-    /// <typeparam name="Type">Tipo do Array</typeparam>
-    /// <param name="Array">Matriz</param>
-    public static Type[] Shuffle<Type>(this Type[] Array) => Array.OrderByRandom().ToArray();
-
-    /// <summary>
-    /// Randomiza a ordem dos itens de uma Lista
-    /// </summary>
-    /// <typeparam name="Type">Tipo de Lista</typeparam>
-    /// <param name="List">Matriz</param>
-    public static List<Type> Shuffle<Type>(this List<Type> List) => List.OrderByRandom().ToList();
-
-    /// <summary>
-    /// Aleatoriza a ordem das letras de um texto
-    /// </summary>
-    /// <param name="Text">Texto</param>
-    /// <returns></returns>
-    public static string Shuffle(this string Text) => Text.OrderByRandom().SelectJoinString();
-
-    /// <summary>
-    /// Busca em um <see cref="IQueryable{T}"/> usando uma expressao lambda a partir do nome de
-    /// uma propriedade, uma operacao e um valor
-    /// </summary>
-    /// <typeparam name="T">Tipo do objeto acessado</typeparam>
-    /// <param name="List">Lista</param>
-    /// <param name="PropertyName">Propriedade do objeto <typeparamref name="T"/></param>
-    /// <param name="[Operator]">
-    /// Operador ou método do objeto <typeparamref name="T"/> que retorna um <see cref="Boolean"/>
-    /// </param>
-    /// <param name="PropertyValue">
-    /// Valor da propriedade comparado com o <paramref name="Operator"/> ou como o primeiro
-    /// argumento do método de mesmo nome definido em <typeparamref name="T"/>
-    /// </param>
-    /// <param name="[Is]">Compara o resultado com TRUE ou FALSE</param>
-    /// <returns></returns>
-    public static T SingleOrDefaultExpression<T>(this IQueryable<T> List, string PropertyName, string Operator, object PropertyValue, bool Is = true) => List.SingleOrDefault(WhereExpression<T>(PropertyName, Operator, (IEnumerable<IComparable>)PropertyValue, Is));
-
-    /// <summary>
-    /// Retorna a frase ou termo especificado em sua forma singular
-    /// </summary>
-    /// <param name="Text">Texto no plural</param>
-    /// <returns></returns>
-    public static string Singularize(this string Text)
-    {
-        var phrase = Text.ApplySpaceOnWrapChars().Split(WhitespaceChar);
-        for (int index = 0, loopTo = phrase.Length - 1; index <= loopTo; index++)
-        {
-            string endchar = phrase[index].GetLastChars();
-            if (endchar.IsAny(StringComparison.CurrentCultureIgnoreCase, PredefinedArrays.WordSplitters.ToArray()))
-            {
-                phrase[index] = phrase[index].RemoveLastEqual(endchar);
+                graphics.DrawImage(Image, new System.Drawing.Rectangle(0, 0, Image.Width, Image.Height), new System.Drawing.Rectangle(0, 0, Image.Width, Image.Height), GraphicsUnit.Pixel);
             }
 
-            switch (true)
+            int xx = rectangle.X;
+            while (xx < rectangle.X + rectangle.Width && xx < Image.Width)
             {
-                case object _ when phrase[index].IsNumber() || phrase[index].IsEmail() || phrase[index].IsURL() || phrase[index].IsIP() || phrase[index].IsIn(PredefinedArrays.WordSplitters):
-                    {
-                        // nao alterar estes tipos
-                        break;
-                    }
-
-                case object _ when phrase[index].EndsWith("ões"):
-                    {
-                        phrase[index] = phrase[index].RemoveLastEqual("ões") + "ão";
-                        break;
-                    }
-
-                case object _ when phrase[index].EndsWith("ãos"):
-                    {
-                        phrase[index] = phrase[index].RemoveLastEqual("ãos") + "ão";
-                        break;
-                    }
-
-                case object _ when phrase[index].EndsWith("ães"):
-                    {
-                        phrase[index] = phrase[index].RemoveLastEqual("ães") + "ão";
-                        break;
-                    }
-
-                case object _ when phrase[index].EndsWith("ais"):
-                    {
-                        phrase[index] = phrase[index].RemoveLastEqual("ais") + "al";
-                        break;
-                    }
-
-                case object _ when phrase[index].EndsWith("eis"):
-                    {
-                        phrase[index] = phrase[index].RemoveLastEqual("eis") + "il";
-                        break;
-                    }
-
-                case object _ when phrase[index].EndsWith("éis"):
-                    {
-                        phrase[index] = phrase[index].RemoveLastEqual("éis") + "el";
-
-                        break;
-                    }
-
-                case object _ when phrase[index].EndsWith("ois"):
-                    {
-                        phrase[index] = phrase[index].RemoveLastEqual("ois") + "ol";
-                        break;
-                    }
-
-                case object _ when phrase[index].EndsWith("uis"):
-                    {
-                        phrase[index] = phrase[index].RemoveLastEqual("uis") + "ul";
-                        break;
-                    }
-
-                case object _ when phrase[index].EndsWith("es"):
-                    {
-                        if (phrase[index].RemoveLastEqual("es").EndsWithAny("z", "r"))
-                        {
-                            phrase[index] = phrase[index].RemoveLastEqual("es");
-                        }
-                        else
-                        {
-                            phrase[index] = phrase[index].RemoveLastEqual("s");
-                        }
-
-                        break;
-                    }
-
-                case object _ when phrase[index].EndsWith("ns"):
-                    {
-                        phrase[index] = phrase[index].RemoveLastEqual("ns") + "m";
-                        break;
-                    }
-
-                case object _ when phrase[index].EndsWith("s"):
-                    {
-                        phrase[index] = phrase[index].RemoveLastEqual("s");
-                        break;
-                    }
-
-                default:
-                    {
-                        break;
-                    }
-                    // ja esta no singular
-            }
-
-            if (endchar.IsAny(StringComparison.CurrentCultureIgnoreCase, PredefinedArrays.WordSplitters.ToArray()))
-            {
-                phrase[index] = phrase[index] + endchar;
-            }
-        }
-
-        return phrase.SelectJoinString(WhitespaceChar).TrimBetween();
-    }
-
-    public static IEnumerable<T> SkipLast<T>(this IEnumerable<T> l, int Count = 1)
-    => l.Take(l.Count() - Count.LimitRange(0, l.Count()));
-
-    public static Dictionary<TGroup, Dictionary<TCount, long>> SkipZero<TGroup, TCount>(this Dictionary<TGroup, Dictionary<TCount, long>> Grouped)
-    {
-        if (Grouped != null)
-        {
-            foreach (var dic in Grouped.ToArray())
-            {
-                Grouped[dic.Key] = dic.Value.Where(x => x.Value > 0).ToDictionary();
-            }
-
-            Grouped = Grouped.Where(x => x.Value.Any()).ToDictionary();
-        }
-
-        return Grouped;
-    }
-
-    public static Dictionary<TCount, long> SkipZero<TCount>(this Dictionary<TCount, long> Grouped)
-    {
-        Grouped = Grouped?.Where(x => x.Value > 0).ToDictionary();
-        return Grouped;
-    }
-
-    /// <summary>
-    /// Separa um texto em um array de strings a partir de uma outra string
-    /// </summary>
-    /// <param name="Text">Texto</param>
-    /// <param name="Separator">Texto utilizado como separador</param>
-    /// <returns></returns>
-    public static string[] Split(this string Text, string Separator, StringSplitOptions Options = StringSplitOptions.RemoveEmptyEntries) => (Text ?? EmptyString).Split(new[] { Separator }, Options);
-
-    /// <summary>
-    /// Separa uma string em varias partes a partir de varias strings removendo as entradas em branco
-    /// </summary>
-    /// <param name="Text"></param>
-    /// <param name="SplitText"></param>
-    /// <returns></returns>
-    public static string[] SplitAny(this string Text, params string[] SplitText) => Text?.SplitAny(StringSplitOptions.RemoveEmptyEntries, SplitText);
-
-    /// <summary>
-    /// Separa uma string em varias partes a partir de varias strings removendo as entradas em branco
-    /// </summary>
-    /// <param name="Text"></param>
-    /// <param name="SplitText"></param>
-    /// <returns></returns>
-    public static string[] SplitAny(this string Text, StringSplitOptions SplitOptions, params string[] SplitText) => Text?.Split(SplitText ?? Array.Empty<string>(), SplitOptions);
-
-    /// <summary>
-    /// Separa uma string em varias partes a partir de varias strings removendo as entradas em branco
-    /// </summary>
-    /// <param name="Text"></param>
-    /// <param name="SplitText"></param>
-    /// <returns></returns>
-    public static string[] SplitAny(this string Text, IEnumerable<string> SplitText) => Text?.SplitAny(SplitText.ToArray());
-
-    /// <summary>
-    /// Separa uma string em varias partes a partir de varias strings removendo as entradas em branco
-    /// </summary>
-    /// <param name="Text"></param>
-    /// <param name="SplitText"></param>
-    /// <returns></returns>
-    public static string[] SplitAny(this string Text, StringSplitOptions SplitOptions, IEnumerable<string> SplitText) => Text?.SplitAny(SplitOptions, SplitText.ToArray());
-
-    public static IEnumerable<string> SplitChunk(this string input, params int[] chunkSizes)
-    {
-        if (input != null)
-            while (input.Length > 0)
-            {
-                var size = chunkSizes.IfNoIndex(0, input.Length);
-                if (size <= 0) size = input.Length;
-                var chunk = input.GetFirstChars(size);
-                if (chunk.Length == 0)
+                int yy = rectangle.Y;
+                while (yy < rectangle.Y + rectangle.Height && yy < Image.Height)
                 {
-                    if (input.Length > 0)
-                        yield return input;
-                    break;
+                    int offsetX = (int)Math.Round(PixelateSize / 2d);
+                    int offsetY = (int)Math.Round(PixelateSize / 2d);
+                    while (xx + offsetX >= Image.Width)
+                        offsetX -= 1;
+                    while (yy + offsetY >= Image.Height)
+                        offsetY -= 1;
+                    var pixel = pixelated.GetPixel(xx + offsetX, yy + offsetY);
+                    int x = xx;
+                    while (x < xx + PixelateSize && x < Image.Width)
+                    {
+                        int y = yy;
+                        while (y < yy + PixelateSize && y < Image.Height)
+                        {
+                            pixelated.SetPixel(x, y, pixel);
+                            y += 1;
+                        }
+
+                        x += 1;
+                    }
+
+                    yy += PixelateSize;
                 }
-                yield return chunk;
-                input = input.RemoveFirstChars(size);
-                chunkSizes = chunkSizes.Skip(1).ToArray();
-            }
-    }
 
-    public static IEnumerable<string> SplitFixedChunk(this string inputString, int chunkSize)
-    {
-        inputString = inputString ?? EmptyString;
-        if (chunkSize > 0 && inputString.Length > 0)
+                xx += PixelateSize;
+            }
+
+            return pixelated;
+        }
+
+        /// <summary>
+        /// Retorna uma string em sua forma poop
+        /// </summary>
+        /// <param name="Words"></param>
+        /// <returns></returns>
+        public static string[] Poopfy(params string[] Words)
         {
-            for (int i = 0; i < inputString.Length; i += chunkSize)
+            var p = new List<string>();
+            foreach (var Text in Words ?? Array.Empty<string>())
             {
-                int remainingLength = inputString.Length - i;
-                yield return inputString.Substring(i, remainingLength < chunkSize ? remainingLength : chunkSize);
+                decimal l = (decimal)(Text.Length / 2d);
+                l = l.Floor();
+                if (!Text.GetFirstChars((int)Math.Round(l)).Last().ToString().ToLowerInvariant().IsIn(PredefinedArrays.LowerVowels))
+                {
+                    l = l.ToInt() - 1;
+                }
+
+                p.Add(Text.GetFirstChars((int)Math.Round(l)).Trim() + Text.GetFirstChars((int)Math.Round(l)).Reverse().ToList().SelectJoinString().ToLowerInvariant().Trim() + Text.RemoveFirstChars((int)Math.Round(l)).TrimStartAny(PredefinedArrays.LowerConsonants.ToArray()));
+            }
+
+            return p.ToArray();
+        }
+
+        /// <summary>
+        /// Retorna uma string em sua forma poop
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <returns></returns>
+        public static string Poopfy(this string Text) => Poopfy(Text.SplitAny(PredefinedArrays.WordSplitters)).SelectJoinString(WhitespaceChar);
+
+        /// <summary>
+        /// Return a Idented XML string
+        /// </summary>
+        /// <param name="Document"></param>
+        /// <returns></returns>
+        public static string PreetyPrint(this XmlDocument Document)
+        {
+            string Result = EmptyString;
+            if (Document != null)
+            {
+                var mStream = new MemoryStream();
+                var writer = new XmlTextWriter(mStream, Encoding.Unicode);
+                try
+                {
+                    writer.Formatting = Formatting.Indented;
+
+                    // Write the XML into a formatting XmlTextWriter
+                    Document.WriteContentTo(writer);
+                    writer.Flush();
+                    mStream.Flush();
+
+                    // Have to rewind the MemoryStream in order to read its contents.
+                    mStream.Position = 0L;
+
+                    // Read MemoryStream contents into a StreamReader.
+                    var sReader = new StreamReader(mStream);
+
+                    // Extract the text from the StreamReader.
+                    Result = sReader.ReadToEnd();
+                }
+                catch (XmlException)
+                {
+                }
+                finally
+                {
+                    mStream.Close();
+                    writer.Close();
+                    mStream.Dispose();
+                    writer.Dispose();
+                }
+            }
+
+            return Result;
+        }
+
+        /// <summary>
+        /// Adiciona texto ao começo de uma string
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <param name="PrependText">Texto adicional</param>
+        public static string Prepend(this string Text, string PrependText)
+        {
+            Text = Text ?? EmptyString;
+            PrependText = PrependText ?? EmptyString;
+            Text = PrependText + Text;
+            return Text;
+        }
+
+        /// <summary>
+        /// Adiciona texto ao final de uma string se um criterio for cumprido
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <param name="PrependText">Texto adicional</param>
+        /// <param name="Test">Teste</param>
+        public static string PrependIf(this string Text, string PrependText, Func<string, bool> Test = null)
+        {
+            Text = Text ?? EmptyString;
+            PrependText = PrependText ?? EmptyString;
+            return Text.PrependIf(PrependText, (Test ?? (x => false))(Text));
+        }
+
+        /// <summary>
+        /// Adiciona texto ao começo de uma string se um criterio for cumprido
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <param name="PrependText">Texto adicional</param>
+        /// <param name="Test">Teste</param>
+        public static string PrependIf(this string Text, string PrependText, bool Test)
+        {
+            Text = Text ?? EmptyString;
+            PrependText = PrependText ?? EmptyString;
+            return Test ? Text.Prepend(PrependText) : Text;
+        }
+
+        /// <summary>
+        /// Adiciona texto ao inicio de uma string com uma quebra de linha no final do <paramref name="PrependText"/>
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <param name="PrependText">Texto adicional</param>
+        public static string PrependLine(this string Text, string PrependText) => Text.Prepend(Environment.NewLine).Prepend(PrependText);
+
+        /// <summary>
+        /// Adiciona texto ao inicio de uma string enquanto um criterio for cumprido
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <param name="PrependText">Texto adicional</param>
+        /// <param name="Test">Teste</param>
+        public static string PrependWhile(this string Text, string PrependText, Func<string, bool> Test)
+        {
+            Test = Test ?? (x => false);
+
+            while (Test(Text))
+            {
+                Text = Text.Prepend(PrependText);
+            }
+
+            return Text;
+        }
+
+        /// <summary>
+        /// Retorna a string especificada se o valor boolean for verdadeiro
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <param name="BooleanValue"></param>
+        /// <returns></returns>
+        public static string PrintIf(this string Text, bool BooleanValue) => BooleanValue ? Text : EmptyString;
+
+        /// <summary>
+        /// Processa uma propriedade de uma classe marcada com <see cref="FromSQL"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Connection"></param>
+        /// <param name="d"></param>
+        /// <param name="PropertyName"></param>
+        /// <param name="Recursive"></param>
+        /// <returns></returns>
+        public static T ProccessSubQuery<T>(this DbConnection Connection, T d, string PropertyName, bool Recursive = false)
+        {
+            if (d != null)
+            {
+                var prop = d.GetProperty(PropertyName);
+                if (prop != null)
+                {
+                    var attr = prop.GetCustomAttributes<FromSQLAttribute>(true).FirstOrDefault();
+                    string Sql = attr.SQL.Inject(d);
+                    bool gen = prop.PropertyType.IsGenericType;
+                    bool lista = gen && prop.PropertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>));
+                    bool enume = gen && prop.PropertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(IEnumerable<>));
+                    bool cole = gen && prop.PropertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(ICollection<>));
+                    if (lista || enume || cole)
+                    {
+                        IList baselist = (IList)Activator.CreateInstance(prop.PropertyType);
+                        var eltipo = prop.PropertyType.GetGenericArguments().FirstOrDefault();
+                        foreach (var x in Connection.RunSQLSet(Sql.ToFormattableString()))
+                        {
+                            baselist.Add(x.CreateOrSetObject(null, eltipo));
+                        }
+
+                        prop.SetValue(d, baselist);
+                        if (Recursive)
+                        {
+                            foreach (var uu in baselist)
+                            {
+                                Connection.ProccessSubQuery(uu, Recursive);
+                            }
+                        }
+
+                        return d;
+                    }
+                    else if (prop.PropertyType.IsClass)
+                    {
+                        if (prop.GetValue(d) == null)
+                        {
+                            var oo = Connection.RunSQLRow(Sql.ToFormattableString()).CreateOrSetObject(null, prop.PropertyType);
+                            prop.SetValue(d, oo);
+                            if (Recursive)
+                            {
+                                Connection.ProccessSubQuery(oo, Recursive);
+                            }
+                        }
+
+                        return d;
+                    }
+                    else if (prop.PropertyType.IsValueType)
+                    {
+                        if (prop.GetValue(d) == null)
+                        {
+                            var oo = Connection.RunSQLValue(Sql.ToFormattableString());
+                            prop.SetValue(d, ChangeType(oo, prop.PropertyType));
+                            if (Recursive)
+                            {
+                                Connection.ProccessSubQuery(oo, Recursive);
+                            }
+                        }
+
+                        return d;
+                    }
+                }
+            }
+
+            return d;
+        }
+
+        /// <summary>
+        /// Processa todas as propriedades de uma classe marcadas com <see cref="FromSQL"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Connection"></param>
+        /// <param name="d"></param>
+        /// <param name="Recursive"></param>
+        /// <returns></returns>
+        public static T ProccessSubQuery<T>(this DbConnection Connection, T d, bool Recursive = false) where T : class
+        {
+            foreach (var prop in GetProperties(d).Where(x => x.HasAttribute<FromSQLAttribute>()))
+            {
+                Connection.ProccessSubQuery(d, prop.Name, Recursive);
+            }
+
+            return d;
+        }
+
+        public static Expression PropertyExpression(this ParameterExpression Parameter, string PropertyName)
+        {
+            Expression prop = Parameter;
+            if (PropertyName.IfBlank("this") != "this")
+            {
+                foreach (var name in PropertyName.SplitAny(".", "/"))
+                {
+                    prop = Expression.Property(prop, name);
+                }
+            }
+
+            return prop;
+        }
+
+        public static IEnumerable<string> PropertyNamesFor(this string Name)
+        {
+            var propnames = new List<string>();
+
+            if (Name.IsNotBlank())
+            {
+                if (Name.StartsWith("_", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    propnames.Add(Name.TrimStart('_').Replace(" ", "_").Replace("-", "_").Replace("~", "_"));
+                }
+                string propname1 = Name.Trim().Replace(" ", "_").Replace("-", "_").Replace("~", "_");
+                string propname3 = Name.Trim().Replace(" ", EmptyString).Replace("-", EmptyString).Replace("~", EmptyString);
+                string propname2 = propname1.RemoveAccents();
+                string propname4 = propname3.RemoveAccents();
+                propnames.AddRange(new[] { Name, propname1, propname2, propname3, propname4 });
+                propnames.AddRange(propnames.Select(x => $"_{x}").ToArray());
+                return propnames.Where(x => x.Contains(" ") == false).Distinct();
+            }
+            return Array.Empty<string>();
+        }
+
+        /// <summary>
+        /// Retorna o texto a na sua forma singular ou plural de acordo com uma quantidade
+        /// determinada em uma lista ou um valor numérico encontrado no primeiro parametro.
+        /// </summary>
+        /// <param name="PluralText">Texto no plural</param>
+        /// <returns></returns>
+        /// <example>texto = $"{2} pães"</example>
+        public static string QuantifyText(this FormattableString PluralText)
+        {
+            if (PluralText.IsNotBlank() && PluralText.ArgumentCount > 0)
+            {
+                decimal numero = 0m;
+                string str = PluralText.Format.QuantifyText(PluralText.GetArguments().FirstOrDefault(), ref numero);
+                str = str.Replace("{0}", $"{numero}");
+                for (int index = 1, loopTo = PluralText.GetArguments().Length - 1; index <= loopTo; index++)
+                {
+                    str = str.Replace($"{{{index}}}", $"{PluralText.GetArgument(index)}");
+                }
+
+                return str;
+            }
+
+            return $"{PluralText}";
+        }
+
+        /// <summary>
+        /// Retorna o texto a na sua forma singular ou plural de acordo com uma quantidade
+        /// determinada em uma lista ou um valor numérico.
+        /// </summary>
+        /// <param name="PluralText">Texto no plural</param>
+        /// <param name="Quantity">Quantidade de Itens</param>
+        /// <returns></returns>
+        public static string QuantifyText(this string PluralText, object Quantity)
+        {
+            decimal d = 0m;
+            return PluralText.QuantifyText(Quantity, ref d);
+        }
+
+        /// <summary>
+        /// Retorna o texto a na sua forma singular ou plural de acordo com uma quantidade
+        /// determinada em uma lista ou um valor numérico.
+        /// </summary>
+        /// <param name="PluralText">Texto no plural</param>
+        /// <param name="QuantityOrListOrBoolean">Quantidade de Itens</param>
+        /// <param name="OutQuantity">Devolve a quantidade encontrada em <paramref name="QuantityOrListOrBoolean"/></param>
+        /// <returns></returns>
+        public static string QuantifyText(this string PluralText, object QuantityOrListOrBoolean, ref decimal OutQuantity)
+        {
+            bool forceSingular = false;
+            if (QuantityOrListOrBoolean == null)
+            {
+                OutQuantity = 0m;
+            }
+            else if (QuantityOrListOrBoolean is bool b)
+            {
+                //em portugues, quando a quantidade maixa de itens é 1, zero também é singular
+                OutQuantity = b ? 1 : 0;
+                forceSingular = true;
+            }
+            else if (QuantityOrListOrBoolean.IsNumber())
+            {
+                OutQuantity = (QuantityOrListOrBoolean).ToDecimal();
+            }
+            else if (typeof(IList).IsAssignableFrom(QuantityOrListOrBoolean.GetType()))
+            {
+                OutQuantity = ((IList)QuantityOrListOrBoolean).Count;
+            }
+            else if (typeof(IDictionary).IsAssignableFrom(QuantityOrListOrBoolean.GetType()))
+            {
+                var dic = (IDictionary)QuantityOrListOrBoolean;
+                OutQuantity = dic.Count;
+            }
+            else if (typeof(Array).IsAssignableFrom(QuantityOrListOrBoolean.GetType()))
+            {
+                var arr = (Array)QuantityOrListOrBoolean;
+                OutQuantity = (arr).Length;
+            }
+            else
+            {
+                if (!decimal.TryParse(QuantityOrListOrBoolean.ToString(), out OutQuantity))
+                {
+                    WriteDebug("Quantity parsing fail");
+                }
+            }
+            return forceSingular || OutQuantity.Floor() == 1m || OutQuantity.Floor() == -1 ? PluralText.Singularize() : PluralText;
+        }
+
+        /// <summary>
+        /// Retorna o texto a na sua forma singular ou plural de acordo com um numero determinado.
+        /// </summary>
+        /// <param name="PluralText">Texto no plural</param>
+        /// <param name="List">Lista com itens</param>
+        /// <returns></returns>
+        public static string QuantifyText<T>(this IEnumerable<T> List, string PluralText) => PluralText.QuantifyText(List ?? Array.Empty<T>());
+
+        /// <summary>
+        /// Retorna o texto a na sua forma singular ou plural de acordo com um numero determinado.
+        /// </summary>
+        /// <param name="PluralText">Texto no plural</param>
+        /// <param name="Quantity">Quantidade de Itens</param>
+        /// <returns></returns>
+        public static string QuantifyText(this int Quantity, string PluralText) => PluralText.QuantifyText(Quantity);
+
+        /// <summary>
+        /// Retorna o texto a na sua forma singular ou plural de acordo com um numero determinado.
+        /// </summary>
+        /// <param name="PluralText">Texto no plural</param>
+        /// <param name="Quantity">Quantidade de Itens</param>
+        /// <returns></returns>
+        public static string QuantifyText(this decimal Quantity, string PluralText) => PluralText.QuantifyText(Quantity);
+
+        /// <summary>
+        /// Retorna o texto a na sua forma singular ou plural de acordo com um numero determinado.
+        /// </summary>
+        /// <param name="PluralText">Texto no plural</param>
+        /// <param name="Quantity">Quantidade de Itens</param>
+        /// <returns></returns>
+        public static string QuantifyText(this short Quantity, string PluralText) => PluralText.QuantifyText(Quantity);
+
+        /// <summary>
+        /// Retorna o texto a na sua forma singular ou plural de acordo com um numero determinado.
+        /// </summary>
+        /// <param name="PluralText">Texto no plural</param>
+        /// <param name="Quantity">Quantidade de Itens</param>
+        /// <returns></returns>
+        public static string QuantifyText(this long Quantity, string PluralText) => PluralText.QuantifyText(Quantity);
+
+        /// <summary>
+        /// Retorna o texto a na sua forma singular ou plural de acordo com um numero determinado.
+        /// </summary>
+        /// <param name="PluralText">Texto no plural</param>
+        /// <param name="Quantity">Quantidade de Itens</param>
+        /// <returns></returns>
+        public static string QuantifyText(this double Quantity, string PluralText) => PluralText.QuantifyText(Quantity);
+
+        /// <summary>
+        /// Encapsula um texto entre 2 caracteres (normalmente parentesis, chaves, aspas ou colchetes)
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <param name="OpenQuoteChar">Caractere de encapsulamento</param>
+        /// <returns></returns>
+        public static string Quote(this string Text, char OpenQuoteChar = '"')
+        {
+            if (Convert.ToBoolean(OpenQuoteChar.ToString().IsCloseWrapChar()))
+            {
+                OpenQuoteChar = OpenQuoteChar.GetOppositeWrapChar();
+            }
+
+            return $"{OpenQuoteChar}{Text}{OpenQuoteChar.GetOppositeWrapChar()}";
+        }
+
+        /// <summary>
+        /// Encapsula um tento entre 2 textos (normalmente parentesis, chaves, aspas ou colchetes)
+        /// se uma condição for cumprida
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <param name="QuoteChar">Caractere de encapsulamento</param>
+        /// <returns></returns>
+        public static string QuoteIf(this string Text, bool Condition, char QuoteChar = '"') => Condition ? Text.Quote(QuoteChar) : Text;
+
+        /// <summary>
+        /// Gera um valor boolean aleatorio considerando uma porcentagem de chance
+        /// </summary>
+        /// <returns>TRUE ou FALSE.</returns>
+        public static bool RandomBool(int Percent) => RandomBool(x => x <= Percent, 0, 100);
+
+        /// <summary>
+        /// Gera um valor boolean aleatorio considerando uma condição de comparação com um numero
+        /// gerado aleatóriamente
+        /// </summary>
+        /// <param name="Min">Numero minimo, Padrão 0</param>
+        /// <param name="Max">Numero Maximo, Padrão 999999</param>
+        /// <returns>TRUE ou FALSE</returns>
+        public static bool RandomBool(Func<int, bool> Condition, int Min = 0, int Max = int.MaxValue) => Condition(RandomNumber(Min, Max));
+
+        /// <summary>
+        /// Gera um valor boolean aleatorio
+        /// </summary>
+        /// <returns>TRUE ou FALSE</returns>
+        public static bool RandomBool() => RandomNumber(0, 1).ToBool();
+
+        /// <summary>
+        /// Gera uma cor aleatória misturando ou não os canais RGB
+        /// </summary>
+        /// <param name="Red">-1 para Random ou de 0 a 255 para especificar o valor</param>
+        /// <param name="Green">-1 para Random ou de 0 a 255 para especificar o valor</param>
+        /// <param name="Blue">-1 para Random ou de 0 a 255 para especificar o valor</param>
+        /// <returns></returns>
+        public static Color RandomColor(int Red = -1, int Green = -1, int Blue = -1, int Alpha = 255)
+        {
+            Red = Red.SetMinValue(-1);
+            Green = Green.SetMinValue(-1);
+            Blue = Blue.SetMinValue(-1);
+
+            Red = (Red < 0 ? RandomNumber(0, 255) : Red).LimitRange<int>(0, 255);
+            Green = (Green < 0 ? RandomNumber(0, 255) : Green).LimitRange<int>(0, 255);
+            Blue = (Blue < 0 ? RandomNumber(0, 255) : Blue).LimitRange<int>(0, 255);
+            Alpha = Alpha.LimitRange<int>(0, 255);
+            return Color.FromArgb(Alpha, Red, Green, Blue);
+        }
+
+        /// <summary>
+        /// Gera uma lista com <paramref name="Quantity"/> cores diferentes
+        /// </summary>
+        /// <param name="Quantity">Quantidade máxima de cores</param>
+        /// <param name="Red"></param>
+        /// <param name="Green"></param>
+        /// <param name="Blue"></param>
+        /// <remarks></remarks>
+        /// <returns></returns>
+        public static IEnumerable<Color> RandomColorList(int Quantity, int Red = -1, int Green = -1, int Blue = -1)
+        {
+            Red = Red.SetMinValue(-1);
+            Green = Green.SetMinValue(-1);
+            Blue = Blue.SetMinValue(-1);
+
+            var l = new List<Color>();
+            if (Red == Green && Green == Blue && Blue != -1)
+            {
+                l.Add(Color.FromArgb(Red, Green, Blue));
+                return l;
+            }
+
+            int errorcount = 0;
+            while (l.Count < Quantity)
+            {
+                var r = RandomColor(Red, Green, Blue);
+                if (l.Any(x => (x.ToHexadecimal() ?? EmptyString) == (r.ToHexadecimal() ?? EmptyString)))
+                {
+                    errorcount++;
+                    if (errorcount == Quantity)
+                    {
+                        return l;
+                    }
+                }
+                else
+                {
+                    errorcount = 0;
+                    l.Add(r);
+                }
+            }
+
+            return l;
+        }
+
+        /// <summary>
+        /// Gera uma data aleatória a partir de componentes nulos de data
+        /// </summary>
+        /// <returns>Um numero Inteiro</returns>
+        public static DateTime RandomDateTime(int? Year = null, int? Month = null, int? Day = null, int? Hour = null, int? Minute = null, int? Second = null)
+        {
+            Year = (Year ?? RandomNumber(DateTime.MinValue.Year, DateTime.MaxValue.Year)).ForcePositive().LimitRange(DateTime.MinValue.Year, DateTime.MaxValue.Year);
+            Month = (Month ?? RandomNumber(DateTime.MinValue.Month, DateTime.MaxValue.Month)).ForcePositive().LimitRange(1, 12);
+            Day = (Day ?? RandomNumber(DateTime.MinValue.Day, DateTime.MaxValue.Day)).ForcePositive().LimitRange(1, 31);
+            Hour = (Hour ?? RandomNumber(DateTime.MinValue.Hour, DateTime.MaxValue.Hour)).ForcePositive().LimitRange(1, 31);
+            Minute = (Minute ?? RandomNumber(DateTime.MinValue.Minute, DateTime.MaxValue.Minute)).ForcePositive().LimitRange(0, 59);
+            Second = (Second ?? RandomNumber(DateTime.MinValue.Second, DateTime.MaxValue.Second)).ForcePositive().LimitRange(0, 59);
+
+            DateTime randomCreated = DateTime.Now;
+            while (TryExecute(() => randomCreated = new DateTime(Year.Value, Month.Value, Day.Value, Hour.Value, Minute.Value, Second.Value)) != null)
+            {
+                Day--;
+            }
+
+            return randomCreated;
+        }
+
+        /// <summary>
+        /// Gera uma data aleatória entre 2 datas
+        /// </summary>
+        /// <param name="Min">Data Minima</param>
+        /// <param name="Max">Data Maxima</param>
+        /// <returns>Um numero Inteiro</returns>
+        public static DateTime RandomDateTime(DateTime? MinDate, DateTime? MaxDate = null)
+        {
+            var Min = (MinDate ?? RandomDateTime()).Ticks;
+            var Max = (MaxDate ?? RandomDateTime()).Ticks;
+            FixOrder(ref Min, ref Max);
+            return new DateTime(RandomNumber(Min, Max));
+        }
+
+        /// <summary>
+        /// Gera um EAN aleatório com digito verificador válido
+        /// </summary>
+        /// <param name="Len"></param>
+        /// <returns></returns>
+        public static string RandomEAN(int Len) => RandomFixLenghtNumber(Len.SetMinValue(2) - 1).ToString().AppendBarcodeCheckSum();
+
+        /// <summary>
+        /// Gera um numero aleatório de comprimento fixo
+        /// </summary>
+        /// <param name="Len"></param>
+        /// <returns></returns>
+        public static string RandomFixLenghtNumber(int Len = 8)
+        {
+            var n = EmptyString;
+            for (int i = 0; i < Len; i++)
+            {
+                n += PredefinedArrays.NumberChars.RandomItem();
+            }
+            return n;
+        }
+
+        /// <summary>
+        /// Gera um texto aleatorio
+        /// </summary>
+        /// <param name="ParagraphCount">Quantidade de paragrafos</param>
+        /// <param name="SentenceCount">QUantidade de sentenças por paragrafo</param>
+        /// <param name="MinWordCount"></param>
+        /// <param name="MaxWordCount"></param>
+        /// <returns></returns>
+        public static TextStructure RandomIpsum(int ParagraphCount = 5, int SentenceCount = 3, int MinWordCount = 10, int MaxWordCount = 50, int IdentSize = 0, int BreakLinesBetweenParagraph = 0, int Words = 300) => LoremIpsum(ParagraphCount, SentenceCount, MinWordCount, MaxWordCount, IdentSize, BreakLinesBetweenParagraph, Enumerable.Range(0, Words).Select(x => RandomWord(2, 14)).ToArray());
+
+        /// <summary>
+        /// Sorteia um item da Matriz
+        /// </summary>
+        /// <typeparam name="Type">Tipo da Matriz</typeparam>
+        /// <param name="Array">Matriz</param>
+        /// <returns>Um valor do tipo especificado</returns>
+        public static Type RandomItem<Type>(params Type[] Array) => Array.GetRandomItem();
+
+        public static T RandomItem<T>(this IEnumerable<T> l) => l.RandomItemOr();
+
+        public static T RandomItem<T>(this IEnumerable<T> l, Func<T, bool> predicade) => l.RandomItemOr(predicade);
+
+        public static T RandomItemOr<T>(this IEnumerable<T> l, params T[] Alternate) => l.TakeRandom().FirstOr(Alternate);
+
+        public static T RandomItemOr<T>(this IEnumerable<T> l, Func<T, bool> predicade, params T[] Alternate) => l.TakeRandom(predicade).FirstOr(Alternate);
+
+        /// <summary>
+        /// Gera um numero Aleatório entre 2 números
+        /// </summary>
+        /// <param name="Min">Numero minimo, Padrão 0</param>
+        /// <param name="Max">Numero Maximo, Padrão <see cref="int.MaxValue"/></param>
+        /// <returns>Um numero Inteiro</returns>
+        public static int RandomNumber(int Min = 0, int Max = int.MaxValue)
+        {
+            FixOrder(ref Min, ref Max);
+            return Min == Max ? Min : init_rnd.Next(Min, Max == int.MaxValue ? int.MaxValue : Max + 1);
+        }
+
+        /// <summary>
+        /// Gera um numero Aleatório entre 2 números
+        /// </summary>
+        /// <param name="Min">Numero minimo, Padrão 0</param>
+        /// <param name="Max">Numero Maximo, Padrão <see cref="long.MaxValue"/></param>
+        /// <returns>Um numero Inteiro</returns>
+        public static long RandomNumber(long Min, long Max = long.MaxValue)
+        {
+            FixOrder(ref Min, ref Max);
+            if (Min == Max)
+            {
+                return Min;
+            }
+            else
+            {
+                Max = Max == long.MaxValue ? long.MaxValue : Max + 1;
+                byte[] buf = new byte[8];
+                init_rnd.NextBytes(buf);
+                long longRand = BitConverter.ToInt64(buf, 0);
+                return Math.Abs(longRand % (Max - Min)) + Min;
             }
         }
-        else yield return inputString;
-    }
 
-    public static IEnumerable<string> SplitPercentChunk(this string input, params string[] percents)
-    {
-        if (input != null && input.Length > 0)
+        /// <summary>
+        /// Gera uma Lista com numeros Aleatórios entre 2 números
+        /// </summary>
+        /// <param name="Min">Numero minimo, Padrão 0</param>
+        /// <param name="Max">Numero Maximo, Padrão <see cref="int.MaxValue"/></param>
+        /// <returns>Um numero Inteiro</returns>
+        public static IEnumerable<int> RandomNumberList(int Count, int Min = 0, int Max = int.MaxValue, bool UniqueNumbers = true)
         {
-            var p = percents.Select(x => x.CalculateValueFromPercent(input.Length.ToDecimal()).RoundInt()).ToArray();
-
-            foreach (var s in input.SplitChunk(p)) yield return s;
+            if (Count > 0)
+            {
+                if (Max == Min) return new int[] { Min };
+                if (UniqueNumbers)
+                {
+                    if (Max < int.MaxValue) Max++;
+                    FixOrder(ref Min, ref Max);
+                    var l = Enumerable.Range(Min, Max - Min).OrderByRandom().ToList();
+                    while (l.Count > Count) l.RemoveAt(0);
+                    return l;
+                }
+                else
+                {
+                    return Enumerable.Range(1, Count).Select(e => RandomNumber(Min, Max));
+                }
+            }
+            return Array.Empty<int>();
         }
-    }
 
-    public static string SQLQueryForClass<T>(object InjectionObject = null) => typeof(T).GetAttributeValue<FromSQLAttribute, string>(x => x.SQL).IfBlank($"SELECT * FROM {typeof(T).Name}").Inject(InjectionObject);
+        public static string RandomUserName() => Util.RandomWord(5) + Util.RandomNumber(1111);
 
-    /// <summary>
-    /// Cria uma <see cref="List{T}"/> e adciona um objeto a ela. Util para tipos anonimos
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <returns></returns>
-    public static List<T> StartList<T>(this T ObjectForDefinition)
-    {
-        var d = DefineEmptyList(ObjectForDefinition);
-        if (ObjectForDefinition != null)
+        /// <summary>
+        /// Gera uma palavra aleatória com o numero de caracteres entre <paramref name="MinLength"/>
+        /// e <paramref name="MaxLenght"/>
+        /// </summary>
+        /// <returns>Uma string contendo uma palavra aleatória</returns>
+        public static string RandomWord(int MinLength, int MaxLenght) => RandomWord(RandomNumber(MinLength.SetMinValue(1), MaxLenght.SetMinValue(1)));
+
+        /// <summary>
+        /// Gera uma palavra aleatória com o numero de caracteres
+        /// </summary>
+        /// <param name="Length">Tamanho da palavra</param>
+        /// <returns>Uma string contendo uma palavra aleatória</returns>
+        public static string RandomWord(int Length = 0)
         {
-            d.Add(ObjectForDefinition);
+            Length = Length < 1 ? RandomNumber(2, 15) : Length;
+            string word = EmptyString;
+            if (Length == 1)
+            {
+                return RandomItem(PredefinedArrays.Vowels.ToArray());
+            }
+
+            // Util the word in consonant / vowel pairs
+            while (word.Length < Length)
+            {
+                // Add the consonant
+                string consonant = PredefinedArrays.LowerConsonants.RandomItem();
+                if (consonant == "q" && word.Length + 3 <= Length)
+                {
+                    // check +3 because we'd add 3 characters in this case, the "qu" and the vowel.
+                    // Change 3 to 2 to allow ww that end in "qu"
+                    word += "qu";
+                }
+                else
+                {
+                    while (consonant == "q")
+                    {
+                        // ReplaceFrom an orphaned "q"
+                        consonant = PredefinedArrays.LowerConsonants.RandomItem();
+                    }
+
+                    if (word.Length + 1 <= Length)
+                    {
+                        // Only add a consonant if there's enough room remaining
+                        word += consonant;
+                    }
+                }
+
+                if (word.Length + 1 <= Length)
+                {
+                    // Only add a vowel if there's enough room remaining
+                    word += PredefinedArrays.LowerVowels.RandomItem();
+                }
+            }
+
+            return word;
         }
 
-        return d;
-    }
-
-    /// <summary>
-    /// Verifica se uma string começa com alguma outra string de um array
-    /// </summary>
-    /// <param name="Text"></param>
-    /// <param name="Words"></param>
-    /// <returns></returns>
-    public static bool StartsWithAny(this string Text, StringComparison comparison, params string[] Words) => Words.Any(p => Text.IfBlank(EmptyString).StartsWith(p, comparison));
-
-    public static bool StartsWithAny(this string Text, params string[] Words) => StartsWithAny(Text, StringComparison.InvariantCultureIgnoreCase, Words);
-
-    /// <summary>
-    /// Soma todos os números de um array
-    /// </summary>
-    /// <param name="Values">Array de números</param>
-    /// <returns>Decimal contendo a soma de todos os valores</returns>
-    public static double Sum(params double[] Values) => Values.Sum();
-
-    /// <summary>
-    /// Soma todos os números de um array
-    /// </summary>
-    /// <param name="Values">Array de números</param>
-    /// <returns>Decimal contendo a soma de todos os valores</returns>
-    public static long Sum(params long[] Values) => Values.Sum();
-
-    /// <summary>
-    /// Soma todos os números de um array
-    /// </summary>
-    /// <param name="Values">Array de números</param>
-    /// <returns>Decimal contendo a soma de todos os valores</returns>
-    public static int Sum(params int[] Values) => Values.Sum();
-
-    /// <summary>
-    /// Soma todos os números de um array
-    /// </summary>
-    /// <param name="Values">Array de números</param>
-    /// <returns>Decimal contendo a soma de todos os valores</returns>
-    public static decimal Sum(params decimal[] Values) => Values.Sum();
-
-    /// <summary>
-    /// Troca o valor de <paramref name="FirstValue"/> pelo valor de <paramref
-    /// name="SecondValue"/> e o valor de <paramref name="SecondValue"/> pelo valor de <paramref name="FirstValue"/>
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="FirstValue"></param>
-    /// <param name="SecondValue"></param>
-    public static (T, T) Swap<T>(ref T FirstValue, ref T SecondValue)
-    {
-        (SecondValue, FirstValue) = (FirstValue, SecondValue);
-        return (FirstValue, SecondValue);
-    }
-
-    public static IEnumerable<T> TakeLast<T>(this IEnumerable<T> l, int Count = 1) => l.Reverse().Take(Count).Reverse();
-
-    public static IEnumerable<T> TakeRandom<T>(this IEnumerable<T> l, int Count = 1) => l.OrderByRandom().Take(Count);
-
-    public static IEnumerable<T> TakeRandom<T>(this IEnumerable<T> l, Func<T, bool> predicade, int Count = 1) => l.Where(predicade).OrderByRandom().Take(Count);
-
-    /// <summary>
-    /// Traz os top N valores de um dicionario e agrupa os outros
-    /// </summary>
-    /// <typeparam name="TValue"></typeparam>
-    /// <param name="Dic"></param>
-    /// <param name="Top"></param>
-    /// <param name="GroupOthersLabel"></param>
-    /// <returns></returns>
-    public static Dictionary<TKey, TValue> TakeTop<TKey, TValue>(this Dictionary<TKey, TValue> Dic, int Top, TKey GroupOthersLabel)
-    {
-        if (Dic == null)
+        /// <summary>
+        /// Rankeia um <see cref="IEnumerable{TObject}"/> a partir de uma propriedade definida por
+        /// <paramref name="ValueSelector"/> guardando sua posição no <paramref name="RankSelector"/>
+        /// </summary>
+        /// <typeparam name="TObject"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        /// <typeparam name="TRank"></typeparam>
+        /// <param name="values"></param>
+        /// <param name="ValueSelector"></param>
+        /// <param name="RankSelector"></param>
+        /// <returns></returns>
+        public static IOrderedEnumerable<TObject> Rank<TObject, TValue, TRank>(this IEnumerable<TObject> values, Expression<Func<TObject, TValue>> ValueSelector, Expression<Func<TObject, TRank>> RankSelector) where TObject : class where TValue : IComparable where TRank : IComparable
         {
+            if (values != null)
+            {
+                if (ValueSelector != null)
+                {
+                    values = values.OrderByDescending(ValueSelector.Compile());
+
+                    if (RankSelector != null)
+                    {
+                        var filtered = values.Select(ValueSelector.Compile()).Distinct().ToList();
+                        foreach (TObject item in values)
+                        {
+                            item.SetPropertyValue(RankSelector, (filtered.IndexOf((ValueSelector.Compile().Invoke(item))) + 1).ChangeType<TRank>());
+                        }
+                        return values.OrderBy(RankSelector.Compile());
+                    }
+                    return values as IOrderedEnumerable<TObject>;
+                }
+                return values.OrderBy(x => 0);
+            }
             return null;
         }
 
-        if (Top < 1)
+        /// <summary>
+        /// Retorna o conteudo de um arquivo de texto
+        /// </summary>
+        /// <param name="File">Arquivo</param>
+        /// <returns></returns>
+        public static string ReadAllText(this FileInfo File, Encoding encoding = null) => File != null && File.Exists ? System.IO.File.ReadAllText(File.FullName, encoding ?? Encoding.UTF8) : EmptyString;
+
+        public static IEnumerable<string> ReadManyText(this DirectoryInfo directory, SearchOption Option, params string[] Patterns) => directory.SearchFiles(Option, Patterns).Select(x => x.ReadAllText());
+
+        public static IEnumerable<string> ReadManyText(this DirectoryInfo directory, params string[] Patterns) => directory.ReadManyText(SearchOption.TopDirectoryOnly, Patterns);
+
+        public static IEnumerable<string> ReduceToDifference(this IEnumerable<string> Texts, bool FromStart = false, string BreakAt = null) => ReduceToDifference(Texts, out _, FromStart, BreakAt);
+
+        public static IEnumerable<string> ReduceToDifference(this IEnumerable<string> Texts, out string RemovedPart, bool FromStart = false, string BreakAt = null)
         {
-            return Dic.ToDictionary();
-        }
-
-        var novodic = Dic.Take(Top).ToDictionary();
-        if (GroupOthersLabel != null)
-        {
-            novodic[GroupOthersLabel] = Dic.Values.Skip(Top).Select(x => x.ChangeType<decimal>()).Sum().ChangeType<TValue>();
-        }
-
-        return novodic;
-    }
-
-    /// <summary>
-    /// Traz os top N valores de um dicionario e agrupa os outros
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="Dic"></param>
-    /// <param name="Top"></param>
-    /// <param name="GroupOthersLabel"></param>
-    /// <returns></returns>
-    public static Dictionary<TKey, IEnumerable<T>> TakeTop<TKey, T>(this Dictionary<TKey, IEnumerable<T>> Dic, int Top, Expression<Func<T, dynamic>> ValueSelector) where T : class
-    {
-        Dictionary<TKey, IEnumerable<T>> novodic = Dic.ToDictionary();
-
-        if (ValueSelector != null)
-        {
-            novodic = Dic.ToDictionary(x => x.Key, x => x.Value.OrderByDescending(ValueSelector.Compile()).AsEnumerable());
-        }
-
-        if (Top > 0)
-        {
-            novodic = Dic.ToDictionary(x => x.Key, x => x.Value.TakeTop(Top, ValueSelector));
-        }
-
-        return novodic;
-    }
-
-    public static IEnumerable<T> TakeTop<T>(this IEnumerable<T> List, int Top, params Expression<Func<T, dynamic>>[] ValueSelector) where T : class => TakeTop<T, object>(List, Top, null, null, ValueSelector?.ToArray());
-
-    public static IEnumerable<T> TakeTop<T, TLabel>(this IEnumerable<T> List, int Top, Expression<Func<T, TLabel>> LabelSelector, TLabel GroupOthersLabel, params Expression<Func<T, dynamic>>[] ValueSelector) where T : class
-    {
-        ValueSelector = ValueSelector ?? Array.Empty<Expression<Func<T, dynamic>>>();
-
-        if (ValueSelector.WhereNotNull().IsNullOrEmpty())
-        {
-            throw new ArgumentException("You need at least one value selector", nameof(ValueSelector));
-        }
-
-        var newlist = List.OrderByManyDescending(ValueSelector).Take(Top).ToList();
-
-        if (LabelSelector != null && GroupOthersLabel != null)
-        {
-            var others = Activator.CreateInstance<T>();
-            LabelSelector.GetPropertyInfo().SetValue(others, GroupOthersLabel);
-            foreach (var v in ValueSelector)
+            RemovedPart = EmptyString;
+            Texts = Texts ?? Array.Empty<string>();
+            var arr = Texts.WhereNotBlank().ToArray();
+            while (arr.Distinct().Count() > 1 && !arr.Any(x => BreakAt.IsNotBlank() && (FromStart ? x.StartsWith(BreakAt) : x.EndsWith(BreakAt))) && arr.All(x => FromStart ? x.StartsWith(arr.FirstOrDefault().GetFirstChars()) : x.EndsWith(arr.FirstOrDefault().GetLastChars())))
             {
-                var values = List.Skip(Top).Select(x => (v.Compile().Invoke(x) as object).ChangeType<decimal>()).Sum();
-                v.GetPropertyInfo().SetValue(others, values);
+                arr = arr.Select(x => FromStart ? x.RemoveFirstChars() : x.RemoveLastChars()).ToArray();
             }
-            newlist.Add(others);
-        }
-        return newlist.AsEnumerable();
-    }
 
-    /// <summary>
-    /// Rotaciona uma imagem para sua posição original caso ela já tenha sido rotacionada (EXIF)
-    /// </summary>
-    /// <param name="Img">Imagem</param>
-    /// <returns>TRUE caso a imagem ja tenha sido rotacionada</returns>
-    public static bool TestAndRotate(this Image Img)
-    {
-        var rft = Img.GetRotateFlip();
-        if (rft != RotateFlipType.RotateNoneFlipNone)
-        {
-            Img.RotateFlip(rft);
-            return true;
-        }
-
-        return false;
-    }
-
-    /// <summary>
-    /// Ordena um <see cref="IEnumerable(Of T)"/> a partir da aproximação de uma ou mais <see
-    /// cref="String"/> com o valor de um determinado campo
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="items"></param>
-    /// <param name="Searches"></param>
-    /// <param name="SortProperty"></param>
-    /// <param name="Ascending"></param>
-    /// <returns></returns>
-    public static IOrderedQueryable<T> ThenByLike<T>(this IQueryable<T> items, string[] Searches, string SortProperty, bool Ascending = true)
-    {
-        var type = typeof(T);
-        Searches = Searches ?? Array.Empty<string>();
-        if (Searches.Any())
-        {
-            foreach (var t in Searches)
+            if (BreakAt.IsNotBlank())
             {
-                var property = type.GetProperty(SortProperty);
-                var parameter = Expression.Parameter(type, "p");
-                var propertyAccess = Expression.MakeMemberAccess(parameter, property);
-                var orderByExp = Expression.Lambda(propertyAccess, parameter);
-                var testes = new[] { Expression.Call(propertyAccess, equalMethod, Expression.Constant(t)), Expression.Call(propertyAccess, startsWithMethod, Expression.Constant(t)), Expression.Call(propertyAccess, containsMethod, Expression.Constant(t)), Expression.Call(propertyAccess, endsWithMethod, Expression.Constant(t)) };
-                foreach (var exp in testes)
+                arr = arr.Select(x => FromStart ? x.TrimStartAny(false, BreakAt) : x.TrimEndAny(false, BreakAt)).ToArray();
+                //Difference = FromStart ? Difference.Prepend(BreakAt) : Difference.Append(BreakAt);
+            }
+
+            RemovedPart = FromStart ? RemovedPart.Prepend(Texts.FirstOrDefault().TrimEndAny(arr.FirstOrDefault())) : RemovedPart.Append(Texts.FirstOrDefault().TrimStartAny(arr.FirstOrDefault()));
+
+            return arr;
+        }
+
+        /// <summary>
+        /// Agrupa e conta os itens de uma lista a partir de uma propriedade
+        /// </summary>
+        /// <typeparam name="Type"></typeparam>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="obj"></param>
+        /// <param name="GroupSelector"></param>
+        /// <returns></returns>
+        public static Dictionary<T, long> ReduceToTop<T>(this Dictionary<T, long> obj, int First, T OtherLabel)
+        {
+            var grouped = obj.OrderByDescending(x => x.Value);
+            return grouped.Take(First).Union(new[] { new KeyValuePair<T, long>(OtherLabel, grouped.Skip(First).Sum(s => s.Value)) }).ToDictionary();
+        }
+
+        public static Dictionary<TGroup, Dictionary<TCount, long>> ReduceToTop<TGroup, TCount>(this Dictionary<TGroup, Dictionary<TCount, long>> Grouped, int First, TCount OtherLabel)
+        {
+            if (Grouped != null)
+            {
+                foreach (var item in Grouped.ToArray())
                 {
-                    var nv = Expression.Lambda<Func<T, bool>>(exp, parameter);
-                    if (Ascending)
+                    var gp = item.Value.OrderByDescending(x => x.Value).ToDictionary();
+                    Grouped[item.Key] = gp.Take(First).Union(new[] { new KeyValuePair<TCount, long>(OtherLabel, gp.Skip(First).Sum(s => s.Value)) }).ToDictionary();
+                }
+
+                Grouped.Values.MergeKeys();
+            }
+            return Grouped;
+        }
+
+        /// <summary>
+        /// Escapa caracteres exclusivos de uma regex
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <returns></returns>
+        public static string RegexEscape(this string Text)
+        {
+            string newstring = EmptyString;
+            foreach (var c in Text.ToArray())
+            {
+                if (c.IsIn(PredefinedArrays.RegexChars))
+                {
+                    newstring += @"\" + c;
+                }
+                else
+                {
+                    newstring += Convert.ToString(c);
+                }
+            }
+
+            return newstring;
+        }
+
+        /// <summary>
+        /// Remove os acentos de uma string
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <returns>String sem os acentos</returns>
+        public static string RemoveAccents(this string Text)
+        {
+            if (Text == null)
+            {
+                return Text;
+            }
+
+            string s = Text.Normalize(NormalizationForm.FormD);
+            var sb = new StringBuilder();
+            int k = 0;
+            while (k < s.Length)
+            {
+                var uc = CharUnicodeInfo.GetUnicodeCategory(s[k]);
+                if (uc != UnicodeCategory.NonSpacingMark)
+                {
+                    sb.Append(s[k]);
+                }
+
+                k++;
+            }
+
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Remove várias strings de uma string
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <param name="Values">Strings a serem removidas</param>
+        /// <returns>Uma string com os valores removidos</returns>
+        public static string RemoveAny(this string Text, params string[] Values) => Text.ReplaceMany(EmptyString, Values ?? Array.Empty<string>());
+
+        public static string RemoveAny(this string Text, params char[] Values) => Text.RemoveAny(Values.Select(x => x.ToString()).ToArray());
+
+        /// <summary>
+        /// Remove os acentos de uma string
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <returns>String sem os acentos</returns>
+        public static string RemoveDiacritics(this string Text) => Text.RemoveAccents();
+
+        /// <summary>
+        /// Remove os X primeiros caracteres
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <param name="Quantity">Quantidade de Caracteres</param>
+        /// <returns></returns>
+        public static string RemoveFirstChars(this string Text, int Quantity = 1) => Text.IsNotBlank() && Text.Length > Quantity && Quantity > 0 ? Text.Remove(0, Quantity) : EmptyString;
+
+        /// <summary>
+        /// Remove um texto do inicio de uma string se ele for um outro texto especificado
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <param name="StartStringTest">Texto inicial que será comparado</param>
+        public static string RemoveFirstEqual(this string Text, string StartStringTest, StringComparison comparison = default)
+        {
+            Text = Text ?? "";
+            StartStringTest = StartStringTest ?? "";
+            if (Text.StartsWith(StartStringTest, comparison))
+            {
+                Text = Text.RemoveFirstChars(StartStringTest.Length);
+            }
+
+            return Text;
+        }
+
+        public static string RemoveHTML(this string Text)
+        {
+            if (Text.IsNotBlank())
+            {
+                return Regex.Replace(Text.ReplaceMany(Environment.NewLine, "<br/>", "<br>", "<br />"), "<.*?>", EmptyString).HtmlDecode();
+            }
+
+            return Text;
+        }
+
+        /// <summary>
+        /// Remove de um dicionario as respectivas Keys se as mesmas existirem
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="Tvalue"></typeparam>
+        /// <param name="dic"></param>
+        /// <param name="Keys"></param>
+        public static IDictionary<TKey, TValue> RemoveIfExist<TKey, TValue>(this IDictionary<TKey, TValue> dic, params TKey[] Keys)
+        {
+            if (dic != null)
+                foreach (var k in (Keys ?? Array.Empty<TKey>()).Where(x => dic.ContainsKey(x)))
+                {
+                    dic.Remove(k);
+                }
+
+            return dic;
+        }
+
+        /// <summary>
+        /// Remove de um dicionario os valores encontrados pelo predicate
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="Tvalue"></typeparam>
+        /// <param name="dic"></param>
+        /// <param name="predicate"></param>
+        public static IDictionary<TKey, TValue> RemoveIfExist<TKey, TValue>(this IDictionary<TKey, TValue> dic, Func<KeyValuePair<TKey, TValue>, bool> predicate) => dic.RemoveIfExist(dic.Where(predicate).Select(x => x.Key).ToArray());
+
+        /// <summary>
+        /// Remove <paramref name="Count"/> elementos de uma <paramref name="List"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="List"></param>
+        /// <param name="Count"></param>
+        /// <returns></returns>
+        public static List<T> RemoveLast<T>(this List<T> List, int Count = 1)
+        {
+            if (List != null)
+                for (int index = 1, loopTo = Count; index <= loopTo; index++)
+                {
+                    if (List.Any())
                     {
-                        if (!ReferenceEquals(items.GetType(), typeof(IOrderedQueryable<T>)))
+                        List.RemoveAt(List.Count - 1);
+                    }
+                }
+
+            return List;
+        }
+
+        /// <summary>
+        /// Remove os X ultimos caracteres
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <param name="Quantity">Quantidade de Caracteres</param>
+        /// <returns></returns>
+        public static string RemoveLastChars(this string Text, int Quantity = 1) => Text.IsNotBlank() && Text.Length > Quantity && Quantity > 0 ? Text.Substring(0, Text.Length - Quantity) : EmptyString;
+
+        /// <summary>
+        /// Remove um texto do final de uma string se ele for um outro texto
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <param name="EndStringTest">Texto final que será comparado</param>
+        public static string RemoveLastEqual(this string Text, string EndStringTest, StringComparison comparison = default)
+        {
+            Text = Text ?? "";
+            EndStringTest = EndStringTest ?? "";
+            if (Text.EndsWith(EndStringTest, comparison))
+            {
+                Text = Text.RemoveLastChars(EndStringTest.Length);
+            }
+
+            return Text;
+        }
+
+        public static string RemoveMask(this string MaskedText, params char[] AllowCharacters)
+        {
+            if (MaskedText.IsNotBlank())
+            {
+                string ns = "";
+                foreach (char c in MaskedText)
+                {
+                    if (c.ToString().IsNumber() || c.IsIn(AllowCharacters))
+                    {
+                        ns += c;
+                    }
+                }
+                return ns;
+            }
+            return MaskedText;
+        }
+
+        public static int RemoveMaskInt(this string MaskedText, params char[] AllowCharacters) => RemoveMask(MaskedText, AllowCharacters).ToInt();
+
+        public static long RemoveMaskLong(this string MaskedText, params char[] AllowCharacters) => RemoveMask(MaskedText, AllowCharacters).ToLong();
+
+        /// <summary>
+        /// Remove caracteres não prantáveis de uma string
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <returns>String corrigida</returns>
+        public static string RemoveNonPrintable(this string Text)
+        {
+            foreach (char c in Text.ToCharArray())
+            {
+                if (char.IsControl(c))
+                {
+                    Text = Text.ReplaceNone(Convert.ToString(c));
+                }
+            }
+
+            return Text.Trim();
+        }
+
+        /// <summary>
+        /// Remove um parametro da Query String de uma URL
+        /// </summary>
+        /// <param name="Url">Uri</param>
+        /// <param name="Key">Nome do parâmetro</param>
+        /// <param name="Values">Valor do Parâmetro</param>
+        /// <returns></returns>
+        public static Uri RemoveParameter(this Uri Url, params string[] Keys)
+        {
+            var UriBuilder = new UriBuilder(Url);
+            var query = UriBuilder.Query.ParseQueryString();
+            Keys = Keys != null && Keys.Any() ? Keys : query.AllKeys;
+            foreach (var k in Keys)
+            {
+                try
+                {
+                    query.Remove(k);
+                }
+                catch
+                {
+                }
+            }
+
+            UriBuilder.Query = query.ToQueryString();
+            return UriBuilder.Uri;
+        }
+
+        public static string RemoveUrlParameters(this string URL)
+        {
+            if ((URL.IsURL()))
+            {
+                URL = Regex.Replace(URL, @"{([^:]+)\s*:\s*(.+?)(?<!\\)}", EmptyString);
+                URL = URL.RemoveLastEqual("/");
+            }
+            return URL;
+        }
+
+        public static string RemoveUrlParameters(Uri URL) => RemoveUrlParameters(URL?.ToString());
+
+        public static List<T> RemoveWhere<T>(this List<T> list, Expression<Func<T, bool>> predicate)
+        {
+            if (list != null)
+            {
+                if (predicate != null)
+                {
+                    while (true)
+                    {
+                        var obj = list.FirstOrDefault(predicate.Compile());
+                        if (obj != null)
                         {
-                            items = items.OrderByDescending(nv);
+                            list.Remove(obj);
                         }
                         else
                         {
-                            items = ((IOrderedQueryable<T>)items).ThenByDescending(nv);
+                            break;
                         }
-                    }
-                    else if (!ReferenceEquals(items.GetType(), typeof(IOrderedQueryable<T>)))
-                    {
-                        items = items.OrderBy(nv);
-                    }
-                    else
-                    {
-                        items = ((IOrderedQueryable<T>)items).ThenBy(nv);
                     }
                 }
             }
-        }
-        else
-        {
-            items = items.OrderBy(x => 0);
+
+            return list;
         }
 
-        return (IOrderedQueryable<T>)items;
-    }
-
-    /// <summary>
-    /// Ordena um <see cref="IEnumerable(Of T)"/> a partir da aproximação de uma ou mais <see
-    /// cref="String"/> com o valor de um determinado campo
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="items"></param>
-    /// <param name="Searches"></param>
-    /// <param name="SortProperty"></param>
-    /// <param name="Ascending"></param>
-    /// <returns></returns>
-    public static IOrderedQueryable<T> ThenByLike<T>(this IQueryable<T> items, IEnumerable<string> Searches, Expression<Func<T, string>> SortProperty, bool Ascending = true)
-    {
-        var type = typeof(T);
-        Searches = Searches ?? Array.Empty<string>();
-        if (items != null)
+        /// <summary>
+        /// Renomeia um arquivo e retorna um <see cref="FileInfo"/> do arquivo renomeado
+        /// </summary>
+        /// <param name="Directory"></param>
+        /// <param name="Name"></param>
+        /// <param name="KeepOriginalExtension"></param>
+        /// <returns></returns>
+        public static DirectoryInfo Rename(this DirectoryInfo Directory, string Name)
         {
-            if (Searches.Any() && SortProperty != null)
+            if (Directory != null && Name.IsNotBlank() && Directory.Exists)
+            {
+                var pt = Path.Combine(Directory.Parent.FullName, Name);
+                Directory.MoveTo(pt);
+                Directory = new DirectoryInfo(pt);
+            }
+            return Directory;
+        }
+
+        /// <summary>
+        /// Renomeia um arquivo e retorna um <see cref="FileInfo"/> do arquivo renomeado
+        /// </summary>
+        /// <param name="File"></param>
+        /// <param name="Name"></param>
+        /// <param name="KeepOriginalExtension"></param>
+        /// <returns></returns>
+        public static FileInfo Rename(this FileInfo File, string Name, bool KeepOriginalExtension = false)
+        {
+            if (File != null && Name.IsNotBlank() && File.Exists)
+            {
+                if (KeepOriginalExtension)
+                {
+                    Name = $"{Path.GetFileNameWithoutExtension(Name)}.{File.Extension.Trim('.')}";
+                }
+
+                var pt = Path.Combine(File.DirectoryName, Name);
+                File.MoveTo(pt);
+                File = new FileInfo(pt);
+            }
+            return File;
+        }
+
+        /// <summary>
+        /// Repete uma string um numero determinado de vezes
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <param name="Times"></param>
+        /// <returns></returns>
+        public static string Repeat(this string Text, int Times = 2)
+        {
+            var ns = EmptyString;
+            while (Times > 0)
+            {
+                ns += Text;
+                Times--;
+            }
+            return ns;
+        }
+
+        /// <summary>
+        /// Faz uma busca em todos os elementos do array e aplica um ReplaceFrom comum
+        /// </summary>
+        /// <param name="Strings">Array de strings</param>
+        /// <param name="OldValue">Valor antigo que será substituido</param>
+        /// <param name="NewValue">Valor utilizado para substituir o valor antigo</param>
+        /// <param name="ReplaceIfEquals">
+        /// Se TRUE, realiza o replace se o valor no array for idêntico ao Valor antigo, se FALSE
+        /// realiza um ReplaceFrom em quaisquer valores antigos encontrados dentro do valor do array
+        /// </param>
+        /// <returns></returns>
+        public static string[] Replace(this string[] Strings, string OldValue, string NewValue, bool ReplaceIfEquals = true)
+        {
+            var NewArray = Strings;
+            for (int index = 0, loopTo = Strings.Length - 1; index <= loopTo; index++)
+            {
+                if (ReplaceIfEquals)
+                {
+                    if ((NewArray[index] ?? EmptyString) == (OldValue ?? EmptyString))
+                    {
+                        NewArray[index] = NewValue;
+                    }
+                }
+                else
+                {
+                    NewArray[index] = NewArray[index].Replace(OldValue, NewValue);
+                }
+            }
+
+            return NewArray;
+        }
+
+        /// <summary>
+        /// Faz uma busca em todos os elementos de uma lista e aplica um ReplaceFrom comum
+        /// </summary>
+        /// <param name="Strings">Array de strings</param>
+        /// <param name="OldValue">Valor antigo que será substituido</param>
+        /// <param name="NewValue">Valor utilizado para substituir o valor antigo</param>
+        /// <param name="ReplaceIfEquals">
+        /// Se TRUE, realiza o replace se o valor no array for idêntico ao Valor antigo, se FALSE
+        /// realiza um ReplaceFrom em quaisquer valores antigos encontrados dentro do valor do array
+        /// </param>
+        /// <returns></returns>
+        public static IEnumerable<string> Replace(this IEnumerable<string> Strings, string OldValue, string NewValue, bool ReplaceIfEquals = true) => Strings.ToArray().Replace(OldValue, NewValue, ReplaceIfEquals).ToList();
+
+        /// <summary>
+        /// Retorna um novo <see cref="FileInfo"/> substituindo a extensão original por <paramref name="Extension"/>
+        /// </summary>
+        /// <param name="Info"></param>
+        /// <param name="Extension"></param>
+        /// <returns></returns>
+        public static FileInfo ReplaceExtension(this FileInfo Info, string Extension)
+        {
+            if (Info != null)
+                return new FileInfo(Path.Combine(Info.DirectoryName, $"{Info.GetFileNameWithoutExtension()}.{Extension.IfBlank("bin").TrimStart('.')}").FixPath());
+            return null;
+        }
+
+        /// <summary>
+        /// Substitui a primeira ocorrencia de um texto por outro
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <param name="OldText"></param>
+        /// <param name="NewText"></param>
+        /// <returns></returns>
+        public static string ReplaceFirst(this string Text, string OldText, string NewText = EmptyString, StringComparison Comparison = StringComparison.CurrentCulture)
+        {
+            if (Text.Contains(OldText))
+            {
+                Text = Text.Insert(Text.IndexOf(OldText, Comparison), NewText);
+                Text = Text.Remove(Text.IndexOf(OldText, Comparison), 1);
+            }
+
+            return Text;
+        }
+
+        /// <summary>
+        /// Aplica varios replaces a um texto a partir de um <see cref="IDictionary"/>
+        /// </summary>
+        public static string ReplaceFrom(this string Text, IDictionary<string, string> Dic)
+        {
+            if (Dic != null && Text.IsNotBlank())
+            {
+                foreach (var p in Dic)
+                {
+                    Text = Text.Replace(p.Key, p.Value);
+                }
+            }
+
+            return Text;
+        }
+
+        /// <summary>
+        /// Aplica varios replaces a um texto a partir de um <see cref="IDictionary"/>
+        /// </summary>
+        public static string ReplaceFrom<T>(this string Text, IDictionary<string, T> Dic)
+        {
+            if (Dic != null && Text.IsNotBlank())
+            {
+                foreach (var p in Dic)
+                {
+                    switch (true)
+                    {
+                        case object _ when p.Value.IsDictionary():
+                            {
+                                Text = Text.ReplaceFrom((IDictionary<string, object>)p.Value);
+                                break;
+                            }
+
+                        case object _ when typeof(T).IsAssignableFrom(typeof(Array)):
+                            {
+                                foreach (var item in ForceArray(p.Value, typeof(T)))
+                                {
+                                    Text = Text.ReplaceMany(p.Key, ForceArray(p.Value, typeof(T)).Cast<string>().ToArray());
+                                }
+
+                                break;
+                            }
+
+                        default:
+                            {
+                                Text = Text.Replace(p.Key, p.Value.ToString());
+                                break;
+                            }
+                    }
+                }
+            }
+
+            return Text;
+        }
+
+        /// <summary>
+        /// Aplica um replace a um texto baseando-se em um <see cref="IDictionary"/>.
+        /// </summary>
+        public static string ReplaceFrom(this string Text, IDictionary<string, string[]> Dic, StringComparison Comparison = StringComparison.InvariantCultureIgnoreCase)
+        {
+            if (Dic != null && Text.IsNotBlank())
+            {
+                foreach (var p in Dic)
+                {
+                    Text = Text.SensitiveReplace(p.Key, p.Value, Comparison);
+                }
+            }
+
+            return Text;
+        }
+
+        /// <summary>
+        /// Aplica um replace a um texto baseando-se em um <see cref="IDictionary"/>.
+        /// </summary>
+        public static string ReplaceFrom(this string Text, IDictionary<string[], string> Dic, StringComparison Comparison = StringComparison.InvariantCultureIgnoreCase)
+        {
+            if (Dic != null && Text.IsNotBlank())
+            {
+                foreach (var p in Dic)
+                {
+                    Text = Text.SensitiveReplace(p.Value, p.Key.ToArray(), Comparison);
+                }
+            }
+
+            return Text;
+        }
+
+        /// <summary>
+        /// Aplica um replace a um texto baseando-se em um <see cref="IDictionary"/>.
+        /// </summary>
+        public static string ReplaceFrom(this string Text, IDictionary<string[], string[]> Dic, StringComparison Comparison = StringComparison.InvariantCultureIgnoreCase)
+        {
+            if (Dic != null && Text.IsNotBlank())
+            {
+                foreach (var p in Dic)
+                {
+                    var froms = p.Key.ToList();
+                    var tos = p.Value.ToList();
+                    while (froms.Count > tos.Count)
+                    {
+                        tos.Add(EmptyString);
+                    }
+
+                    for (int i = 0, loopTo = froms.Count - 1; i <= loopTo; i++)
+                    {
+                        Text = Text.SensitiveReplace(froms[i], tos[i], Comparison);
+                    }
+                }
+            }
+
+            return Text;
+        }
+
+        /// <summary>
+        /// Substitui a ultima ocorrencia de um texto por outro
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <param name="OldText"></param>
+        /// <param name="NewText"></param>
+        /// <returns></returns>
+        public static string ReplaceLast(this string Text, string OldText, string NewText = EmptyString)
+        {
+            if (Text != null)
+                if (Text.Contains(OldText))
+                {
+                    Text = Text.Insert(Text.LastIndexOf(OldText), NewText);
+                    Text = Text.Remove(Text.LastIndexOf(OldText), 1);
+                }
+
+            return Text;
+        }
+
+        /// <summary>
+        /// Retorna uma nova sequência na qual todas as ocorrências de uma String especificada são
+        /// substituídas por um novo valor.
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <param name="NewValue">Novo Valor</param>
+        /// <param name="OldValues">Valores a serem substituido por um novo valor</param>
+        /// <returns></returns>
+        public static string ReplaceMany(this string Text, string NewValue, params string[] OldValues)
+        {
+            Text = Text ?? EmptyString;
+            foreach (var word in (OldValues ?? Array.Empty<string>()).Where(x => x.Length > 0))
+            {
+                Text = Text.Replace(word, NewValue);
+            }
+
+            return Text;
+        }
+
+        /// <summary>
+        /// Retorna uma nova sequência na qual todas as ocorrências de uma String especificada são
+        /// substituídas por vazio.
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <param name="OldValue">Valor a ser substituido por vazio</param>
+        /// <returns>String corrigida</returns>
+        public static string ReplaceNone(this string Text, string OldValue) => Text.Replace(OldValue, EmptyString);
+
+        /// <summary>
+        /// Substitui os parametros de rota de uma URL por valores de um objeto
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="obj"></param>
+        /// <param name="URL"></param>
+        /// <returns></returns>
+        public static string ReplaceUrlParameters<T>(this string URL, T obj)
+        {
+            if (URL.IsURL())
+            {
+                URL = Regex.Replace(URL, @"{([^:]+)\s*:\s*(.+?)(?<!\\)}", "{$1}");
+                if (obj != null)
+                {
+                    URL = URL.Inject(obj);
+                }
+
+                URL = URL.RemoveLastEqual("/");
+            }
+            return URL;
+        }
+
+        public static string ReplaceUrlParameters<T>(Uri URL, T obj) => ReplaceUrlParameters(URL?.ToString(), obj);
+
+        /// <summary>
+        /// Redimensiona e converte uma Imagem
+        /// </summary>
+        /// <param name="Original">Imagem Original</param>
+        /// <param name="ResizeExpression">uma string contendo uma expressão de tamanho</param>
+        /// <param name="OnlyResizeIfWider">
+        /// Indica se a imagem deve ser redimensionada apenas se sua largura for maior que a especificada
+        /// </param>
+        /// <returns></returns>
+        public static Image Resize(this Image Original, string ResizeExpression, bool OnlyResizeIfWider = true)
+        {
+            if (ResizeExpression.Contains("%"))
+            {
+                return Original.ResizePercent(ResizeExpression, OnlyResizeIfWider);
+            }
+            else
+            {
+                var s = ResizeExpression.ParseSize();
+                return Original.Resize(s, OnlyResizeIfWider);
+            }
+        }
+
+        /// <summary>
+        /// Redimensiona e converte uma Imagem
+        /// </summary>
+        /// <param name="Original">Imagem Original</param>
+        /// <param name="Size">Tamanho</param>
+        /// <param name="OnlyResizeIfWider">
+        /// Indica se a imagem deve ser redimensionada apenas se sua largura for maior que a especificada
+        /// </param>
+        /// <returns></returns>
+        public static Image Resize(this Image Original, Size Size, bool OnlyResizeIfWider = true) => Original.Resize(Size.Width, Size.Height, OnlyResizeIfWider);
+
+        /// <summary>
+        /// Redimensiona e converte uma Imagem
+        /// </summary>
+        /// <param name="Original">Imagem Original</param>
+        /// <param name="NewWidth">Nova Largura</param>
+        /// <param name="MaxHeight">Altura máxima</param>
+        /// <param name="OnlyResizeIfWider">
+        /// Indica se a imagem deve ser redimensionada apenas se sua largura for maior que a especificada
+        /// </param>
+        /// <returns></returns>
+        public static Image Resize(this Image Original, int NewWidth, int MaxHeight, bool OnlyResizeIfWider = true)
+        {
+            Image fullsizeImage = new Bitmap(Original);
+            if (OnlyResizeIfWider)
+            {
+                if (fullsizeImage.Width <= NewWidth)
+                {
+                    NewWidth = fullsizeImage.Width;
+                }
+            }
+
+            int newHeight = (int)Math.Round(fullsizeImage.Height * NewWidth / (double)fullsizeImage.Width);
+            if (newHeight > MaxHeight)
+            {
+                // Resize with height instead
+                NewWidth = (int)Math.Round(fullsizeImage.Width * MaxHeight / (double)fullsizeImage.Height);
+                newHeight = MaxHeight;
+            }
+
+            fullsizeImage = fullsizeImage.GetThumbnailImage(NewWidth, newHeight, null, IntPtr.Zero);
+            fullsizeImage.RotateFlip(Original.GetRotateFlip());
+            return fullsizeImage;
+        }
+
+        /// <summary>
+        /// redimensiona e Cropa uma imagem, aproveitando a maior parte dela
+        /// </summary>
+        /// <param name="Image"></param>
+        /// <param name="Width"></param>
+        /// <param name="Height"></param>
+        /// <returns></returns>
+        public static Image ResizeCrop(this Image Image, int Width, int Height) => Image.Resize(Width, Height, false).Crop(Width, Height);
+
+        /// <summary>
+        /// redimensiona e Cropa uma imagem, aproveitando a maior parte dela
+        /// </summary>
+        /// <param name="Image"></param>
+        /// <param name="Width"></param>
+        /// <param name="Height"></param>
+        /// <returns></returns>
+        public static Image ResizeCrop(this Image Image, int Width, int Height, bool OnlyResizeIfWider) => Image.Resize(Width, Height, OnlyResizeIfWider).Crop(Width, Height);
+
+        /// <summary>
+        /// Redimensiona uma imagem para o tamanho definido por uma porcentagem
+        /// </summary>
+        /// <param name="Original"></param>
+        /// <param name="Percent">Porcentagem ( no formato '30% 'ou '20% x 10%')</param>
+        /// <param name="OnlyResizeIfWider"></param>
+        /// <returns></returns>
+        public static Image ResizePercent(this Image Original, string Percent, bool OnlyResizeIfWider = true)
+        {
+            var size = new Size();
+            if (Percent.Contains("x"))
+            {
+                var parts = Percent.Split("x");
+                if (parts[0].TrimBetween().EndsWith("%"))
+                {
+                    parts[0] = parts[0].TrimBetween().CalculateValueFromPercent(Original.Width).RoundDecimal().ToString();
+                }
+
+                if (parts[1].TrimBetween().EndsWith("%"))
+                {
+                    parts[1] = parts[1].TrimBetween().CalculateValueFromPercent(Original.Height).RoundDecimal().ToString();
+                }
+
+                size = new Size(parts[0].ToInt(), parts[1].ToInt());
+            }
+            else
+            {
+                if (Percent.TrimBetween().EndsWith("%"))
+                {
+                    Percent = Percent.Trim('%').TrimBetween();
+                }
+
+                if (Percent.IsNumber())
+                {
+                    size.Width = Convert.ToInt32(Percent.ToInt().CalculateValueFromPercent(Original.Width).RoundDecimal().ToString());
+                    size.Height = Convert.ToInt32(Percent.ToInt().CalculateValueFromPercent(Original.Height).RoundDecimal().ToString());
+                }
+            }
+
+            return Original.Resize(size, OnlyResizeIfWider);
+        }
+
+        public static Image ResizePercent(this Image Original, decimal Percent, bool OnlyResizeIfWider = true) => Original.ResizePercent(Percent.ToPercentString(), OnlyResizeIfWider);
+
+        /// <summary>
+        /// Arredonda um numero para o valor inteiro mais próximo
+        /// </summary>
+        /// <param name="Number">Numero</param>
+        /// <returns></returns>
+        public static decimal RoundDecimal(this decimal Number, int? Decimals = default) => Decimals.HasValue ? Math.Round(Number, Decimals.Value.ForcePositive()) : Math.Round(Number);
+
+        public static decimal RoundDecimal(this double Number, int? Decimals = default) => Decimals.HasValue ? Math.Round(Number.ToDecimal(), Decimals.Value.ForcePositive()) : Math.Round(Number.ToDecimal());
+
+        /// <summary>
+        /// Arredonda um numero para o valor inteiro mais próximo
+        /// </summary>
+        /// <param name="Number">Numero</param>
+        /// <returns></returns>
+        public static double RoundDouble(this double Number, int? Decimals = default) => Decimals.HasValue ? Math.Round(Number, Decimals.Value.ForcePositive()) : Math.Round(Number);
+
+        public static double RoundDouble(this decimal Number, int? Decimals = default) => Decimals.HasValue ? Math.Round(Number.ToDouble(), Decimals.Value.ForcePositive()) : Math.Round(Number.ToDouble());
+
+        /// <summary>
+        /// Arredonda um numero para o valor inteiro mais próximo
+        /// </summary>
+        /// <param name="Number">Numero</param>
+        /// <returns></returns>
+        public static int RoundInt(this decimal Number) => Math.Round(Number).ToInt();
+
+        /// <summary>
+        /// Arredonda um numero para o valor inteiro mais próximo
+        /// </summary>
+        /// <param name="Number">Numero</param>
+        /// <returns></returns>
+        public static int RoundInt(this double Number) => Math.Round(Number).ToInt();
+
+        /// <summary>
+        /// Arredonda um numero para o valor inteiro mais próximo
+        /// </summary>
+        /// <param name="Number">Numero</param>
+        /// <returns></returns>
+        public static long RoundLong(this decimal Number) => Math.Round(Number).ToLong();
+
+        /// <summary>
+        /// Arredonda um numero para o valor inteiro mais próximo
+        /// </summary>
+        /// <param name="Number">Numero</param>
+        /// <returns></returns>
+        public static long RoundLong(this double Number) => Math.Round(Number).ToLong();
+
+        /// <summary>
+        /// Retorna os resultado da primeira coluna de uma consulta SQL como um array do tipo
+        /// <typeparamref name="T"/>
+        /// </summary>
+        public static IEnumerable<T> RunSQLArray<T>(this DbConnection Connection, DbCommand Command) => Connection.RunSQLArray(Command).Select(x => x == null ? default : x.ChangeType<T>());
+
+        /// <summary>
+        /// Retorna os resultado da primeira coluna de uma consulta SQL como um array do tipo
+        /// <typeparamref name="T"/>
+        /// </summary>
+        public static IEnumerable<T> RunSQLArray<T>(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLArray<T>(Connection.CreateCommand(SQL, Transaction));
+
+        /// <summary>
+        /// Retorna os resultado da primeira coluna de uma consulta SQL como um array
+        /// </summary>
+        public static IEnumerable<object> RunSQLArray(this DbConnection Connection, DbCommand Command) => Connection.RunSQLSet(Command).Select(x => x.Values.FirstOrDefault());
+
+        /// <summary>
+        /// Retorna os resultado da primeira coluna de uma consulta SQL como um array
+        /// </summary>
+        public static IEnumerable<object> RunSQLArray(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLArray(Connection.CreateCommand(SQL, Transaction));
+
+        /// <summary>
+        /// Executa uma query SQL parametrizada e retorna os resultados mapeados em listas de <see
+        /// cref="Dictionary{TKey, TValue}"/>
+        /// </summary>
+        /// <param name="Connection"></param>
+        /// <param name="SQL"></param>
+        /// <returns></returns>
+        public static IEnumerable<IEnumerable<Dictionary<string, object>>> RunSQLMany(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLMany(Connection.CreateCommand(SQL, Transaction));
+
+        /// <summary>
+        /// Executa uma query SQL e retorna todos os seus resultsets mapeados em uma <see
+        /// cref="IEnumerable{IEnumerable{Dictionary{String, Object}}}"/>
+        /// </summary>
+        /// <param name="Connection"></param>
+        /// <param name="Command"></param>
+        /// <returns></returns>
+        public static IEnumerable<IEnumerable<Dictionary<string, object>>> RunSQLMany(this DbConnection Connection, DbCommand Command)
+        {
+            IEnumerable<IEnumerable<Dictionary<string, object>>> resposta;
+            using (var reader = Connection.RunSQLReader(Command))
+            {
+                resposta = reader.MapMany();
+            }
+
+            return resposta;
+        }
+
+        /// <summary>
+        /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de
+        /// tipos específicos
+        /// </summary>
+        /// <param name="Connection"></param>
+        /// <param name="SQL"></param>
+        /// <returns></returns>
+        public static Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>, IEnumerable<T5>> RunSQLMany<T1, T2, T3, T4, T5>(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null)
+            where T1 : class
+            where T2 : class
+            where T3 : class
+            where T4 : class
+            where T5 : class => Connection.RunSQLMany<T1, T2, T3, T4, T5>(Connection.CreateCommand(SQL, Transaction));
+
+        /// <summary>
+        /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de
+        /// tipos especificos
+        /// </summary>
+        /// <param name="Connection"></param>
+        /// <param name="Command"></param>
+        /// <returns></returns>
+        public static Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>, IEnumerable<T5>> RunSQLMany<T1, T2, T3, T4, T5>(this DbConnection Connection, DbCommand Command)
+            where T1 : class
+            where T2 : class
+            where T3 : class
+            where T4 : class
+            where T5 : class
+        {
+            Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>, IEnumerable<T5>> resposta;
+            using (var reader = Connection.RunSQLReader(Command))
+            {
+                resposta = reader.MapMany<T1, T2, T3, T4, T5>();
+            }
+
+            return resposta;
+        }
+
+        /// <summary>
+        /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de
+        /// tipos especificos
+        /// </summary>
+        /// <param name="Connection"></param>
+        /// <param name="SQL"></param>
+        /// <returns></returns>
+        public static Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>> RunSQLMany<T1, T2, T3, T4>(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null)
+            where T1 : class
+            where T2 : class
+            where T3 : class
+            where T4 : class => Connection.RunSQLMany<T1, T2, T3, T4>(Connection.CreateCommand(SQL, Transaction));
+
+        /// <summary>
+        /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de
+        /// tipos especificos
+        /// </summary>
+        /// <param name="Connection"></param>
+        /// <param name="Command"></param>
+        /// <returns></returns>
+        public static Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>> RunSQLMany<T1, T2, T3, T4>(this DbConnection Connection, DbCommand Command)
+            where T1 : class
+            where T2 : class
+            where T3 : class
+            where T4 : class
+        {
+            Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>> resposta;
+            using (var reader = Connection.RunSQLReader(Command))
+            {
+                resposta = reader.MapMany<T1, T2, T3, T4>();
+            }
+
+            return resposta;
+        }
+
+        /// <summary>
+        /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de
+        /// tipos especificos
+        /// </summary>
+        /// <param name="Connection"></param>
+        /// <param name="SQL"></param>
+        /// <returns></returns>
+        public static Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>> RunSQLMany<T1, T2, T3>(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null)
+            where T1 : class
+            where T2 : class
+            where T3 : class => Connection.RunSQLMany<T1, T2, T3>(Connection.CreateCommand(SQL, Transaction));
+
+        /// <summary>
+        /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de
+        /// tipos especificos
+        /// </summary>
+        /// <param name="Connection"></param>
+        /// <param name="Command"></param>
+        /// <returns></returns>
+        public static Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>> RunSQLMany<T1, T2, T3>(this DbConnection Connection, DbCommand Command)
+            where T1 : class
+            where T2 : class
+            where T3 : class
+        {
+            Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>> resposta;
+            using (var reader = Connection.RunSQLReader(Command))
+            {
+                resposta = reader.MapMany<T1, T2, T3>();
+            }
+
+            return resposta;
+        }
+
+        /// <summary>
+        /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de
+        /// tipos especificos
+        /// </summary>
+        /// <param name="Connection"></param>
+        /// <param name="SQL"></param>
+        /// <returns></returns>
+        public static Tuple<IEnumerable<T1>, IEnumerable<T2>> RunSQLMany<T1, T2>(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null)
+            where T1 : class
+            where T2 : class => Connection.RunSQLMany<T1, T2>(Connection.CreateCommand(SQL, Transaction));
+
+        /// <summary>
+        /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de
+        /// tipos especificos
+        /// </summary>
+        /// <param name="Connection"></param>
+        /// <param name="Command"></param>
+        /// <returns></returns>
+        public static Tuple<IEnumerable<T1>, IEnumerable<T2>> RunSQLMany<T1, T2>(this DbConnection Connection, DbCommand Command)
+            where T1 : class
+            where T2 : class
+        {
+            Tuple<IEnumerable<T1>, IEnumerable<T2>> resposta;
+            using (var reader = Connection.RunSQLReader(Command))
+            {
+                resposta = reader.MapMany<T1, T2>();
+            }
+
+            return resposta;
+        }
+
+        /// <summary>
+        /// Executa um comando SQL e retorna o numero de linhas afetadas
+        /// </summary>
+        /// <param name="Connection"></param>
+        /// <param name="SQL"></param>
+        /// <returns></returns>
+        public static int RunSQLNone(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLNone(Connection.CreateCommand(SQL, Transaction));
+
+        /// <summary>
+        /// Executa um comando SQL e retorna o numero de linhas afetadas
+        /// </summary>
+        public static int RunSQLNone(this DbConnection Connection, DbCommand Command) => BeforeRunCommand(ref Connection, ref Command).ExecuteNonQuery();
+
+        /// <summary>
+        /// Retorna os resultado das primeiras e ultimas colunas de uma consulta SQL como pares em
+        /// um <see cref="Dictionary{Object, Object}"/>
+        /// </summary>
+        public static Dictionary<object, object> RunSQLPairs(this DbConnection Connection, DbCommand SQL) => Connection.RunSQLSet(SQL).DistinctBy(x => x.Values.FirstOrDefault()).ToDictionary(x => x.Values.FirstOrDefault(), x => x.Values.LastOrDefault());
+
+        /// <summary>
+        /// Retorna os resultado das primeiras e ultimas colunas de uma consulta SQL como pares em
+        /// um <see cref="Dictionary{object,object}"/>
+        /// </summary>
+        public static Dictionary<object, object> RunSQLPairs(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLPairs(Connection.CreateCommand(SQL, Transaction));
+
+        /// <summary>
+        /// Retorna os resultado das primeiras e ultimas colunas de uma consulta SQL como pares em
+        /// um <see cref="Dictionary{K, V}"/>
+        /// </summary>
+        public static Dictionary<TK, TV> RunSQLPairs<TK, TV>(this DbConnection Connection, DbCommand SQL) => Connection.RunSQLPairs(SQL).ToDictionary(x => x.Key.ChangeType<TK>(), x => x.Value.ChangeType<TV>());
+
+        /// <summary>
+        /// Retorna os resultado das primeiras e ultimas colunas de uma consulta SQL como pares em
+        /// um <see cref="Dictionary{K, V}"/>
+        /// </summary>
+        public static Dictionary<TK, TV> RunSQLPairs<TK, TV>(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLPairs<TK, TV>(Connection.CreateCommand(SQL, Transaction));
+
+        /// <summary>
+        /// Executa um comando SQL e retorna o <see cref="DbDataReader"/> com os resultados
+        /// </summary>
+        public static DbDataReader RunSQLReader(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLReader(Connection.CreateCommand(SQL, Transaction));
+
+        /// <summary>
+        /// Executa um comando SQL e retorna o <see cref="DbDataReader"/> com os resultados
+        /// </summary>
+        public static DbDataReader RunSQLReader(this DbConnection Connection, DbCommand Command) => BeforeRunCommand(ref Connection, ref Command).ExecuteReader();
+
+        /// <summary>
+        /// Executa uma query SQL parametrizada e retorna os resultados da primeira linha como um
+        /// <typeparamref name="T"/>
+        /// </summary>
+        /// <returns></returns>
+        public static T RunSQLRow<T>(this DbConnection Connection, Select<T> Select, bool WithSubQueries = false, DbTransaction Transaction = null) where T : class => Connection.RunSQLRow<T>(Select.CreateDbCommand(Connection, Transaction), WithSubQueries);
+
+        /// <summary>
+        /// Executa uma query SQL parametrizada e retorna o resultado da primeira linha mapeada para
+        /// um <see cref="Dictionary{String, Object}"/>
+        /// </summary>
+        public static Dictionary<string, object> RunSQLRow(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLRow<Dictionary<string, object>>(SQL, false, Transaction);
+
+        /// <summary>
+        /// Executa uma query SQL parametrizada e retorna o resultado da primeira linha mapeada para
+        /// um <see cref="Dictionary{String, Object}"/>
+        /// </summary>
+        public static Dictionary<string, object> RunSQLRow(this DbConnection Connection, DbCommand SQL) => Connection.RunSQLRow<Dictionary<string, object>>(SQL);
+
+        /// <summary>
+        /// Executa uma query SQL parametrizada e retorna o resultado da primeira linha mapeada para
+        /// uma classe POCO do tipo <typeparamref name="T"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Connection"></param>
+        /// <param name="SQL"></param>
+        /// <returns></returns>
+        public static T RunSQLRow<T>(this DbConnection Connection, DbCommand SQL, bool WithSubQueries = false) where T : class
+        {
+            var x = Connection.RunSQLSet<T>(SQL, false).FirstOrDefault();
+            if (x != null && WithSubQueries)
+            {
+                Connection.ProccessSubQuery(x, WithSubQueries);
+            }
+
+            return x ?? default;
+        }
+
+        /// <summary>
+        /// Executa uma query SQL parametrizada e retorna o resultado da primeira linha mapeada para
+        /// uma classe POCO do tipo <typeparamref name="T"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Connection"></param>
+        /// <param name="SQL"></param>
+        /// <returns></returns>
+        public static T RunSQLRow<T>(this DbConnection Connection, FormattableString SQL, bool WithSubQueries = false, DbTransaction Transaction = null) where T : class => Connection.RunSQLRow<T>(Connection.CreateCommand(SQL, Transaction), WithSubQueries);
+
+        public static T RunSQLRow<T>(this DbConnection Connection, bool WithSubQueries = false, DbTransaction Transaction = null, object InjectionObject = null) where T : class => RunSQLRow<T>(Connection, SQLQueryForClass<T>(InjectionObject).ToFormattableString(), WithSubQueries, Transaction);
+
+        /// <summary>
+        /// Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset
+        /// mapeados para uma lista de <typeparamref name="T"/>
+        /// </summary>
+        /// <returns></returns>
+        public static IEnumerable<T> RunSQLSet<T>(this DbConnection Connection, Select<T> Select, bool WithSubQueries = false, DbTransaction Transaction = null) where T : class => Connection.RunSQLSet<T>(Select.CreateDbCommand(Connection, Transaction), WithSubQueries);
+
+        public static IEnumerable<T> RunSQLSet<T>(this DbConnection Connection, bool WithSubQueries = false, DbTransaction Transaction = null, object InjectionObject = null) where T : class => RunSQLSet<T>(Connection, SQLQueryForClass<T>(InjectionObject).ToFormattableString(), WithSubQueries, Transaction);
+
+        /// <summary>
+        /// Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset
+        /// mapeados para uma lista de <see cref="Dictionary{String, Object}"/>
+        /// </summary>
+        /// <param name="Connection"></param>
+        /// <param name="SQL"></param>
+        /// <returns></returns>
+        public static IEnumerable<Dictionary<string, object>> RunSQLSet(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLSet<Dictionary<string, object>>(SQL, false, Transaction);
+
+        /// <summary>
+        /// Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset
+        /// mapeados para uma lista de <see cref="Dictionary(Of String, Object)"/>
+        /// </summary>
+        public static IEnumerable<Dictionary<string, object>> RunSQLSet(this DbConnection Connection, DbCommand SQL) => Connection.RunSQLSet<Dictionary<string, object>>(SQL);
+
+        /// <summary>
+        /// Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset
+        /// mapeados para uma lista de classe POCO do tipo <typeparamref name="T"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Connection"></param>
+        /// <param name="SQL"></param>
+        /// <returns></returns>
+        public static IEnumerable<T> RunSQLSet<T>(this DbConnection Connection, FormattableString SQL, bool WithSubQueries = false, DbTransaction Transaction = null) where T : class => Connection.RunSQLSet<T>(Connection.CreateCommand(SQL, Transaction), WithSubQueries);
+
+        /// <summary>
+        /// Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset
+        /// mapeados para uma lista de classe POCO do tipo <typeparamref name="T"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Connection"></param>
+        /// <param name="SQL"></param>
+        /// <returns></returns>
+        public static IEnumerable<T> RunSQLSet<T>(this DbConnection Connection, DbCommand SQL, bool WithSubQueries = false) where T : class
+            => Connection.RunSQLMany(SQL)?.FirstOrDefault()?.Select(x =>
+            {
+                T v = (T)x.CreateOrSetObject(null, typeof(T));
+                if (WithSubQueries)
+                {
+                    Connection.ProccessSubQuery(v, WithSubQueries);
+                }
+                return v;
+            }).AsEnumerable();
+
+        /// <summary>
+        /// Retorna o primeiro resultado da primeira coluna de uma consulta SQL
+        /// </summary>
+        /// <param name="Connection"></param>
+        /// <param name="Command"></param>
+        /// <returns></returns>
+        public static object RunSQLValue(this DbConnection Connection, DbCommand Command) => BeforeRunCommand(ref Connection, ref Command).ExecuteScalar();
+
+        /// <summary>
+        /// Retorna o valor da primeira coluna da primeira linha uma consulta SQL
+        /// </summary>
+        public static object RunSQLValue(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLValue(Connection.CreateCommand(SQL, Transaction));
+
+        /// <summary>
+        /// Retorna o valor da primeira coluna da primeira linha uma consulta SQL como um tipo
+        /// <typeparamref name="T"/>
+        /// </summary>
+        public static T RunSQLValue<T>(this DbConnection Connection, DbCommand Command)
+        {
+            if (!typeof(T).IsValueType())
+            {
+                throw new ArgumentException("The type param T is not a value type or string");
+            }
+            var vv = Connection.RunSQLValue(Command);
+            return vv != null && vv != DBNull.Value ? vv.ChangeType<T>() : default;
+        }
+
+        /// <summary>
+        /// Retorna o valor da primeira coluna da primeira linha uma consulta SQL como um tipo
+        /// <typeparamref name="T"/>
+        /// </summary>
+        public static T RunSQLValue<T>(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLValue<T>(Connection.CreateCommand(SQL, Transaction));
+
+        /// <summary>
+        /// Salva um anexo para um diretório
+        /// </summary>
+        /// <param name="attachment"></param>
+        /// <param name="Directory"></param>
+        /// <returns></returns>
+        public static FileInfo SaveMailAttachment(this Attachment attachment, DirectoryInfo Directory, DateTime? DateAndTime = null) => attachment.SaveMailAttachment(Directory.FullName, DateAndTime);
+
+        /// <summary>
+        /// Salva um anexo para um caminho
+        /// </summary>
+        /// <param name="attachment"></param>
+        /// <param name="FilePath"></param>
+        /// <returns></returns>
+        public static FileInfo SaveMailAttachment(this Attachment attachment, string FilePath, DateTime? DateAndTime = null)
+        {
+            if (attachment != null)
+            {
+                if (FilePath.IsDirectoryPath())
+                {
+                    FilePath = FilePath + @"\" + attachment.Name.IfBlank(attachment.ContentId);
+                }
+
+                return attachment.ToBytes().WriteToFile(FilePath, DateAndTime);
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Retorna uma lista de arquivos ou diretórios baseado em um ou mais padrões de pesquisas
+        /// </summary>
+        /// <param name="Directory">Diretório</param>
+        /// <param name="SearchOption">
+        /// Especifica se a pesquisa ocorrerá apenas no diretório ou em todos os subdiretórios também
+        /// </param>
+        /// <param name="Searches">Padrões de pesquisa (*.txt, arquivo.*, *)</param>
+        /// <returns></returns>
+        public static IEnumerable<FileSystemInfo> Search(this DirectoryInfo Directory, SearchOption SearchOption, params string[] Searches)
+        {
+            var FilteredList = new List<FileSystemInfo>();
+            foreach (string pattern in (Searches ?? Array.Empty<string>()).SelectMany(z => z.SplitAny(":", "|")).Where(x => x.IsNotBlank()).DefaultIfEmpty("*"))
+            {
+                if (Directory != null)
+                    FilteredList.AddRange(Directory.GetFileSystemInfos(pattern.Trim(), SearchOption));
+            }
+
+            return FilteredList;
+        }
+
+        /// <summary>
+        /// Retorna um <see cref="IQueryable{T}"/> procurando em varios campos diferentes de uma entidade
+        /// </summary>
+        /// <typeparam name="T">Tipo da Entidade</typeparam>
+        /// <param name="Table">Tabela da Entidade</param>
+        /// <param name="SearchTerms">Termos da pesquisa</param>
+        /// <param name="Properties">Propriedades onde <paramref name="SearchTerms"/> serão procurados</param>
+        /// <returns></returns>
+        public static IQueryable<T> Search<T>(this IQueryable<T> Table, IEnumerable<string> SearchTerms, params Expression<Func<T, string>>[] Properties) where T : class
+        {
+            Properties = Properties ?? Array.Empty<Expression<Func<T, string>>>();
+            SearchTerms = SearchTerms ?? Array.Empty<string>().AsEnumerable();
+            return Table.Where(SearchTerms.SearchExpression(Properties));
+        }
+
+        public static IQueryable<T> Search<T>(this IQueryable<T> Table, string SearchTerm, params Expression<Func<T, string>>[] Properties) where T : class => Search(Table, new[] { SearchTerm }, Properties);
+
+        /// <summary>
+        /// Retorna uma lista de arquivos ou diretórios baseado em um ou mais padrões de pesquisas
+        /// dentro de um range de 2 datas
+        /// </summary>
+        /// <param name="Directory">Diretório</param>
+        /// <param name="SearchOption">
+        /// Especifica se a pesquisa ocorrerá apenas no diretório ou em todos os subdiretórios também
+        /// </param>
+        /// <param name="Searches">Padrões de pesquisa (*.txt, arquivo.*, *)</param>
+        /// <param name="FirstDate">Data Inicial</param>
+        /// <param name="SecondDate">Data Final</param>
+        /// <returns></returns>
+        public static IEnumerable<FileSystemInfo> SearchBetween(this DirectoryInfo Directory, DateTime FirstDate, DateTime SecondDate, SearchOption SearchOption, params string[] Searches)
+        {
+            FixOrder(ref FirstDate, ref SecondDate);
+            return Directory.Search(SearchOption, Searches).Where(file => file.LastWriteTime >= FirstDate && file.LastWriteTime <= SecondDate).OrderByDescending(f => f.LastWriteTime.Year <= 1601 ? f.CreationTime : f.LastWriteTime).ToList();
+        }
+
+        /// <summary>
+        /// Retorna uma lista de diretórios baseado em um ou mais padrões de pesquisas
+        /// </summary>
+        /// <param name="Directory">Diretório</param>
+        /// <param name="SearchOption">
+        /// Especifica se a pesquisa ocorrerá apenas no diretório ou em todos os subdiretórios também
+        /// </param>
+        /// <param name="Searches">Padrões de pesquisa (*.txt, arquivo.*, *)</param>
+        /// <returns></returns>
+        public static IEnumerable<DirectoryInfo> SearchDirectories(this DirectoryInfo Directory, SearchOption SearchOption, params string[] Searches)
+        {
+            var FilteredList = new List<DirectoryInfo>();
+            foreach (string pattern in (Searches ?? Array.Empty<string>()).Where(x => x.IsNotBlank()).DefaultIfEmpty("*"))
+            {
+                if (Directory != null)
+                    FilteredList.AddRange(Directory.GetDirectories(pattern.Trim(), SearchOption));
+            }
+
+            return FilteredList;
+        }
+
+        /// <summary>
+        /// Retorna uma lista de arquivos baseado em um ou mais padrões de pesquisas dentro de um
+        /// range de 2 datas
+        /// </summary>
+        /// <param name="Directory">Diretório</param>
+        /// <param name="SearchOption">
+        /// Especifica se a pesquisa ocorrerá apenas no diretório ou em todos os subdiretórios também
+        /// </param>
+        /// <param name="Searches">Padrões de pesquisa (*.txt, arquivo.*, *)</param>
+        /// <param name="FirstDate">Data Inicial</param>
+        /// <param name="SecondDate">Data Final</param>
+        /// <returns></returns>
+        public static IEnumerable<DirectoryInfo> SearchDirectoriesBetween(this DirectoryInfo Directory, DateTime FirstDate, DateTime SecondDate, SearchOption SearchOption, params string[] Searches)
+        {
+            FixOrder(ref FirstDate, ref SecondDate);
+            return Directory.SearchDirectories(SearchOption, Searches).Where(file => file.LastWriteTime >= FirstDate && file.LastWriteTime <= SecondDate).OrderByDescending(f => f.LastWriteTime.Year <= 1601 ? f.CreationTime : f.LastWriteTime).ToList();
+        }
+
+        public static Expression<Func<T, bool>> SearchExpression<T>(this IEnumerable<string> Text, params Expression<Func<T, string>>[] Properties)
+        {
+            Properties = Properties ?? Array.Empty<Expression<Func<T, string>>>();
+            Text = Text?.WhereNotBlank() ?? Array.Empty<string>();
+
+            var predi = (!Text.Any()).CreateWhereExpression<T>();
+
+            foreach (var prop in Properties)
+            {
+                foreach (var s in Text)
+                {
+                    if (s.IsNotBlank())
+                    {
+                        var param = prop.Parameters.First();
+                        var con = Expression.Constant(s);
+                        var lk = Expression.Call(prop.Body, containsMethod, con);
+                        var lbd = Expression.Lambda<Func<T, bool>>(lk, param);
+                        predi = predi.Or(lbd);
+                    }
+                }
+            }
+
+            return predi;
+        }
+
+        public static Expression<Func<T, bool>> SearchExpression<T>(this string Text, params Expression<Func<T, string>>[] Properties)
+        => (new[] { Text }).SearchExpression(Properties);
+
+        /// <summary>
+        /// Retorna uma lista de arquivos baseado em um ou mais padrões de pesquisas
+        /// </summary>
+        /// <param name="Directory">Diretório</param>
+        /// <param name="SearchOption">
+        /// Especifica se a pesquisa ocorrerá apenas no diretório ou em todos os subdiretórios também
+        /// </param>
+        /// <param name="Searches">Padrões de pesquisa (*.txt, arquivo.*, *)</param>
+        /// <returns></returns>
+        public static IEnumerable<FileInfo> SearchFiles(this DirectoryInfo Directory, SearchOption SearchOption, params string[] Searches) => (Searches ?? Array.Empty<string>()).Where(x => x.IsNotBlank()).DefaultIfEmpty("*").SelectMany(x => Directory.GetFiles(x.Trim(), SearchOption));
+
+        /// <summary>
+        /// Retorna uma lista de arquivos baseado em um ou mais padrões de pesquisas dentro de um
+        /// range de 2 datas
+        /// </summary>
+        /// <param name="Directory">Diretório</param>
+        /// <param name="SearchOption">
+        /// Especifica se a pesquisa ocorrerá apenas no diretório ou em todos os subdiretórios também
+        /// </param>
+        /// <param name="Searches">Padrões de pesquisa (*.txt, arquivo.*, *)</param>
+        /// <param name="FirstDate">Data Inicial</param>
+        /// <param name="SecondDate">Data Final</param>
+        /// <returns></returns>
+        public static IEnumerable<FileInfo> SearchFilesBetween(this DirectoryInfo Directory, DateTime FirstDate, DateTime SecondDate, SearchOption SearchOption, params string[] Searches)
+        {
+            FixOrder(ref FirstDate, ref SecondDate);
+            return Directory.SearchFiles(SearchOption, Searches).Where(file => file.LastWriteTime.IsBetween(FirstDate, SecondDate)).OrderByDescending(f => f.LastWriteTime.Year <= 1601 ? f.CreationTime : f.LastWriteTime).ToList();
+        }
+
+        /// <summary>
+        /// Retorna um <see cref="IQueryable{ClassType}"/> procurando em varios campos diferentes de
+        /// uma entidade
+        /// </summary>
+        /// <typeparam name="TClass">Tipo da Entidade</typeparam>
+        /// <param name="Table">Tabela da Entidade</param>
+        /// <param name="SearchTerms">Termos da pesquisa</param>
+        /// <param name="Properties">Propriedades onde <paramref name="SearchTerms"/> serão procurados</param>
+        /// <returns></returns>
+        public static IOrderedEnumerable<TClass> SearchInOrder<TClass>(this IEnumerable<TClass> Table, IEnumerable<string> SearchTerms, bool Ascending, params Expression<Func<TClass, string>>[] Properties) where TClass : class
+        {
+            IOrderedEnumerable<TClass> SearchRet = default;
+            Properties = Properties ?? Array.Empty<Expression<Func<TClass, string>>>();
+            SearchTerms = SearchTerms ?? Array.Empty<string>().AsEnumerable();
+            SearchRet = null;
+            Table = Table.Where(SearchTerms.SearchExpression(Properties).Compile());
+            foreach (var prop in Properties)
+            {
+                SearchRet = (SearchRet ?? Table.OrderBy(x => true)).ThenByLike(prop.Compile(), Ascending, SearchTerms.ToArray());
+            }
+
+            return SearchRet;
+        }
+
+        public static IOrderedEnumerable<TClass> SearchInOrder<TClass>(this IEnumerable<TClass> Table, IEnumerable<string> SearchTerms, params Expression<Func<TClass, string>>[] Properties) where TClass : class => SearchInOrder(Table, SearchTerms, true, Properties);
+
+        public static IOrderedQueryable<TClass> SearchInOrder<TClass>(this IQueryable<TClass> Table, IEnumerable<string> SearchTerms, params Expression<Func<TClass, string>>[] Properties) where TClass : class
+        {
+            var SearchRet = Table.Search(SearchTerms, Properties).OrderBy(x => true);
+            foreach (var prop in Properties)
+            {
+                SearchRet = SearchRet.ThenByLike(SearchTerms, prop);
+            }
+
+            return SearchRet;
+        }
+
+        /// <summary>
+        /// Une todos os valores de um objeto em uma unica string
+        /// </summary>
+        /// <param name="Array">Objeto com os valores</param>
+        /// <param name="Separator">Separador entre as strings</param>
+        /// <returns>string</returns>
+        public static string SelectJoinString<Type>(string Separator, params Type[] Array) => Array.SelectJoinString(Separator);
+
+        /// <summary>
+        /// Une todos os valores de um objeto em uma unica string
+        /// </summary>
+        /// <param name="List">Objeto com os valores</param>
+        /// <param name="Separator">Separador entre as strings</param>
+        /// <returns>string</returns>
+        public static string SelectJoinString<Type>(this List<Type> List, string Separator = EmptyString) => List.ToArray().SelectJoinString(Separator);
+
+        /// <summary>
+        /// Seleciona e une em uma unica string varios elementos
+        /// </summary>
+        /// <typeparam name="TSource"></typeparam>
+        /// <param name="Source"></param>
+        /// <param name="Separator"></param>
+        /// <returns></returns>
+        public static string SelectJoinString<TSource>(this IEnumerable<TSource> Source, string Separator = EmptyString) => Source.SelectJoinString(null, Separator);
+
+        /// <summary>
+        /// Seleciona e une em uma unica string varios elementos
+        /// </summary>
+        /// <typeparam name="TSource"></typeparam>
+        /// <param name="Source"></param>
+        /// <param name="Selector"></param>
+        /// <param name="Separator"></param>
+        /// <returns></returns>
+        public static string SelectJoinString<TSource>(this IEnumerable<TSource> Source, Func<TSource, string> Selector, string Separator = EmptyString)
+        {
+            Selector = Selector ?? (x => $"{x}");
+            Source = Source ?? Array.Empty<TSource>();
+            return Source.Any() ? String.Join(Separator, Source.Select(Selector).ToArray()) : EmptyString;
+        }
+
+        public static IEnumerable<String> SelectLike(this IEnumerable<String> source, String Pattern) => source.Where(x => x.Like(Pattern));
+
+        /// <summary>
+        /// Seleciona e une em uma unica string varios elementos enumeraveis
+        /// </summary>
+        /// <typeparam name="TSource"></typeparam>
+        /// <param name="Source"></param>
+        /// <param name="Selector"></param>
+        /// <param name="Separator"></param>
+        /// <returns></returns>
+        public static string SelectManyJoinString<TSource>(this IEnumerable<TSource> Source, Func<TSource, IEnumerable<string>> Selector = null, string Separator = EmptyString) => SelectJoinString(Source.SelectMany(Selector ?? (x => (new[] { x.ToString() }))), Separator);
+
+        /// <summary>
+        /// Seleciona e une em uma unica string varios elementos enumeraveis
+        /// </summary>
+        /// <typeparam name="TSource"></typeparam>
+        /// <param name="Source"></param>
+        /// <param name="Selector"></param>
+        /// <param name="Separator"></param>
+        /// <returns></returns>
+        public static string SelectManyJoinString<TSource>(this IQueryable<TSource> Source, Func<TSource, IEnumerable<string>> Selector = null, string Separator = EmptyString) => Source.AsEnumerable().SelectManyJoinString(Selector, Separator);
+
+        /// <summary>
+        /// Realiza um replace em uma string usando um tipo especifico de comparacao
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <param name="NewValue"></param>
+        /// <param name="OldValue"></param>
+        /// <param name="ComparisonType"></param>
+        /// <returns></returns>
+        public static string SensitiveReplace(this string Text, string OldValue, string NewValue, StringComparison ComparisonType = StringComparison.InvariantCulture) => Text.SensitiveReplace(NewValue, new[] { OldValue }, ComparisonType);
+
+        /// <summary>
+        /// Realiza um replace em uma string usando um tipo especifico de comparacao
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <param name="NewValue"></param>
+        /// <param name="OldValues"></param>
+        /// <param name="ComparisonType"></param>
+        /// <returns></returns>
+        public static string SensitiveReplace(this string Text, string NewValue, IEnumerable<string> OldValues, StringComparison ComparisonType = StringComparison.InvariantCulture)
+        {
+            if (Text.IsNotBlank())
+            {
+                foreach (var oldvalue in OldValues ?? new[] { EmptyString })
+                {
+                    NewValue = NewValue ?? EmptyString;
+                    if (!oldvalue.Equals(NewValue, ComparisonType))
+                    {
+                        int foundAt;
+                        do
+                        {
+                            foundAt = Text.IndexOf(oldvalue, 0, ComparisonType);
+                            if (foundAt > -1)
+                            {
+                                Text = Text.Remove(foundAt, oldvalue.Length).Insert(foundAt, NewValue);
+                            }
+                        }
+                        while (foundAt != -1);
+                    }
+                }
+            }
+
+            return Text;
+        }
+
+        /// <summary>
+        /// Adciona ou substitui um valor a este <see cref="Dictionary(Of TKey, TValue)"/> e retorna
+        /// a mesma instancia deste <see cref="Dictionary(Of TKey, TValue)"/>
+        /// </summary>
+        /// <typeparam name="TKey">Tipo da Key</typeparam>
+        /// <typeparam name="TValue">Tipo do valor</typeparam>
+        /// <param name="Key">Valor da key</param>
+        /// <param name="Value">Valor do Value</param>
+        /// <returns>o mesmo objeto do tipo <see cref="Dictionary"/> que chamou este método</returns>
+        public static IDictionary<TKey, TValue> Set<TKey, TValue, TK, TV>(this IDictionary<TKey, TValue> Dic, TK Key, TV Value)
+        {
+            if (Key != null && Dic != null)
+            {
+                Dic[Key.ChangeType<TKey>()] = Value.ChangeType<TValue>();
+            }
+
+            return Dic;
+        }
+
+        /// <summary>
+        /// Limita o valor Maximo de um numero
+        /// </summary>
+        /// <param name="Number">Numero</param>
+        /// <param name="MaxValue">Valor Maximo</param>
+        /// <returns></returns>
+        public static T SetMaxValue<T>(this T Number, T MaxValue) where T : IComparable => Number.LimitRange<T>(MaxValue: MaxValue);
+
+        /// <summary>
+        /// Limita o valor minimo de um numero
+        /// </summary>
+        /// <param name="Number">Numero</param>
+        /// <param name="MinValue">Valor Maximo</param>
+        /// <returns></returns>
+        public static T SetMinValue<T>(this T Number, T MinValue) where T : IComparable => Number.LimitRange<T>(MinValue: MinValue);
+
+        public static T SetOrRemove<T, TK, TV>(this T Dictionary, KeyValuePair<TK, TV> Pair) where T : IDictionary<TK, TV>
+        {
+            Dictionary?.SetOrRemove(Pair.Key, Pair.Value);
+            return Dictionary;
+        }
+
+        public static IDictionary<TKey, string> SetOrRemove<TKey, TK>(this IDictionary<TKey, string> Dic, TK Key, string Value, bool NullIfBlank) => Dic.SetOrRemove(Key, NullIfBlank.AsIf(Value.NullIf(x => x.IsBlank()), Value));
+
+        public static IDictionary<TKey, TValue> SetOrRemove<TKey, TValue, TK, TV>(this IDictionary<TKey, TValue> Dic, TK Key, TV Value)
+        {
+            if (Dic != null && Key != null)
+            {
+                if (Value != null)
+                {
+                    Dic[Key.ChangeType<TKey>()] = Value.ChangeType<TValue>();
+                }
+                else
+                {
+                    Dic.RemoveIfExist(Key.ChangeType<TKey>());
+                }
+            }
+
+            return Dic;
+        }
+
+        /// <summary>
+        /// Seta o valor de uma propriedade de um objeto
+        /// </summary>
+        /// <param name="MyObject">Objeto</param>
+        /// <param name="PropertyName">Nome da properiedade</param>
+        /// <param name="Value">Valor da propriedade definida por <paramref name="PropertyName"/></param>
+        /// <typeparam name="T">
+        /// Tipo do <paramref name="Value"/> da propriedade definida por <paramref name="PropertyName"/>
+        /// </typeparam>
+        public static T SetPropertyValue<T>(this T MyObject, string PropertyName, object Value) where T : class
+        {
+            if (PropertyName.IsNotBlank() && MyObject != null)
+            {
+                var props = MyObject.GetProperties();
+
+                var prop = props.FirstOrDefault(p => p != null && p.CanWrite && p.Name.IsAny(PropertyNamesFor(PropertyName).ToArray()));
+
+                if (prop != null)
+                    if (Value is DBNull)
+                    {
+                        prop.SetValue(MyObject, null);
+                    }
+                    else
+                    {
+                        prop.SetValue(MyObject, ChangeType(Value, prop.PropertyType));
+                    }
+            }
+
+            return MyObject;
+        }
+
+        public static T SetPropertyValue<T, TProp>(this T obj, Expression<Func<T, TProp>> Selector, TProp Value) where T : class
+        {
+            obj?.SetPropertyValue(obj.GetPropertyInfo(Selector).Name, Value);
+            return obj;
+        }
+
+        public static Task SetTimeout(int milliseconds, Action action) => Task.Delay(milliseconds).ContinueWith(async (t) =>
+                                                                                     {
+                                                                                         TryExecute(action);
+                                                                                         t.Dispose();
+                                                                                     });
+
+        public static T SetValuesIn<T>(this Dictionary<string, object> Dic) => (T)Dic.CreateOrSetObject(null, typeof(T));
+
+        /// <summary>
+        /// Seta as propriedades de uma classe a partir de um dictionary
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Dic"></param>
+        /// <summary>
+        /// Seta as propriedades e campos de uma classe a partir de um dictionary
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Dic"></param>
+        /// <param name="Obj"></param>
+        public static T SetValuesIn<T>(this Dictionary<string, object> Dic, T obj, params object[] args) => (T)Dic.CreateOrSetObject(obj, typeof(T), args);
+
+        /// <summary>
+        /// Seta as propriedades e campos de uma classe a partir de um dictionary
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Dic"></param>
+        /// <param name="Obj"></param>
+        public static T SetValuesIn<T>(this Dictionary<string, object> Dic, T obj) => (T)Dic.CreateOrSetObject(obj, typeof(T), null);
+
+        public static T Show<T>(this T dir) where T : FileSystemInfo
+        {
+            if (dir != null && dir.Exists)
+            {
+                if (dir.Attributes.HasFlag(FileAttributes.Hidden))
+                {
+                    dir.Attributes &= ~FileAttributes.Hidden;
+                }
+            }
+            return dir;
+        }
+
+        /// <summary>
+        /// Randomiza a ordem dos itens de um Array
+        /// </summary>
+        /// <typeparam name="Type">Tipo do Array</typeparam>
+        /// <param name="Array">Matriz</param>
+        public static Type[] Shuffle<Type>(this Type[] Array) => Array.OrderByRandom().ToArray();
+
+        /// <summary>
+        /// Randomiza a ordem dos itens de uma Lista
+        /// </summary>
+        /// <typeparam name="Type">Tipo de Lista</typeparam>
+        /// <param name="List">Matriz</param>
+        public static List<Type> Shuffle<Type>(this List<Type> List) => List.OrderByRandom().ToList();
+
+        /// <summary>
+        /// Aleatoriza a ordem das letras de um texto
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <returns></returns>
+        public static string Shuffle(this string Text) => Text.OrderByRandom().SelectJoinString();
+
+        /// <summary>
+        /// Busca em um <see cref="IQueryable{T}"/> usando uma expressao lambda a partir do nome de
+        /// uma propriedade, uma operacao e um valor
+        /// </summary>
+        /// <typeparam name="T">Tipo do objeto acessado</typeparam>
+        /// <param name="List">Lista</param>
+        /// <param name="PropertyName">Propriedade do objeto <typeparamref name="T"/></param>
+        /// <param name="[Operator]">
+        /// Operador ou método do objeto <typeparamref name="T"/> que retorna um <see cref="Boolean"/>
+        /// </param>
+        /// <param name="PropertyValue">
+        /// Valor da propriedade comparado com o <paramref name="Operator"/> ou como o primeiro
+        /// argumento do método de mesmo nome definido em <typeparamref name="T"/>
+        /// </param>
+        /// <param name="[Is]">Compara o resultado com TRUE ou FALSE</param>
+        /// <returns></returns>
+        public static T SingleOrDefaultExpression<T>(this IQueryable<T> List, string PropertyName, string Operator, object PropertyValue, bool Is = true) => List.SingleOrDefault(WhereExpression<T>(PropertyName, Operator, (IEnumerable<IComparable>)PropertyValue, Is));
+
+        /// <summary>
+        /// Retorna a frase ou termo especificado em sua forma singular
+        /// </summary>
+        /// <param name="Text">Texto no plural</param>
+        /// <returns></returns>
+        public static string Singularize(this string Text)
+        {
+            var phrase = Text.ApplySpaceOnWrapChars().Split(WhitespaceChar);
+            for (int index = 0, loopTo = phrase.Length - 1; index <= loopTo; index++)
+            {
+                string endchar = phrase[index].GetLastChars();
+                if (endchar.IsAny(StringComparison.CurrentCultureIgnoreCase, PredefinedArrays.WordSplitters.ToArray()))
+                {
+                    phrase[index] = phrase[index].RemoveLastEqual(endchar);
+                }
+
+                switch (true)
+                {
+                    case object _ when phrase[index].IsNumber() || phrase[index].IsEmail() || phrase[index].IsURL() || phrase[index].IsIP() || phrase[index].IsIn(PredefinedArrays.WordSplitters):
+                        {
+                            // nao alterar estes tipos
+                            break;
+                        }
+
+                    case object _ when phrase[index].EndsWith("ões"):
+                        {
+                            phrase[index] = phrase[index].RemoveLastEqual("ões") + "ão";
+                            break;
+                        }
+
+                    case object _ when phrase[index].EndsWith("ãos"):
+                        {
+                            phrase[index] = phrase[index].RemoveLastEqual("ãos") + "ão";
+                            break;
+                        }
+
+                    case object _ when phrase[index].EndsWith("ães"):
+                        {
+                            phrase[index] = phrase[index].RemoveLastEqual("ães") + "ão";
+                            break;
+                        }
+
+                    case object _ when phrase[index].EndsWith("ais"):
+                        {
+                            phrase[index] = phrase[index].RemoveLastEqual("ais") + "al";
+                            break;
+                        }
+
+                    case object _ when phrase[index].EndsWith("eis"):
+                        {
+                            phrase[index] = phrase[index].RemoveLastEqual("eis") + "il";
+                            break;
+                        }
+
+                    case object _ when phrase[index].EndsWith("éis"):
+                        {
+                            phrase[index] = phrase[index].RemoveLastEqual("éis") + "el";
+
+                            break;
+                        }
+
+                    case object _ when phrase[index].EndsWith("ois"):
+                        {
+                            phrase[index] = phrase[index].RemoveLastEqual("ois") + "ol";
+                            break;
+                        }
+
+                    case object _ when phrase[index].EndsWith("uis"):
+                        {
+                            phrase[index] = phrase[index].RemoveLastEqual("uis") + "ul";
+                            break;
+                        }
+
+                    case object _ when phrase[index].EndsWith("es"):
+                        {
+                            if (phrase[index].RemoveLastEqual("es").EndsWithAny("z", "r"))
+                            {
+                                phrase[index] = phrase[index].RemoveLastEqual("es");
+                            }
+                            else
+                            {
+                                phrase[index] = phrase[index].RemoveLastEqual("s");
+                            }
+
+                            break;
+                        }
+
+                    case object _ when phrase[index].EndsWith("ns"):
+                        {
+                            phrase[index] = phrase[index].RemoveLastEqual("ns") + "m";
+                            break;
+                        }
+
+                    case object _ when phrase[index].EndsWith("s"):
+                        {
+                            phrase[index] = phrase[index].RemoveLastEqual("s");
+                            break;
+                        }
+
+                    default:
+                        {
+                            break;
+                        }
+                        // ja esta no singular
+                }
+
+                if (endchar.IsAny(StringComparison.CurrentCultureIgnoreCase, PredefinedArrays.WordSplitters.ToArray()))
+                {
+                    phrase[index] = phrase[index] + endchar;
+                }
+            }
+
+            return phrase.SelectJoinString(WhitespaceChar).TrimBetween();
+        }
+
+        public static IEnumerable<T> SkipLast<T>(this IEnumerable<T> l, int Count = 1)
+        => l.Take(l.Count() - Count.LimitRange(0, l.Count()));
+
+        public static Dictionary<TGroup, Dictionary<TCount, long>> SkipZero<TGroup, TCount>(this Dictionary<TGroup, Dictionary<TCount, long>> Grouped)
+        {
+            if (Grouped != null)
+            {
+                foreach (var dic in Grouped.ToArray())
+                {
+                    Grouped[dic.Key] = dic.Value.Where(x => x.Value > 0).ToDictionary();
+                }
+
+                Grouped = Grouped.Where(x => x.Value.Any()).ToDictionary();
+            }
+
+            return Grouped;
+        }
+
+        public static Dictionary<TCount, long> SkipZero<TCount>(this Dictionary<TCount, long> Grouped)
+        {
+            Grouped = Grouped?.Where(x => x.Value > 0).ToDictionary();
+            return Grouped;
+        }
+
+        /// <summary>
+        /// Separa um texto em um array de strings a partir de uma outra string
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <param name="Separator">Texto utilizado como separador</param>
+        /// <returns></returns>
+        public static string[] Split(this string Text, string Separator, StringSplitOptions Options = StringSplitOptions.RemoveEmptyEntries) => (Text ?? EmptyString).Split(new[] { Separator }, Options);
+
+        /// <summary>
+        /// Separa uma string em varias partes a partir de varias strings removendo as entradas em branco
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <param name="SplitText"></param>
+        /// <returns></returns>
+        public static string[] SplitAny(this string Text, params string[] SplitText) => Text?.SplitAny(StringSplitOptions.RemoveEmptyEntries, SplitText);
+
+        /// <summary>
+        /// Separa uma string em varias partes a partir de varias strings removendo as entradas em branco
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <param name="SplitText"></param>
+        /// <returns></returns>
+        public static string[] SplitAny(this string Text, StringSplitOptions SplitOptions, params string[] SplitText) => Text?.Split(SplitText ?? Array.Empty<string>(), SplitOptions);
+
+        /// <summary>
+        /// Separa uma string em varias partes a partir de varias strings removendo as entradas em branco
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <param name="SplitText"></param>
+        /// <returns></returns>
+        public static string[] SplitAny(this string Text, IEnumerable<string> SplitText) => Text?.SplitAny(SplitText.ToArray());
+
+        /// <summary>
+        /// Separa uma string em varias partes a partir de varias strings removendo as entradas em branco
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <param name="SplitText"></param>
+        /// <returns></returns>
+        public static string[] SplitAny(this string Text, StringSplitOptions SplitOptions, IEnumerable<string> SplitText) => Text?.SplitAny(SplitOptions, SplitText.ToArray());
+
+        public static IEnumerable<string> SplitChunk(this string input, params int[] chunkSizes)
+        {
+            if (input != null)
+                while (input.Length > 0)
+                {
+                    var size = chunkSizes.IfNoIndex(0, input.Length);
+                    if (size <= 0) size = input.Length;
+                    var chunk = input.GetFirstChars(size);
+                    if (chunk.Length == 0)
+                    {
+                        if (input.Length > 0)
+                            yield return input;
+                        break;
+                    }
+                    yield return chunk;
+                    input = input.RemoveFirstChars(size);
+                    chunkSizes = chunkSizes.Skip(1).ToArray();
+                }
+        }
+
+        public static IEnumerable<string> SplitFixedChunk(this string inputString, int chunkSize)
+        {
+            inputString = inputString ?? EmptyString;
+            if (chunkSize > 0 && inputString.Length > 0)
+            {
+                for (int i = 0; i < inputString.Length; i += chunkSize)
+                {
+                    int remainingLength = inputString.Length - i;
+                    yield return inputString.Substring(i, remainingLength < chunkSize ? remainingLength : chunkSize);
+                }
+            }
+            else yield return inputString;
+        }
+
+        public static IEnumerable<string> SplitPercentChunk(this string input, params string[] percents)
+        {
+            if (input != null && input.Length > 0)
+            {
+                var p = percents.Select(x => x.CalculateValueFromPercent(input.Length.ToDecimal()).RoundInt()).ToArray();
+
+                foreach (var s in input.SplitChunk(p)) yield return s;
+            }
+        }
+
+        public static string SQLQueryForClass<T>(object InjectionObject = null) => typeof(T).GetAttributeValue<FromSQLAttribute, string>(x => x.SQL).IfBlank($"SELECT * FROM {typeof(T).Name}").Inject(InjectionObject);
+
+        /// <summary>
+        /// Cria uma <see cref="List{T}"/> e adciona um objeto a ela. Util para tipos anonimos
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static List<T> StartList<T>(this T ObjectForDefinition)
+        {
+            var d = DefineEmptyList(ObjectForDefinition);
+            if (ObjectForDefinition != null)
+            {
+                d.Add(ObjectForDefinition);
+            }
+
+            return d;
+        }
+
+        /// <summary>
+        /// Verifica se uma string começa com alguma outra string de um array
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <param name="Words"></param>
+        /// <returns></returns>
+        public static bool StartsWithAny(this string Text, StringComparison comparison, params string[] Words) => Words.Any(p => Text.IfBlank(EmptyString).StartsWith(p, comparison));
+
+        public static bool StartsWithAny(this string Text, params string[] Words) => StartsWithAny(Text, StringComparison.InvariantCultureIgnoreCase, Words);
+
+        /// <summary>
+        /// Soma todos os números de um array
+        /// </summary>
+        /// <param name="Values">Array de números</param>
+        /// <returns>Decimal contendo a soma de todos os valores</returns>
+        public static double Sum(params double[] Values) => Values.Sum();
+
+        /// <summary>
+        /// Soma todos os números de um array
+        /// </summary>
+        /// <param name="Values">Array de números</param>
+        /// <returns>Decimal contendo a soma de todos os valores</returns>
+        public static long Sum(params long[] Values) => Values.Sum();
+
+        /// <summary>
+        /// Soma todos os números de um array
+        /// </summary>
+        /// <param name="Values">Array de números</param>
+        /// <returns>Decimal contendo a soma de todos os valores</returns>
+        public static int Sum(params int[] Values) => Values.Sum();
+
+        /// <summary>
+        /// Soma todos os números de um array
+        /// </summary>
+        /// <param name="Values">Array de números</param>
+        /// <returns>Decimal contendo a soma de todos os valores</returns>
+        public static decimal Sum(params decimal[] Values) => Values.Sum();
+
+        /// <summary>
+        /// Troca o valor de <paramref name="FirstValue"/> pelo valor de <paramref
+        /// name="SecondValue"/> e o valor de <paramref name="SecondValue"/> pelo valor de <paramref name="FirstValue"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="FirstValue"></param>
+        /// <param name="SecondValue"></param>
+        public static (T, T) Swap<T>(ref T FirstValue, ref T SecondValue)
+        {
+            (SecondValue, FirstValue) = (FirstValue, SecondValue);
+            return (FirstValue, SecondValue);
+        }
+
+        public static IEnumerable<T> TakeLast<T>(this IEnumerable<T> l, int Count = 1) => l.Reverse().Take(Count).Reverse();
+
+        public static IEnumerable<T> TakeRandom<T>(this IEnumerable<T> l, int Count = 1) => l.OrderByRandom().Take(Count);
+
+        public static IEnumerable<T> TakeRandom<T>(this IEnumerable<T> l, Func<T, bool> predicade, int Count = 1) => l.Where(predicade).OrderByRandom().Take(Count);
+
+        /// <summary>
+        /// Traz os top N valores de um dicionario e agrupa os outros
+        /// </summary>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="Dic"></param>
+        /// <param name="Top"></param>
+        /// <param name="GroupOthersLabel"></param>
+        /// <returns></returns>
+        public static Dictionary<TKey, TValue> TakeTop<TKey, TValue>(this Dictionary<TKey, TValue> Dic, int Top, TKey GroupOthersLabel)
+        {
+            if (Dic == null)
+            {
+                return null;
+            }
+
+            if (Top < 1)
+            {
+                return Dic.ToDictionary();
+            }
+
+            var novodic = Dic.Take(Top).ToDictionary();
+            if (GroupOthersLabel != null)
+            {
+                novodic[GroupOthersLabel] = Dic.Values.Skip(Top).Select(x => x.ChangeType<decimal>()).Sum().ChangeType<TValue>();
+            }
+
+            return novodic;
+        }
+
+        /// <summary>
+        /// Traz os top N valores de um dicionario e agrupa os outros
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Dic"></param>
+        /// <param name="Top"></param>
+        /// <param name="GroupOthersLabel"></param>
+        /// <returns></returns>
+        public static Dictionary<TKey, IEnumerable<T>> TakeTop<TKey, T>(this Dictionary<TKey, IEnumerable<T>> Dic, int Top, Expression<Func<T, dynamic>> ValueSelector) where T : class
+        {
+            Dictionary<TKey, IEnumerable<T>> novodic = Dic.ToDictionary();
+
+            if (ValueSelector != null)
+            {
+                novodic = Dic.ToDictionary(x => x.Key, x => x.Value.OrderByDescending(ValueSelector.Compile()).AsEnumerable());
+            }
+
+            if (Top > 0)
+            {
+                novodic = Dic.ToDictionary(x => x.Key, x => x.Value.TakeTop(Top, ValueSelector));
+            }
+
+            return novodic;
+        }
+
+        public static IEnumerable<T> TakeTop<T>(this IEnumerable<T> List, int Top, params Expression<Func<T, dynamic>>[] ValueSelector) where T : class => TakeTop<T, object>(List, Top, null, null, ValueSelector?.ToArray());
+
+        public static IEnumerable<T> TakeTop<T, TLabel>(this IEnumerable<T> List, int Top, Expression<Func<T, TLabel>> LabelSelector, TLabel GroupOthersLabel, params Expression<Func<T, dynamic>>[] ValueSelector) where T : class
+        {
+            ValueSelector = ValueSelector ?? Array.Empty<Expression<Func<T, dynamic>>>();
+
+            if (ValueSelector.WhereNotNull().IsNullOrEmpty())
+            {
+                throw new ArgumentException("You need at least one value selector", nameof(ValueSelector));
+            }
+
+            var newlist = List.OrderByManyDescending(ValueSelector).Take(Top).ToList();
+
+            if (LabelSelector != null && GroupOthersLabel != null)
+            {
+                var others = Activator.CreateInstance<T>();
+                LabelSelector.GetPropertyInfo().SetValue(others, GroupOthersLabel);
+                foreach (var v in ValueSelector)
+                {
+                    var values = List.Skip(Top).Select(x => (v.Compile().Invoke(x) as object).ChangeType<decimal>()).Sum();
+                    v.GetPropertyInfo().SetValue(others, values);
+                }
+                newlist.Add(others);
+            }
+            return newlist.AsEnumerable();
+        }
+
+        /// <summary>
+        /// Rotaciona uma imagem para sua posição original caso ela já tenha sido rotacionada (EXIF)
+        /// </summary>
+        /// <param name="Img">Imagem</param>
+        /// <returns>TRUE caso a imagem ja tenha sido rotacionada</returns>
+        public static bool TestAndRotate(this Image Img)
+        {
+            var rft = Img.GetRotateFlip();
+            if (rft != RotateFlipType.RotateNoneFlipNone)
+            {
+                Img.RotateFlip(rft);
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Ordena um <see cref="IEnumerable(Of T)"/> a partir da aproximação de uma ou mais <see
+        /// cref="String"/> com o valor de um determinado campo
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="items"></param>
+        /// <param name="Searches"></param>
+        /// <param name="SortProperty"></param>
+        /// <param name="Ascending"></param>
+        /// <returns></returns>
+        public static IOrderedQueryable<T> ThenByLike<T>(this IQueryable<T> items, string[] Searches, string SortProperty, bool Ascending = true)
+        {
+            var type = typeof(T);
+            Searches = Searches ?? Array.Empty<string>();
+            if (Searches.Any())
             {
                 foreach (var t in Searches)
                 {
-                    MemberExpression mem = SortProperty.Body as MemberExpression;
-                    var property = mem.Member;
-                    var parameter = SortProperty.Parameters.First();
+                    var property = type.GetProperty(SortProperty);
+                    var parameter = Expression.Parameter(type, "p");
                     var propertyAccess = Expression.MakeMemberAccess(parameter, property);
                     var orderByExp = Expression.Lambda(propertyAccess, parameter);
-                    var tests = new[] { Expression.Call(propertyAccess, equalMethod, Expression.Constant(t)), Expression.Call(propertyAccess, startsWithMethod, Expression.Constant(t)), Expression.Call(propertyAccess, containsMethod, Expression.Constant(t)), Expression.Call(propertyAccess, endsWithMethod, Expression.Constant(t)) };
-                    foreach (var exp in tests)
+                    var testes = new[] { Expression.Call(propertyAccess, equalMethod, Expression.Constant(t)), Expression.Call(propertyAccess, startsWithMethod, Expression.Constant(t)), Expression.Call(propertyAccess, containsMethod, Expression.Constant(t)), Expression.Call(propertyAccess, endsWithMethod, Expression.Constant(t)) };
+                    foreach (var exp in testes)
                     {
                         var nv = Expression.Lambda<Func<T, bool>>(exp, parameter);
                         if (Ascending)
@@ -12445,3917 +12388,3949 @@ namespace Extensions
             {
                 items = items.OrderBy(x => 0);
             }
+
             return (IOrderedQueryable<T>)items;
         }
-        throw new ArgumentNullException(nameof(items));
-    }
 
-    /// <summary>
-    /// Ordena um <see cref="IEnumerable(Of T)"/> a partir da aproximação de uma ou mais <see
-    /// cref="String"/> com o valor de um determinado campo
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="items"></param>
-    /// <param name="PropertySelector"></param>
-    /// <param name="Ascending"></param>
-    /// <param name="Searches"></param>
-    /// <returns></returns>
-    public static IOrderedEnumerable<T> ThenByLike<T>(this IEnumerable<T> items, Func<T, string> PropertySelector, bool Ascending, params string[] Searches) where T : class => ThenByLike(items, PropertySelector, Ascending, StringComparison.InvariantCultureIgnoreCase, Searches);
-
-    public static IOrderedEnumerable<T> ThenByLike<T>(this IEnumerable<T> items, Func<T, string> PropertySelector, bool Ascending, StringComparison Comparison, params string[] Searches) where T : class
-    {
-        Searches = Searches ?? Array.Empty<string>();
-        if (items != null)
+        /// <summary>
+        /// Ordena um <see cref="IEnumerable(Of T)"/> a partir da aproximação de uma ou mais <see
+        /// cref="String"/> com o valor de um determinado campo
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="items"></param>
+        /// <param name="Searches"></param>
+        /// <param name="SortProperty"></param>
+        /// <param name="Ascending"></param>
+        /// <returns></returns>
+        public static IOrderedQueryable<T> ThenByLike<T>(this IQueryable<T> items, IEnumerable<string> Searches, Expression<Func<T, string>> SortProperty, bool Ascending = true)
         {
-            IOrderedEnumerable<T> newitems = items is IOrderedEnumerable<T> oitems ? oitems : items.OrderBy(x => 0);
-
-            if (Searches.Any())
+            var type = typeof(T);
+            Searches = Searches ?? Array.Empty<string>();
+            if (items != null)
             {
-                Searches.Each(s =>
+                if (Searches.Any() && SortProperty != null)
                 {
-                    bool func(T x) => PropertySelector.Invoke(x).Equals(s, Comparison);
-                    newitems = Ascending ? newitems.ThenByDescending(func) : newitems.ThenBy(func);
-                });
-
-                Searches.Each(s =>
-                {
-                    int func(T x) => PropertySelector.Invoke(x).IndexOf(s, Comparison);
-                    newitems = Ascending ? newitems.ThenBy(func) : newitems.ThenByDescending(func);
-                });
-            }
-
-            return newitems;
-        }
-        throw new ArgumentNullException(nameof(items));
-    }
-
-    /// <summary>
-    /// Ordena um <see cref="IEnumerable(Of T)"/> a partir de outra lista do mesmo tipo
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="Source"></param>
-    /// <param name="OrderSource"></param>
-    /// <returns></returns>
-    public static IOrderedEnumerable<T> ThenByList<T>(this IOrderedEnumerable<T> Source, params T[] OrderSource)
-    => Source.ThenBy(d => Array.IndexOf(OrderSource, d));
-
-    /// <summary>
-    /// Ordena um <see cref="IQueryable(Of T)"/> a partir do nome de uma ou mais propriedades
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="source"></param>
-    /// <param name="sortProperty"></param>
-    /// <param name="Ascending"></param>
-    /// <returns></returns>
-    public static IOrderedQueryable<T> ThenByProperty<T>(this IQueryable<T> source, string[] SortProperty, bool Ascending = true)
-    {
-        if (source == null) throw new ArgumentNullException(nameof(source));
-
-        var type = typeof(T);
-        SortProperty = SortProperty ?? Array.Empty<string>();
-        foreach (var prop in SortProperty)
-        {
-            var property = type.FindProperty(prop);
-            var parameter = Expression.Parameter(type, "p");
-            var propertyAccess = Expression.MakeMemberAccess(parameter, property);
-            var orderByExp = Expression.Lambda(propertyAccess, parameter);
-            var typeArguments = new Type[] { type, property.PropertyType };
-            string methodname = source.GetType() == typeof(IOrderedQueryable<T>)
-                ? Ascending ? "ThenBy" : "ThenByDescending"
-                : Ascending ? "OrderBy" : "OrderByDescending";
-            var resultExp = Expression.Call(typeof(Queryable), methodname, typeArguments, source.Expression, Expression.Quote(orderByExp));
-            source = source.Provider.CreateQuery<T>(resultExp);
-        }
-        return source.GetType() != typeof(IOrderedQueryable<T>) ? source.OrderBy(x => true) : (IOrderedQueryable<T>)source;
-    }
-
-    /// <summary>
-    /// Ordena um <see cref="IEnumerable{T}"/> a partir do nome de uma ou mais propriedades
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="source"></param>
-    /// <param name="sortProperty"></param>
-    /// <param name="Ascending"></param>
-    /// <returns></returns>
-    public static IOrderedEnumerable<T> ThenByProperty<T>(this IEnumerable<T> source, string[] SortProperty, bool Ascending = true)
-    {
-        if (source == null) throw new ArgumentNullException(nameof(source));
-
-        var type = typeof(T);
-        SortProperty = SortProperty ?? Array.Empty<string>();
-        foreach (var prop in SortProperty)
-        {
-            var propInfo = FindProperty(typeof(T), prop);
-
-            if (propInfo != null)
-            {
-                object exp(T x) => propInfo.GetValue(x);
-                if (source.GetType() == typeof(IOrderedEnumerable<T>))
-                {
-                    source = Ascending ? ((IOrderedEnumerable<T>)source).ThenBy(exp) : ((IOrderedEnumerable<T>)source).ThenByDescending(exp);
+                    foreach (var t in Searches)
+                    {
+                        MemberExpression mem = SortProperty.Body as MemberExpression;
+                        var property = mem.Member;
+                        var parameter = SortProperty.Parameters.First();
+                        var propertyAccess = Expression.MakeMemberAccess(parameter, property);
+                        var orderByExp = Expression.Lambda(propertyAccess, parameter);
+                        var tests = new[] { Expression.Call(propertyAccess, equalMethod, Expression.Constant(t)), Expression.Call(propertyAccess, startsWithMethod, Expression.Constant(t)), Expression.Call(propertyAccess, containsMethod, Expression.Constant(t)), Expression.Call(propertyAccess, endsWithMethod, Expression.Constant(t)) };
+                        foreach (var exp in tests)
+                        {
+                            var nv = Expression.Lambda<Func<T, bool>>(exp, parameter);
+                            if (Ascending)
+                            {
+                                if (!ReferenceEquals(items.GetType(), typeof(IOrderedQueryable<T>)))
+                                {
+                                    items = items.OrderByDescending(nv);
+                                }
+                                else
+                                {
+                                    items = ((IOrderedQueryable<T>)items).ThenByDescending(nv);
+                                }
+                            }
+                            else if (!ReferenceEquals(items.GetType(), typeof(IOrderedQueryable<T>)))
+                            {
+                                items = items.OrderBy(nv);
+                            }
+                            else
+                            {
+                                items = ((IOrderedQueryable<T>)items).ThenBy(nv);
+                            }
+                        }
+                    }
                 }
                 else
                 {
-                    source = Ascending ? source.OrderBy(exp) : source.OrderByDescending(exp);
+                    items = items.OrderBy(x => 0);
                 }
+                return (IOrderedQueryable<T>)items;
             }
+            throw new ArgumentNullException(nameof(items));
         }
 
-        return source.GetType() != typeof(IOrderedEnumerable<T>) ? source.OrderBy(x => true) : (IOrderedEnumerable<T>)source;
-    }
+        /// <summary>
+        /// Ordena um <see cref="IEnumerable(Of T)"/> a partir da aproximação de uma ou mais <see
+        /// cref="String"/> com o valor de um determinado campo
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="items"></param>
+        /// <param name="PropertySelector"></param>
+        /// <param name="Ascending"></param>
+        /// <param name="Searches"></param>
+        /// <returns></returns>
+        public static IOrderedEnumerable<T> ThenByLike<T>(this IEnumerable<T> items, Func<T, string> PropertySelector, bool Ascending, params string[] Searches) where T : class => ThenByLike(items, PropertySelector, Ascending, StringComparison.InvariantCultureIgnoreCase, Searches);
 
-    /// <summary>
-    /// Converte uma matriz denteada para uma matriz multidemensional
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="source"></param>
-    /// <returns></returns>
-    public static T[,] To2D<T>(this T[][] source)
-    {
-        if (source != null)
+        public static IOrderedEnumerable<T> ThenByLike<T>(this IEnumerable<T> items, Func<T, string> PropertySelector, bool Ascending, StringComparison Comparison, params string[] Searches) where T : class
         {
-            int FirstDim = source.Length;
-            int SecondDim = source.GroupBy(row => row.Length).Max().Key;
-
-            var result = new T[FirstDim, SecondDim];
-            for (int i = 0; i < FirstDim; ++i)
-                for (int j = 0; j < SecondDim; ++j)
-                    result[i, j] = source[i].IfNoIndex(j);
-
-            return result;
-        }
-        return default;
-    }
-
-    /// <summary>
-    /// Alterna maiusculas e minusculas para cada letra de uma string
-    /// </summary>
-    /// <param name="Text"></param>
-    /// <returns></returns>
-    public static string ToAlternateCase(this string Text)
-    {
-        var ch = Text.ToArray();
-        for (int index = 0, loopTo = ch.Length - 1; index <= loopTo; index++)
-        {
-            char antec = ch.IfNoIndex(index - 1, '\0');
-            if (antec.ToString().IsBlank() || char.IsLower(antec) || antec.ToString() == null)
+            Searches = Searches ?? Array.Empty<string>();
+            if (items != null)
             {
-                ch[index] = char.ToUpper(ch[index]);
-            }
-            else
-            {
-                ch[index] = char.ToLower(ch[index]);
-            }
-        }
+                IOrderedEnumerable<T> newitems = items is IOrderedEnumerable<T> oitems ? oitems : items.OrderBy(x => 0);
 
-        return new string(ch);
-    }
-
-    /// <summary>
-    /// Retorna um anagrama de um texto
-    /// </summary>
-    /// <param name="Text">Texto</param>
-    /// <returns></returns>
-    public static string ToAnagram(this string Text) => Shuffle(Text);
-
-    public static int ToArabic(this string RomanNumber)
-    {
-        RomanNumber = $"{RomanNumber}".ToUpper(CultureInfo.InvariantCulture).Trim();
-        if (RomanNumber == "N" || RomanNumber.IsBlank())
-        {
-            return 0;
-        }
-
-        // Os numerais que representam números que começam com um '5'(TV, L e D) podem aparecer
-        // apenas uma vez em cada numeral romano. Esta regra permite XVI, mas não VIV.
-        if (RomanNumber.Split('V').Length > 2 || RomanNumber.Split('L').Length > 2 || RomanNumber.Split('D').Length > 2)
-        {
-            throw new ArgumentException("Roman number with invalid numerals. The number has a TV, L or D number repeated.");
-        }
-
-        // Uma única letra pode ser repetida até três vezes consecutivamente sendo que cada
-        // ocorrência será somanda. Isto significa que I é um, II e III significa dois é três.
-        // No entanto, IIII não é permitido.
-        int contador = 1;
-        char ultimo = 'Z';
-        foreach (char numeral in RomanNumber)
-        {
-            // caractere inválido ?
-            if ("IVXLCDM".IndexOf(numeral) == -1)
-            {
-                throw new ArgumentException("Roman number with invalid positioning.");
-            }
-
-            // Duplicado?
-            if (numeral == ultimo)
-            {
-                contador += 1;
-                if (contador == 4)
+                if (Searches.Any())
                 {
-                    throw new ArgumentException("A Roman number can not be repeated more than 3 times in the same number.");
-                }
-            }
-            else
-            {
-                contador = 1;
-                ultimo = numeral;
-            }
-        }
-
-        // Cria um ArrayList contendo os valores
-        int ptr = 0;
-        var valores = new ArrayList();
-        int digitoMaximo = 1000;
-        while (ptr < RomanNumber.Length)
-        {
-            // valor base do digito
-            char numeral = RomanNumber[ptr];
-            int digito = Convert.ToInt32(Enum.Parse(typeof(RomanDigit), numeral.ToString()));
-
-            // Um numeral de pequena valor pode ser colocado à esquerda de um valor maior Quando
-            // isto ocorre, por exemplo IX, o menor número é subtraído do maior T dígito
-            // subtraído deve ser de pelo menos um décimo do valor do maior numeral e deve ser
-            // ou I, X ou C Valores como MCMD ou CMC não são permitidos
-            if (digito > digitoMaximo)
-            {
-                throw new ArgumentException("Roman number with invalid positioning.");
-            }
-
-            if (ptr < RomanNumber.Length - 1)
-            {
-                char proximoNumeral = RomanNumber[ptr + 1];
-                // proximo digito
-                int proximoDigito = Convert.ToInt32(Enum.Parse(typeof(RomanDigit), proximoNumeral.ToString()));
-                if (proximoDigito > digito)
-                {
-                    if ("IXC".IndexOf(numeral) == -1 || proximoDigito > digito * 10 || RomanNumber.Split(numeral).Length > 3)
+                    Searches.Each(s =>
                     {
-                        throw new ArgumentException("Rule 3");
+                        bool func(T x) => PropertySelector.Invoke(x).Equals(s, Comparison);
+                        newitems = Ascending ? newitems.ThenByDescending(func) : newitems.ThenBy(func);
+                    });
+
+                    Searches.Each(s =>
+                    {
+                        int func(T x) => PropertySelector.Invoke(x).IndexOf(s, Comparison);
+                        newitems = Ascending ? newitems.ThenBy(func) : newitems.ThenByDescending(func);
+                    });
+                }
+
+                return newitems;
+            }
+            throw new ArgumentNullException(nameof(items));
+        }
+
+        /// <summary>
+        /// Ordena um <see cref="IEnumerable(Of T)"/> a partir de outra lista do mesmo tipo
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Source"></param>
+        /// <param name="OrderSource"></param>
+        /// <returns></returns>
+        public static IOrderedEnumerable<T> ThenByList<T>(this IOrderedEnumerable<T> Source, params T[] OrderSource)
+        => Source.ThenBy(d => Array.IndexOf(OrderSource, d));
+
+        /// <summary>
+        /// Ordena um <see cref="IQueryable(Of T)"/> a partir do nome de uma ou mais propriedades
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="sortProperty"></param>
+        /// <param name="Ascending"></param>
+        /// <returns></returns>
+        public static IOrderedQueryable<T> ThenByProperty<T>(this IQueryable<T> source, string[] SortProperty, bool Ascending = true)
+        {
+            if (source == null) throw new ArgumentNullException(nameof(source));
+
+            var type = typeof(T);
+            SortProperty = SortProperty ?? Array.Empty<string>();
+            foreach (var prop in SortProperty)
+            {
+                var property = type.FindProperty(prop);
+                var parameter = Expression.Parameter(type, "p");
+                var propertyAccess = Expression.MakeMemberAccess(parameter, property);
+                var orderByExp = Expression.Lambda(propertyAccess, parameter);
+                var typeArguments = new Type[] { type, property.PropertyType };
+                string methodname = source.GetType() == typeof(IOrderedQueryable<T>)
+                    ? Ascending ? "ThenBy" : "ThenByDescending"
+                    : Ascending ? "OrderBy" : "OrderByDescending";
+                var resultExp = Expression.Call(typeof(Queryable), methodname, typeArguments, source.Expression, Expression.Quote(orderByExp));
+                source = source.Provider.CreateQuery<T>(resultExp);
+            }
+            return source.GetType() != typeof(IOrderedQueryable<T>) ? source.OrderBy(x => true) : (IOrderedQueryable<T>)source;
+        }
+
+        /// <summary>
+        /// Ordena um <see cref="IEnumerable{T}"/> a partir do nome de uma ou mais propriedades
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="sortProperty"></param>
+        /// <param name="Ascending"></param>
+        /// <returns></returns>
+        public static IOrderedEnumerable<T> ThenByProperty<T>(this IEnumerable<T> source, string[] SortProperty, bool Ascending = true)
+        {
+            if (source == null) throw new ArgumentNullException(nameof(source));
+
+            var type = typeof(T);
+            SortProperty = SortProperty ?? Array.Empty<string>();
+            foreach (var prop in SortProperty)
+            {
+                var propInfo = FindProperty(typeof(T), prop);
+
+                if (propInfo != null)
+                {
+                    object exp(T x) => propInfo.GetValue(x);
+                    if (source.GetType() == typeof(IOrderedEnumerable<T>))
+                    {
+                        source = Ascending ? ((IOrderedEnumerable<T>)source).ThenBy(exp) : ((IOrderedEnumerable<T>)source).ThenByDescending(exp);
+                    }
+                    else
+                    {
+                        source = Ascending ? source.OrderBy(exp) : source.OrderByDescending(exp);
+                    }
+                }
+            }
+
+            return source.GetType() != typeof(IOrderedEnumerable<T>) ? source.OrderBy(x => true) : (IOrderedEnumerable<T>)source;
+        }
+
+        /// <summary>
+        /// Converte uma matriz denteada para uma matriz multidemensional
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        public static T[,] To2D<T>(this T[][] source)
+        {
+            if (source != null)
+            {
+                int FirstDim = source.Length;
+                int SecondDim = source.GroupBy(row => row.Length).Max().Key;
+
+                var result = new T[FirstDim, SecondDim];
+                for (int i = 0; i < FirstDim; ++i)
+                    for (int j = 0; j < SecondDim; ++j)
+                        result[i, j] = source[i].IfNoIndex(j);
+
+                return result;
+            }
+            return default;
+        }
+
+        /// <summary>
+        /// Alterna maiusculas e minusculas para cada letra de uma string
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <returns></returns>
+        public static string ToAlternateCase(this string Text)
+        {
+            var ch = Text.ToArray();
+            for (int index = 0, loopTo = ch.Length - 1; index <= loopTo; index++)
+            {
+                char antec = ch.IfNoIndex(index - 1, '\0');
+                if (antec.ToString().IsBlank() || char.IsLower(antec) || antec.ToString() == null)
+                {
+                    ch[index] = char.ToUpper(ch[index]);
+                }
+                else
+                {
+                    ch[index] = char.ToLower(ch[index]);
+                }
+            }
+
+            return new string(ch);
+        }
+
+        /// <summary>
+        /// Retorna um anagrama de um texto
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <returns></returns>
+        public static string ToAnagram(this string Text) => Shuffle(Text);
+
+        public static int ToArabic(this string RomanNumber)
+        {
+            RomanNumber = $"{RomanNumber}".ToUpper(CultureInfo.InvariantCulture).Trim();
+            if (RomanNumber == "N" || RomanNumber.IsBlank())
+            {
+                return 0;
+            }
+
+            // Os numerais que representam números que começam com um '5'(TV, L e D) podem aparecer
+            // apenas uma vez em cada numeral romano. Esta regra permite XVI, mas não VIV.
+            if (RomanNumber.Split('V').Length > 2 || RomanNumber.Split('L').Length > 2 || RomanNumber.Split('D').Length > 2)
+            {
+                throw new ArgumentException("Roman number with invalid numerals. The number has a TV, L or D number repeated.");
+            }
+
+            // Uma única letra pode ser repetida até três vezes consecutivamente sendo que cada
+            // ocorrência será somanda. Isto significa que I é um, II e III significa dois é três.
+            // No entanto, IIII não é permitido.
+            int contador = 1;
+            char ultimo = 'Z';
+            foreach (char numeral in RomanNumber)
+            {
+                // caractere inválido ?
+                if ("IVXLCDM".IndexOf(numeral) == -1)
+                {
+                    throw new ArgumentException("Roman number with invalid positioning.");
+                }
+
+                // Duplicado?
+                if (numeral == ultimo)
+                {
+                    contador += 1;
+                    if (contador == 4)
+                    {
+                        throw new ArgumentException("A Roman number can not be repeated more than 3 times in the same number.");
+                    }
+                }
+                else
+                {
+                    contador = 1;
+                    ultimo = numeral;
+                }
+            }
+
+            // Cria um ArrayList contendo os valores
+            int ptr = 0;
+            var valores = new ArrayList();
+            int digitoMaximo = 1000;
+            while (ptr < RomanNumber.Length)
+            {
+                // valor base do digito
+                char numeral = RomanNumber[ptr];
+                int digito = Convert.ToInt32(Enum.Parse(typeof(RomanDigit), numeral.ToString()));
+
+                // Um numeral de pequena valor pode ser colocado à esquerda de um valor maior Quando
+                // isto ocorre, por exemplo IX, o menor número é subtraído do maior T dígito
+                // subtraído deve ser de pelo menos um décimo do valor do maior numeral e deve ser
+                // ou I, X ou C Valores como MCMD ou CMC não são permitidos
+                if (digito > digitoMaximo)
+                {
+                    throw new ArgumentException("Roman number with invalid positioning.");
+                }
+
+                if (ptr < RomanNumber.Length - 1)
+                {
+                    char proximoNumeral = RomanNumber[ptr + 1];
+                    // proximo digito
+                    int proximoDigito = Convert.ToInt32(Enum.Parse(typeof(RomanDigit), proximoNumeral.ToString()));
+                    if (proximoDigito > digito)
+                    {
+                        if ("IXC".IndexOf(numeral) == -1 || proximoDigito > digito * 10 || RomanNumber.Split(numeral).Length > 3)
+                        {
+                            throw new ArgumentException("Rule 3");
+                        }
+
+                        digitoMaximo = digito - 1;
+                        digito = proximoDigito - digito;
+                        ptr += 1;
+                    }
+                }
+
+                valores.Add(digito);
+
+                // proximo digito
+                ptr += 1;
+            }
+
+            // Outra regra é a que compara o tamanho do valor de cada numeral lido a partir da
+            // esquerda para a direita. T valor nunca deve aumentar a partir de uma letra para a
+            // próxima. Onde houver um numeral subtrativo, esta regra se aplica ao valor combinado
+            // dos dois algarismos envolvidos na subtração quando comparado com a letra anterior.
+            // Isto significa que XIX é aceitável, mas XIM e IIV não são.
+            for (int i = 0, loopTo = valores.Count - 2; i <= loopTo; i++)
+            {
+                if (Convert.ToInt32(valores[i]) < Convert.ToInt32(valores[i + 1]))
+                {
+                    throw new ArgumentException("Invalid Roman number. In this case the digit can not be greater than the previous one.");
+                }
+            }
+
+            // Numerais maiores devem ser colocados à esquerda dos números menores para continuar a
+            // combinação aditiva. Assim VI é igual a seis e MDCLXI é 1.661.
+            int total = 0;
+            foreach (int digito in valores)
+                total += digito;
+            return total;
+        }
+
+        public static IEnumerable<int> ToAsc(this string c) => c.ToArray().Select(x => x.ToAsc());
+
+        public static int ToAsc(this char c)
+        {
+            int converted = c;
+            if (converted >= 0x80)
+            {
+                byte[] buffer = new byte[2];
+                // if the resulting conversion is 1 byte in length, just use the value
+                if (Encoding.Default.GetBytes(new char[] { c }, 0, 1, buffer, 0) == 1)
+                {
+                    converted = buffer[0];
+                }
+                else
+                {
+                    // byte swap bytes 1 and 2;
+                    converted = buffer[0] << 16 | buffer[1];
+                }
+            }
+            return converted;
+        }
+
+        public static byte ToAscByte(this char c) => (byte)c.ToAsc();
+
+        public static string ToAsciiArt(this Bitmap image, int ratio)
+        {
+            image = (Bitmap)image.Negative();
+            bool toggle = false;
+            var sb = new StringBuilder();
+            int h = 0;
+            while (h < image.Height)
+            {
+                int w = 0;
+                while (w < image.Width)
+                {
+                    var pixelColor = image.GetPixel(w, h);
+                    int red, green, blue;
+                    red = (int)Math.Round((pixelColor.R.ToInt() + pixelColor.G.ToInt() + pixelColor.B.ToInt()) / 3d);
+                    green = red;
+                    blue = green;
+                    var grayColor = Color.FromArgb(red, green, blue);
+                    if (!toggle)
+                    {
+                        int index = (int)Math.Round(grayColor.R * 10 / 255d);
+                        sb.Append(PredefinedArrays.AsciiArtChars.ToArray()[index]);
                     }
 
-                    digitoMaximo = digito - 1;
-                    digito = proximoDigito - digito;
-                    ptr += 1;
+                    w += ratio;
                 }
-            }
 
-            valores.Add(digito);
-
-            // proximo digito
-            ptr += 1;
-        }
-
-        // Outra regra é a que compara o tamanho do valor de cada numeral lido a partir da
-        // esquerda para a direita. T valor nunca deve aumentar a partir de uma letra para a
-        // próxima. Onde houver um numeral subtrativo, esta regra se aplica ao valor combinado
-        // dos dois algarismos envolvidos na subtração quando comparado com a letra anterior.
-        // Isto significa que XIX é aceitável, mas XIM e IIV não são.
-        for (int i = 0, loopTo = valores.Count - 2; i <= loopTo; i++)
-        {
-            if (Convert.ToInt32(valores[i]) < Convert.ToInt32(valores[i + 1]))
-            {
-                throw new ArgumentException("Invalid Roman number. In this case the digit can not be greater than the previous one.");
-            }
-        }
-
-        // Numerais maiores devem ser colocados à esquerda dos números menores para continuar a
-        // combinação aditiva. Assim VI é igual a seis e MDCLXI é 1.661.
-        int total = 0;
-        foreach (int digito in valores)
-            total += digito;
-        return total;
-    }
-
-    public static IEnumerable<int> ToAsc(this string c) => c.ToArray().Select(x => x.ToAsc());
-
-    public static int ToAsc(this char c)
-    {
-        int converted = c;
-        if (converted >= 0x80)
-        {
-            byte[] buffer = new byte[2];
-            // if the resulting conversion is 1 byte in length, just use the value
-            if (Encoding.Default.GetBytes(new char[] { c }, 0, 1, buffer, 0) == 1)
-            {
-                converted = buffer[0];
-            }
-            else
-            {
-                // byte swap bytes 1 and 2;
-                converted = buffer[0] << 16 | buffer[1];
-            }
-        }
-        return converted;
-    }
-
-    public static byte ToAscByte(this char c) => (byte)c.ToAsc();
-
-    public static string ToAsciiArt(this Bitmap image, int ratio)
-    {
-        image = (Bitmap)image.Negative();
-        bool toggle = false;
-        var sb = new StringBuilder();
-        int h = 0;
-        while (h < image.Height)
-        {
-            int w = 0;
-            while (w < image.Width)
-            {
-                var pixelColor = image.GetPixel(w, h);
-                int red, green, blue;
-                red = (int)Math.Round((pixelColor.R.ToInt() + pixelColor.G.ToInt() + pixelColor.B.ToInt()) / 3d);
-                green = red;
-                blue = green;
-                var grayColor = Color.FromArgb(red, green, blue);
                 if (!toggle)
                 {
-                    int index = (int)Math.Round(grayColor.R * 10 / 255d);
-                    sb.Append(PredefinedArrays.AsciiArtChars.ToArray()[index]);
-                }
-
-                w += ratio;
-            }
-
-            if (!toggle)
-            {
-                sb.AppendLine();
-                toggle = true;
-            }
-            else
-            {
-                toggle = false;
-            }
-
-            h += ratio;
-        }
-
-        return sb.ToString();
-    }
-
-    public static Attachment ToAttachment(this FileInfo file) => file != null && file.Exists ? new Attachment(file.FullName) : null;
-
-    public static Attachment ToAttachment(this Stream stream, string name) => stream != null && stream.Length > 0 ? new Attachment(stream, name.IfBlank("untitledFile.bin")) : null;
-
-    public static Attachment ToAttachment(this byte[] bytes, string name)
-    {
-        if (bytes != null && bytes.Any())
-            using (var s = new MemoryStream(bytes))
-                return s.ToAttachment(name);
-        return null;
-    }
-
-    /// <summary>
-    /// Converte um Array de Bytes em uma string Util
-    /// </summary>
-    /// <param name="Bytes">Array de Bytes</param>
-    /// <returns></returns>
-    public static string ToBase64(this byte[] Bytes) => Convert.ToBase64String(Bytes);
-
-    public static string ToBase64(this Image OriginalImage, ImageFormat OriginalImageFormat = null)
-    {
-        if (OriginalImage != null)
-            using (var ms = new MemoryStream())
-            {
-                OriginalImage.Save(ms, OriginalImageFormat ?? OriginalImage.GetImageFormat() ?? ImageFormat.Png);
-                var imageBytes = ms.ToArray();
-                return Convert.ToBase64String(imageBytes);
-            }
-        return null;
-    }
-
-    /// <summary>
-    /// Converte uma Imagem da WEB para Base64
-    /// </summary>
-    /// <param name="ImageURL">Caminho da imagem</param>
-    /// <returns>Uma string em formato Util</returns>
-    public static string ToBase64(this Uri ImageURL, ImageFormat OriginalImageFormat, NameValueCollection Headers = null, Encoding Encoding = null) => ImageURL?.DownloadImage(Headers, Encoding)?.ToBase64(OriginalImageFormat);
-
-    /// <summary>
-    /// Monta um Comando SQL para executar uma procedure especifica para cada item em uma
-    /// coleçao. As propriedades do item serao utilizadas como parametros da procedure
-    /// </summary>
-    /// <param name="Items">Lista de itens que darao origem aos parametros da procedure</param>
-    /// <param name="ProcedureName">Nome da Procedure</param>
-    /// <param name="Keys">CHaves de Dicionário que devem ser utilizadas</param>
-    /// <returns>Um DbCommand parametrizado</returns>
-    public static IEnumerable<DbCommand> ToBatchProcedure<T>(this DbConnection Connection, string ProcedureName, IEnumerable<T> Items, DbTransaction Transaction = null, params string[] Keys)
-    {
-        foreach (var item in Items ?? new List<T>())
-        {
-            yield return Connection.ToProcedure(ProcedureName, item, Transaction, Keys);
-        }
-    }
-
-    /// <summary>
-    /// Retorna uma <see cref="Bitmap"/> a partir de um Image
-    /// </summary>
-    /// <param name="Image"></param>
-    /// <returns></returns>
-    public static Bitmap ToBitmap(this Image Image) => new Bitmap(Image);
-
-    /// <summary>
-    /// Converte um ToType para Boolean. Retorna Nothing (NULL) se a conversão falhar
-    /// </summary>
-    /// <typeparam name="T">Tipo de origem</typeparam>
-    /// <param name="Value">Variavel com valor</param>
-    /// <returns>Valor convertido em novo ToType</returns>
-    public static bool ToBool<T>(this T Value) => Value.ChangeType<bool>();
-
-    /// <summary>
-    /// Transforma uma imagem em array de bytes
-    /// </summary>
-    /// <param name="Image">Imagem</param>
-    /// <returns></returns>
-    public static byte[] ToBytes(this Image Image, ImageFormat Format = null)
-    {
-        using (var ms = Image.ToStream(Format))
-        {
-            return ms.ToBytes();
-        }
-    }
-
-    /// <summary>
-    /// Salva um anexo para Byte()
-    /// </summary>
-    /// <param name="attachment"></param>
-    /// <returns></returns>
-    public static byte[] ToBytes(this Attachment attachment) => attachment?.ContentStream.ToBytes() ?? Array.Empty<byte>();
-
-    /// <summary>
-    /// Converte um stream em Bytes
-    /// </summary>
-    /// <param name="stream"></param>
-    /// <returns></returns>
-    public static byte[] ToBytes(this Stream stream)
-    {
-        if (stream == null)
-        {
-            return Array.Empty<byte>();
-        }
-
-        var pos = stream.Position;
-        using (var ms = new MemoryStream())
-        {
-            stream.CopyTo(ms);
-            stream.Position = pos;
-            return ms.ToArray();
-        }
-    }
-
-    /// <summary>
-    /// Converte o conteúdo de um <see cref="FileInfo"/> em <see cref="byte[]"/>
-    /// </summary>
-    /// <param name="File"></param>
-    /// <returns></returns>
-    public static byte[] ToBytes(this FileInfo File)
-    {
-        if (File != null)
-        {
-            using (var fStream = new FileStream(File.FullName, FileMode.Open, FileAccess.Read))
-            {
-                using (var br = new BinaryReader(fStream))
-                {
-                    return br.ReadBytes((int)File.Length);
-                }
-            }
-        }
-        return Array.Empty<byte>();
-    }
-
-    public static string ToCamelCase(this string Text) => Text.PascalCaseSplit().Select((x, i) => i == 0 ? x.ToLowerInvariant() : x.ToTitle()).SelectJoinString("");
-
-    /// <summary>
-    /// Retorna a <see cref="Color"/> a partir de uma <see cref="ConsoleColor"/>
-    /// </summary>
-    /// <param name="Color"></param>
-    /// <returns></returns>
-    public static HSVColor ToColor(this ConsoleColor Color) => new HSVColor(new[] { 0x0, 0x80, 0x8000, 0x8080, 0x800000, 0x800080, 0x808000, 0xC0C0C0, 0x808080, 0xFF, 0xFF00, 0xFFFF, 0xFF0000, 0xFF00FF, 0xFFFF00, 0xFFFFFF }[(int)Color]) { Alpha = 255 };
-
-    /// <summary>
-    /// Gera uma cor a partir de uma palavra
-    /// </summary>
-    /// <param name="Text">
-    /// Pode ser um texto em branco (Transparent), uma <see cref="NamedColors"/> (retorna aquela
-    /// cor exata), uma palavra qualquer (gera proceduralmente uma cor) ou uma expressão de cor
-    /// (Red+Blue, Red-Blue,Green*Red etc).
-    /// </param>
-    /// <returns></returns>
-    public static Color ToColor(this string Text)
-    {
-        if (Text.IsBlank()) return Color.Transparent;
-
-        if (Text == "random" || Text == "rnd") return RandomColor();
-
-        if (Text.IsNumber()) return Color.FromArgb(Text.ToInt());
-
-        if (Text.IsHexaDecimalColor()) return ColorTranslator.FromHtml("#" + Text.RemoveFirstEqual("#"));
-
-        var maybecolor = FindColor(Text);
-        if (maybecolor != null)
-        {
-            return maybecolor.ToDrawingColor();
-        }
-
-        if (Text.Contains("*"))
-        {
-            var various = Text.Split("*");
-
-            if (various.Any())
-            {
-                return various.Select(x => new HSVColor(x.Trim())).Aggregate((a, b) => a * b);
-            }
-        }
-        if (Text.Contains("+"))
-        {
-            var various = Text.Split("+");
-
-            if (various.Any())
-            {
-                return various.Select(x => new HSVColor(x.Trim())).Aggregate((a, b) => a + b);
-            }
-        }
-
-        if (Text.Contains("-"))
-        {
-            var various = Text.Split("-");
-            if (various.Any())
-            {
-                return various.Select(x => new HSVColor(x.Trim())).Aggregate((a, b) => a - b);
-            }
-        }
-
-        var coresInt = Text.GetWords().Select(p => p.ToCharArray().Sum(a => Math.Pow(a.ToAsc(), 2d) * p.Length)).Sum().RoundInt();
-        return Color.FromArgb(255, Color.FromArgb(coresInt));
-    }
-
-    /// <summary>
-    /// Retorna a <see cref="ConsoleColor"/> mais proxima de uma <see cref="Color"/>
-    /// </summary>
-    /// <param name="Color"></param>
-    /// <returns></returns>
-    public static ConsoleColor ToConsoleColor(this Color Color)
-    {
-        int index = Color.R > 128 | Color.G > 128 | Color.B > 128 ? 8 : 0;
-        index |= Color.R > 64 ? 4 : 0;
-        index |= Color.G > 64 ? 2 : 0;
-        index |= Color.B > 64 ? 1 : 0;
-        return (ConsoleColor)index;
-    }
-
-    public static string ToCssRGB(this Color Color) => $"rgb({Color.R},{Color.G},{Color.B})";
-
-    /// <summary>
-    /// Converte uma cor de sistema para CSS RGB
-    /// </summary>
-    /// <param name="Color">Cor do sistema</param>
-    /// <returns>String contendo a cor em RGB</returns>
-    public static string ToCssRGBA(this Color Color) => $"rgba({Color.R},{Color.G},{Color.B},{Color.A})";
-
-    /// <summary>
-    /// Returns a CSV String from <see cref="IEnumerable{T}"/>
-    /// </summary>
-    /// <param name="Items"></param>
-    /// <param name="Separator"></param>
-    /// <param name="IncludeHeader"></param>
-    /// <returns></returns>
-    public static string ToCSV(this IEnumerable<Dictionary<string, object>> Items, string Separator = ",", bool IncludeHeader = false)
-    {
-        Separator = Separator.IfBlank(",");
-        var str = $"sep={Separator}{Environment.NewLine}";
-        if (Items != null && Items.Any())
-        {
-            Items = Items.MergeKeys();
-
-            if (IncludeHeader && Items.All(x => x.Keys.Any()))
-            {
-                str += $"{Items.FirstOrDefault()?.Keys.SelectJoinString(Separator)}";
-            }
-            str += $"{Items.SelectJoinString(x => x.Values.SelectJoinString(Separator), Environment.NewLine)}";
-        }
-
-        return str;
-    }
-
-    public static string ToCSV<T>(this IEnumerable<T> Items, string Separator = ",", bool IncludeHeader = false) where T : class => (Items ?? Array.Empty<T>()).Select(x => x.CreateDictionary()).ToCSV(Separator, IncludeHeader);
-
-    public static DataSet ToDataSet(this DbDataReader reader) => ToDataSet(reader, null);
-
-    public static DataSet ToDataSet(this DbDataReader reader, string DataSetName, params string[] TableNames)
-    {
-        DataSet ds = new DataSet(DataSetName.IfBlank("DataSet"));
-        TableNames = TableNames ?? Array.Empty<string>();
-        var i = 0;
-        while (reader != null && !reader.IsClosed)
-        {
-            ds.Tables.Add(TableNames.IfBlankOrNoIndex(i, $"Table{i}")).Load(reader);
-            i++;
-        }
-        return ds;
-    }
-
-    /// <summary>
-    /// Converte um Array de Bytes em uma DATA URL Completa
-    /// </summary>
-    /// <param name="Bytes">Array de Bytes</param>
-    /// <param name="Type">Tipo de arquivo</param>
-    /// <returns></returns>
-    public static string ToDataURL(this byte[] Bytes, FileType Type = null) => "data:" + (Type ?? new FileType()).ToString() + ";base64," + Bytes.ToBase64();
-
-    /// <summary>
-    /// Converte um Array de Bytes em uma DATA URL Completa
-    /// </summary>
-    /// <param name="Bytes">Array de Bytes</param>
-    /// <param name="MimeType">Tipo de arquivo</param>
-    /// <returns></returns>
-    public static string ToDataURL(this byte[] Bytes, string MimeType) => "data:" + MimeType + ";base64," + Bytes.ToBase64();
-
-    /// <summary>
-    /// Converte um arquivo uma DATA URL Completa
-    /// </summary>
-    /// <param name="File">Arquivo</param>
-    /// <returns></returns>
-    public static string ToDataURL(this FileInfo File) => File.ToBytes().ToDataURL(new FileType(File.Extension));
-
-    /// <summary>
-    /// Transforma uma imagem em uma URL Util
-    /// </summary>
-    /// <param name="Image">Imagem</param>
-    /// <returns>Uma DataURI em string</returns>
-    public static string ToDataURL(this Image Image) => $"data:{Image.GetFileType().First().ToLowerInvariant().Replace("application/octet-stream", GetFileType(".png").First())};base64,{Image.ToBase64()}";
-
-    /// <summary>
-    /// Converte uma imagem para DataURI trocando o MIME T
-    /// </summary>
-    /// <param name="OriginalImage">Imagem</param>
-    /// <param name="OriginalImageFormat">Formato da Imagem</param>
-    /// <returns>Uma data URI com a imagem convertida</returns>
-    public static string ToDataURL(this Image OriginalImage, ImageFormat OriginalImageFormat) => OriginalImage.ToBase64(OriginalImageFormat).Base64ToImage().ToDataURL();
-
-    /// <summary>
-    /// Converte um ToType para DateTime. Retorna Nothing (NULL) se a conversão falhar
-    /// </summary>
-    /// <typeparam name="T">Tipo de origem</typeparam>
-    /// <param name="Value">Variavel com valor</param>
-    /// <returns>Valor convertido em novo ToType</returns>
-    public static DateTime ToDateTime<T>(this T Value) => Value.ChangeType<DateTime>();
-
-    /// <summary>
-    /// Converte um ToType para DateTime. Retorna Nothing (NULL) se a conversão falhar
-    /// </summary>
-    /// <typeparam name="T">Tipo de origem</typeparam>
-    /// <param name="Value">Variavel com valor</param>
-    /// <returns>Valor convertido em novo ToType</returns>
-    public static DateTime ToDateTime<T>(this T Value, string CultureInfoName) => Value.ToDateTime(new CultureInfo(CultureInfoName));
-
-    /// <summary>
-    /// Converte um ToType para DateTime. Retorna Nothing (NULL) se a conversão falhar
-    /// </summary>
-    /// <typeparam name="T">Tipo de origem</typeparam>
-    /// <param name="Value">Variavel com valor</param>
-    /// <returns>Valor convertido em novo ToType</returns>
-    public static DateTime ToDateTime<T>(this T Value, CultureInfo CultureInfo) => Convert.ToDateTime(Value, CultureInfo);
-
-    /// <summary>
-    /// Converte um ToType para Decimal. Retorna Nothing (NULL) se a conversão falhar
-    /// </summary>
-    /// <typeparam name="T">Tipo de origem</typeparam>
-    /// <param name="Value">Variavel com valor</param>
-    /// <returns>Valor convertido em novo ToType</returns>
-    public static decimal ToDecimal<T>(this T Value) => Value.ChangeType<decimal>();
-
-    public static string ToDecimalString(this float number, int Decimals = -1, CultureInfo culture = null) => number.ToDecimal().ToDecimalString(Decimals, culture);
-
-    public static string ToDecimalString(this short number, int Decimals = -1, CultureInfo culture = null) => number.ToDecimal().ToDecimalString(Decimals, culture);
-
-    public static string ToDecimalString(this double number, int Decimals = -1, CultureInfo culture = null) => number.ToDecimal().ToDecimalString(Decimals, culture);
-
-    public static string ToDecimalString(this long number, int Decimals = -1, CultureInfo culture = null) => number.ToDecimal().ToDecimalString(Decimals, culture);
-
-    public static string ToDecimalString(this int number, int Decimals = -1, CultureInfo culture = null) => number.ToDecimal().ToDecimalString(Decimals, culture);
-
-    public static string ToDecimalString(this decimal number, int Decimals = -1, CultureInfo culture = null)
-    {
-        culture = culture ?? CultureInfo.CurrentCulture;
-        Decimals = Decimals < 0 ? GetDecimalLength(number) : Decimals;
-        Decimals = Decimals < 0 ? culture.NumberFormat.NumberDecimalDigits : Decimals;
-        return number.ToString("0".AppendIf(culture.NumberFormat.NumberDecimalSeparator + "0".Repeat(Decimals), Decimals > 0), culture);
-    }
-
-    /// <summary>
-    /// Retorna um <see cref="Dictionary"/> a partir de um <see cref="IGrouping(Of TKey, TElement)"/>
-    /// </summary>
-    /// <typeparam name="TKey"></typeparam>
-    /// <typeparam name="TValue"></typeparam>
-    /// <param name="groupings"></param>
-    /// <returns></returns>
-    public static Dictionary<TKey, IEnumerable<TValue>> ToDictionary<TKey, TValue>(this IEnumerable<IGrouping<TKey, TValue>> groupings) => groupings.ToDictionary(group => group.Key, group => group.AsEnumerable());
-
-    /// <summary>
-    /// Transforma uma lista de pares em um Dictionary
-    /// </summary>
-    /// <typeparam name="TKey"></typeparam>
-    /// <typeparam name="TValue"></typeparam>
-    /// <param name="items"></param>
-    /// <returns></returns>
-    public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> items, params TKey[] Keys) => items.Where(x => Keys == null || Keys.Any() == false || x.Key.IsIn(Keys)).DistinctBy(x => x.Key).ToDictionary(x => x.Key, x => x.Value);
-
-    /// <summary>
-    /// Converte um NameValueCollection para um <see cref="Dictionary{TKey, TValue}"/>
-    /// </summary>
-    /// <param name="[NameValueCollection]">Formulario</param>
-    /// <returns></returns>
-    public static Dictionary<string, object> ToDictionary(this NameValueCollection NameValueCollection, params string[] Keys)
-    {
-        var result = new Dictionary<string, object>();
-        Keys = Keys ?? Array.Empty<string>();
-        if (Keys.Any() == false)
-        {
-            Keys = NameValueCollection.AllKeys;
-        }
-
-        foreach (string key in NameValueCollection.Keys)
-        {
-            if (key.IsNotBlank() && key.IsLikeAny(Keys))
-            {
-                var values = NameValueCollection.GetValues(key);
-                if (result.ContainsKey(key))
-                {
-                    var l = new List<object>();
-                    if (IsArray(result[key]))
-                    {
-                        foreach (var v in (IEnumerable)result[key])
-                        {
-                            switch (true)
-                            {
-                                case object _ when v.IsNumber():
-                                    {
-                                        l.Add(Convert.ToDouble(v));
-                                        break;
-                                    }
-
-                                case object _ when IsDate(v):
-                                    {
-                                        l.Add(Convert.ToDateTime(v));
-                                        break;
-                                    }
-
-                                default:
-                                    {
-                                        l.Add(v);
-                                        break;
-                                    }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        switch (true)
-                        {
-                            case object _ when result[key].IsNumber():
-                                {
-                                    l.Add(Convert.ToDouble(result[key]));
-                                    break;
-                                }
-
-                            case object _ when IsDate(result[key]):
-                                {
-                                    l.Add(Convert.ToDateTime(result[key]));
-                                    break;
-                                }
-
-                            default:
-                                {
-                                    l.Add(result[key]);
-                                    break;
-                                }
-                        }
-                    }
-
-                    if (l.Count == 1)
-                    {
-                        result[key] = l[0];
-                    }
-                    else
-                    {
-                        result[key] = l.ToArray();
-                    }
-                }
-                else if (values.Length == 1)
-                {
-                    switch (true)
-                    {
-                        case object _ when values[0].IsNumber():
-                            {
-                                result.Add(key, Convert.ToDouble(values[0]));
-                                break;
-                            }
-
-                        case object _ when values[0].IsDate():
-                            {
-                                result.Add(key, Convert.ToDateTime(values[0]));
-                                break;
-                            }
-
-                        default:
-                            {
-                                result.Add(key, values[0]);
-                                break;
-                            }
-                    }
+                    sb.AppendLine();
+                    toggle = true;
                 }
                 else
                 {
-                    var ar = new List<object>();
-                    foreach (var v in values)
-                    {
-                        switch (true)
-                        {
-                            case object _ when v.IsNumber():
-                                {
-                                    ar.Add(Convert.ToDouble(v));
-                                    break;
-                                }
-
-                            case object _ when v.IsDate():
-                                {
-                                    ar.Add(Convert.ToDateTime(v));
-                                    break;
-                                }
-
-                            default:
-                                {
-                                    ar.Add(v);
-                                    break;
-                                }
-                        }
-                    }
-
-                    result.Add(key, ar.ToArray());
+                    toggle = false;
                 }
-            }
-        }
 
-        return result;
-    }
-
-    public static DirectoryInfo ToDirectoryInfo(this string PathPart) => ToDirectoryInfo(new[] { PathPart });
-
-    public static DirectoryInfo ToDirectoryInfo(this string[] PathParts)
-    {
-        var x = ToFileSystemInfo(PathParts);
-        return x is FileInfo info ? info.Directory : x as DirectoryInfo;
-    }
-
-    /// <summary>
-    /// Converte um ToType para Double. Retorna Nothing (NULL) se a conversão falhar
-    /// </summary>
-    /// <typeparam name="T">Tipo de origem</typeparam>
-    /// <param name="Value">Variavel com valor</param>
-    /// <returns>Valor convertido em novo ToType</returns>
-    public static double ToDouble<T>(this T Value) => Value.ChangeType<double>();
-
-    public static FileInfo ToFileInfo(this string PathPart) => ToFileInfo(new[] { PathPart });
-
-    public static FileInfo ToFileInfo(this string[] PathParts)
-    {
-        var x = ToFileSystemInfo(PathParts);
-        if (x is DirectoryInfo)
-        {
-            throw new Exception("File is directory");
-        }
-        return x as FileInfo;
-    }
-
-    /// <summary>
-    /// Retorna o uma string representando um valor em bytes, KB, MB, GB ou TB
-    /// </summary>
-    /// <param name="Size">Tamanho</param>
-    /// <returns>String com o tamanho + unidade de medida</returns>
-    public static string ToFileSizeString(this byte[] Size, int DecimalPlaces = -1) => (Size?.LongLength ?? 0).ToFileSizeString(DecimalPlaces);
-
-    /// <summary>
-    /// Retorna o uma string representando um valor em bytes, KB, MB, GB ou TB
-    /// </summary>
-    /// <param name="Size">Tamanho</param>
-    /// <returns>String com o tamanho + unidade de medida</returns>
-    public static string ToFileSizeString(this FileInfo Size, int DecimalPlaces = -1) => (Size?.Length ?? 0).ToFileSizeString(DecimalPlaces);
-
-    /// <summary>
-    /// Retorna o uma string representando um valor em bytes, KB, MB, GB ou TB
-    /// </summary>
-    /// <param name="Size">Tamanho</param>
-    /// <returns>String com o tamanho + unidade de medida</returns>
-    public static string ToFileSizeString(this double Size, int DecimalPlaces = -1) => Size.ToDecimal().ToFileSizeString(DecimalPlaces);
-
-    /// <summary>
-    /// Retorna o uma string representando um valor em bytes, KB, MB, GB ou TB
-    /// </summary>
-    /// <param name="Size">Tamanho</param>
-    /// <returns>String com o tamanho + unidade de medida</returns>
-    public static string ToFileSizeString(this int Size, int DecimalPlaces = -1) => Size.ToDecimal().ToFileSizeString(DecimalPlaces);
-
-    /// <summary>
-    /// Retorna o uma string representando um valor em bytes, KB, MB, GB ou TB
-    /// </summary>
-    /// <param name="Size">Tamanho</param>
-    /// <returns>String com o tamanho + unidade de medida</returns>
-    public static string ToFileSizeString(this long Size, int DecimalPlaces = -1) => Size.ToDecimal().ToFileSizeString(DecimalPlaces);
-
-    /// <summary>
-    /// Retorna o uma string representando um valor em bytes, KB, MB ou TB
-    /// </summary>
-    /// <param name="Size">Tamanho</param>
-    /// <returns>String com o tamanho + unidade de medida</returns>
-    public static string ToFileSizeString(this decimal Size, int DecimalPlaces = -1) => UnitConverter.CreateFileSizeConverter().Abreviate(Size, DecimalPlaces);
-
-    public static FileSystemInfo ToFileSystemInfo(this string PathPart) => ToFileSystemInfo(new[] { PathPart });
-
-    public static FileSystemInfo ToFileSystemInfo(this string[] PathParts)
-    {
-        var path = Path.Combine(PathParts).FixPath();
-        if (path.IsFilePath()) return new FileInfo(path);
-        else if (path.IsDirectoryPath()) return new DirectoryInfo(path);
-        else throw new ArgumentException("Can't create path from array", nameof(PathParts));
-    }
-
-    /// <summary>
-    /// Retorna um Objeto FileType a partir de uma string MIME T, Nome ou Extensão de Arquivo
-    /// </summary>
-    /// <param name="MimeTypeOrExtensionOrPathOrDataURI"></param>
-    /// <returns></returns>
-    public static FileType ToFileType(this string MimeTypeOrExtensionOrPathOrDataURI) => new FileType(MimeTypeOrExtensionOrPathOrDataURI);
-
-    public static Uri ToFileUri(this FileSystemInfo File) => new Uri($@"file://{File?.FullName.Replace(" ", "%20")}");
-
-    /// <summary>
-    /// Converte um ToType para Single. Retorna Nothing (NULL) se a conversão falhar
-    /// </summary>
-    /// <typeparam name="T">Tipo de origem</typeparam>
-    /// <param name="Value">Variavel com valor</param>
-    /// <returns>Valor convertido em novo ToType</returns>
-    public static float ToFloat<T>(this T Value) => Value.ChangeType<float>();
-
-    public static FormattableString ToFormattableString(this string Text, params object[] args) => FormattableStringFactory.Create(Text, args ?? Array.Empty<object>());
-
-    /// <summary>
-    /// Prepara uma string para se tornar uma caminho amigavel (remove caracteres nao permitidos)
-    /// </summary>
-    /// <param name="Text"></param>
-    /// <returns>string amigavel para URL</returns>
-    public static string ToFriendlyPathName(this string Text) => Text.RemoveAny(Path.GetInvalidPathChars()).TrimBetween();
-
-    /// <summary>
-    /// Prepara uma string para se tornar uma URL amigavel (remove caracteres nao permitidos e
-    /// troca espacos por hifen)
-    /// </summary>
-    /// <param name="Text"></param>
-    /// <param name="UseUnderscore">
-    /// Indica se os espacos serão substituidos por underscores (underline). Use FALSE para hifens
-    /// </param>
-    /// <returns>string amigavel para URL</returns>
-    public static string ToFriendlyURL(this string Text, bool UseUnderscore = false) => Text.ReplaceMany(UseUnderscore ? "_" : "-", "_", "-", WhitespaceChar).RemoveAny("(", ")", ".", ",", "#").ToFriendlyPathName().RemoveAccents().ToLowerInvariant();
-
-    /// <summary>
-    /// Concatena todas as <see cref="Exception.InnerException"/> em uma única string
-    /// </summary>
-    /// <param name="ex"></param>
-    /// <returns></returns>
-    public static string ToFullExceptionString(this Exception ex, string Separator = " => ") => ex.Traverse(x => x.InnerException).SelectJoinString(x => x.Message, Separator);
-
-    /// <summary>
-    /// Alterna uma variavel ente 2 valores diferentes
-    /// </summary>
-    /// <param name="Current">Objeto contendo o primeiro ou segundo valor</param>
-    /// <param name="TrueValue">Primeiro valor</param>
-    /// <param name="FalseValue">Segundo Valor</param>
-    public static T Toggle<T>(this T Current, T TrueValue, T FalseValue = default) => Current.Equals(TrueValue) ? FalseValue : TrueValue;
-
-    public static T ToggleVisibility<T>(this T FileOrDir) where T : FileSystemInfo => FileOrDir.IsVisible() ? FileOrDir.Hide() : FileOrDir.Show();
-
-    /// <summary>
-    /// Gera uma URL do google MAPs baseado na localização
-    /// </summary>
-    /// <param name="local">
-    /// Uma variavel do tipo InnerLibs.Location onde estão as informações como endereço e as
-    /// coordenadas geográficas
-    /// </param>
-    /// <returns>Uma URI do Google Maps</returns>
-    public static Uri ToGoogleMapsURL(this AddressInfo local, params AddressPart[] Parts) => local != null ? new Uri($"https://www.google.com.br/maps/search/{Uri.EscapeUriString(local.ToString(Parts))}") : null;
-
-    public static string ToHexadecimal(this Color Color, bool Hash = true) => (Color.R.ToString("X2") + Color.G.ToString("X2") + Color.B.ToString("X2")).PrependIf("#", Hash);
-
-    public static IEnumerable<HSVColor> ToHSVColorList(this IEnumerable<Color> ColorList) => ColorList?.Select(x => new HSVColor(x));
-
-    /// <summary>
-    /// Converte um array de bytes para imagem
-    /// </summary>
-    /// <param name="Bytes">Bytes</param>
-    /// <returns></returns>
-    public static Image ToImage(this byte[] Bytes)
-    {
-        using (var s = new MemoryStream(Bytes))
-        {
-            return Image.FromStream(s);
-        }
-    }
-
-    /// <summary>
-    /// Converte um ToType para Integer. Retorna Nothing (NULL) se a conversão falhar
-    /// </summary>
-    /// <typeparam name="FromType">Tipo de origem</typeparam>
-    /// <param name="Value">Variavel com valor</param>
-    /// <returns>Valor convertido em novo ToType</returns>
-    public static int ToInt<FromType>(this FromType Value) => Value.ChangeType<int>();
-
-    public static T[][] ToJaggedArray<T>(this T[,] inputArray)
-    {
-        if (inputArray == null || inputArray.Length == 0)
-        {
-            return Array.Empty<T[]>();
-        }
-
-        // Get the number of rows and columns in the input array
-        int rows = inputArray.GetLength(0);
-        int cols = inputArray.GetLength(1);
-
-        // Create the jagged array with the same number of rows as the input array
-        T[][] jaggedArray = new T[rows][];
-
-        // Copy the elements from the input array to the jagged array
-        for (int i = 0; i < rows; i++)
-        {
-            // Create a new sub-array for each row
-            jaggedArray[i] = new T[cols];
-
-            // Copy the elements from the input array to the jagged array
-            for (int j = 0; j < cols; j++)
-            {
-                jaggedArray[i][j] = inputArray[i, j];
-            }
-        }
-
-        return jaggedArray;
-    }
-
-    /// <summary>
-    /// Converte um texto para Leet (1337)
-    /// </summary>
-    /// <param name="text">TExto original</param>
-    /// <param name="degree">Grau de itensidade (0 a 7)</param>
-    /// <returns>Texto em 1337</returns>
-    public static string ToLeet(this string Text, int Degree = 7)
-    {
-        // Adjust degree between 0 - 100
-        Degree = Degree.LimitRange(0, 7);
-        // No Leet Translator
-        if (Degree == 0)
-        {
-            return Text;
-        }
-        // StringBuilder to store result.
-        var sb = new StringBuilder();
-        foreach (char c in Text.AsEnumerable())
-        {
-            switch (Degree)
-            {
-                case 1:
-                    switch (c)
-                    {
-                        case 'e':
-                            {
-                                sb.Append('3');
-                                break;
-                            }
-
-                        case 'E':
-                            {
-                                sb.Append('3');
-                                break;
-                            }
-
-                        default:
-                            {
-                                sb.Append(c);
-                                break;
-                            }
-                    }
-                    break;
-
-                case 2:
-                    switch (c)
-                    {
-                        case 'a':
-                            {
-                                sb.Append('4');
-                                break;
-                            }
-
-                        case 'e':
-                            {
-                                sb.Append('3');
-                                break;
-                            }
-
-                        case 'i':
-                            {
-                                sb.Append('1');
-                                break;
-                            }
-
-                        case 'o':
-                            {
-                                sb.Append('0');
-                                break;
-                            }
-
-                        case 'A':
-                            {
-                                sb.Append('4');
-                                break;
-                            }
-
-                        case 'E':
-                            {
-                                sb.Append('3');
-                                break;
-                            }
-
-                        case 'I':
-                            {
-                                sb.Append('1');
-                                break;
-                            }
-
-                        case 'O':
-                            {
-                                sb.Append('0');
-                                break;
-                            }
-
-                        default:
-                            {
-                                sb.Append(c);
-                                break;
-                            }
-                    }
-                    break;
-
-                case 3:
-                    switch (c)
-                    {
-                        case 'a':
-                            {
-                                sb.Append('4');
-                                break;
-                            }
-
-                        case 'e':
-                            {
-                                sb.Append('3');
-                                break;
-                            }
-
-                        case 'i':
-                            {
-                                sb.Append('1');
-                                break;
-                            }
-
-                        case 'o':
-                            {
-                                sb.Append('0');
-                                break;
-                            }
-
-                        case 'A':
-                            {
-                                sb.Append('4');
-                                break;
-                            }
-
-                        case 'E':
-                            {
-                                sb.Append('3');
-                                break;
-                            }
-
-                        case 'I':
-                            {
-                                sb.Append('1');
-                                break;
-                            }
-
-                        case 'O':
-                            {
-                                sb.Append('0');
-                                break;
-                            }
-
-                        case 's':
-                            {
-                                sb.Append('$');
-                                break;
-                            }
-
-                        case 'S':
-                            {
-                                sb.Append('$');
-                                break;
-                            }
-
-                        case 'l':
-                            {
-                                sb.Append('£');
-                                break;
-                            }
-
-                        case 'L':
-                            {
-                                sb.Append('£');
-                                break;
-                            }
-
-                        case 'c':
-                            {
-                                sb.Append('(');
-                                break;
-                            }
-
-                        case 'C':
-                            {
-                                sb.Append('(');
-                                break;
-                            }
-
-                        case 'y':
-                            {
-                                sb.Append('¥');
-                                break;
-                            }
-
-                        case 'Y':
-                            {
-                                sb.Append('¥');
-                                break;
-                            }
-
-                        case 'U':
-                            {
-                                sb.Append('µ');
-                                break;
-                            }
-
-                        case 'u':
-                            {
-                                sb.Append('µ');
-                                break;
-                            }
-
-                        case 'd':
-                            {
-                                sb.Append('Ð');
-                                break;
-                            }
-
-                        case 'D':
-                            {
-                                sb.Append('Ð');
-                                break;
-                            }
-
-                        default:
-                            {
-                                sb.Append(c);
-                                break;
-                            }
-                    }
-                    break;
-
-                case 4:
-                    switch (c)
-                    {
-                        case 'a':
-                            {
-                                sb.Append('4');
-                                break;
-                            }
-
-                        case 'e':
-                            {
-                                sb.Append('3');
-                                break;
-                            }
-
-                        case 'i':
-                            {
-                                sb.Append('1');
-                                break;
-                            }
-
-                        case 'o':
-                            {
-                                sb.Append('0');
-                                break;
-                            }
-
-                        case 'A':
-                            {
-                                sb.Append('4');
-                                break;
-                            }
-
-                        case 'E':
-                            {
-                                sb.Append('3');
-                                break;
-                            }
-
-                        case 'I':
-                            {
-                                sb.Append('1');
-                                break;
-                            }
-
-                        case 'O':
-                            {
-                                sb.Append('0');
-                                break;
-                            }
-
-                        case 'k':
-                            {
-                                sb.Append("|{");
-                                break;
-                            }
-
-                        case 'K':
-                            {
-                                sb.Append("|{");
-                                break;
-                            }
-
-                        case 's':
-                            {
-                                sb.Append('$');
-                                break;
-                            }
-
-                        case 'S':
-                            {
-                                sb.Append('$');
-                                break;
-                            }
-
-                        case 'g':
-                            {
-                                sb.Append('9');
-                                break;
-                            }
-
-                        case 'G':
-                            {
-                                sb.Append('9');
-                                break;
-                            }
-
-                        case 'l':
-                            {
-                                sb.Append('£');
-                                break;
-                            }
-
-                        case 'L':
-                            {
-                                sb.Append('£');
-                                break;
-                            }
-
-                        case 'c':
-                            {
-                                sb.Append('(');
-                                break;
-                            }
-
-                        case 'C':
-                            {
-                                sb.Append('(');
-                                break;
-                            }
-
-                        case 't':
-                            {
-                                sb.Append('7');
-                                break;
-                            }
-
-                        case 'T':
-                            {
-                                sb.Append('7');
-                                break;
-                            }
-
-                        case 'z':
-                            {
-                                sb.Append('2');
-                                break;
-                            }
-
-                        case 'Z':
-                            {
-                                sb.Append('2');
-                                break;
-                            }
-
-                        case 'y':
-                            {
-                                sb.Append('¥');
-                                break;
-                            }
-
-                        case 'Y':
-                            {
-                                sb.Append('¥');
-                                break;
-                            }
-
-                        case 'U':
-                            {
-                                sb.Append('µ');
-                                break;
-                            }
-
-                        case 'u':
-                            {
-                                sb.Append('µ');
-                                break;
-                            }
-
-                        case 'f':
-                            {
-                                sb.Append('ƒ');
-                                break;
-                            }
-
-                        case 'F':
-                            {
-                                sb.Append('ƒ');
-                                break;
-                            }
-
-                        case 'd':
-                            {
-                                sb.Append('Ð');
-                                break;
-                            }
-
-                        case 'D':
-                            {
-                                sb.Append('Ð');
-                                break;
-                            }
-
-                        default:
-                            {
-                                sb.Append(c);
-                                break;
-                            }
-                    }
-                    break;
-
-                case 5:
-                    switch (c)
-                    {
-                        case 'a':
-                            {
-                                sb.Append('4');
-                                break;
-                            }
-
-                        case 'e':
-                            {
-                                sb.Append('3');
-                                break;
-                            }
-
-                        case 'i':
-                            {
-                                sb.Append('1');
-                                break;
-                            }
-
-                        case 'o':
-                            {
-                                sb.Append('0');
-                                break;
-                            }
-
-                        case 'A':
-                            {
-                                sb.Append('4');
-                                break;
-                            }
-
-                        case 'E':
-                            {
-                                sb.Append('3');
-                                break;
-                            }
-
-                        case 'I':
-                            {
-                                sb.Append('1');
-                                break;
-                            }
-
-                        case 'O':
-                            {
-                                sb.Append('0');
-                                break;
-                            }
-
-                        case 'k':
-                            {
-                                sb.Append("|{");
-                                break;
-                            }
-
-                        case 'K':
-                            {
-                                sb.Append("|{");
-                                break;
-                            }
-
-                        case 's':
-                            {
-                                sb.Append('$');
-                                break;
-                            }
-
-                        case 'S':
-                            {
-                                sb.Append('$');
-                                break;
-                            }
-
-                        case 'g':
-                            {
-                                sb.Append('9');
-                                break;
-                            }
-
-                        case 'G':
-                            {
-                                sb.Append('6');
-                                break;
-                            }
-
-                        case 'l':
-                            {
-                                sb.Append('£');
-                                break;
-                            }
-
-                        case 'L':
-                            {
-                                sb.Append('£');
-                                break;
-                            }
-
-                        case 'c':
-                            {
-                                sb.Append('(');
-                                break;
-                            }
-
-                        case 'C':
-                            {
-                                sb.Append('(');
-                                break;
-                            }
-
-                        case 't':
-                            {
-                                sb.Append('7');
-                                break;
-                            }
-
-                        case 'T':
-                            {
-                                sb.Append('7');
-                                break;
-                            }
-
-                        case 'z':
-                            {
-                                sb.Append('2');
-                                break;
-                            }
-
-                        case 'Z':
-                            {
-                                sb.Append('2');
-                                break;
-                            }
-
-                        case 'y':
-                            {
-                                sb.Append('¥');
-                                break;
-                            }
-
-                        case 'Y':
-                            {
-                                sb.Append('¥');
-                                break;
-                            }
-
-                        case 'U':
-                            {
-                                sb.Append('µ');
-                                break;
-                            }
-
-                        case 'u':
-                            {
-                                sb.Append('µ');
-                                break;
-                            }
-
-                        case 'f':
-                            {
-                                sb.Append('ƒ');
-                                break;
-                            }
-
-                        case 'F':
-                            {
-                                sb.Append('ƒ');
-                                break;
-                            }
-
-                        case 'd':
-                            {
-                                sb.Append('Ð');
-                                break;
-                            }
-
-                        case 'D':
-                            {
-                                sb.Append('Ð');
-                                break;
-                            }
-
-                        case 'n':
-                            {
-                                sb.Append(@"|\|");
-                                break;
-                            }
-
-                        case 'N':
-                            {
-                                sb.Append(@"|\|");
-                                break;
-                            }
-
-                        case 'w':
-                            {
-                                sb.Append(@"\/\/");
-                                break;
-                            }
-
-                        case 'W':
-                            {
-                                sb.Append(@"\/\/");
-                                break;
-                            }
-
-                        case 'h':
-                            {
-                                sb.Append("|-|");
-                                break;
-                            }
-
-                        case 'H':
-                            {
-                                sb.Append("|-|");
-                                break;
-                            }
-
-                        case 'v':
-                            {
-                                sb.Append(@"\/");
-                                break;
-                            }
-
-                        case 'V':
-                            {
-                                sb.Append(@"\/");
-                                break;
-                            }
-
-                        case 'm':
-                            {
-                                sb.Append(@"|\/|");
-                                break;
-                            }
-
-                        case 'M':
-                            {
-                                sb.Append(@"|\/|");
-                                break;
-                            }
-
-                        default:
-                            {
-                                sb.Append(c);
-                                break;
-                            }
-                    }
-                    break;
-
-                case 6:
-                    switch (c)
-                    {
-                        case 'a':
-                            {
-                                sb.Append('4');
-                                break;
-                            }
-
-                        case 'e':
-                            {
-                                sb.Append('3');
-                                break;
-                            }
-
-                        case 'i':
-                            {
-                                sb.Append('1');
-                                break;
-                            }
-
-                        case 'o':
-                            {
-                                sb.Append('0');
-                                break;
-                            }
-
-                        case 'A':
-                            {
-                                sb.Append('4');
-                                break;
-                            }
-
-                        case 'E':
-                            {
-                                sb.Append('3');
-                                break;
-                            }
-
-                        case 'I':
-                            {
-                                sb.Append('1');
-                                break;
-                            }
-
-                        case 'O':
-                            {
-                                sb.Append('0');
-                                break;
-                            }
-
-                        case 's':
-                            {
-                                sb.Append('$');
-                                break;
-                            }
-
-                        case 'S':
-                            {
-                                sb.Append('$');
-                                break;
-                            }
-
-                        case 'g':
-                            {
-                                sb.Append('9');
-                                break;
-                            }
-
-                        case 'G':
-                            {
-                                sb.Append('6');
-                                break;
-                            }
-
-                        case 'l':
-                            {
-                                sb.Append('£');
-                                break;
-                            }
-
-                        case 'L':
-                            {
-                                sb.Append('£');
-                                break;
-                            }
-
-                        case 'c':
-                            {
-                                sb.Append('(');
-                                break;
-                            }
-
-                        case 'C':
-                            {
-                                sb.Append('(');
-                                break;
-                            }
-
-                        case 't':
-                            {
-                                sb.Append('7');
-                                break;
-                            }
-
-                        case 'T':
-                            {
-                                sb.Append('7');
-                                break;
-                            }
-
-                        case 'z':
-                            {
-                                sb.Append('2');
-                                break;
-                            }
-
-                        case 'Z':
-                            {
-                                sb.Append('2');
-                                break;
-                            }
-
-                        case 'y':
-                            {
-                                sb.Append('¥');
-                                break;
-                            }
-
-                        case 'Y':
-                            {
-                                sb.Append('¥');
-                                break;
-                            }
-
-                        case 'U':
-                            {
-                                sb.Append('µ');
-                                break;
-                            }
-
-                        case 'u':
-                            {
-                                sb.Append('µ');
-                                break;
-                            }
-
-                        case 'f':
-                            {
-                                sb.Append('ƒ');
-                                break;
-                            }
-
-                        case 'F':
-                            {
-                                sb.Append('ƒ');
-                                break;
-                            }
-
-                        case 'd':
-                            {
-                                sb.Append('Ð');
-                                break;
-                            }
-
-                        case 'D':
-                            {
-                                sb.Append('Ð');
-                                break;
-                            }
-
-                        case 'n':
-                            {
-                                sb.Append(@"|\|");
-                                break;
-                            }
-
-                        case 'N':
-                            {
-                                sb.Append(@"|\|");
-                                break;
-                            }
-
-                        case 'w':
-                            {
-                                sb.Append(@"\/\/");
-                                break;
-                            }
-
-                        case 'W':
-                            {
-                                sb.Append(@"\/\/");
-                                break;
-                            }
-
-                        case 'h':
-                            {
-                                sb.Append("|-|");
-                                break;
-                            }
-
-                        case 'H':
-                            {
-                                sb.Append("|-|");
-                                break;
-                            }
-
-                        case 'v':
-                            {
-                                sb.Append(@"\/");
-                                break;
-                            }
-
-                        case 'V':
-                            {
-                                sb.Append(@"\/");
-                                break;
-                            }
-
-                        case 'k':
-                            {
-                                sb.Append("|{");
-                                break;
-                            }
-
-                        case 'K':
-                            {
-                                sb.Append("|{");
-                                break;
-                            }
-
-                        case 'r':
-                            {
-                                sb.Append('®');
-                                break;
-                            }
-
-                        case 'R':
-                            {
-                                sb.Append('®');
-                                break;
-                            }
-
-                        case 'm':
-                            {
-                                sb.Append(@"|\/|");
-                                break;
-                            }
-
-                        case 'M':
-                            {
-                                sb.Append(@"|\/|");
-                                break;
-                            }
-
-                        case 'b':
-                            {
-                                sb.Append('ß');
-                                break;
-                            }
-
-                        case 'B':
-                            {
-                                sb.Append('ß');
-                                break;
-                            }
-
-                        case 'q':
-                            {
-                                sb.Append('Q');
-                                break;
-                            }
-
-                        case 'Q':
-                            {
-                                sb.Append("Q¸");
-                                break;
-                            }
-
-                        case 'x':
-                            {
-                                sb.Append(")(");
-                                break;
-                            }
-
-                        case 'X':
-                            {
-                                sb.Append(")(");
-                                break;
-                            }
-
-                        default:
-                            {
-                                sb.Append(c);
-                                break;
-                            }
-                    }
-                    break;
-
-                default:
-                    switch (c)
-                    {
-                        case 'a':
-                            {
-                                sb.Append('4');
-                                break;
-                            }
-
-                        case 'e':
-                            {
-                                sb.Append('3');
-                                break;
-                            }
-
-                        case 'i':
-                            {
-                                sb.Append('1');
-                                break;
-                            }
-
-                        case 'o':
-                            {
-                                sb.Append('0');
-                                break;
-                            }
-
-                        case 'A':
-                            {
-                                sb.Append('4');
-                                break;
-                            }
-
-                        case 'E':
-                            {
-                                sb.Append('3');
-                                break;
-                            }
-
-                        case 'I':
-                            {
-                                sb.Append('1');
-                                break;
-                            }
-
-                        case 'O':
-                            {
-                                sb.Append('0');
-                                break;
-                            }
-
-                        case 's':
-                            {
-                                sb.Append('$');
-                                break;
-                            }
-
-                        case 'S':
-                            {
-                                sb.Append('$');
-                                break;
-                            }
-
-                        case 'g':
-                            {
-                                sb.Append('9');
-                                break;
-                            }
-
-                        case 'G':
-                            {
-                                sb.Append('6');
-                                break;
-                            }
-
-                        case 'l':
-                            {
-                                sb.Append('£');
-                                break;
-                            }
-
-                        case 'L':
-                            {
-                                sb.Append('£');
-                                break;
-                            }
-
-                        case 'c':
-                            {
-                                sb.Append('(');
-                                break;
-                            }
-
-                        case 'C':
-                            {
-                                sb.Append('(');
-                                break;
-                            }
-
-                        case 't':
-                            {
-                                sb.Append('7');
-                                break;
-                            }
-
-                        case 'T':
-                            {
-                                sb.Append('7');
-                                break;
-                            }
-
-                        case 'z':
-                            {
-                                sb.Append('2');
-                                break;
-                            }
-
-                        case 'Z':
-                            {
-                                sb.Append('2');
-                                break;
-                            }
-
-                        case 'y':
-                            {
-                                sb.Append('¥');
-                                break;
-                            }
-
-                        case 'Y':
-                            {
-                                sb.Append('¥');
-                                break;
-                            }
-
-                        case 'U':
-                            {
-                                sb.Append('µ');
-                                break;
-                            }
-
-                        case 'u':
-                            {
-                                sb.Append('µ');
-                                break;
-                            }
-
-                        case 'f':
-                            {
-                                sb.Append('ƒ');
-                                break;
-                            }
-
-                        case 'F':
-                            {
-                                sb.Append('ƒ');
-                                break;
-                            }
-
-                        case 'd':
-                            {
-                                sb.Append('Ð');
-                                break;
-                            }
-
-                        case 'D':
-                            {
-                                sb.Append('Ð');
-                                break;
-                            }
-
-                        case 'n':
-                            {
-                                sb.Append(@"|\|");
-                                break;
-                            }
-
-                        case 'N':
-                            {
-                                sb.Append(@"|\|");
-                                break;
-                            }
-
-                        case 'w':
-                            {
-                                sb.Append(@"\/\/");
-                                break;
-                            }
-
-                        case 'W':
-                            {
-                                sb.Append(@"\/\/");
-                                break;
-                            }
-
-                        case 'h':
-                            {
-                                sb.Append("|-|");
-                                break;
-                            }
-
-                        case 'H':
-                            {
-                                sb.Append("|-|");
-                                break;
-                            }
-
-                        case 'v':
-                            {
-                                sb.Append(@"\/");
-                                break;
-                            }
-
-                        case 'V':
-                            {
-                                sb.Append(@"\/");
-                                break;
-                            }
-
-                        case 'k':
-                            {
-                                sb.Append("|{");
-                                break;
-                            }
-
-                        case 'K':
-                            {
-                                sb.Append("|{");
-                                break;
-                            }
-
-                        case 'r':
-                            {
-                                sb.Append('®');
-                                break;
-                            }
-
-                        case 'R':
-                            {
-                                sb.Append('®');
-                                break;
-                            }
-
-                        case 'm':
-                            {
-                                sb.Append(@"|\/|");
-                                break;
-                            }
-
-                        case 'M':
-                            {
-                                sb.Append(@"|\/|");
-                                break;
-                            }
-
-                        case 'b':
-                            {
-                                sb.Append('ß');
-                                break;
-                            }
-
-                        case 'B':
-                            {
-                                sb.Append('ß');
-                                break;
-                            }
-
-                        case 'j':
-                            {
-                                sb.Append("_|");
-                                break;
-                            }
-
-                        case 'J':
-                            {
-                                sb.Append("_|");
-                                break;
-                            }
-
-                        case 'P':
-                            {
-                                sb.Append("|°");
-                                break;
-                            }
-
-                        case 'q':
-                            {
-                                sb.Append('¶');
-                                break;
-                            }
-
-                        case 'Q':
-                            {
-                                sb.Append("¶¸");
-                                break;
-                            }
-
-                        case 'x':
-                            {
-                                sb.Append(")(");
-                                break;
-                            }
-
-                        case 'X':
-                            {
-                                sb.Append(")(");
-                                break;
-                            }
-
-                        default:
-                            {
-                                sb.Append(c);
-                                break;
-                            }
-                    }
-                    break;
-            }
-        }
-
-        return sb.ToString();
-    }
-
-    /// <summary>
-    /// Converte um ToType para Integer. Retorna Nothing (NULL) se a conversão falhar
-    /// </summary>
-    /// <typeparam name="T">Tipo de origem</typeparam>
-    /// <param name="Value">Variavel com valor</param>
-    /// <returns>Valor convertido em novo ToType</returns>
-    public static long ToLong<T>(this T Value) => Value.ChangeType<long>();
-
-    public static string ToMD5String(this string Text)
-    {
-        if (Text.IsNotBlank())
-        {
-            var md5 = MD5.Create();
-            var inputBytes = Encoding.ASCII.GetBytes(Text);
-            var hash = md5.ComputeHash(inputBytes);
-            var sb = new StringBuilder();
-            for (int i = 0, loopTo = hash.Length - 1; i <= loopTo; i++)
-            {
-                sb.Append(hash[i].ToString("X2", CultureInfo.InvariantCulture));
+                h += ratio;
             }
 
             return sb.ToString();
         }
 
-        return Text;
-    }
+        public static Attachment ToAttachment(this FileInfo file) => file != null && file.Exists ? new Attachment(file.FullName) : null;
 
-    /// <summary>
-    /// Pega um texto em "PascalCase" ou "snake_case" e o retorna na forma "normal case"
-    /// </summary>
-    /// <param name="Text"></param>
-    /// <returns></returns>
-    public static string ToNormalCase(this string Text) => Text.Replace("_", WhitespaceChar).PascalCaseAdjust();
+        public static Attachment ToAttachment(this Stream stream, string name) => stream != null && stream.Length > 0 ? new Attachment(stream, name.IfBlank("untitledFile.bin")) : null;
 
-    /// <summary>
-    /// retorna o numero em sua forma ordinal (inglês)
-    /// </summary>
-    /// <param name="Number">Numero</param>
-    /// <returns></returns>
-    public static string ToOrdinalNumber(this int Number) => Number.ToLong().ToOrdinalNumber();
-
-    /// <summary>
-    /// retorna o numero em sua forma ordinal (inglês)
-    /// </summary>
-    /// <param name="Number">Numero</param>
-    /// <returns></returns>
-    public static string ToOrdinalNumber(this long Number) => $"{Number}{Number.GetOrdinal()}";
-
-    /// <summary>
-    /// retorna o numero em sua forma ordinal (inglês)
-    /// </summary>
-    /// <param name="Number">Numero</param>
-    /// <returns></returns>
-    public static string ToOrdinalNumber(this short Number) => Number.ToInt().ToOrdinalNumber();
-
-    /// <summary>
-    /// retorna o numero em sua forma ordinal (inglês)
-    /// </summary>
-    /// <param name="Number">Numero</param>
-    /// <returns></returns>
-    public static string ToOrdinalNumber(this double Number) => Number.FloorInt().ToOrdinalNumber();
-
-    /// <summary>
-    /// Retorna o numero em sua forma ordinal (inglês)
-    /// </summary>
-    /// <param name="Number">Numero</param>
-    /// <returns></returns>
-    public static string ToOrdinalNumber(this decimal Number) => Number.FloorInt().ToOrdinalNumber();
-
-    /// <summary>
-    /// Retorna um numero com o sinal de porcentagem
-    /// </summary>
-    /// <param name="Number"></param>
-    /// <returns></returns>
-    public static string ToPercentString(this decimal Number, int Decimals = -1)
-    {
-        if (Decimals > -1)
+        public static Attachment ToAttachment(this byte[] bytes, string name)
         {
-            Number = Number.RoundDecimal(Decimals);
+            if (bytes != null && bytes.Any())
+                using (var s = new MemoryStream(bytes))
+                    return s.ToAttachment(name);
+            return null;
         }
 
-        return $"{Number}%";
-    }
+        /// <summary>
+        /// Converte um Array de Bytes em uma string Util
+        /// </summary>
+        /// <param name="Bytes">Array de Bytes</param>
+        /// <returns></returns>
+        public static string ToBase64(this byte[] Bytes) => Convert.ToBase64String(Bytes);
 
-    /// <summary>
-    /// Retorna um numero com o sinal de porcentagem
-    /// </summary>
-    /// <param name="Number"></param>
-    /// <returns></returns>
-    public static string ToPercentString(this int Number) => $"{Number}%";
-
-    /// <summary>
-    /// Retorna um numero com o sinal de porcentagem
-    /// </summary>
-    /// <param name="Number"></param>
-    /// <returns></returns>
-    public static string ToPercentString(this double Number, int Decimals = -1)
-    {
-        if (Decimals > -1)
+        public static string ToBase64(this Image OriginalImage, ImageFormat OriginalImageFormat = null)
         {
-            Number = Number.RoundDouble(Decimals);
-        }
-
-        return $"{Number}%";
-    }
-
-    /// <summary>
-    /// Retorna um numero com o sinal de porcentagem
-    /// </summary>
-    /// <param name="Number"></param>
-    /// <returns></returns>
-    public static string ToPercentString(this short Number) => $"{Number}%";
-
-    /// <summary>
-    /// Retorna um numero com o sinal de porcentagem
-    /// </summary>
-    /// <param name="Number"></param>
-    /// <returns></returns>
-    public static string ToPercentString(this long Number) => $"{Number}%";
-
-    /// <summary>
-    /// Concatena todos os itens de uma lista, utilizando a palavra <paramref name="And"/> antes
-    /// da ultima ocorrencia.
-    /// </summary>
-    /// <param name="Texts">
-    /// Lista com itens que serão convertidos em <see cref="string"/> e concatenados
-    /// </param>
-    /// <param name="And">
-    /// palavra correspondente ao "e", utilizada para concatena ro ultimo elemento da lista.
-    /// Quando null ou branco, <paramref name="Separator"/> é utilizado em seu lugar.
-    /// </param>
-    /// <param name="Separator">caractere correspondente a virgula</param>
-    /// <param name="EmptyValue">
-    /// Valor que será apresentado caso <paramref name="Texts"/> esteja vazio ou nulo. Quando
-    /// <see cref="null"/>, omite o <paramref name="PhraseStart"/> da string final
-    /// </param>
-    /// <returns></returns>
-    public static string ToPhrase<T>(this IEnumerable<T> Texts, string PhraseStart = EmptyString, string And = "and", string EmptyValue = null, char Separator = ',')
-    {
-        Separator = Separator.IfBlank(',');
-        PhraseStart = PhraseStart.IfBlank(EmptyString);
-
-        Texts = (Texts ?? Array.Empty<T>()).WhereNotBlank();
-
-        if (PhraseStart.IsNotBlank() && !PhraseStart.EndsWithAny(StringComparison.InvariantCultureIgnoreCase, PredefinedArrays.BreakLineChars.ToArray()) && !PhraseStart.EndsWith(WhitespaceChar, StringComparison.InvariantCultureIgnoreCase))
-        {
-            PhraseStart += WhitespaceChar;
-        }
-
-        switch (Texts.Count())
-        {
-            case 0:
-                if (EmptyValue != null)
+            if (OriginalImage != null)
+                using (var ms = new MemoryStream())
                 {
-                    PhraseStart += EmptyValue;
+                    OriginalImage.Save(ms, OriginalImageFormat ?? OriginalImage.GetImageFormat() ?? ImageFormat.Png);
+                    var imageBytes = ms.ToArray();
+                    return Convert.ToBase64String(imageBytes);
                 }
-
-                break;
-
-            case 1:
-                PhraseStart += $"{Texts.FirstOrDefault()}";
-                break;
-
-            default:
-                PhraseStart += Texts.SkipLast().SelectJoinString($"{Separator} ");
-                PhraseStart += $" {And.IfBlank($"{Separator}")}";
-                PhraseStart += $" {Texts.Last()}";
-                break;
+            return null;
         }
 
-        return PhraseStart;
-    }
+        /// <summary>
+        /// Converte uma Imagem da WEB para Base64
+        /// </summary>
+        /// <param name="ImageURL">Caminho da imagem</param>
+        /// <returns>Uma string em formato Util</returns>
+        public static string ToBase64(this Uri ImageURL, ImageFormat OriginalImageFormat, NameValueCollection Headers = null, Encoding Encoding = null) => ImageURL?.DownloadImage(Headers, Encoding)?.ToBase64(OriginalImageFormat);
 
-    ///<inheritdoc cref="ToPhrase{TSource}(IEnumerable{TSource}, string, string, string, char)"/>
-    public static string ToPhrase(string And, params string[] Texts) => (Texts ?? Array.Empty<string>()).ToPhrase(EmptyString, And);
-
-    /// <summary>
-    /// Monta um Comando SQL para executar uma procedure especifica e trata valores especificos
-    /// de um NameValueCollection como parametros da procedure
-    /// </summary>
-    /// <param name="NVC">Objeto</param>
-    /// <param name="ProcedureName">Nome da Procedure</param>
-    /// <param name="Keys">Valores do nameValueCollection o que devem ser utilizados</param>
-    /// <returns>Um DbCommand parametrizado</returns>
-    public static DbCommand ToProcedure(this DbConnection Connection, string ProcedureName, NameValueCollection NVC, DbTransaction Transaction = null, params string[] Keys) => Connection.ToProcedure(ProcedureName, NVC.ToDictionary(Keys), Transaction, Keys);
-
-    /// <summary>
-    /// Monta um Comando SQL para executar uma procedure especifica e trata propriedades
-    /// específicas de um objeto como parametros da procedure
-    /// </summary>
-    /// <param name="Obj">Objeto</param>
-    /// <param name="ProcedureName">Nome da Procedure</param>
-    /// <param name="Keys">propriedades do objeto que devem ser utilizados</param>
-    /// <returns>Um DbCommand parametrizado</returns>
-    public static DbCommand ToProcedure<T>(this DbConnection Connection, string ProcedureName, T Obj, DbTransaction Transaction = null, params string[] Keys) => Connection.ToProcedure(ProcedureName, Obj?.CreateDictionary() ?? new Dictionary<string, object>(), Transaction, Keys);
-
-    /// <summary>
-    /// Monta um Comando SQL para executar uma procedure especifica e trata os valores
-    /// específicos de um <see cref="Dictionary{TKey, TValue}"/> como parametros da procedure
-    /// </summary>
-    /// <param name="Dic">Objeto</param>
-    /// <param name="ProcedureName">Nome da Procedure</param>
-    /// <param name="Keys">propriedades do objeto que devem ser utilizados</param>
-    /// <returns>Um DbCommand parametrizado</returns>
-    public static DbCommand ToProcedure(this DbConnection Connection, string ProcedureName, Dictionary<string, object> Dic, DbTransaction Transaction = null, params string[] Keys)
-    {
-        Dic = Dic ?? new Dictionary<string, object>();
-        Keys = Keys ?? Array.Empty<string>();
-        if (!Keys.Any())
+        /// <summary>
+        /// Monta um Comando SQL para executar uma procedure especifica para cada item em uma
+        /// coleçao. As propriedades do item serao utilizadas como parametros da procedure
+        /// </summary>
+        /// <param name="Items">Lista de itens que darao origem aos parametros da procedure</param>
+        /// <param name="ProcedureName">Nome da Procedure</param>
+        /// <param name="Keys">CHaves de Dicionário que devem ser utilizadas</param>
+        /// <returns>Um DbCommand parametrizado</returns>
+        public static IEnumerable<DbCommand> ToBatchProcedure<T>(this DbConnection Connection, string ProcedureName, IEnumerable<T> Items, DbTransaction Transaction = null, params string[] Keys)
         {
-            Keys = Dic.Keys.ToArray();
-        }
-        else
-        {
-            Keys = Dic.Keys.ToArray().Where(x => x.IsLikeAny(Keys)).ToArray();
-        }
-
-        string sql = $"{ProcedureName} {Keys.SelectJoinString(key => $" @{key} = @__{key}", ", ")}";
-
-        return Connection.CreateCommand(sql, Dic.ToDictionary(x => x.Key, x => x.Value), Transaction);
-    }
-
-    /// <summary>
-    /// Coloca o texto em TitleCase
-    /// </summary>
-    /// <param name="Text"></param>
-    /// <returns></returns>
-    public static string ToProperCase(this string Text, bool ForceCase = false)
-    {
-        if (Text.IsBlank())
-        {
-            return Text;
-        }
-
-        if (ForceCase)
-        {
-            Text = Text.ToLowerInvariant();
-        }
-
-        var l = Text.Split(WhitespaceChar, StringSplitOptions.None).ToList();
-        for (int index = 0, loopTo = l.Count - 1; index <= loopTo; index++)
-        {
-            string pal = l[index];
-            bool artigo = index > 0 && IsIn(pal, "o", "a", "os", "as", "um", "uma", "uns", "umas", "de", "do", "dos", "das", "e", "ou", "of");
-            if (pal.IsNotBlank())
+            foreach (var item in Items ?? new List<T>())
             {
-                if (ForceCase || artigo == false)
+                yield return Connection.ToProcedure(ProcedureName, item, Transaction, Keys);
+            }
+        }
+
+        /// <summary>
+        /// Retorna uma <see cref="Bitmap"/> a partir de um Image
+        /// </summary>
+        /// <param name="Image"></param>
+        /// <returns></returns>
+        public static Bitmap ToBitmap(this Image Image) => new Bitmap(Image);
+
+        /// <summary>
+        /// Converte um ToType para Boolean. Retorna Nothing (NULL) se a conversão falhar
+        /// </summary>
+        /// <typeparam name="T">Tipo de origem</typeparam>
+        /// <param name="Value">Variavel com valor</param>
+        /// <returns>Valor convertido em novo ToType</returns>
+        public static bool ToBool<T>(this T Value) => Value.ChangeType<bool>();
+
+        /// <summary>
+        /// Transforma uma imagem em array de bytes
+        /// </summary>
+        /// <param name="Image">Imagem</param>
+        /// <returns></returns>
+        public static byte[] ToBytes(this Image Image, ImageFormat Format = null)
+        {
+            using (var ms = Image.ToStream(Format))
+            {
+                return ms.ToBytes();
+            }
+        }
+
+        /// <summary>
+        /// Salva um anexo para Byte()
+        /// </summary>
+        /// <param name="attachment"></param>
+        /// <returns></returns>
+        public static byte[] ToBytes(this Attachment attachment) => attachment?.ContentStream.ToBytes() ?? Array.Empty<byte>();
+
+        /// <summary>
+        /// Converte um stream em Bytes
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <returns></returns>
+        public static byte[] ToBytes(this Stream stream)
+        {
+            if (stream == null)
+            {
+                return Array.Empty<byte>();
+            }
+
+            var pos = stream.Position;
+            using (var ms = new MemoryStream())
+            {
+                stream.CopyTo(ms);
+                stream.Position = pos;
+                return ms.ToArray();
+            }
+        }
+
+        /// <summary>
+        /// Converte o conteúdo de um <see cref="FileInfo"/> em <see cref="byte[]"/>
+        /// </summary>
+        /// <param name="File"></param>
+        /// <returns></returns>
+        public static byte[] ToBytes(this FileInfo File)
+        {
+            if (File != null)
+            {
+                using (var fStream = new FileStream(File.FullName, FileMode.Open, FileAccess.Read))
                 {
-                    char c = pal.First();
-                    if (!char.IsUpper(c))
+                    using (var br = new BinaryReader(fStream))
                     {
-                        pal = char.ToUpper(c, CultureInfo.InvariantCulture) + pal.RemoveFirstChars(1);
+                        return br.ReadBytes((int)File.Length);
                     }
-
-                    l[index] = pal;
                 }
             }
+            return Array.Empty<byte>();
         }
 
-        return l.SelectJoinString(WhitespaceChar);
-    }
+        public static string ToCamelCase(this string Text) => Text.PascalCaseSplit().Select((x, i) => i == 0 ? x.ToLowerInvariant() : x.ToTitle()).SelectJoinString("");
 
-    public static QuantityTextPair ToQuantityTextPair(this string Text) => (QuantityTextPair)Text;
+        /// <summary>
+        /// Retorna a <see cref="Color"/> a partir de uma <see cref="ConsoleColor"/>
+        /// </summary>
+        /// <param name="Color"></param>
+        /// <returns></returns>
+        public static HSVColor ToColor(this ConsoleColor Color) => new HSVColor(new[] { 0x0, 0x80, 0x8000, 0x8080, 0x800000, 0x800080, 0x808000, 0xC0C0C0, 0x808080, 0xFF, 0xFF00, 0xFFFF, 0xFF0000, 0xFF00FF, 0xFFFF00, 0xFFFFFF }[(int)Color]) { Alpha = 255 };
 
-    public static QuantityTextPair ToQuantityTextPair(this IEnumerable<string> Text) => (QuantityTextPair)(Text?.ToArray());
-
-    /// <summary>
-    /// Retorna um dicionário em QueryString
-    /// </summary>
-    /// <param name="Dic"></param>
-    /// <returns></returns>
-    public static string ToQueryString(this Dictionary<string, string> Dic) => Dic?.Where(x => x.Key.IsNotBlank()).SelectJoinString(x => new[] { x.Key, (x.Value ?? EmptyString).UrlEncode() }.SelectJoinString("="), "&") ?? EmptyString;
-
-    /// <summary>
-    /// Retorna um <see cref="NameValueCollection"/> em QueryString
-    /// </summary>
-    /// <param name="NVC"></param>
-    /// <returns></returns>
-    public static string ToQueryString(this NameValueCollection NVC) => NVC?.AllKeys.SelectManyJoinString(n => NVC.GetValues(n).Select(v => n + "=" + v).Where(x => x.IsNotBlank() && x != "="), "&");
-
-    /// <summary>
-    /// COnverte graus para radianos
-    /// </summary>
-    /// <param name="Degrees"></param>
-    /// <returns></returns>
-    public static double ToRadians(this double Degrees) => Degrees * Math.PI / 180.0d;
-
-    /// <summary>
-    /// Coloca a string em Randomcase (aleatoriamente letras maiusculas ou minusculas)
-    /// </summary>
-    /// <param name="Text"></param>
-    /// <param name="Times">Numero de vezes que serão sorteados caracteres.</param>
-    /// <returns></returns>
-    public static string ToRandomCase(this string Text, int Times = 0)
-    {
-        var ch = Text.ToArray();
-        Times = Times.SetMinValue(ch.Length);
-        for (int index = 1, loopTo = Times; index <= loopTo; index++)
+        /// <summary>
+        /// Gera uma cor a partir de uma palavra
+        /// </summary>
+        /// <param name="Text">
+        /// Pode ser um texto em branco (Transparent), uma <see cref="NamedColors"/> (retorna aquela
+        /// cor exata), uma palavra qualquer (gera proceduralmente uma cor) ou uma expressão de cor
+        /// (Red+Blue, Red-Blue,Green*Red etc).
+        /// </param>
+        /// <returns></returns>
+        public static Color ToColor(this string Text)
         {
-            int newindex = RandomNumber(0, ch.Length - 1);
-            if (char.IsUpper(ch[newindex]))
+            if (Text.IsBlank()) return Color.Transparent;
+
+            if (Text == "random" || Text == "rnd") return RandomColor();
+
+            if (Text.IsNumber()) return Color.FromArgb(Text.ToInt());
+
+            if (Text.IsHexaDecimalColor()) return ColorTranslator.FromHtml("#" + Text.RemoveFirstEqual("#"));
+
+            var maybecolor = FindColor(Text);
+            if (maybecolor != null)
             {
-                ch[newindex] = char.ToLower(ch[newindex], CultureInfo.InvariantCulture);
-            }
-            else
-            {
-                ch[newindex] = char.ToUpper(ch[newindex], CultureInfo.InvariantCulture);
-            }
-        }
-
-        return new string(ch);
-    }
-
-    public static string ToRoman(this int ArabicNumber)
-    {
-        ArabicNumber = ArabicNumber.ForcePositive();
-        // valida : aceita somente valores entre 1 e 3999
-        if (ArabicNumber < 1 || ArabicNumber > 3999)
-        {
-            throw new ArgumentException("The numeric value must be between 1 and 3999.", nameof(ArabicNumber));
-        }
-
-        var algarismosArabicos = new int[] { 1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1 };
-        var algarismosRomanos = new string[] { "M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "TV", "IV", "I" };
-
-        // inicializa o string builder
-        string resultado = EmptyString;
-
-        // percorre os valores nos arrays
-        for (int i = 0; i <= 12; i++)
-        {
-            // se o numero a ser convertido é menor que o valor então anexa o numero
-            // correspondente ou o par ao resultado
-            while (ArabicNumber >= algarismosArabicos[i])
-            {
-                ArabicNumber -= algarismosArabicos[i];
-                resultado += algarismosRomanos[i];
-            }
-        }
-
-        // retorna o resultado
-        return resultado.ToString();
-    }
-
-    public static string ToSentenceCase(this string Text)
-    {
-        Text = Text.Trim().GetFirstChars(1).ToUpperInvariant() + Text.RemoveFirstChars(1);
-        var dots = new[] { "...", ". ", "? ", "! " };
-        List<string> sentences;
-        foreach (var dot in dots)
-        {
-            sentences = Text.Split(dot, StringSplitOptions.None).ToList();
-            for (int index = 0, loopTo = sentences.Count - 1; index <= loopTo; index++)
-            {
-                sentences[index] = $"{sentences[index].Trim().GetFirstChars(1)?.ToUpperInvariant()}{sentences[index]?.RemoveFirstChars(1)}";
+                return maybecolor.ToDrawingColor();
             }
 
-            Text = sentences.SelectJoinString(dot);
-        }
-
-        sentences = Text.Split(WhitespaceChar).ToList();
-        Text = EmptyString;
-        foreach (var c in sentences)
-        {
-            string palavra = c;
-            if (palavra.EndsWith(".") && palavra.Length == 2)
+            if (Text.Contains("*"))
             {
-                palavra = palavra.ToUpperInvariant();
-                Text += palavra;
-                string proximapalavra = sentences.IfNoIndex(sentences.IndexOf(c) + 1, EmptyString);
-                if (!(proximapalavra.EndsWith(".") && palavra.Length == 2))
+                var various = Text.Split("*");
+
+                if (various.Any())
                 {
-                    Text += WhitespaceChar;
+                    return various.Select(x => new HSVColor(x.Trim())).Aggregate((a, b) => a * b);
                 }
             }
-            else
+            if (Text.Contains("+"))
             {
-                Text += c + WhitespaceChar;
+                var various = Text.Split("+");
+
+                if (various.Any())
+                {
+                    return various.Select(x => new HSVColor(x.Trim())).Aggregate((a, b) => a + b);
+                }
             }
+
+            if (Text.Contains("-"))
+            {
+                var various = Text.Split("-");
+                if (various.Any())
+                {
+                    return various.Select(x => new HSVColor(x.Trim())).Aggregate((a, b) => a - b);
+                }
+            }
+
+            var coresInt = Text.GetWords().Select(p => p.ToCharArray().Sum(a => Math.Pow(a.ToAsc(), 2d) * p.Length)).Sum().RoundInt();
+            return Color.FromArgb(255, Color.FromArgb(coresInt));
         }
 
-        return Text.RemoveLastChars(1);
-    }
-
-    /// <summary>
-    /// Converte um ToType para short. Retorna Nothing (NULL) se a conversão falhar
-    /// </summary>
-    /// <typeparam name="T">Tipo de origem</typeparam>
-    /// <param name="Value">Variavel com valor</param>
-    /// <returns>Valor convertido em novo ToType</returns>
-    public static double ToShort<T>(this T Value) => Value.ChangeType<short>();
-
-    /// <summary>
-    /// Prepara uma string para se tornar uma URL amigavel (remove caracteres nao permitidos e
-    /// troca espacos por hifen). É um alias para <see cref="ToFriendlyURL(String, Boolean)"/>
-    /// </summary>
-    /// <param name="Text"></param>
-    /// <param name="UseUnderscore">
-    /// Indica se os espacos serão substituidos por underscores (underline). Use FALSE para hifens
-    /// </param>
-    /// <returns>string amigavel para URL</returns>
-    public static string ToSlugCase(this string Text) => Text.Replace(WhitespaceChar, "-").ToLowerInvariant();
-
-    /// <summary>
-    /// Retorna uma string em Snake_Case
-    /// </summary>
-    /// <param name="Text"></param>
-    /// <returns></returns>
-    public static string ToSnakeCase(this string Text) => Text.Replace(WhitespaceChar, "_").ToLowerInvariant();
-
-    ///<summary> Monta um Comando SQL para executar um SELECT com
-    /// filtros a partir de um <see cref="NameValueCollection" />
-    /// </summary>
-    /// <param name="NVC"> Dicionario</param> <param name="TableName">Nome da Tabela</param>
-    public static Select ToSQLFilter(this NameValueCollection NVC, string TableName, string CommaSeparatedColumns, params string[] FilterKeys) => (Select)new Select(CommaSeparatedColumns.Split(",")).From(TableName).Where(NVC, FilterKeys);
-
-    /// <summary>
-    /// Monta um Comando SQL para executar um SELECT com filtros a partir de um <see
-    /// cref="Dictionary{string, object}"/>
-    /// </summary>
-    /// <param name="Dic">Dicionario</param>
-    /// <param name="TableName">Nome da Tabela</param>
-    /// <param name="FilterKeys">Parametros da URL que devem ser utilizados</param>
-    /// <returns>Uma string com o comando montado</returns>
-    public static Select ToSQLFilter(this Dictionary<string, object> Dic, string TableName, string CommaSeparatedColumns, LogicConcatenationOperator LogicConcatenation, params string[] FilterKeys) => (Select)new Select(CommaSeparatedColumns.Split(",")).From(TableName).Where(Dic, LogicConcatenation, FilterKeys);
-
-    /// <summary>
-    /// Interploa um objeto de tipo <typeparamref name="T"/> em uma <see
-    /// cref="FormattableString"/>, e retorna o resultado de <see
-    /// cref="ToSQLString(FormattableString, bool)"/>
-    /// </summary>
-    /// <param name="Obj"></param>
-    /// <returns></returns>
-    public static string ToSQLString<T>(this T Obj, bool Parenthesis = true) => ToSQLString("{0}".ToFormattableString(Obj), Parenthesis);
-
-    /// <summary>
-    /// Converte uma <see cref="FormattableString"/> para uma string SQL, tratando seus
-    /// parametros como parametros da query
-    /// </summary>
-    /// <param name="Parenthesis">indica se o parametro deve ser encapsulando em parentesis</param>
-    public static string ToSQLString(this FormattableString SQL, bool Parenthesis = true)
-    {
-        if (SQL != null)
+        /// <summary>
+        /// Retorna a <see cref="ConsoleColor"/> mais proxima de uma <see cref="Color"/>
+        /// </summary>
+        /// <param name="Color"></param>
+        /// <returns></returns>
+        public static ConsoleColor ToConsoleColor(this Color Color)
         {
-            if (SQL.ArgumentCount > 0)
+            int index = Color.R > 128 | Color.G > 128 | Color.B > 128 ? 8 : 0;
+            index |= Color.R > 64 ? 4 : 0;
+            index |= Color.G > 64 ? 2 : 0;
+            index |= Color.B > 64 ? 1 : 0;
+            return (ConsoleColor)index;
+        }
+
+        public static string ToCssRGB(this Color Color) => $"rgb({Color.R},{Color.G},{Color.B})";
+
+        /// <summary>
+        /// Converte uma cor de sistema para CSS RGB
+        /// </summary>
+        /// <param name="Color">Cor do sistema</param>
+        /// <returns>String contendo a cor em RGB</returns>
+        public static string ToCssRGBA(this Color Color) => $"rgba({Color.R},{Color.G},{Color.B},{Color.A})";
+
+        /// <summary>
+        /// Returns a CSV String from <see cref="IEnumerable{T}"/>
+        /// </summary>
+        /// <param name="Items"></param>
+        /// <param name="Separator"></param>
+        /// <param name="IncludeHeader"></param>
+        /// <returns></returns>
+        public static string ToCSV(this IEnumerable<Dictionary<string, object>> Items, string Separator = ",", bool IncludeHeader = false)
+        {
+            Separator = Separator.IfBlank(",");
+            var str = $"sep={Separator}{Environment.NewLine}";
+            if (Items != null && Items.Any())
             {
-                string CommandText = SQL.Format.Trim();
-                for (int index = 0, loopTo = SQL.ArgumentCount - 1; index <= loopTo; index++)
+                Items = Items.MergeKeys();
+
+                if (IncludeHeader && Items.All(x => x.Keys.Any()))
                 {
-                    var v = SQL.GetArgument(index);
+                    str += $"{Items.FirstOrDefault()?.Keys.SelectJoinString(Separator)}";
+                }
+                str += $"{Items.SelectJoinString(x => x.Values.SelectJoinString(Separator), Environment.NewLine)}";
+            }
 
-                    if (v.IsEnumerableNotString() == false)
-                    {
-                        v = new[] { v };
-                    }
+            return str;
+        }
 
-                    var pv = new List<string>();
-                    if (v is IEnumerable paramvalues)
+        public static string ToCSV<T>(this IEnumerable<T> Items, string Separator = ",", bool IncludeHeader = false) where T : class => (Items ?? Array.Empty<T>()).Select(x => x.CreateDictionary()).ToCSV(Separator, IncludeHeader);
+
+        public static DataSet ToDataSet(this DbDataReader reader) => ToDataSet(reader, null);
+
+        public static DataSet ToDataSet(this DbDataReader reader, string DataSetName, params string[] TableNames)
+        {
+            DataSet ds = new DataSet(DataSetName.IfBlank("DataSet"));
+            TableNames = TableNames ?? Array.Empty<string>();
+            var i = 0;
+            while (reader != null && !reader.IsClosed)
+            {
+                ds.Tables.Add(TableNames.IfBlankOrNoIndex(i, $"Table{i}")).Load(reader);
+                i++;
+            }
+            return ds;
+        }
+
+        /// <summary>
+        /// Converte um Array de Bytes em uma DATA URL Completa
+        /// </summary>
+        /// <param name="Bytes">Array de Bytes</param>
+        /// <param name="Type">Tipo de arquivo</param>
+        /// <returns></returns>
+        public static string ToDataURL(this byte[] Bytes, FileType Type = null) => "data:" + (Type ?? new FileType()).ToString() + ";base64," + Bytes.ToBase64();
+
+        /// <summary>
+        /// Converte um Array de Bytes em uma DATA URL Completa
+        /// </summary>
+        /// <param name="Bytes">Array de Bytes</param>
+        /// <param name="MimeType">Tipo de arquivo</param>
+        /// <returns></returns>
+        public static string ToDataURL(this byte[] Bytes, string MimeType) => "data:" + MimeType + ";base64," + Bytes.ToBase64();
+
+        /// <summary>
+        /// Converte um arquivo uma DATA URL Completa
+        /// </summary>
+        /// <param name="File">Arquivo</param>
+        /// <returns></returns>
+        public static string ToDataURL(this FileInfo File) => File.ToBytes().ToDataURL(new FileType(File.Extension));
+
+        /// <summary>
+        /// Transforma uma imagem em uma URL Util
+        /// </summary>
+        /// <param name="Image">Imagem</param>
+        /// <returns>Uma DataURI em string</returns>
+        public static string ToDataURL(this Image Image) => $"data:{Image.GetFileType().First().ToLowerInvariant().Replace("application/octet-stream", GetFileType(".png").First())};base64,{Image.ToBase64()}";
+
+        /// <summary>
+        /// Converte uma imagem para DataURI trocando o MIME T
+        /// </summary>
+        /// <param name="OriginalImage">Imagem</param>
+        /// <param name="OriginalImageFormat">Formato da Imagem</param>
+        /// <returns>Uma data URI com a imagem convertida</returns>
+        public static string ToDataURL(this Image OriginalImage, ImageFormat OriginalImageFormat) => OriginalImage.ToBase64(OriginalImageFormat).Base64ToImage().ToDataURL();
+
+        /// <summary>
+        /// Converte um ToType para DateTime. Retorna Nothing (NULL) se a conversão falhar
+        /// </summary>
+        /// <typeparam name="T">Tipo de origem</typeparam>
+        /// <param name="Value">Variavel com valor</param>
+        /// <returns>Valor convertido em novo ToType</returns>
+        public static DateTime ToDateTime<T>(this T Value) => Value.ChangeType<DateTime>();
+
+        /// <summary>
+        /// Converte um ToType para DateTime. Retorna Nothing (NULL) se a conversão falhar
+        /// </summary>
+        /// <typeparam name="T">Tipo de origem</typeparam>
+        /// <param name="Value">Variavel com valor</param>
+        /// <returns>Valor convertido em novo ToType</returns>
+        public static DateTime ToDateTime<T>(this T Value, string CultureInfoName) => Value.ToDateTime(new CultureInfo(CultureInfoName));
+
+        /// <summary>
+        /// Converte um ToType para DateTime. Retorna Nothing (NULL) se a conversão falhar
+        /// </summary>
+        /// <typeparam name="T">Tipo de origem</typeparam>
+        /// <param name="Value">Variavel com valor</param>
+        /// <returns>Valor convertido em novo ToType</returns>
+        public static DateTime ToDateTime<T>(this T Value, CultureInfo CultureInfo) => Convert.ToDateTime(Value, CultureInfo);
+
+        /// <summary>
+        /// Converte um ToType para Decimal. Retorna Nothing (NULL) se a conversão falhar
+        /// </summary>
+        /// <typeparam name="T">Tipo de origem</typeparam>
+        /// <param name="Value">Variavel com valor</param>
+        /// <returns>Valor convertido em novo ToType</returns>
+        public static decimal ToDecimal<T>(this T Value) => Value.ChangeType<decimal>();
+
+        public static string ToDecimalString(this float number, int Decimals = -1, CultureInfo culture = null) => number.ToDecimal().ToDecimalString(Decimals, culture);
+
+        public static string ToDecimalString(this short number, int Decimals = -1, CultureInfo culture = null) => number.ToDecimal().ToDecimalString(Decimals, culture);
+
+        public static string ToDecimalString(this double number, int Decimals = -1, CultureInfo culture = null) => number.ToDecimal().ToDecimalString(Decimals, culture);
+
+        public static string ToDecimalString(this long number, int Decimals = -1, CultureInfo culture = null) => number.ToDecimal().ToDecimalString(Decimals, culture);
+
+        public static string ToDecimalString(this int number, int Decimals = -1, CultureInfo culture = null) => number.ToDecimal().ToDecimalString(Decimals, culture);
+
+        public static string ToDecimalString(this decimal number, int Decimals = -1, CultureInfo culture = null)
+        {
+            culture = culture ?? CultureInfo.CurrentCulture;
+            Decimals = Decimals < 0 ? GetDecimalLength(number) : Decimals;
+            Decimals = Decimals < 0 ? culture.NumberFormat.NumberDecimalDigits : Decimals;
+            return number.ToString("0".AppendIf(culture.NumberFormat.NumberDecimalSeparator + "0".Repeat(Decimals), Decimals > 0), culture);
+        }
+
+        /// <summary>
+        /// Retorna um <see cref="Dictionary"/> a partir de um <see cref="IGrouping(Of TKey, TElement)"/>
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="groupings"></param>
+        /// <returns></returns>
+        public static Dictionary<TKey, IEnumerable<TValue>> ToDictionary<TKey, TValue>(this IEnumerable<IGrouping<TKey, TValue>> groupings) => groupings.ToDictionary(group => group.Key, group => group.AsEnumerable());
+
+        /// <summary>
+        /// Transforma uma lista de pares em um Dictionary
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="items"></param>
+        /// <returns></returns>
+        public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> items, params TKey[] Keys) => items.Where(x => Keys == null || Keys.Any() == false || x.Key.IsIn(Keys)).DistinctBy(x => x.Key).ToDictionary(x => x.Key, x => x.Value);
+
+        /// <summary>
+        /// Converte um NameValueCollection para um <see cref="Dictionary{TKey, TValue}"/>
+        /// </summary>
+        /// <param name="[NameValueCollection]">Formulario</param>
+        /// <returns></returns>
+        public static Dictionary<string, object> ToDictionary(this NameValueCollection NameValueCollection, params string[] Keys)
+        {
+            var result = new Dictionary<string, object>();
+            Keys = Keys ?? Array.Empty<string>();
+            if (Keys.Any() == false)
+            {
+                Keys = NameValueCollection.AllKeys;
+            }
+
+            foreach (string key in NameValueCollection.Keys)
+            {
+                if (key.IsNotBlank() && key.IsLikeAny(Keys))
+                {
+                    var values = NameValueCollection.GetValues(key);
+                    if (result.ContainsKey(key))
                     {
-                        foreach (var x in paramvalues)
+                        var l = new List<object>();
+                        if (IsArray(result[key]))
                         {
-                            if (x == null)
+                            foreach (var v in (IEnumerable)result[key])
                             {
-                                pv.Add("NULL");
-                            }
-                            else if (x.IsEnumerableNotString() && x is IEnumerable cc)
-                            {
-                                foreach (var c in cc)
+                                if (v.IsNumber())
                                 {
-                                    pv.Add(c.ToSQLString(false));
+                                    l.Add(v.ToDouble());
+                                }
+                                else if (v.IsDate())
+                                {
+                                    l.Add(v.ToDateTime());
+                                }
+                                else
+                                {
+                                    l.Add(v);
                                 }
                             }
-                            else if (GetNullableTypeOf(x).IsNumericType())
+                        }
+                        else
+                        {
+                            var v = result[key];
+                            if (v.IsNumber())
                             {
-                                pv.Add(x.ToString());
+                                l.Add(v.ToDouble());
                             }
-                            else if (IsDate(x))
+                            else if (v.IsDate())
                             {
-                                pv.Add(x.ToDateTime().ToSQLDateString().EscapeQuotesToQuery(true));
-                            }
-                            else if (IsBool(x))
-                            {
-                                pv.Add(x.ToBool().AsIf("1", "0"));
-                            }
-                            else if (x.IsTypeOf<Select>())
-                            {
-                                pv.Add(x.ToString());
+                                l.Add(v.ToDateTime());
                             }
                             else
                             {
-                                pv.Add(x.ToString().EscapeQuotesToQuery(true));
+                                l.Add(v);
                             }
                         }
 
-                        CommandText = CommandText.Replace("{" + index + "}", pv.SelectJoinString(",").IfBlank("NULL").UnQuote('(', true).QuoteIf(Parenthesis, '('));
+                        if (l.Count == 1)
+                        {
+                            result[key] = l[0];
+                        }
+                        else
+                        {
+                            result[key] = l.ToArray();
+                        }
+                    }
+                    else if (values.Length == 1)
+                    {
+                        var v = values.FirstOrDefault();
+                        if (v.IsNumber())
+                        {
+                            result.Add(key, v.ToDouble());
+
+                        }
+                        else if (v.IsDate())
+                        {
+                            result.Add(key, v.ToDateTime());
+
+                        }
+                        else
+                        {
+                            result.Add(key, v);
+
+                        }
+                    }
+                    else
+                    {
+                        var ar = new List<object>();
+                        foreach (var v in values)
+                        {
+                            if (v.IsNumber())
+                            {
+                                ar.Add(v.ToDouble());
+                            }
+                            else if (v.IsDate())
+                            {
+                                ar.Add(v.ToDateTime());
+                            }
+                            else
+                            {
+                                ar.Add(v);
+                            }
+                        }
+
+                        result.Add(key, ar.ToArray());
                     }
                 }
-
-                return CommandText;
             }
-            else
+
+            return result;
+        }
+
+        public static DirectoryInfo ToDirectoryInfo(this string PathPart) => ToDirectoryInfo(new[] { PathPart });
+
+        public static DirectoryInfo ToDirectoryInfo(this string[] PathParts)
+        {
+            var x = ToFileSystemInfo(PathParts);
+            return x is FileInfo info ? info.Directory : x as DirectoryInfo;
+        }
+
+        /// <summary>
+        /// Converte um ToType para Double. Retorna Nothing (NULL) se a conversão falhar
+        /// </summary>
+        /// <typeparam name="T">Tipo de origem</typeparam>
+        /// <param name="Value">Variavel com valor</param>
+        /// <returns>Valor convertido em novo ToType</returns>
+        public static double ToDouble<T>(this T Value) => Value.ChangeType<double>();
+
+        public static FileInfo ToFileInfo(this string PathPart) => ToFileInfo(new[] { PathPart });
+
+        public static FileInfo ToFileInfo(this string[] PathParts)
+        {
+            var x = ToFileSystemInfo(PathParts);
+            if (x is DirectoryInfo)
             {
-                return SQL.ToString(CultureInfo.InvariantCulture);
+                throw new Exception("File is directory");
+            }
+            return x as FileInfo;
+        }
+
+        /// <summary>
+        /// Retorna o uma string representando um valor em bytes, KB, MB, GB ou TB
+        /// </summary>
+        /// <param name="Size">Tamanho</param>
+        /// <returns>String com o tamanho + unidade de medida</returns>
+        public static string ToFileSizeString(this byte[] Size, int DecimalPlaces = -1) => (Size?.LongLength ?? 0).ToFileSizeString(DecimalPlaces);
+
+        /// <summary>
+        /// Retorna o uma string representando um valor em bytes, KB, MB, GB ou TB
+        /// </summary>
+        /// <param name="Size">Tamanho</param>
+        /// <returns>String com o tamanho + unidade de medida</returns>
+        public static string ToFileSizeString(this FileInfo Size, int DecimalPlaces = -1) => (Size?.Length ?? 0).ToFileSizeString(DecimalPlaces);
+
+        /// <summary>
+        /// Retorna o uma string representando um valor em bytes, KB, MB, GB ou TB
+        /// </summary>
+        /// <param name="Size">Tamanho</param>
+        /// <returns>String com o tamanho + unidade de medida</returns>
+        public static string ToFileSizeString(this double Size, int DecimalPlaces = -1) => Size.ToDecimal().ToFileSizeString(DecimalPlaces);
+
+        /// <summary>
+        /// Retorna o uma string representando um valor em bytes, KB, MB, GB ou TB
+        /// </summary>
+        /// <param name="Size">Tamanho</param>
+        /// <returns>String com o tamanho + unidade de medida</returns>
+        public static string ToFileSizeString(this int Size, int DecimalPlaces = -1) => Size.ToDecimal().ToFileSizeString(DecimalPlaces);
+
+        /// <summary>
+        /// Retorna o uma string representando um valor em bytes, KB, MB, GB ou TB
+        /// </summary>
+        /// <param name="Size">Tamanho</param>
+        /// <returns>String com o tamanho + unidade de medida</returns>
+        public static string ToFileSizeString(this long Size, int DecimalPlaces = -1) => Size.ToDecimal().ToFileSizeString(DecimalPlaces);
+
+        /// <summary>
+        /// Retorna o uma string representando um valor em bytes, KB, MB ou TB
+        /// </summary>
+        /// <param name="Size">Tamanho</param>
+        /// <returns>String com o tamanho + unidade de medida</returns>
+        public static string ToFileSizeString(this decimal Size, int DecimalPlaces = -1) => UnitConverter.CreateFileSizeConverter().Abreviate(Size, DecimalPlaces);
+
+        public static FileSystemInfo ToFileSystemInfo(this string PathPart) => ToFileSystemInfo(new[] { PathPart });
+
+        public static FileSystemInfo ToFileSystemInfo(this string[] PathParts)
+        {
+            var path = Path.Combine(PathParts).FixPath();
+            if (path.IsFilePath()) return new FileInfo(path);
+            else if (path.IsDirectoryPath()) return new DirectoryInfo(path);
+            else throw new ArgumentException("Can't create path from array", nameof(PathParts));
+        }
+
+        /// <summary>
+        /// Retorna um Objeto FileType a partir de uma string MIME T, Nome ou Extensão de Arquivo
+        /// </summary>
+        /// <param name="MimeTypeOrExtensionOrPathOrDataURI"></param>
+        /// <returns></returns>
+        public static FileType ToFileType(this string MimeTypeOrExtensionOrPathOrDataURI) => new FileType(MimeTypeOrExtensionOrPathOrDataURI);
+
+        public static Uri ToFileUri(this FileSystemInfo File) => new Uri($@"file://{File?.FullName.Replace(" ", "%20")}");
+
+        /// <summary>
+        /// Converte um ToType para Single. Retorna Nothing (NULL) se a conversão falhar
+        /// </summary>
+        /// <typeparam name="T">Tipo de origem</typeparam>
+        /// <param name="Value">Variavel com valor</param>
+        /// <returns>Valor convertido em novo ToType</returns>
+        public static float ToFloat<T>(this T Value) => Value.ChangeType<float>();
+
+        public static FormattableString ToFormattableString(this string Text, params object[] args) => FormattableStringFactory.Create(Text, args ?? Array.Empty<object>());
+
+        /// <summary>
+        /// Prepara uma string para se tornar uma caminho amigavel (remove caracteres nao permitidos)
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <returns>string amigavel para URL</returns>
+        public static string ToFriendlyPathName(this string Text) => Text.RemoveAny(Path.GetInvalidPathChars()).TrimBetween();
+
+        /// <summary>
+        /// Prepara uma string para se tornar uma URL amigavel (remove caracteres nao permitidos e
+        /// troca espacos por hifen)
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <param name="UseUnderscore">
+        /// Indica se os espacos serão substituidos por underscores (underline). Use FALSE para hifens
+        /// </param>
+        /// <returns>string amigavel para URL</returns>
+        public static string ToFriendlyURL(this string Text, bool UseUnderscore = false) => Text.ReplaceMany(UseUnderscore ? "_" : "-", "_", "-", WhitespaceChar).RemoveAny("(", ")", ".", ",", "#").ToFriendlyPathName().RemoveAccents().ToLowerInvariant();
+
+        /// <summary>
+        /// Concatena todas as <see cref="Exception.InnerException"/> em uma única string
+        /// </summary>
+        /// <param name="ex"></param>
+        /// <returns></returns>
+        public static string ToFullExceptionString(this Exception ex, string Separator = " => ") => ex.Traverse(x => x.InnerException).SelectJoinString(x => x.Message, Separator);
+
+        /// <summary>
+        /// Alterna uma variavel ente 2 valores diferentes
+        /// </summary>
+        /// <param name="Current">Objeto contendo o primeiro ou segundo valor</param>
+        /// <param name="TrueValue">Primeiro valor</param>
+        /// <param name="FalseValue">Segundo Valor</param>
+        public static T Toggle<T>(this T Current, T TrueValue, T FalseValue = default) => Current.Equals(TrueValue) ? FalseValue : TrueValue;
+
+        public static T ToggleVisibility<T>(this T FileOrDir) where T : FileSystemInfo => FileOrDir.IsVisible() ? FileOrDir.Hide() : FileOrDir.Show();
+
+        /// <summary>
+        /// Gera uma URL do google MAPs baseado na localização
+        /// </summary>
+        /// <param name="local">
+        /// Uma variavel do tipo InnerLibs.Location onde estão as informações como endereço e as
+        /// coordenadas geográficas
+        /// </param>
+        /// <returns>Uma URI do Google Maps</returns>
+        public static Uri ToGoogleMapsURL(this AddressInfo local, params AddressPart[] Parts) => local != null ? new Uri($"https://www.google.com.br/maps/search/{Uri.EscapeUriString(local.ToString(Parts))}") : null;
+
+        public static string ToHexadecimal(this Color Color, bool Hash = true) => (Color.R.ToString("X2") + Color.G.ToString("X2") + Color.B.ToString("X2")).PrependIf("#", Hash);
+
+        public static IEnumerable<HSVColor> ToHSVColorList(this IEnumerable<Color> ColorList) => ColorList?.Select(x => new HSVColor(x));
+
+        /// <summary>
+        /// Converte um array de bytes para imagem
+        /// </summary>
+        /// <param name="Bytes">Bytes</param>
+        /// <returns></returns>
+        public static Image ToImage(this byte[] Bytes)
+        {
+            using (var s = new MemoryStream(Bytes))
+            {
+                return Image.FromStream(s);
             }
         }
 
-        return null;
-    }
+        /// <summary>
+        /// Converte um ToType para Integer. Retorna Nothing (NULL) se a conversão falhar
+        /// </summary>
+        /// <typeparam name="FromType">Tipo de origem</typeparam>
+        /// <param name="Value">Variavel com valor</param>
+        /// <returns>Valor convertido em novo ToType</returns>
+        public static int ToInt<FromType>(this FromType Value) => Value.ChangeType<int>();
 
-    /// <summary>
-    /// Cria um <see cref="Stream"/> a partir de uma string
-    /// </summary>
-    /// <param name="TExt"></param>
-    /// <returns></returns>
-    public static Stream ToStream(this string Text)
-    {
-        var stream = new MemoryStream();
-        var writer = new StreamWriter(stream);
-        writer.Write(Text);
-        writer.Flush();
-        stream.Position = 0L;
-        return stream;
-    }
+        public static T[][] ToJaggedArray<T>(this T[,] inputArray)
+        {
+            if (inputArray == null || inputArray.Length == 0)
+            {
+                return Array.Empty<T[]>();
+            }
 
-    /// <summary>
-    /// Transforma uma imagem em um stream
-    /// </summary>
-    /// <param name="Image">Imagem</param>
-    /// <returns></returns>
-    public static Stream ToStream(this Image Image, ImageFormat Format = null)
-    {
-        Stream s = new MemoryStream();
-        Image.Save(s, Format ?? ImageFormat.Png);
-        s.Position = 0L;
-        return s;
-    }
+            // Get the number of rows and columns in the input array
+            int rows = inputArray.GetLength(0);
+            int cols = inputArray.GetLength(1);
 
-    /// <summary>
-    /// Projeta um unico array os valores sub-agrupados e unifica todos num unico array de arrays
-    /// </summary>
-    /// <typeparam name="TGroupKey"></typeparam>
-    /// <typeparam name="TSubGroupKey"></typeparam>
-    /// <typeparam name="TSubGroupValue"></typeparam>
-    /// <param name="Groups"></param>
-    /// <returns></returns>
-    public static IEnumerable<object> ToTableArray<TGroupKey, TSubGroupKey, TSubGroupValue, THeaderProperty>(this Dictionary<TGroupKey, Dictionary<TSubGroupKey, TSubGroupValue>> Groups, Func<TSubGroupKey, THeaderProperty> HeaderProp)
-    {
-        var lista = new List<object>();
-        var header = new List<object>
+            // Create the jagged array with the same number of rows as the input array
+            T[][] jaggedArray = new T[rows][];
+
+            // Copy the elements from the input array to the jagged array
+            for (int i = 0; i < rows; i++)
+            {
+                // Create a new sub-array for each row
+                jaggedArray[i] = new T[cols];
+
+                // Copy the elements from the input array to the jagged array
+                for (int j = 0; j < cols; j++)
+                {
+                    jaggedArray[i][j] = inputArray[i, j];
+                }
+            }
+
+            return jaggedArray;
+        }
+
+        /// <summary>
+        /// Converte um texto para Leet (1337)
+        /// </summary>
+        /// <param name="text">TExto original</param>
+        /// <param name="degree">Grau de itensidade (0 a 7)</param>
+        /// <returns>Texto em 1337</returns>
+        public static string ToLeet(this string Text, int Degree = 7)
+        {
+            // Adjust degree between 0 - 100
+            Degree = Degree.LimitRange(0, 7);
+            // No Leet Translator
+            if (Degree == 0)
+            {
+                return Text;
+            }
+            // StringBuilder to store result.
+            var sb = new StringBuilder();
+            foreach (char c in Text.AsEnumerable())
+            {
+                switch (Degree)
+                {
+                    case 1:
+                        switch (c)
+                        {
+                            case 'e':
+                                {
+                                    sb.Append('3');
+                                    break;
+                                }
+
+                            case 'E':
+                                {
+                                    sb.Append('3');
+                                    break;
+                                }
+
+                            default:
+                                {
+                                    sb.Append(c);
+                                    break;
+                                }
+                        }
+                        break;
+
+                    case 2:
+                        switch (c)
+                        {
+                            case 'a':
+                                {
+                                    sb.Append('4');
+                                    break;
+                                }
+
+                            case 'e':
+                                {
+                                    sb.Append('3');
+                                    break;
+                                }
+
+                            case 'i':
+                                {
+                                    sb.Append('1');
+                                    break;
+                                }
+
+                            case 'o':
+                                {
+                                    sb.Append('0');
+                                    break;
+                                }
+
+                            case 'A':
+                                {
+                                    sb.Append('4');
+                                    break;
+                                }
+
+                            case 'E':
+                                {
+                                    sb.Append('3');
+                                    break;
+                                }
+
+                            case 'I':
+                                {
+                                    sb.Append('1');
+                                    break;
+                                }
+
+                            case 'O':
+                                {
+                                    sb.Append('0');
+                                    break;
+                                }
+
+                            default:
+                                {
+                                    sb.Append(c);
+                                    break;
+                                }
+                        }
+                        break;
+
+                    case 3:
+                        switch (c)
+                        {
+                            case 'a':
+                                {
+                                    sb.Append('4');
+                                    break;
+                                }
+
+                            case 'e':
+                                {
+                                    sb.Append('3');
+                                    break;
+                                }
+
+                            case 'i':
+                                {
+                                    sb.Append('1');
+                                    break;
+                                }
+
+                            case 'o':
+                                {
+                                    sb.Append('0');
+                                    break;
+                                }
+
+                            case 'A':
+                                {
+                                    sb.Append('4');
+                                    break;
+                                }
+
+                            case 'E':
+                                {
+                                    sb.Append('3');
+                                    break;
+                                }
+
+                            case 'I':
+                                {
+                                    sb.Append('1');
+                                    break;
+                                }
+
+                            case 'O':
+                                {
+                                    sb.Append('0');
+                                    break;
+                                }
+
+                            case 's':
+                                {
+                                    sb.Append('$');
+                                    break;
+                                }
+
+                            case 'S':
+                                {
+                                    sb.Append('$');
+                                    break;
+                                }
+
+                            case 'l':
+                                {
+                                    sb.Append('£');
+                                    break;
+                                }
+
+                            case 'L':
+                                {
+                                    sb.Append('£');
+                                    break;
+                                }
+
+                            case 'c':
+                                {
+                                    sb.Append('(');
+                                    break;
+                                }
+
+                            case 'C':
+                                {
+                                    sb.Append('(');
+                                    break;
+                                }
+
+                            case 'y':
+                                {
+                                    sb.Append('¥');
+                                    break;
+                                }
+
+                            case 'Y':
+                                {
+                                    sb.Append('¥');
+                                    break;
+                                }
+
+                            case 'U':
+                                {
+                                    sb.Append('µ');
+                                    break;
+                                }
+
+                            case 'u':
+                                {
+                                    sb.Append('µ');
+                                    break;
+                                }
+
+                            case 'd':
+                                {
+                                    sb.Append('Ð');
+                                    break;
+                                }
+
+                            case 'D':
+                                {
+                                    sb.Append('Ð');
+                                    break;
+                                }
+
+                            default:
+                                {
+                                    sb.Append(c);
+                                    break;
+                                }
+                        }
+                        break;
+
+                    case 4:
+                        switch (c)
+                        {
+                            case 'a':
+                                {
+                                    sb.Append('4');
+                                    break;
+                                }
+
+                            case 'e':
+                                {
+                                    sb.Append('3');
+                                    break;
+                                }
+
+                            case 'i':
+                                {
+                                    sb.Append('1');
+                                    break;
+                                }
+
+                            case 'o':
+                                {
+                                    sb.Append('0');
+                                    break;
+                                }
+
+                            case 'A':
+                                {
+                                    sb.Append('4');
+                                    break;
+                                }
+
+                            case 'E':
+                                {
+                                    sb.Append('3');
+                                    break;
+                                }
+
+                            case 'I':
+                                {
+                                    sb.Append('1');
+                                    break;
+                                }
+
+                            case 'O':
+                                {
+                                    sb.Append('0');
+                                    break;
+                                }
+
+                            case 'k':
+                                {
+                                    sb.Append("|{");
+                                    break;
+                                }
+
+                            case 'K':
+                                {
+                                    sb.Append("|{");
+                                    break;
+                                }
+
+                            case 's':
+                                {
+                                    sb.Append('$');
+                                    break;
+                                }
+
+                            case 'S':
+                                {
+                                    sb.Append('$');
+                                    break;
+                                }
+
+                            case 'g':
+                                {
+                                    sb.Append('9');
+                                    break;
+                                }
+
+                            case 'G':
+                                {
+                                    sb.Append('9');
+                                    break;
+                                }
+
+                            case 'l':
+                                {
+                                    sb.Append('£');
+                                    break;
+                                }
+
+                            case 'L':
+                                {
+                                    sb.Append('£');
+                                    break;
+                                }
+
+                            case 'c':
+                                {
+                                    sb.Append('(');
+                                    break;
+                                }
+
+                            case 'C':
+                                {
+                                    sb.Append('(');
+                                    break;
+                                }
+
+                            case 't':
+                                {
+                                    sb.Append('7');
+                                    break;
+                                }
+
+                            case 'T':
+                                {
+                                    sb.Append('7');
+                                    break;
+                                }
+
+                            case 'z':
+                                {
+                                    sb.Append('2');
+                                    break;
+                                }
+
+                            case 'Z':
+                                {
+                                    sb.Append('2');
+                                    break;
+                                }
+
+                            case 'y':
+                                {
+                                    sb.Append('¥');
+                                    break;
+                                }
+
+                            case 'Y':
+                                {
+                                    sb.Append('¥');
+                                    break;
+                                }
+
+                            case 'U':
+                                {
+                                    sb.Append('µ');
+                                    break;
+                                }
+
+                            case 'u':
+                                {
+                                    sb.Append('µ');
+                                    break;
+                                }
+
+                            case 'f':
+                                {
+                                    sb.Append('ƒ');
+                                    break;
+                                }
+
+                            case 'F':
+                                {
+                                    sb.Append('ƒ');
+                                    break;
+                                }
+
+                            case 'd':
+                                {
+                                    sb.Append('Ð');
+                                    break;
+                                }
+
+                            case 'D':
+                                {
+                                    sb.Append('Ð');
+                                    break;
+                                }
+
+                            default:
+                                {
+                                    sb.Append(c);
+                                    break;
+                                }
+                        }
+                        break;
+
+                    case 5:
+                        switch (c)
+                        {
+                            case 'a':
+                                {
+                                    sb.Append('4');
+                                    break;
+                                }
+
+                            case 'e':
+                                {
+                                    sb.Append('3');
+                                    break;
+                                }
+
+                            case 'i':
+                                {
+                                    sb.Append('1');
+                                    break;
+                                }
+
+                            case 'o':
+                                {
+                                    sb.Append('0');
+                                    break;
+                                }
+
+                            case 'A':
+                                {
+                                    sb.Append('4');
+                                    break;
+                                }
+
+                            case 'E':
+                                {
+                                    sb.Append('3');
+                                    break;
+                                }
+
+                            case 'I':
+                                {
+                                    sb.Append('1');
+                                    break;
+                                }
+
+                            case 'O':
+                                {
+                                    sb.Append('0');
+                                    break;
+                                }
+
+                            case 'k':
+                                {
+                                    sb.Append("|{");
+                                    break;
+                                }
+
+                            case 'K':
+                                {
+                                    sb.Append("|{");
+                                    break;
+                                }
+
+                            case 's':
+                                {
+                                    sb.Append('$');
+                                    break;
+                                }
+
+                            case 'S':
+                                {
+                                    sb.Append('$');
+                                    break;
+                                }
+
+                            case 'g':
+                                {
+                                    sb.Append('9');
+                                    break;
+                                }
+
+                            case 'G':
+                                {
+                                    sb.Append('6');
+                                    break;
+                                }
+
+                            case 'l':
+                                {
+                                    sb.Append('£');
+                                    break;
+                                }
+
+                            case 'L':
+                                {
+                                    sb.Append('£');
+                                    break;
+                                }
+
+                            case 'c':
+                                {
+                                    sb.Append('(');
+                                    break;
+                                }
+
+                            case 'C':
+                                {
+                                    sb.Append('(');
+                                    break;
+                                }
+
+                            case 't':
+                                {
+                                    sb.Append('7');
+                                    break;
+                                }
+
+                            case 'T':
+                                {
+                                    sb.Append('7');
+                                    break;
+                                }
+
+                            case 'z':
+                                {
+                                    sb.Append('2');
+                                    break;
+                                }
+
+                            case 'Z':
+                                {
+                                    sb.Append('2');
+                                    break;
+                                }
+
+                            case 'y':
+                                {
+                                    sb.Append('¥');
+                                    break;
+                                }
+
+                            case 'Y':
+                                {
+                                    sb.Append('¥');
+                                    break;
+                                }
+
+                            case 'U':
+                                {
+                                    sb.Append('µ');
+                                    break;
+                                }
+
+                            case 'u':
+                                {
+                                    sb.Append('µ');
+                                    break;
+                                }
+
+                            case 'f':
+                                {
+                                    sb.Append('ƒ');
+                                    break;
+                                }
+
+                            case 'F':
+                                {
+                                    sb.Append('ƒ');
+                                    break;
+                                }
+
+                            case 'd':
+                                {
+                                    sb.Append('Ð');
+                                    break;
+                                }
+
+                            case 'D':
+                                {
+                                    sb.Append('Ð');
+                                    break;
+                                }
+
+                            case 'n':
+                                {
+                                    sb.Append(@"|\|");
+                                    break;
+                                }
+
+                            case 'N':
+                                {
+                                    sb.Append(@"|\|");
+                                    break;
+                                }
+
+                            case 'w':
+                                {
+                                    sb.Append(@"\/\/");
+                                    break;
+                                }
+
+                            case 'W':
+                                {
+                                    sb.Append(@"\/\/");
+                                    break;
+                                }
+
+                            case 'h':
+                                {
+                                    sb.Append("|-|");
+                                    break;
+                                }
+
+                            case 'H':
+                                {
+                                    sb.Append("|-|");
+                                    break;
+                                }
+
+                            case 'v':
+                                {
+                                    sb.Append(@"\/");
+                                    break;
+                                }
+
+                            case 'V':
+                                {
+                                    sb.Append(@"\/");
+                                    break;
+                                }
+
+                            case 'm':
+                                {
+                                    sb.Append(@"|\/|");
+                                    break;
+                                }
+
+                            case 'M':
+                                {
+                                    sb.Append(@"|\/|");
+                                    break;
+                                }
+
+                            default:
+                                {
+                                    sb.Append(c);
+                                    break;
+                                }
+                        }
+                        break;
+
+                    case 6:
+                        switch (c)
+                        {
+                            case 'a':
+                                {
+                                    sb.Append('4');
+                                    break;
+                                }
+
+                            case 'e':
+                                {
+                                    sb.Append('3');
+                                    break;
+                                }
+
+                            case 'i':
+                                {
+                                    sb.Append('1');
+                                    break;
+                                }
+
+                            case 'o':
+                                {
+                                    sb.Append('0');
+                                    break;
+                                }
+
+                            case 'A':
+                                {
+                                    sb.Append('4');
+                                    break;
+                                }
+
+                            case 'E':
+                                {
+                                    sb.Append('3');
+                                    break;
+                                }
+
+                            case 'I':
+                                {
+                                    sb.Append('1');
+                                    break;
+                                }
+
+                            case 'O':
+                                {
+                                    sb.Append('0');
+                                    break;
+                                }
+
+                            case 's':
+                                {
+                                    sb.Append('$');
+                                    break;
+                                }
+
+                            case 'S':
+                                {
+                                    sb.Append('$');
+                                    break;
+                                }
+
+                            case 'g':
+                                {
+                                    sb.Append('9');
+                                    break;
+                                }
+
+                            case 'G':
+                                {
+                                    sb.Append('6');
+                                    break;
+                                }
+
+                            case 'l':
+                                {
+                                    sb.Append('£');
+                                    break;
+                                }
+
+                            case 'L':
+                                {
+                                    sb.Append('£');
+                                    break;
+                                }
+
+                            case 'c':
+                                {
+                                    sb.Append('(');
+                                    break;
+                                }
+
+                            case 'C':
+                                {
+                                    sb.Append('(');
+                                    break;
+                                }
+
+                            case 't':
+                                {
+                                    sb.Append('7');
+                                    break;
+                                }
+
+                            case 'T':
+                                {
+                                    sb.Append('7');
+                                    break;
+                                }
+
+                            case 'z':
+                                {
+                                    sb.Append('2');
+                                    break;
+                                }
+
+                            case 'Z':
+                                {
+                                    sb.Append('2');
+                                    break;
+                                }
+
+                            case 'y':
+                                {
+                                    sb.Append('¥');
+                                    break;
+                                }
+
+                            case 'Y':
+                                {
+                                    sb.Append('¥');
+                                    break;
+                                }
+
+                            case 'U':
+                                {
+                                    sb.Append('µ');
+                                    break;
+                                }
+
+                            case 'u':
+                                {
+                                    sb.Append('µ');
+                                    break;
+                                }
+
+                            case 'f':
+                                {
+                                    sb.Append('ƒ');
+                                    break;
+                                }
+
+                            case 'F':
+                                {
+                                    sb.Append('ƒ');
+                                    break;
+                                }
+
+                            case 'd':
+                                {
+                                    sb.Append('Ð');
+                                    break;
+                                }
+
+                            case 'D':
+                                {
+                                    sb.Append('Ð');
+                                    break;
+                                }
+
+                            case 'n':
+                                {
+                                    sb.Append(@"|\|");
+                                    break;
+                                }
+
+                            case 'N':
+                                {
+                                    sb.Append(@"|\|");
+                                    break;
+                                }
+
+                            case 'w':
+                                {
+                                    sb.Append(@"\/\/");
+                                    break;
+                                }
+
+                            case 'W':
+                                {
+                                    sb.Append(@"\/\/");
+                                    break;
+                                }
+
+                            case 'h':
+                                {
+                                    sb.Append("|-|");
+                                    break;
+                                }
+
+                            case 'H':
+                                {
+                                    sb.Append("|-|");
+                                    break;
+                                }
+
+                            case 'v':
+                                {
+                                    sb.Append(@"\/");
+                                    break;
+                                }
+
+                            case 'V':
+                                {
+                                    sb.Append(@"\/");
+                                    break;
+                                }
+
+                            case 'k':
+                                {
+                                    sb.Append("|{");
+                                    break;
+                                }
+
+                            case 'K':
+                                {
+                                    sb.Append("|{");
+                                    break;
+                                }
+
+                            case 'r':
+                                {
+                                    sb.Append('®');
+                                    break;
+                                }
+
+                            case 'R':
+                                {
+                                    sb.Append('®');
+                                    break;
+                                }
+
+                            case 'm':
+                                {
+                                    sb.Append(@"|\/|");
+                                    break;
+                                }
+
+                            case 'M':
+                                {
+                                    sb.Append(@"|\/|");
+                                    break;
+                                }
+
+                            case 'b':
+                                {
+                                    sb.Append('ß');
+                                    break;
+                                }
+
+                            case 'B':
+                                {
+                                    sb.Append('ß');
+                                    break;
+                                }
+
+                            case 'q':
+                                {
+                                    sb.Append('Q');
+                                    break;
+                                }
+
+                            case 'Q':
+                                {
+                                    sb.Append("Q¸");
+                                    break;
+                                }
+
+                            case 'x':
+                                {
+                                    sb.Append(")(");
+                                    break;
+                                }
+
+                            case 'X':
+                                {
+                                    sb.Append(")(");
+                                    break;
+                                }
+
+                            default:
+                                {
+                                    sb.Append(c);
+                                    break;
+                                }
+                        }
+                        break;
+
+                    default:
+                        switch (c)
+                        {
+                            case 'a':
+                                {
+                                    sb.Append('4');
+                                    break;
+                                }
+
+                            case 'e':
+                                {
+                                    sb.Append('3');
+                                    break;
+                                }
+
+                            case 'i':
+                                {
+                                    sb.Append('1');
+                                    break;
+                                }
+
+                            case 'o':
+                                {
+                                    sb.Append('0');
+                                    break;
+                                }
+
+                            case 'A':
+                                {
+                                    sb.Append('4');
+                                    break;
+                                }
+
+                            case 'E':
+                                {
+                                    sb.Append('3');
+                                    break;
+                                }
+
+                            case 'I':
+                                {
+                                    sb.Append('1');
+                                    break;
+                                }
+
+                            case 'O':
+                                {
+                                    sb.Append('0');
+                                    break;
+                                }
+
+                            case 's':
+                                {
+                                    sb.Append('$');
+                                    break;
+                                }
+
+                            case 'S':
+                                {
+                                    sb.Append('$');
+                                    break;
+                                }
+
+                            case 'g':
+                                {
+                                    sb.Append('9');
+                                    break;
+                                }
+
+                            case 'G':
+                                {
+                                    sb.Append('6');
+                                    break;
+                                }
+
+                            case 'l':
+                                {
+                                    sb.Append('£');
+                                    break;
+                                }
+
+                            case 'L':
+                                {
+                                    sb.Append('£');
+                                    break;
+                                }
+
+                            case 'c':
+                                {
+                                    sb.Append('(');
+                                    break;
+                                }
+
+                            case 'C':
+                                {
+                                    sb.Append('(');
+                                    break;
+                                }
+
+                            case 't':
+                                {
+                                    sb.Append('7');
+                                    break;
+                                }
+
+                            case 'T':
+                                {
+                                    sb.Append('7');
+                                    break;
+                                }
+
+                            case 'z':
+                                {
+                                    sb.Append('2');
+                                    break;
+                                }
+
+                            case 'Z':
+                                {
+                                    sb.Append('2');
+                                    break;
+                                }
+
+                            case 'y':
+                                {
+                                    sb.Append('¥');
+                                    break;
+                                }
+
+                            case 'Y':
+                                {
+                                    sb.Append('¥');
+                                    break;
+                                }
+
+                            case 'U':
+                                {
+                                    sb.Append('µ');
+                                    break;
+                                }
+
+                            case 'u':
+                                {
+                                    sb.Append('µ');
+                                    break;
+                                }
+
+                            case 'f':
+                                {
+                                    sb.Append('ƒ');
+                                    break;
+                                }
+
+                            case 'F':
+                                {
+                                    sb.Append('ƒ');
+                                    break;
+                                }
+
+                            case 'd':
+                                {
+                                    sb.Append('Ð');
+                                    break;
+                                }
+
+                            case 'D':
+                                {
+                                    sb.Append('Ð');
+                                    break;
+                                }
+
+                            case 'n':
+                                {
+                                    sb.Append(@"|\|");
+                                    break;
+                                }
+
+                            case 'N':
+                                {
+                                    sb.Append(@"|\|");
+                                    break;
+                                }
+
+                            case 'w':
+                                {
+                                    sb.Append(@"\/\/");
+                                    break;
+                                }
+
+                            case 'W':
+                                {
+                                    sb.Append(@"\/\/");
+                                    break;
+                                }
+
+                            case 'h':
+                                {
+                                    sb.Append("|-|");
+                                    break;
+                                }
+
+                            case 'H':
+                                {
+                                    sb.Append("|-|");
+                                    break;
+                                }
+
+                            case 'v':
+                                {
+                                    sb.Append(@"\/");
+                                    break;
+                                }
+
+                            case 'V':
+                                {
+                                    sb.Append(@"\/");
+                                    break;
+                                }
+
+                            case 'k':
+                                {
+                                    sb.Append("|{");
+                                    break;
+                                }
+
+                            case 'K':
+                                {
+                                    sb.Append("|{");
+                                    break;
+                                }
+
+                            case 'r':
+                                {
+                                    sb.Append('®');
+                                    break;
+                                }
+
+                            case 'R':
+                                {
+                                    sb.Append('®');
+                                    break;
+                                }
+
+                            case 'm':
+                                {
+                                    sb.Append(@"|\/|");
+                                    break;
+                                }
+
+                            case 'M':
+                                {
+                                    sb.Append(@"|\/|");
+                                    break;
+                                }
+
+                            case 'b':
+                                {
+                                    sb.Append('ß');
+                                    break;
+                                }
+
+                            case 'B':
+                                {
+                                    sb.Append('ß');
+                                    break;
+                                }
+
+                            case 'j':
+                                {
+                                    sb.Append("_|");
+                                    break;
+                                }
+
+                            case 'J':
+                                {
+                                    sb.Append("_|");
+                                    break;
+                                }
+
+                            case 'P':
+                                {
+                                    sb.Append("|°");
+                                    break;
+                                }
+
+                            case 'q':
+                                {
+                                    sb.Append('¶');
+                                    break;
+                                }
+
+                            case 'Q':
+                                {
+                                    sb.Append("¶¸");
+                                    break;
+                                }
+
+                            case 'x':
+                                {
+                                    sb.Append(")(");
+                                    break;
+                                }
+
+                            case 'X':
+                                {
+                                    sb.Append(")(");
+                                    break;
+                                }
+
+                            default:
+                                {
+                                    sb.Append(c);
+                                    break;
+                                }
+                        }
+                        break;
+                }
+            }
+
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Converte um ToType para Integer. Retorna Nothing (NULL) se a conversão falhar
+        /// </summary>
+        /// <typeparam name="T">Tipo de origem</typeparam>
+        /// <param name="Value">Variavel com valor</param>
+        /// <returns>Valor convertido em novo ToType</returns>
+        public static long ToLong<T>(this T Value) => Value.ChangeType<long>();
+
+        public static string ToMD5String(this string Text)
+        {
+            if (Text.IsNotBlank())
+            {
+                var md5 = MD5.Create();
+                var inputBytes = Encoding.ASCII.GetBytes(Text);
+                var hash = md5.ComputeHash(inputBytes);
+                var sb = new StringBuilder();
+                for (int i = 0, loopTo = hash.Length - 1; i <= loopTo; i++)
+                {
+                    sb.Append(hash[i].ToString("X2", CultureInfo.InvariantCulture));
+                }
+
+                return sb.ToString();
+            }
+
+            return Text;
+        }
+
+        /// <summary>
+        /// Pega um texto em "PascalCase" ou "snake_case" e o retorna na forma "normal case"
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <returns></returns>
+        public static string ToNormalCase(this string Text) => Text.Replace("_", WhitespaceChar).PascalCaseAdjust();
+
+        /// <summary>
+        /// retorna o numero em sua forma ordinal (inglês)
+        /// </summary>
+        /// <param name="Number">Numero</param>
+        /// <returns></returns>
+        public static string ToOrdinalNumber(this int Number) => Number.ToLong().ToOrdinalNumber();
+
+        /// <summary>
+        /// retorna o numero em sua forma ordinal (inglês)
+        /// </summary>
+        /// <param name="Number">Numero</param>
+        /// <returns></returns>
+        public static string ToOrdinalNumber(this long Number) => $"{Number}{Number.GetOrdinal()}";
+
+        /// <summary>
+        /// retorna o numero em sua forma ordinal (inglês)
+        /// </summary>
+        /// <param name="Number">Numero</param>
+        /// <returns></returns>
+        public static string ToOrdinalNumber(this short Number) => Number.ToInt().ToOrdinalNumber();
+
+        /// <summary>
+        /// retorna o numero em sua forma ordinal (inglês)
+        /// </summary>
+        /// <param name="Number">Numero</param>
+        /// <returns></returns>
+        public static string ToOrdinalNumber(this double Number) => Number.FloorInt().ToOrdinalNumber();
+
+        /// <summary>
+        /// Retorna o numero em sua forma ordinal (inglês)
+        /// </summary>
+        /// <param name="Number">Numero</param>
+        /// <returns></returns>
+        public static string ToOrdinalNumber(this decimal Number) => Number.FloorInt().ToOrdinalNumber();
+
+        /// <summary>
+        /// Retorna um numero com o sinal de porcentagem
+        /// </summary>
+        /// <param name="Number"></param>
+        /// <returns></returns>
+        public static string ToPercentString(this decimal Number, int Decimals = -1)
+        {
+            if (Decimals > -1)
+            {
+                Number = Number.RoundDecimal(Decimals);
+            }
+
+            return $"{Number}%";
+        }
+
+        /// <summary>
+        /// Retorna um numero com o sinal de porcentagem
+        /// </summary>
+        /// <param name="Number"></param>
+        /// <returns></returns>
+        public static string ToPercentString(this int Number) => $"{Number}%";
+
+        /// <summary>
+        /// Retorna um numero com o sinal de porcentagem
+        /// </summary>
+        /// <param name="Number"></param>
+        /// <returns></returns>
+        public static string ToPercentString(this double Number, int Decimals = -1)
+        {
+            if (Decimals > -1)
+            {
+                Number = Number.RoundDouble(Decimals);
+            }
+
+            return $"{Number}%";
+        }
+
+        /// <summary>
+        /// Retorna um numero com o sinal de porcentagem
+        /// </summary>
+        /// <param name="Number"></param>
+        /// <returns></returns>
+        public static string ToPercentString(this short Number) => $"{Number}%";
+
+        /// <summary>
+        /// Retorna um numero com o sinal de porcentagem
+        /// </summary>
+        /// <param name="Number"></param>
+        /// <returns></returns>
+        public static string ToPercentString(this long Number) => $"{Number}%";
+
+        /// <summary>
+        /// Concatena todos os itens de uma lista, utilizando a palavra <paramref name="And"/> antes
+        /// da ultima ocorrencia.
+        /// </summary>
+        /// <param name="Texts">
+        /// Lista com itens que serão convertidos em <see cref="string"/> e concatenados
+        /// </param>
+        /// <param name="And">
+        /// palavra correspondente ao "e", utilizada para concatena ro ultimo elemento da lista.
+        /// Quando null ou branco, <paramref name="Separator"/> é utilizado em seu lugar.
+        /// </param>
+        /// <param name="Separator">caractere correspondente a virgula</param>
+        /// <param name="EmptyValue">
+        /// Valor que será apresentado caso <paramref name="Texts"/> esteja vazio ou nulo. Quando
+        /// <see cref="null"/>, omite o <paramref name="PhraseStart"/> da string final
+        /// </param>
+        /// <returns></returns>
+        public static string ToPhrase<T>(this IEnumerable<T> Texts, string PhraseStart = EmptyString, string And = "and", string EmptyValue = null, char Separator = ',')
+        {
+            Separator = Separator.IfBlank(',');
+            PhraseStart = PhraseStart.IfBlank(EmptyString);
+
+            Texts = (Texts ?? Array.Empty<T>()).WhereNotBlank();
+
+            if (PhraseStart.IsNotBlank() && !PhraseStart.EndsWithAny(StringComparison.InvariantCultureIgnoreCase, PredefinedArrays.BreakLineChars.ToArray()) && !PhraseStart.EndsWith(WhitespaceChar, StringComparison.InvariantCultureIgnoreCase))
+            {
+                PhraseStart += WhitespaceChar;
+            }
+
+            switch (Texts.Count())
+            {
+                case 0:
+                    if (EmptyValue != null)
+                    {
+                        PhraseStart += EmptyValue;
+                    }
+
+                    break;
+
+                case 1:
+                    PhraseStart += $"{Texts.FirstOrDefault()}";
+                    break;
+
+                default:
+                    PhraseStart += Texts.SkipLast().SelectJoinString($"{Separator} ");
+                    PhraseStart += $" {And.IfBlank($"{Separator}")}";
+                    PhraseStart += $" {Texts.Last()}";
+                    break;
+            }
+
+            return PhraseStart;
+        }
+
+        ///<inheritdoc cref="ToPhrase{TSource}(IEnumerable{TSource}, string, string, string, char)"/>
+        public static string ToPhrase(string And, params string[] Texts) => (Texts ?? Array.Empty<string>()).ToPhrase(EmptyString, And);
+
+        /// <summary>
+        /// Monta um Comando SQL para executar uma procedure especifica e trata valores especificos
+        /// de um NameValueCollection como parametros da procedure
+        /// </summary>
+        /// <param name="NVC">Objeto</param>
+        /// <param name="ProcedureName">Nome da Procedure</param>
+        /// <param name="Keys">Valores do nameValueCollection o que devem ser utilizados</param>
+        /// <returns>Um DbCommand parametrizado</returns>
+        public static DbCommand ToProcedure(this DbConnection Connection, string ProcedureName, NameValueCollection NVC, DbTransaction Transaction = null, params string[] Keys) => Connection.ToProcedure(ProcedureName, NVC.ToDictionary(Keys), Transaction, Keys);
+
+        /// <summary>
+        /// Monta um Comando SQL para executar uma procedure especifica e trata propriedades
+        /// específicas de um objeto como parametros da procedure
+        /// </summary>
+        /// <param name="Obj">Objeto</param>
+        /// <param name="ProcedureName">Nome da Procedure</param>
+        /// <param name="Keys">propriedades do objeto que devem ser utilizados</param>
+        /// <returns>Um DbCommand parametrizado</returns>
+        public static DbCommand ToProcedure<T>(this DbConnection Connection, string ProcedureName, T Obj, DbTransaction Transaction = null, params string[] Keys) => Connection.ToProcedure(ProcedureName, Obj?.CreateDictionary() ?? new Dictionary<string, object>(), Transaction, Keys);
+
+        /// <summary>
+        /// Monta um Comando SQL para executar uma procedure especifica e trata os valores
+        /// específicos de um <see cref="Dictionary{TKey, TValue}"/> como parametros da procedure
+        /// </summary>
+        /// <param name="Dic">Objeto</param>
+        /// <param name="ProcedureName">Nome da Procedure</param>
+        /// <param name="Keys">propriedades do objeto que devem ser utilizados</param>
+        /// <returns>Um DbCommand parametrizado</returns>
+        public static DbCommand ToProcedure(this DbConnection Connection, string ProcedureName, Dictionary<string, object> Dic, DbTransaction Transaction = null, params string[] Keys)
+        {
+            Dic = Dic ?? new Dictionary<string, object>();
+            Keys = Keys ?? Array.Empty<string>();
+            if (!Keys.Any())
+            {
+                Keys = Dic.Keys.ToArray();
+            }
+            else
+            {
+                Keys = Dic.Keys.ToArray().Where(x => x.IsLikeAny(Keys)).ToArray();
+            }
+
+            string sql = $"{ProcedureName} {Keys.SelectJoinString(key => $" @{key} = @__{key}", ", ")}";
+
+            return Connection.CreateCommand(sql, Dic.ToDictionary(x => x.Key, x => x.Value), Transaction);
+        }
+
+        /// <summary>
+        /// Coloca o texto em TitleCase
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <returns></returns>
+        public static string ToProperCase(this string Text, bool ForceCase = false)
+        {
+            if (Text.IsBlank())
+            {
+                return Text;
+            }
+
+            if (ForceCase)
+            {
+                Text = Text.ToLowerInvariant();
+            }
+
+            var l = Text.Split(WhitespaceChar, StringSplitOptions.None).ToList();
+            for (int index = 0, loopTo = l.Count - 1; index <= loopTo; index++)
+            {
+                string pal = l[index];
+                bool artigo = index > 0 && IsIn(pal, "o", "a", "os", "as", "um", "uma", "uns", "umas", "de", "do", "dos", "das", "e", "ou", "of");
+                if (pal.IsNotBlank())
+                {
+                    if (ForceCase || artigo == false)
+                    {
+                        char c = pal.First();
+                        if (!char.IsUpper(c))
+                        {
+                            pal = char.ToUpper(c, CultureInfo.InvariantCulture) + pal.RemoveFirstChars(1);
+                        }
+
+                        l[index] = pal;
+                    }
+                }
+            }
+
+            return l.SelectJoinString(WhitespaceChar);
+        }
+
+        public static QuantityTextPair ToQuantityTextPair(this string Text) => (QuantityTextPair)Text;
+
+        public static QuantityTextPair ToQuantityTextPair(this IEnumerable<string> Text) => (QuantityTextPair)(Text?.ToArray());
+
+        /// <summary>
+        /// Retorna um dicionário em QueryString
+        /// </summary>
+        /// <param name="Dic"></param>
+        /// <returns></returns>
+        public static string ToQueryString(this Dictionary<string, string> Dic) => Dic?.Where(x => x.Key.IsNotBlank()).SelectJoinString(x => new[] { x.Key, (x.Value ?? EmptyString).UrlEncode() }.SelectJoinString("="), "&") ?? EmptyString;
+
+        /// <summary>
+        /// Retorna um <see cref="NameValueCollection"/> em QueryString
+        /// </summary>
+        /// <param name="NVC"></param>
+        /// <returns></returns>
+        public static string ToQueryString(this NameValueCollection NVC) => NVC?.AllKeys.SelectManyJoinString(n => NVC.GetValues(n).Select(v => n + "=" + v).Where(x => x.IsNotBlank() && x != "="), "&");
+
+        /// <summary>
+        /// COnverte graus para radianos
+        /// </summary>
+        /// <param name="Degrees"></param>
+        /// <returns></returns>
+        public static double ToRadians(this double Degrees) => Degrees * Math.PI / 180.0d;
+
+        /// <summary>
+        /// Coloca a string em Randomcase (aleatoriamente letras maiusculas ou minusculas)
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <param name="Times">Numero de vezes que serão sorteados caracteres.</param>
+        /// <returns></returns>
+        public static string ToRandomCase(this string Text, int Times = 0)
+        {
+            var ch = Text.ToArray();
+            Times = Times.SetMinValue(ch.Length);
+            for (int index = 1, loopTo = Times; index <= loopTo; index++)
+            {
+                int newindex = RandomNumber(0, ch.Length - 1);
+                if (char.IsUpper(ch[newindex]))
+                {
+                    ch[newindex] = char.ToLower(ch[newindex], CultureInfo.InvariantCulture);
+                }
+                else
+                {
+                    ch[newindex] = char.ToUpper(ch[newindex], CultureInfo.InvariantCulture);
+                }
+            }
+
+            return new string(ch);
+        }
+
+        public static string ToRoman(this int ArabicNumber)
+        {
+            ArabicNumber = ArabicNumber.ForcePositive();
+            // valida : aceita somente valores entre 1 e 3999
+            if (ArabicNumber < 1 || ArabicNumber > 3999)
+            {
+                throw new ArgumentException("The numeric value must be between 1 and 3999.", nameof(ArabicNumber));
+            }
+
+            var algarismosArabicos = new int[] { 1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1 };
+            var algarismosRomanos = new string[] { "M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "TV", "IV", "I" };
+
+            // inicializa o string builder
+            string resultado = EmptyString;
+
+            // percorre os valores nos arrays
+            for (int i = 0; i <= 12; i++)
+            {
+                // se o numero a ser convertido é menor que o valor então anexa o numero
+                // correspondente ou o par ao resultado
+                while (ArabicNumber >= algarismosArabicos[i])
+                {
+                    ArabicNumber -= algarismosArabicos[i];
+                    resultado += algarismosRomanos[i];
+                }
+            }
+
+            // retorna o resultado
+            return resultado.ToString();
+        }
+
+        public static string ToSentenceCase(this string Text)
+        {
+            Text = Text.Trim().GetFirstChars(1).ToUpperInvariant() + Text.RemoveFirstChars(1);
+            var dots = new[] { "...", ". ", "? ", "! " };
+            List<string> sentences;
+            foreach (var dot in dots)
+            {
+                sentences = Text.Split(dot, StringSplitOptions.None).ToList();
+                for (int index = 0, loopTo = sentences.Count - 1; index <= loopTo; index++)
+                {
+                    sentences[index] = $"{sentences[index].Trim().GetFirstChars(1)?.ToUpperInvariant()}{sentences[index]?.RemoveFirstChars(1)}";
+                }
+
+                Text = sentences.SelectJoinString(dot);
+            }
+
+            sentences = Text.Split(WhitespaceChar).ToList();
+            Text = EmptyString;
+            foreach (var c in sentences)
+            {
+                string palavra = c;
+                if (palavra.EndsWith(".") && palavra.Length == 2)
+                {
+                    palavra = palavra.ToUpperInvariant();
+                    Text += palavra;
+                    string proximapalavra = sentences.IfNoIndex(sentences.IndexOf(c) + 1, EmptyString);
+                    if (!(proximapalavra.EndsWith(".") && palavra.Length == 2))
+                    {
+                        Text += WhitespaceChar;
+                    }
+                }
+                else
+                {
+                    Text += c + WhitespaceChar;
+                }
+            }
+
+            return Text.RemoveLastChars(1);
+        }
+
+        /// <summary>
+        /// Converte um ToType para short. Retorna Nothing (NULL) se a conversão falhar
+        /// </summary>
+        /// <typeparam name="T">Tipo de origem</typeparam>
+        /// <param name="Value">Variavel com valor</param>
+        /// <returns>Valor convertido em novo ToType</returns>
+        public static double ToShort<T>(this T Value) => Value.ChangeType<short>();
+
+        /// <summary>
+        /// Prepara uma string para se tornar uma URL amigavel (remove caracteres nao permitidos e
+        /// troca espacos por hifen). É um alias para <see cref="ToFriendlyURL(String, Boolean)"/>
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <param name="UseUnderscore">
+        /// Indica se os espacos serão substituidos por underscores (underline). Use FALSE para hifens
+        /// </param>
+        /// <returns>string amigavel para URL</returns>
+        public static string ToSlugCase(this string Text) => Text.Replace(WhitespaceChar, "-").ToLowerInvariant();
+
+        /// <summary>
+        /// Retorna uma string em Snake_Case
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <returns></returns>
+        public static string ToSnakeCase(this string Text) => Text.Replace(WhitespaceChar, "_").ToLowerInvariant();
+
+        ///<summary> Monta um Comando SQL para executar um SELECT com
+        /// filtros a partir de um <see cref="NameValueCollection" />
+        /// </summary>
+        /// <param name="NVC"> Dicionario</param> <param name="TableName">Nome da Tabela</param>
+        public static Select ToSQLFilter(this NameValueCollection NVC, string TableName, string CommaSeparatedColumns, params string[] FilterKeys) => (Select)new Select(CommaSeparatedColumns.Split(",")).From(TableName).Where(NVC, FilterKeys);
+
+        /// <summary>
+        /// Monta um Comando SQL para executar um SELECT com filtros a partir de um <see
+        /// cref="Dictionary{string, object}"/>
+        /// </summary>
+        /// <param name="Dic">Dicionario</param>
+        /// <param name="TableName">Nome da Tabela</param>
+        /// <param name="FilterKeys">Parametros da URL que devem ser utilizados</param>
+        /// <returns>Uma string com o comando montado</returns>
+        public static Select ToSQLFilter(this Dictionary<string, object> Dic, string TableName, string CommaSeparatedColumns, LogicConcatenationOperator LogicConcatenation, params string[] FilterKeys) => (Select)new Select(CommaSeparatedColumns.Split(",")).From(TableName).Where(Dic, LogicConcatenation, FilterKeys);
+
+        /// <summary>
+        /// Interploa um objeto de tipo <typeparamref name="T"/> em uma <see
+        /// cref="FormattableString"/>, e retorna o resultado de <see
+        /// cref="ToSQLString(FormattableString, bool)"/>
+        /// </summary>
+        /// <param name="Obj"></param>
+        /// <returns></returns>
+        public static string ToSQLString<T>(this T Obj, bool Parenthesis = true) => ToSQLString("{0}".ToFormattableString(Obj), Parenthesis);
+
+        /// <summary>
+        /// Converte uma <see cref="FormattableString"/> para uma string SQL, tratando seus
+        /// parametros como parametros da query
+        /// </summary>
+        /// <param name="Parenthesis">indica se o parametro deve ser encapsulando em parentesis</param>
+        public static string ToSQLString(this FormattableString SQL, bool Parenthesis = true)
+        {
+            if (SQL != null)
+            {
+                if (SQL.ArgumentCount > 0)
+                {
+                    string CommandText = SQL.Format.Trim();
+                    for (int index = 0, loopTo = SQL.ArgumentCount - 1; index <= loopTo; index++)
+                    {
+                        var v = SQL.GetArgument(index);
+
+                        if (v.IsEnumerableNotString() == false)
+                        {
+                            v = new[] { v };
+                        }
+
+                        var pv = new List<string>();
+                        if (v is IEnumerable paramvalues)
+                        {
+                            foreach (var x in paramvalues)
+                            {
+                                if (x == null)
+                                {
+                                    pv.Add("NULL");
+                                }
+                                else if (x.IsEnumerableNotString() && x is IEnumerable cc)
+                                {
+                                    foreach (var c in cc)
+                                    {
+                                        pv.Add(c.ToSQLString(false));
+                                    }
+                                }
+                                else if (GetNullableTypeOf(x).IsNumericType())
+                                {
+                                    pv.Add(x.ToString());
+                                }
+                                else if (IsDate(x))
+                                {
+                                    pv.Add(x.ToDateTime().ToSQLDateString().EscapeQuotesToQuery(true));
+                                }
+                                else if (IsBool(x))
+                                {
+                                    pv.Add(x.ToBool().AsIf("1", "0"));
+                                }
+                                else if (x.IsTypeOf<Select>())
+                                {
+                                    pv.Add(x.ToString());
+                                }
+                                else
+                                {
+                                    pv.Add(x.ToString().EscapeQuotesToQuery(true));
+                                }
+                            }
+
+                            CommandText = CommandText.Replace("{" + index + "}", pv.SelectJoinString(",").IfBlank("NULL").UnQuote('(', true).QuoteIf(Parenthesis, '('));
+                        }
+                    }
+
+                    return CommandText;
+                }
+                else
+                {
+                    return SQL.ToString(CultureInfo.InvariantCulture);
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Cria um <see cref="Stream"/> a partir de uma string
+        /// </summary>
+        /// <param name="TExt"></param>
+        /// <returns></returns>
+        public static Stream ToStream(this string Text)
+        {
+            var stream = new MemoryStream();
+            var writer = new StreamWriter(stream);
+            writer.Write(Text);
+            writer.Flush();
+            stream.Position = 0L;
+            return stream;
+        }
+
+        /// <summary>
+        /// Transforma uma imagem em um stream
+        /// </summary>
+        /// <param name="Image">Imagem</param>
+        /// <returns></returns>
+        public static Stream ToStream(this Image Image, ImageFormat Format = null)
+        {
+            Stream s = new MemoryStream();
+            Image.Save(s, Format ?? ImageFormat.Png);
+            s.Position = 0L;
+            return s;
+        }
+
+        /// <summary>
+        /// Projeta um unico array os valores sub-agrupados e unifica todos num unico array de arrays
+        /// </summary>
+        /// <typeparam name="TGroupKey"></typeparam>
+        /// <typeparam name="TSubGroupKey"></typeparam>
+        /// <typeparam name="TSubGroupValue"></typeparam>
+        /// <param name="Groups"></param>
+        /// <returns></returns>
+        public static IEnumerable<object> ToTableArray<TGroupKey, TSubGroupKey, TSubGroupValue, THeaderProperty>(this Dictionary<TGroupKey, Dictionary<TSubGroupKey, TSubGroupValue>> Groups, Func<TSubGroupKey, THeaderProperty> HeaderProp)
+        {
+            var lista = new List<object>();
+            var header = new List<object>
             {
                 HeaderProp?.Method.GetParameters().First().Name
             };
 
-        Groups?.Values.MergeKeys();
-        foreach (var h in Groups.SelectMany(x => x.Value.Keys.ToArray()).Distinct().OrderBy(x => x))
-        {
-            header.Add(HeaderProp(h));
-        }
-
-        lista.Add(header);
-        lista.AddRange(Groups.Select(x =>
-        {
-            var l = new List<object>
+            Groups?.Values.MergeKeys();
+            foreach (var h in Groups.SelectMany(x => x.Value.Keys.ToArray()).Distinct().OrderBy(x => x))
             {
+                header.Add(HeaderProp(h));
+            }
+
+            lista.Add(header);
+            lista.AddRange(Groups.Select(x =>
+            {
+                var l = new List<object>
+                {
                     x.Key // GroupKey
-            };
-            foreach (var item in x.Value.OrderBy(k => k.Key).Select(v => v.Value))
-            {
-                l.Add(item); // SubGroupValue
-            }
-
-            return l;
-        }));
-        return lista;
-    }
-
-    /// <summary>
-    /// Projeta um unico array os valores sub-agrupados e unifica todos num unico array de
-    /// arrays formando uma tabela
-    /// </summary>
-    public static IEnumerable<object[]> ToTableArray<TGroupKey, TGroupValue>(this Dictionary<TGroupKey, TGroupValue> Groups) => Groups.Select(x => new List<object> { x.Key, x.Value }.ToArray());
-
-    /// <summary>
-    /// Transforma um texto em titulo
-    /// </summary>
-    /// <param name="Text">Texto a ser manipulado</param>
-    /// <param name="ForceCase">
-    /// Se FALSE, apenas altera o primeiro caractere de cada palavra como UPPERCASE, dexando os
-    /// demais intactos. Se TRUE, força o primeiro caractere de casa palavra como UPPERCASE e os
-    /// demais como LOWERCASE
-    /// </param>
-    /// <returns>Uma String com o texto em nome próprio</returns>
-    public static string ToTitle(this string Text, bool ForceCase = false) => Text?.ToProperCase(ForceCase);
-
-    /// <summary>
-    /// Transforma um XML Document em string
-    /// </summary>
-    /// <param name="XML">Documento XML</param>
-    /// <returns></returns>
-    public static string ToXMLString(this XmlDocument XML)
-    {
-        using (var stringWriter = new StringWriter())
-        using (var xmlTextWriter = XmlWriter.Create(stringWriter))
-        {
-            XML.WriteTo(xmlTextWriter);
-            xmlTextWriter.Flush();
-            return stringWriter.GetStringBuilder().ToString();
-        }
-    }
-
-    public static Image Translate(this Image img, Color Color, float Alpha = 0f) => img.Translate(Color.R, Color.G, Color.B, Alpha);
-
-    public static Image Translate(this Image img, float Red, float Green, float Blue, float Alpha = 0f)
-    {
-        float sr, sg, sb, sa;
-        var copia = new Bitmap(img);
-        // normalize the color components to 1
-        sr = Red / 255f;
-        sg = Green / 255f;
-        sb = Blue / 255f;
-        sa = Alpha / 255f;
-
-        // create the color matrix
-        var cm = new ColorMatrix(new float[][] { new float[] { 1f, 0f, 0f, 0f, 0f }, new float[] { 0f, 1f, 0f, 0f, 0f }, new float[] { 0f, 0f, 1f, 0f, 0f }, new float[] { 0f, 0f, 0f, 1f, 0f }, new float[] { sr, sg, sb, sa, 1f } });
-
-        // apply the matrix to the image
-        return ApplyColorMatrix(copia, cm);
-
-    }
-
-    /// <summary>
-    /// Percorre uma Lista de objetos que possuem como propriedade objetos do mesmo tipo e as
-    /// unifica recursivamente
-    /// </summary>
-    /// <typeparam name="T">Tipo do Objeto</typeparam>
-    /// <param name="Items">Itens</param>
-    /// <param name="ChildSelector">Seletor das propriedades filhas</param>
-    /// <returns></returns>
-    public static IEnumerable<T> Traverse<T>(this IEnumerable<T> items, Func<T, IEnumerable<T>> ChildSelector)
-    {
-        var stack = new Stack<T>(items.Reverse());
-        while (stack.Any())
-        {
-            var next = stack.Pop();
-            yield return next;
-            foreach (var child in ChildSelector(next))
-            {
-                stack.Push(child);
-            }
-        }
-    }
-
-    /// <summary>
-    /// Percorre uma Lista de objetos que possuem como propriedade objetos do mesmo tipo e as
-    /// unifica recursivamente
-    /// </summary>
-    /// <typeparam name="T">Tipo do Objeto</typeparam>
-    /// <param name="Item">Itens</param>
-    /// <param name="ParentSelector">Seletor das propriedades filhas</param>
-    /// <returns></returns>
-    public static IEnumerable<T> Traverse<T>(this T item, Expression<Func<T, T>> ParentSelector, Expression<Func<T, bool>> Filter = null)
-    {
-        if (item != null && ParentSelector != null)
-        {
-            var current = item;
-            do
-            {
-                if (Filter == null || Filter.Compile().Invoke(current))
-                    yield return current;
-                current = ParentSelector.Compile().Invoke(current);
-            }
-            while (current != null);
-        }
-    }
-
-    /// <summary>
-    /// Percorre uma Lista de objetos que possuem como propriedade objetos do mesmo tipo e as
-    /// unifica recursivamente
-    /// </summary>
-    /// <typeparam name="T">Tipo do Objeto</typeparam>
-    /// <param name="Item">Itens</param>
-    /// <param name="ChildSelector">Seletor das propriedades filhas</param>
-    /// <returns></returns>
-    public static IEnumerable<T> Traverse<T>(this T Item, Func<T, IEnumerable<T>> ChildSelector, bool IncludeMe = false)
-    => ChildSelector(Item).Union(IncludeMe ? (new[] { Item }) : Array.Empty<T>()).Traverse(ChildSelector);
-
-    /// <summary>
-    /// Percorre uma Lista de objetos que possuem como propriedade objetos do mesmo tipo e as
-    /// unifica recursivamente expondo uma outra propriedade
-    /// </summary>
-    /// <typeparam name="T">Tipo do Objeto</typeparam>
-    /// <param name="Item">Itens</param>
-    /// <param name="ChildSelector">Seletor das propriedades filhas</param>
-    /// <returns></returns>
-    public static IEnumerable<P> Traverse<T, P>(this T Item, Func<T, IEnumerable<T>> ChildSelector, Func<T, P> PropertySelector, bool IncludeMe = false) => Item.Traverse(ChildSelector, IncludeMe).Select(PropertySelector);
-
-    /// <summary>
-    /// Percorre uma Lista de objetos que possuem como propriedade objetos do mesmo tipo e as
-    /// unifica recursivamente expondo uma outra propriedade
-    /// </summary>
-    /// <typeparam name="T">Tipo do Objeto</typeparam>
-    /// <param name="Item">Itens</param>
-    /// <param name="ChildSelector">Seletor das propriedades filhas</param>
-    /// <returns></returns>
-    public static IEnumerable<P> Traverse<T, P>(this T Item, Func<T, IEnumerable<T>> ChildSelector, Func<T, IEnumerable<P>> PropertySelector, bool IncludeMe = false) => Item.Traverse(ChildSelector, IncludeMe).SelectMany(PropertySelector);
-
-    /// <summary>
-    /// Percorre uma Lista de objetos que possuem como propriedade objetos do mesmo tipo e as
-    /// unifica recursivamente expondo uma outra propriedade
-    /// </summary>
-    /// <typeparam name="T">Tipo do Objeto</typeparam>
-    /// <param name="Item">Itens</param>
-    /// <param name="ChildSelector">Seletor das propriedades filhas</param>
-    /// <returns></returns>
-    public static IEnumerable<P> Traverse<T, P>(this T Item, Func<T, IEnumerable<T>> ChildSelector, Func<T, IQueryable<P>> PropertySelector, bool IncludeMe = false) => Item.Traverse(ChildSelector, IncludeMe).SelectMany(PropertySelector);
-
-    public static IEnumerable<T> TraverseAll<T>(this IEnumerable<T> items, Func<T, IEnumerable<T>> ChildSelector, Expression<Func<T, bool>> Filter = null) => items.SelectMany(x => Traverse(x, ChildSelector, true)).Where(Filter?.Compile() ?? (x => true));
-
-    /// <summary>
-    /// Remove os excessos de uma cor de fundo de uma imagem deixando apenas seu conteudo
-    /// </summary>
-    /// <param name="Img"></param>
-    /// <param name="Color"></param>
-    /// <returns></returns>
-    public static Image Trim(this Image Img, Color? Color = default)
-    {
-        var bitmap = new Bitmap(Img);
-        Color = Color ?? bitmap.GetPixel(0, 0);
-        int w = bitmap.Width;
-        int h = bitmap.Height;
-        bool IsAllWhiteRow(int row)
-        {
-            for (int i = 0, loopTo = w - 1; i <= loopTo; i++)
-            {
-                if (bitmap.GetPixel(i, row).ToArgb() != Color.Value.ToArgb())
+                };
+                foreach (var item in x.Value.OrderBy(k => k.Key).Select(v => v.Value))
                 {
-                    return false;
+                    l.Add(item); // SubGroupValue
+                }
+
+                return l;
+            }));
+            return lista;
+        }
+
+        /// <summary>
+        /// Projeta um unico array os valores sub-agrupados e unifica todos num unico array de
+        /// arrays formando uma tabela
+        /// </summary>
+        public static IEnumerable<object[]> ToTableArray<TGroupKey, TGroupValue>(this Dictionary<TGroupKey, TGroupValue> Groups) => Groups.Select(x => new List<object> { x.Key, x.Value }.ToArray());
+
+        /// <summary>
+        /// Transforma um texto em titulo
+        /// </summary>
+        /// <param name="Text">Texto a ser manipulado</param>
+        /// <param name="ForceCase">
+        /// Se FALSE, apenas altera o primeiro caractere de cada palavra como UPPERCASE, dexando os
+        /// demais intactos. Se TRUE, força o primeiro caractere de casa palavra como UPPERCASE e os
+        /// demais como LOWERCASE
+        /// </param>
+        /// <returns>Uma String com o texto em nome próprio</returns>
+        public static string ToTitle(this string Text, bool ForceCase = false) => Text?.ToProperCase(ForceCase);
+
+        /// <summary>
+        /// Transforma um XML Document em string
+        /// </summary>
+        /// <param name="XML">Documento XML</param>
+        /// <returns></returns>
+        public static string ToXMLString(this XmlDocument XML)
+        {
+            using (var stringWriter = new StringWriter())
+            using (var xmlTextWriter = XmlWriter.Create(stringWriter))
+            {
+                XML.WriteTo(xmlTextWriter);
+                xmlTextWriter.Flush();
+                return stringWriter.GetStringBuilder().ToString();
+            }
+        }
+
+        public static Image Translate(this Image img, Color Color, float Alpha = 0f) => img.Translate(Color.R, Color.G, Color.B, Alpha);
+
+        public static Image Translate(this Image img, float Red, float Green, float Blue, float Alpha = 0f)
+        {
+            float sr, sg, sb, sa;
+            var copia = new Bitmap(img);
+            // normalize the color components to 1
+            sr = Red / 255f;
+            sg = Green / 255f;
+            sb = Blue / 255f;
+            sa = Alpha / 255f;
+
+            // create the color matrix
+            var cm = new ColorMatrix(new float[][] { new float[] { 1f, 0f, 0f, 0f, 0f }, new float[] { 0f, 1f, 0f, 0f, 0f }, new float[] { 0f, 0f, 1f, 0f, 0f }, new float[] { 0f, 0f, 0f, 1f, 0f }, new float[] { sr, sg, sb, sa, 1f } });
+
+            // apply the matrix to the image
+            return ApplyColorMatrix(copia, cm);
+
+        }
+
+        /// <summary>
+        /// Percorre uma Lista de objetos que possuem como propriedade objetos do mesmo tipo e as
+        /// unifica recursivamente
+        /// </summary>
+        /// <typeparam name="T">Tipo do Objeto</typeparam>
+        /// <param name="Items">Itens</param>
+        /// <param name="ChildSelector">Seletor das propriedades filhas</param>
+        /// <returns></returns>
+        public static IEnumerable<T> Traverse<T>(this IEnumerable<T> items, Func<T, IEnumerable<T>> ChildSelector)
+        {
+            var stack = new Stack<T>(items.Reverse());
+            while (stack.Any())
+            {
+                var next = stack.Pop();
+                yield return next;
+                foreach (var child in ChildSelector(next))
+                {
+                    stack.Push(child);
                 }
             }
-
-            return true;
         }
-        bool IsAllWhiteColumn(int col)
+
+        /// <summary>
+        /// Percorre uma Lista de objetos que possuem como propriedade objetos do mesmo tipo e as
+        /// unifica recursivamente
+        /// </summary>
+        /// <typeparam name="T">Tipo do Objeto</typeparam>
+        /// <param name="Item">Itens</param>
+        /// <param name="ParentSelector">Seletor das propriedades filhas</param>
+        /// <returns></returns>
+        public static IEnumerable<T> Traverse<T>(this T item, Expression<Func<T, T>> ParentSelector, Expression<Func<T, bool>> Filter = null)
         {
-            for (int i = 0, loopTo = h - 1; i <= loopTo; i++)
+            if (item != null && ParentSelector != null)
             {
-                if (bitmap.GetPixel(col, i).ToArgb() != Color.Value.ToArgb())
+                var current = item;
+                do
                 {
-                    return false;
+                    if (Filter == null || Filter.Compile().Invoke(current))
+                        yield return current;
+                    current = ParentSelector.Compile().Invoke(current);
                 }
-            }
-
-            return true;
-        }
-        int leftMost = 0;
-        for (int col = 0, loopTo = w - 1; col <= loopTo; col++)
-        {
-            if (IsAllWhiteColumn(col))
-            {
-                leftMost = col + 1;
-            }
-            else
-            {
-                break;
+                while (current != null);
             }
         }
 
-        int rightMost = w - 1;
-        for (int col = rightMost; col >= 1; col -= 1)
+        /// <summary>
+        /// Percorre uma Lista de objetos que possuem como propriedade objetos do mesmo tipo e as
+        /// unifica recursivamente
+        /// </summary>
+        /// <typeparam name="T">Tipo do Objeto</typeparam>
+        /// <param name="Item">Itens</param>
+        /// <param name="ChildSelector">Seletor das propriedades filhas</param>
+        /// <returns></returns>
+        public static IEnumerable<T> Traverse<T>(this T Item, Func<T, IEnumerable<T>> ChildSelector, bool IncludeMe = false)
+        => ChildSelector(Item).Union(IncludeMe ? (new[] { Item }) : Array.Empty<T>()).Traverse(ChildSelector);
+
+        /// <summary>
+        /// Percorre uma Lista de objetos que possuem como propriedade objetos do mesmo tipo e as
+        /// unifica recursivamente expondo uma outra propriedade
+        /// </summary>
+        /// <typeparam name="T">Tipo do Objeto</typeparam>
+        /// <param name="Item">Itens</param>
+        /// <param name="ChildSelector">Seletor das propriedades filhas</param>
+        /// <returns></returns>
+        public static IEnumerable<P> Traverse<T, P>(this T Item, Func<T, IEnumerable<T>> ChildSelector, Func<T, P> PropertySelector, bool IncludeMe = false) => Item.Traverse(ChildSelector, IncludeMe).Select(PropertySelector);
+
+        /// <summary>
+        /// Percorre uma Lista de objetos que possuem como propriedade objetos do mesmo tipo e as
+        /// unifica recursivamente expondo uma outra propriedade
+        /// </summary>
+        /// <typeparam name="T">Tipo do Objeto</typeparam>
+        /// <param name="Item">Itens</param>
+        /// <param name="ChildSelector">Seletor das propriedades filhas</param>
+        /// <returns></returns>
+        public static IEnumerable<P> Traverse<T, P>(this T Item, Func<T, IEnumerable<T>> ChildSelector, Func<T, IEnumerable<P>> PropertySelector, bool IncludeMe = false) => Item.Traverse(ChildSelector, IncludeMe).SelectMany(PropertySelector);
+
+        /// <summary>
+        /// Percorre uma Lista de objetos que possuem como propriedade objetos do mesmo tipo e as
+        /// unifica recursivamente expondo uma outra propriedade
+        /// </summary>
+        /// <typeparam name="T">Tipo do Objeto</typeparam>
+        /// <param name="Item">Itens</param>
+        /// <param name="ChildSelector">Seletor das propriedades filhas</param>
+        /// <returns></returns>
+        public static IEnumerable<P> Traverse<T, P>(this T Item, Func<T, IEnumerable<T>> ChildSelector, Func<T, IQueryable<P>> PropertySelector, bool IncludeMe = false) => Item.Traverse(ChildSelector, IncludeMe).SelectMany(PropertySelector);
+
+        public static IEnumerable<T> TraverseAll<T>(this IEnumerable<T> items, Func<T, IEnumerable<T>> ChildSelector, Expression<Func<T, bool>> Filter = null) => items.SelectMany(x => Traverse(x, ChildSelector, true)).Where(Filter?.Compile() ?? (x => true));
+
+        /// <summary>
+        /// Remove os excessos de uma cor de fundo de uma imagem deixando apenas seu conteudo
+        /// </summary>
+        /// <param name="Img"></param>
+        /// <param name="Color"></param>
+        /// <returns></returns>
+        public static Image Trim(this Image Img, Color? Color = default)
         {
-            if (IsAllWhiteColumn(col))
+            var bitmap = new Bitmap(Img);
+            Color = Color ?? bitmap.GetPixel(0, 0);
+            int w = bitmap.Width;
+            int h = bitmap.Height;
+            bool IsAllWhiteRow(int row)
             {
-                rightMost = col - 1;
-            }
-            else
-            {
-                break;
-            }
-        }
-
-        int topMost = 0;
-        for (int row = 0, loopTo1 = h - 1; row <= loopTo1; row++)
-        {
-            if (IsAllWhiteRow(row))
-            {
-                topMost = row + 1;
-            }
-            else
-            {
-                break;
-            }
-        }
-
-        int bottomMost = h - 1;
-        for (int row = bottomMost; row >= 1; row -= 1)
-        {
-            if (IsAllWhiteRow(row))
-            {
-                bottomMost = row - 1;
-            }
-            else
-            {
-                break;
-            }
-        }
-
-        if (rightMost == 0 && bottomMost == 0 && leftMost == w && topMost == h)
-        {
-            return bitmap;
-        }
-
-        int croppedWidth = rightMost - leftMost + 1;
-        int croppedHeight = bottomMost - topMost + 1;
-        try
-        {
-            var target = new Bitmap(croppedWidth, croppedHeight);
-            using (var g = Graphics.FromImage(target))
-            {
-                g.DrawImage(bitmap, new RectangleF(0f, 0f, croppedWidth, croppedHeight), new RectangleF(leftMost, topMost, croppedWidth, croppedHeight), GraphicsUnit.Pixel);
-            }
-
-            return target;
-        }
-        catch (Exception ex)
-        {
-            throw new Exception(string.Format("Values are top={0} bottom={1} left={2} right={3}", topMost, bottomMost, leftMost, rightMost), ex);
-        }
-    }
-
-    /// <summary>
-    /// Remove do começo e do final de uma string qualquer valor que estiver no conjunto
-    /// </summary>
-    /// <param name="Text">Texto</param>
-    /// <param name="ContinuouslyRemove">
-    /// Parametro que indica se a string deve continuar sendo testada até que todas as
-    /// ocorrencias sejam removidas
-    /// </param>
-    /// <param name="StringTest">Conjunto de textos que serão comparados</param>
-    /// <returns></returns>
-    public static string TrimAny(this string Text, bool ContinuouslyRemove, params string[] StringTest)
-    {
-        if (Text.IsNotBlank())
-        {
-            Text = Text.TrimStartAny(ContinuouslyRemove, StringTest);
-            Text = Text.TrimEndAny(ContinuouslyRemove, StringTest);
-        }
-
-        return Text;
-    }
-
-    /// <summary>
-    /// Remove do começo e do final de uma string qualquer valor que estiver no conjunto
-    /// </summary>
-    /// <param name="Text">Texto</param>
-    /// <param name="StringTest">Conjunto de textos que serão comparados</param>
-    /// <returns></returns>
-    public static string TrimAny(this string Text, params string[] StringTest) => Text.TrimAny(true, StringTest);
-
-    public static IEnumerable<string> TrimBetween(this IEnumerable<string> Texts) => Texts.Select(x => x.TrimBetween());
-
-    public static string TrimBetween(this string Text)
-    {
-        Text = Text.IfBlank(EmptyString);
-        if (Text.IsNotBlank())
-        {
-            var arr = Text.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-            Text = arr.SelectJoinString(Environment.NewLine);
-            arr = Text.Split(new string[] { WhitespaceChar }, StringSplitOptions.RemoveEmptyEntries);
-            Text = arr.SelectJoinString(WhitespaceChar);
-            Text = Text.TrimAny(WhitespaceChar, Environment.NewLine).Trim();
-        }
-
-        return Text;
-    }
-
-    /// <summary>
-    /// Remove continuamente caracteres em branco do começo e fim de uma string incluindo breaklines
-    /// </summary>
-    /// <param name="Text"></param>
-    /// <returns></returns>
-    public static string TrimCarriage(this string Text) => Text.TrimAny(PredefinedArrays.InvisibleChars.ToArray());
-
-    /// <summary>
-    /// Remove o final de uma string se ela for igual a qualquer um dos valores correspondentes
-    /// </summary>
-    /// <param name="Text">Texto</param>
-    /// <param name="ContinuouslyRemove">
-    /// Parametro que indica se a string deve continuar sendo testada até que todas as
-    /// ocorrencias sejam removidas
-    /// </param>
-    /// <param name="EndStringTest">Conjunto de textos que serão comparados</param>
-    /// <returns></returns>
-    public static string TrimEndAny(this string Text, bool ContinuouslyRemove, StringComparison comparison, params string[] EndStringTest)
-    {
-        Text = Text ?? "";
-        EndStringTest = EndStringTest ?? Array.Empty<string>();
-        while (Text.EndsWithAny(comparison, EndStringTest))
-        {
-            foreach (var item in EndStringTest)
-            {
-                if (Text.EndsWith(item, comparison))
+                for (int i = 0, loopTo = w - 1; i <= loopTo; i++)
                 {
-                    Text = Text.RemoveLastEqual(item, comparison);
-                    if (!ContinuouslyRemove)
+                    if (bitmap.GetPixel(i, row).ToArgb() != Color.Value.ToArgb())
                     {
-                        return Text;
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+            bool IsAllWhiteColumn(int col)
+            {
+                for (int i = 0, loopTo = h - 1; i <= loopTo; i++)
+                {
+                    if (bitmap.GetPixel(col, i).ToArgb() != Color.Value.ToArgb())
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+            int leftMost = 0;
+            for (int col = 0, loopTo = w - 1; col <= loopTo; col++)
+            {
+                if (IsAllWhiteColumn(col))
+                {
+                    leftMost = col + 1;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            int rightMost = w - 1;
+            for (int col = rightMost; col >= 1; col -= 1)
+            {
+                if (IsAllWhiteColumn(col))
+                {
+                    rightMost = col - 1;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            int topMost = 0;
+            for (int row = 0, loopTo1 = h - 1; row <= loopTo1; row++)
+            {
+                if (IsAllWhiteRow(row))
+                {
+                    topMost = row + 1;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            int bottomMost = h - 1;
+            for (int row = bottomMost; row >= 1; row -= 1)
+            {
+                if (IsAllWhiteRow(row))
+                {
+                    bottomMost = row - 1;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            if (rightMost == 0 && bottomMost == 0 && leftMost == w && topMost == h)
+            {
+                return bitmap;
+            }
+
+            int croppedWidth = rightMost - leftMost + 1;
+            int croppedHeight = bottomMost - topMost + 1;
+            try
+            {
+                var target = new Bitmap(croppedWidth, croppedHeight);
+                using (var g = Graphics.FromImage(target))
+                {
+                    g.DrawImage(bitmap, new RectangleF(0f, 0f, croppedWidth, croppedHeight), new RectangleF(leftMost, topMost, croppedWidth, croppedHeight), GraphicsUnit.Pixel);
+                }
+
+                return target;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(string.Format("Values are top={0} bottom={1} left={2} right={3}", topMost, bottomMost, leftMost, rightMost), ex);
+            }
+        }
+
+        /// <summary>
+        /// Remove do começo e do final de uma string qualquer valor que estiver no conjunto
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <param name="ContinuouslyRemove">
+        /// Parametro que indica se a string deve continuar sendo testada até que todas as
+        /// ocorrencias sejam removidas
+        /// </param>
+        /// <param name="StringTest">Conjunto de textos que serão comparados</param>
+        /// <returns></returns>
+        public static string TrimAny(this string Text, bool ContinuouslyRemove, params string[] StringTest)
+        {
+            if (Text.IsNotBlank())
+            {
+                Text = Text.TrimStartAny(ContinuouslyRemove, StringTest);
+                Text = Text.TrimEndAny(ContinuouslyRemove, StringTest);
+            }
+
+            return Text;
+        }
+
+        /// <summary>
+        /// Remove do começo e do final de uma string qualquer valor que estiver no conjunto
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <param name="StringTest">Conjunto de textos que serão comparados</param>
+        /// <returns></returns>
+        public static string TrimAny(this string Text, params string[] StringTest) => Text.TrimAny(true, StringTest);
+
+        public static IEnumerable<string> TrimBetween(this IEnumerable<string> Texts) => Texts.Select(x => x.TrimBetween());
+
+        public static string TrimBetween(this string Text)
+        {
+            Text = Text.IfBlank(EmptyString);
+            if (Text.IsNotBlank())
+            {
+                var arr = Text.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+                Text = arr.SelectJoinString(Environment.NewLine);
+                arr = Text.Split(new string[] { WhitespaceChar }, StringSplitOptions.RemoveEmptyEntries);
+                Text = arr.SelectJoinString(WhitespaceChar);
+                Text = Text.TrimAny(WhitespaceChar, Environment.NewLine).Trim();
+            }
+
+            return Text;
+        }
+
+        /// <summary>
+        /// Remove continuamente caracteres em branco do começo e fim de uma string incluindo breaklines
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <returns></returns>
+        public static string TrimCarriage(this string Text) => Text.TrimAny(PredefinedArrays.InvisibleChars.ToArray());
+
+        /// <summary>
+        /// Remove o final de uma string se ela for igual a qualquer um dos valores correspondentes
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <param name="ContinuouslyRemove">
+        /// Parametro que indica se a string deve continuar sendo testada até que todas as
+        /// ocorrencias sejam removidas
+        /// </param>
+        /// <param name="EndStringTest">Conjunto de textos que serão comparados</param>
+        /// <returns></returns>
+        public static string TrimEndAny(this string Text, bool ContinuouslyRemove, StringComparison comparison, params string[] EndStringTest)
+        {
+            Text = Text ?? "";
+            EndStringTest = EndStringTest ?? Array.Empty<string>();
+            while (Text.EndsWithAny(comparison, EndStringTest))
+            {
+                foreach (var item in EndStringTest)
+                {
+                    if (Text.EndsWith(item, comparison))
+                    {
+                        Text = Text.RemoveLastEqual(item, comparison);
+                        if (!ContinuouslyRemove)
+                        {
+                            return Text;
+                        }
                     }
                 }
             }
+
+            return Text;
         }
 
-        return Text;
-    }
+        /// <summary>
+        /// Remove continuamente o final de uma string se ela for igual a qualquer um dos valores correspondentes
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <param name="EndStringTest">Conjunto de textos que serão comparados</param>
+        /// <returns></returns>
+        public static string TrimEndAny(this string Text, params string[] EndStringTest) => Text.TrimEndAny(true, default, EndStringTest);
 
-    /// <summary>
-    /// Remove continuamente o final de uma string se ela for igual a qualquer um dos valores correspondentes
-    /// </summary>
-    /// <param name="Text">Texto</param>
-    /// <param name="EndStringTest">Conjunto de textos que serão comparados</param>
-    /// <returns></returns>
-    public static string TrimEndAny(this string Text, params string[] EndStringTest) => Text.TrimEndAny(true, default, EndStringTest);
+        /// <summary>
+        /// Remove continuamente o final de uma string se ela for igual a qualquer um dos valores correspondentes
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <param name="EndStringTest">Conjunto de textos que serão comparados</param>
+        /// <param name="ContinuouslyRemove">Remove continuamente as strings</param>
+        /// <returns></returns>
+        public static string TrimEndAny(this string Text, bool ContinuouslyRemove, params string[] EndStringTest) => Text.TrimEndAny(ContinuouslyRemove, default, EndStringTest);
 
-    /// <summary>
-    /// Remove continuamente o final de uma string se ela for igual a qualquer um dos valores correspondentes
-    /// </summary>
-    /// <param name="Text">Texto</param>
-    /// <param name="EndStringTest">Conjunto de textos que serão comparados</param>
-    /// <param name="ContinuouslyRemove">Remove continuamente as strings</param>
-    /// <returns></returns>
-    public static string TrimEndAny(this string Text, bool ContinuouslyRemove, params string[] EndStringTest) => Text.TrimEndAny(ContinuouslyRemove, default, EndStringTest);
+        /// <summary>
+        /// Remove continuamente o final de uma string se ela for igual a qualquer um dos valores correspondentes
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <param name="EndStringTest">Conjunto de textos que serão comparados</param>
+        /// <returns></returns>
+        public static string TrimEndAny(this string Text, StringComparison comparison, params string[] EndStringTest) => Text.TrimEndAny(true, comparison, EndStringTest);
 
-    /// <summary>
-    /// Remove continuamente o final de uma string se ela for igual a qualquer um dos valores correspondentes
-    /// </summary>
-    /// <param name="Text">Texto</param>
-    /// <param name="EndStringTest">Conjunto de textos que serão comparados</param>
-    /// <returns></returns>
-    public static string TrimEndAny(this string Text, StringComparison comparison, params string[] EndStringTest) => Text.TrimEndAny(true, comparison, EndStringTest);
-
-    /// <summary>
-    /// Remove o final de uma string se ela for igual a qualquer um dos valores correspondentes
-    /// </summary>
-    /// <param name="Text">Texto</param>
-    /// <param name="ContinuouslyRemove">
-    /// Parametro que indica se a string deve continuar sendo testada até que todas as
-    /// ocorrencias sejam removidas
-    /// </param>
-    /// <param name="StartStringTest">Conjunto de textos que serão comparados</param>
-    /// <returns></returns>
-    public static string TrimStartAny(this string Text, bool ContinuouslyRemove, StringComparison comparison, params string[] StartStringTest)
-    {
-        Text = Text ?? "";
-        StartStringTest = StartStringTest ?? Array.Empty<string>();
-        while (Text.StartsWithAny(comparison, StartStringTest))
+        /// <summary>
+        /// Remove o final de uma string se ela for igual a qualquer um dos valores correspondentes
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <param name="ContinuouslyRemove">
+        /// Parametro que indica se a string deve continuar sendo testada até que todas as
+        /// ocorrencias sejam removidas
+        /// </param>
+        /// <param name="StartStringTest">Conjunto de textos que serão comparados</param>
+        /// <returns></returns>
+        public static string TrimStartAny(this string Text, bool ContinuouslyRemove, StringComparison comparison, params string[] StartStringTest)
         {
-            foreach (var item in StartStringTest)
+            Text = Text ?? "";
+            StartStringTest = StartStringTest ?? Array.Empty<string>();
+            while (Text.StartsWithAny(comparison, StartStringTest))
             {
-                if (Text.StartsWith(item, comparison))
+                foreach (var item in StartStringTest)
                 {
-                    Text = Text.RemoveFirstEqual(item, comparison);
-                    if (!ContinuouslyRemove)
+                    if (Text.StartsWith(item, comparison))
                     {
-                        return Text;
+                        Text = Text.RemoveFirstEqual(item, comparison);
+                        if (!ContinuouslyRemove)
+                        {
+                            return Text;
+                        }
                     }
                 }
             }
+
+            return Text;
         }
 
-        return Text;
-    }
+        /// <summary>
+        /// Remove continuamente o começo de uma string se ela for igual a qualquer um dos valores correspondentes
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <param name="StartStringTest">Conjunto de textos que serão comparados</param>
+        /// <param name="comparison"></param>
+        /// <returns></returns>
+        public static string TrimStartAny(this string Text, StringComparison comparison, params string[] StartStringTest) => Text.TrimStartAny(true, comparison, StartStringTest);
 
-    /// <summary>
-    /// Remove continuamente o começo de uma string se ela for igual a qualquer um dos valores correspondentes
-    /// </summary>
-    /// <param name="Text">Texto</param>
-    /// <param name="StartStringTest">Conjunto de textos que serão comparados</param>
-    /// <param name="comparison"></param>
-    /// <returns></returns>
-    public static string TrimStartAny(this string Text, StringComparison comparison, params string[] StartStringTest) => Text.TrimStartAny(true, comparison, StartStringTest);
+        /// <summary>
+        /// Remove continuamente o começo de uma string se ela for igual a qualquer um dos valores correspondentes
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <param name="StartStringTest">Conjunto de textos que serão comparados</param>
+        /// <returns></returns>
+        public static string TrimStartAny(this string Text, params string[] StartStringTest) => Text.TrimStartAny(true, default, StartStringTest);
 
-    /// <summary>
-    /// Remove continuamente o começo de uma string se ela for igual a qualquer um dos valores correspondentes
-    /// </summary>
-    /// <param name="Text">Texto</param>
-    /// <param name="StartStringTest">Conjunto de textos que serão comparados</param>
-    /// <returns></returns>
-    public static string TrimStartAny(this string Text, params string[] StartStringTest) => Text.TrimStartAny(true, default, StartStringTest);
+        /// <summary>
+        /// Remove continuamente o começo de uma string se ela for igual a qualquer um dos valores correspondentes
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <param name="StartStringTest">Conjunto de textos que serão comparados</param>
+        /// <returns></returns>
+        public static string TrimStartAny(this string Text, bool ContinuouslyRemove, params string[] StartStringTest) => Text.TrimStartAny(ContinuouslyRemove, default, StartStringTest);
 
-    /// <summary>
-    /// Remove continuamente o começo de uma string se ela for igual a qualquer um dos valores correspondentes
-    /// </summary>
-    /// <param name="Text">Texto</param>
-    /// <param name="StartStringTest">Conjunto de textos que serão comparados</param>
-    /// <returns></returns>
-    public static string TrimStartAny(this string Text, bool ContinuouslyRemove, params string[] StartStringTest) => Text.TrimStartAny(ContinuouslyRemove, default, StartStringTest);
-
-    /// <summary>
-    /// Run a <see cref="Action"/> inside a Try-catch block and return a <see cref="Exception"/>
-    /// if fail
-    /// </summary>
-    /// <param name="action"></param>
-    /// <returns>
-    /// A null <see cref="Exception"/> if <paramref name="action"/> runs successfully, otherwise
-    /// the captured <see cref="Exception"/>
-    /// </returns>
-    public static Exception TryExecute(Action action)
-    {
-        try
+        /// <summary>
+        /// Run a <see cref="Action"/> inside a Try-catch block and return a <see cref="Exception"/>
+        /// if fail
+        /// </summary>
+        /// <param name="action"></param>
+        /// <returns>
+        /// A null <see cref="Exception"/> if <paramref name="action"/> runs successfully, otherwise
+        /// the captured <see cref="Exception"/>
+        /// </returns>
+        public static Exception TryExecute(Action action)
         {
-            action.Invoke();
-            return null;
-        }
-        catch (Exception exx)
-        {
-            return exx;
-        }
-    }
-
-    public static string UnBrackfy(this string Text) => Text.UnBrackfy('{', true);
-
-    public static string UnBrackfy(this string Text, char OpenBracketChar, bool ContinuouslyRemove = false) => Text.UnQuote(OpenBracketChar, ContinuouslyRemove);
-
-    public static string UnQuote(this string Text) => Text.UnQuote(char.MinValue, true);
-
-    public static string UnQuote(this string Text, char OpenQuoteChar, bool ContinuouslyRemove = false)
-    {
-        if ($"{OpenQuoteChar}".RemoveNonPrintable().IsBlank())
-        {
-            while (Text.EndsWithAny(PredefinedArrays.CloseWrappers.ToArray()) || Text.StartsWithAny(PredefinedArrays.OpenWrappers.ToArray()))
+            try
             {
-                Text = Text.TrimAny(ContinuouslyRemove, PredefinedArrays.WordWrappers.ToArray());
+                action.Invoke();
+                return null;
+            }
+            catch (Exception exx)
+            {
+                return exx;
             }
         }
-        else
+
+        public static string UnBrackfy(this string Text) => Text.UnBrackfy('{', true);
+
+        public static string UnBrackfy(this string Text, char OpenBracketChar, bool ContinuouslyRemove = false) => Text.UnQuote(OpenBracketChar, ContinuouslyRemove);
+
+        public static string UnQuote(this string Text) => Text.UnQuote(char.MinValue, true);
+
+        public static string UnQuote(this string Text, char OpenQuoteChar, bool ContinuouslyRemove = false)
         {
-            if (OpenQuoteChar.ToString().IsCloseWrapChar())
+            if ($"{OpenQuoteChar}".RemoveNonPrintable().IsBlank())
             {
-                OpenQuoteChar = OpenQuoteChar.ToString().GetOppositeWrapChar().FirstOrDefault();
-            }
-
-            Text = Text.TrimAny(ContinuouslyRemove, $"{OpenQuoteChar}", OpenQuoteChar.ToString().GetOppositeWrapChar());
-        }
-
-        return Text;
-    }
-
-    public static string UnWrap(this string Text, string WrapText = DoubleQuoteChar, bool ContinuouslyRemove = false) => Text.TrimAny(ContinuouslyRemove, WrapText);
-
-    /// <summary>
-    /// Decoda uma string de uma transmissão por URL
-    /// </summary>
-    /// <param name="Text">Texto</param>
-    /// <returns></returns>
-    public static string UrlDecode(this string Text) => Text.IsNotBlank() ? WebUtility.UrlDecode(Text) : EmptyString;
-
-    /// <summary>
-    /// Encoda uma string para transmissão por URL
-    /// </summary>
-    /// <param name="Text">Texto</param>
-    /// <returns></returns>
-    public static string UrlEncode(this string Text) => Text.IsNotBlank() ? WebUtility.UrlEncode(Text) : EmptyString;
-
-    /// <summary>
-    /// Returns true if all logical operations return true
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="Value"></param>
-    /// <param name="Tests"></param>
-    /// <returns></returns>
-    public static bool Validate<T>(this T Value, params Expression<Func<T, bool>>[] Tests) => Validate(Value, 0, Tests);
-
-    /// <summary>
-    /// Returns true if a certain minimum number of logical operations return true
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="Value"></param>
-    /// <param name="Tests"></param>
-    /// <returns></returns>
-    public static bool Validate<T>(this T Value, int MinPoints, params Expression<Func<T, bool>>[] Tests)
-    {
-        Tests = Tests ?? Array.Empty<Expression<Func<T, bool>>>();
-        if (MinPoints < 1)
-        {
-            MinPoints = Tests.Length;
-        }
-        return ValidateCount(Value, Tests) >= MinPoints.LimitRange(1, Tests.Length);
-    }
-
-    /// <summary>
-    /// Returns the count of true logical operations on a given value
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="Value"></param>
-    /// <param name="Tests"></param>
-    /// <returns></returns>
-    public static int ValidateCount<T>(this T Value, params Expression<Func<T, bool>>[] Tests)
-    {
-        var count = 0;
-        Tests = Tests ?? Array.Empty<Expression<Func<T, bool>>>();
-        foreach (var item in Tests)
-        {
-            if (item.Compile().Invoke(Value))
-            {
-                count++;
-            }
-        }
-        return count;
-    }
-
-    /// <summary>
-    /// Lança uma <see cref="Exception"/> do tipo <typeparamref name="TE"/> se um teste falhar
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <typeparam name="TE"></typeparam>
-    /// <param name="Value"></param>
-    /// <param name="Test"></param>
-    /// <param name="Message"></param>
-    /// <returns></returns>
-    public static T ValidateOr<T, TE>(this T Value, Expression<Func<T, bool>> Test, TE Exception) where TE : Exception
-    {
-        if (Test != null)
-        {
-            if (Test.Compile().Invoke(Value) == false)
-            {
-                Value = default;
-                if (Exception != null)
+                while (Text.EndsWithAny(PredefinedArrays.CloseWrappers.ToArray()) || Text.StartsWithAny(PredefinedArrays.OpenWrappers.ToArray()))
                 {
-                    throw Exception;
+                    Text = Text.TrimAny(ContinuouslyRemove, PredefinedArrays.WordWrappers.ToArray());
                 }
             }
-        }
-        return Value;
-    }
+            else
+            {
+                if (OpenQuoteChar.ToString().IsCloseWrapChar())
+                {
+                    OpenQuoteChar = OpenQuoteChar.ToString().GetOppositeWrapChar().FirstOrDefault();
+                }
 
-    public static T ValidateOr<T>(this T Value, Expression<Func<T, bool>> Test) => ValidateOr(Value, Test, default);
+                Text = Text.TrimAny(ContinuouslyRemove, $"{OpenQuoteChar}", OpenQuoteChar.ToString().GetOppositeWrapChar());
+            }
 
-    public static T ValidateOr<T>(this T Value, Expression<Func<T, bool>> Test, T defaultValue)
-    {
-        try
-        {
-            return ValidateOr(Value, Test, new Exception("Validation fail"));
-        }
-        catch
-        {
-            return defaultValue;
-        }
-    }
-
-    public static bool ValidatePassword(this string Password, PasswordLevel PasswordLevel = PasswordLevel.Strong) => PasswordLevel == PasswordLevel.None || Password.CheckPassword().ToInt() >= PasswordLevel.ToInt();
-
-    /// <summary>
-    /// Bloqueia a Thread atual enquanto um arquivo estiver em uso
-    /// </summary>
-    /// <param name="File">Arquivo</param>
-    /// <param name="Seconds">intervalo, em segundo entre as tentativas de acesso</param>
-    /// <param name="MaxFailCount">
-    /// Numero maximo de tentativas falhas,quando nulo, verifica infinitamente
-    /// </param>
-    /// <param name="OnAttemptFail">ação a ser executado em caso de falha</param>
-    /// <returns>TRUE se o arquivo puder ser utilizado</returns>
-    public static bool WaifForFile(this FileInfo File, int Seconds = 1, int? MaxFailCount = null, Action<int> OnAttemptFail = null)
-    {
-        if (File == null)
-        {
-            return false;
-        }
-        if (File.Exists == false)
-        {
-            return true;
+            return Text;
         }
 
-        while (IsInUse(File))
-        {
-            Thread.Sleep(Seconds * 1000);
+        public static string UnWrap(this string Text, string WrapText = DoubleQuoteChar, bool ContinuouslyRemove = false) => Text.TrimAny(ContinuouslyRemove, WrapText);
 
+        /// <summary>
+        /// Decoda uma string de uma transmissão por URL
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <returns></returns>
+        public static string UrlDecode(this string Text) => Text.IsNotBlank() ? WebUtility.UrlDecode(Text) : EmptyString;
+
+        /// <summary>
+        /// Encoda uma string para transmissão por URL
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <returns></returns>
+        public static string UrlEncode(this string Text) => Text.IsNotBlank() ? WebUtility.UrlEncode(Text) : EmptyString;
+
+        /// <summary>
+        /// Returns true if all logical operations return true
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Value"></param>
+        /// <param name="Tests"></param>
+        /// <returns></returns>
+        public static bool Validate<T>(this T Value, params Expression<Func<T, bool>>[] Tests) => Validate(Value, 0, Tests);
+
+        /// <summary>
+        /// Returns true if a certain minimum number of logical operations return true
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Value"></param>
+        /// <param name="Tests"></param>
+        /// <returns></returns>
+        public static bool Validate<T>(this T Value, int MinPoints, params Expression<Func<T, bool>>[] Tests)
+        {
+            Tests = Tests ?? Array.Empty<Expression<Func<T, bool>>>();
+            if (MinPoints < 1)
+            {
+                MinPoints = Tests.Length;
+            }
+            return ValidateCount(Value, Tests) >= MinPoints.LimitRange(1, Tests.Length);
+        }
+
+        /// <summary>
+        /// Returns the count of true logical operations on a given value
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Value"></param>
+        /// <param name="Tests"></param>
+        /// <returns></returns>
+        public static int ValidateCount<T>(this T Value, params Expression<Func<T, bool>>[] Tests)
+        {
+            var count = 0;
+            Tests = Tests ?? Array.Empty<Expression<Func<T, bool>>>();
+            foreach (var item in Tests)
+            {
+                if (item.Compile().Invoke(Value))
+                {
+                    count++;
+                }
+            }
+            return count;
+        }
+
+        /// <summary>
+        /// Lança uma <see cref="Exception"/> do tipo <typeparamref name="TE"/> se um teste falhar
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TE"></typeparam>
+        /// <param name="Value"></param>
+        /// <param name="Test"></param>
+        /// <param name="Message"></param>
+        /// <returns></returns>
+        public static T ValidateOr<T, TE>(this T Value, Expression<Func<T, bool>> Test, TE Exception) where TE : Exception
+        {
+            if (Test != null)
+            {
+                if (Test.Compile().Invoke(Value) == false)
+                {
+                    Value = default;
+                    if (Exception != null)
+                    {
+                        throw Exception;
+                    }
+                }
+            }
+            return Value;
+        }
+
+        public static T ValidateOr<T>(this T Value, Expression<Func<T, bool>> Test) => ValidateOr(Value, Test, default);
+
+        public static T ValidateOr<T>(this T Value, Expression<Func<T, bool>> Test, T defaultValue)
+        {
+            try
+            {
+                return ValidateOr(Value, Test, new Exception("Validation fail"));
+            }
+            catch
+            {
+                return defaultValue;
+            }
+        }
+
+        public static bool ValidatePassword(this string Password, PasswordLevel PasswordLevel = PasswordLevel.Strong) => PasswordLevel == PasswordLevel.None || Password.CheckPassword().ToInt() >= PasswordLevel.ToInt();
+
+        /// <summary>
+        /// Bloqueia a Thread atual enquanto um arquivo estiver em uso
+        /// </summary>
+        /// <param name="File">Arquivo</param>
+        /// <param name="Seconds">intervalo, em segundo entre as tentativas de acesso</param>
+        /// <param name="MaxFailCount">
+        /// Numero maximo de tentativas falhas,quando nulo, verifica infinitamente
+        /// </param>
+        /// <param name="OnAttemptFail">ação a ser executado em caso de falha</param>
+        /// <returns>TRUE se o arquivo puder ser utilizado</returns>
+        public static bool WaifForFile(this FileInfo File, int Seconds = 1, int? MaxFailCount = null, Action<int> OnAttemptFail = null)
+        {
+            if (File == null)
+            {
+                return false;
+            }
             if (File.Exists == false)
             {
                 return true;
             }
 
-            if (MaxFailCount.HasValue)
+            while (IsInUse(File))
             {
-                MaxFailCount = MaxFailCount.Value - 1;
-            }
+                Thread.Sleep(Seconds * 1000);
 
-            if (MaxFailCount.HasValue && MaxFailCount.Value <= 0)
-            {
-                return false;
-            }
-
-            OnAttemptFail?.Invoke(MaxFailCount ?? -1);
-        }
-        return true;
-    }
-
-    /// <summary>
-    /// Insere uma imagem de marca d'água na imagem
-    /// </summary>
-    /// <param name="Image">Imagem</param>
-    /// <param name="WaterMarkImage">Imagem de Marca d'água</param>
-    /// <param name="X">Posição X</param>
-    /// <param name="Y">Posição Y</param>
-    /// <returns></returns>
-    public static Image Watermark(this Image Image, Image WaterMarkImage, int X = -1, int Y = -1)
-    {
-        // a imagem onde iremos aplicar a marca d'água
-        var bm_Resultado = new Bitmap(Image);
-
-        // a imagem que será usada como marca d'agua
-        var bm_marcaDagua = new Bitmap(WaterMarkImage.Resize(bm_Resultado.Width - 5, bm_Resultado.Height - 5));
-        if (X < 0)
-            X = (bm_Resultado.Width - bm_marcaDagua.Width) / 2;   // centraliza a marca d'agua
-        if (Y < 0)
-            Y = (bm_Resultado.Height - bm_marcaDagua.Height) / 2;   // centraliza a marca d'agua
-        const byte ALPHA = 128;
-        // Define o componente Alpha do pixel
-        Color clr;
-        for (int py = 0, loopTo = bm_marcaDagua.Height - 1; py <= loopTo; py++)
-        {
-            for (int px = 0, loopTo1 = bm_marcaDagua.Width - 1; px <= loopTo1; px++)
-            {
-                clr = bm_marcaDagua.GetPixel(px, py);
-                bm_marcaDagua.SetPixel(px, py, Color.FromArgb(ALPHA, clr.R, clr.G, clr.B));
-            }
-        }
-        // Define a marca d'agua como transparente
-        bm_marcaDagua.MakeTransparent(bm_marcaDagua.GetPixel(0, 0));
-        // Copia o resultado na imagem
-        var gr = Graphics.FromImage(bm_Resultado);
-        gr.DrawImage(bm_marcaDagua, X, Y);
-        return bm_Resultado;
-    }
-
-    /// <summary>
-    /// Retorna uma lista de arquivos ou diretórios baseado em uma busca usando predicate
-    /// </summary>
-    /// <param name="Directory">Diretório</param>
-    /// <param name="predicate">Funcao LINQ utilizada para a busca</param>
-    /// <param name="SearchOption">
-    /// Indica se apenas o diretorio atual ou todos os subdiretorios devem ser percorridos pela busca
-    /// </param>
-    /// <returns></returns>
-    public static IEnumerable<T> Where<T>(this DirectoryInfo Directory, Func<T, bool> predicate, SearchOption SearchOption = SearchOption.AllDirectories) where T : FileSystemInfo
-    {
-        if (Directory != null && Directory.Exists && predicate != null)
-
-            if (typeof(T) == typeof(FileInfo))
-                return Directory.GetFiles("*", SearchOption).Where((Func<FileInfo, bool>)predicate) as IEnumerable<T>;
-            else if (typeof(T) == typeof(DirectoryInfo))
-                return Directory.GetDirectories("*", SearchOption).Where((Func<DirectoryInfo, bool>)predicate) as IEnumerable<T>;
-            else
-                return Directory.GetFileSystemInfos("*", SearchOption).Where((Func<FileSystemInfo, bool>)predicate) as IEnumerable<T>;
-
-        return Array.Empty<T>();
-    }
-
-    /// <summary>
-    /// Gera uma expressao lambda a partir do nome de uma propriedade, uma operacao e um valor
-    /// </summary>
-    /// <typeparam name="Type">Tipo do objeto acessado</typeparam>
-    /// <param name="PropertyName">Propriedade do objeto <typeparamref name="Type"/></param>
-    /// <param name="[Operator]">
-    /// Operador ou método do objeto <typeparamref name="Type"/> que retorna um <see cref="Boolean"/>
-    /// </param>
-    /// <param name="PropertyValue">
-    /// Valor da propriedade comparado com o <paramref name="Operator"/> ou como o primeiro
-    /// argumento do método de mesmo nome definido em <typeparamref name="Type"/>
-    /// </param>
-    /// <param name="[Is]">Compara o resultado com TRUE ou FALSE</param>
-    /// <returns></returns>
-    public static Expression<Func<Type, bool>> WhereExpression<Type>(string PropertyName, string Operator, IEnumerable<IComparable> PropertyValue, bool Is = true, FilterConditional Conditional = FilterConditional.Or)
-    {
-        var parameter = GenerateParameterExpression<Type>();
-        var member = parameter.PropertyExpression(PropertyName);
-        Expression body = GetOperatorExpression(member, Operator, PropertyValue, Conditional);
-        body = Expression.Equal(body, Expression.Constant(Is));
-        var finalExpression = Expression.Lambda<Func<Type, bool>>(body, parameter);
-        return finalExpression;
-    }
-
-    public static Expression<Func<Type, bool>> WhereExpression<Type, V>(Expression<Func<Type, V>> PropertySelector, string Operator, IEnumerable<IComparable> PropertyValue, bool Is = true, FilterConditional Conditional = FilterConditional.Or)
-    {
-        var parameter = GenerateParameterExpression<Type>();
-        string member = String.Join(".", PropertySelector.Body.ToString().Split(".").Skip(1));
-        var prop = parameter.PropertyExpression(member);
-        Expression body = GetOperatorExpression(prop, Operator, PropertyValue, Conditional);
-        body = Expression.Equal(body, Expression.Constant(Is));
-        var finalExpression = Expression.Lambda<Func<Type, bool>>(body, parameter);
-        return finalExpression;
-    }
-
-    /// <summary>
-    /// Busca em um <see cref="IQueryable(Of T)"/> usando uma expressao lambda a partir do nome
-    /// de uma propriedade, uma operacao e um valor
-    /// </summary>
-    /// <typeparam name="T">Tipo do objeto acessado</typeparam>
-    /// <param name="List">Lista</param>
-    /// <param name="PropertyName">Propriedade do objeto <typeparamref name="T"/></param>
-    /// <param name="[Operator]">
-    /// Operador ou método do objeto <typeparamref name="T"/> que retorna um <see cref="Boolean"/>
-    /// </param>
-    /// <param name="PropertyValue">
-    /// Valor da propriedade comparado com o <paramref name="Operator"/> ou como o primeiro
-    /// argumento do método de mesmo nome definido em <typeparamref name="T"/>
-    /// </param>
-    /// <param name="[Is]">Compara o resultado com TRUE ou FALSE</param>
-    /// <returns></returns>
-    public static IQueryable<T> WhereExpression<T>(this IQueryable<T> List, string PropertyName, string Operator, IEnumerable<IComparable> PropertyValue, bool Is = true) => List.Where(WhereExpression<T>(PropertyName, Operator, PropertyValue, Is));
-
-    public static IEnumerable<T> WhereNotBlank<T>(this IEnumerable<T> List) => List.Where(x => x.IsNotBlank());
-
-    public static IQueryable<T> WhereNotNull<T>(this IQueryable<T> List) => List.Where(x => x != null);
-
-    public static IEnumerable<T> WhereNotNull<T>(this IEnumerable<T> List) => List.Where(x => x != null);
-
-    public static IEnumerable<Type> WhereType<BaseType, Type>(this IEnumerable<BaseType> List) where Type : BaseType => List.Where(x => x is Type).Cast<Type>();
-
-    ///<inheritdoc cref="With{T}(T, Action{T}, out Exception)"/>
-    public static T With<T>(this T Obj, Action<T> Callback) => With(Obj, Callback, out _);
-
-    /// <summary>
-    /// Run a <see cref="Action{T}"/> inside a Try-Catch block and return the same <typeparamref name="T"/>
-    /// </summary>
-    /// <typeparam name="T">Object type</typeparam>
-    /// <param name="Obj">Object</param>
-    /// <param name="Callback">The action to execute</param>
-    /// <param name="ex">
-    /// An out param to capture a <see cref="Exception"/> if <paramref name="Callback"/> fails
-    /// </param>
-    /// <returns>The same <paramref name="Obj"/></returns>
-    public static T With<T>(this T Obj, Action<T> Callback, out Exception ex)
-    {
-        ex = TryExecute(() => Callback?.Invoke(Obj));
-        return Obj;
-    }
-
-    /// <summary>
-    /// Executa uma função com um determinado arquivo caso seja possível sua leitura
-    /// </summary>
-    /// <param name="File">Arquivo</param>
-    /// <param name="OnSuccess">Função a ser executada ao abrir o arquivo</param>
-    /// <param name="OnFail">
-    /// Função a ser executada após um numero determinado de tentativas falharem
-    /// </param>
-    /// <param name="OnAttemptFail">Função a ser executada a cada tentativa falhada</param>
-    /// <param name="Seconds">Tempo de espera em segundos entre uma tentativa e outra</param>
-    /// <param name="MaxFailCount">Numero máximo de tentativas, infinito se null</param>
-    /// <returns>
-    /// TRUE após <paramref name="OnSuccess"/> ser executada com sucesso. FALSE em qualquer
-    /// outra situação
-    /// </returns>
-    public static bool WithFile(this FileInfo File, Action<FileInfo> OnSuccess, Action<FileInfo> OnFail, Action<int> OnAttemptFail = null, int Seconds = 1, int? MaxFailCount = null)
-    {
-        if (File != null)
-        {
-            try
-            {
-                if (WaifForFile(File, Seconds, MaxFailCount, OnAttemptFail))
+                if (File.Exists == false)
                 {
-                    OnSuccess?.Invoke(File);
                     return true;
                 }
+
+                if (MaxFailCount.HasValue)
+                {
+                    MaxFailCount = MaxFailCount.Value - 1;
+                }
+
+                if (MaxFailCount.HasValue && MaxFailCount.Value <= 0)
+                {
+                    return false;
+                }
+
+                OnAttemptFail?.Invoke(MaxFailCount ?? -1);
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Insere uma imagem de marca d'água na imagem
+        /// </summary>
+        /// <param name="Image">Imagem</param>
+        /// <param name="WaterMarkImage">Imagem de Marca d'água</param>
+        /// <param name="X">Posição X</param>
+        /// <param name="Y">Posição Y</param>
+        /// <returns></returns>
+        public static Image Watermark(this Image Image, Image WaterMarkImage, int X = -1, int Y = -1)
+        {
+            // a imagem onde iremos aplicar a marca d'água
+            var bm_Resultado = new Bitmap(Image);
+
+            // a imagem que será usada como marca d'agua
+            var bm_marcaDagua = new Bitmap(WaterMarkImage.Resize(bm_Resultado.Width - 5, bm_Resultado.Height - 5));
+            if (X < 0)
+                X = (bm_Resultado.Width - bm_marcaDagua.Width) / 2;   // centraliza a marca d'agua
+            if (Y < 0)
+                Y = (bm_Resultado.Height - bm_marcaDagua.Height) / 2;   // centraliza a marca d'agua
+            const byte ALPHA = 128;
+            // Define o componente Alpha do pixel
+            Color clr;
+            for (int py = 0, loopTo = bm_marcaDagua.Height - 1; py <= loopTo; py++)
+            {
+                for (int px = 0, loopTo1 = bm_marcaDagua.Width - 1; px <= loopTo1; px++)
+                {
+                    clr = bm_marcaDagua.GetPixel(px, py);
+                    bm_marcaDagua.SetPixel(px, py, Color.FromArgb(ALPHA, clr.R, clr.G, clr.B));
+                }
+            }
+            // Define a marca d'agua como transparente
+            bm_marcaDagua.MakeTransparent(bm_marcaDagua.GetPixel(0, 0));
+            // Copia o resultado na imagem
+            var gr = Graphics.FromImage(bm_Resultado);
+            gr.DrawImage(bm_marcaDagua, X, Y);
+            return bm_Resultado;
+        }
+
+        /// <summary>
+        /// Retorna uma lista de arquivos ou diretórios baseado em uma busca usando predicate
+        /// </summary>
+        /// <param name="Directory">Diretório</param>
+        /// <param name="predicate">Funcao LINQ utilizada para a busca</param>
+        /// <param name="SearchOption">
+        /// Indica se apenas o diretorio atual ou todos os subdiretorios devem ser percorridos pela busca
+        /// </param>
+        /// <returns></returns>
+        public static IEnumerable<T> Where<T>(this DirectoryInfo Directory, Func<T, bool> predicate, SearchOption SearchOption = SearchOption.AllDirectories) where T : FileSystemInfo
+        {
+            if (Directory != null && Directory.Exists && predicate != null)
+
+                if (typeof(T) == typeof(FileInfo))
+                    return Directory.GetFiles("*", SearchOption).Where((Func<FileInfo, bool>)predicate) as IEnumerable<T>;
+                else if (typeof(T) == typeof(DirectoryInfo))
+                    return Directory.GetDirectories("*", SearchOption).Where((Func<DirectoryInfo, bool>)predicate) as IEnumerable<T>;
+                else
+                    return Directory.GetFileSystemInfos("*", SearchOption).Where((Func<FileSystemInfo, bool>)predicate) as IEnumerable<T>;
+
+            return Array.Empty<T>();
+        }
+
+        /// <summary>
+        /// Gera uma expressao lambda a partir do nome de uma propriedade, uma operacao e um valor
+        /// </summary>
+        /// <typeparam name="Type">Tipo do objeto acessado</typeparam>
+        /// <param name="PropertyName">Propriedade do objeto <typeparamref name="Type"/></param>
+        /// <param name="[Operator]">
+        /// Operador ou método do objeto <typeparamref name="Type"/> que retorna um <see cref="Boolean"/>
+        /// </param>
+        /// <param name="PropertyValue">
+        /// Valor da propriedade comparado com o <paramref name="Operator"/> ou como o primeiro
+        /// argumento do método de mesmo nome definido em <typeparamref name="Type"/>
+        /// </param>
+        /// <param name="[Is]">Compara o resultado com TRUE ou FALSE</param>
+        /// <returns></returns>
+        public static Expression<Func<Type, bool>> WhereExpression<Type>(string PropertyName, string Operator, IEnumerable<IComparable> PropertyValue, bool Is = true, FilterConditional Conditional = FilterConditional.Or)
+        {
+            var parameter = GenerateParameterExpression<Type>();
+            var member = parameter.PropertyExpression(PropertyName);
+            Expression body = GetOperatorExpression(member, Operator, PropertyValue, Conditional);
+            body = Expression.Equal(body, Expression.Constant(Is));
+            var finalExpression = Expression.Lambda<Func<Type, bool>>(body, parameter);
+            return finalExpression;
+        }
+
+        public static Expression<Func<Type, bool>> WhereExpression<Type, V>(Expression<Func<Type, V>> PropertySelector, string Operator, IEnumerable<IComparable> PropertyValue, bool Is = true, FilterConditional Conditional = FilterConditional.Or)
+        {
+            var parameter = GenerateParameterExpression<Type>();
+            string member = String.Join(".", PropertySelector.Body.ToString().Split(".").Skip(1));
+            var prop = parameter.PropertyExpression(member);
+            Expression body = GetOperatorExpression(prop, Operator, PropertyValue, Conditional);
+            body = Expression.Equal(body, Expression.Constant(Is));
+            var finalExpression = Expression.Lambda<Func<Type, bool>>(body, parameter);
+            return finalExpression;
+        }
+
+        /// <summary>
+        /// Busca em um <see cref="IQueryable(Of T)"/> usando uma expressao lambda a partir do nome
+        /// de uma propriedade, uma operacao e um valor
+        /// </summary>
+        /// <typeparam name="T">Tipo do objeto acessado</typeparam>
+        /// <param name="List">Lista</param>
+        /// <param name="PropertyName">Propriedade do objeto <typeparamref name="T"/></param>
+        /// <param name="[Operator]">
+        /// Operador ou método do objeto <typeparamref name="T"/> que retorna um <see cref="Boolean"/>
+        /// </param>
+        /// <param name="PropertyValue">
+        /// Valor da propriedade comparado com o <paramref name="Operator"/> ou como o primeiro
+        /// argumento do método de mesmo nome definido em <typeparamref name="T"/>
+        /// </param>
+        /// <param name="[Is]">Compara o resultado com TRUE ou FALSE</param>
+        /// <returns></returns>
+        public static IQueryable<T> WhereExpression<T>(this IQueryable<T> List, string PropertyName, string Operator, IEnumerable<IComparable> PropertyValue, bool Is = true) => List.Where(WhereExpression<T>(PropertyName, Operator, PropertyValue, Is));
+
+        public static IEnumerable<T> WhereNotBlank<T>(this IEnumerable<T> List) => List.Where(x => x.IsNotBlank());
+
+        public static IQueryable<T> WhereNotNull<T>(this IQueryable<T> List) => List.Where(x => x != null);
+
+        public static IEnumerable<T> WhereNotNull<T>(this IEnumerable<T> List) => List.Where(x => x != null);
+
+        public static IEnumerable<Type> WhereType<BaseType, Type>(this IEnumerable<BaseType> List) where Type : BaseType => List.Where(x => x is Type).Cast<Type>();
+
+        ///<inheritdoc cref="With{T}(T, Action{T}, out Exception)"/>
+        public static T With<T>(this T Obj, Action<T> Callback) => With(Obj, Callback, out _);
+
+        /// <summary>
+        /// Run a <see cref="Action{T}"/> inside a Try-Catch block and return the same <typeparamref name="T"/>
+        /// </summary>
+        /// <typeparam name="T">Object type</typeparam>
+        /// <param name="Obj">Object</param>
+        /// <param name="Callback">The action to execute</param>
+        /// <param name="ex">
+        /// An out param to capture a <see cref="Exception"/> if <paramref name="Callback"/> fails
+        /// </param>
+        /// <returns>The same <paramref name="Obj"/></returns>
+        public static T With<T>(this T Obj, Action<T> Callback, out Exception ex)
+        {
+            ex = TryExecute(() => Callback?.Invoke(Obj));
+            return Obj;
+        }
+
+        /// <summary>
+        /// Executa uma função com um determinado arquivo caso seja possível sua leitura
+        /// </summary>
+        /// <param name="File">Arquivo</param>
+        /// <param name="OnSuccess">Função a ser executada ao abrir o arquivo</param>
+        /// <param name="OnFail">
+        /// Função a ser executada após um numero determinado de tentativas falharem
+        /// </param>
+        /// <param name="OnAttemptFail">Função a ser executada a cada tentativa falhada</param>
+        /// <param name="Seconds">Tempo de espera em segundos entre uma tentativa e outra</param>
+        /// <param name="MaxFailCount">Numero máximo de tentativas, infinito se null</param>
+        /// <returns>
+        /// TRUE após <paramref name="OnSuccess"/> ser executada com sucesso. FALSE em qualquer
+        /// outra situação
+        /// </returns>
+        public static bool WithFile(this FileInfo File, Action<FileInfo> OnSuccess, Action<FileInfo> OnFail, Action<int> OnAttemptFail = null, int Seconds = 1, int? MaxFailCount = null)
+        {
+            if (File != null)
+            {
+                try
+                {
+                    if (WaifForFile(File, Seconds, MaxFailCount, OnAttemptFail))
+                    {
+                        OnSuccess?.Invoke(File);
+                        return true;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ex.WriteDebug("Execution of OnSuccess failed");
+
+                    try
+                    {
+                        OnFail?.Invoke(File);
+                    }
+                    catch (Exception exf)
+                    {
+                        exf.WriteDebug("Execution of OnFail failed");
+                    }
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Encapsula um tento entre 2 textos
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <param name="WrapText">Caractere de encapsulamento</param>
+        /// <returns></returns>
+        public static string Wrap(this string Text, string WrapText = DoubleQuoteChar) => Text.Wrap(WrapText, WrapText);
+
+        /// <summary>
+        /// Encapsula um tento entre 2 textos
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <returns></returns>
+        public static string Wrap(this string Text, string OpenWrapText, string CloseWrapText) => $"{OpenWrapText}{Text}{CloseWrapText.IfBlank(OpenWrapText)}";
+
+        public static HtmlElementNode WrapInTag(this IEnumerable<HtmlElementNode> Tags, string TagName) => new HtmlElementNode(TagName).Add(Tags);
+
+        public static HtmlElementNode WrapInTag(this HtmlElementNode Tag, string TagName) => new HtmlElementNode(TagName).Add(Tag);
+
+        public static HtmlElementNode WrapInTag(this string Text, string TagName) => new HtmlElementNode(TagName, InnerHtml: Text);
+
+        /// <summary>
+        /// Write a message using <see cref="Debug.WriteLine(value,category)"/> when <see
+        /// cref="EnableDebugMessages"/> is <b>true</b>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="value"></param>
+        /// <param name="category"></param>
+        public static T WriteDebug<T>(this T value, string category = null)
+        {
+            if (EnableDebugMessages)
+            {
+                category = $"{new StackFrame(1, true).GetMethod()?.Name.AppendIf(" => ", category.IsNotBlank())} {category}".Trim();
+                Debug.WriteLine(value, category);
+            }
+            return value;
+        }
+
+        /// <summary>
+        /// salva um <see cref="Stream"/> em um arquivo
+        /// </summary>
+        /// <param name="Stream">stream a ser escrita</param>
+        /// <param name="FilePath">Caminho onde o arquivo será gravado</param>
+        /// <param name="DateAndTime">
+        /// DateTime utilizado como <see cref="FileSystemInfo.LastWriteTime"/> e como objeto de
+        /// substituição nos FilePath. default é <see cref="DateTime.Now"/>
+        /// </param>
+        /// <returns>Um Fileinfo contendo as informações do arquivo criado</returns>
+        public static FileInfo WriteToFile(this Stream Stream, string FilePath, DateTime? DateAndTime = null) => Stream.ToBytes().WriteToFile(FilePath, DateAndTime);
+
+        /// <summary>
+        /// Salva um Array de Bytes em um arquivo
+        /// </summary>
+        /// <param name="Bytes">A MAtriz com os Bytes a ser escrita</param>
+        /// <param name="FilePath">Caminho onde o arquivo será gravado</param>
+        /// <param name="DateAndTime">
+        /// DateTime utilizado como <see cref="FileSystemInfo.LastWriteTime"/> e como objeto de
+        /// substituição nos FilePath. default é <see cref="DateTime.Now"/> ( <see cref="FormatPath"/>)
+        /// </param>
+        /// <returns>Um Fileinfo contendo as informações do arquivo criado</returns>
+        public static FileInfo WriteToFile(this byte[] Bytes, string FilePath, DateTime? DateAndTime = null)
+        {
+            Bytes = Bytes ?? Array.Empty<byte>();
+            DateAndTime = DateAndTime ?? DateTime.Now;
+
+            FilePath = DateAndTime.FormatPath(FilePath);
+
+            if (FilePath.IsFilePath())
+            {
+                FilePath.CreateDirectoryIfNotExists(DateAndTime);
+                if (Bytes.Any())
+                {
+                    File.WriteAllBytes(FilePath, Bytes);
+                    WriteDebug(FilePath, "Directory Written");
+                }
+                else
+                {
+                    WriteDebug("Bytes array is empty", "Directory not Written");
+                }
+
+                return new FileInfo(FilePath).With(x => { x.LastWriteTime = DateAndTime.Value; });
+            }
+            else
+            {
+                throw new ArgumentException($"FilePath is not a valid file FilePath: {FilePath}");
+            }
+        }
+
+        /// <summary>
+        /// Salva um array de bytes em um arquivo
+        /// </summary>
+        /// <param name="File">T arquivo a ser convertido</param>
+        /// <returns>Um array do tipo Byte()</returns>
+        /// <summary>
+        /// Salva um texto em um arquivo
+        /// </summary>
+        /// <param name="Text">TExto</param>
+        /// <param name="FilePath">Caminho do arquivo</param>
+        /// <returns>Um Fileinfo contendo as informações do arquivo criado</returns>
+        public static FileInfo WriteToFile(this string Text, string FilePath, bool Append = false, Encoding Enconding = null, DateTime? DateAndTime = null)
+        {
+            var s = new StreamWriter(FilePath, Append, Enconding ?? new UTF8Encoding(false));
+            try
+            {
+                DateAndTime = DateAndTime ?? DateTime.Now;
+                FilePath = DateAndTime.FormatPath(FilePath);
+                FilePath.CreateDirectoryIfNotExists();
+                s.Write(Text);
+                s.Close();
             }
             catch (Exception ex)
             {
-                ex.WriteDebug("Execution of OnSuccess failed");
-
-                try
-                {
-                    OnFail?.Invoke(File);
-                }
-                catch (Exception exf)
-                {
-                    exf.WriteDebug("Execution of OnFail failed");
-                }
+                throw new Exception("Can't write to file:", ex);
             }
-        }
-        return false;
-    }
-
-    /// <summary>
-    /// Encapsula um tento entre 2 textos
-    /// </summary>
-    /// <param name="Text">Texto</param>
-    /// <param name="WrapText">Caractere de encapsulamento</param>
-    /// <returns></returns>
-    public static string Wrap(this string Text, string WrapText = DoubleQuoteChar) => Text.Wrap(WrapText, WrapText);
-
-    /// <summary>
-    /// Encapsula um tento entre 2 textos
-    /// </summary>
-    /// <param name="Text">Texto</param>
-    /// <returns></returns>
-    public static string Wrap(this string Text, string OpenWrapText, string CloseWrapText) => $"{OpenWrapText}{Text}{CloseWrapText.IfBlank(OpenWrapText)}";
-
-    public static HtmlElementNode WrapInTag(this IEnumerable<HtmlElementNode> Tags, string TagName) => new HtmlElementNode(TagName).Add(Tags);
-
-    public static HtmlElementNode WrapInTag(this HtmlElementNode Tag, string TagName) => new HtmlElementNode(TagName).Add(Tag);
-
-    public static HtmlElementNode WrapInTag(this string Text, string TagName) => new HtmlElementNode(TagName, InnerHtml: Text);
-
-    /// <summary>
-    /// Write a message using <see cref="Debug.WriteLine(value,category)"/> when <see
-    /// cref="EnableDebugMessages"/> is <b>true</b>
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="value"></param>
-    /// <param name="category"></param>
-    public static T WriteDebug<T>(this T value, string category = null)
-    {
-        if (EnableDebugMessages)
-        {
-            category = $"{new StackFrame(1, true).GetMethod()?.Name.AppendIf(" => ", category.IsNotBlank())} {category}".Trim();
-            Debug.WriteLine(value, category);
-        }
-        return value;
-    }
-
-    /// <summary>
-    /// salva um <see cref="Stream"/> em um arquivo
-    /// </summary>
-    /// <param name="Stream">stream a ser escrita</param>
-    /// <param name="FilePath">Caminho onde o arquivo será gravado</param>
-    /// <param name="DateAndTime">
-    /// DateTime utilizado como <see cref="FileSystemInfo.LastWriteTime"/> e como objeto de
-    /// substituição nos FilePath. default é <see cref="DateTime.Now"/>
-    /// </param>
-    /// <returns>Um Fileinfo contendo as informações do arquivo criado</returns>
-    public static FileInfo WriteToFile(this Stream Stream, string FilePath, DateTime? DateAndTime = null) => Stream.ToBytes().WriteToFile(FilePath, DateAndTime);
-
-    /// <summary>
-    /// Salva um Array de Bytes em um arquivo
-    /// </summary>
-    /// <param name="Bytes">A MAtriz com os Bytes a ser escrita</param>
-    /// <param name="FilePath">Caminho onde o arquivo será gravado</param>
-    /// <param name="DateAndTime">
-    /// DateTime utilizado como <see cref="FileSystemInfo.LastWriteTime"/> e como objeto de
-    /// substituição nos FilePath. default é <see cref="DateTime.Now"/> ( <see cref="FormatPath"/>)
-    /// </param>
-    /// <returns>Um Fileinfo contendo as informações do arquivo criado</returns>
-    public static FileInfo WriteToFile(this byte[] Bytes, string FilePath, DateTime? DateAndTime = null)
-    {
-        Bytes = Bytes ?? Array.Empty<byte>();
-        DateAndTime = DateAndTime ?? DateTime.Now;
-
-        FilePath = DateAndTime.FormatPath(FilePath);
-
-        if (FilePath.IsFilePath())
-        {
-            FilePath.CreateDirectoryIfNotExists(DateAndTime);
-            if (Bytes.Any())
+            finally
             {
-                File.WriteAllBytes(FilePath, Bytes);
-                WriteDebug(FilePath, "Directory Written");
-            }
-            else
-            {
-                WriteDebug("Bytes array is empty", "Directory not Written");
+                s.Dispose();
             }
 
-            return new FileInfo(FilePath).With(x => { x.LastWriteTime = DateAndTime.Value; });
+            return new FileInfo(FilePath);
         }
-        else
+
+        /// <summary>
+        /// Salva um texto em um arquivo
+        /// </summary>
+        /// <param name="Text">TExto</param>
+        /// <param name="File">Arquivo</param>
+        /// <returns>Um Fileinfo contendo as informações do arquivo criado</returns>
+        public static FileInfo WriteToFile(this string Text, FileInfo File, bool Append = false, Encoding Enconding = null, DateTime? DateAndTime = null) => Text.WriteToFile(File.FullName, Append, Enconding, DateAndTime);
+
+        public static FileInfo WriteToFile(this string Text, DirectoryInfo Directory, string FileName, bool Append = false, Encoding Enconding = null, DateTime? DateAndTime = null) => Text.WriteToFile(Path.Combine(Directory?.FullName, Path.GetFileName(FileName)), Append, Enconding, DateAndTime);
+
+        public static FileInfo WriteToFile(this string Text, DirectoryInfo Directory, string SubDirectory, string FileName, bool Append = false, Encoding Enconding = null, DateTime? DateAndTime = null) => Text.WriteToFile(Path.Combine(Directory?.FullName, SubDirectory, Path.GetFileName(FileName)), Append, Enconding, DateAndTime);
+
+        #endregion Public Methods
+
+        #region Public Enums
+
+        public enum LogicConcatenationOperator
         {
-            throw new ArgumentException($"FilePath is not a valid file FilePath: {FilePath}");
+            AND,
+            OR
         }
-    }
 
-    /// <summary>
-    /// Salva um array de bytes em um arquivo
-    /// </summary>
-    /// <param name="File">T arquivo a ser convertido</param>
-    /// <returns>Um array do tipo Byte()</returns>
-    /// <summary>
-    /// Salva um texto em um arquivo
-    /// </summary>
-    /// <param name="Text">TExto</param>
-    /// <param name="FilePath">Caminho do arquivo</param>
-    /// <returns>Um Fileinfo contendo as informações do arquivo criado</returns>
-    public static FileInfo WriteToFile(this string Text, string FilePath, bool Append = false, Encoding Enconding = null, DateTime? DateAndTime = null)
-    {
-        var s = new StreamWriter(FilePath, Append, Enconding ?? new UTF8Encoding(false));
-        try
+        public enum RomanDigit
         {
-            DateAndTime = DateAndTime ?? DateTime.Now;
-            FilePath = DateAndTime.FormatPath(FilePath);
-            FilePath.CreateDirectoryIfNotExists();
-            s.Write(Text);
-            s.Close();
+            /// <summary>
+            /// Valor correspondente a 1
+            /// </summary>
+            I = 1,
+
+            /// <summary>
+            /// Valor correspondente a 5
+            /// </summary>
+            V = 5,
+
+            /// <summary>
+            /// Valor correspondente a 10
+            /// </summary>
+            X = 10,
+
+            /// <summary>
+            /// Valor correspondente a 50
+            /// </summary>
+            L = 50,
+
+            /// <summary>
+            /// Valor correspondente a 100
+            /// </summary>
+            C = 100,
+
+            /// <summary>
+            /// Valor correspondente a 500
+            /// </summary>
+            D = 500,
+
+            /// <summary>
+            /// Valor correspondente a 1000
+            /// </summary>
+            M = 1000
         }
-        catch (Exception ex)
-        {
-            throw new Exception("Can't write to file:", ex);
-        }
-        finally
-        {
-            s.Dispose();
-        }
 
-        return new FileInfo(FilePath);
+        #endregion Public Enums
     }
-
-    /// <summary>
-    /// Salva um texto em um arquivo
-    /// </summary>
-    /// <param name="Text">TExto</param>
-    /// <param name="File">Arquivo</param>
-    /// <returns>Um Fileinfo contendo as informações do arquivo criado</returns>
-    public static FileInfo WriteToFile(this string Text, FileInfo File, bool Append = false, Encoding Enconding = null, DateTime? DateAndTime = null) => Text.WriteToFile(File.FullName, Append, Enconding, DateAndTime);
-
-    public static FileInfo WriteToFile(this string Text, DirectoryInfo Directory, string FileName, bool Append = false, Encoding Enconding = null, DateTime? DateAndTime = null) => Text.WriteToFile(Path.Combine(Directory?.FullName, Path.GetFileName(FileName)), Append, Enconding, DateAndTime);
-
-    public static FileInfo WriteToFile(this string Text, DirectoryInfo Directory, string SubDirectory, string FileName, bool Append = false, Encoding Enconding = null, DateTime? DateAndTime = null) => Text.WriteToFile(Path.Combine(Directory?.FullName, SubDirectory, Path.GetFileName(FileName)), Append, Enconding, DateAndTime);
-
-    #endregion Public Methods
-
-    #region Public Enums
-
-    public enum LogicConcatenationOperator
-    {
-        AND,
-        OR
-    }
-
-    public enum RomanDigit
-    {
-        /// <summary>
-        /// Valor correspondente a 1
-        /// </summary>
-        I = 1,
-
-        /// <summary>
-        /// Valor correspondente a 5
-        /// </summary>
-        V = 5,
-
-        /// <summary>
-        /// Valor correspondente a 10
-        /// </summary>
-        X = 10,
-
-        /// <summary>
-        /// Valor correspondente a 50
-        /// </summary>
-        L = 50,
-
-        /// <summary>
-        /// Valor correspondente a 100
-        /// </summary>
-        C = 100,
-
-        /// <summary>
-        /// Valor correspondente a 500
-        /// </summary>
-        D = 500,
-
-        /// <summary>
-        /// Valor correspondente a 1000
-        /// </summary>
-        M = 1000
-    }
-
-    #endregion Public Enums
-}
 }
