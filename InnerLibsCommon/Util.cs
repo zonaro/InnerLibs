@@ -7418,10 +7418,9 @@ namespace Extensions
         public static bool IsNumber(this object Value)
         {
             try
-            {
-                Value = $"{Value}".NullIf(x => x.IsBlank());
+            {                
                 if (Value is null) return false;
-                if (Value.ToCharArray().All(x => !char.IsWhiteSpace(x) && char.IsNumber(x)))
+                if ($"{Value}".Trim().ToCharArray().All(x => !char.IsWhiteSpace(x) && char.IsNumber(x)))
                 {
                     return true;
                 }
