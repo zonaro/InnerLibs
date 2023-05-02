@@ -9122,6 +9122,12 @@ namespace Extensions
             return Source.Skip((PageNumber - 1).SetMinValue(0) * PageSize).Take(PageSize);
         }
 
+        /// <summary>
+        /// Divide uma lista em pares
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source"></param>
+        /// <returns></returns>
         public static IEnumerable<(T, T)> PairUp<T>(this IEnumerable<T> source)
         {
             if (source != null)
