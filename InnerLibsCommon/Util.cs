@@ -8554,7 +8554,7 @@ namespace Extensions
         /// <returns></returns>
         public static bool Most(this IEnumerable<bool> List, bool Result = true)
         {
-            if (List.Count() > 0)
+            if (List.Any())
             {
                 var arr = List.DistinctCount();
                 if (arr.ContainsKey(true) && arr.ContainsKey(false))
