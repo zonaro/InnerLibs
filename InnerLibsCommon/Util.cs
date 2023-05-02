@@ -9243,124 +9243,107 @@ namespace Extensions
             Text = Text.ReplaceMany(" ", "px", " ", ";", ":").ToLowerInvariant().Trim();
             Text = Text.Replace("largura", "width");
             Text = Text.Replace("altura", "height");
-            Text = Text.Replace("l ", "words ");
+            Text = Text.Replace("l ", "w ");
             Text = Text.Replace("a ", "h ");
             try
             {
-                switch (true)
+
+                if (Text.IsNumber())
                 {
-                    case object _ when Text.IsNumber():
-                        {
-                            s.Width = Convert.ToInt32(Text);
-                            s.Height = s.Width;
-                            break;
-                        }
-
-                    case object _ when Text.Like("width*") && !Text.Like("*height*"):
-                        {
-                            s.Width = Convert.ToInt32(Text.GetAfter("width"));
-                            s.Height = Convert.ToInt32(Text.GetAfter("width"));
-                            break;
-                        }
-
-                    case object _ when Text.Like("height*") && !Text.Like("*width*"):
-                        {
-                            s.Width = Convert.ToInt32(Text.GetAfter("height"));
-                            s.Height = Convert.ToInt32(Text.GetAfter("height"));
-                            break;
-                        }
-
-                    case object _ when Text.Like("words*") && !Text.Like("*h*"):
-                        {
-                            s.Width = Convert.ToInt32(Text.GetAfter("words"));
-                            s.Height = Convert.ToInt32(Text.GetAfter("words"));
-                            break;
-                        }
-
-                    case object _ when Text.Like("h*") && !Text.Like("*words*"):
-                        {
-                            s.Width = Convert.ToInt32(Text.GetAfter("h"));
-                            s.Height = Convert.ToInt32(Text.GetAfter("h"));
-                            break;
-                        }
-
-                    case object _ when Text.Like("width*height*"):
-                        {
-                            s.Width = Convert.ToInt32(Text.GetBetween("width", "height"));
-                            s.Height = Convert.ToInt32(Text.GetAfter("height"));
-                            break;
-                        }
-
-                    case object _ when Text.Like("height*width*"):
-                        {
-                            s.Height = Convert.ToInt32(Text.GetBetween("height", "width"));
-                            s.Width = Convert.ToInt32(Text.GetAfter("width"));
-                            break;
-                        }
-
-                    case object _ when Text.Like("words*h*"):
-                        {
-                            s.Width = Convert.ToInt32(Text.GetBetween("words", "h"));
-                            s.Height = Convert.ToInt32(Text.GetAfter("h"));
-                            break;
-                        }
-
-                    case object _ when Text.Like("h*words*"):
-                        {
-                            s.Height = Convert.ToInt32(Text.GetBetween("h", "words"));
-                            s.Width = Convert.ToInt32(Text.GetAfter("words"));
-                            break;
-                        }
-
-                    case object _ when Text.Like("*x*"):
-                        {
-                            s.Width = Convert.ToInt32(Text.Split(new[] { "x" }, StringSplitOptions.RemoveEmptyEntries)[0]);
-                            s.Height = Convert.ToInt32(Text.Split(new[] { "x" }, StringSplitOptions.RemoveEmptyEntries)[1]);
-                            break;
-                        }
-
-                    case object _ when Text.Like("*by*"):
-                        {
-                            s.Width = Convert.ToInt32(Text.Split(new[] { "by" }, StringSplitOptions.RemoveEmptyEntries)[0]);
-                            s.Height = Convert.ToInt32(Text.Split(new[] { "by" }, StringSplitOptions.RemoveEmptyEntries)[1]);
-                            break;
-                        }
-
-                    case object _ when Text.Like("*por*"):
-                        {
-                            s.Width = Convert.ToInt32(Text.Split(new[] { "por" }, StringSplitOptions.RemoveEmptyEntries)[0]);
-                            s.Height = Convert.ToInt32(Text.Split(new[] { "por" }, StringSplitOptions.RemoveEmptyEntries)[1]);
-                            break;
-                        }
-
-                    case object _ when Text.Like("*,*"):
-                        {
-                            s.Width = Convert.ToInt32(Text.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries)[0]);
-                            s.Height = Convert.ToInt32(Text.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries)[1]);
-                            break;
-                        }
-
-                    case object _ when Text.Like("*-*"):
-                        {
-                            s.Width = Convert.ToInt32(Text.Split(new[] { "-" }, StringSplitOptions.RemoveEmptyEntries)[0]);
-                            s.Height = Convert.ToInt32(Text.Split(new[] { "-" }, StringSplitOptions.RemoveEmptyEntries)[1]);
-                            break;
-                        }
-
-                    case object _ when Text.Like("*_*"):
-                        {
-                            s.Width = Convert.ToInt32(Text.Split(new[] { "_" }, StringSplitOptions.RemoveEmptyEntries)[0]);
-                            s.Height = Convert.ToInt32(Text.Split(new[] { "_" }, StringSplitOptions.RemoveEmptyEntries)[1]);
-                            break;
-                        }
-
-                    default:
-                        {
-                            s.Width = Convert.ToInt32(Text.Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries)[0]);
-                            s.Height = Convert.ToInt32(Text.Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries)[1]);
-                            break;
-                        }
+                    s.Width = Text.ToInt();
+                    s.Height = s.Width;
                 }
+
+                else if (Text.Like("width*") && !Text.Like("*height*"))
+                {
+                    s.Width = ToInt(Text.GetAfter("width"));
+                    s.Height = ToInt(Text.GetAfter("width"));
+                }
+
+                else if (Text.Like("height*") && !Text.Like("*width*"))
+                {
+                    s.Width = ToInt(Text.GetAfter("height"));
+                    s.Height = ToInt(Text.GetAfter("height"));
+                }
+
+                else if (Text.Like("w*") && !Text.Like("*h*"))
+                {
+                    s.Width = ToInt(Text.GetAfter("w"));
+                    s.Height = ToInt(Text.GetAfter("w"));
+                }
+
+                else if (Text.Like("h*") && !Text.Like("*w*"))
+                {
+                    s.Width = ToInt(Text.GetAfter("h"));
+                    s.Height = ToInt(Text.GetAfter("h"));
+                }
+
+                else if (Text.Like("width*height*"))
+                {
+                    s.Width = ToInt(Text.GetBetween("width", "height"));
+                    s.Height = ToInt(Text.GetAfter("height"));
+                }
+
+                else if (Text.Like("height*width*"))
+                {
+                    s.Height = ToInt(Text.GetBetween("height", "width"));
+                    s.Width = ToInt(Text.GetAfter("width"));
+                }
+
+                else if (Text.Like("w*h*"))
+                {
+                    s.Width = ToInt(Text.GetBetween("w", "h"));
+                    s.Height = ToInt(Text.GetAfter("h"));
+                }
+
+                else if (Text.Like("h*w*"))
+                {
+                    s.Height = ToInt(Text.GetBetween("h", "w"));
+                    s.Width = ToInt(Text.GetAfter("w"));
+                }
+
+                else if (Text.Like("*x*"))
+                {
+                    s.Width = ToInt(Text.Split(new[] { "x" }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault());
+                    s.Height = ToInt(Text.Split(new[] { "x" }, StringSplitOptions.RemoveEmptyEntries).LastOrDefault());
+                }
+
+                else if (Text.Like("*by*"))
+                {
+                    s.Width = ToInt(Text.Split(new[] { "by" }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault());
+                    s.Height = ToInt(Text.Split(new[] { "by" }, StringSplitOptions.RemoveEmptyEntries).LastOrDefault());
+                }
+
+                else if (Text.Like("*por*"))
+                {
+                    s.Width = ToInt(Text.Split(new[] { "por" }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault());
+                    s.Height = ToInt(Text.Split(new[] { "por" }, StringSplitOptions.RemoveEmptyEntries).LastOrDefault());
+                }
+
+                else if (Text.Like("*,*"))
+                {
+                    s.Width = ToInt(Text.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault());
+                    s.Height = ToInt(Text.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries).LastOrDefault());
+                }
+
+                else if (Text.Like("*-*"))
+                {
+                    s.Width = ToInt(Text.Split(new[] { "-" }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault());
+                    s.Height = ToInt(Text.Split(new[] { "-" }, StringSplitOptions.RemoveEmptyEntries).LastOrDefault());
+                }
+
+                else if (Text.Like("*_*"))
+                {
+                    s.Width = ToInt(Text.Split(new[] { "_" }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault());
+                    s.Height = ToInt(Text.Split(new[] { "_" }, StringSplitOptions.RemoveEmptyEntries).LastOrDefault());
+                }
+
+                else
+                {
+                    s.Width = ToInt(Text.Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault());
+                    s.Height = ToInt(Text.Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries).LastOrDefault());
+                }
+
             }
             catch
             {
