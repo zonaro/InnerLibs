@@ -38,7 +38,7 @@ using Extensions.Files;
 using Extensions.Locations;
 using Extensions.Pagination;
 using Extensions.Web;
-using Microsoft.Ajax.Utilities;
+using Expression = System.Linq.Expressions.Expression;
 
 namespace Extensions
 {
@@ -7418,9 +7418,9 @@ namespace Extensions
         public static bool IsNumber(this object Value)
         {
             try
-            {                
-                if (Value is null) return false;
-                if ($"{Value}".Trim().ToCharArray().All(x => !char.IsWhiteSpace(x) && char.IsNumber(x)))
+            {
+
+                if ($"{Value}".IsNotBlank() && $"{Value}".Trim().ToCharArray().All(x => char.IsNumber(x)))
                 {
                     return true;
                 }
@@ -7602,7 +7602,7 @@ namespace Extensions
 
         public static bool IsValueType<T>(this T Obj) => Obj.GetNullableTypeOf().IsValueType();
 
-        public static bool IsVisible<T>(this T dir) where T : FileSystemInfo => dir != null && dir.Exists && dir.Attributes.HasFlag(FileAttributes.Hidden) == false;
+        public static bool IsVisible<T>(this T info) where T : FileSystemInfo => info != null && info.Exists && info.Attributes.HasFlag(FileAttributes.Hidden) == false;
 
         /// <summary>
         /// Verifica se um numero é inteiro (não possui casas decimais)
@@ -7798,7 +7798,7 @@ namespace Extensions
         /// <returns></returns>
         public static bool Like(this string source, string Pattern) => new Like(Pattern).Matches(source);
 
-        public static int LimitIndex<T>(this int Int, IEnumerable<T> Collection) => Int.LimitRange<int>(0, Collection.Count() - 1);
+        public static int LimitIndex<T>(this int ii, IEnumerable<T> Collection) => ii.LimitRange<int>(0, Collection.Count() - 1);
 
         public static long LimitIndex<T>(this long Lng, IEnumerable<T> Collection) => Lng.LimitRange<long>(0, Collection.LongCount() - 1L);
 
