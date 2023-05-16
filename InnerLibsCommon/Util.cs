@@ -216,6 +216,17 @@ namespace Extensions
 
         #region Public Methods
 
+
+public static IEnumerable<(T, T)> MidRanges<T>(this int Ranges, T Start, T End) where T : IComparable
+{
+	while (Start.ToDecimal() < End.ToDecimal())
+	{
+		yield return ((Start.ToDecimal() + 1).ChangeType<T>(), (Start.ToDecimal() + (End.ToDecimal() /  Ranges)).ChangeType<T>());
+		Start = (Start.ToDecimal() + (End.ToDecimal() /  Ranges)).ChangeType<T>();
+	}
+
+}
+
         /// <summary>
         /// Adciona um parametro a Query String de uma URL
         /// </summary>
