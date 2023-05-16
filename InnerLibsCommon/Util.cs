@@ -217,15 +217,49 @@ namespace Extensions
         #region Public Methods
 
 
-public static IEnumerable<(T, T)> MidRanges<T>(this int Ranges, T Start, T End) where T : IComparable
-{
-	while (Start.ToDecimal() < End.ToDecimal())
-	{
-		yield return ((Start.ToDecimal() + 1).ChangeType<T>(), (Start.ToDecimal() + (End.ToDecimal() /  Ranges)).ChangeType<T>());
-		Start = (Start.ToDecimal() + (End.ToDecimal() /  Ranges)).ChangeType<T>();
-	}
+        //public static IEnumerable<(T, T)> MidRanges<T>(this int Ranges, T Start, T End) where T : IComparable
+        //{
+        //    var l = new List<(T, T)>();
+        //    var s = Start.ToDecimal();
+        //    var e = End.ToDecimal();
+        //    var r = e / Ranges;
+        //    var i = 0;
+        //    FixOrder(ref s, ref e);
+        //    while (s < e)
+        //    {
+        //        i++;
+        //        l.Add((s.ChangeType<T>(), (s + r - (i == Ranges ? 0 : 1)).ChangeType<T>()));
+        //        s += r;
+        //    }
+        //    return l;
+        //}
 
-}
+        /// <summary>
+        /// Generates a sequence of mid-ranges between a start and end value, divided into a specified number of ranges.
+        /// </summary>
+        /// <typeparam name="T">The type of the start and end values.</typeparam>
+        /// <param name="ranges">The number of ranges to generate.</param>
+        /// <param name="start">The start value.</param>
+        /// <param name="end">The end value.</param>
+        /// <returns>A sequence of tuples representing the mid-ranges between the start and end values.</returns>
+        public static IEnumerable<(T, T)> GetMidRanges<T>(this int ranges, T start, T end) where T : IComparable
+        {
+            var startDecimal = start.ToDecimal();
+            var endDecimal = end.ToDecimal();
+            FixOrder(ref startDecimal, ref endDecimal);
+            var rangeSize = (endDecimal - startDecimal) / ranges;
+            var rangeStart = startDecimal;
+            for (int i = 0; i < ranges; i++)
+            {
+                var rangeEnd = rangeStart + rangeSize;
+                if (i == ranges - 1)
+                {
+                    rangeEnd = endDecimal;
+                }
+                yield return (rangeStart.ChangeType<T>(), rangeEnd.ChangeType<T>());
+                rangeStart = rangeEnd + 1;
+            }
+        }
 
         /// <summary>
         /// Adciona um parametro a Query String de uma URL
