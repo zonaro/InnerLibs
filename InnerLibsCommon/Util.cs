@@ -14868,13 +14868,13 @@ namespace Extensions
         /// </summary>
         /// <param name="Number"></param>
         /// <returns></returns>
-        public static string ToPercentString(this decimal Number, int Decimals = -1)
+        public static string ToPercentString(this decimal Number, int Decimals = -1, bool MultiplyBy100 = false)
         {
+            if (MultiplyBy100) Number *= 100;
             if (Decimals > -1)
             {
                 Number = Number.RoundDecimal(Decimals);
             }
-
             return $"{Number}%";
         }
 
@@ -14890,15 +14890,7 @@ namespace Extensions
         /// </summary>
         /// <param name="Number"></param>
         /// <returns></returns>
-        public static string ToPercentString(this double Number, int Decimals = -1)
-        {
-            if (Decimals > -1)
-            {
-                Number = Number.RoundDouble(Decimals);
-            }
-
-            return $"{Number}%";
-        }
+        public static string ToPercentString(this double Number, int Decimals = -1, bool MultiplyBy100 = false) => Number.ToDecimal().ToPercentString(Decimals, MultiplyBy100);
 
         /// <summary>
         /// Retorna um numero com o sinal de porcentagem
