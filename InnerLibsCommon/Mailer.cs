@@ -172,7 +172,7 @@ namespace Extensions.Mail
             }
             else
             {
-                throw new Exception("SmtpHost is null");
+                throw new SmtpException(SmtpStatusCode.GeneralFailure, "SmtpHost is null");
             }
 
             return this;
