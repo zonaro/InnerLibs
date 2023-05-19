@@ -53,7 +53,11 @@ namespace Extensions.Dictionaries
 
 
 
-        public object this[object key] { get => this[((TKey)key)]; set => this[((TKey)key)] = (TClass)value; }
+        public object this[object key]
+        {
+            get => this[((TKey)key)];
+            set => this[((TKey)key)] = (TClass)value;
+        }
 
         public TClass this[TKey key]
         {
@@ -61,7 +65,7 @@ namespace Extensions.Dictionaries
 
             set
             {
-                int indexo = collection.IndexOf(this[key]);
+                int indexo = collection.IndexOf(value ?? this[key]);
                 if (indexo > -1)
                 {
                     collection.RemoveAt(indexo);
@@ -146,7 +150,22 @@ namespace Extensions.Dictionaries
 
         public bool Contains(KeyValuePair<TKey, TClass> item) => collection.Any(x => keyselector(x).Equals(item.Key));
 
-        public bool Contains(object key) => key != null && key is TKey ckey && ContainsKey(ckey);
+        public bool Contains(object key)
+        {
+            if (key != null)
+            {
+                if (key is TKey ckey)
+                {
+                    return ContainsKey(ckey);
+                }
+                else if (key is TClass cvalue)
+                {
+                    return ContainsKey(this.keyselector(cvalue));
+                }
+            }
+
+            return false;
+        }
 
         public bool ContainsKey(TKey key) => Keys.Contains(key);
 
@@ -154,7 +173,6 @@ namespace Extensions.Dictionaries
 
         public void CopyTo(Array array, int index)
         {
-
             if (array != null && array is TClass[] ppArray)
             {
                 ((ICollection<TClass>)this).CopyTo(ppArray, index);
@@ -163,7 +181,6 @@ namespace Extensions.Dictionaries
             {
                 throw new ArgumentNullException(nameof(array));
             }
-
         }
 
         public IEnumerator<KeyValuePair<TKey, TClass>> GetEnumerator() => collection.Select(x => new KeyValuePair<TKey, TClass>(keyselector(x), x)).GetEnumerator();
@@ -221,10 +238,7 @@ namespace Extensions.Dictionaries
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        IDictionaryEnumerator IDictionary.GetEnumerator()
-        {
-            return (this.ToDictionary(x => x.Key, x => x.Value) as IDictionary).GetEnumerator();
-        }
+        IDictionaryEnumerator IDictionary.GetEnumerator() => (this.ToDictionary(x => x.Key, x => x.Value) as IDictionary).GetEnumerator();
 
         #endregion Public Methods
     }

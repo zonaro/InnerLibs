@@ -68,7 +68,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Mailer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MicroORM\SelectWrapper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MicroORM\SQLResponse.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)OnlineList.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PasswordLevel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PredefinedArrays.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Printer\EscBema.cs" />
