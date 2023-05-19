@@ -39,14 +39,15 @@ namespace Extensions.BR
         public static Image GerarAvatarAleatorio(bool SobrenomeUnico = false) => GerarNomeAleatorio(SobrenomeUnico).GenerateAvatarByName();
 
         public static AddressInfo GerarEnderecoFake() => GerarEnderecoFake<AddressInfo>();
-        public static T GerarEnderecoFake<T>() where T : AddressInfo
+        public static T GerarEnderecoFake<T>(string Label = "Casa") where T : AddressInfo
         {
             var e = Estados.RandomItem();
             var ad = CriarAddressInfo<T>(e.Nome, e.Cidades.RandomItem().Nome);
-            ad.Street = $"{AddressTypes.GetAllAdressTypes().RandomItem().AppendIf(".", x => x.Length < 3)} {GerarNomeAleatorio()}";
+            ad.Street = $"{AddressTypes.Avenida.Union(AddressTypes.Rua).Union(AddressTypes.Travessa).Union(AddressTypes.Alameda).RandomItem().AppendIf(".", x => x.Length < 3)} {GerarNomeAleatorio()}";
             ad.Neighborhood = GerarNomeAleatorio(true).PrependIf(new[] { "Jardim ", "Campos " }.RandomItem(), Util.RandomBool(75));
             ad.Number = Util.RandomNumber(10, 2000).ToString();
             ad.ZipCode = Util.RandomNumber(11111111, 99999999).FormatarCEP();
+            ad.Label = Label;
             ad.Complement = new[]
             {
                 "",
@@ -200,9 +201,9 @@ namespace Extensions.BR
         /// Retorna o estado de uma cidade especifa. Pode trazer mais de um estado caso o nome da
         /// cidade seja igual em 2 ou mais estados
         /// </summary>
-        /// <param name="CityName"></param>
+        /// <param name="NomeDaCidade"></param>
         /// <returns></returns>
-        public static IEnumerable<Estado> PegarEstadoPeloNomeDaCidade(string CityName) => Estados.Where((Func<Estado, bool>)(x => x.Cidades.Any((Func<Cidade, bool>)(c => (Util.ToSlugCase(c.Nome) ?? Util.EmptyString) == (Util.ToSlugCase(CityName) ?? Util.EmptyString) || (c.IBGE.ToString() ?? Util.EmptyString) == (Util.ToSlugCase(CityName) ?? Util.EmptyString)))));
+        public static IEnumerable<Estado> PegarEstadoPeloNomeDaCidade(string NomeDaCidade) => Estados.Where(x => x.Cidades.Any(c => (Util.ToSlugCase(c.Nome) ?? Util.EmptyString) == (Util.ToSlugCase(NomeDaCidade) ?? Util.EmptyString) || (x.IBGE.ToString() ?? Util.EmptyString) == (Util.ToSlugCase(NomeDaCidade).GetFirstChars(2) ?? Util.EmptyString)));
 
         /// <summary>
         /// Procura numeros de telefone em um Texto
@@ -492,7 +493,7 @@ namespace Extensions.BR
         }
 
         /// <summary>
-        /// Retorna a Sigla a partir de um nome de estado
+        /// Retorna a Sigla (UF) a partir de um nome de estado
         /// </summary>
         /// <param name="NomeOuUFOuIBGE"></param>
         /// <returns></returns>
@@ -503,7 +504,7 @@ namespace Extensions.BR
         /// </summary>
         /// <param name="Regiao"></param>
         /// <returns></returns>
-        public static IEnumerable<Estado> PegarEstadosDaRegiao(string Regiao) => Estados.Where((Func<Estado, bool>)(x => (Util.ToSlugCase(x.Regiao) ?? Util.EmptyString) == (Util.TrimBetween(Util.ToSlugCase(Regiao)) ?? Util.EmptyString) || Regiao.IsBlank()));
+        public static IEnumerable<Estado> PegarEstadosDaRegiao(string Regiao) => Estados.Where(x => (Util.ToSlugCase(x.Regiao) ?? Util.EmptyString) == (Util.TrimBetween(Util.ToSlugCase(Regiao)) ?? Util.EmptyString) || Regiao.IsBlank());
 
         /// <summary>
         /// Valida se a string é um telefone
