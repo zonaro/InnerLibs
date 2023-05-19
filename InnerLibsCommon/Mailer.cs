@@ -334,11 +334,7 @@ namespace Extensions.Mail
         /// Adiciona um destinatário a lista de destinatários deta mensagem
         /// </summary>
         /// <returns></returns>
-        public FluentMailMessage<T> AddRecipient(string Email, T TemplateData)
-        {
-            AddRecipient(new TemplateMailAddress<T>(Email, TemplateData));
-            return this;
-        }
+        public FluentMailMessage<T> AddRecipient(string Email, T TemplateData) => AddRecipient(new TemplateMailAddress<T>(Email, TemplateData));
 
         /// <summary>
         /// Adiciona um destinatário a lista de destinatários deta mensagem
@@ -348,11 +344,7 @@ namespace Extensions.Mail
         /// <param name="DisplayName"></param>
         /// <param name="TemplateData"></param>
         /// <returns></returns>
-        public FluentMailMessage<T> AddRecipient(string Email, string DisplayName, T TemplateData)
-        {
-            AddRecipient(new TemplateMailAddress<T>(Email, DisplayName, TemplateData));
-            return this;
-        }
+        public FluentMailMessage<T> AddRecipient(string Email, string DisplayName, T TemplateData) => AddRecipient(new TemplateMailAddress<T>(Email, DisplayName, TemplateData));
 
         /// <summary>
         /// Adiciona um destinatário a lista de destinatários deta mensagem
@@ -360,9 +352,7 @@ namespace Extensions.Mail
         public FluentMailMessage<T> AddRecipient(Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector, params T[] Data)
         {
             foreach (var x in Data ?? Array.Empty<T>())
-
                 AddRecipient(new TemplateMailAddress<T>(x, EmailSelector, NameSelector));
-
             return this;
         }
 
@@ -377,17 +367,13 @@ namespace Extensions.Mail
 
         public FluentMailMessage<T> AddRecipient(params TemplateMailAddress<T>[] Emails)
         {
-            foreach (var email in Emails ?? Array.Empty<TemplateMailAddress<T>>())
-                To.Add(email);
+            foreach (var email in Emails ?? Array.Empty<TemplateMailAddress<T>>()) To.Add(email);
             return this;
         }
 
         public FluentMailMessage<T> AddRecipient(Expression<Func<T, string>> EmailSelector, T[] Data)
         {
-            foreach (var x in Data ?? Array.Empty<T>())
-            {
-                AddRecipient(new TemplateMailAddress<T>(x, EmailSelector));
-            }
+            foreach (var x in Data ?? Array.Empty<T>()) AddRecipient(new TemplateMailAddress<T>(x, EmailSelector));           
             return this;
         }
 
