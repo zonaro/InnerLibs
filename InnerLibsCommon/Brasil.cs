@@ -112,9 +112,10 @@ namespace Extensions.BR
         /// Retorna um <see cref="AddressInfo"/> da cidade e estado correspondentes
         /// </summary>
         /// <param name="NomeOuUFouIBGE"></param>
-        /// <param name="City"></param>
+        /// <param name="Cidade"></param>
         /// <returns></returns>
-        public static AddressInfo CriarAddressInfo(string NomeOuUFouIBGE, string City) => CriarAddressInfo<AddressInfo>(NomeOuUFouIBGE, City);
+        public static AddressInfo CriarAddressInfo(string NomeOuUFouIBGE, string Cidade) => CriarAddressInfo<AddressInfo>(NomeOuUFouIBGE, Cidade);
+        public static AddressInfo CriarAddressInfo(string CidadeOuIBGE) => CriarAddressInfo<AddressInfo>(CidadeOuIBGE);
 
         /// <summary>
         /// Retorna um <see cref="AddressInfo"/> da cidade e estado correspondentes
@@ -122,6 +123,11 @@ namespace Extensions.BR
         /// <param name="NomeOuUFouIBGE"></param>
         /// <param name="Cidade"></param>
         /// <returns></returns>
+        public static T CriarAddressInfo<T>(string EstadoOuIBGE) where T : AddressInfo
+        {
+            var cid = PegarCidade(EstadoOuIBGE, EstadoOuIBGE);
+            return CriarAddressInfo<T>(cid.Estado.UF, cid.Nome);
+        }
         public static T CriarAddressInfo<T>(string NomeOuUFouIBGE, string Cidade) where T : AddressInfo
         {
             if (NomeOuUFouIBGE.IsBlank() && Cidade.IsNotBlank())
@@ -154,12 +160,35 @@ namespace Extensions.BR
             return null;
         }
 
-        public static Cidade PegarCidade(string NomeOuUFOuIBGE, string NomeDaCidadeOuIBGE)
+        /// <summary>
+        /// Retorna uma cidade a partir de seu nome ou codigo IBGE. Caso a cidade não seja encontrada mas o estado seja identificado, a capital desse estado é retornada no lugar
+        /// </summary>
+        /// <param name="NomeOuUFOuIBGE"></param>
+        /// <param name="NomeDaCidadeOuIBGE"></param>
+        /// <returns></returns>
+        public static Cidade PegarCidade(string NomeDaCidadeOuIBGE) => PegarCidade(NomeDaCidadeOuIBGE, null);
+
+        /// <summary>
+        /// Retorna uma cidade a partir de seu nome ou codigo IBGE. Caso a cidade não seja encontrada mas o estado seja identificado, a capital desse estado é retornada no lugar
+        /// </summary>
+        /// <param name="NomeOuUFOuIBGE"></param>
+        /// <param name="NomeDaCidadeOuIBGE"></param>
+        /// <returns></returns>
+        public static Cidade PegarCidade(string NomeDaCidadeOuIBGE, string NomeOuUFOuIBGE)
         {
+            NomeOuUFOuIBGE = NomeOuUFOuIBGE.IfBlank(NomeDaCidadeOuIBGE);
             var est = (PegarEstado(NomeOuUFOuIBGE) ?? PegarEstado(NomeDaCidadeOuIBGE));
             if (est != null)
             {
-                return est.Cidades.FirstOrDefault(x => x.Nome.ToSlugCase() == NomeDaCidadeOuIBGE.ToSlugCase() || x.IBGE == NomeDaCidadeOuIBGE.RemoveMaskInt());
+                return est.Cidades.FirstOrDefault(x => x.Nome.ToSlugCase() == NomeDaCidadeOuIBGE.ToSlugCase() || x.IBGE == NomeDaCidadeOuIBGE.RemoveMaskInt()) ?? est.Capital;
+            }
+            try
+            {
+                return Cidades.SingleOrDefault(x => x.Nome == NomeDaCidadeOuIBGE.IfBlank(NomeOuUFOuIBGE));
+
+            }
+            catch (Exception)
+            {
             }
             return null;
         }
@@ -415,7 +444,10 @@ namespace Extensions.BR
         /// <returns></returns>
         public static IEnumerable<Cidade> PegarCidades(string NomeOuUFOuIBGE) => (PegarEstado(NomeOuUFOuIBGE)?.Cidades ?? new List<Cidade>()).AsEnumerable();
 
-        public static Cidade PegarCidadePorAproximacao(string NomeOuUFouIBGE, string NomeAproximadoDaCidade) => (PegarEstado(NomeOuUFouIBGE)?.Cidades ?? new List<Cidade>()).AsEnumerable().OrderBy(x => x.Nome.LevenshteinDistance(NomeAproximadoDaCidade)).Where(x => NomeAproximadoDaCidade.IsNotBlank()).FirstOrDefault();
+        public static Cidade PegarCidadePorAproximacao(string NomeOuUFouIBGE, string NomeAproximadoDaCidade)
+        {
+            return (PegarEstado(NomeOuUFouIBGE)?.Cidades ?? new List<Cidade>()).AsEnumerable().OrderBy(x => x.Nome.LevenshteinDistance(NomeAproximadoDaCidade)).Where(x => NomeAproximadoDaCidade.IsNotBlank()).FirstOrDefault();
+        }
 
         /// <summary>
         /// Retorna o nome da cidade mais parecido com o especificado em <paramref name="NomeAproximadoDaCidade"/>
@@ -457,7 +489,7 @@ namespace Extensions.BR
         public static string PegarRegiao(string NomeOuUFOuIBGE) => PegarEstado(NomeOuUFOuIBGE)?.Regiao;
 
         /// <summary>
-        /// Retorna a as informações do estado a partir de um nome de estado ou sua sigla
+        /// Retorna a as informações do estado a partir de um nome de estado, sigla ou numero do IBGE do estado ou cidade
         /// </summary>
         /// <param name="NomeOuUFOuIBGE">Nome ou UF</param>
         /// <returns></returns>
@@ -1034,6 +1066,8 @@ namespace Extensions.BR
         /// </summary>
         /// <returns></returns>
         public IEnumerable<Cidade> Cidades { get; internal set; }
+
+        public Cidade Capital => Cidades?.FirstOrDefault(x => x.Capital);
 
         public string Pais { get; }
 

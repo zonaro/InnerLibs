@@ -7,7 +7,6 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Xml;
-using Extensions;
 using Extensions.BR;
 
 namespace Extensions.Locations
@@ -235,7 +234,7 @@ namespace Extensions.Locations
             {
                 if (key.IsNotBlank())
                 {
-                    details.SetOrRemove(key.ToLowerInvariant(), value.Trim().NullIf(x => x.IsBlank()));
+                    details.SetOrRemove(key.ToLowerInvariant(), value?.Trim().NullIf(x => x.IsBlank()));
                 }
             }
         }

@@ -44,8 +44,6 @@ namespace Extensions
 {
     public static partial class Util
     {
-        #region Private Fields
-
         private const int ERROR_LOCK_VIOLATION = 33;
 
         private const int ERROR_SHARING_VIOLATION = 32;
@@ -70,10 +68,6 @@ namespace Extensions
                 };
 
         private static readonly MethodInfo startsWithMethod = typeof(string).GetMethod("StartsWith", new[] { typeof(string) });
-
-        #endregion Private Fields
-
-        #region Private Methods
 
         /// <summary>
         /// Inject a <see cref="Hashtable"/> into <see cref="String"/>
@@ -130,10 +124,6 @@ namespace Extensions
             return result;
         }
 
-        #endregion Private Methods
-
-        #region Public Fields
-
         public const string DoubleQuoteChar = "\"";
 
         /// <summary>
@@ -148,10 +138,6 @@ namespace Extensions
         public const string TabChar = "\t";
 
         public const string WhitespaceChar = " ";
-
-        #endregion Public Fields
-
-        #region Public Properties
 
         /// <summary>
         /// Dicionario com os <see cref="Type"/> e seu <see cref="DbType"/> correspondente
@@ -212,11 +198,6 @@ namespace Extensions
 
         public static int ThisMonth => DateTime.Now.Month;
 
-        #endregion Public Properties
-
-        #region Public Methods
-
-
         //public static IEnumerable<(T, T)> MidRanges<T>(this int Ranges, T Start, T End) where T : IComparable
         //{
         //    var l = new List<(T, T)>();
@@ -235,13 +216,16 @@ namespace Extensions
         //}
 
         /// <summary>
-        /// Generates a sequence of mid-ranges between a start and end value, divided into a specified number of ranges.
+        /// Generates a sequence of mid-ranges between a start and end value, divided into a
+        /// specified number of ranges.
         /// </summary>
         /// <typeparam name="T">The type of the start and end values.</typeparam>
         /// <param name="ranges">The number of ranges to generate.</param>
         /// <param name="start">The start value.</param>
         /// <param name="end">The end value.</param>
-        /// <returns>A sequence of tuples representing the mid-ranges between the start and end values.</returns>
+        /// <returns>
+        /// A sequence of tuples representing the mid-ranges between the start and end values.
+        /// </returns>
         public static IEnumerable<(T, T)> GetMidRanges<T>(this int ranges, T start, T end) where T : IComparable
         {
             var startDecimal = start.ToDecimal();
@@ -430,7 +414,6 @@ namespace Extensions
                 g.DrawImage(bmp, rc, 0, 0, img.Width, img.Height, GraphicsUnit.Pixel, imgattr);
                 g.Dispose();
                 return bmp;
-
             }
             catch
             {
@@ -1641,6 +1624,9 @@ namespace Extensions
             }
         }
 
+        public static bool ContainsAny<T>(this IEnumerable<T> List1, IEqualityComparer<T> Comparer, params T[] List2) => ContainsAny(List1, List2);
+        public static bool ContainsAny<T>(this IEnumerable<T> List1, params T[] List2) => ContainsAny(List1, List2.AsEnumerable());
+
         /// <summary>
         /// Verifica se uma lista, coleção ou array contem um dos itens de outra lista, coleção ou array.
         /// </summary>
@@ -2210,12 +2196,20 @@ namespace Extensions
 
         public static T CreateObjectFromXMLFile<T>(this FileInfo XML) where T : class => File.ReadAllText(XML.FullName).CreateObjectFromXML<T>();
 
-        public static object CreateOrSetObject(this Dictionary<string, object> Dic, object Obj, Type Type, params object[] args)
+        /// <summary>
+        /// Create a new instance of <paramref name="Type"/> and set the properties values from <paramref name="Dictionary"/>
+        /// </summary>
+        /// <param name="Dictionary"></param>
+        /// <param name="Obj"></param>
+        /// <param name="Type"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public static object CreateOrSetObject(this Dictionary<string, object> Dictionary, object Obj, Type Type, params object[] args)
         {
             var tipo = Type.GetNullableTypeOf();
             if (tipo.IsValueType())
             {
-                return (Dic?.Values.FirstOrDefault()).ChangeType(tipo);
+                return (Dictionary?.Values.FirstOrDefault()).ChangeType(tipo);
             }
 
             if (Obj == null)
@@ -2232,31 +2226,31 @@ namespace Extensions
 
             if (tipo == typeof(Dictionary<string, object>))
             {
-                if (Dic != null)
+                if (Dictionary != null)
                 {
-                    return Dic.AsEnumerable().ToDictionary();
+                    return Dictionary.AsEnumerable().ToDictionary();
                 }
 
                 return null;
             }
             else if (tipo == typeof(Dictionary<string, string>))
             {
-                if (Dic != null)
+                if (Dictionary != null)
                 {
-                    return Dic.AsEnumerable().ToDictionary(x => x.Key, x => x.Value?.ToString());
+                    return Dictionary.AsEnumerable().ToDictionary(x => x.Key, x => x.Value?.ToString());
                 }
 
                 return null;
             }
 
-            if (Dic != null && Dic.Any())
+            if (Dictionary != null && Dictionary.Any())
             {
-                foreach (var k in Dic)
+                foreach (var k in Dictionary)
                 {
                     k.Key.PropertyNamesFor();
                     string propname1 = k.Key.Trim().Replace(" ", "_").Replace("-", "_").Replace("~", "_");
-                    string propname3 = k.Key.Trim().Replace(" ", EmptyString).Replace("-", EmptyString).Replace("~", EmptyString);
                     string propname2 = propname1.RemoveAccents();
+                    string propname3 = k.Key.Trim().Replace(" ", EmptyString).Replace("-", EmptyString).Replace("~", EmptyString);
                     string propname4 = propname3.RemoveAccents();
                     var prop = NullCoalesce(tipo.GetProperty(propname1), tipo.GetProperty(propname2), tipo.GetProperty(propname3), tipo.GetProperty(propname4));
                     if (prop != null)
@@ -2296,8 +2290,18 @@ namespace Extensions
 
         public static MemberExpression CreatePropertyExpression<T, V>(this Expression<Func<T, V>> Property) => Expression.Property(Property.Parameters.FirstOrDefault() ?? typeof(T).GenerateParameterExpression(), Property.GetPropertyInfo());
 
+        /// <summary>
+        /// Create a <paramref name="Width"/> x <paramref name="Height"/> solid image from <paramref name="Color"/>
+        /// </summary>
+        /// <param name="Color"></param>
+        /// <param name="Width"></param>
+        /// <param name="Height"></param>
+        /// <returns></returns>
         public static Image CreateSolidImage(this Color Color, int Width, int Height)
         {
+            if (Width <= 0 && Height <= 0) return null;
+            if (Width <= 0) Width = Height;
+            if (Height <= 0) Height = Width;
             var Bmp = new Bitmap(Width, Height);
             using (var gfx = Graphics.FromImage(Bmp))
             {
@@ -2309,6 +2313,13 @@ namespace Extensions
 
             return Bmp;
         }
+
+        /// <inheritdoc  cref="CreateSolidImage(Color, int, int)"/>
+        public static Image CreateSolidImage(this Color Color, string WidthHeight) => CreateSolidImage(Color, WidthHeight.ParseSize());
+
+        /// <inheritdoc  cref="CreateSolidImage(Color, int, int)"/>
+        public static Image CreateSolidImage(this Color Color, Size Size) => CreateSolidImage(Color, Size.Width, Size.Height);
+
 
         public static SQLResponse<object> CreateSQLQuickResponse(this DbConnection Connection, FormattableString Command, string DataSetType, bool IncludeCommandText = false) => CreateSQLQuickResponse(Connection.CreateCommand(Command), DataSetType, IncludeCommandText);
 
@@ -2997,14 +3008,15 @@ namespace Extensions
         public static byte[] DownloadFile(string URL, NameValueCollection Headers = null, Encoding Encoding = null)
         {
             byte[] s = null;
-            using (var c = new WebClient())
-            {
-                c.Encoding = Encoding ?? new UTF8Encoding(false);
+            if (URL.IsURL())
+                using (var c = new WebClient())
+                {
+                    c.Encoding = Encoding ?? new UTF8Encoding(false);
 
-                if (Headers != null)
-                    c.Headers.Add(Headers);
-                if (URL.IsURL()) s = c.DownloadData(URL);
-            }
+                    if (Headers != null)
+                        c.Headers.Add(Headers);
+                    s = c.DownloadData(URL);
+                }
 
             return s;
         }
@@ -3026,15 +3038,16 @@ namespace Extensions
         public static string DownloadString(string URL, NameValueCollection Headers = null, Encoding Encoding = null)
         {
             string s = EmptyString;
-            using (var c = new WebClient())
-            {
-                c.Encoding = Encoding ?? new UTF8Encoding(false);
+            if (URL.IsURL())
+                using (var c = new WebClient())
+                {
+                    c.Encoding = Encoding ?? new UTF8Encoding(false);
 
-                if (Headers != null)
-                    c.Headers.Add(Headers);
+                    if (Headers != null)
+                        c.Headers.Add(Headers);
 
-                if (URL.IsURL()) s = $"{c.DownloadString(URL)}";
-            }
+                    s = $"{c.DownloadString(URL)}";
+                }
 
             return s;
         }
@@ -3292,19 +3305,16 @@ namespace Extensions
         public static IQueryable<T> FilterRange<T, V>(this IQueryable<T> List, Expression<Func<T, V>> MinProperty, Expression<Func<T, V>> MaxProperty, params V[] Values) => FilterRange(List, MinProperty, MaxProperty, (Values ?? Array.Empty<V>()).AsEnumerable());
 
         /// <summary>
-        /// Procura CEPs em uma string
+        /// Procura valores em uma string usnado expressões regulares
         /// </summary>
         /// <param name="TExt"></param>
         /// <returns></returns>
-        public static string[] FindByRegex(this string Text, string Regex, RegexOptions RegexOptions = RegexOptions.None)
+        public static IEnumerable<string> FindByRegex(this string Text, string Regex, RegexOptions RegexOptions = RegexOptions.None)
         {
-            var textos = new List<string>();
             foreach (Match m in new Regex(Regex, RegexOptions).Matches(Text))
             {
-                textos.Add(m.Value);
+                yield return m.Value;
             }
-
-            return textos.ToArray();
         }
 
         /// <summary>
@@ -3319,8 +3329,7 @@ namespace Extensions
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static HSVColor FindColor(this string Text) => HSVColor.NamedColors
-               .FirstOrDefault(x => x.Name.ToLowerInvariant().Replace("grey", "gray").RemoveAny(PredefinedArrays.PasswordSpecialChars.Union(new[] { " " }).ToArray()) == Text.ToLowerInvariant().Replace("grey", "gray").RemoveAny(PredefinedArrays.PasswordSpecialChars.Union(new[] { " " }).ToArray()));
+        public static HSVColor FindColor(this string Text) => HSVColor.NamedColors.FirstOrDefault(x => x.Name.ToLowerInvariant().Replace("grey", "gray").RemoveAny(PredefinedArrays.PasswordSpecialChars.Union(new[] { " " }).ToArray()) == Text.ToLowerInvariant().Replace("grey", "gray").RemoveAny(PredefinedArrays.PasswordSpecialChars.Union(new[] { " " }).ToArray()));
 
         public static FieldInfo FindField(this Type type, string Name) => FindFields(type, Name).FirstOrDefault();
 
@@ -3543,13 +3552,12 @@ namespace Extensions
             {
                 FirstValue = SecondValue;
             }
-
-            if (SecondValue == null && FirstValue != null)
+            else if (SecondValue == null && FirstValue != null)
             {
                 SecondValue = FirstValue;
             }
 
-            if (SecondValue == null && FirstValue == null)
+            else if (SecondValue == null && FirstValue == null)
             {
                 FirstValue = default;
                 SecondValue = default;
@@ -3563,7 +3571,8 @@ namespace Extensions
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static string FixPath(this string Text, bool AlternativeChar = false) => Text?.Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries).Where(x => x.IsNotBlank()).Select((x, i) =>
+        public static string FixPath(this string Text, bool AlternativeChar = false)
+            => Text?.Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries).Where(x => x.IsNotBlank()).Select((x, i) =>
                                                                                                     {
                                                                                                         if (i == 0 && x.Length == 2 && x.EndsWith(":"))
                                                                                                         {
@@ -3777,6 +3786,13 @@ namespace Extensions
 
             return FilePath.FixPath(AlternativeChar);
         }
+
+        public static double Similarity(this string Text1, string Text2) => (1.0 - ((double)Text1.LevenshteinDistance(Text2) / (double)Math.Max(Text1.Length, Text2.Length)));
+
+        public static double SimilarityCaseInsensitive(this string Text1, string Text2) => (1.0 - ((double)Text1.LevenshteinDistanceCaseInsensitive(Text2) / (double)Math.Max(Text1.Length, Text2.Length)));
+
+        public static int LevenshteinDistanceCaseInsensitive(this string Text1, string Text2) => Text1.ToLower().LevenshteinDistance(Text2.ToLower());
+
 
         /// <summary>
         /// Formata o nome de uma coluna SQL adicionando <paramref name="QuoteChar"/> as <paramref
@@ -4740,12 +4756,10 @@ namespace Extensions
             {
                 if (Arr != null)
                 {
-
                     if (Arr is IList<T> lista) return lista.IndexOf(item);
                     else if (Arr is IList lista2) return lista2.IndexOf(item);
                     else
                     {
-
                         int index = 0;
                         foreach (var element in Arr)
                         {
@@ -4753,7 +4767,6 @@ namespace Extensions
                                 return index;
                             index++;
                         }
-
                     }
                 }
             }
@@ -4765,8 +4778,6 @@ namespace Extensions
                 }
                 catch
                 {
-
-
                 }
             }
 
@@ -5910,31 +5921,35 @@ namespace Extensions
         /// <returns></returns>
         public static string GetSocialUsername(this string url)
         {
-            string username = "";
             if (url.IsURL())
+                return GetSocialUsername(new Uri(url));
+            else throw new Exception("Invalid URL");
+        }
+        public static string GetSocialUsername(this Uri uri)
+        {
+            string username = "";
+
+            var host = uri.Host;
+            var segments = uri.Segments;
+
+            username = segments[1];
+
+            if (host.ContainsAny("fb.com", "facebook.com"))
             {
-                var uri = new Uri(url);
-                var host = uri.Host;
-                var segments = uri.Segments;
-
-                username = segments[1];
-
-                if (host.ContainsAny("fb.com", "facebook.com"))
-                {
-                    username = Regex.Match(url.Replace("fb.com", "facebook.com"), @"(?:(?:http|https):\/\/)?(?:www.)?facebook.com\/(?:(?:\words)*#!\/)?(?:pages\/)?(?:[?\words\-]*\/)?(?:profile.php\?id=(?=\d.*))?([\words\-]*)?").Groups[1].Value;
-                }
-                else if (host.Contains("dailymotion.com"))
+                username = Regex.Match(uri.AbsoluteUri.Replace("fb.com", "facebook.com"), @"(?:(?:http|https):\/\/)?(?:www.)?facebook.com\/(?:(?:\words)*#!\/)?(?:pages\/)?(?:[?\words\-]*\/)?(?:profile.php\?id=(?=\d.*))?([\words\-]*)?").Groups[1].Value;
+            }
+            else if (host.Contains("dailymotion.com"))
+            {
+                username = segments[2];
+            }
+            else if (host.Contains("youtube.com"))
+            {
+                if (segments.Skip(1).Take(2).ContainsAny("user", "channel"))
                 {
                     username = segments[2];
                 }
-                else if (host.Contains("youtube.com"))
-                {
-                    if (url.ContainsAny("user", "channel"))
-                    {
-                        username = segments[2];
-                    }
-                }
             }
+
             return username.TrimStart('@').TrimEnd('/');
         }
 
@@ -6129,10 +6144,10 @@ namespace Extensions
         public static string GetVideoID(this Uri URL) => GetVideoID(URL.AbsoluteUri);
 
         /// <summary>
-        /// Captura o Id de um video do youtube em uma URL
+        /// Captura o Id de um video do youtube ou vimeo em uma URL
         /// </summary>
         /// <param name="URL">URL do video</param>
-        /// <returns>Id do video do youtube</returns>
+        /// <returns>Id do video do youtube ou vimeo</returns>
         public static string GetVideoID(this string URL)
         {
             if (URL.IsURL())
@@ -6217,7 +6232,6 @@ namespace Extensions
             var copia = new Bitmap(img);
             var cm = new ColorMatrix(new float[][] { new float[] { 0.299f, 0.299f, 0.299f, 0f, 0f }, new float[] { 0.587f, 0.587f, 0.587f, 0f, 0f }, new float[] { 0.114f, 0.114f, 0.114f, 0f, 0f }, new float[] { 0f, 0f, 0f, 1f, 0f }, new float[] { 0f, 0f, 0f, 0f, 1f } });
             return ApplyColorMatrix(copia, cm);
-
         }
 
         public static IEnumerable<HSVColor> GrayscalePallette(int Amount) => MonochromaticPallette(Color.White, Amount);
@@ -7464,7 +7478,6 @@ namespace Extensions
         {
             try
             {
-
                 if ($"{Value}".IsNotBlank() && $"{Value}".Trim().ToCharArray().All(x => char.IsNumber(x)))
                 {
                     return true;
@@ -8706,7 +8719,6 @@ namespace Extensions
             var copia = new Bitmap(img);
             var cm = new ColorMatrix(new float[][] { new float[] { -1, 0f, 0f, 0f, 0f }, new float[] { 0f, -1, 0f, 0f, 0f }, new float[] { 0f, 0f, -1, 0f, 0f }, new float[] { 0f, 0f, 0f, 1f, 0f }, new float[] { 0f, 0f, 0f, 0f, 1f } });
             return ApplyColorMatrix(copia, cm);
-
         }
 
         /// <summary>
@@ -9292,103 +9304,86 @@ namespace Extensions
             Text = Text.Replace("a ", "h ");
             try
             {
-
                 if (Text.IsNumber())
                 {
                     s.Width = Text.ToInt();
                     s.Height = s.Width;
                 }
-
                 else if (Text.Like("width*") && !Text.Like("*height*"))
                 {
                     s.Width = ToInt(Text.GetAfter("width"));
                     s.Height = ToInt(Text.GetAfter("width"));
                 }
-
                 else if (Text.Like("height*") && !Text.Like("*width*"))
                 {
                     s.Width = ToInt(Text.GetAfter("height"));
                     s.Height = ToInt(Text.GetAfter("height"));
                 }
-
                 else if (Text.Like("w*") && !Text.Like("*h*"))
                 {
                     s.Width = ToInt(Text.GetAfter("w"));
                     s.Height = ToInt(Text.GetAfter("w"));
                 }
-
                 else if (Text.Like("h*") && !Text.Like("*w*"))
                 {
                     s.Width = ToInt(Text.GetAfter("h"));
                     s.Height = ToInt(Text.GetAfter("h"));
                 }
-
                 else if (Text.Like("width*height*"))
                 {
                     s.Width = ToInt(Text.GetBetween("width", "height"));
                     s.Height = ToInt(Text.GetAfter("height"));
                 }
-
                 else if (Text.Like("height*width*"))
                 {
                     s.Height = ToInt(Text.GetBetween("height", "width"));
                     s.Width = ToInt(Text.GetAfter("width"));
                 }
-
                 else if (Text.Like("w*h*"))
                 {
                     s.Width = ToInt(Text.GetBetween("w", "h"));
                     s.Height = ToInt(Text.GetAfter("h"));
                 }
-
                 else if (Text.Like("h*w*"))
                 {
                     s.Height = ToInt(Text.GetBetween("h", "w"));
                     s.Width = ToInt(Text.GetAfter("w"));
                 }
-
                 else if (Text.Like("*x*"))
                 {
                     s.Width = ToInt(Text.Split(new[] { "x" }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault());
                     s.Height = ToInt(Text.Split(new[] { "x" }, StringSplitOptions.RemoveEmptyEntries).LastOrDefault());
                 }
-
                 else if (Text.Like("*by*"))
                 {
                     s.Width = ToInt(Text.Split(new[] { "by" }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault());
                     s.Height = ToInt(Text.Split(new[] { "by" }, StringSplitOptions.RemoveEmptyEntries).LastOrDefault());
                 }
-
                 else if (Text.Like("*por*"))
                 {
                     s.Width = ToInt(Text.Split(new[] { "por" }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault());
                     s.Height = ToInt(Text.Split(new[] { "por" }, StringSplitOptions.RemoveEmptyEntries).LastOrDefault());
                 }
-
                 else if (Text.Like("*,*"))
                 {
                     s.Width = ToInt(Text.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault());
                     s.Height = ToInt(Text.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries).LastOrDefault());
                 }
-
                 else if (Text.Like("*-*"))
                 {
                     s.Width = ToInt(Text.Split(new[] { "-" }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault());
                     s.Height = ToInt(Text.Split(new[] { "-" }, StringSplitOptions.RemoveEmptyEntries).LastOrDefault());
                 }
-
                 else if (Text.Like("*_*"))
                 {
                     s.Width = ToInt(Text.Split(new[] { "_" }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault());
                     s.Height = ToInt(Text.Split(new[] { "_" }, StringSplitOptions.RemoveEmptyEntries).LastOrDefault());
                 }
-
                 else
                 {
                     s.Width = ToInt(Text.Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault());
                     s.Height = ToInt(Text.Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries).LastOrDefault());
                 }
-
             }
             catch
             {
@@ -13266,17 +13261,14 @@ namespace Extensions
                         if (v.IsNumber())
                         {
                             result.Add(key, v.ToDouble());
-
                         }
                         else if (v.IsDate())
                         {
                             result.Add(key, v.ToDateTime());
-
                         }
                         else
                         {
                             result.Add(key, v);
-
                         }
                     }
                     else
@@ -15429,7 +15421,6 @@ namespace Extensions
 
             // apply the matrix to the image
             return ApplyColorMatrix(copia, cm);
-
         }
 
         /// <summary>
@@ -16316,10 +16307,6 @@ namespace Extensions
 
         public static FileInfo WriteToFile(this string Text, DirectoryInfo Directory, string SubDirectory, string FileName, bool Append = false, Encoding Enconding = null, DateTime? DateAndTime = null) => Text.WriteToFile(Path.Combine(Directory?.FullName, SubDirectory, Path.GetFileName(FileName)), Append, Enconding, DateAndTime);
 
-        #endregion Public Methods
-
-        #region Public Enums
-
         public enum LogicConcatenationOperator
         {
             AND,
@@ -16363,7 +16350,5 @@ namespace Extensions
             /// </summary>
             M = 1000
         }
-
-        #endregion Public Enums
     }
 }
