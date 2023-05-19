@@ -3787,6 +3787,8 @@ namespace Extensions
             return FilePath.FixPath(AlternativeChar);
         }
 
+        public static string SimilarityPercentCaseInsensitive(this string Text1, string Text2, int Decimals = -1) => SimilarityCaseInsensitive(Text1, Text2).ToPercentString(Decimals, true);
+        public static string SimilarityPercent(this string Text1, string Text2, int Decimals = -1) => Similarity(Text1, Text2).ToPercentString(Decimals, true);
         public static double Similarity(this string Text1, string Text2) => (1.0 - ((double)Text1.LevenshteinDistance(Text2) / (double)Math.Max(Text1.Length, Text2.Length)));
 
         public static double SimilarityCaseInsensitive(this string Text1, string Text2) => (1.0 - ((double)Text1.LevenshteinDistanceCaseInsensitive(Text2) / (double)Math.Max(Text1.Length, Text2.Length)));
