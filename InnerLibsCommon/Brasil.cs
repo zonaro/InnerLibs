@@ -52,7 +52,7 @@ namespace Extensions.BR
             {
                 "",
                 $"Casa {PredefinedArrays.AlphaUpperChars.Take(4).RandomItem()}",
-                $"Apto. {Util.RandomNumber(11,200)}",
+                $"Apto. {Util.RandomNumber(11,209)}",
                 $"Bloco {PredefinedArrays.AlphaUpperChars.Take(20).RandomItem()} Apto. {Util.RandomNumber(11,200)}",
                 $"Bloco {PredefinedArrays.AlphaUpperChars.Take(20).RandomItem()} Casa {Util.RandomNumber(1,12)}",
                 $"Bloco {PredefinedArrays.AlphaUpperChars.Take(20).RandomItem()} Casa {PredefinedArrays.AlphaUpperChars.Take(6).RandomItem()}",
@@ -98,7 +98,8 @@ namespace Extensions.BR
                                 node["TimeZone"].InnerText,
                                 node["Latitude"].InnerText.ToDecimal(),
                                 node["Longitude"].InnerText.ToDecimal(),
-                                node["Capital"].InnerText.AsBool()));
+                                node["Capital"].InnerText.AsBool()
+                                ));
                         }
 
                         e.Cidades = cities;
@@ -192,8 +193,6 @@ namespace Extensions.BR
                 .Where(x => (NomeDaCidadeOuIBGE.SimilarityCaseInsensitive(x.Nome) > (Similaridade / 100)) || x.IBGE == NomeDaCidadeOuIBGE.RemoveMaskInt()).ToList();
 
             return cids.SingleOrDefault(x => x.IBGE == NomeDaCidadeOuIBGE.RemoveMaskInt()) ?? cids.OrderByDescending(x => x.Nome.SimilarityCaseInsensitive(NomeDaCidadeOuIBGE)).FirstOrDefault() ?? est?.Capital;
-
-
         }
         public static Cidade PegarCidade(int IBGE) => PegarEstado(IBGE.ToString())?.Cidades.FirstOrDefault(x => x.IBGE == IBGE);
 
@@ -256,8 +255,6 @@ namespace Extensions.BR
                     CNPJ = CNPJ.ToLong().FormatarCNPJ();
                 }
             }
-
-
             return CNPJ;
         }
 
