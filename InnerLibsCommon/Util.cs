@@ -16240,18 +16240,18 @@ namespace Extensions
                 if (Bytes.Any())
                 {
                     File.WriteAllBytes(FilePath, Bytes);
-                    WriteDebug(FilePath, "Directory Written");
+                    WriteDebug(FilePath, "File Written");
                 }
                 else
                 {
-                    WriteDebug("Bytes array is empty", "Directory not Written");
+                    WriteDebug("Bytes array is empty", "File not Written");
                 }
 
                 return new FileInfo(FilePath).With(x => { x.LastWriteTime = DateAndTime.Value; });
             }
             else
             {
-                throw new ArgumentException($"FilePath is not a valid file FilePath: {FilePath}");
+                throw new ArgumentException($"FilePath is not a valid file file path: {FilePath}");
             }
         }
 
