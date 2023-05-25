@@ -16215,13 +16215,12 @@ namespace Extensions
 
             foreach (char v in word)
                 for (int j = 0; j < letterMappings.Length; j++)
-                {
                     if (letterMappings[j].Contains(v))
                     {
                         code += j.ToString();
                         break;
                     }
-                }
+
 
 
             // Remover os dígitos repetidos consecutivos
