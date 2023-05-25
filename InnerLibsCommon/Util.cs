@@ -16195,18 +16195,22 @@ namespace Extensions
         /// </summary>
         /// <param name="word"></param>
         /// <returns></returns>
-        public static int GetSoundCode(string word)
+        public static int GetSoundCode(this string word)
         {
             // Converter a palavra para maiúsculas e remover caracteres não-alfabéticos
             word = word.ToUpper();
 
             // Mapear as letras para seus códigos correspondentes
             string[] letterMappings = {
-            "AEIOU",
-            "BFPVW",
-            "CGJKQSXZ",
+            "A",
+            "EI",
+            "OUL",
+            "BP",
+            "F",
+            "VW",
+            "CGKQ",
+            "SJXZ",
             "DT",
-            "L",
             "MN",
             "RH"
         };
