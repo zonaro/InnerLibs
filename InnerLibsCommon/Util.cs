@@ -198,22 +198,7 @@ namespace Extensions
 
         public static int ThisMonth => DateTime.Now.Month;
 
-        //public static IEnumerable<(T, T)> MidRanges<T>(this int Ranges, T Start, T End) where T : IComparable
-        //{
-        //    var l = new List<(T, T)>();
-        //    var s = Start.ToDecimal();
-        //    var e = End.ToDecimal();
-        //    var r = e / Ranges;
-        //    var i = 0;
-        //    FixOrder(ref s, ref e);
-        //    while (s < e)
-        //    {
-        //        i++;
-        //        l.Add((s.ChangeType<T>(), (s + r - (i == Ranges ? 0 : 1)).ChangeType<T>()));
-        //        s += r;
-        //    }
-        //    return l;
-        //}
+
 
         /// <summary>
         /// Generates a sequence of mid-ranges between a start and end value, divided into a
@@ -398,6 +383,14 @@ namespace Extensions
             return Text;
         }
 
+
+
+        /// <summary>
+        /// Applies a color matrix to an image.
+        /// </summary>
+        /// <param name="img">The source image.</param>
+        /// <param name="cm">The color matrix to apply.</param>
+        /// <returns>A new image with the color matrix applied, or null if an error occurs.</returns>
         public static Image ApplyColorMatrix(Image img, ColorMatrix cm)
         {
             try
@@ -420,6 +413,7 @@ namespace Extensions
                 return null;
             }
         }
+
 
         /// <summary>
         /// Aplica espacos em todos os caracteres de encapsulamento
@@ -2824,8 +2818,8 @@ namespace Extensions
         /// <returns></returns>
         public static string DeleteLine(this string Text, int LineIndex)
         {
-            LineIndex = LineIndex.SetMinValue(0);
             var parts = Text.Split(Environment.NewLine).ToList();
+            LineIndex = LineIndex.LimitIndex(parts);
 
             if (parts.Count > LineIndex)
             {
@@ -5800,6 +5794,29 @@ namespace Extensions
         /// <returns></returns>
         public static string GetRelativeURL(this Uri URL, bool WithQueryString = true) => WithQueryString ? URL.PathAndQuery : URL.AbsolutePath;
 
+
+        public static String GetRelativePath(FileSystemInfo fromPath, FileSystemInfo toPath) => GetRelativePath(fromPath?.FullName, toPath?.FullName);
+        public static String GetRelativePath(String fromPath, String toPath)
+        {
+            if (String.IsNullOrEmpty(fromPath)) throw new ArgumentNullException("fromPath");
+            if (String.IsNullOrEmpty(toPath)) throw new ArgumentNullException("toPath");
+
+            Uri fromUri = new Uri(fromPath);
+            Uri toUri = new Uri(toPath);
+
+            if (fromUri.Scheme != toUri.Scheme) { return toPath; } // path can't be made relative. 
+
+            Uri relativeUri = fromUri.MakeRelativeUri(toUri);
+            String relativePath = Uri.UnescapeDataString(relativeUri.ToString());
+
+            if (toUri.Scheme.Equals("file", StringComparison.InvariantCultureIgnoreCase))
+            {
+                relativePath = relativePath.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+            }
+
+            return relativePath;
+        }
+
         /// <summary>
         /// Retorna o caminho relativo da url
         /// </summary>
@@ -8585,7 +8602,7 @@ namespace Extensions
         /// <remarks>A distancia entre as cores será maior se a quantidade de amostras for pequena</remarks>
         public static IEnumerable<HSVColor> MonochromaticPallette(Color Color, int Amount)
         {
-            var t = new RuleOfThree<int>(Amount, 100, 1, default);
+            var t = new RuleOfThree(Amount, 100, 1, default);
             var Percent = t.UnknownValue?.ToFloat();
             Color = Color.White.MergeWith(Color);
             var l = new List<Color>();
@@ -10100,7 +10117,7 @@ namespace Extensions
         /// <typeparam name="Type">Tipo da Matriz</typeparam>
         /// <param name="Array">Matriz</param>
         /// <returns>Um valor do tipo especificado</returns>
-        public static Type RandomItem<Type>(params Type[] Array) => Array.GetRandomItem();
+        public static T RandomItem<T>(params T[] Array) => Array.GetRandomItem();
 
         public static T RandomItem<T>(this IEnumerable<T> l) => l.RandomItemOr();
 
@@ -12367,7 +12384,7 @@ namespace Extensions
         }
 
         /// <summary>
-        /// Ordena um <see cref="IEnumerable(Of T)"/> a partir da aproximação de uma ou mais <see
+        /// Ordena um <see cref="IEnumerable{T}"/> a partir da aproximação de uma ou mais <see
         /// cref="String"/> com o valor de um determinado campo
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -12423,7 +12440,7 @@ namespace Extensions
         }
 
         /// <summary>
-        /// Ordena um <see cref="IEnumerable(Of T)"/> a partir da aproximação de uma ou mais <see
+        /// Ordena um <see cref="IEnumerable{T}"/> a partir da aproximação de uma ou mais <see
         /// cref="String"/> com o valor de um determinado campo
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -12483,7 +12500,7 @@ namespace Extensions
         }
 
         /// <summary>
-        /// Ordena um <see cref="IEnumerable(Of T)"/> a partir da aproximação de uma ou mais <see
+        /// Ordena um <see cref="IEnumerable{T}"/> a partir da aproximação de uma ou mais <see
         /// cref="String"/> com o valor de um determinado campo
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -12522,7 +12539,7 @@ namespace Extensions
         }
 
         /// <summary>
-        /// Ordena um <see cref="IEnumerable(Of T)"/> a partir de outra lista do mesmo tipo
+        /// Ordena um <see cref="IEnumerable{T}"/> a partir de outra lista do mesmo tipo
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="Source"></param>
@@ -12532,7 +12549,7 @@ namespace Extensions
         => Source.ThenBy(d => Array.IndexOf(OrderSource, d));
 
         /// <summary>
-        /// Ordena um <see cref="IQueryable(Of T)"/> a partir do nome de uma ou mais propriedades
+        /// Ordena um <see cref="IQueryable{T}"/> a partir do nome de uma ou mais propriedades
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="source"></param>
@@ -12650,9 +12667,15 @@ namespace Extensions
         /// <returns></returns>
         public static string ToAnagram(this string Text) => Shuffle(Text);
 
+        /// <summary>
+        /// Return a Arabic number for a Roman number
+        /// </summary>
+        /// <param name="RomanNumber"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         public static int ToArabic(this string RomanNumber)
         {
-            RomanNumber = $"{RomanNumber}".ToUpper(CultureInfo.InvariantCulture).Trim();
+            RomanNumber = $"{RomanNumber}".ToUpper(CultureInfo.InvariantCulture).Replace("IIII", "IV").Trim();
             if (RomanNumber == "N" || RomanNumber.IsBlank())
             {
                 return 0;
@@ -15947,7 +15970,7 @@ namespace Extensions
         /// </param>
         /// <param name="OnAttemptFail">ação a ser executado em caso de falha</param>
         /// <returns>TRUE se o arquivo puder ser utilizado</returns>
-        public static bool WaifForFile(this FileInfo File, int Seconds = 1, int? MaxFailCount = null, Action<int> OnAttemptFail = null)
+        public static bool WaitForFile(this FileInfo File, int Seconds = 1, int? MaxFailCount = null, Action<int> OnAttemptFail = null)
         {
             if (File == null)
             {
@@ -16079,7 +16102,7 @@ namespace Extensions
         }
 
         /// <summary>
-        /// Busca em um <see cref="IQueryable(Of T)"/> usando uma expressao lambda a partir do nome
+        /// Busca em um <see cref="IQueryable{T}"/> usando uma expressao lambda a partir do nome
         /// de uma propriedade, uma operacao e um valor
         /// </summary>
         /// <typeparam name="T">Tipo do objeto acessado</typeparam>
@@ -16144,7 +16167,7 @@ namespace Extensions
             {
                 try
                 {
-                    if (WaifForFile(File, Seconds, MaxFailCount, OnAttemptFail))
+                    if (WaitForFile(File, Seconds, MaxFailCount, OnAttemptFail))
                     {
                         OnSuccess?.Invoke(File);
                         return true;
@@ -16166,6 +16189,52 @@ namespace Extensions
             }
             return false;
         }
+
+        /// <summary>
+        /// Return a code for a word based on pronuciation
+        /// </summary>
+        /// <param name="word"></param>
+        /// <returns></returns>
+        public static int GetSoundCode(string word)
+        {
+            // Converter a palavra para maiúsculas e remover caracteres não-alfabéticos
+            word = word.ToUpper();
+
+            // Mapear as letras para seus códigos correspondentes
+            string[] letterMappings = {
+            "AEIOU",
+            "BFPVW",
+            "CGJKQSXZ",
+            "DT",
+            "L",
+            "MN",
+            "RH"
+        };
+
+            string code = "";
+
+            foreach (char v in word)
+                for (int j = 0; j < letterMappings.Length; j++)
+                {
+                    if (letterMappings[j].Contains(v))
+                    {
+                        code += j.ToString();
+                        break;
+                    }
+                }
+
+
+            // Remover os dígitos repetidos consecutivos
+            for (int i = code.Length - 1; i > 0; i--)
+            {
+                if (code[i] == code[i - 1])
+                    code.Remove(i, 1);
+            }
+            return code.FixedLenghtByRight(4).ToInt();
+
+        }
+
+
 
         /// <summary>
         /// Encapsula um tento entre 2 textos

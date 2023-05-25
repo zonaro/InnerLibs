@@ -16,9 +16,10 @@ namespace Extensions.Files
         public FileTree(string Path) : this(Path, null, null, null) { }
         public FileTree(string Path, IEnumerable<string> FileSearchPatterns) : this(Path, null, FileSearchPatterns, null) { }
         public FileTree(string Path, IEnumerable<string> FileSearchPatterns, IEnumerable<string> RelatedFilesSearch) : this(Path, null, FileSearchPatterns, RelatedFilesSearch) { }
-        public FileTree(string Path, FileTree Parent, IEnumerable<string> FileSearchPatterns) : this(Path, Parent, FileSearchPatterns, null) { }
-        public FileTree(string Path, FileTree Parent, IEnumerable<string> FileSearchPatterns, IEnumerable<string> RelatedFilesSearch)
+        internal FileTree(string Path, FileTree Parent, IEnumerable<string> FileSearchPatterns) : this(Path, Parent, FileSearchPatterns, null) { }
+        internal FileTree(string Path, FileTree Parent, IEnumerable<string> FileSearchPatterns, IEnumerable<string> RelatedFilesSearch)
         {
+
             this.OriginalPath = Path;
             this.FullPath = System.IO.Path.GetFullPath(Path);
             this.Parent = Parent;
@@ -138,6 +139,11 @@ namespace Extensions.Files
 
         public int IndexOf(FileTree item) => _children.IndexOf(item);
 
+        /// <summary>
+        /// Add a item to this Filetree. Index ignored
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="item"></param>
         public void Insert(int index, FileTree item) => Add(item);
 
         public void RemoveAt(int index)
@@ -148,7 +154,7 @@ namespace Extensions.Files
 
         public void Add(FileTree item)
         {
-            if (item != null)
+            if (item != null && item.Exists)
             {
                 _children.Add(item);
                 if (item.IsDirectory)
@@ -175,6 +181,11 @@ namespace Extensions.Files
 
         public void CopyTo(FileTree[] array, int arrayIndex) => _children.CopyTo(array, arrayIndex);
 
+        /// <summary>
+        /// Delete and remove a file or directory from tree
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
         public bool Remove(FileTree item)
         {
             if (item.Exists) item.Delete();
