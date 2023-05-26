@@ -6073,7 +6073,7 @@ namespace Extensions
             {
                 if (row == null)
                 {
-                    throw new ArgumentException("Row is null");
+                    throw new ArgumentException("Row is null",nameof(row));
                 }
 
                 object v = null;
@@ -6143,7 +6143,7 @@ namespace Extensions
         /// </summary>
         /// <param name="URL">URL do video</param>
         /// <returns>ChaveFormatadaTraco do video do youtube ou Vimeo</returns>
-        public static string GetVideoID(this Uri URL) => GetVideoID(URL.AbsoluteUri);
+        public static string GetVideoID(this Uri URL) => GetVideoID(URL?.AbsoluteUri);
 
         /// <summary>
         /// Captura o Id de um video do youtube ou vimeo em uma URL
@@ -6270,20 +6270,20 @@ namespace Extensions
         /// <param name="obj"></param>
         /// <param name="GroupSelector"></param>
         /// <returns></returns>
-        public static Dictionary<Group, long> GroupAndCountBy<Type, Group>(this IEnumerable<Type> obj, Func<Type, Group> GroupSelector) => obj.GroupBy(GroupSelector).Select(x => new KeyValuePair<Group, long>(x.Key, x.LongCount())).ToDictionary();
+        public static Dictionary<Group, long> GroupAndCountBy<T, Group>(this IEnumerable<T> obj, Func<Type, Group> GroupSelector) => obj.GroupBy(GroupSelector).Select(x => new KeyValuePair<Group, long>(x.Key, x.LongCount())).ToDictionary();
 
         /// <summary>
         /// Agrupa itens de uma lista a partir de uma propriedade e conta os resultados de cada
         /// grupo a partir de outra propriedade do mesmo objeto
         /// </summary>
-        /// <typeparam name="Type"></typeparam>
+        /// <typeparam name="T"></typeparam>
         /// <typeparam name="Group"></typeparam>
         /// <typeparam name="Count"></typeparam>
         /// <param name="obj"></param>
         /// <param name="GroupSelector"></param>
         /// <param name="CountObjectBy"></param>
         /// <returns></returns>
-        public static Dictionary<Group, Dictionary<Count, long>> GroupAndCountSubGroupBy<Type, Group, Count>(this IEnumerable<Type> obj, Func<Type, Group> GroupSelector, Func<Type, Count> CountObjectBy)
+        public static Dictionary<Group, Dictionary<Count, long>> GroupAndCountSubGroupBy<T, Group, Count>(this IEnumerable<T> obj, Func<T, Group> GroupSelector, Func<T, Count> CountObjectBy)
         {
             var dic_of_dic = obj.GroupBy(GroupSelector).Select(x => new KeyValuePair<Group, Dictionary<Count, long>>(x.Key, x.GroupBy(CountObjectBy).ToDictionary(y => y.Key, y => y.LongCount()))).ToDictionary();
             dic_of_dic.Values.MergeKeys();
