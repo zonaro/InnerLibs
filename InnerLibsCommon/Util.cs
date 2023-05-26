@@ -4440,7 +4440,7 @@ namespace Extensions
 
         public static string GetFirstChars(this string Text, int Number = 1) => Text.IsNotBlank() ? Text.Length < Number || Number < 0 ? Text : Text.Substring(0, Number) : EmptyString;
 
-        public static DataRow GetFirstRow(this DataSet Data) => Data.GetFirstTable()?.GetFirstRow();
+        public static DataRow GetFirstRow(this DataSet Data) => Data?.GetFirstTable()?.GetFirstRow();
 
         public static DataRow GetFirstRow(this DataTable Table) => Table != null && Table.Rows.Count > 0 ? Table.Rows[0] : null;
 
@@ -5903,35 +5903,17 @@ namespace Extensions
             return rft;
         }
 
-        public static T GetSingleValue<T>(this DataSet data, string ColumnNameOrIndex)
-        {
-            var row = data?.GetFirstRow();
-            return row != null ? row.GetValue<T>(ColumnNameOrIndex) : default;
-        }
 
-        public static T GetSingleValue<T>(this DataSet data, int ColumnIndex = 0)
-        {
-            var row = data?.GetFirstRow();
-            if (row != null)
-                return row.GetValue<T>(ColumnIndex);
-            return default;
-        }
+        public static T GetSingleValue<T>(this DataRow data, int ColumnIndex = 0) => data != null ? data.GetValue<T>(ColumnIndex) : default;
+        public static T GetSingleValue<T>(this DataTable table, int ColumnIndex = 0) => GetSingleValue<T>(table?.GetFirstRow(), ColumnIndex);
+        public static T GetSingleValue<T>(this DataSet data, int ColumnIndex = 0) => GetSingleValue<T>(data?.GetFirstRow(), ColumnIndex);
 
-        public static T GetSingleValue<T>(this DataTable table, string ColumnNameOrIndex)
-        {
-            var row = table?.GetFirstRow();
-            if (row != null)
-                return row.GetValue<T>(ColumnNameOrIndex);
-            return default;
-        }
+        public static T GetSingleValue<T>(this DataRow data, string ColumnNameOrIndex) => data != null ? data.GetValue<T>(ColumnNameOrIndex) : default;
+        public static T GetSingleValue<T>(this DataTable table, string ColumnNameOrIndex) => GetSingleValue<T>(table?.GetFirstRow(), ColumnNameOrIndex);
+        public static T GetSingleValue<T>(this DataSet data, string ColumnNameOrIndex) => GetSingleValue<T>(data?.GetFirstRow(), ColumnNameOrIndex);
 
-        public static T GetSingleValue<T>(this DataTable table, int ColumnIndex = 0)
-        {
-            var row = table?.GetFirstRow();
-            if (row != null)
-                return row.GetValue<T>(ColumnIndex);
-            return default;
-        }
+
+
 
         /// <summary>
         /// Return the username of most social websites like facebook, tiktok, instagram and youtube
@@ -5946,6 +5928,7 @@ namespace Extensions
         }
         public static string GetSocialUsername(this Uri uri)
         {
+            if(uri == null) throw new ArgumentException("Uri is null", nameof(uri));
             string username = "";
 
             var host = uri.Host;
