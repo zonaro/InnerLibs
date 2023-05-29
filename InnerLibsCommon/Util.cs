@@ -6912,7 +6912,7 @@ namespace Extensions
             {
                 if (Value != null)
                 {
-                    var tipo = Value.GetTypeOf();
+                    var tipo = Value.GetNullableTypeOf();
 
                     if (tipo.IsNumericType())
                     {
