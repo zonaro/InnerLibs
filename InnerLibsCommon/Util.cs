@@ -5928,7 +5928,7 @@ namespace Extensions
         }
         public static string GetSocialUsername(this Uri uri)
         {
-            if(uri == null) throw new ArgumentException("Uri is null", nameof(uri));
+            if (uri == null) throw new ArgumentException("Uri is null", nameof(uri));
             string username = "";
 
             var host = uri.Host;
@@ -6073,7 +6073,7 @@ namespace Extensions
             {
                 if (row == null)
                 {
-                    throw new ArgumentException("Row is null",nameof(row));
+                    throw new ArgumentException("Row is null", nameof(row));
                 }
 
                 object v = null;
@@ -6270,7 +6270,7 @@ namespace Extensions
         /// <param name="obj"></param>
         /// <param name="GroupSelector"></param>
         /// <returns></returns>
-        public static Dictionary<Group, long> GroupAndCountBy<T, Group>(this IEnumerable<T> obj, Func<Type, Group> GroupSelector) => obj.GroupBy(GroupSelector).Select(x => new KeyValuePair<Group, long>(x.Key, x.LongCount())).ToDictionary();
+        public static Dictionary<Group, long> GroupAndCountBy<T, Group>(this IEnumerable<T> obj, Func<T, Group> GroupSelector) => obj.GroupBy(GroupSelector).Select(x => new KeyValuePair<Group, long>(x.Key, x.LongCount())).ToDictionary();
 
         /// <summary>
         /// Agrupa itens de uma lista a partir de uma propriedade e conta os resultados de cada
@@ -6445,6 +6445,12 @@ namespace Extensions
         /// <returns></returns>
         public static bool HasProperty(this object Obj, string Name) => Obj?.GetType().HasProperty(Name, true) ?? false;
 
+        /// <summary>
+        /// Hides the specified directory or file.
+        /// </summary>
+        /// <typeparam name="T">The type of the directory or file to hide.</typeparam>
+        /// <param name="dir">The directory or file to hide.</param>
+        /// <returns>The hidden directory or file.</returns>
         public static T Hide<T>(this T dir) where T : FileSystemInfo
         {
             if (dir != null && dir.Exists)
