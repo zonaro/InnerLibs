@@ -6312,20 +6312,20 @@ namespace Extensions
         /// <summary>
         /// Criar um <see cref="Dictionary"/> agrupando os itens em páginas de um tamanho especifico
         /// </summary>
-        /// <typeparam name="Tsource"></typeparam>
+        /// <typeparam name="T"></typeparam>
         /// <param name="source"></param>
         /// <param name="PageSize"></param>
         /// <returns></returns>
-        public static Dictionary<long, IEnumerable<Tsource>> GroupByPage<Tsource>(this IQueryable<Tsource> source, int PageSize) => source.AsEnumerable().GroupByPage(PageSize);
+        public static Dictionary<long, IEnumerable<T>> GroupByPage<T>(this IQueryable<T> source, int PageSize) => source.AsEnumerable().GroupByPage(PageSize);
 
         /// <summary>
         /// Criar um <see cref="Dictionary"/> agrupando os itens em páginas de um tamanho especifico
         /// </summary>
-        /// <typeparam name="Tsource"></typeparam>
+        /// <typeparam name="T"></typeparam>
         /// <param name="source"></param>
         /// <param name="PageSize"></param>
         /// <returns></returns>
-        public static Dictionary<long, IEnumerable<Tsource>> GroupByPage<Tsource>(this IEnumerable<Tsource> source, int PageSize) => source.Select((item, index) => new { item, Page = index / (double)PageSize.SetMinValue(1) }).GroupBy(g => g.Page.FloorLong() + 1L, x => x.item).ToDictionary();
+        public static Dictionary<long, IEnumerable<T>> GroupByPage<T>(this IEnumerable<T> source, int PageSize) => source.Select((item, index) => new { item, Page = index / (double)PageSize.SetMinValue(1) }).GroupBy(g => g.Page.FloorLong() + 1L, x => x.item).ToDictionary();
 
         /// <summary>
         /// Verifica se um atributo foi definido em uma propriedade de uma classe
@@ -6771,10 +6771,10 @@ namespace Extensions
             return exp;
         }
 
-        public static Expression<Func<T, bool>> IsBetween<T, V>(this Expression<Func<T, V>> MinProperty, Expression<Func<T, V>> MaxProperty, params V[] Values)
+        public static Expression<Func<T, bool>> IsBetween<T, TV>(this Expression<Func<T, TV>> MinProperty, Expression<Func<T, TV>> MaxProperty, params TV[] Values)
                => MinProperty.IsBetween(MaxProperty, Values.AsEnumerable());
 
-        public static Expression<Func<T, bool>> IsBetween<T, V>(this Expression<Func<T, V>> Property, V MinValue, V MaxValue)
+        public static Expression<Func<T, bool>> IsBetween<T, TV>(this Expression<Func<T, TV>> Property, TV MinValue, TV MaxValue)
         {
             if (MinValue.Equals(MaxValue))
             {
@@ -7123,10 +7123,14 @@ namespace Extensions
         /// <param name="obj"></param>
         /// <remarks>NÃO considera strings (IEnumerable{char}) como true</remarks>
         /// <returns></returns>
-        public static bool IsEnumerable(this object obj) => IsGenericOf(obj, typeof(IEnumerable<>)) || IsGenericOf(obj, typeof(IEnumerable));
-
         public static bool IsEnumerableNotString(this object obj) => IsEnumerable(obj) && GetTypeOf(obj) != typeof(string);
 
+     /// <summary>
+        /// Verifica se o objeto é um enumeravel (lista)
+        /// </summary>
+        /// <param name="obj"></param>   
+        /// <returns></returns>
+        public static bool IsEnumerable(this object obj) => IsGenericOf(obj, typeof(IEnumerable<>)) || IsGenericOf(obj, typeof(IEnumerable));
         public static Expression<Func<T, bool>> IsEqual<T, V>(this Expression<Func<T, V>> Property, V Value) => WhereExpression(Property, "equal", new[] { (IComparable)Value });
 
         public static bool IsEqual<T>(this T Value, T EqualsToValue) where T : IComparable => Value.Equals(EqualsToValue);
@@ -7611,7 +7615,8 @@ namespace Extensions
         /// <typeparam name="T"></typeparam>
         /// <param name="Obj"></param>
         /// <returns></returns>
-        public static bool IsTypeOf<T>(this T Obj, Type Type) => Obj.GetTypeOf() == Type.GetTypeOf();
+        public static bool IsTypeOf<T>(this T Obj, object Type) => Obj.GetTypeOf() == Type.GetTypeOf();
+
 
         /// <summary>
         /// Verifica se um determinado texto é uma URL válida
