@@ -7006,7 +7006,7 @@ namespace Extensions
 
         public static bool IsConnecting(this DbConnection Connection) => Connection != null && (Connection.State == ConnectionState.Connecting);
 
-        public static bool IsCrossLikeAny(this string Text, IEnumerable<string> Patterns) => (Patterns ?? Array.Empty<string>()).Any((Func<string, bool>)(x => Like(Text.IfBlank(EmptyString), x) || Like(x, Text)));
+        public static bool IsCrossLikeAny(this string Text, IEnumerable<string> Patterns) => (Patterns ?? Array.Empty<string>()).Any(x => Like(Text.IfBlank(EmptyString), x) || Like(x, Text));
 
         /// <summary>
         /// Verifica se uma cor é escura
@@ -7089,15 +7089,19 @@ namespace Extensions
                     return true;
                 }
                 // ends with slash if has extension then its a file; directory otherwise
-                return string.IsNullOrWhiteSpace(Path.GetExtension(Text));
+                return Path.GetExtension(Text).IsBlank();
             }
             catch
             {
                 return false;
             }
         }
-
-        public static bool IsDomain(this string Text) => Text.IsNotBlank() && $"http://{Text}".IsURL();
+        /// <summary>
+        /// Validates if a string is a valid domain name.
+        /// </summary>
+        /// <param name="Text">The string to validate.</param>
+        /// <returns>True if the string is a valid domain name, otherwise false.</returns>
+        public static bool IsDomain(this string Text) => new Regex(@"^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$", RegexOptions.IgnoreCase).IsMatch(Text) && $"http://{Text}".IsURL();
 
         /// <summary>
         /// Verifica se um determinado texto é um email
