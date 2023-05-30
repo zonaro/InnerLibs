@@ -456,9 +456,9 @@ namespace Extensions
         /// </summary>
         /// <param name="Value"></param>
         /// <returns></returns>
-        public static bool AsBool(this string Value)
+        public static bool AsBool(this object Value)
         {
-            Value = $"{Value?.TrimBetween().ToUpperInvariant().RemoveAccents()}";
+            Value = $"{Value}".TrimBetween().ToUpperInvariant().RemoveAccents();
             switch (Value)
             {
                 case "":
@@ -7125,7 +7125,7 @@ namespace Extensions
         /// <returns></returns>
         public static bool IsEnumerableNotString(this object obj) => IsEnumerable(obj) && GetTypeOf(obj) != typeof(string);
 
-     /// <summary>
+        /// <summary>
         /// Verifica se o objeto é um enumeravel (lista)
         /// </summary>
         /// <param name="obj"></param>   
