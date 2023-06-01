@@ -10405,6 +10405,8 @@ namespace Extensions
         public static string RemoveAny(this string Text, params string[] Values) => Text.ReplaceMany(EmptyString, Values ?? Array.Empty<string>());
 
         public static string RemoveAny(this string Text, params char[] Values) => Text.RemoveAny(Values.Select(x => x.ToString()).ToArray());
+        public static IEnumerable<T> RemoveAny<T>(this IEnumerable<T> Items, params T[] Values) => Items?.Where(x => x.IsNotIn(Values));
+        public static IEnumerable<T> RemoveAny<T>(this IEnumerable<T> Items, IEqualityComparer<T> Comparer, params T[] Values) => Items?.Where(x => x.IsNotIn(Values, Comparer));
 
         /// <summary>
         /// Remove os acentos de uma string

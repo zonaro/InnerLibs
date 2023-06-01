@@ -140,7 +140,7 @@ namespace Extensions.BR
             var s = PegarEstado(NomeOuUFouIBGE);
             if (s != null)
             {
-                var c = PegarCidade(s.UF, Cidade);
+                var c = PegarCidade(Cidade, s.UF);
                 var ends = Activator.CreateInstance<T>();
                 ends.City = c?.Nome ?? Cidade;
                 ends.State = s.Nome;
@@ -161,6 +161,8 @@ namespace Extensions.BR
 
             return null;
         }
+
+
 
         /// <summary>
         /// Retorna uma cidade a partir de seu nome ou codigo IBGE. Caso a cidade não seja encontrada mas o estado seja identificado, a capital desse estado é retornada no lugar
@@ -190,9 +192,9 @@ namespace Extensions.BR
             cids = est?.Cidades.ToList() ?? cids;
 
             cids = cids
-                .Where(x => (NomeDaCidadeOuIBGE.SimilarityCaseInsensitive(x.Nome) > (Similaridade / 100)) || x.IBGE == NomeDaCidadeOuIBGE.RemoveMaskInt()).ToList();
+                .Where(x => (NomeDaCidadeOuIBGE.SimilarityCaseInsensitive(x.Nome) >= (Similaridade / 100)) || x.IBGE == NomeDaCidadeOuIBGE.RemoveMaskInt() || x.Nome.ToUpperInvariant().Split(Util.WhitespaceChar).SelectJoinString(c => c.GetFirstChars()) == NomeDaCidadeOuIBGE.ToUpperInvariant() || x.Nome.ToUpperInvariant().Split(Util.WhitespaceChar).RemoveAny("DO", "DOS", "DE").SelectJoinString(c => c.GetFirstChars()) == NomeDaCidadeOuIBGE.ToUpperInvariant()).ToList();
 
-            return cids.SingleOrDefault(x => x.IBGE == NomeDaCidadeOuIBGE.RemoveMaskInt()) ?? cids.OrderByDescending(x => x.Nome.SimilarityCaseInsensitive(NomeDaCidadeOuIBGE)).FirstOrDefault() ?? est?.Capital;
+            return cids.FirstOrDefault(x => x.IBGE == NomeDaCidadeOuIBGE.RemoveMaskInt()) ?? cids.OrderByDescending(x => x.Nome.SimilarityCaseInsensitive(NomeDaCidadeOuIBGE)).ThenByDescending(x => x.Capital).FirstOrDefault() ?? est?.Capital;
         }
         public static Cidade PegarCidade(int IBGE) => PegarEstado(IBGE.ToString())?.Cidades.FirstOrDefault(x => x.IBGE == IBGE);
 
