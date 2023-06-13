@@ -39,9 +39,6 @@ using Extensions.Locations;
 using Extensions.Pagination;
 using Extensions.Web;
 using Expression = System.Linq.Expressions.Expression;
-using System;
-using System.Linq;
-using System.Collections.Generic;
 
 namespace Extensions
 {
@@ -458,7 +455,7 @@ namespace Extensions
         public static bool? AsNullableBool(this object Value)
         {
             if (Value == null) return null;
-            else switch ($"{Value}".ToUpperInvariant())
+            else switch ($"{Value}".ToUpperInvariant().RemoveDiacritics())
                 {
                     case "NULL":
                         return null;
@@ -3076,7 +3073,7 @@ namespace Extensions
                 }
 
                 Color = Color ?? bitmap.GetPixel(X, Y).GetContrastColor(50f);
-                var B = new SolidBrush((Color)Color);
+                var B = new System.Drawing.SolidBrush((Color)Color);
                 graphics.DrawString(Text, Font, B, X, Y);
             }
 
