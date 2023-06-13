@@ -39,19 +39,20 @@ namespace Extensions.BR
         public static Image GerarAvatarAleatorio(bool SobrenomeUnico = false) => GerarNomeAleatorio(SobrenomeUnico).GenerateAvatarByName();
 
         public static AddressInfo GerarEnderecoFake() => GerarEnderecoFake<AddressInfo>();
-        public static T GerarEnderecoFake<T>() where T : AddressInfo
+        public static T GerarEnderecoFake<T>(string Label = "Casa") where T : AddressInfo
         {
             var e = Estados.RandomItem();
             var ad = CriarAddressInfo<T>(e.Nome, e.Cidades.RandomItem().Nome);
-            ad.Street = $"{AddressTypes.GetAllAdressTypes().RandomItem().AppendIf(".", x => x.Length < 3)} {GerarNomeAleatorio()}";
+            ad.Street = $"{AddressTypes.Avenida.Union(AddressTypes.Rua).Union(AddressTypes.Travessa).Union(AddressTypes.Alameda).RandomItem().AppendIf(".", x => x.Length < 3)} {GerarNomeAleatorio()}";
             ad.Neighborhood = GerarNomeAleatorio(true).PrependIf(new[] { "Jardim ", "Campos " }.RandomItem(), Util.RandomBool(75));
             ad.Number = Util.RandomNumber(10, 2000).ToString();
             ad.ZipCode = Util.RandomNumber(11111111, 99999999).FormatarCEP();
+            ad.Label = Label;
             ad.Complement = new[]
             {
                 "",
                 $"Casa {PredefinedArrays.AlphaUpperChars.Take(4).RandomItem()}",
-                $"Apto. {Util.RandomNumber(11,200)}",
+                $"Apto. {Util.RandomNumber(11,209)}",
                 $"Bloco {PredefinedArrays.AlphaUpperChars.Take(20).RandomItem()} Apto. {Util.RandomNumber(11,200)}",
                 $"Bloco {PredefinedArrays.AlphaUpperChars.Take(20).RandomItem()} Casa {Util.RandomNumber(1,12)}",
                 $"Bloco {PredefinedArrays.AlphaUpperChars.Take(20).RandomItem()} Casa {PredefinedArrays.AlphaUpperChars.Take(6).RandomItem()}",
@@ -97,7 +98,8 @@ namespace Extensions.BR
                                 node["TimeZone"].InnerText,
                                 node["Latitude"].InnerText.ToDecimal(),
                                 node["Longitude"].InnerText.ToDecimal(),
-                                node["Capital"].InnerText.AsBool()));
+                                node["Capital"].InnerText.AsBool()
+                                ));
                         }
 
                         e.Cidades = cities;
@@ -112,9 +114,10 @@ namespace Extensions.BR
         /// Retorna um <see cref="AddressInfo"/> da cidade e estado correspondentes
         /// </summary>
         /// <param name="NomeOuUFouIBGE"></param>
-        /// <param name="City"></param>
+        /// <param name="Cidade"></param>
         /// <returns></returns>
-        public static AddressInfo CriarAddressInfo(string NomeOuUFouIBGE, string City) => CriarAddressInfo<AddressInfo>(NomeOuUFouIBGE, City);
+        public static AddressInfo CriarAddressInfo(string NomeOuUFouIBGE, string Cidade) => CriarAddressInfo<AddressInfo>(NomeOuUFouIBGE, Cidade);
+        public static AddressInfo CriarAddressInfo(string CidadeOuIBGE) => CriarAddressInfo<AddressInfo>(CidadeOuIBGE);
 
         /// <summary>
         /// Retorna um <see cref="AddressInfo"/> da cidade e estado correspondentes
@@ -122,6 +125,11 @@ namespace Extensions.BR
         /// <param name="NomeOuUFouIBGE"></param>
         /// <param name="Cidade"></param>
         /// <returns></returns>
+        public static T CriarAddressInfo<T>(string EstadoOuIBGE) where T : AddressInfo
+        {
+            var cid = PegarCidade(EstadoOuIBGE, EstadoOuIBGE);
+            return CriarAddressInfo<T>(cid.Estado.UF, cid.Nome);
+        }
         public static T CriarAddressInfo<T>(string NomeOuUFouIBGE, string Cidade) where T : AddressInfo
         {
             if (NomeOuUFouIBGE.IsBlank() && Cidade.IsNotBlank())
@@ -132,7 +140,7 @@ namespace Extensions.BR
             var s = PegarEstado(NomeOuUFouIBGE);
             if (s != null)
             {
-                var c = PegarCidadePorAproximacao(s.UF, Cidade);
+                var c = PegarCidade(Cidade, s.UF);
                 var ends = Activator.CreateInstance<T>();
                 ends.City = c?.Nome ?? Cidade;
                 ends.State = s.Nome;
@@ -154,14 +162,39 @@ namespace Extensions.BR
             return null;
         }
 
-        public static Cidade PegarCidade(string NomeOuUFOuIBGE, string NomeDaCidadeOuIBGE)
+
+
+        /// <summary>
+        /// Retorna uma cidade a partir de seu nome ou codigo IBGE. Caso a cidade não seja encontrada mas o estado seja identificado, a capital desse estado é retornada no lugar
+        /// </summary>
+        public static Cidade PegarCidade(string NomeDaCidadeOuIBGE) => PegarCidade(NomeDaCidadeOuIBGE, 100);
+        /// <summary>
+        /// Retorna uma cidade a partir de seu nome ou codigo IBGE. A busca por nome da cidade é feita a partir da similaridade entre o nome fornecido e o nome cadastrado no banco de dados. Caso a cidade não seja encontrada mas o estado seja identificado, a capital desse estado é retornada no lugar
+        /// </summary>
+        public static Cidade PegarCidade(string NomeDaCidadeOuIBGE, int Similaridade) => PegarCidade(NomeDaCidadeOuIBGE, null, Similaridade);
+        /// <summary>
+        /// Retorna uma cidade a partir de seu nome ou codigo IBGE. Caso a cidade não seja encontrada mas o estado seja identificado, a capital desse estado é retornada no lugar
+        /// </summary>
+        public static Cidade PegarCidade(string NomeDaCidadeOuIBGE, string NomeOuUFOuIBGE) => PegarCidade(NomeDaCidadeOuIBGE, NomeOuUFOuIBGE, 100);
+
+        /// <summary>
+        /// Retorna uma cidade a partir de seu nome ou codigo IBGE.A busca por nome da cidade é feita a partir da similaridade entre o nome fornecido e o nome cadastrado no banco de dados. Caso a cidade não seja encontrada mas o estado seja identificado, a capital desse estado é retornada no lugar
+        /// </summary>
+        /// <param name="NomeOuUFOuIBGE">Nome do Estado ou Sigla do Estado ou código IBGE do Estado ou Cidade</param>
+        /// <param name="NomeDaCidadeOuIBGE">Nome da cidade ou código IBGE da cidade</param>
+        /// <param name="Similaridade">Porcentagem de similaridade entre o nome da cidade fornecido (<paramref name="NomeDaCidadeOuIBGE"/>) e o nome da cidade dentro do banco de dados (<see cref="Cidade.Nome"/>)</param>
+        /// <returns>as informações da cidade encontrada</returns>
+        public static Cidade PegarCidade(string NomeDaCidadeOuIBGE, string NomeOuUFOuIBGE, int Similaridade)
         {
+            NomeOuUFOuIBGE = NomeOuUFOuIBGE.IfBlank(NomeDaCidadeOuIBGE);
+            List<Cidade> cids = Cidades.ToList();
             var est = (PegarEstado(NomeOuUFOuIBGE) ?? PegarEstado(NomeDaCidadeOuIBGE));
-            if (est != null)
-            {
-                return est.Cidades.FirstOrDefault(x => x.Nome.ToSlugCase() == NomeDaCidadeOuIBGE.ToSlugCase() || x.IBGE == NomeDaCidadeOuIBGE.RemoveMaskInt());
-            }
-            return null;
+            cids = est?.Cidades.ToList() ?? cids;
+
+            cids = cids
+                .Where(x => (NomeDaCidadeOuIBGE.SimilarityCaseInsensitive(x.Nome) >= (Similaridade / 100)) || x.IBGE == NomeDaCidadeOuIBGE.RemoveMaskInt() || x.Nome.ToUpperInvariant().Split(Util.WhitespaceChar).SelectJoinString(c => c.GetFirstChars()) == NomeDaCidadeOuIBGE.ToUpperInvariant() || x.Nome.ToUpperInvariant().Split(Util.WhitespaceChar).RemoveAny("DO", "DOS", "DE").SelectJoinString(c => c.GetFirstChars()) == NomeDaCidadeOuIBGE.ToUpperInvariant()).ToList();
+
+            return cids.FirstOrDefault(x => x.IBGE == NomeDaCidadeOuIBGE.RemoveMaskInt()) ?? cids.OrderByDescending(x => x.Nome.SimilarityCaseInsensitive(NomeDaCidadeOuIBGE)).ThenByDescending(x => x.Capital).FirstOrDefault() ?? est?.Capital;
         }
         public static Cidade PegarCidade(int IBGE) => PegarEstado(IBGE.ToString())?.Cidades.FirstOrDefault(x => x.IBGE == IBGE);
 
@@ -169,9 +202,9 @@ namespace Extensions.BR
         /// Retorna o estado de uma cidade especifa. Pode trazer mais de um estado caso o nome da
         /// cidade seja igual em 2 ou mais estados
         /// </summary>
-        /// <param name="CityName"></param>
+        /// <param name="NomeDaCidade"></param>
         /// <returns></returns>
-        public static IEnumerable<Estado> PegarEstadoPeloNomeDaCidade(string CityName) => Estados.Where((Func<Estado, bool>)(x => x.Cidades.Any((Func<Cidade, bool>)(c => (Util.ToSlugCase(c.Nome) ?? Util.EmptyString) == (Util.ToSlugCase(CityName) ?? Util.EmptyString) || (c.IBGE.ToString() ?? Util.EmptyString) == (Util.ToSlugCase(CityName) ?? Util.EmptyString)))));
+        public static IEnumerable<Estado> PegarEstadoPeloNomeDaCidade(string NomeDaCidade) => Estados.Where(x => x.Cidades.Any(c => (Util.ToSlugCase(c.Nome) ?? Util.EmptyString) == (Util.ToSlugCase(NomeDaCidade) ?? Util.EmptyString) || (x.IBGE.ToString() ?? Util.EmptyString) == (Util.ToSlugCase(NomeDaCidade).GetFirstChars(2) ?? Util.EmptyString)));
 
         /// <summary>
         /// Procura numeros de telefone em um Texto
@@ -224,8 +257,6 @@ namespace Extensions.BR
                     CNPJ = CNPJ.ToLong().FormatarCNPJ();
                 }
             }
-
-
             return CNPJ;
         }
 
@@ -415,15 +446,8 @@ namespace Extensions.BR
         /// <returns></returns>
         public static IEnumerable<Cidade> PegarCidades(string NomeOuUFOuIBGE) => (PegarEstado(NomeOuUFOuIBGE)?.Cidades ?? new List<Cidade>()).AsEnumerable();
 
-        public static Cidade PegarCidadePorAproximacao(string NomeOuUFouIBGE, string NomeAproximadoDaCidade) => (PegarEstado(NomeOuUFouIBGE)?.Cidades ?? new List<Cidade>()).AsEnumerable().OrderBy(x => x.Nome.LevenshteinDistance(NomeAproximadoDaCidade)).Where(x => NomeAproximadoDaCidade.IsNotBlank()).FirstOrDefault();
 
-        /// <summary>
-        /// Retorna o nome da cidade mais parecido com o especificado em <paramref name="NomeAproximadoDaCidade"/>
-        /// </summary>
-        /// <param name="NomeOuUFouIBGE">Nome ou sigla do estado</param>
-        /// <param name="NomeAproximadoDaCidade">Nome da cidade</param>
-        /// <returns></returns>
-        public static string PegarNomeDaCidadePorAproximacao(string NomeOuUFouIBGE, string NomeAproximadoDaCidade) => (PegarCidadePorAproximacao(NomeOuUFouIBGE, NomeAproximadoDaCidade)?.Nome ?? Util.EmptyString).IfBlank(NomeAproximadoDaCidade);
+
 
         public static string PegarRotuloDocumento(this string Input, string DefaultLabel = Util.EmptyString)
         {
@@ -457,7 +481,7 @@ namespace Extensions.BR
         public static string PegarRegiao(string NomeOuUFOuIBGE) => PegarEstado(NomeOuUFOuIBGE)?.Regiao;
 
         /// <summary>
-        /// Retorna a as informações do estado a partir de um nome de estado ou sua sigla
+        /// Retorna a as informações do estado a partir de um nome de estado, sigla ou numero do IBGE do estado ou cidade
         /// </summary>
         /// <param name="NomeOuUFOuIBGE">Nome ou UF</param>
         /// <returns></returns>
@@ -468,7 +492,7 @@ namespace Extensions.BR
         }
 
         /// <summary>
-        /// Retorna a Sigla a partir de um nome de estado
+        /// Retorna a Sigla (UF) a partir de um nome de estado
         /// </summary>
         /// <param name="NomeOuUFOuIBGE"></param>
         /// <returns></returns>
@@ -479,7 +503,7 @@ namespace Extensions.BR
         /// </summary>
         /// <param name="Regiao"></param>
         /// <returns></returns>
-        public static IEnumerable<Estado> PegarEstadosDaRegiao(string Regiao) => Estados.Where((Func<Estado, bool>)(x => (Util.ToSlugCase(x.Regiao) ?? Util.EmptyString) == (Util.TrimBetween(Util.ToSlugCase(Regiao)) ?? Util.EmptyString) || Regiao.IsBlank()));
+        public static IEnumerable<Estado> PegarEstadosDaRegiao(string Regiao) => Estados.Where(x => (Util.ToSlugCase(x.Regiao) ?? Util.EmptyString) == (Util.TrimBetween(Util.ToSlugCase(Regiao)) ?? Util.EmptyString) || Regiao.IsBlank());
 
         /// <summary>
         /// Valida se a string é um telefone
@@ -1034,6 +1058,8 @@ namespace Extensions.BR
         /// </summary>
         /// <returns></returns>
         public IEnumerable<Cidade> Cidades { get; internal set; }
+
+        public Cidade Capital => Cidades?.FirstOrDefault(x => x.Capital);
 
         public string Pais { get; }
 

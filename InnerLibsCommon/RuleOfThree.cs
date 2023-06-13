@@ -54,23 +54,21 @@ namespace Extensions.Equations
             return null;
         }
 
-        public void SetMissing(T value) => GetMissing()?.SetValue(this, value);
+        public void SetMissing(decimal value) => GetMissing()?.SetValue(this, value);
 
         public T?[] ToArray() => new[] { X, Y };
 
         #endregion Public Methods
     }
-    public class RuleOfThree : RuleOfThree<decimal>
-    {
-    }
 
-    public class RuleOfThree<T> where T : struct
+
+    public class RuleOfThree
     {
         #region Private Fields
 
         private string custom_param_name;
 
-        private Func<T?> equationexp;
+        private Func<decimal?> equationexp;
 
         private string paramname;
 
@@ -84,12 +82,12 @@ namespace Extensions.Equations
             {
                 if (FirstEquation.MissX)
                 {
-                    equationexp = new Func<T?>(() => (FirstEquation.Y.ToDecimal() * SecondEquation.X.ToDecimal() / SecondEquation.Y.ToDecimal()).ChangeType<T>());
+                    equationexp = new Func<decimal?>(() => (FirstEquation.Y.ToDecimal() * SecondEquation.X.ToDecimal() / SecondEquation.Y.ToDecimal()).ChangeType<decimal>());
                     paramname = "FX";
                 }
                 else
                 {
-                    equationexp = new Func<T?>(() => (FirstEquation.X.ToDecimal() * SecondEquation.Y.ToDecimal() / SecondEquation.X.ToDecimal()).ChangeType<T>());
+                    equationexp = new Func<decimal?>(() => (FirstEquation.X.ToDecimal() * SecondEquation.Y.ToDecimal() / SecondEquation.X.ToDecimal()).ChangeType<decimal>());
                     paramname = "FY";
                 }
             }
@@ -97,28 +95,28 @@ namespace Extensions.Equations
             {
                 if (SecondEquation.MissX)
                 {
-                    equationexp = new Func<T?>(() => (SecondEquation.Y.ToDecimal() * FirstEquation.X.ToDecimal() / FirstEquation.Y.ToDecimal()).ChangeType<T>());
+                    equationexp = new Func<decimal?>(() => (SecondEquation.Y.ToDecimal() * FirstEquation.X.ToDecimal() / FirstEquation.Y.ToDecimal()).ChangeType<decimal>());
                     paramname = "SX";
                 }
                 else
                 {
-                    equationexp = new Func<T?>(() => (SecondEquation.X.ToDecimal() * FirstEquation.Y.ToDecimal() / FirstEquation.X.ToDecimal()).ChangeType<T>());
+                    equationexp = new Func<decimal?>(() => (SecondEquation.X.ToDecimal() * FirstEquation.Y.ToDecimal() / FirstEquation.X.ToDecimal()).ChangeType<decimal>());
                     paramname = "SY";
                 }
             }
             else
             {
-                equationexp = new Func<T?>(() => UnknownValue);
+                equationexp = new Func<decimal?>(() => UnknownValue);
                 paramname = null;
             }
         }
 
-        private void RuleExpression(params T?[] numbers)
+        internal void RuleExpression(params decimal?[] numbers)
         {
-            FirstEquation = FirstEquation ?? new EquationPair<T>(default, default);
-            SecondEquation = SecondEquation ?? new EquationPair<T>(default, default);
+            FirstEquation = FirstEquation ?? new EquationPair<decimal>(default, default);
+            SecondEquation = SecondEquation ?? new EquationPair<decimal>(default, default);
 
-            numbers = numbers ?? Array.Empty<T?>();
+            numbers = numbers ?? Array.Empty<decimal?>();
 
             if (numbers.Length < 3)
             {
@@ -133,7 +131,7 @@ namespace Extensions.Equations
             }
             else if (numbers.All(x => x.HasValue))
             {
-                throw new NoNullAllowedException("One of numbers must be NULL");
+                throw new ArgumentException("One of numbers must be NULL");
             }
             else if (numbers.Count(x => x.HasValue) < 3)
             {
@@ -159,7 +157,7 @@ namespace Extensions.Equations
         /// </summary>
         /// <param name="FirstEquation"></param>
         /// <param name="SecondEquation"></param>
-        public RuleOfThree(EquationPair<T> FirstEquation, EquationPair<T> SecondEquation)
+        public RuleOfThree(EquationPair<decimal> FirstEquation, EquationPair<decimal> SecondEquation)
         {
             this.FirstEquation = FirstEquation;
             this.SecondEquation = SecondEquation;
@@ -169,7 +167,7 @@ namespace Extensions.Equations
         /// <summary>
         /// Calcula uma regra de três
         /// </summary>
-        public RuleOfThree(params T?[] Numbers) => RuleExpression(Numbers);
+        public RuleOfThree(params decimal?[] Numbers) => RuleExpression(Numbers);
 
         public RuleOfThree(string Equation)
         {
@@ -180,24 +178,24 @@ namespace Extensions.Equations
             string e1ys = e1.LastOrDefault()?.TrimBetween();
             string e2xs = e2.FirstOrDefault()?.TrimBetween();
             string e2ys = e2.LastOrDefault()?.TrimBetween();
-            T? e1x = default;
+            decimal? e1x = default;
             if (e1xs.IsNumber())
-                e1x = Util.ChangeType<T>(e1xs);
+                e1x = Util.ChangeType<decimal>(e1xs);
             else
                 custom_param_name = e1xs;
-            T? e1y = default;
+            decimal? e1y = default;
             if (e1ys.IsNumber())
-                e1y = Util.ChangeType<T>(e1ys);
+                e1y = Util.ChangeType<decimal>(e1ys);
             else
                 custom_param_name = e1ys;
-            T? e2x = default;
+            decimal? e2x = default;
             if (e2xs.IsNumber())
-                e2x = Util.ChangeType<T>(e2xs);
+                e2x = Util.ChangeType<decimal>(e2xs);
             else
                 custom_param_name = e2xs;
-            T? e2y = default;
+            decimal? e2y = default;
             if (e2ys.IsNumber())
-                e2y = Util.ChangeType<T>(e2ys);
+                e2y = Util.ChangeType<decimal>(e2ys);
             else
                 custom_param_name = e2ys;
             RuleExpression(e1x, e1y, e2x, e2y);
@@ -211,17 +209,17 @@ namespace Extensions.Equations
         /// Primeira Equação
         /// </summary>
         /// <returns></returns>
-        public EquationPair<T> FirstEquation { get; private set; }
+        public EquationPair<decimal> FirstEquation { get; private set; }
 
         /// <summary>
         /// Segunda Equação
         /// </summary>
         /// <returns></returns>
-        public EquationPair<T> SecondEquation { get; private set; }
+        public EquationPair<decimal> SecondEquation { get; private set; }
 
         public string UnknownName => custom_param_name.IfBlank(paramname);
 
-        public T? UnknownValue => equationexp();
+        public decimal? UnknownValue => equationexp();
 
         #endregion Public Properties
 
@@ -231,7 +229,7 @@ namespace Extensions.Equations
         /// Atualiza o campo nulo da <see cref="EquationPair"/> correspondente pelo <see cref="UnknownValue"/>
         /// </summary>
         /// <returns></returns>
-        public RuleOfThree<T> Resolve()
+        public RuleOfThree Resolve()
         {
             GetExpression();
             if (FirstEquation.IsComplete && SecondEquation.IsNotComplete)
@@ -246,9 +244,9 @@ namespace Extensions.Equations
             return this;
         }
 
-        public T?[][] ToArray() => new[] { FirstEquation.ToArray(), SecondEquation.ToArray() };
+        public decimal?[][] ToArray() => new[] { FirstEquation.ToArray(), SecondEquation.ToArray() };
 
-        public T?[] ToFlatArray() => FirstEquation.ToArray().Union(SecondEquation.ToArray()).ToArray();
+        public decimal?[] ToFlatArray() => FirstEquation.ToArray().Union(SecondEquation.ToArray()).ToArray();
 
         public override string ToString()
         {

@@ -22,7 +22,7 @@ namespace Extensions.Dictionaries
         #region Private Fields
 
         private List<TClass> collection = new List<TClass>();
-        private Func<TClass, TKey> keyselector;
+        private readonly Func<TClass, TKey> keyselector;
 
         #endregion Private Fields
 
@@ -36,13 +36,8 @@ namespace Extensions.Dictionaries
         public SelfKeyDictionary(Func<TClass, TKey> KeySelector)
         {
             if (KeySelector != null)
-            {
                 keyselector = KeySelector;
-            }
-            else
-            {
-                throw new ArgumentException("KeySelector cannot be NULL");
-            }
+            else throw new ArgumentException("KeySelector cannot be NULL");
         }
 
         #endregion Public Constructors
@@ -53,7 +48,11 @@ namespace Extensions.Dictionaries
 
 
 
-        public object this[object key] { get => this[((TKey)key)]; set => this[((TKey)key)] = (TClass)value; }
+        public object this[object key]
+        {
+            get => this[((TKey)key)];
+            set => this[((TKey)key)] = (TClass)value;
+        }
 
         public TClass this[TKey key]
         {
@@ -61,27 +60,17 @@ namespace Extensions.Dictionaries
 
             set
             {
-                int indexo = collection.IndexOf(this[key]);
+                int indexo = collection.IndexOf(value ?? this[key]);
                 if (indexo > -1)
                 {
                     collection.RemoveAt(indexo);
                     if (value != null)
-                    {
                         collection.Insert(indexo, value);
-                    }
                 }
-                else
-                {
-                    if (value != null && !ContainsKey(keyselector(value)) && !ContainsKey(key))
-                    {
-                        collection.Add(value);
-                    }
-                }
-
+                else if (value != null && !ContainsKey(keyselector(value)) && !ContainsKey(key))
+                    collection.Add(value);
                 if (AutoSortProperty != null)
-                {
                     collection = collection.OrderBy(x => AutoSortProperty.Invoke(x)).ToList();
-                }
 
             }
         }
@@ -128,9 +117,7 @@ namespace Extensions.Dictionaries
         public void Add(object key, object value)
         {
             if (key is TKey && value is TClass cvalue)
-            {
                 Add(cvalue);
-            }
         }
 
         public IEnumerable<TKey> AddRange(params TClass[] Values) => AddRange((Values ?? Array.Empty<TClass>()).AsEnumerable());
@@ -146,7 +133,16 @@ namespace Extensions.Dictionaries
 
         public bool Contains(KeyValuePair<TKey, TClass> item) => collection.Any(x => keyselector(x).Equals(item.Key));
 
-        public bool Contains(object key) => key != null && key is TKey ckey && ContainsKey(ckey);
+        public bool Contains(object key)
+        {
+            if (key != null)
+                if (key is TKey ckey)
+                    return ContainsKey(ckey);
+                else if (key is TClass cvalue)
+                    return ContainsKey(this.keyselector(cvalue));
+
+            return false;
+        }
 
         public bool ContainsKey(TKey key) => Keys.Contains(key);
 
@@ -154,15 +150,9 @@ namespace Extensions.Dictionaries
 
         public void CopyTo(Array array, int index)
         {
-
             if (array != null && array is TClass[] ppArray)
-            {
                 ((ICollection<TClass>)this).CopyTo(ppArray, index);
-            }
-            else
-            {
-                throw new ArgumentNullException(nameof(array));
-            }
+            else throw new ArgumentNullException(nameof(array));
 
         }
 
@@ -177,9 +167,7 @@ namespace Extensions.Dictionaries
                     var ii = this[key];
 
                     if (ii != null)
-                    {
                         return collection.Remove(ii);
-                    }
                 }
             }
             catch
@@ -196,9 +184,7 @@ namespace Extensions.Dictionaries
         public void Remove(object key)
         {
             if (key is TKey ckey)
-            {
                 Remove(ckey);
-            }
         }
 
         public bool TryGetValue(TKey key, out TClass value)
@@ -221,10 +207,7 @@ namespace Extensions.Dictionaries
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        IDictionaryEnumerator IDictionary.GetEnumerator()
-        {
-            return (this.ToDictionary(x => x.Key, x => x.Value) as IDictionary).GetEnumerator();
-        }
+        IDictionaryEnumerator IDictionary.GetEnumerator() => (this.ToDictionary(x => x.Key, x => x.Value) as IDictionary).GetEnumerator();
 
         #endregion Public Methods
     }
