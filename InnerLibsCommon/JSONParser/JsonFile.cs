@@ -13,7 +13,15 @@ namespace Extensions.ComplexText
     /// <remarks>Your POCO class nedd a public, parameterless constructor</remarks>
     public abstract class JsonFile
     {
+        #region Private Fields
+
         private string filePath;
+
+        #endregion Private Fields
+
+
+
+        #region Public Properties
 
         /// <summary>
         /// The default file name used to save JsonFiles
@@ -34,11 +42,6 @@ namespace Extensions.ComplexText
         /// When not blank, encrypt the json file using this string as Key
         /// </summary>
         [IgnoreDataMember] public string EncryptKey { get; set; }
-
-        /// <summary>
-        /// Define JSON serialization parameters
-        /// </summary>
-        [IgnoreDataMember] public JSONParameters JsonParameters { get; set; } = new JSONParameters();
 
         /// <summary>
         /// <see cref="FileInfo"/> of current JsonFile
@@ -71,6 +74,17 @@ namespace Extensions.ComplexText
         [IgnoreDataMember] public bool IsEncrypted => EncryptKey.IsNotBlank();
 
         /// <summary>
+        /// Define JSON serialization parameters
+        /// </summary>
+        [IgnoreDataMember] public JSONParameters JsonParameters { get; set; } = new JSONParameters();
+
+        #endregion Public Properties
+
+
+
+        #region Public Methods
+
+        /// <summary>
         /// Load values of a JsonFile into a <typeparamref name="T"/> object
         /// </summary>
         /// <typeparam name="T">Object T</typeparam>
@@ -79,13 +93,13 @@ namespace Extensions.ComplexText
         /// <returns></returns>
         public static T Load<T>(FileInfo File, string EncryptKey, JSONParameters parameters = null) where T : JsonFile => Load<T>(File?.FullName, EncryptKey, parameters);
 
-        /// <inheritdoc cref="Load{T}"/>
+        /// <inheritdoc cref="Load{T}(FileInfo,string,JSONParameters)"/>
         public static T Load<T>(DirectoryInfo Directory, string EncryptKey, JSONParameters parameters = null) where T : JsonFile => Load<T>(Directory?.FullName, EncryptKey, parameters);
 
-        /// <inheritdoc cref="Load{T}"/>
+        /// <inheritdoc cref="Load{T}(FileInfo,string,JSONParameters)"/>
         public static T Load<T>() where T : JsonFile => Load<T>(Util.EmptyString, null);
 
-        /// <inheritdoc cref="Load{T}"/>
+        /// <inheritdoc cref="Load{T}(FileInfo,string,JSONParameters)"/>
         public static T Load<T>(string FileOrDirectoryPath, string EncryptKey, JSONParameters parameters = null) where T : JsonFile
         {
             T c;
@@ -105,6 +119,18 @@ namespace Extensions.ComplexText
 
             return c;
         }
+
+        /// <summary>
+        /// Delete the file and return TRUE if file can be re-created
+        /// </summary>
+        /// <returns></returns>
+        public bool Delete() => this.File.DeleteIfExist();
+
+        /// <summary>
+        /// Get the Json String representation of this file.
+        /// </summary>
+        /// <returns></returns>
+        public string GetJson(bool Minify = false) => Minify ? this.ToJson(this.JsonParameters ?? JSON.Parameters) : this.ToNiceJson(this.JsonParameters ?? JSON.Parameters);
 
         public void Load()
         {
@@ -126,18 +152,6 @@ namespace Extensions.ComplexText
         }
 
         /// <summary>
-        /// Delete the file and return TRUE if file can be re-created
-        /// </summary>
-        /// <returns></returns>
-        public bool Delete() => this.File.DeleteIfExist();
-
-        /// <summary>
-        /// Get the Json String representation of this file.
-        /// </summary>
-        /// <returns></returns>
-        public string GetJson(bool Minify = false) => Minify ? this.ToJson(this.JsonParameters ?? JSON.Parameters) : this.ToNiceJson(this.JsonParameters ?? JSON.Parameters);
-
-        /// <summary>
         /// Save the current values into a JsonFile
         /// </summary>
         /// <returns></returns>
@@ -151,5 +165,7 @@ namespace Extensions.ComplexText
 
             return s.WriteToFile(this.FilePath);
         }
+
+        #endregion Public Methods
     }
 }

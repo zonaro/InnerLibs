@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Extensions;
+ 
 
 namespace Extensions.Console
 {
@@ -128,6 +129,38 @@ namespace Extensions.Console
         /// </summary>
         /// <param name="Text">Texto</param>
         public static string ConsoleWrite(this string Text, int BreakLines = 0) => Text.ConsoleWrite(System.Console.ForegroundColor, BreakLines);
+
+
+        public static bool AskYesNo(string Question, string InvalidResponseMessage = null)
+        {
+            ConsoleWriteLine(Question.IfBlank("[Y]es, [N]o").Trim() + Util.WhitespaceChar);
+            string response = System.Console.ReadLine();
+            try
+            {
+                return response.AsBool();
+            }
+            catch 
+            {
+                if (InvalidResponseMessage.IsNotBlank()) ConsoleWriteLine(InvalidResponseMessage.Trim() + Util.WhitespaceChar);
+                return AskYesNo(Question);
+            }
+        }
+
+        public static bool? AskYesNoCancel(string Question, string InvalidResponseMessage = null)
+        {
+            ConsoleWriteLine(Question.IfBlank("[Y]es, [N]o, [C]ancel").Trim() + Util.WhitespaceChar);
+            string response = System.Console.ReadLine();
+            try
+            {
+                return response.AsNullableBool();
+            }
+            catch 
+            {
+                if (InvalidResponseMessage.IsNotBlank()) ConsoleWriteLine(InvalidResponseMessage.Trim() + Util.WhitespaceChar);
+                return AskYesNoCancel(Question);
+            }
+
+        }
 
         /// <summary>
         /// Escreve no console usando uma cor especifica
@@ -293,6 +326,13 @@ namespace Extensions.Console
             Key = System.Console.ReadKey().Key;
             return Key;
         }
+
+        public static ConsoleKey ReadConsoleKey()
+        {
+            ConsoleKey Key = default;
+            return ReadConsoleKey(ref Key);
+        }
+
         /// <summary>
         /// Escreve um menu e aguarda a seleção de um deles pelo usuário
         /// </summary>
@@ -302,7 +342,7 @@ namespace Extensions.Console
         /// <returns></returns>
         public static int Menu(this string Title, string MenuQuestion, params (string, Action<int>)[] menuItems)
         {
-            menuItems = menuItems ?? Array.Empty<(string , Action<int> )>();
+            menuItems = menuItems ?? Array.Empty<(string, Action<int>)>();
             int choice = -1;
             do
             {
@@ -324,7 +364,7 @@ namespace Extensions.Console
                         return choice;
                     }
                 }
-                
+
             } while (choice < 0 || choice >= menuItems.Length);
             return 0;
         }
