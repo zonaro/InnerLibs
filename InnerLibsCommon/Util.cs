@@ -39,6 +39,9 @@ using Extensions.Locations;
 using Extensions.Pagination;
 using Extensions.Web;
 using Expression = System.Linq.Expressions.Expression;
+using System;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace Extensions
 {
@@ -68,6 +71,8 @@ namespace Extensions
                 };
 
         private static readonly MethodInfo startsWithMethod = typeof(string).GetMethod("StartsWith", new[] { typeof(string) });
+
+
 
         /// <summary>
         /// Inject a <see cref="Hashtable"/> into <see cref="String"/>
@@ -450,34 +455,37 @@ namespace Extensions
             } while (Length > 0);
         }
 
+        public static bool? AsNullableBool(this object Value)
+        {
+            if (Value == null) return null;
+            else switch ($"{Value}".ToUpperInvariant())
+                {
+                    case "NULL":
+                        return null;
+                    case "":
+                    case "!":
+                    case "0":
+                    case "FALSE":
+                    case "NOT":
+                    case "NAO":
+                    case "NO":
+                    case "DISABLED":
+                    case "OFF":
+                    case "N":
+                        return false;
+                    default:
+                        return true;
+                }
+        }
+
         /// <summary>
         /// Retorna true se <paramref name="Value"/> não estiver em branco, for diferente de NULL,
         /// 'null' '0', 'not', 'nao', '!', 'no', 'disabled', 'off' ou 'false'
         /// </summary>
         /// <param name="Value"></param>
         /// <returns></returns>
-        public static bool AsBool(this object Value)
-        {
-            Value = $"{Value}".TrimBetween().ToUpperInvariant().RemoveAccents();
-            switch (Value)
-            {
-                case "":
-                case "!":
-                case "0":
-                case "FALSE":
-                case "NULL":
-                case "NOT":
-                case "NAO":
-                case "NO":
-                case "DISABLED":
-                case "OFF":
-                case "N":
-                    return false;
+        public static bool AsBool(this object Value) => AsNullableBool(Value) ?? false;
 
-                default:
-                    return true;
-            }
-        }
 
         /// <summary>
         /// Retorna um valor de um tipo especifico de acordo com um valor boolean
@@ -10246,6 +10254,7 @@ namespace Extensions
             return word;
         }
 
+        public static IOrderedEnumerable<TObject> Rank<TObject, TValue>(this IEnumerable<TObject> values, Expression<Func<TObject, TValue>> ValueSelector) where TObject : class where TValue : IComparable => Rank<TObject, TValue, int>(values, ValueSelector, null);
         /// <summary>
         /// Rankeia um <see cref="IEnumerable{TObject}"/> a partir de uma propriedade definida por
         /// <paramref name="ValueSelector"/> guardando sua posição no <paramref name="RankSelector"/>
@@ -10268,11 +10277,13 @@ namespace Extensions
                     if (RankSelector != null)
                     {
                         var filtered = values.Select(ValueSelector.Compile()).Distinct().ToList();
+                        var l = new List<TObject>();
                         foreach (TObject item in values)
                         {
-                            item.SetPropertyValue(RankSelector, (filtered.IndexOf((ValueSelector.Compile().Invoke(item))) + 1).ChangeType<TRank>());
+                            var pos = filtered.IndexOf((ValueSelector.Compile().Invoke(item))) + 1;
+                            l.Add(item.SetPropertyValue(RankSelector, pos.ChangeType<TRank>()));
                         }
-                        return values.OrderBy(RankSelector.Compile());
+                        return l.OrderBy(RankSelector.Compile());
                     }
                     return values as IOrderedEnumerable<TObject>;
                 }
@@ -13083,7 +13094,7 @@ namespace Extensions
 
                 if (IncludeHeader && Items.All(x => x.Keys.Any()))
                 {
-                    str += $"{Items.FirstOrDefault()?.Keys.SelectJoinString(Separator)}";
+                    str += $"{Items.FirstOrDefault()?.Keys.SelectJoinString(Separator)}{Environment.NewLine}";
                 }
                 str += $"{Items.SelectJoinString(x => x.Values.SelectJoinString(Separator), Environment.NewLine)}";
             }
@@ -16340,12 +16351,13 @@ namespace Extensions
         /// <returns>Um Fileinfo contendo as informações do arquivo criado</returns>
         public static FileInfo WriteToFile(this string Text, string FilePath, bool Append = false, Encoding Enconding = null, DateTime? DateAndTime = null)
         {
-            var s = new StreamWriter(FilePath, Append, Enconding ?? new UTF8Encoding(false));
+            StreamWriter s = null;
             try
             {
+                FilePath.CreateDirectoryIfNotExists();
+                s = new StreamWriter(FilePath, Append, Enconding ?? new UTF8Encoding(false));
                 DateAndTime = DateAndTime ?? DateTime.Now;
                 FilePath = DateAndTime.FormatPath(FilePath);
-                FilePath.CreateDirectoryIfNotExists();
                 s.Write(Text);
                 s.Close();
             }
@@ -16355,7 +16367,7 @@ namespace Extensions
             }
             finally
             {
-                s.Dispose();
+                s?.Dispose();
             }
 
             return new FileInfo(FilePath);
