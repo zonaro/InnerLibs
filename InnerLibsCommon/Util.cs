@@ -15261,6 +15261,7 @@ namespace Extensions
         /// <param name="Parenthesis">indica se o parametro deve ser encapsulando em parentesis</param>
         public static string ToSQLString(this FormattableString SQL, bool Parenthesis = true)
         {
+
             if (SQL != null)
             {
                 if (SQL.ArgumentCount > 0)
@@ -15293,7 +15294,7 @@ namespace Extensions
                                 }
                                 else if (GetNullableTypeOf(x).IsNumericType())
                                 {
-                                    pv.Add(x.ToString());
+                                    pv.Add(x.ToDecimal().ToString(CultureInfo.InvariantCulture));
                                 }
                                 else if (IsDate(x))
                                 {
