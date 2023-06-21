@@ -12972,7 +12972,7 @@ namespace Extensions
         /// <returns></returns>
         public static byte[] ToBytes(this FileInfo File)
         {
-            if (File != null)
+            if (File != null && File.Exists)
             {
                 using (var fStream = new FileStream(File.FullName, FileMode.Open, FileAccess.Read))
                 {
