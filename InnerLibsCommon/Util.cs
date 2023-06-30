@@ -15396,6 +15396,27 @@ namespace Extensions
             return lista;
         }
 
+
+        /// <summary>
+        /// Converts an integer value to its equivalent Radix string representation.
+        /// </summary>
+        /// <param name="value">The integer value to convert.</param>
+        /// <returns>The Radix string representation of the specified integer value.</returns>
+        public static string ToRadix(this int value)
+        {
+            const string digits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            if (value == 0) return "0";
+            int radix = digits.Length;
+            string result = "";
+            while (value > 0)
+            {
+                int remainder = value % radix;
+                value /= radix;
+                result = digits[remainder] + result;
+            }
+            return result;
+        }
+
         /// <summary>
         /// Projeta um unico array os valores sub-agrupados e unifica todos num unico array de
         /// arrays formando uma tabela
