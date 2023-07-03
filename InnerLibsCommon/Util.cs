@@ -12997,10 +12997,10 @@ namespace Extensions
         /// <summary>
         /// Gera uma cor a partir de uma palavra
         /// </summary>
-        /// <param name="Text">
-        /// Pode ser um texto em branco (Transparent), uma <see cref="NamedColors"/> (retorna aquela
+        /// <param name="Text">,
+        /// Pode ser um texto em branco (Transparent), um valor hexadecimal, um valor int ARGB, uma <see cref="NamedColors"/> (retorna aquela
         /// cor exata), uma palavra qualquer (gera proceduralmente uma cor) ou uma expressão de cor
-        /// (Red+Blue, Red-Blue,Green*Red etc).
+        /// (Red+Blue, Red-Blue,Green*Red etc). A palavra 'random' ou 'rnd' gera uma cor aleatória
         /// </param>
         /// <returns></returns>
         public static Color ToColor(this string Text)
