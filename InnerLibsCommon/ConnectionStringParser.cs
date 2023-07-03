@@ -38,6 +38,7 @@ namespace Extensions.Databases
                 Clear();
                 if (ConnectionString.IsNotBlank())
                 {
+                    Util.WriteDebug(ConnectionString, "Parsing ConnectionString");
                     foreach (var ii in ConnectionString.SplitAny(";").Select(t => t.Split(new char[] { '=' }, 2)).ToDictionary(t => t[0].Trim(), t => t[1].Trim(), StringComparer.InvariantCultureIgnoreCase))
                         this.Set(ii.Key.ToTitle(true), ii.Value);
                 }
