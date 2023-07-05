@@ -751,6 +751,92 @@ namespace Extensions
             return blurred;
         }
 
+
+        /// <summary>
+        /// Remove the background of an image.
+        /// </summary>
+        /// <param name="original">The original image.</param>
+        /// <param name="background">The background color.</param>
+        /// <returns>The image with the background removed.</returns>
+        public static Image RemoveBackground(this Image original, Color? background = null)
+        {
+            if (original != null)
+            {
+                Bitmap bmp = new Bitmap(original.Width, original.Height);
+
+                if (background == null || background.Value == Color.Transparent)
+                {
+                    // Detect the background color automatically.
+                    background = DetectBackgroundColor(original);
+                }
+
+                for (int i = 0; i < bmp.Height; i++)
+                {
+                    for (int j = 0; j < bmp.Width; j++)
+                    {
+                        Color pixelColor = ((Bitmap)original).GetPixel(j, i);
+
+                        if (pixelColor != background)
+                        {
+                            bmp.SetPixel(j, i, pixelColor);
+                        }
+                    }
+                }
+
+                return bmp;
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Detects the background color of an image.
+        /// </summary>
+        /// <param name="original">The original image.</param>
+        /// <returns>The detected background color.</returns>
+        private static Color DetectBackgroundColor(this Image original)
+        {
+            using (Bitmap bmp = new Bitmap(original.Width, original.Height))
+            {
+                using (Graphics g = Graphics.FromImage(bmp))
+                {
+                    g.DrawImage(original, 0, 0);
+                }
+
+                return bmp.GetPixel(0, 0);
+            }
+
+        }
+
+
+        /// <summary>
+        /// Inverte as cores de uma imagem.
+        /// </summary>
+        /// <param name="original">A imagem original.</param>
+        /// <returns>A imagem com as cores invertidas.</returns>
+        public static Image InvertColors(this Image original)
+        {
+            if (original != null)
+            {
+                Bitmap bmp = new Bitmap(original.Width, original.Height);
+
+                for (int i = 0; i < bmp.Height; i++)
+                {
+                    for (int j = 0; j < bmp.Width; j++)
+                    {
+                        Color pixelColor = ((Bitmap)original).GetPixel(j, i);
+                        Color newColor = Color.FromArgb(pixelColor.A,
+                                                         255 - pixelColor.R,
+                                                         255 - pixelColor.G,
+                                                         255 - pixelColor.B);
+                        bmp.SetPixel(j, i, newColor);
+                    }
+                }
+                return bmp;
+            }
+            return null;
+        }
+
+
         /// <summary>
         /// Encapsula um texto em uma caixa. Funciona somente com fonte monoespaçadas
         /// </summary>

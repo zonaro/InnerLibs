@@ -850,6 +850,7 @@ namespace Extensions.Colors
 
         public Bitmap CreateSolidImage(int Width, int Height) => new Bitmap(_scolor.CreateSolidImage(Width, Height));
 
+        public Bitmap CreateSolidImage(Size Size) => CreateSolidImage(Size.Width, Size.Height);
         public Bitmap CreateSolidImage(string Size = Util.EmptyString)
         {
             var s = Size.IfBlank("100").ParseSize();
