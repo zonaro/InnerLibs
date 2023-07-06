@@ -408,6 +408,7 @@ namespace Extensions
                 // draw the copy of the source image back over the original image, applying the ColorMatrix
                 g.DrawImage(bmp, rc, 0, 0, img.Width, img.Height, GraphicsUnit.Pixel, imgattr);
                 g.Dispose();
+                imgattr.Dispose();
                 return bmp;
             }
             catch
@@ -16404,6 +16405,10 @@ namespace Extensions
         /// </param>
         /// <returns>Um Fileinfo contendo as informações do arquivo criado</returns>
         public static FileInfo WriteToFile(this Stream Stream, string FilePath, DateTime? DateAndTime = null) => Stream.ToBytes().WriteToFile(FilePath, DateAndTime);
+
+        public static FileInfo WriteToFile(this byte[] Bytes, DirectoryInfo Directory, string SubDirectory, string FileName, DateTime? DateAndTime = null) => WriteToFile(Bytes, Path.Combine(Directory?.FullName, SubDirectory, Path.GetFileName(FileName)), DateAndTime);
+        public static FileInfo WriteToFile(this byte[] Bytes, DirectoryInfo Directory, string FileName, DateTime? DateAndTime = null) => WriteToFile(Bytes, Path.Combine(Directory?.FullName, Path.GetFileName(FileName)), DateAndTime);
+
 
         /// <summary>
         /// Salva um Array de Bytes em um arquivo
