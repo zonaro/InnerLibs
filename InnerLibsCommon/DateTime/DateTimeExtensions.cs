@@ -1790,6 +1790,8 @@ namespace Extensions
             }
         }
 
+        public static string ChangeDateFormat(this string Date, string ToFormat) => ChangeDateFormat(Date, "yyyy-MM-dd HH:mm:ss", ToFormat);
+
 
         /// <summary>
         /// COnverte um datetime para o formato de string do SQL server ou Mysql
