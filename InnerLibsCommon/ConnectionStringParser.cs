@@ -36,6 +36,7 @@ namespace Extensions.Databases
             try
             {
                 Clear();
+                Error = null;
                 if (ConnectionString.IsNotBlank())
                 {
                     Util.WriteDebug(ConnectionString, "Parsing ConnectionString");
@@ -43,12 +44,15 @@ namespace Extensions.Databases
                         this.Set(ii.Key.ToTitle(true), ii.Value);
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                Error = ex;
             }
 
             return this;
         }
+
+        Exception Error { get; set; }
 
         /// <summary>
         /// Retorna a connectionstring deste parser
