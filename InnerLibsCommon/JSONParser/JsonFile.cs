@@ -10,7 +10,7 @@ namespace Extensions.ComplexText
     /// Class that when inherited by a POCO class implements methods to save the values in an
     /// encrypted Json file
     /// </summary>
-    /// <remarks>Your POCO class nedd a public, parameterless constructor</remarks>
+    /// <remarks>Your POCO class need a public, parameterless constructor</remarks>
     public abstract class JsonFile
     {
         #region Private Fields
