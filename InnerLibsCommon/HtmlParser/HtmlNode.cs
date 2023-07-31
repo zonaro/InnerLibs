@@ -676,7 +676,7 @@ namespace Extensions.Web
 
         /// <summary>
         /// Inject values from <typeparamref name="T"/> object into <see cref="Content"/> and <see
-        /// cref="Attributes"/> of this <see cref="HtmlNode"/>
+        /// cref="Attributes"/> values of this <see cref="HtmlNode"/>
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="obj"></param>
@@ -716,11 +716,13 @@ namespace Extensions.Web
 
                 if (Index <= -1)
                 {
-                    Index = _children.Count - 1;
+                    _children.Add(Tag);
                 }
-
-                Index = Index.LimitIndex(_children);
-                _children.Insert(Index, Tag);
+                else
+                {
+                    Index = Index.LimitIndex(_children);
+                    _children.Insert(Index, Tag);
+                }
 
             }
             return this;
