@@ -330,7 +330,12 @@ namespace Extensions.BR
                 return Document;
             }
         }
-
+        /// <summary>
+        /// Retorna um documento formatado com seu rótulo
+        /// </summary>
+        /// <param name="Text">CPF, CNPJ, CEP, PIS, Email, Celular ou Telefone</param>
+        /// <param name="DefaultString"></param>
+        /// <returns></returns>
         public static string FormatarDocumentoComRotulo(this string Text, string DefaultString = Util.EmptyString)
         {
             var x = Text.PegarRotuloDocumento(DefaultString);
@@ -448,7 +453,12 @@ namespace Extensions.BR
 
 
 
-
+        /// <summary>
+        /// Retorna o rótulo do documento (CPF, CNPJ, CEP,EAN,PIS, CNH, Email, IP, Telefone ou Celular)
+        /// </summary>
+        /// <param name="Input"></param>
+        /// <param name="DefaultLabel"></param>
+        /// <returns></returns>
         public static string PegarRotuloDocumento(this string Input, string DefaultLabel = Util.EmptyString)
         {
             if (Input.CPFValido()) return "CPF";
@@ -464,6 +474,11 @@ namespace Extensions.BR
             return DefaultLabel;
         }
 
+        /// <summary>
+        /// Retorna o código IBGE do estado
+        /// </summary>
+        /// <param name="NomeOuUFouIBGE"></param>
+        /// <returns></returns>
         public static int? PegarCodigoIBGE(string NomeOuUFouIBGE) => PegarEstado(NomeOuUFouIBGE)?.IBGE;
 
         /// <summary>
@@ -496,7 +511,7 @@ namespace Extensions.BR
         /// </summary>
         /// <param name="NomeOuUFOuIBGE"></param>
         /// <returns></returns>
-        public static string PegarCodigoEstado(string NomeOuUFOuIBGE) => PegarEstado(NomeOuUFOuIBGE)?.UF;
+        public static string PegarUfEstado(string NomeOuUFOuIBGE) => PegarEstado(NomeOuUFOuIBGE)?.UF;
 
         /// <summary>
         /// Retorna os estados de uma região
@@ -611,7 +626,7 @@ namespace Extensions.BR
                     soma = 0;
                     for (int i = 0; i <= 13 - 1; i++)
                     {
-                        soma += int.Parse(tempCnpj[i].ToString()) * multiplicador2[i];
+                        soma += (int.Parse(tempCnpj[i].ToString()) * multiplicador2[i]);
                     }
 
                     resto = soma % 11;
@@ -1047,7 +1062,7 @@ namespace Extensions.BR
             if (NomeOuUF.IsNotBlank())
             {
                 Nome = Brasil.PegarNomeEstado(NomeOuUF);
-                UF = Brasil.PegarCodigoEstado(NomeOuUF);
+                UF = Brasil.PegarUfEstado(NomeOuUF);
                 Cidades = Brasil.PegarCidades(NomeOuUF);
                 Regiao = Brasil.PegarRegiao(NomeOuUF);
             }
