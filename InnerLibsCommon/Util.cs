@@ -1402,21 +1402,14 @@ namespace Extensions
         /// <param name="TopDirectory">Diretorio da operação</param>
         public static DirectoryInfo CleanDirectory(this DirectoryInfo TopDirectory, bool DeleteTopDirectoryIfEmpty = true)
         {
-            if (TopDirectory != null)
+            if (TopDirectory != null && TopDirectory.Exists)
             {
-                foreach (var diretorio in TopDirectory.GetDirectories("*", SearchOption.TopDirectoryOnly))
+                foreach (var subdir in TopDirectory.GetDirectories("*", SearchOption.TopDirectoryOnly))
                 {
-                    diretorio.GetDirectories().Each(subdiretorio => subdiretorio.CleanDirectory(true));
-
-                    if (diretorio.HasDirectories())
+                    if (subdir.Exists && subdir.HasDirectories())
                     {
-                        diretorio.CleanDirectory(true);
-                    }
-
-                    if (diretorio.IsEmpty())
-                    {
-                        diretorio.Delete();
-                    }
+                        subdir.CleanDirectory(true);
+                    }                    
                 }
 
                 if (DeleteTopDirectoryIfEmpty && TopDirectory.Exists && TopDirectory.IsEmpty())
