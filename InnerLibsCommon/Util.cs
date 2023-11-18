@@ -7599,6 +7599,13 @@ namespace Extensions
         public static bool IsNumericType<T>(this T Obj) => Obj.GetNullableTypeOf().IsIn(PredefinedArrays.NumericTypes);
 
         /// <summary>
+        /// Verifica se o numero é uma potencia de 2
+        /// </summary>
+        /// <param name="x"></param>
+        /// <returns></returns>
+        public static bool IsPowerOfTwo(this int x) => (x != 0) && ((x & (x - 1)) == 0);
+
+        /// <summary>
         /// Verifica se um numero é impar
         /// </summary>
         /// <param name="Value">Valor</param>
