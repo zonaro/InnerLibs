@@ -10,6 +10,7 @@ using System.Net.Mail;
 using System.Text;
 using Extensions;
 using Extensions.Web;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Extensions.Mail
 {
@@ -241,6 +242,17 @@ namespace Extensions.Mail
         public FluentMailMessage<T> AddAttachment(params Attachment[] Attachment) => AddAttachment((Attachment ?? Array.Empty<Attachment>()).AsEnumerable());
 
         /// <summary>
+        /// Cria e adciona um arquivo de texto ao email. Este arquivo é criado diretamente na mémoria e não no armazenamento.
+        /// </summary>     
+        public FluentMailMessage<T> AddAttachment(string TextAttachment, string Name, Encoding encoding = default)
+        {
+            encoding = encoding ?? Encoding.UTF8;
+            var bytes = encoding.GetBytes(TextAttachment);
+            return AddAttachment(bytes, Name);
+
+        }
+
+        /// <summary>
         /// Adciona um anexo ao email
         /// </summary>
         public FluentMailMessage<T> AddAttachment(IEnumerable<Attachment> Attachment)
@@ -373,7 +385,7 @@ namespace Extensions.Mail
 
         public FluentMailMessage<T> AddRecipient(Expression<Func<T, string>> EmailSelector, T[] Data)
         {
-            foreach (var x in Data ?? Array.Empty<T>()) AddRecipient(new TemplateMailAddress<T>(x, EmailSelector));           
+            foreach (var x in Data ?? Array.Empty<T>()) AddRecipient(new TemplateMailAddress<T>(x, EmailSelector));
             return this;
         }
 

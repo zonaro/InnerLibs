@@ -1409,7 +1409,7 @@ namespace Extensions
                     if (subdir.Exists && subdir.HasDirectories())
                     {
                         subdir.CleanDirectory(true);
-                    }                    
+                    }
                 }
 
                 if (DeleteTopDirectoryIfEmpty && TopDirectory.Exists && TopDirectory.IsEmpty())
@@ -13535,6 +13535,8 @@ namespace Extensions
         /// <returns></returns>
         public static string ToFullExceptionString(this Exception ex, string Separator = " => ") => ex.Traverse(x => x.InnerException).SelectJoinString(x => x.Message, Separator);
 
+
+
         /// <summary>
         /// Alterna uma variavel ente 2 valores diferentes
         /// </summary>
@@ -13549,7 +13551,7 @@ namespace Extensions
         /// Gera uma URL do google MAPs baseado na localização
         /// </summary>
         /// <param name="local">
-        /// Uma variavel do tipo InnerLibs.Location onde estão as informações como endereço e as
+        /// Uma variavel do tipo AddressInfo onde estão as informações como endereço e as
         /// coordenadas geográficas
         /// </param>
         /// <returns>Uma URI do Google Maps</returns>
