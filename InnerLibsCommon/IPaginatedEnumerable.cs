@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Drawing;
 using System.Linq;
 using System.Linq.Expressions;
 using Extensions;
@@ -155,23 +156,21 @@ namespace Extensions.Pagination
             get
             {
                 Expression exp = null;
-                foreach (var valor in Filters.Where(x => x.Enabled))
+                foreach (var valor in Filters.Where(x => x != null && x.Filter != null && x.Enabled))
                 {
-                    if (valor != null && valor.Filter != null)
+                    if (exp is null)
                     {
-                        if (exp is null)
-                        {
-                            exp = valor.Filter;
-                        }
-                        else if (valor.Conditional == FilterConditional.And)
-                        {
-                            exp = Expression.AndAlso(valor.Filter, exp);
-                        }
-                        else
-                        {
-                            exp = Expression.OrElse(valor.Filter, exp);
-                        }
+                        exp = valor.Filter;
                     }
+                    else if (valor.Conditional == FilterConditional.And)
+                    {
+                        exp = Expression.AndAlso(valor.Filter, exp);
+                    }
+                    else
+                    {
+                        exp = Expression.OrElse(valor.Filter, exp);
+                    }
+
                 }
 
                 return (BinaryExpression)exp;
@@ -433,29 +432,9 @@ namespace Extensions.Pagination
         /// <returns></returns>
         public Func<TClass, TRemap> RemapExpression
         {
-            get
-            {
-                if (typeof(TClass) == typeof(TRemap))
-                {
-                    return null;
-                }
-                else
-                {
-                    return remapexp;
-                }
-            }
+            get => remapexp;
 
-            set
-            {
-                if (typeof(TClass) == typeof(TRemap))
-                {
-                    remapexp = null;
-                }
-                else
-                {
-                    remapexp = value;
-                }
-            }
+            set => remapexp = value;
         }
 
         /// <summary>
@@ -474,7 +453,7 @@ namespace Extensions.Pagination
 
         #region Public Methods
 
-        public static implicit operator List<TRemap>(PaginationFilter<TClass, TRemap> obj) => obj.GetPage().ToList();
+        public static implicit operator List<TRemap>(PaginationFilter<TClass, TRemap> obj) => obj.ToList();
 
         public static implicit operator PaginationFilter<TClass, TRemap>(NameValueCollection NVC) => new PaginationFilter<TClass, TRemap>().UseNameValueCollection(NVC);
 
@@ -703,13 +682,13 @@ namespace Extensions.Pagination
             {
                 var filtereddata = GetQueryablePage(PageNumber);
 
-                if (RemapExpression is null || typeof(TClass) == typeof(TRemap))
+                if (RemapExpression != null)
                 {
-                    return filtereddata.Cast<TRemap>().ToArray();
+                    return filtereddata.Select(RemapExpression).ToArray();
                 }
                 else
                 {
-                    return filtereddata.Select(RemapExpression).ToArray();
+                    return filtereddata.Cast<TRemap>().ToArray();
                 }
             }
             else
@@ -777,7 +756,7 @@ namespace Extensions.Pagination
                 return filtereddata.AsQueryable();
             }
 
-            throw new Exception("Data is NULL.");
+            return Array.Empty<TClass>().AsQueryable();
         }
 
         /// <summary>
@@ -1229,6 +1208,9 @@ namespace Extensions.Pagination
             return this;
         }
 
+        public List<TRemap> ToList() => GetPage().ToList();
+        public List<TRemap> ToList(int PageNumber) => GetPage(PageNumber).ToList();
+
         #endregion Public Methods
     }
 
@@ -1258,7 +1240,7 @@ namespace Extensions.Pagination
     {
         #region Public Constructors
 
-        public PropertyFilter(PaginationFilter<TClassFrom, TClassTo> LB) => PaginationFilter = LB;
+        public PropertyFilter(PaginationFilter<TClassFrom, TClassTo> PaginationFilter) => this.PaginationFilter = PaginationFilter;
 
         #endregion Public Constructors
 
@@ -1321,7 +1303,7 @@ namespace Extensions.Pagination
         public IEnumerable<IComparable> PropertyValues { get; set; }
 
         /// <summary>
-        /// Separador utilizado pelo <see cref="CreateQueryParameter(Boolean)"/>
+        /// Separador utilizado pelo <see cref="CreateQueryParameter(bool)"/>
         /// </summary>
         /// <returns></returns>
         public string QueryStringSeparator { get; set; } = ":";
