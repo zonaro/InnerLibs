@@ -10,7 +10,6 @@ using System.Net.Mail;
 using System.Text;
 using Extensions;
 using Extensions.Web;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Extensions.Mail
 {
