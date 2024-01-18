@@ -6845,10 +6845,11 @@ namespace Extensions
             return false;
         }
 
-        public static Expression<Func<T, bool>> IsBetween<T, V>(this Expression<Func<T, V>> MinProperty, Expression<Func<T, V>> MaxProperty, IEnumerable<V> Values)
+        public static Expression<Func<T, bool>> IsBetween<T, TV
+            >(this Expression<Func<T, TV>> MinProperty, Expression<Func<T, TV>> MaxProperty, IEnumerable<TV> Values)
         {
             var exp = false.CreateWhereExpression<T>();
-            foreach (var item in Values ?? Array.Empty<V>())
+            foreach (var item in Values ?? Array.Empty<TV>())
             {
                 exp = exp.Or(WhereExpression(MinProperty, "<", new[] { (IComparable)item }).And(WhereExpression(MaxProperty, ">", new[] { (IComparable)item })));
             }
