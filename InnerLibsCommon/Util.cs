@@ -453,12 +453,29 @@ namespace Extensions
             } while (Length > 0);
         }
 
-        public static bool? AsNullableBool(this object Value)
+        /// <summary>
+        /// Converts an object to a nullable boolean.
+        /// </summary>
+        /// <param name="Value">The object to be converted.</param>
+        /// <param name="EverythingIsTrue">A flag indicating whether to return true for any value not explicitly mapped to false. Defaults to true.</param>
+        /// <returns>
+        /// A nullable boolean representing the converted value of the object. 
+        /// The following string values are considered:
+        /// - "NULL", "CANCEL", "CANCELAR": Returns null.
+        /// - "", "!", "0", "FALSE", "NOT", "NAO", "NO", "NOP", "DISABLED", "DISABLE", "OFF", "DESATIVADO", "DESATIVAR", "DESATIVO", "N": Returns false.
+        /// - "1", "S", "TRUE", "YES", "YEP", "SIM", "ENABLED", "ENABLE", "ON", "Y", "ATIVO", "ATIVAR", "ATIVADO": Returns true.
+        /// Any other value: Returns true if EverythingIsTrue is set to true, otherwise throws an ArgumentException.
+        /// </returns>
+        /// <exception cref="ArgumentException">Thrown when the object does not represent a valid option and the EverythingIsTrue flag is set to false.</exception>
+        public static bool? AsNullableBool(this object Value, bool EverythingIsTrue = true)
         {
+
             if (Value == null) return null;
             else switch ($"{Value}".ToUpperInvariant().RemoveDiacritics())
                 {
                     case "NULL":
+                    case "CANCEL":
+                    case "CANCELAR":
                         return null;
                     case "":
                     case "!":
@@ -467,22 +484,49 @@ namespace Extensions
                     case "NOT":
                     case "NAO":
                     case "NO":
+                    case "NOP":
                     case "DISABLED":
+                    case "DISABLE":
                     case "OFF":
+                    case "DESATIVADO":
+                    case "DESATIVAR":
+                    case "DESATIVO":
                     case "N":
                         return false;
-                    default:
+                    case "1":
+                    case "S":
+                    case "TRUE":
+                    case "YES":
+                    case "YEP":
+                    case "SIM":
+                    case "ENABLED":
+                    case "ENABLE":
+                    case "ON":
+                    case "Y":
+                    case "ATIVO":
+                    case "ATIVAR":
+                    case "ATIVADO":
                         return true;
+                    default:
+                        if (!EverythingIsTrue) throw new ArgumentException(nameof(Value), "Object does not represent a valid option");
+                        else return true;
                 }
         }
 
         /// <summary>
-        /// Retorna true se <paramref name="Value"/> não estiver em branco, for diferente de NULL,
-        /// 'null' '0', 'not', 'nao', '!', 'no', 'disabled', 'off' ou 'false'
+        /// Converts an object to a boolean.
         /// </summary>
-        /// <param name="Value"></param>
-        /// <returns></returns>
-        public static bool AsBool(this object Value) => AsNullableBool(Value) ?? false;
+        /// <param name="Value">The object to be converted.</param>
+        /// <param name="EverythingIsTrue">A flag indicating whether to return true for any value not explicitly mapped to false. Defaults to true.</param>
+        /// <returns>
+        /// A boolean representing the converted value of the object. 
+        /// The following string values are considered:
+        /// - "NULL", "CANCEL", "CANCELAR": Returns false as the function is non-nullable.
+        /// - "", "!", "0", "FALSE", "NOT", "NAO", "NO", "NOP", "DISABLED", "DISABLE", "OFF", "DESATIVADO", "DESATIVAR", "DESATIVO", "N": Returns false.
+        /// - "1", "S", "TRUE", "YES", "YEP", "SIM", "ENABLED", "ENABLE", "ON", "Y", "ATIVO", "ATIVAR", "ATIVADO": Returns true.
+        /// Any other value: Returns true if EverythingIsTrue is set to true, otherwise returns false.
+        /// </returns>
+        public static bool AsBool(this object Value, bool EverythingIsTrue = true) => AsNullableBool(Value, EverythingIsTrue) ?? false;
 
 
         /// <summary>
@@ -2099,7 +2143,7 @@ namespace Extensions
         /// <typeparam name="T">Tipo da classe</typeparam>
         /// <param name="Obj">Object</param>
         /// <returns></returns>
-        public static IEnumerable<Dictionary<string, object>> CreateDictionaryEnumerable<T>(this IEnumerable<T> Obj) => (Obj ?? Array.Empty<T>()).Select(x => x.CreateDictionary());
+        public static IEnumerable<Dictionary<string, object>> CreateDictionaryEnumerable<T>(this IEnumerable<T> Obj, params string[] Keys) => (Obj ?? Array.Empty<T>()).Select(x => x.CreateDictionary(Keys));
 
         /// <summary>
         /// Cria um diretório se o mesmo nao existir e retorna um <see cref="DirectoryInfo"/> deste diretório
@@ -2112,6 +2156,7 @@ namespace Extensions
         /// </remarks>
         public static DirectoryInfo CreateDirectoryIfNotExists(this string DirectoryName, DateTime? DateAndTime = null)
         {
+            DirectoryName = DirectoryName.ToFriendlyPathName();
             DirectoryName = DateAndTime.FormatPath(DirectoryName);
 
             if (DirectoryName.IsFilePath())
@@ -16465,14 +16510,18 @@ namespace Extensions
         public static FileInfo WriteToFile(this string Text, string FilePath, bool Append = false, Encoding Enconding = null, DateTime? DateAndTime = null)
         {
             StreamWriter s = null;
+
             try
             {
-                FilePath.CreateDirectoryIfNotExists();
-                s = new StreamWriter(FilePath, Append, Enconding ?? new UTF8Encoding(false));
                 DateAndTime = DateAndTime ?? DateTime.Now;
                 FilePath = DateAndTime.FormatPath(FilePath);
+                var f = new FileInfo(FilePath);
+                f.CreateDirectoryIfNotExists(DateAndTime);
+                s = new StreamWriter(FilePath, Append, Enconding ?? new UTF8Encoding(false));
                 s.Write(Text);
                 s.Close();
+                f.CreationTime = DateAndTime.Value;
+                return f;
             }
             catch (Exception ex)
             {
@@ -16483,7 +16532,7 @@ namespace Extensions
                 s?.Dispose();
             }
 
-            return new FileInfo(FilePath);
+
         }
 
         /// <summary>

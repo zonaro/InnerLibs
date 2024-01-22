@@ -194,7 +194,7 @@ namespace Extensions.Web
         public bool IsSelfClosing => !ChildNodes.Any() && !HtmlRules.GetTagFlags(TagName).HasFlag(HtmlTagFlag.NoSelfClosing);
 
         /// <summary>
-        /// Gets or sets the outer markup.
+        /// Gets the outer markup.
         /// </summary>
         public override string OuterHtml
         {
@@ -283,7 +283,7 @@ namespace Extensions.Web
             }
         }
 
-        public static HtmlElementNode CreateAnchor(string URL, string Text, string Target = "_self", object htmlAttributes = null) => new HtmlElementNode("a", htmlAttributes, Text).SetAttribute("src", URL, true).SetAttribute("target", Target, true);
+        public static HtmlElementNode CreateAnchor(string URL, string Text, string Target = "_self", object htmlAttributes = null) => new HtmlElementNode("a", htmlAttributes, Text).SetAttribute("href", URL, true).SetAttribute("target", Target, true);
 
         public static HtmlElementNode CreateAnchor(Uri URL, string Text, string Target = "_self", object htmlAttributes = null) => CreateAnchor(URL.AbsoluteUri, Text, Target, htmlAttributes);
 
@@ -921,6 +921,8 @@ namespace Extensions.Web
             }
         }
 
+        public static HtmlElementNode CreateNode(string HtmlString) => Parse(HtmlString) as HtmlElementNode;
+
         /// <summary>
         /// Gets this node's markup, excluding the outer HTML tags.
         /// </summary>
@@ -984,7 +986,7 @@ namespace Extensions.Web
             set { }
         }
 
-        public static IEnumerable<HtmlNode> Parse(string HtmlString) => HtmlString.IsNotBlank() ? new HtmlParser().Parse(HtmlString).ChildNodes : Array.Empty<HtmlNode>();
+        public static IEnumerable<HtmlNode> Parse(string HtmlString) => HtmlString.IsNotBlank() ? new HtmlParser().ParseChildren(HtmlString).AsEnumerable() : Array.Empty<HtmlNode>();
 
         public static IEnumerable<HtmlNode> Parse(Uri URL) => Parse(URL?.DownloadString());
 

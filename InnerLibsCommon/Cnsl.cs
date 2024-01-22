@@ -137,7 +137,7 @@ namespace Extensions.Console
             string response = System.Console.ReadLine();
             try
             {
-                return response.AsBool();
+                return response.AsBool(false);
             }
             catch 
             {
@@ -152,7 +152,7 @@ namespace Extensions.Console
             string response = System.Console.ReadLine();
             try
             {
-                return response.AsNullableBool();
+                return response.AsNullableBool(false);
             }
             catch 
             {

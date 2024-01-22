@@ -38,8 +38,8 @@ namespace Extensions.Web
         /// <param name="html">The HTML text to parse.</param>
         public IEnumerable<HtmlNode> ParseChildren(string html, bool ignoreHtmlRules = false)
         {
-            HtmlElementNode rootNode = new HtmlElementNode("[Temp]");
-            HtmlElementNode parentNode = rootNode;
+
+            HtmlElementNode parentNode = new HtmlElementNode("[Temp]");
             Parser.Reset(html);
             bool selfClosing;
             string tag;
@@ -155,10 +155,13 @@ namespace Extensions.Web
             }
 
             // Remove references to temporary parent node
-            parentNode.Each(n => n.ParentNode = null);
 
-            // Return collection of top-level nodes from nodes just parsed
-            return parentNode.ChildNodes;
+            while (parentNode.Count > 0)
+            {
+                yield return parentNode.FirstOrDefault()?.Detach();
+            }
+
+
         }
 
         /// <summary>

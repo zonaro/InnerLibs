@@ -13,10 +13,20 @@ namespace Extensions.Web
     /// </summary>
     public class HtmlDocument : HtmlElementNode
     {
+        /// <inheritdoc/>
         public override string OuterHtml => $"{this.HeaderNode?.ToString()}{base.OuterHtml}";
+
+        /// <inheritdoc/>
         public override string TagName { get => "html"; set => base.TagName = value.IfBlank("html"); }
+
+        /// <summary>
+        /// Current document BODY tag. Return this <see cref="HtmlDocument"/> if body is not present
+        /// </summary>
         public HtmlElementNode Body => ChildNodes.FirstOfType<HtmlElementNode>(x => x.TagName.EqualsIgnoreCaseAndAccents("body")) ?? this;
 
+        /// <summary>
+        /// Document Meta Charset
+        /// </summary>
         public string Charset
         {
             get => (this.ChildNodes.FirstOfType<HtmlElementNode>(x => x.TagName == "meta" && x.HasAttribute("charset"))?.GetAttribute("charset")).IfBlank(Encoding?.HeaderName);
@@ -35,8 +45,14 @@ namespace Extensions.Web
             }
         }
 
+        /// <summary>
+        /// The current HEAD tag of document. Return BODY tag if HEAD is not present
+        /// </summary>
         public HtmlElementNode Head => ChildNodes.FirstOfType<HtmlElementNode>(x => x.TagName.EqualsIgnoreCaseAndAccents("head")) ?? Body;
 
+        /// <summary>
+        /// Document language
+        /// </summary>
         public string Language
         {
             get => this.GetAttribute("lang");
@@ -48,19 +64,27 @@ namespace Extensions.Web
                 }
             }
         }
-
+        /// <summary>
+        /// Document Meta Author
+        /// </summary>
         public string Author
         {
             get => GetMeta(nameof(Author));
             set => SetMeta(nameof(Author), value);
         }
 
+        /// <summary>
+        /// Document Meta Description 
+        /// </summary>
         public string Description
         {
             get => GetMeta(nameof(Description));
             set => SetMeta(nameof(Description), value);
         }
 
+        /// <summary>
+        /// Document title
+        /// </summary>
         public string Title
         {
             get => this.FindFirst("title")?.InnerHtml;
@@ -75,6 +99,11 @@ namespace Extensions.Web
             }
         }
 
+        /// <summary>
+        /// Add inline CSS to HEAD
+        /// </summary>
+        /// <param name="InnerCss"></param>
+        /// <returns></returns>
         public HtmlElementNode AddInlineCss(string InnerCss)
         {
             if (InnerCss.IsNotBlank())
@@ -87,6 +116,11 @@ namespace Extensions.Web
             return null;
         }
 
+        /// <summary>
+        /// Add inline Javascript tag to Body
+        /// </summary>
+        /// <param name="jsString"></param>
+        /// <returns></returns>
         public HtmlElementNode AddInlineScript(string jsString)
         {
             if (jsString.IsNotBlank())
@@ -99,18 +133,28 @@ namespace Extensions.Web
             return null;
         }
 
-        public HtmlElementNode AddScript(string src)
+        /// <summary>
+        /// Add a JavaScript file to HEAD or BODY tag
+        /// </summary>
+        /// <param name="src"></param>
+        /// <returns></returns>
+        public HtmlElementNode AddScript(string src, bool AddToHead = false)
         {
             if (src.IsNotBlank())
             {
                 var scripto = new HtmlElementNode("script", new { src });
-                Body.Add(scripto);
+                if (AddToHead) Head.Add(scripto); else Body.Add(scripto);
                 return scripto;
             }
             return null;
         }
 
-        public HtmlElementNode AddStyle(string href)
+        /// <summary>
+        /// Add a CSS stylesheet link into HEAD tag
+        /// </summary>
+        /// <param name="href"></param>
+        /// <returns></returns>
+        public HtmlElementNode AddStyleSheet(string href)
         {
             if (href.IsNotBlank())
             {
@@ -121,9 +165,54 @@ namespace Extensions.Web
             return null;
         }
 
+        /// <inheritdoc/>
         public override string ToString() => OuterHtml;
 
-        public FileInfo Save() => this.ToString().WriteToFile(File, false, this.Encoding);
+
+
+
+        /// <summary>
+        /// Save the current <see cref="HtmlDocument"/> into a file and return a <see cref="FileInfo"/>
+        /// </summary>
+        /// <returns></returns>
+        public FileInfo Save() => SaveAs(this.File);
+
+        /// <summary>
+        /// Save the current <see cref="HtmlDocument"/> into a file and return a <see cref="FileInfo"/>
+        /// </summary>
+        /// <returns></returns>
+
+        public FileInfo SaveAs(string file)
+        {
+            if (file.IsNotBlank() && file.IsFilePath())
+            {
+                return SaveAs(file.ToFileInfo());
+            }
+            else
+            {
+                throw new ArgumentNullException(nameof(file), "File is not a vali file path");
+            }
+        }
+        public FileInfo SaveAs(DirectoryInfo directory)
+        {
+            if (directory == null)
+            {
+                throw new ArgumentNullException(nameof(directory), "Directory is null");
+            }
+
+            return SaveAs($"{directory.FullName}{Path.DirectorySeparatorChar}{this.Title.IfBlank($"{DateTime.Now.Ticks}")}.html");
+        }
+
+        public FileInfo SaveAs(FileInfo file)
+        {
+            if (file == null)
+            {
+                throw new ArgumentNullException(nameof(file), "File is null");
+            }
+
+            this.File = ToString().WriteToFile(file, false, this.Encoding);
+            return this.File;
+        }
 
         public HtmlElementNode SetMeta(string name, string content)
         {
@@ -145,6 +234,9 @@ namespace Extensions.Web
         /// </summary>
         public FileInfo File { get; set; }
 
+        /// <summary>
+        /// Document encoding
+        /// </summary>
         public Encoding Encoding { get; set; }
 
         /// <summary>
@@ -164,9 +256,17 @@ namespace Extensions.Web
             this.Encoding = new UTF8Encoding(false);
         }
 
-        const string DefaultTemplate = "<!doctype html><html lang=\"en\"><head>  <meta charset=\"utf-8\">  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">  <title></title>  <meta name=\"description\" content=\"\">  <meta name=\"author\" content=\"\">  <meta property=\"og:title\" content=\"\">  <meta property=\"og:type\" content=\"website\">  <meta property=\"og:url\" content=\"\">  <meta property=\"og:description\" content=\"\">  <meta property=\"og:image\" content=\"\">  <link rel=\"icon\" href=\"/favicon.ico\"> <link rel=\"apple-touch-icon\" href=\"\">  <link rel=\"stylesheet\" href=\"\"></head><body><script src=\"\"></script></body></html>";
+        /// <summary>
+        /// Return a default HTML template
+        /// </summary>
+        public const string DefaultTemplate = "<!DOCTYPE html ><html lang=\"en\"><head>  <meta charset=\"utf-8\">  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">  <title></title>  <meta name=\"description\" content=\"\">  <meta name=\"author\" content=\"\">  <meta property=\"og:title\" content=\"\">  <meta property=\"og:type\" content=\"website\">  <meta property=\"og:url\" content=\"\">  <meta property=\"og:description\" content=\"\">  <meta property=\"og:image\" content=\"\">  <link rel=\"icon\" href=\"/favicon.ico\"> <link rel=\"apple-touch-icon\" href=\"\"></head><body></body></html>";
 
 
+        /// <summary>
+        /// Create a <see cref="HtmlDocument"/> using the <see cref="HtmlDocument.DefaultTemplate"/>
+        /// </summary>
+        /// <returns></returns>
+        public static HtmlDocument CreateDefault() => new HtmlDocument(DefaultTemplate);
 
         public HtmlDocument(FileInfo file, Encoding encoding = null) : this(file?.ReadAllText(encoding))
         {
@@ -175,11 +275,12 @@ namespace Extensions.Web
             this.Charset = this.Encoding.HeaderName;
         }
 
-        public HtmlDocument(string HtmlString) : this()
+        private void buildHtml(string HtmlString)
         {
 
+            this.Clear();
 
-            var n = new HtmlParser().ParseChildren(HtmlString);
+            var n = new HtmlParser().ParseChildren(HtmlString).ToList();
 
             this.Add(n);
 
@@ -235,8 +336,10 @@ namespace Extensions.Web
                 o.Detach();
             }
 
-            this.Charset = this.Charset;
+            this.Charset = $"{Charset}"; //move o charset pro lugar certo
         }
+
+        public HtmlDocument(string HtmlString) : this() => buildHtml(HtmlString);
 
         public HeaderNode HeaderNode { get; set; }
 
