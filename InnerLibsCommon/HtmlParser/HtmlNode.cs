@@ -285,7 +285,7 @@ namespace Extensions.Web
 
         public static HtmlElementNode CreateAnchor(string URL, string Text, string Target = "_self", object htmlAttributes = null) => new HtmlElementNode("a", htmlAttributes, Text).SetAttribute("href", URL, true).SetAttribute("target", Target, true);
 
-        public static HtmlElementNode CreateAnchor(Uri URL, string Text, string Target = "_self", object htmlAttributes = null) => CreateAnchor(URL.AbsoluteUri, Text, Target, htmlAttributes);
+        public static HtmlElementNode CreateAnchor(Uri URL, string Text, string Target = "_self", object htmlAttributes = null) => CreateAnchor(URL?.AbsoluteUri, Text, Target, htmlAttributes);
 
         public static HtmlElementNode CreateBreakLine() => new HtmlElementNode("br");
 
