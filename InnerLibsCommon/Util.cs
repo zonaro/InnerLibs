@@ -72,7 +72,7 @@ namespace Extensions
 
         public static IEnumerable<T> OrderByIndexes<T>(this IEnumerable<T> list, params int[] indexes)
         {
-            if (indexes != null && indexes.Length > 0 && list !=null && list.Any())
+            if (indexes != null && indexes.Length > 0 && list != null && list.Any())
             {
                 var l = list.ToList();
                 List<T> orderedList = indexes.Where(index => index < list.Count()).Select(index => l[index]).ToList();
@@ -732,8 +732,7 @@ namespace Extensions
         /// Aplica um borrão a imagem
         /// </summary>
         /// <param name="Img"></param>
-        /// <param name="BlurSize"></param>
-        /// <param name="rectangle"></param>
+        /// <param name="BlurSize"></param>      
         /// <returns></returns>
         public static Image Blur(this Image Img, int BlurSize = 5) => Blur(Img, BlurSize, new System.Drawing.Rectangle(0, 0, Img.Width, Img.Height));
 
