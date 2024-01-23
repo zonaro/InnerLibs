@@ -70,6 +70,28 @@ namespace Extensions
         private static readonly MethodInfo startsWithMethod = typeof(string).GetMethod("StartsWith", new[] { typeof(string) });
 
 
+        public static IEnumerable<T> OrderByIndexes<T>(this IEnumerable<T> list, params int[] indexes)
+        {
+            if (indexes != null && indexes.Length > 0 && list !=null && list.Any())
+            {
+                var l = list.ToList();
+                List<T> orderedList = indexes.Where(index => index < list.Count()).Select(index => l[index]).ToList();
+
+                if (list.Count() > indexes.Length)
+                {
+                    orderedList.AddRange(list.Where((item, index) => !indexes.Contains(index)));
+                }
+
+                return orderedList.AsEnumerable();
+            }
+            return list.AsEnumerable();
+        }
+
+
+
+
+
+
 
         /// <summary>
         /// Inject a <see cref="Hashtable"/> into <see cref="String"/>
@@ -199,8 +221,6 @@ namespace Extensions
         public static int ThisYear => DateTime.Now.Year;
 
         public static int ThisMonth => DateTime.Now.Month;
-
-
 
         /// <summary>
         /// Generates a sequence of mid-ranges between a start and end value, divided into a
@@ -385,8 +405,6 @@ namespace Extensions
             return Text;
         }
 
-
-
         /// <summary>
         /// Applies a color matrix to an image.
         /// </summary>
@@ -416,7 +434,6 @@ namespace Extensions
                 return null;
             }
         }
-
 
         /// <summary>
         /// Aplica espacos em todos os caracteres de encapsulamento
@@ -459,7 +476,7 @@ namespace Extensions
         /// <param name="Value">The object to be converted.</param>
         /// <param name="EverythingIsTrue">A flag indicating whether to return true for any value not explicitly mapped to false. Defaults to true.</param>
         /// <returns>
-        /// A nullable boolean representing the converted value of the object. 
+        /// A nullable boolean representing the converted value of the object.
         /// The following string values are considered:
         /// - "NULL", "CANCEL", "CANCELAR": Returns null.
         /// - "", "!", "0", "FALSE", "NOT", "NAO", "NO", "NOP", "DISABLED", "DISABLE", "OFF", "DESATIVADO", "DESATIVAR", "DESATIVO", "N": Returns false.
@@ -469,7 +486,6 @@ namespace Extensions
         /// <exception cref="ArgumentException">Thrown when the object does not represent a valid option and the EverythingIsTrue flag is set to false.</exception>
         public static bool? AsNullableBool(this object Value, bool EverythingIsTrue = true)
         {
-
             if (Value == null) return null;
             else switch ($"{Value}".ToUpperInvariant().RemoveDiacritics())
                 {
@@ -477,6 +493,7 @@ namespace Extensions
                     case "CANCEL":
                     case "CANCELAR":
                         return null;
+
                     case "":
                     case "!":
                     case "0":
@@ -493,6 +510,7 @@ namespace Extensions
                     case "DESATIVO":
                     case "N":
                         return false;
+
                     case "1":
                     case "S":
                     case "TRUE":
@@ -507,6 +525,7 @@ namespace Extensions
                     case "ATIVAR":
                     case "ATIVADO":
                         return true;
+
                     default:
                         if (!EverythingIsTrue) throw new ArgumentException(nameof(Value), "Object does not represent a valid option");
                         else return true;
@@ -519,7 +538,7 @@ namespace Extensions
         /// <param name="Value">The object to be converted.</param>
         /// <param name="EverythingIsTrue">A flag indicating whether to return true for any value not explicitly mapped to false. Defaults to true.</param>
         /// <returns>
-        /// A boolean representing the converted value of the object. 
+        /// A boolean representing the converted value of the object.
         /// The following string values are considered:
         /// - "NULL", "CANCEL", "CANCELAR": Returns false as the function is non-nullable.
         /// - "", "!", "0", "FALSE", "NOT", "NAO", "NO", "NOP", "DISABLED", "DISABLE", "OFF", "DESATIVADO", "DESATIVAR", "DESATIVO", "N": Returns false.
@@ -527,7 +546,6 @@ namespace Extensions
         /// Any other value: Returns true if EverythingIsTrue is set to true, otherwise returns false.
         /// </returns>
         public static bool AsBool(this object Value, bool EverythingIsTrue = true) => AsNullableBool(Value, EverythingIsTrue) ?? false;
-
 
         /// <summary>
         /// Retorna um valor de um tipo especifico de acordo com um valor boolean
@@ -796,7 +814,6 @@ namespace Extensions
             return blurred;
         }
 
-
         /// <summary>
         /// Remove the background of an image.
         /// </summary>
@@ -849,9 +866,7 @@ namespace Extensions
 
                 return bmp.GetPixel(0, 0);
             }
-
         }
-
 
         /// <summary>
         /// Inverte as cores de uma imagem.
@@ -880,7 +895,6 @@ namespace Extensions
             }
             return null;
         }
-
 
         /// <summary>
         /// Encapsula um texto em uma caixa. Funciona somente com fonte monoespaçadas
@@ -1748,6 +1762,7 @@ namespace Extensions
         }
 
         public static bool ContainsAny<T>(this IEnumerable<T> List1, IEqualityComparer<T> Comparer, params T[] List2) => ContainsAny(List1, List2);
+
         public static bool ContainsAny<T>(this IEnumerable<T> List1, params T[] List2) => ContainsAny(List1, List2.AsEnumerable());
 
         /// <summary>
@@ -2443,7 +2458,6 @@ namespace Extensions
 
         /// <inheritdoc  cref="CreateSolidImage(Color, int, int)"/>
         public static Image CreateSolidImage(this Color Color, Size Size) => CreateSolidImage(Color, Size.Width, Size.Height);
-
 
         public static SQLResponse<object> CreateSQLQuickResponse(this DbConnection Connection, FormattableString Command, string DataSetType, bool IncludeCommandText = false) => CreateSQLQuickResponse(Connection.CreateCommand(Command), DataSetType, IncludeCommandText);
 
@@ -3680,7 +3694,6 @@ namespace Extensions
             {
                 SecondValue = FirstValue;
             }
-
             else if (SecondValue == null && FirstValue == null)
             {
                 FirstValue = default;
@@ -3912,13 +3925,14 @@ namespace Extensions
         }
 
         public static string SimilarityPercentCaseInsensitive(this string Text1, string Text2, int Decimals = -1) => SimilarityCaseInsensitive(Text1, Text2).ToPercentString(Decimals, true);
+
         public static string SimilarityPercent(this string Text1, string Text2, int Decimals = -1) => Similarity(Text1, Text2).ToPercentString(Decimals, true);
+
         public static double Similarity(this string Text1, string Text2) => (1.0 - ((double)Text1.LevenshteinDistance(Text2) / (double)Math.Max(Text1.Length, Text2.Length)));
 
         public static double SimilarityCaseInsensitive(this string Text1, string Text2) => (1.0 - ((double)Text1.LevenshteinDistanceCaseInsensitive(Text2) / (double)Math.Max(Text1.Length, Text2.Length)));
 
         public static int LevenshteinDistanceCaseInsensitive(this string Text1, string Text2) => Text1.ToLower().LevenshteinDistance(Text2.ToLower());
-
 
         /// <summary>
         /// Formata o nome de uma coluna SQL adicionando <paramref name="QuoteChar"/> as <paramref
@@ -4876,6 +4890,7 @@ namespace Extensions
                 yield return Arr.GetIndexOf(i);
             }
         }
+
         public static int GetIndexOf<T>(this IEnumerable<T> Arr, T item)
         {
             try
@@ -5924,8 +5939,8 @@ namespace Extensions
         /// <returns></returns>
         public static string GetRelativeURL(this Uri URL, bool WithQueryString = true) => WithQueryString ? URL.PathAndQuery : URL.AbsolutePath;
 
-
         public static String GetRelativePath(FileSystemInfo fromPath, FileSystemInfo toPath) => GetRelativePath(fromPath?.FullName, toPath?.FullName);
+
         public static String GetRelativePath(String fromPath, String toPath)
         {
             if (String.IsNullOrEmpty(fromPath)) throw new ArgumentNullException("fromPath");
@@ -5934,7 +5949,7 @@ namespace Extensions
             Uri fromUri = new Uri(fromPath);
             Uri toUri = new Uri(toPath);
 
-            if (fromUri.Scheme != toUri.Scheme) { return toPath; } // path can't be made relative. 
+            if (fromUri.Scheme != toUri.Scheme) { return toPath; } // path can't be made relative.
 
             Uri relativeUri = fromUri.MakeRelativeUri(toUri);
             String relativePath = Uri.UnescapeDataString(relativeUri.ToString());
@@ -6033,17 +6048,17 @@ namespace Extensions
             return rft;
         }
 
-
         public static T GetSingleValue<T>(this DataRow data, int ColumnIndex = 0) => data != null ? data.GetValue<T>(ColumnIndex) : default;
+
         public static T GetSingleValue<T>(this DataTable table, int ColumnIndex = 0) => GetSingleValue<T>(table?.GetFirstRow(), ColumnIndex);
+
         public static T GetSingleValue<T>(this DataSet data, int ColumnIndex = 0) => GetSingleValue<T>(data?.GetFirstRow(), ColumnIndex);
 
         public static T GetSingleValue<T>(this DataRow data, string ColumnNameOrIndex) => data != null ? data.GetValue<T>(ColumnNameOrIndex) : default;
+
         public static T GetSingleValue<T>(this DataTable table, string ColumnNameOrIndex) => GetSingleValue<T>(table?.GetFirstRow(), ColumnNameOrIndex);
+
         public static T GetSingleValue<T>(this DataSet data, string ColumnNameOrIndex) => GetSingleValue<T>(data?.GetFirstRow(), ColumnNameOrIndex);
-
-
-
 
         /// <summary>
         /// Return the username of most social websites like facebook, tiktok, instagram and youtube
@@ -6056,6 +6071,7 @@ namespace Extensions
                 return GetSocialUsername(new Uri(url));
             else throw new Exception("Invalid URL");
         }
+
         public static string GetSocialUsername(this Uri uri)
         {
             if (uri == null) throw new ArgumentException("Uri is null", nameof(uri));
@@ -7227,6 +7243,7 @@ namespace Extensions
                 return false;
             }
         }
+
         /// <summary>
         /// Validates if a string is a valid domain name.
         /// </summary>
@@ -7259,9 +7276,10 @@ namespace Extensions
         /// <summary>
         /// Verifica se o objeto é um enumeravel (lista)
         /// </summary>
-        /// <param name="obj"></param>   
+        /// <param name="obj"></param>
         /// <returns></returns>
         public static bool IsEnumerable(this object obj) => IsGenericOf(obj, typeof(IEnumerable<>)) || IsGenericOf(obj, typeof(IEnumerable));
+
         public static Expression<Func<T, bool>> IsEqual<T, V>(this Expression<Func<T, V>> Property, V Value) => WhereExpression(Property, "equal", new[] { (IComparable)Value });
 
         public static bool IsEqual<T>(this T Value, T EqualsToValue) where T : IComparable => Value.Equals(EqualsToValue);
@@ -7754,7 +7772,6 @@ namespace Extensions
         /// <param name="Obj"></param>
         /// <returns></returns>
         public static bool IsTypeOf<T>(this T Obj, object Type) => Obj.GetTypeOf() == Type.GetTypeOf();
-
 
         /// <summary>
         /// Verifica se um determinado texto é uma URL válida
@@ -10385,6 +10402,7 @@ namespace Extensions
         }
 
         public static IOrderedEnumerable<TObject> Rank<TObject, TValue>(this IEnumerable<TObject> values, Expression<Func<TObject, TValue>> ValueSelector) where TObject : class where TValue : IComparable => Rank<TObject, TValue, int>(values, ValueSelector, null);
+
         /// <summary>
         /// Rankeia um <see cref="IEnumerable{TObject}"/> a partir de uma propriedade definida por
         /// <paramref name="ValueSelector"/> guardando sua posição no <paramref name="RankSelector"/>
@@ -10546,7 +10564,9 @@ namespace Extensions
         public static string RemoveAny(this string Text, params string[] Values) => Text.ReplaceMany(EmptyString, Values ?? Array.Empty<string>());
 
         public static string RemoveAny(this string Text, params char[] Values) => Text.RemoveAny(Values.Select(x => x.ToString()).ToArray());
+
         public static IEnumerable<T> RemoveAny<T>(this IEnumerable<T> Items, params T[] Values) => Items?.Where(x => x.IsNotIn(Values));
+
         public static IEnumerable<T> RemoveAny<T>(this IEnumerable<T> Items, IEqualityComparer<T> Comparer, params T[] Values) => Items?.Where(x => x.IsNotIn(Values, Comparer));
 
         /// <summary>
@@ -13588,8 +13608,6 @@ namespace Extensions
         /// <returns></returns>
         public static string ToFullExceptionString(this Exception ex, string Separator = " => ") => ex.Traverse(x => x.InnerException).SelectJoinString(x => x.Message, Separator);
 
-
-
         /// <summary>
         /// Alterna uma variavel ente 2 valores diferentes
         /// </summary>
@@ -15396,7 +15414,6 @@ namespace Extensions
         /// <param name="Parenthesis">indica se o parametro deve ser encapsulando em parentesis</param>
         public static string ToSQLString(this FormattableString SQL, bool Parenthesis = true)
         {
-
             if (SQL != null)
             {
                 if (SQL.ArgumentCount > 0)
@@ -15530,7 +15547,6 @@ namespace Extensions
             }));
             return lista;
         }
-
 
         /// <summary>
         /// Converts an integer value to its equivalent Radix string representation.
@@ -16390,8 +16406,6 @@ namespace Extensions
                         break;
                     }
 
-
-
             // Remover os dígitos repetidos consecutivos
             for (int i = code.Length - 1; i > 0; i--)
             {
@@ -16399,10 +16413,7 @@ namespace Extensions
                     code.Remove(i, 1);
             }
             return code.FixedLenghtByRight(4).ToInt();
-
         }
-
-
 
         /// <summary>
         /// Encapsula um tento entre 2 textos
@@ -16455,8 +16466,8 @@ namespace Extensions
         public static FileInfo WriteToFile(this Stream Stream, string FilePath, DateTime? DateAndTime = null) => Stream.ToBytes().WriteToFile(FilePath, DateAndTime);
 
         public static FileInfo WriteToFile(this byte[] Bytes, DirectoryInfo Directory, string SubDirectory, string FileName, DateTime? DateAndTime = null) => WriteToFile(Bytes, Path.Combine(Directory?.FullName, SubDirectory, Path.GetFileName(FileName)), DateAndTime);
-        public static FileInfo WriteToFile(this byte[] Bytes, DirectoryInfo Directory, string FileName, DateTime? DateAndTime = null) => WriteToFile(Bytes, Path.Combine(Directory?.FullName, Path.GetFileName(FileName)), DateAndTime);
 
+        public static FileInfo WriteToFile(this byte[] Bytes, DirectoryInfo Directory, string FileName, DateTime? DateAndTime = null) => WriteToFile(Bytes, Path.Combine(Directory?.FullName, Path.GetFileName(FileName)), DateAndTime);
 
         /// <summary>
         /// Salva um Array de Bytes em um arquivo
@@ -16531,8 +16542,6 @@ namespace Extensions
             {
                 s?.Dispose();
             }
-
-
         }
 
         /// <summary>
