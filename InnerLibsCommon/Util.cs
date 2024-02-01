@@ -1135,7 +1135,7 @@ namespace Extensions
 
         public static decimal CalculateValueFromPercent(this int Percent, decimal Total) => Percent.ToDecimal().CalculateValueFromPercent(Total);
 
-        public static decimal CalculateValueFromPercent(this decimal Percent, decimal Total) => Percent * Total / 100m;
+        public static decimal CalculateValueFromPercent(this decimal Percent, decimal Total) => Percent / 100m * Total;
 
         /// <summary>
         /// Verifica se o valor é um numero ou pode ser convertido em numero
@@ -5929,7 +5929,7 @@ namespace Extensions
         /// <typeparam name="T">Tipo da Matriz</typeparam>
         /// <param name="Array">Matriz</param>
         /// <returns>Um valor do tipo especificado</returns>
-        public static T GetRandomItem<T>(this T[] Array) => Array == null || Array.Length == 0 ? default : Array[RandomNumber(0, Array.Length - 1)];
+        public static T GetRandomItem<T>(this T[] Array) => Array == null || Array.Length == 0 ? default : Array[RandomInt(0, Array.Length - 1)];
 
         /// <summary>
         /// Retorna o caminho relativo da url
@@ -8176,7 +8176,7 @@ namespace Extensions
                 sb.Append(WhitespaceChar.Repeat(IdentSize));
                 for (int j = 0; j < SentenceCount.SetMinValue(1); j++)
                 {
-                    for (int k = 0; k < RandomNumber(MinWordCount.SetMinValue(1), MaxWordCount.SetMinValue(1)); k++)
+                    for (int k = 0; k < RandomInt(MinWordCount.SetMinValue(1), MaxWordCount.SetMinValue(1)); k++)
                     {
                         string word = Words.RandomItem();
                         if (k == 0)
@@ -10123,13 +10123,13 @@ namespace Extensions
         /// <param name="Min">Numero minimo, Padrão 0</param>
         /// <param name="Max">Numero Maximo, Padrão 999999</param>
         /// <returns>TRUE ou FALSE</returns>
-        public static bool RandomBool(Func<int, bool> Condition, int Min = 0, int Max = int.MaxValue) => Condition(RandomNumber(Min, Max));
+        public static bool RandomBool(Func<int, bool> Condition, int Min = 0, int Max = int.MaxValue) => Condition(RandomInt(Min, Max));
 
         /// <summary>
         /// Gera um valor boolean aleatorio
         /// </summary>
         /// <returns>TRUE ou FALSE</returns>
-        public static bool RandomBool() => RandomNumber(0, 1).ToBool();
+        public static bool RandomBool() => RandomInt(0, 1).ToBool();
 
         /// <summary>
         /// Gera uma cor aleatória misturando ou não os canais RGB
@@ -10144,9 +10144,9 @@ namespace Extensions
             Green = Green.SetMinValue(-1);
             Blue = Blue.SetMinValue(-1);
 
-            Red = (Red < 0 ? RandomNumber(0, 255) : Red).LimitRange<int>(0, 255);
-            Green = (Green < 0 ? RandomNumber(0, 255) : Green).LimitRange<int>(0, 255);
-            Blue = (Blue < 0 ? RandomNumber(0, 255) : Blue).LimitRange<int>(0, 255);
+            Red = (Red < 0 ? RandomInt(0, 255) : Red).LimitRange<int>(0, 255);
+            Green = (Green < 0 ? RandomInt(0, 255) : Green).LimitRange<int>(0, 255);
+            Blue = (Blue < 0 ? RandomInt(0, 255) : Blue).LimitRange<int>(0, 255);
             Alpha = Alpha.LimitRange<int>(0, 255);
             return Color.FromArgb(Alpha, Red, Green, Blue);
         }
@@ -10201,12 +10201,12 @@ namespace Extensions
         /// <returns>Um numero Inteiro</returns>
         public static DateTime RandomDateTime(int? Year = null, int? Month = null, int? Day = null, int? Hour = null, int? Minute = null, int? Second = null)
         {
-            Year = (Year ?? RandomNumber(DateTime.MinValue.Year, DateTime.MaxValue.Year)).ForcePositive().LimitRange(DateTime.MinValue.Year, DateTime.MaxValue.Year);
-            Month = (Month ?? RandomNumber(DateTime.MinValue.Month, DateTime.MaxValue.Month)).ForcePositive().LimitRange(1, 12);
-            Day = (Day ?? RandomNumber(DateTime.MinValue.Day, DateTime.MaxValue.Day)).ForcePositive().LimitRange(1, 31);
-            Hour = (Hour ?? RandomNumber(DateTime.MinValue.Hour, DateTime.MaxValue.Hour)).ForcePositive().LimitRange(1, 31);
-            Minute = (Minute ?? RandomNumber(DateTime.MinValue.Minute, DateTime.MaxValue.Minute)).ForcePositive().LimitRange(0, 59);
-            Second = (Second ?? RandomNumber(DateTime.MinValue.Second, DateTime.MaxValue.Second)).ForcePositive().LimitRange(0, 59);
+            Year = (Year ?? RandomInt(DateTime.MinValue.Year, DateTime.MaxValue.Year)).ForcePositive().LimitRange(DateTime.MinValue.Year, DateTime.MaxValue.Year);
+            Month = (Month ?? RandomInt(DateTime.MinValue.Month, DateTime.MaxValue.Month)).ForcePositive().LimitRange(1, 12);
+            Day = (Day ?? RandomInt(DateTime.MinValue.Day, DateTime.MaxValue.Day)).ForcePositive().LimitRange(1, 31);
+            Hour = (Hour ?? RandomInt(DateTime.MinValue.Hour, DateTime.MaxValue.Hour)).ForcePositive().LimitRange(1, 31);
+            Minute = (Minute ?? RandomInt(DateTime.MinValue.Minute, DateTime.MaxValue.Minute)).ForcePositive().LimitRange(0, 59);
+            Second = (Second ?? RandomInt(DateTime.MinValue.Second, DateTime.MaxValue.Second)).ForcePositive().LimitRange(0, 59);
 
             DateTime randomCreated = DateTime.Now;
             while (TryExecute(() => randomCreated = new DateTime(Year.Value, Month.Value, Day.Value, Hour.Value, Minute.Value, Second.Value)) != null)
@@ -10228,7 +10228,7 @@ namespace Extensions
             var Min = (MinDate ?? RandomDateTime()).Ticks;
             var Max = (MaxDate ?? RandomDateTime()).Ticks;
             FixOrder(ref Min, ref Max);
-            return new DateTime(RandomNumber(Min, Max));
+            return new DateTime(RandomLong(Min, Max));
         }
 
         /// <summary>
@@ -10282,14 +10282,101 @@ namespace Extensions
         /// <summary>
         /// Gera um numero Aleatório entre 2 números
         /// </summary>
+        /// <param name="Min">Numero minimo </param>
+        /// <param name="Max">Numero Maximo  </param>
+        /// <returns>Um numero Inteiro</returns>
+        public static T Random<T>(this T Min, T Max) where T : IComparable
+        {
+            FixOrder(ref Min, ref Max);
+
+            if (Min.Equals(Max)) return Min;
+
+            if (Min is int MinI && Max is int MaxI)
+            {
+                return init_rnd.Next(MinI, MaxI == int.MaxValue ? int.MaxValue : MaxI + 1).ChangeType<T>();
+            }
+            if (Min is decimal MinT && Max is decimal MaxT)
+            {
+                return (init_rnd.NextDouble().ToDecimal() * (MaxT - MinT) + MinT).ChangeType<T>();
+
+            }
+            else if (Min is double MinD && Max is double MaxD)
+            {
+                return (init_rnd.NextDouble() * (MaxD - MinD) + MinD).ChangeType<T>();
+
+            }
+            else if (Min is long MinL && Max is long MaxL)
+            {
+                MaxL = MaxL == long.MaxValue ? long.MaxValue : MaxL + 1;
+                byte[] buf = new byte[8];
+                init_rnd.NextBytes(buf);
+                long longRand = BitConverter.ToInt64(buf, 0);
+                return (Math.Abs(longRand % (MaxL - MinL)) + MinL).ChangeType<T>();
+            }
+            else if (Min is DateTime MinDate && Max is DateTime MaxDate)
+            {
+                return new DateTime(RandomLong(MinDate.Ticks, MaxDate.Ticks)).ChangeType<T>();
+            }
+
+            else if (Min is string MinS && Max is string MaxS)
+            {
+                return RandomWord(MinS.Length, MaxS.Length).ChangeType<T>();
+            }
+
+            else if (Min is short MinX && Max is short MaxX)
+            {
+                return RandomInt(MinX.ToInt(), MaxX.ToInt()).ChangeType<T>();
+            }
+
+            else if (Min is bool MinB && Max is bool MaxB)
+            {
+                return RandomBool().ChangeType<T>();
+            }
+
+            else if (Min is char MinC && Max is char MaxC)
+            {
+                return char.ConvertFromUtf32(RandomInt(MinC.ToInt(), MaxC.ToInt())).ChangeType<T>();
+
+            }
+            else
+            {
+
+                return default(T);
+            }
+
+        }
+
+        /// <summary>
+        /// Gera um numero Aleatório entre 2 números
+        /// </summary>
         /// <param name="Min">Numero minimo, Padrão 0</param>
         /// <param name="Max">Numero Maximo, Padrão <see cref="int.MaxValue"/></param>
         /// <returns>Um numero Inteiro</returns>
-        public static int RandomNumber(int Min = 0, int Max = int.MaxValue)
-        {
-            FixOrder(ref Min, ref Max);
-            return Min == Max ? Min : init_rnd.Next(Min, Max == int.MaxValue ? int.MaxValue : Max + 1);
-        }
+        public static short RandomShort(short Min = 0, short Max = short.MaxValue) => Random(Min, Max);
+
+        /// <summary>
+        /// Gera um numero Aleatório entre 2 números
+        /// </summary>
+        /// <param name="Min">Numero minimo, Padrão 0</param>
+        /// <param name="Max">Numero Maximo, Padrão <see cref="int.MaxValue"/></param>
+        /// <returns>Um numero Inteiro</returns>
+        public static int RandomInt(int Min = 0, int Max = int.MaxValue) => Random(Min, Max);
+
+        /// <summary>
+        /// Gera um numero Aleatório entre 2 números
+        /// </summary>
+        /// <param name="Min">Numero minimo, Padrão 0</param>
+        /// <param name="Max">Numero Maximo, Padrão <see cref="int.MaxValue"/></param>
+        /// <returns>Um numero Inteiro</returns>
+        public static double RandomDouble(double Min = 0, double Max = double.MaxValue) => Random(Min, Max);
+
+        /// <summary>
+        /// Gera um numero Aleatório entre 2 números
+        /// </summary>
+        /// <param name="Min">Numero minimo, Padrão 0</param>
+        /// <param name="Max">Numero Maximo, Padrão <see cref="int.MaxValue"/></param>
+        /// <returns>Um numero Inteiro</returns>
+        public static decimal RandomDecimal(decimal Min = 0, decimal Max = decimal.MaxValue) => Random(Min, Max);
 
         /// <summary>
         /// Gera um numero Aleatório entre 2 números
@@ -10297,22 +10384,7 @@ namespace Extensions
         /// <param name="Min">Numero minimo, Padrão 0</param>
         /// <param name="Max">Numero Maximo, Padrão <see cref="long.MaxValue"/></param>
         /// <returns>Um numero Inteiro</returns>
-        public static long RandomNumber(long Min, long Max = long.MaxValue)
-        {
-            FixOrder(ref Min, ref Max);
-            if (Min == Max)
-            {
-                return Min;
-            }
-            else
-            {
-                Max = Max == long.MaxValue ? long.MaxValue : Max + 1;
-                byte[] buf = new byte[8];
-                init_rnd.NextBytes(buf);
-                long longRand = BitConverter.ToInt64(buf, 0);
-                return Math.Abs(longRand % (Max - Min)) + Min;
-            }
-        }
+        public static long RandomLong(long Min, long Max = long.MaxValue) => Random(Min, Max);
 
         /// <summary>
         /// Gera uma Lista com numeros Aleatórios entre 2 números
@@ -10335,20 +10407,20 @@ namespace Extensions
                 }
                 else
                 {
-                    return Enumerable.Range(1, Count).Select(e => RandomNumber(Min, Max));
+                    return Enumerable.Range(1, Count).Select(e => RandomInt(Min, Max));
                 }
             }
             return Array.Empty<int>();
         }
 
-        public static string RandomUserName() => Util.RandomWord(5) + Util.RandomNumber(1111);
+        public static string RandomUserName() => Util.RandomWord(5) + Util.RandomInt(1111);
 
         /// <summary>
         /// Gera uma palavra aleatória com o numero de caracteres entre <paramref name="MinLength"/>
         /// e <paramref name="MaxLenght"/>
         /// </summary>
         /// <returns>Uma string contendo uma palavra aleatória</returns>
-        public static string RandomWord(int MinLength, int MaxLenght) => RandomWord(RandomNumber(MinLength.SetMinValue(1), MaxLenght.SetMinValue(1)));
+        public static string RandomWord(int MinLength, int MaxLenght) => RandomWord(RandomInt(MinLength.SetMinValue(1), MaxLenght.SetMinValue(1)));
 
         /// <summary>
         /// Gera uma palavra aleatória com o numero de caracteres
@@ -10357,7 +10429,7 @@ namespace Extensions
         /// <returns>Uma string contendo uma palavra aleatória</returns>
         public static string RandomWord(int Length = 0)
         {
-            Length = Length < 1 ? RandomNumber(2, 15) : Length;
+            Length = Length < 1 ? RandomInt(2, 15) : Length;
             string word = EmptyString;
             if (Length == 1)
             {
@@ -15270,7 +15342,7 @@ namespace Extensions
             Times = Times.SetMinValue(ch.Length);
             for (int index = 1, loopTo = Times; index <= loopTo; index++)
             {
-                int newindex = RandomNumber(0, ch.Length - 1);
+                int newindex = RandomInt(0, ch.Length - 1);
                 if (char.IsUpper(ch[newindex]))
                 {
                     ch[newindex] = char.ToLower(ch[newindex], CultureInfo.InvariantCulture);

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Extensions;
- 
 
 namespace Extensions.Console
 {
@@ -18,9 +17,37 @@ namespace Extensions.Console
 
         #endregion Public Delegates
 
-
-
         #region Public Methods
+
+        public static bool AskYesNo(string Question, string InvalidResponseMessage = null)
+        {
+            ConsoleWriteLine(Question.IfBlank("[Y]es, [N]o").Trim() + Util.WhitespaceChar);
+            string response = System.Console.ReadLine();
+            try
+            {
+                return response.AsBool(false);
+            }
+            catch
+            {
+                if (InvalidResponseMessage.IsNotBlank()) ConsoleWriteLine(InvalidResponseMessage.Trim() + Util.WhitespaceChar);
+                return AskYesNo(Question);
+            }
+        }
+
+        public static bool? AskYesNoCancel(string Question, string InvalidResponseMessage = null)
+        {
+            ConsoleWriteLine(Question.IfBlank("[Y]es, [N]o, [C]ancel").Trim() + Util.WhitespaceChar);
+            string response = System.Console.ReadLine();
+            try
+            {
+                return response.AsNullableBool(false);
+            }
+            catch
+            {
+                if (InvalidResponseMessage.IsNotBlank()) ConsoleWriteLine(InvalidResponseMessage.Trim() + Util.WhitespaceChar);
+                return AskYesNoCancel(Question);
+            }
+        }
 
         /// <summary>
         /// Toca um Beep
@@ -130,38 +157,6 @@ namespace Extensions.Console
         /// <param name="Text">Texto</param>
         public static string ConsoleWrite(this string Text, int BreakLines = 0) => Text.ConsoleWrite(System.Console.ForegroundColor, BreakLines);
 
-
-        public static bool AskYesNo(string Question, string InvalidResponseMessage = null)
-        {
-            ConsoleWriteLine(Question.IfBlank("[Y]es, [N]o").Trim() + Util.WhitespaceChar);
-            string response = System.Console.ReadLine();
-            try
-            {
-                return response.AsBool(false);
-            }
-            catch 
-            {
-                if (InvalidResponseMessage.IsNotBlank()) ConsoleWriteLine(InvalidResponseMessage.Trim() + Util.WhitespaceChar);
-                return AskYesNo(Question);
-            }
-        }
-
-        public static bool? AskYesNoCancel(string Question, string InvalidResponseMessage = null)
-        {
-            ConsoleWriteLine(Question.IfBlank("[Y]es, [N]o, [C]ancel").Trim() + Util.WhitespaceChar);
-            string response = System.Console.ReadLine();
-            try
-            {
-                return response.AsNullableBool(false);
-            }
-            catch 
-            {
-                if (InvalidResponseMessage.IsNotBlank()) ConsoleWriteLine(InvalidResponseMessage.Trim() + Util.WhitespaceChar);
-                return AskYesNoCancel(Question);
-            }
-
-        }
-
         /// <summary>
         /// Escreve no console usando uma cor especifica
         /// </summary>
@@ -234,6 +229,43 @@ namespace Extensions.Console
         /// </summary>
         /// <param name="Text">Texto</param>
         public static string ConsoleWriteLine(this string Text, int BreakLines = 1) => Text.ConsoleWriteLine(System.Console.ForegroundColor, BreakLines);
+
+        /// <summary>
+        /// Faz uma pergunta ao usuário e aguarda uma resposta
+        /// </summary>
+        /// <returns></returns>
+        public static T ConsoleWriteQuestion<T>(this string Text, T defaultValue = default) where T : struct
+        {
+            T aw = default;
+            do
+            {
+                ConsoleWriteLine(Text + " ");
+                try
+                {
+                    aw = System.Console.ReadLine().ChangeType<T>();
+                }
+                catch
+                {
+                }
+            } while (aw.IsBlank() && !typeof(T).IsNullableType());
+
+            return aw.IfBlank(defaultValue);
+        }
+
+        /// <summary>
+        /// Faz uma pergunta ao usuário e aguarda uma resposta
+        /// </summary>
+        /// <returns></returns>
+        public static string ConsoleWriteQuestion(this string Text, string defaultValue = default, bool allowBlank = false)
+        {
+            string aw;
+            do
+            {
+                ConsoleWriteLine(Text + " ");
+                aw = System.Console.ReadLine();
+            } while (aw.IsBlank() && !allowBlank);
+            return aw.IfBlank(defaultValue);
+        }
 
         public static string ConsoleWriteSeparator(char Separator = '-', ConsoleColor? Color = null, int BreakLines = 1) => ConsoleWriteSeparator(Util.EmptyString, Separator, Color, BreakLines);
 
@@ -308,32 +340,6 @@ namespace Extensions.Console
         public static string GetArgumentValue(this string[] args, string ArgName, string ValueIfNull = default) => GetArgumentValue<string>(args, ArgName, ValueIfNull);
 
         /// <summary>
-        /// Le o proximo caractere inserido no console pelo usuário
-        /// </summary>
-        /// <returns></returns>
-        public static char ReadChar(this ref char c)
-        {
-            c = System.Console.ReadKey().KeyChar;
-            return c;
-        }
-
-        /// <summary>
-        /// Le a proxima tecla pressionada pelo usuário
-        /// </summary>
-        /// <returns></returns>
-        public static ConsoleKey ReadConsoleKey(this ref ConsoleKey Key)
-        {
-            Key = System.Console.ReadKey().Key;
-            return Key;
-        }
-
-        public static ConsoleKey ReadConsoleKey()
-        {
-            ConsoleKey Key = default;
-            return ReadConsoleKey(ref Key);
-        }
-
-        /// <summary>
         /// Escreve um menu e aguarda a seleção de um deles pelo usuário
         /// </summary>
         /// <param name="Title"></param>
@@ -364,16 +370,39 @@ namespace Extensions.Console
                         return choice;
                     }
                 }
-
             } while (choice < 0 || choice >= menuItems.Length);
             return 0;
         }
 
+        /// <summary>
+        /// Le o proximo caractere inserido no console pelo usuário
+        /// </summary>
+        /// <returns></returns>
+        public static char ReadChar(this ref char c)
+        {
+            c = System.Console.ReadKey().KeyChar;
+            return c;
+        }
+
+        /// <summary>
+        /// Le a proxima tecla pressionada pelo usuário
+        /// </summary>
+        /// <returns></returns>
+        public static ConsoleKey ReadConsoleKey(this ref ConsoleKey Key)
+        {
+            Key = System.Console.ReadKey().Key;
+            return Key;
+        }
+
+        public static ConsoleKey ReadConsoleKey()
+        {
+            ConsoleKey Key = default;
+            return ReadConsoleKey(ref Key);
+        }
+
         #endregion Public Methods
 
-
-
-        #region Public Classes + Structs
+        #region Public Classes
 
         public class MenuItem
         {
@@ -385,6 +414,6 @@ namespace Extensions.Console
             #endregion Public Properties
         }
 
-        #endregion Public Classes + Structs
+        #endregion Public Classes
     }
 }

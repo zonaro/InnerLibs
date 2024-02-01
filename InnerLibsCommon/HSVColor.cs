@@ -735,7 +735,7 @@ namespace Extensions.Colors
         /// </summary>
         /// <param name="Name"></param>
         /// <returns></returns>
-        public static HSVColor RandomTransparentColor(string Name = null) => RandomColor().With(x => x.Opacity = Util.RandomNumber(0, 100)).With(x => x.Name = Name);
+        public static HSVColor RandomTransparentColor(string Name = null) => RandomColor().With(x => x.Opacity = Util.RandomInt(0, 100)).With(x => x.Name = Name);
 
         /// <summary>
         /// Retorna uma nova cor a partir da mistura aditiva de 2 cores

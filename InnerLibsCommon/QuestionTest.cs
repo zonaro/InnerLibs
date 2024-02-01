@@ -256,8 +256,8 @@ namespace Extensions.QuestionTests
                 var num2 = 0;
                 while (num1 == num2)
                 {
-                    num1 = Util.RandomNumber(0, Alternatives.Count - 1);
-                    num2 = Util.RandomNumber(0, Alternatives.Count - 1);
+                    num1 = Util.RandomInt(0, Alternatives.Count - 1);
+                    num2 = Util.RandomInt(0, Alternatives.Count - 1);
                 }
 
                 this.Alternatives.Move(num1, num2);
@@ -1064,8 +1064,8 @@ namespace Extensions.QuestionTests
                 var num2 = 0;
                 while (num1 == num2)
                 {
-                    num1 = Util.RandomNumber(0, Count - 1);
-                    num2 = Util.RandomNumber(0, Count - 1);
+                    num1 = Util.RandomInt(0, Count - 1);
+                    num2 = Util.RandomInt(0, Count - 1);
                 }
 
                 this.Move(num1, num2);

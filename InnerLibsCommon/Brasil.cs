@@ -45,16 +45,16 @@ namespace Extensions.BR
             var ad = CriarAddressInfo<T>(e.Nome, e.Cidades.RandomItem().Nome);
             ad.Street = $"{AddressTypes.Avenida.Union(AddressTypes.Rua).Union(AddressTypes.Travessa).Union(AddressTypes.Alameda).RandomItem().AppendIf(".", x => x.Length < 3)} {GerarNomeAleatorio()}";
             ad.Neighborhood = GerarNomeAleatorio(true).PrependIf(new[] { "Jardim ", "Campos " }.RandomItem(), Util.RandomBool(75));
-            ad.Number = Util.RandomNumber(10, 2000).ToString();
-            ad.ZipCode = Util.RandomNumber(11111111, 99999999).FormatarCEP();
+            ad.Number = Util.RandomInt(10, 2000).ToString();
+            ad.ZipCode = Util.RandomInt(11111111, 99999999).FormatarCEP();
             ad.Label = Label;
             ad.Complement = new[]
             {
                 "",
                 $"Casa {PredefinedArrays.AlphaUpperChars.Take(4).RandomItem()}",
-                $"Apto. {Util.RandomNumber(11,209)}",
-                $"Bloco {PredefinedArrays.AlphaUpperChars.Take(20).RandomItem()} Apto. {Util.RandomNumber(11,200)}",
-                $"Bloco {PredefinedArrays.AlphaUpperChars.Take(20).RandomItem()} Casa {Util.RandomNumber(1,12)}",
+                $"Apto. {Util.RandomInt(11,209)}",
+                $"Bloco {PredefinedArrays.AlphaUpperChars.Take(20).RandomItem()} Apto. {Util.RandomInt(11,200)}",
+                $"Bloco {PredefinedArrays.AlphaUpperChars.Take(20).RandomItem()} Casa {Util.RandomInt(1,12)}",
                 $"Bloco {PredefinedArrays.AlphaUpperChars.Take(20).RandomItem()} Casa {PredefinedArrays.AlphaUpperChars.Take(6).RandomItem()}",
             }.RandomItem();
             return ad;

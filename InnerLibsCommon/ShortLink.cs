@@ -121,9 +121,9 @@ namespace Exttensions.Web
             return string.Join(Util.EmptyString, s.Reverse());
         }
 
-        public string RandomHash() => Encode(Util.RandomNumber());
+        public string RandomHash() => Encode(Util.RandomInt());
 
-        public string RandomHash(int Min, int Max) => Encode(Util.RandomNumber(Min, Max));
+        public string RandomHash(int Min, int Max) => Encode(Util.RandomInt(Min, Max));
 
         public override string ToString() => Token;
 

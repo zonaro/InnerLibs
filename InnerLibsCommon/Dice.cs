@@ -247,7 +247,7 @@ namespace Extensions.RolePlayingGame
                             numfaces.Add(f);
                     }
 
-                    numfaces[Util.RandomNumber(1, numfaces.Count) - 1]._h.Add(DateTime.Now);
+                    numfaces[Util.RandomInt(1, numfaces.Count) - 1]._h.Add(DateTime.Now);
                 }
             }
 
