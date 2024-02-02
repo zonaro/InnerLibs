@@ -2524,6 +2524,7 @@ namespace Extensions
             {
                 resp.Status = "ERROR";
                 resp.Message = ex.ToFullExceptionString();
+                resp.HasError = true;
             }
             return resp;
         }
@@ -13686,6 +13687,9 @@ namespace Extensions
         public static string ToHexadecimal(this Color Color, bool Hash = true) => (Color.R.ToString("X2") + Color.G.ToString("X2") + Color.B.ToString("X2")).PrependIf("#", Hash);
 
         public static IEnumerable<HSVColor> ToHSVColorList(this IEnumerable<Color> ColorList) => ColorList?.Select(x => new HSVColor(x));
+
+        public static HSVColor ToHSVColor(this Color color) => new HSVColor(color);
+        public static HSVColor ToHSVColor(this string color) => new HSVColor(color);
 
         /// <summary>
         /// Converte um array de bytes para imagem

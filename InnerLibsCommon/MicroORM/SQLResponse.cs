@@ -55,9 +55,8 @@ namespace Extensions.Databases
         #endregion Public Methods
     }
 
-    /// <summary>
-    /// Enxtensões para <see cref="DbConnection"/> e classes derivadas
-    /// </summary>
+
+
 
 
     public class SQLResponse<T> : SQLResponse
@@ -67,8 +66,6 @@ namespace Extensions.Databases
         public T Data { get; set; }
 
         public bool HasData => Data != null && Data.IsNotBlank();
-
-
 
         #endregion Public Properties
     }
