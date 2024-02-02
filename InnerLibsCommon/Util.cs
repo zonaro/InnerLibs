@@ -69,7 +69,6 @@ namespace Extensions
 
         private static readonly MethodInfo startsWithMethod = typeof(string).GetMethod("StartsWith", new[] { typeof(string) });
 
-
         public static IEnumerable<T> OrderByIndexes<T>(this IEnumerable<T> list, params int[] indexes)
         {
             if (indexes != null && indexes.Length > 0 && list != null && list.Any())
@@ -86,12 +85,6 @@ namespace Extensions
             }
             return list.AsEnumerable();
         }
-
-
-
-
-
-
 
         /// <summary>
         /// Inject a <see cref="Hashtable"/> into <see cref="String"/>
@@ -732,7 +725,7 @@ namespace Extensions
         /// Aplica um borrão a imagem
         /// </summary>
         /// <param name="Img"></param>
-        /// <param name="BlurSize"></param>      
+        /// <param name="BlurSize"></param>
         /// <returns></returns>
         public static Image Blur(this Image Img, int BlurSize = 5) => Blur(Img, BlurSize, new System.Drawing.Rectangle(0, 0, Img.Width, Img.Height));
 
@@ -10298,12 +10291,10 @@ namespace Extensions
             if (Min is decimal MinT && Max is decimal MaxT)
             {
                 return (init_rnd.NextDouble().ToDecimal() * (MaxT - MinT) + MinT).ChangeType<T>();
-
             }
             else if (Min is double MinD && Max is double MaxD)
             {
                 return (init_rnd.NextDouble() * (MaxD - MinD) + MinD).ChangeType<T>();
-
             }
             else if (Min is long MinL && Max is long MaxL)
             {
@@ -10317,33 +10308,26 @@ namespace Extensions
             {
                 return new DateTime(RandomLong(MinDate.Ticks, MaxDate.Ticks)).ChangeType<T>();
             }
-
             else if (Min is string MinS && Max is string MaxS)
             {
                 return RandomWord(MinS.Length, MaxS.Length).ChangeType<T>();
             }
-
             else if (Min is short MinX && Max is short MaxX)
             {
                 return RandomInt(MinX.ToInt(), MaxX.ToInt()).ChangeType<T>();
             }
-
             else if (Min is bool MinB && Max is bool MaxB)
             {
                 return RandomBool().ChangeType<T>();
             }
-
             else if (Min is char MinC && Max is char MaxC)
             {
                 return char.ConvertFromUtf32(RandomInt(MinC.ToInt(), MaxC.ToInt())).ChangeType<T>();
-
             }
             else
             {
-
                 return default(T);
             }
-
         }
 
         /// <summary>
@@ -15249,6 +15233,21 @@ namespace Extensions
         /// <returns>Um DbCommand parametrizado</returns>
         public static DbCommand ToProcedure(this DbConnection Connection, string ProcedureName, Dictionary<string, object> Dic, DbTransaction Transaction = null, params string[] Keys)
         {
+            var sql = ProcedureName.ToProcedure(Dic, Keys);
+
+            return Connection.CreateCommand(sql, Dic.ToDictionary(x => x.Key, x => x.Value), Transaction);
+        }
+
+        /// <summary>
+        /// Monta um Comando SQL para executar uma procedure especifica e trata os valores
+        /// específicos de um <see cref="Dictionary{TKey, TValue}"/> como parametros da procedure
+        /// </summary>
+        /// <param name="Dic">Objeto</param>
+        /// <param name="ProcedureName">Nome da Procedure</param>
+        /// <param name="Keys">propriedades do objeto que devem ser utilizados</param>
+        /// <returns>Um DbCommand parametrizado</returns>
+        public static string ToProcedure(this string ProcedureName, Dictionary<string, object> Dic, params string[] Keys)
+        {
             Dic = Dic ?? new Dictionary<string, object>();
             Keys = Keys ?? Array.Empty<string>();
             if (!Keys.Any())
@@ -15260,10 +15259,9 @@ namespace Extensions
                 Keys = Dic.Keys.ToArray().Where(x => x.IsLikeAny(Keys)).ToArray();
             }
 
-            string sql = $"{ProcedureName} {Keys.SelectJoinString(key => $" @{key} = @__{key}", ", ")}";
-
-            return Connection.CreateCommand(sql, Dic.ToDictionary(x => x.Key, x => x.Value), Transaction);
+            return $"{ProcedureName} {Keys.SelectJoinString(key => $" @{key} = @__{key}", ", ")}";
         }
+
 
         /// <summary>
         /// Coloca o texto em TitleCase

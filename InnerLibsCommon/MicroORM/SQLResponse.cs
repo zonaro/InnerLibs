@@ -60,15 +60,25 @@ namespace Extensions.Databases
     /// </summary>
 
 
-    public class SQLResponse<T>
+    public class SQLResponse<T> : SQLResponse
     {
         #region Public Properties
 
         public T Data { get; set; }
-        public string Message { get; set; }
-        public string SQL { get; set; }
-        public string Status { get; set; }
+
+        public bool HasData => Data != null && Data.IsNotBlank();
+
+
 
         #endregion Public Properties
+    }
+
+    public class SQLResponse
+    {
+        public string Message { get; set; }
+
+        public bool HasError { get; set; }
+        public string SQL { get; set; }
+        public string Status { get; set; }
     }
 }
