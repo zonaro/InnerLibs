@@ -69,6 +69,67 @@ namespace Extensions
 
         private static readonly MethodInfo startsWithMethod = typeof(string).GetMethod("StartsWith", new[] { typeof(string) });
 
+
+        static public bool IsCopyOf(this FileInfo file1, FileInfo file2)
+        {
+            int file1byte;
+            int file2byte;
+            FileStream fs1;
+            FileStream fs2;
+
+            if (file1 == null || file2 == null)
+            {
+                return false;
+            }
+
+
+            // Determine if the same file was referenced two times.
+            if (file1.FullName == file2.FullName)
+            {
+                // Return true to indicate that the files are the same.
+                return true;
+            }
+
+            if (file1.Exists && file2.Exists)
+            {
+
+
+
+                // Open the two files.
+                fs1 = new FileStream(file1.FullName, FileMode.Open);
+                fs2 = new FileStream(file2.FullName, FileMode.Open);
+
+                // Check the file sizes. If they are not the same, the files are not the same.
+                if (fs1.Length != fs2.Length)
+                {
+                    // Close the files
+                    fs1.Close();
+                    fs2.Close();
+
+                    // Return false to indicate files are different
+                    return false;
+                }
+
+                // Read and compare a byte from each file until either a non-matching set of bytes is found
+                // or until the end of file1 is reached.
+                do
+                {
+                    // Read one byte from each file.
+                    file1byte = fs1.ReadByte();
+                    file2byte = fs2.ReadByte();
+                } while ((file1byte == file2byte) && (file1byte != -1));
+
+                // Close the files.
+                fs1.Close();
+                fs2.Close();
+
+                // Return the success of the comparison. "file1byte" is equal to "file2byte" at this point
+                // only if the files are the same.
+                return (file1byte - file2byte) == 0;
+            }
+            return false;
+        }
+
         public static IEnumerable<T> OrderByIndexes<T>(this IEnumerable<T> list, params int[] indexes)
         {
             if (indexes != null && indexes.Length > 0 && list != null && list.Any())
@@ -8982,7 +9043,7 @@ namespace Extensions
         /// <returns></returns>
         public static string NullIf(this string Value, string TestValue, StringComparison ComparisonType = StringComparison.InvariantCultureIgnoreCase)
         {
-            if (Value == null || Value.Equals(TestValue, ComparisonType))
+            if (Value != null && Value.Equals(TestValue, ComparisonType))
             {
                 Value = null;
             }
@@ -9262,7 +9323,7 @@ namespace Extensions
         /// inicio da coleção e então segue a ordem padrão para os outros.
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <typeparam name="DefaultOrderItem"></typeparam>
+
         /// <param name="items">colecao</param>
         /// <param name="Priority">Seletores que define a prioridade da ordem dos itens</param>
         /// <returns></returns>
@@ -9413,7 +9474,7 @@ namespace Extensions
         /// <returns></returns>
         public static T ParseDigits<T>(this string Text, CultureInfo Culture = null) where T : IConvertible => Text.ParseDigits(Culture).ChangeType<T>();
 
-        public static NameValueCollection ParseQueryString(this Uri URL) => URL?.Query.ParseQueryString();
+        public static NameValueCollection ParseQueryString(this Uri URL, params string[] Keys) => URL?.Query.ParseQueryString(Keys);
 
         /// <summary>
         /// Transforma uma <see cref="string"/> em um <see cref="NameValueCollection"/>

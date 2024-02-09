@@ -959,7 +959,7 @@ namespace Extensions
         /// <summary>
         /// Anonymous types have read only properties
         /// </summary>
-        public bool EnableAnonymousTypes { get; set; }
+        public bool EnableAnonymousTypes { get; set; } = true;
 
         /// <summary>
         /// Formatter indent spaces (default = 3)
@@ -1005,6 +1005,7 @@ namespace Extensions
         /// Serialize null values to the output (default = True)
         /// </summary>
         public bool SerializeNullValues { get; set; } = true;
+
         public bool SerializeBlankStringsAsNull { get; set; } = false;
 
         /// <summary>
@@ -1023,9 +1024,9 @@ namespace Extensions
         public bool ShowReadOnlyProperties { get; set; }
 
         /// <summary>
-        /// Use escaped unicode i.e. \uXXXX format for non ASCII characters (default = True)
+        /// Use escaped unicode i.e. \uXXXX format for non ASCII characters (default = false)
         /// </summary>
-        public bool UseEscapedUnicode { get; set; } = true;
+        public bool UseEscapedUnicode { get; set; } = false;
 
         /// <summary>
         /// Enable JSON extensions $types, $type, $map (default = False)

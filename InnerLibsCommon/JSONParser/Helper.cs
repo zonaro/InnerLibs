@@ -18,7 +18,7 @@ namespace Extensions
                     return CreateLong(s, 0, s.Length);
                 }
                 else
-                    throw new Exception("AutoConvertStringToNumbers is disabled for converting vstring : " + value);
+                    throw new Exception($"AutoConvertStringToNumbers is disabled for converting vstring : {value}");
             }
             else return value is long vlong ? vlong : Convert.ToInt64(value);
         }
@@ -124,13 +124,7 @@ namespace Extensions
 
         public static object CreateEnum(Type pt, object v) => Util.GetEnumValue($"{v}", pt);
 
-        public static Guid CreateGuid(string s)
-        {
-            if (s.IsNotBlank() && s?.Length > 30)
-                return new Guid(s);
-            else
-                return new Guid(Convert.FromBase64String(s));
-        }
+        public static Guid CreateGuid(string s) => s.IsNotBlank() && s?.Length > 30 ? new Guid(s) : new Guid(Convert.FromBase64String(s));
 
         public static unsafe int CreateInteger(string s, int index, int count)
         {
@@ -227,6 +221,7 @@ namespace Extensions
 
         public static NameValueCollection CreateNV(Dictionary<string, object> d)
         {
+
             NameValueCollection nv = new NameValueCollection();
             if (d != null)
                 foreach (var o in d)

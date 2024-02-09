@@ -18,11 +18,7 @@ namespace Extensions
     {
         #region Public Properties
 
-        public static DateTime BrazilianNow => TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById("E. South America Standard Time"));
 
-        public static DateTime BrazilianTomorrow => BrazilianNow.AddDays(1);
-
-        public static DateTime BrazilianYesterday => BrazilianNow.AddDays(-1);
 
         public static DateTime Tomorrow => DateTime.Now.AddDays(1);
 
