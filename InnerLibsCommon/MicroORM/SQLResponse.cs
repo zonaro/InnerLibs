@@ -7,8 +7,7 @@ namespace Extensions.Databases
 
     /// <summary>
     /// Constantes utilizadas na funçao <see cref="Util.CreateSQLQuickResponse(DbCommand,
-    /// string, bool)"/> e <see cref="Util.CreateSQLQuickResponse(DbConnection,
-    /// FormattableString, string,bool)"/>
+    /// string, bool)"/> e <see cref="Util.CreateSQLQuickResponse(DbCommand, string, bool) "/>
     /// </summary>
     public static class DataSetType
     {
@@ -27,6 +26,8 @@ namespace Extensions.Databases
         /// pode tambem ser representada pelas strings "PAIRS", "DICTIONARY", "ASSOCIATIVE",
         ///</remarks>
         public const string Pair = "PAIR";
+
+
 
         /// <summary>
         /// Coloca a primeira coluna do primeiro dataset no <see cref="SQLResponse{T}.Data"/>

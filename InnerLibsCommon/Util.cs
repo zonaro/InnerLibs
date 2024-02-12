@@ -2512,7 +2512,7 @@ namespace Extensions
         /// <inheritdoc  cref="CreateSolidImage(Color, int, int)"/>
         public static Image CreateSolidImage(this Color Color, Size Size) => CreateSolidImage(Color, Size.Width, Size.Height);
 
-        public static SQLResponse<object> CreateSQLQuickResponse(this DbConnection Connection, FormattableString Command, string DataSetType, bool IncludeCommandText = false) => CreateSQLQuickResponse(Connection.CreateCommand(Command), DataSetType, IncludeCommandText);
+        public static SQLResponse<object> CreateSQLQuickResponse(this DbConnection Connection, FormattableString Command, string DataSetType) => CreateSQLQuickResponse(Connection.CreateCommand(Command), DataSetType);
 
         /// <summary>
         /// Executa um <paramref name="Command"/> e retorna uma <see cref="SQLResponse{object}"/> de
@@ -2524,7 +2524,7 @@ namespace Extensions
         /// <param name="Command">Comando SQL com a <see cref="DbCommand.Connection"/> ja setada</param>
         /// <param name="DataSetType">Tipo da resposta. Ver <see cref="DataSetType"/></param>
         /// <returns></returns>
-        public static SQLResponse<object> CreateSQLQuickResponse(this DbCommand Command, string DataSetType, bool IncludeCommandText = false)
+        public static SQLResponse<object> CreateSQLQuickResponse(this DbCommand Command, string DataSetType)
         {
             var resp = new SQLResponse<object>();
             try
@@ -2537,7 +2537,8 @@ namespace Extensions
                     resp.Message = "Command or Connection is null";
                     return resp;
                 }
-                resp.SQL = IncludeCommandText.AsIf(Command.CommandText);
+                resp.SQL = Command.CommandText;
+
                 if (DataSetType.IsAny("value", "single", "id", "key"))
                 {
                     //primeiro valor da primeira linha do primeiro set
