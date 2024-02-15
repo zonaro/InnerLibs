@@ -6022,6 +6022,31 @@ namespace Extensions
         /// <returns></returns>
         public static string GetRelativeURL(this string URL, bool WithQueryString = true) => URL.IsURL() ? new Uri(URL).GetRelativeURL(WithQueryString) : null;
 
+
+
+
+        public static DateTime GetLatestCompileTime(this Assembly assembly)
+        {
+
+            var filePath = assembly.Location;
+            const int c_PeHeaderOffset = 60;
+            const int c_LinkerTimestampOffset = 8;
+
+            var buffer = new byte[2048];
+
+            using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+                stream.Read(buffer, 0, 2048);
+
+            var offset = BitConverter.ToInt32(buffer, c_PeHeaderOffset);
+            var secondsSince1970 = BitConverter.ToInt32(buffer, offset + c_LinkerTimestampOffset);
+            var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+            var linkTimeUtc = epoch.AddSeconds(secondsSince1970);
+
+            return linkTimeUtc;
+        }
+
+
         /// <summary>
         /// Pega os bytes de um arquivo embutido no assembly
         /// </summary>
@@ -7145,6 +7170,19 @@ namespace Extensions
                     else if (Value is DateTimeOffset off)
                     {
                         return off.Equals(DateTimeOffset.MinValue);
+                    }
+
+
+                    else if (Value is IDictionary dic)
+                    {
+                        foreach (DictionaryEntry item in dic)
+                        {
+                            if (item.Value.IsNotBlank())
+                            {
+                                return false;
+                            }
+                        }
+
                     }
                     else if (Value.IsEnumerableNotString() && Value is IEnumerable enumerable)
                     {
