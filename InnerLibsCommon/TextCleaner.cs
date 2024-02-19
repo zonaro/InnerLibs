@@ -13,7 +13,7 @@ namespace Extensions.ComplexText
     {
         #region Internal Constructors
 
-        internal Paragraph(string Text, TextStructure StructuredText)
+        internal Paragraph(string Text, StructuredText StructuredText)
         {
             this.StructuredText = StructuredText;
             if (Text.IsNotBlank())
@@ -36,7 +36,7 @@ namespace Extensions.ComplexText
 
         #region Public Properties
 
-        public TextStructure StructuredText { get; set; }
+        public StructuredText StructuredText { get; set; }
 
         public int WordCount => Words.Count();
 
@@ -341,7 +341,7 @@ namespace Extensions.ComplexText
     /// <summary>
     /// Texto estruturado (Dividido em parágrafos)
     /// </summary>
-    public class TextStructure : List<Paragraph>
+    public class StructuredText : List<Paragraph>
     {
         #region Private Fields
 
@@ -355,7 +355,7 @@ namespace Extensions.ComplexText
         /// Cria um novo Texto estruturado (dividido em paragrafos, sentenças e palavras)
         /// </summary>
         /// <param name="OriginalText"></param>
-        public TextStructure(string OriginalText)
+        public StructuredText(string OriginalText)
         {
             Text = OriginalText;
         }
@@ -398,13 +398,13 @@ namespace Extensions.ComplexText
 
         #region Public Methods
 
-        public static implicit operator int(TextStructure s) => s.Count;
+        public static implicit operator int(StructuredText s) => s.Count;
 
-        public static implicit operator long(TextStructure s) => s.Count;
+        public static implicit operator long(StructuredText s) => s.Count;
 
-        public static implicit operator string(TextStructure s) => s.ToString();
+        public static implicit operator string(StructuredText s) => s.ToString();
 
-        public static TextStructure operator +(TextStructure a, TextStructure b) => new TextStructure($"{a}{Environment.NewLine}{b}");
+        public static StructuredText operator +(StructuredText a, StructuredText b) => new StructuredText($"{a}{Environment.NewLine}{b}");
 
         public Paragraph GetParagraph(int Index) => this.IfNoIndex(Index, null);
 

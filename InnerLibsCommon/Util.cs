@@ -3746,7 +3746,7 @@ namespace Extensions
             Text = Text.IfBlank("");
             var removedot = !Text.Trim().EndsWith(".");
             var addComma = Text.Trim().EndsWith(",");
-            Text = new TextStructure(Text) { Ident = Ident, BreakLinesBetweenParagraph = BreakLinesBetweenParagraph }.ToString();
+            Text = new StructuredText(Text) { Ident = Ident, BreakLinesBetweenParagraph = BreakLinesBetweenParagraph }.ToString();
             if (removedot)
             {
                 Text = Text.TrimEnd().TrimEndAny(".");
@@ -8158,7 +8158,7 @@ namespace Extensions
             return Command;
         }
 
-        public static TextStructure LoremIpsum(int ParagraphCount = 5, int SentenceCount = 3, int MinWordCount = 10, int MaxWordCount = 50, int IdentSize = 0, int BreakLinesBetweenParagraph = 0, string[] Words = null)
+        public static StructuredText LoremIpsum(int ParagraphCount = 5, int SentenceCount = 3, int MinWordCount = 10, int MaxWordCount = 50, int IdentSize = 0, int BreakLinesBetweenParagraph = 0, string[] Words = null)
         {
             var sb = new StringBuilder();
             if (Words == null || Words.Length == 0)
@@ -8184,7 +8184,7 @@ namespace Extensions
                 sb.Append(Environment.NewLine.Repeat(BreakLinesBetweenParagraph)); // Add more newline character between paragraphs
             }
 
-            return new TextStructure(sb.ToString());
+            return new StructuredText(sb.ToString());
         }
 
         /// <summary>
@@ -10254,7 +10254,7 @@ namespace Extensions
         /// <param name="MinWordCount"></param>
         /// <param name="MaxWordCount"></param>
         /// <returns></returns>
-        public static TextStructure RandomIpsum(int ParagraphCount = 5, int SentenceCount = 3, int MinWordCount = 10, int MaxWordCount = 50, int IdentSize = 0, int BreakLinesBetweenParagraph = 0, int Words = 300) => LoremIpsum(ParagraphCount, SentenceCount, MinWordCount, MaxWordCount, IdentSize, BreakLinesBetweenParagraph, Enumerable.Range(0, Words).Select(x => RandomWord(2, 14)).ToArray());
+        public static StructuredText RandomIpsum(int ParagraphCount = 5, int SentenceCount = 3, int MinWordCount = 10, int MaxWordCount = 50, int IdentSize = 0, int BreakLinesBetweenParagraph = 0, int Words = 300) => LoremIpsum(ParagraphCount, SentenceCount, MinWordCount, MaxWordCount, IdentSize, BreakLinesBetweenParagraph, Enumerable.Range(0, Words).Select(x => RandomWord(2, 14)).ToArray());
 
         /// <summary>
         /// Sorteia um item da Matriz
@@ -12495,7 +12495,10 @@ namespace Extensions
             return (FirstValue, SecondValue);
         }
 
+ 
+
         public static IEnumerable<T> TakeLast<T>(this IEnumerable<T> l, int Count = 1) => l.Reverse().Take(Count).Reverse();
+ 
 
         public static IEnumerable<T> TakeRandom<T>(this IEnumerable<T> l, int Count = 1) => l.OrderByRandom().Take(Count);
 
