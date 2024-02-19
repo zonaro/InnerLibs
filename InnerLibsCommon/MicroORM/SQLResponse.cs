@@ -7,8 +7,7 @@ namespace Extensions.Databases
 
     /// <summary>
     /// Constantes utilizadas na funçao <see cref="Util.CreateSQLQuickResponse(DbCommand,
-    /// string, bool)"/> e <see cref="Util.CreateSQLQuickResponse(DbConnection,
-    /// FormattableString, string,bool)"/>
+    /// string, bool)"/> e <see cref="Util.CreateSQLQuickResponse(DbCommand, string, bool) "/>
     /// </summary>
     public static class DataSetType
     {
@@ -27,6 +26,8 @@ namespace Extensions.Databases
         /// pode tambem ser representada pelas strings "PAIRS", "DICTIONARY", "ASSOCIATIVE",
         ///</remarks>
         public const string Pair = "PAIR";
+
+
 
         /// <summary>
         /// Coloca a primeira coluna do primeiro dataset no <see cref="SQLResponse{T}.Data"/>
@@ -55,9 +56,8 @@ namespace Extensions.Databases
         #endregion Public Methods
     }
 
-    /// <summary>
-    /// Enxtensões para <see cref="DbConnection"/> e classes derivadas
-    /// </summary>
+
+
 
 
     public class SQLResponse<T> : SQLResponse
@@ -67,8 +67,6 @@ namespace Extensions.Databases
         public T Data { get; set; }
 
         public bool HasData => Data != null && Data.IsNotBlank();
-
-
 
         #endregion Public Properties
     }

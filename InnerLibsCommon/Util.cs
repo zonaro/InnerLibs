@@ -69,6 +69,67 @@ namespace Extensions
 
         private static readonly MethodInfo startsWithMethod = typeof(string).GetMethod("StartsWith", new[] { typeof(string) });
 
+
+        static public bool IsCopyOf(this FileInfo file1, FileInfo file2)
+        {
+            int file1byte;
+            int file2byte;
+            FileStream fs1;
+            FileStream fs2;
+
+            if (file1 == null || file2 == null)
+            {
+                return false;
+            }
+
+
+            // Determine if the same file was referenced two times.
+            if (file1.FullName == file2.FullName)
+            {
+                // Return true to indicate that the files are the same.
+                return true;
+            }
+
+            if (file1.Exists && file2.Exists)
+            {
+
+
+
+                // Open the two files.
+                fs1 = new FileStream(file1.FullName, FileMode.Open);
+                fs2 = new FileStream(file2.FullName, FileMode.Open);
+
+                // Check the file sizes. If they are not the same, the files are not the same.
+                if (fs1.Length != fs2.Length)
+                {
+                    // Close the files
+                    fs1.Close();
+                    fs2.Close();
+
+                    // Return false to indicate files are different
+                    return false;
+                }
+
+                // Read and compare a byte from each file until either a non-matching set of bytes is found
+                // or until the end of file1 is reached.
+                do
+                {
+                    // Read one byte from each file.
+                    file1byte = fs1.ReadByte();
+                    file2byte = fs2.ReadByte();
+                } while ((file1byte == file2byte) && (file1byte != -1));
+
+                // Close the files.
+                fs1.Close();
+                fs2.Close();
+
+                // Return the success of the comparison. "file1byte" is equal to "file2byte" at this point
+                // only if the files are the same.
+                return (file1byte - file2byte) == 0;
+            }
+            return false;
+        }
+
         public static IEnumerable<T> OrderByIndexes<T>(this IEnumerable<T> list, params int[] indexes)
         {
             if (indexes != null && indexes.Length > 0 && list != null && list.Any())
@@ -2451,7 +2512,7 @@ namespace Extensions
         /// <inheritdoc  cref="CreateSolidImage(Color, int, int)"/>
         public static Image CreateSolidImage(this Color Color, Size Size) => CreateSolidImage(Color, Size.Width, Size.Height);
 
-        public static SQLResponse<object> CreateSQLQuickResponse(this DbConnection Connection, FormattableString Command, string DataSetType, bool IncludeCommandText = false) => CreateSQLQuickResponse(Connection.CreateCommand(Command), DataSetType, IncludeCommandText);
+        public static SQLResponse<object> CreateSQLQuickResponse(this DbConnection Connection, FormattableString Command, string DataSetType) => CreateSQLQuickResponse(Connection.CreateCommand(Command), DataSetType);
 
         /// <summary>
         /// Executa um <paramref name="Command"/> e retorna uma <see cref="SQLResponse{object}"/> de
@@ -2463,7 +2524,7 @@ namespace Extensions
         /// <param name="Command">Comando SQL com a <see cref="DbCommand.Connection"/> ja setada</param>
         /// <param name="DataSetType">Tipo da resposta. Ver <see cref="DataSetType"/></param>
         /// <returns></returns>
-        public static SQLResponse<object> CreateSQLQuickResponse(this DbCommand Command, string DataSetType, bool IncludeCommandText = false)
+        public static SQLResponse<object> CreateSQLQuickResponse(this DbCommand Command, string DataSetType)
         {
             var resp = new SQLResponse<object>();
             try
@@ -2472,51 +2533,50 @@ namespace Extensions
                 var Connection = Command?.Connection;
                 if (Connection == null)
                 {
-                    resp.Status = "ERROR";
-                    resp.Message = "Command or Connection is null";
-                    return resp;
+                    throw new Exception("Command or Connection is null");
                 }
-                resp.SQL = IncludeCommandText.AsIf(Command.CommandText);
+                resp.SQL = Command.CommandText;
+
                 if (DataSetType.IsAny("value", "single", "id", "key"))
                 {
                     //primeiro valor da primeira linha do primeiro set
                     var part = Connection.RunSQLValue(Command);
-                    resp.Status = (part == DBNull.Value).AsIf("NULL_VALUE", (part == null).AsIf("ZERO_RESULTS", "OK"));
+                    resp.Status = (part == DBNull.Value).AsIf("NULL_VALUE", (part == null).AsIf("EMPTY", "OK"));
                     resp.Data = part;
                 }
                 else if (DataSetType.IsAny("one", "first", "row"))
                 {
                     //primeiro do primeiro set (1 linha como objeto)
                     var part = Connection.RunSQLRow(Command);
-                    resp.Status = (part == null).AsIf("ZERO_RESULTS", "OK");
+                    resp.Status = (part == null).AsIf("EMPTY", "OK");
                     resp.Data = part;
                 }
                 else if (DataSetType.IsAny("array", "values", "list"))
                 {
                     //primeira coluna do primeiro set como array
                     var part = Connection.RunSQLArray(Command);
-                    resp.Status = (part?.Any()).AsIf("OK", "ZERO_RESULTS");
+                    resp.Status = (part?.Any()).AsIf("OK", "EMPTY");
                     resp.Data = part;
                 }
                 else if (DataSetType.IsAny("pair", "pairs", "dictionary", "associative"))
                 {
                     //primeira e ultima coluna do primeiro set como dictionary
                     var part = Connection.RunSQLPairs(Command);
-                    resp.Status = (part?.Any()).AsIf("OK", "ZERO_RESULTS");
+                    resp.Status = (part?.Any()).AsIf("OK", "EMPTY");
                     resp.Data = part;
                 }
                 else if (DataSetType.IsAny("many", "sets"))
                 {
                     //varios sets
                     var part = Connection.RunSQLMany(Command);
-                    resp.Status = (part?.Any(x => x.Any())).AsIf("OK", "ZERO_RESULTS");
+                    resp.Status = (part?.Any(x => x.Any())).AsIf("OK", "EMPTY");
                     resp.Data = part;
                 }
                 else
                 {
                     //tudo do primeiro set (lista de objetos)
                     var part = Connection.RunSQLSet(Command);
-                    resp.Status = (part?.Any()).AsIf("OK", "ZERO_RESULTS");
+                    resp.Status = (part?.Any()).AsIf("OK", "EMPTY");
                     resp.Data = part;
                 }
             }
@@ -2524,6 +2584,7 @@ namespace Extensions
             {
                 resp.Status = "ERROR";
                 resp.Message = ex.ToFullExceptionString();
+                resp.HasError = true;
             }
             return resp;
         }
@@ -5961,6 +6022,31 @@ namespace Extensions
         /// <returns></returns>
         public static string GetRelativeURL(this string URL, bool WithQueryString = true) => URL.IsURL() ? new Uri(URL).GetRelativeURL(WithQueryString) : null;
 
+
+
+
+        public static DateTime GetLatestCompileTime(this Assembly assembly)
+        {
+
+            var filePath = assembly.Location;
+            const int c_PeHeaderOffset = 60;
+            const int c_LinkerTimestampOffset = 8;
+
+            var buffer = new byte[2048];
+
+            using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+                stream.Read(buffer, 0, 2048);
+
+            var offset = BitConverter.ToInt32(buffer, c_PeHeaderOffset);
+            var secondsSince1970 = BitConverter.ToInt32(buffer, offset + c_LinkerTimestampOffset);
+            var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+            var linkTimeUtc = epoch.AddSeconds(secondsSince1970);
+
+            return linkTimeUtc;
+        }
+
+
         /// <summary>
         /// Pega os bytes de um arquivo embutido no assembly
         /// </summary>
@@ -7084,6 +7170,19 @@ namespace Extensions
                     else if (Value is DateTimeOffset off)
                     {
                         return off.Equals(DateTimeOffset.MinValue);
+                    }
+
+
+                    else if (Value is IDictionary dic)
+                    {
+                        foreach (DictionaryEntry item in dic)
+                        {
+                            if (item.Value.IsNotBlank())
+                            {
+                                return false;
+                            }
+                        }
+
                     }
                     else if (Value.IsEnumerableNotString() && Value is IEnumerable enumerable)
                     {
@@ -8981,7 +9080,7 @@ namespace Extensions
         /// <returns></returns>
         public static string NullIf(this string Value, string TestValue, StringComparison ComparisonType = StringComparison.InvariantCultureIgnoreCase)
         {
-            if (Value == null || Value.Equals(TestValue, ComparisonType))
+            if (Value != null && Value.Equals(TestValue, ComparisonType))
             {
                 Value = null;
             }
@@ -9261,7 +9360,7 @@ namespace Extensions
         /// inicio da coleção e então segue a ordem padrão para os outros.
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <typeparam name="DefaultOrderItem"></typeparam>
+
         /// <param name="items">colecao</param>
         /// <param name="Priority">Seletores que define a prioridade da ordem dos itens</param>
         /// <returns></returns>
@@ -9412,7 +9511,7 @@ namespace Extensions
         /// <returns></returns>
         public static T ParseDigits<T>(this string Text, CultureInfo Culture = null) where T : IConvertible => Text.ParseDigits(Culture).ChangeType<T>();
 
-        public static NameValueCollection ParseQueryString(this Uri URL) => URL?.Query.ParseQueryString();
+        public static NameValueCollection ParseQueryString(this Uri URL, params string[] Keys) => URL?.Query.ParseQueryString(Keys);
 
         /// <summary>
         /// Transforma uma <see cref="string"/> em um <see cref="NameValueCollection"/>
@@ -13689,6 +13788,9 @@ namespace Extensions
         public static string ToHexadecimal(this Color Color, bool Hash = true) => (Color.R.ToString("X2") + Color.G.ToString("X2") + Color.B.ToString("X2")).PrependIf("#", Hash);
 
         public static IEnumerable<HSVColor> ToHSVColorList(this IEnumerable<Color> ColorList) => ColorList?.Select(x => new HSVColor(x));
+
+        public static HSVColor ToHSVColor(this Color color) => new HSVColor(color);
+        public static HSVColor ToHSVColor(this string color) => new HSVColor(color);
 
         /// <summary>
         /// Converte um array de bytes para imagem
