@@ -3472,7 +3472,7 @@ namespace Extensions
         /// </summary>
         /// <param name="Info">Arquivo ou Diretório</param>
         /// <returns></returns>
-        public static string FileNameAsTitle(this FileSystemInfo Info, bool ForceCase = false) => Path.GetFileNameWithoutExtension(Info?.Name).ToNormalCase().ToTitle(ForceCase);
+        public static string FileNameAsTitle(this FileSystemInfo Info, bool ForceCase = false) => Info.FullName.FileNameAsTitle(ForceCase);
 
         /// <summary>
         /// Retorna o Titulo do arquivo a partir do nome do arquivo
@@ -13685,7 +13685,7 @@ namespace Extensions
         /// </summary>
         /// <param name="info"></param>
         /// <returns></returns>
-        public static string GetDescription(this FileSystemInfo info) => info is DirectoryInfo ? "Directory" : (GetFileType(info.FullName)?.Description) ?? "FileOrDirectory";
+        public static string GetDescription(this FileSystemInfo info) => info is DirectoryInfo ? "Directory" : (GetFileType(info.FullName)?.Description ?? "FileOrDirectory");
 
         /// <summary>
         /// Retorna o uma string representando um valor em bytes, KB, MB, GB ou TB
@@ -15191,7 +15191,7 @@ namespace Extensions
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static string ToNormalCase(this string Text) => Text.Replace("_", WhitespaceChar).PascalCaseAdjust();
+        public static string ToNormalCase(this string Text) => Text.PascalCaseAdjust().Replace("_", WhitespaceChar);
 
         /// <summary>
         /// retorna o numero em sua forma ordinal (inglês)

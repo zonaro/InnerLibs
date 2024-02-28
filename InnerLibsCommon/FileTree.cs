@@ -87,12 +87,13 @@ namespace Extensions.Files
                 TypeDescription,
                 Mime,
                 Count,
-                Children = IsDirectory ? _children.Select(x => x.ToDictionary()) : null
+                Children = IsDirectory ? _children.Select(x => x.ToDictionary()).ToList() : null
             }.CreateDictionary();
 
             if (aditionalInfo != null)
             {
-                dic = dic.Merge(aditionalInfo.Invoke(this));
+                foreach (var x in aditionalInfo.Invoke(this))
+                    dic[x.Key] = x.Value;
             }
             return dic;
         }
@@ -173,7 +174,7 @@ namespace Extensions.Files
 
         public bool IsReadOnly => false;
 
-        public int Index => this.Parent?.IndexOf(this) ?? -1;
+        public int Index => this.Parent?.Children.GetIndexOf(this) ?? -1;
 
         public FileTree this[int index] { get => Children.IfNoIndex(index); set => Insert(index, value); }
 
