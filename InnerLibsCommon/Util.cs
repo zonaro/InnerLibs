@@ -4587,28 +4587,27 @@ namespace Extensions
         /// <returns></returns>
         public static IEnumerable<FieldInfo> GetFields<T>(this T MyObject) => MyObject.GetTypeOf().GetFields().ToList();
 
+        /// <summary>
+        /// Retorna o nome do arquivo sem a extensão
+        /// </summary>
+        /// <param name="Info"></param>
+        /// <returns></returns>
         public static string GetFileNameWithoutExtension(this FileInfo Info) => Info != null ? Path.GetFileNameWithoutExtension(Info.Name) : EmptyString;
 
-        /// <summary>
-        /// Retorna o Mime T a partir da extensão de um arquivo
-        /// </summary>
-        /// <param name="Extension">extensão do arquivo</param>
-        /// <returns>string mime type</returns>
-        public static IEnumerable<string> GetFileType(this string Extension) => FileType.GetFileType(Extension).GetMimeTypesOrDefault();
 
         /// <summary>
         /// Retorna o Mime T a partir de um arquivo
         /// </summary>
         /// <param name="File">Arquivo</param>
         /// <returns>string mime type</returns>
-        public static IEnumerable<string> GetFileType(this FileInfo File) => File.Extension.GetFileType();
+        public static IEnumerable<string> GetMimeType(this FileInfo File) => File.Extension.GetFileType().MimeTypes;
 
         /// <summary>
         /// Retorna o Mime T a partir de de um formato de Imagem
         /// </summary>
         /// <param name="RawFormat">Formato de Imagem</param>
         /// <returns>string mime type</returns>
-        public static IEnumerable<string> GetFileType(this ImageFormat RawFormat)
+        public static IEnumerable<string> GetMimeType(this ImageFormat RawFormat)
         {
             try
             {
@@ -4617,7 +4616,7 @@ namespace Extensions
                 {
                     if (img.FormatID == RawFormat.Guid)
                     {
-                        return img.FilenameExtension.GetFileType();
+                        return img.FilenameExtension.GetFileType().MimeTypes;
                     }
                 }
             }
@@ -4625,7 +4624,7 @@ namespace Extensions
             {
             }
 
-            return GetFileType(".png");
+            return GetFileType(".png").MimeTypes;
         }
 
         /// <summary>
@@ -4633,7 +4632,7 @@ namespace Extensions
         /// </summary>
         /// <param name="Image">Imagem</param>
         /// <returns>string mime type</returns>
-        public static IEnumerable<string> GetFileType(this Image Image) => Image?.RawFormat.GetFileType() ?? Array.Empty<string>();
+        public static IEnumerable<string> GetFileType(this Image Image) => Image?.RawFormat.GetMimeType() ?? Array.Empty<string>();
 
         public static string GetFirstChars(this string Text, int Number = 1) => Text.IsNotBlank() ? Text.Length < Number || Number < 0 ? Text : Text.Substring(0, Number) : EmptyString;
 
@@ -5992,9 +5991,9 @@ namespace Extensions
         /// <returns></returns>
         public static string GetRelativeURL(this Uri URL, bool WithQueryString = true) => WithQueryString ? URL.PathAndQuery : URL.AbsolutePath;
 
-        public static String GetRelativePath(FileSystemInfo fromPath, FileSystemInfo toPath) => GetRelativePath(fromPath?.FullName, toPath?.FullName);
+        public static string GetRelativePath(this FileSystemInfo fromPath, FileSystemInfo toPath) => GetRelativePath(fromPath?.FullName, toPath?.FullName);
 
-        public static String GetRelativePath(String fromPath, String toPath)
+        public static string GetRelativePath(this String fromPath, String toPath)
         {
             if (String.IsNullOrEmpty(fromPath)) throw new ArgumentNullException("fromPath");
             if (String.IsNullOrEmpty(toPath)) throw new ArgumentNullException("toPath");
@@ -13454,7 +13453,7 @@ namespace Extensions
         /// </summary>
         /// <param name="Image">Imagem</param>
         /// <returns>Uma DataURI em string</returns>
-        public static string ToDataURL(this Image Image) => $"data:{Image.GetFileType().First().ToLowerInvariant().Replace("application/octet-stream", GetFileType(".png").First())};base64,{Image.ToBase64()}";
+        public static string ToDataURL(this Image Image) => $"data:{Image.GetFileType().First().ToLowerInvariant().Replace("application/octet-stream", GetFileType(".png").GetMimeTypesOrDefault().First())};base64,{Image.ToBase64()}";
 
         /// <summary>
         /// Converte uma imagem para DataURI trocando o MIME T
@@ -13681,6 +13680,12 @@ namespace Extensions
             }
             return 0;
         }
+        /// <summary>
+        /// Retorna uma string contendo a descrição do tipo arquivo ou diretório
+        /// </summary>
+        /// <param name="info"></param>
+        /// <returns></returns>
+        public static string GetDescription(this FileSystemInfo info) => info is DirectoryInfo ? "Directory" : (GetFileType(info.FullName)?.Description) ?? "FileOrDirectory";
 
         /// <summary>
         /// Retorna o uma string representando um valor em bytes, KB, MB, GB ou TB
@@ -13740,7 +13745,7 @@ namespace Extensions
         /// </summary>
         /// <param name="MimeTypeOrExtensionOrPathOrDataURI"></param>
         /// <returns></returns>
-        public static FileType ToFileType(this string MimeTypeOrExtensionOrPathOrDataURI) => new FileType(MimeTypeOrExtensionOrPathOrDataURI);
+        public static FileType GetFileType(this string MimeTypeOrExtensionOrPathOrDataURI) => new FileType(MimeTypeOrExtensionOrPathOrDataURI);
 
         public static Uri ToFileUri(this FileSystemInfo File) => new Uri($@"file://{File?.FullName.Replace(" ", "%20")}");
 
@@ -15852,6 +15857,23 @@ namespace Extensions
                 }
                 while (current != null);
             }
+        }
+
+        public static T TraverseUp<T>(this T node, Func<T, T> parentPredicate) where T : class
+        {
+            if (node == null)
+                throw new ArgumentNullException(nameof(node));
+
+            T current = node;
+            while (current != null)
+            {
+                if (parentPredicate(current) == null)
+                    return current;
+
+                current = parentPredicate(current);
+            }
+
+            return current; // No matching parent found
         }
 
         /// <summary>

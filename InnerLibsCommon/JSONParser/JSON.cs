@@ -1006,7 +1006,10 @@ namespace Extensions
         /// </summary>
         public bool SerializeNullValues { get; set; } = true;
 
-        public bool SerializeBlankStringsAsNull { get; set; } = false;
+        /// <summary>
+        /// Serialize blank strings as null instead of ""
+        /// </summary>
+        public bool SerializeBlankStringsAsNull { get; set; }
 
         /// <summary>
         /// Maximum depth for circular references in inline mode (default = 20)
@@ -1101,7 +1104,8 @@ namespace Extensions
             AutoConvertStringToNumbers = AutoConvertStringToNumbers,
             OverrideObjectHashCodeChecking = OverrideObjectHashCodeChecking,
             FullyQualifiedDataSetSchema = FullyQualifiedDataSetSchema,
-            BadListTypeChecking = BadListTypeChecking
+            BadListTypeChecking = BadListTypeChecking,
+            SerializeBlankStringsAsNull = SerializeBlankStringsAsNull,
         };
 
         #endregion Public Methods

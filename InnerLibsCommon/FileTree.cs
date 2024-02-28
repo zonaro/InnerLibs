@@ -8,6 +8,7 @@ using Extensions;
 
 namespace Extensions.Files
 {
+    [Serializable]
     public class FileTree : FileSystemInfo, IList<FileTree>
     {
         private List<FileTree> _children = new List<FileTree>();
@@ -67,27 +68,78 @@ namespace Extensions.Files
             }
         }
 
-        public Dictionary<string, object> ToDictionary() => new { Index = this.Parent?.GetIndexOf(this) ?? -1, Title, Name, FullName, Size, ShortSize, TypeDescription, Mime, Children = _children.Select(x => x.ToDictionary()) }.CreateDictionary();
 
-        public string ToJson() => ToDictionary().ToNiceJson();
+
+
+        public Dictionary<string, object> AditionalInfo { get; set; } = new Dictionary<string, object>();
+
+        public Dictionary<string, object> ToDictionary() => new
+        {
+            Index,
+            Title,
+            Name,
+            FullName,
+            Size,
+            ShortSize,
+            TypeDescription,
+            Mime,
+            Count,
+            Children = IsDirectory ? _children.Select(x => x.ToDictionary()) : null
+        }.CreateDictionary().Merge(AditionalInfo);
+
+        public string ToJson() => ToDictionary().ToNiceJson(new JSONParameters()
+        {
+            SerializeBlankStringsAsNull = true,
+            SerializeNullValues = false,
+        });
+        public string ToJson(JSONParameters parameters) => ToDictionary().ToNiceJson(parameters);
 
         public IEnumerable<FileTree> Children => _children.AsEnumerable();
+
 
         public bool IsDirectory => Path.IsDirectoryPath();
 
         public bool IsFile => Path.IsFilePath();
 
-        public long Size => IsFile ? new FileInfo(this.Path).Length : this.Children.Sum(x => x.Size);
+        /// <summary>
+        /// Retorna o tamano em bytes deste rquivo ou diretório
+        /// </summary>
+        public long Size => this.GetSize();
 
+        /// <summary>
+        /// Retorna o tamano em bytes deste rquivo ou diretório usando a maior unidade de medida possivel
+        /// </summary>
         public string ShortSize => this.Size.ToFileSizeString();
 
+        /// <summary>
+        /// Diretorio pai
+        /// </summary>
         public FileTree Parent { get; private set; }
+
+        /// <summary>
+        /// Diretório ou arquivo mais alto na hierarquia de arquivos
+        /// </summary>
+        public FileTree Root => this.TraverseUp(x => x.Parent);
+        /// <summary>
+        /// Diretório mais alto na hierarquia de arquivos
+        /// </summary>
+        public DirectoryInfo RootDirectory
+        {
+            get
+            {
+                var p = this.TraverseUp(x => x.Parent);
+                return p.IsDirectory ? p : p.Directory;
+            }
+        }
+
+        public string RelativePath => Util.GetRelativePath(this.Path, Root.Path);
+
         public DirectoryInfo Directory => new DirectoryInfo(System.IO.Path.GetDirectoryName(Path));
         public string Path => this.FullPath;
         public string Title => Name.FileNameAsTitle();
 
         public string Mime => IsFile ? GetFileType().ToString() : null;
-        public string TypeDescription => IsDirectory ? "Directory" : (GetFileType()?.Description) ?? "FileOrDirectory";
+        public string TypeDescription => this.GetDescription();
 
         public override string Name => System.IO.Path.GetFileName(this.Path);
 
@@ -104,13 +156,16 @@ namespace Extensions.Files
 
         public override bool Exists => this.IsDirectory ? System.IO.Directory.Exists(Path) : File.Exists(Path);
 
-        public int Count => _children.Count;
+        /// <summary>
+        /// Retorno a quantidade de arquivos deste diretório
+        /// </summary>
+        public int Count => IsDirectory ? _children.Count : this.Parent?.Count ?? this.Directory.EnumerateFileSystemInfos().Count();
 
         public bool IsReadOnly => false;
 
+        public int Index => this.Parent?.IndexOf(this) ?? -1;
 
-
-        public FileTree this[int index] { get => Children.IfNoIndex(index); set => Add(value); }
+        public FileTree this[int index] { get => Children.IfNoIndex(index); set => Insert(index, value); }
 
         public static implicit operator DirectoryInfo(FileTree Ft) => Ft.IsDirectory ? new DirectoryInfo(Ft.Path) : new FileInfo(Ft.Path).Directory;
 
@@ -137,26 +192,18 @@ namespace Extensions.Files
             this.Parent?.Remove(this);
         }
 
-        public int IndexOf(FileTree item) => _children.IndexOf(item);
+        public int IndexOf(FileTree item) => item?.Index ?? -1;
 
         /// <summary>
         /// Add a item to this Filetree. Index ignored
         /// </summary>
         /// <param name="index"></param>
         /// <param name="item"></param>
-        public void Insert(int index, FileTree item) => Add(item);
-
-        public void RemoveAt(int index)
-        {
-            var t = _children.IfNoIndex(index);
-            if (t != null) Remove(t);
-        }
-
-        public void Add(FileTree item)
+        public void Insert(int index, FileTree item)
         {
             if (item != null && item.Exists)
             {
-                _children.Add(item);
+                _children.Insert(index, item);
                 if (item.IsDirectory)
                 {
                     new DirectoryInfo(item.FullName).MoveTo(this.Directory.FullName);
@@ -167,7 +214,29 @@ namespace Extensions.Files
                 }
                 item.Parent = this;
             }
+
         }
+        /// <summary>
+        /// Delete and remove a file or directory from tree at especific index
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        public void RemoveAt(int index)
+        {
+            if (IsDirectory)
+            {
+                var item = Children.FirstOrDefault(x => x.Index == index);
+                if (item != null)
+                {
+                    if (item.Exists) item.Delete();
+                    _children.Remove(item);
+                }
+
+            }
+
+        }
+
+        public void Add(FileTree item) => Insert(_children.LastOrDefault()?.Index ?? 0, item);
 
         public void Clear()
         {
@@ -188,8 +257,8 @@ namespace Extensions.Files
         /// <returns></returns>
         public bool Remove(FileTree item)
         {
-            if (item.Exists) item.Delete();
-            return item.Exists == false && _children.Remove(item);
+            RemoveAt(item.Index);
+            return item.Exists == false;
         }
 
         public IEnumerator<FileTree> GetEnumerator() => Children.GetEnumerator();
