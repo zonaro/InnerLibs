@@ -71,28 +71,38 @@ namespace Extensions.Files
 
 
 
-        public Dictionary<string, object> AditionalInfo { get; set; } = new Dictionary<string, object>();
 
-        public Dictionary<string, object> ToDictionary() => new
+
+        public Dictionary<string, object> ToDictionary(Func<FileTree, Dictionary<string, object>> aditionalInfo = null)
         {
-            Index,
-            Title,
-            Name,
-            FullName,
-            Size,
-            ShortSize,
-            TypeDescription,
-            Mime,
-            Count,
-            Children = IsDirectory ? _children.Select(x => x.ToDictionary()) : null
-        }.CreateDictionary().Merge(AditionalInfo);
 
-        public string ToJson() => ToDictionary().ToNiceJson(new JSONParameters()
+            var dic = new
+            {
+                Index,
+                Title,
+                Name,
+                FullName,
+                Size,
+                ShortSize,
+                TypeDescription,
+                Mime,
+                Count,
+                Children = IsDirectory ? _children.Select(x => x.ToDictionary()) : null
+            }.CreateDictionary();
+
+            if (aditionalInfo != null)
+            {
+                dic = dic.Merge(aditionalInfo.Invoke(this));
+            }
+            return dic;
+        }
+
+        public string ToJson(Func<FileTree, Dictionary<string, object>> aditionalInfo = null) => ToDictionary(aditionalInfo).ToNiceJson(new JSONParameters()
         {
             SerializeBlankStringsAsNull = true,
             SerializeNullValues = false,
         });
-        public string ToJson(JSONParameters parameters) => ToDictionary().ToNiceJson(parameters);
+        public string ToJson(JSONParameters parameters, Func<FileTree, Dictionary<string, object>> aditionalInfo = null) => ToDictionary(aditionalInfo).ToNiceJson(parameters);
 
         public IEnumerable<FileTree> Children => _children.AsEnumerable();
 
@@ -102,12 +112,12 @@ namespace Extensions.Files
         public bool IsFile => Path.IsFilePath();
 
         /// <summary>
-        /// Retorna o tamano em bytes deste rquivo ou diretório
+        /// Retorna o tamano em bytes deste arquivo ou diretório
         /// </summary>
         public long Size => this.GetSize();
 
         /// <summary>
-        /// Retorna o tamano em bytes deste rquivo ou diretório usando a maior unidade de medida possivel
+        /// Retorna o tamano em bytes deste arquivo ou diretório usando a maior unidade de medida possivel
         /// </summary>
         public string ShortSize => this.Size.ToFileSizeString();
 
