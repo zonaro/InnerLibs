@@ -12594,10 +12594,10 @@ namespace Extensions
             return (FirstValue, SecondValue);
         }
 
- 
+
 
         public static IEnumerable<T> TakeLast<T>(this IEnumerable<T> l, int Count = 1) => l.Reverse().Take(Count).Reverse();
- 
+
 
         public static IEnumerable<T> TakeRandom<T>(this IEnumerable<T> l, int Count = 1) => l.OrderByRandom().Take(Count);
 
@@ -13669,6 +13669,19 @@ namespace Extensions
             return x as FileInfo;
         }
 
+        public static long GetSize(this FileSystemInfo info)
+        {
+            if (info is DirectoryInfo dir)
+            {
+                return dir.EnumerateFileSystemInfos().Sum(d => GetSize(d));
+            }
+            else if (info is FileInfo file)
+            {
+                return file.Length;
+            }
+            return 0;
+        }
+
         /// <summary>
         /// Retorna o uma string representando um valor em bytes, KB, MB, GB ou TB
         /// </summary>
@@ -13676,12 +13689,13 @@ namespace Extensions
         /// <returns>String com o tamanho + unidade de medida</returns>
         public static string ToFileSizeString(this byte[] Size, int DecimalPlaces = -1) => (Size?.LongLength ?? 0).ToFileSizeString(DecimalPlaces);
 
+
         /// <summary>
         /// Retorna o uma string representando um valor em bytes, KB, MB, GB ou TB
         /// </summary>
-        /// <param name="Size">Tamanho</param>
+        /// <param name="info">Diretorio ou Arquivo</param>
         /// <returns>String com o tamanho + unidade de medida</returns>
-        public static string ToFileSizeString(this FileInfo Size, int DecimalPlaces = -1) => (Size?.Length ?? 0).ToFileSizeString(DecimalPlaces);
+        public static string ToFileSizeString(this FileSystemInfo info, int DecimalPlaces = -1) => info.GetSize().ToFileSizeString(DecimalPlaces);
 
         /// <summary>
         /// Retorna o uma string representando um valor em bytes, KB, MB, GB ou TB
