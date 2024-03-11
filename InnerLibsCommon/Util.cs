@@ -3773,6 +3773,13 @@ namespace Extensions
                                                                                                     }).SelectJoinString(AlternativeChar.AsIf(Path.AltDirectorySeparatorChar.ToString(), Path.DirectorySeparatorChar.ToString())).TrimEndAny(Path.DirectorySeparatorChar.ToString(), Path.AltDirectorySeparatorChar.ToString());
 
         /// <summary>
+        /// Ajusta um caminho unidos partes, colocando as barras corretamente e substituindo caracteres inválidos
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <returns></returns>
+        public static string FixPath(this string[] PathParts, bool AlternativeChar = false) => PathParts.SelectJoinString(new string(AlternativeChar ? Path.AltDirectorySeparatorChar : Path.DirectorySeparatorChar, 1)).FixPath(AlternativeChar);
+
+        /// <summary>
         /// Adciona pontuação ao final de uma string se a mesma não terminar com alguma pontuacao.
         /// </summary>
         /// <param name="Text">Frase, Texto a ser pontuado</param>
@@ -7346,7 +7353,25 @@ namespace Extensions
         /// </summary>
         /// <param name="Text">Texto a ser validado</param>
         /// <returns>TRUE se for um email, FALSE se não for email</returns>
-        public static bool IsEmail(this string Text) => Text.IsNotBlank() && new Regex(@"(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|Util.Empty(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*Util.Empty)@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])").IsMatch(Text);
+        public static bool IsEmail(this string Text)
+        {
+            // Trim any leading/trailing spaces
+            string trimmedEmail = Text?.Trim();
+
+            // Check for whitespace or an empty string
+            if ((trimmedEmail).IsBlank())
+                return false;
+
+            // Use a regular expression to validate the email format
+            // This pattern checks for basic email structure
+            // You can enhance it further based on your requirements
+            string pattern = @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$";
+            return Regex.IsMatch(trimmedEmail, pattern);
+
+
+
+
+        }
 
         /// <summary>
         /// Verifica se um diretório está vazio
@@ -9667,7 +9692,7 @@ namespace Extensions
         public static IEnumerable<HtmlNode> ParseTags(this Uri URL) => HtmlNode.Parse(URL);
 
         /// <summary>
-        /// Separa as palavras de um texto CamelCase a partir de suas letras maíusculas
+        /// Separa as palavras de um texto PascalCase a partir de suas letras maíusculas
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
@@ -9679,6 +9704,7 @@ namespace Extensions
             int uppercount = 0;
             foreach (var c in chars)
             {
+
                 if (char.IsUpper(c))
                 {
                     if (!(uppercount > 0))
@@ -13645,6 +13671,7 @@ namespace Extensions
         public static DirectoryInfo ToDirectoryInfo(this string[] PathParts)
         {
             var x = ToFileSystemInfo(PathParts);
+
             return x is FileInfo info ? info.Directory : x as DirectoryInfo;
         }
 
@@ -13665,6 +13692,8 @@ namespace Extensions
             {
                 throw new Exception("File is directory");
             }
+
+
             return x as FileInfo;
         }
 
@@ -13678,6 +13707,13 @@ namespace Extensions
             {
                 return file.Length;
             }
+            else if (info is FileTree ft)
+            {
+                if (ft.IsDirectory)
+                    return (new DirectoryInfo(ft.Path)).GetSize();
+                if (ft.IsFile)
+                    return (new FileInfo(ft.Path)).GetSize();
+            }
             return 0;
         }
         /// <summary>
@@ -13685,7 +13721,7 @@ namespace Extensions
         /// </summary>
         /// <param name="info"></param>
         /// <returns></returns>
-        public static string GetDescription(this FileSystemInfo info) => info is DirectoryInfo ? "Directory" : (GetFileType(info.FullName)?.Description ?? "FileOrDirectory");
+        public static string GetDescription(this FileSystemInfo info) => info.FullName.IsDirectoryPath() ? "Directory" : GetFileType(info.FullName)?.Description ?? "FileOrDirectory";
 
         /// <summary>
         /// Retorna o uma string representando um valor em bytes, KB, MB, GB ou TB
@@ -13732,13 +13768,33 @@ namespace Extensions
 
         public static FileSystemInfo ToFileSystemInfo(this string PathPart) => ToFileSystemInfo(new[] { PathPart });
 
-        public static FileSystemInfo ToFileSystemInfo(this string[] PathParts)
+        public static FileTree ToFileTree(this string PathPart) => ToFileTree(new[] { PathPart });
+        public static FileTree ToFileTree(this string[] PathParts) => new FileTree(PathParts.FixPath());
+        public static FileSystemInfo ToFileSystemInfo(this string[] PathParts, bool AlternativeChar = false)
         {
-            var path = Path.Combine(PathParts).FixPath();
+            var path = PathParts.FixPath();
             if (path.IsFilePath()) return new FileInfo(path);
             else if (path.IsDirectoryPath()) return new DirectoryInfo(path);
             else throw new ArgumentException("Can't create path from array", nameof(PathParts));
         }
+
+        public static string GetMD5Checksum(this byte[] inputData)
+        {
+            // Convert byte array to stream
+            using (var stream = new System.IO.MemoryStream(inputData))
+            {
+                // Create an MD5 instance
+                using (var md5Instance = System.Security.Cryptography.MD5.Create())
+                {
+                    // Compute the hash
+                    var hashResult = md5Instance.ComputeHash(stream);
+
+                    // Convert the hash to a string (removing dashes and converting to lowercase)
+                    return BitConverter.ToString(hashResult).Replace("-", "").ToLowerInvariant();
+                }
+            }
+        }
+
 
         /// <summary>
         /// Retorna um Objeto FileType a partir de uma string MIME T, Nome ou Extensão de Arquivo
@@ -15191,7 +15247,7 @@ namespace Extensions
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static string ToNormalCase(this string Text) => Text.PascalCaseAdjust().Replace("_", WhitespaceChar);
+        public static string ToNormalCase(this string Text) => Text.PascalCaseAdjust().Replace("_", WhitespaceChar).TrimBetween();
 
         /// <summary>
         /// retorna o numero em sua forma ordinal (inglês)

@@ -13,19 +13,23 @@ namespace Extensions.Files
     {
         private List<FileTree> _children = new List<FileTree>();
 
-        public FileTree(string Path, FileTree Parent) : this(Path, Parent, null, null) { }
-        public FileTree(string Path) : this(Path, null, null, null) { }
-        public FileTree(string Path, IEnumerable<string> FileSearchPatterns) : this(Path, null, FileSearchPatterns, null) { }
-        public FileTree(string Path, IEnumerable<string> FileSearchPatterns, IEnumerable<string> RelatedFilesSearch) : this(Path, null, FileSearchPatterns, RelatedFilesSearch) { }
-        internal FileTree(string Path, FileTree Parent, IEnumerable<string> FileSearchPatterns) : this(Path, Parent, FileSearchPatterns, null) { }
-        internal FileTree(string Path, FileTree Parent, IEnumerable<string> FileSearchPatterns, IEnumerable<string> RelatedFilesSearch)
+        public FileTree(string Path, FileTree Parent) : this(Path, Parent, null) { }
+        public FileTree(string Path) : this(Path, null, null) { }
+        public FileTree(string Path, IEnumerable<string> FileSearchPatterns) : this(Path, null, FileSearchPatterns) { }
+
+
+        internal FileTree(string Path, FileTree Parent, IEnumerable<string> FileSearchPatterns)
         {
+
 
             this.OriginalPath = Path;
             this.FullPath = System.IO.Path.GetFullPath(Path);
+
+            if (this.FullPath.IsPath() == false) throw new ArgumentException("Path is not a valid path", nameof(Path));
+
             this.Parent = Parent;
             FileSearchPatterns = FileSearchPatterns ?? Array.Empty<string>();
-            RelatedFilesSearch = RelatedFilesSearch ?? Array.Empty<string>();
+
             if (!FileSearchPatterns.Any())
             {
                 FileSearchPatterns = new[] { "*" };
@@ -39,33 +43,12 @@ namespace Extensions.Files
                     foreach (var item in System.IO.Directory.EnumerateFileSystemEntries(Path))
                     {
                         if (!Children.Any(x => x.Children.Any(y => y.FullName == item)))
-                            _children.Add(new FileTree(item, this, FileSearchPatterns, RelatedFilesSearch));
+                            _children.Add(new FileTree(item, this, FileSearchPatterns));
                     }
                 }
             }
-            else if (Path.IsFilePath())
-            {
-                if (File.Exists(Path))
-                {
-                    if (RelatedFilesSearch.Any())
-                    {
-                        var name = System.IO.Path.GetFileNameWithoutExtension(Path);
-                        foreach (var item in this.Directory.EnumerateFiles().Where(item => item.FullName != this.FullName))
-                        {
-                            if (RelatedFilesSearch.Any(x => item.Name.Like(x.Inject(new { name }))))
-                            {
-                                FileTree ni = this.Parent?._children?.Detach(x => x.FullName == item.FullName) ?? new FileTree(item.FullName, this, Array.Empty<string>(), Array.Empty<string>());
-                                ni.Parent = this;
-                                _children.Add(ni);
-                            }
-                        }
-                    }
-                }
-            }
-            else
-            {
-                throw new ArgumentException("File is not valid", nameof(Path));
-            }
+
+
         }
 
 
@@ -79,6 +62,8 @@ namespace Extensions.Files
             var dic = new
             {
                 Index,
+                IsDirectory,
+                IsFile,
                 Title,
                 Name,
                 FullName,
@@ -87,7 +72,8 @@ namespace Extensions.Files
                 TypeDescription,
                 Mime,
                 Count,
-                Children = IsDirectory ? _children.Select(x => x.ToDictionary()).ToList() : null
+                MD5CheckSum,
+                Children = IsDirectory ? _children.Select(x => x.ToDictionary(aditionalInfo)).ToList() : null
             }.CreateDictionary();
 
             if (aditionalInfo != null)
@@ -110,7 +96,16 @@ namespace Extensions.Files
 
         public bool IsDirectory => Path.IsDirectoryPath();
 
+
+
         public bool IsFile => Path.IsFilePath();
+
+        public string MD5CheckSum => IsFile ? GetBytes().GetMD5Checksum() : null;
+
+
+        public byte[] GetBytes() => IsFile ? File.ReadAllBytes(this.Path) : null;
+
+        public string GetTextContent() => IsFile ? File.ReadAllText(this.Path) : null;
 
         /// <summary>
         /// Retorna o tamano em bytes deste arquivo ou diretório
@@ -131,8 +126,9 @@ namespace Extensions.Files
         /// Diretório ou arquivo mais alto na hierarquia de arquivos
         /// </summary>
         public FileTree Root => this.TraverseUp(x => x.Parent);
+
         /// <summary>
-        /// Diretório mais alto na hierarquia de arquivos
+        /// Diretório mais alto na hierarquia de arquivos. Se <see cref="Root"/> for um arquivo, esta propriedade retornará o diretorio deste arquivo
         /// </summary>
         public DirectoryInfo RootDirectory
         {
@@ -174,9 +170,14 @@ namespace Extensions.Files
 
         public bool IsReadOnly => false;
 
-        public int Index => this.Parent?.Children.GetIndexOf(this) ?? -1;
+        public int Index => (this.Parent != this ? this.Parent?.Children.GetIndexOf(this) : null) ?? -1;
 
-        public FileTree this[int index] { get => Children.IfNoIndex(index); set => Insert(index, value); }
+        public FileTree this[int index]
+        {
+            get => Children.FirstOrDefault(x => x.Index == index);
+            set => Insert(index, value);
+
+        }
 
         public static implicit operator DirectoryInfo(FileTree Ft) => Ft.IsDirectory ? new DirectoryInfo(Ft.Path) : new FileInfo(Ft.Path).Directory;
 
@@ -206,7 +207,7 @@ namespace Extensions.Files
         public int IndexOf(FileTree item) => item?.Index ?? -1;
 
         /// <summary>
-        /// Add a item to this Filetree. Index ignored
+        /// Add a item to this Filetree.
         /// </summary>
         /// <param name="index"></param>
         /// <param name="item"></param>
@@ -214,7 +215,6 @@ namespace Extensions.Files
         {
             if (item != null && item.Exists)
             {
-                _children.Insert(index, item);
                 if (item.IsDirectory)
                 {
                     new DirectoryInfo(item.FullName).MoveTo(this.Directory.FullName);
@@ -224,6 +224,7 @@ namespace Extensions.Files
                     new FileInfo(item.FullName).MoveTo(System.IO.Path.Combine(this.Directory.FullName, item.Name));
                 }
                 item.Parent = this;
+                _children.Insert(index, item);
             }
 
         }
