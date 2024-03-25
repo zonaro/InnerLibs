@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
 
+
 namespace Extensions
 {
     internal class DynamicJson : DynamicObject, IEnumerable
@@ -14,7 +15,7 @@ namespace Extensions
 
         public DynamicJson(string json)
         {
-            var parse = Extensions.JSON.FromJson(json);
+            var parse = JSON.FromJson(json);
 
             if (parse is IDictionary<string, object>)
                 _dictionary = (IDictionary<string, object>)parse;

@@ -2529,27 +2529,33 @@ namespace Extensions
             var resp = new SQLResponse<object>();
             try
             {
-                DataSetType = DataSetType.IfBlank("default").ToLowerInvariant();
+                DataSetType = DataSetType.IfBlank("table").ToLowerInvariant();
                 var Connection = Command?.Connection;
                 if (Connection == null)
                 {
                     throw new Exception("Command or Connection is null");
                 }
-                resp.SQL = Command.CommandText;
 
-                if (DataSetType.IsAny("value", "single", "id", "key"))
+                resp.SQL = Command.CommandText;
+                resp.DataSetType = DataSetType;
+
+                if (DataSetType.IsAny("value", "id", "key", "singlevalue"))
                 {
                     //primeiro valor da primeira linha do primeiro set
                     var part = Connection.RunSQLValue(Command);
                     resp.Status = (part == DBNull.Value).AsIf("NULL_VALUE", (part == null).AsIf("EMPTY", "OK"));
                     resp.Data = part;
+                    resp.DataSetType = "value";
+
                 }
-                else if (DataSetType.IsAny("one", "first", "row"))
+                else if (DataSetType.IsAny("one", "first", "row", "single"))
                 {
                     //primeiro do primeiro set (1 linha como objeto)
                     var part = Connection.RunSQLRow(Command);
                     resp.Status = (part == null).AsIf("EMPTY", "OK");
                     resp.Data = part;
+                    resp.DataSetType = "row";
+
                 }
                 else if (DataSetType.IsAny("array", "values", "list"))
                 {
@@ -2557,6 +2563,8 @@ namespace Extensions
                     var part = Connection.RunSQLArray(Command);
                     resp.Status = (part?.Any()).AsIf("OK", "EMPTY");
                     resp.Data = part;
+                    resp.DataSetType = "array";
+
                 }
                 else if (DataSetType.IsAny("pair", "pairs", "dictionary", "associative"))
                 {
@@ -2564,13 +2572,17 @@ namespace Extensions
                     var part = Connection.RunSQLPairs(Command);
                     resp.Status = (part?.Any()).AsIf("OK", "EMPTY");
                     resp.Data = part;
+                    resp.DataSetType = "pairs";
+
                 }
-                else if (DataSetType.IsAny("many", "sets"))
+                else if (DataSetType.IsAny("many", "sets", "datasets"))
                 {
                     //varios sets
                     var part = Connection.RunSQLMany(Command);
                     resp.Status = (part?.Any(x => x.Any())).AsIf("OK", "EMPTY");
                     resp.Data = part;
+                    resp.DataSetType = "sets";
+
                 }
                 else
                 {
@@ -2578,6 +2590,8 @@ namespace Extensions
                     var part = Connection.RunSQLSet(Command);
                     resp.Status = (part?.Any()).AsIf("OK", "EMPTY");
                     resp.Data = part;
+                    resp.DataSetType = "table";
+
                 }
             }
             catch (Exception ex)
@@ -2585,6 +2599,7 @@ namespace Extensions
                 resp.Status = "ERROR";
                 resp.Message = ex.ToFullExceptionString();
                 resp.HasError = true;
+
             }
             return resp;
         }

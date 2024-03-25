@@ -68,6 +68,9 @@ namespace Extensions.Databases
 
         public bool HasData => Data != null && Data.IsNotBlank();
 
+        public string DataSetType { get; set; }
+
+
         #endregion Public Properties
     }
 
@@ -78,5 +81,6 @@ namespace Extensions.Databases
         public bool HasError { get; set; }
         public string SQL { get; set; }
         public string Status { get; set; }
+
     }
 }
