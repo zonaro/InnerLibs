@@ -61,7 +61,7 @@ namespace Extensions.Mail
         /// SMTP da Locaweb
         /// </summary>
         /// <returns></returns>
-        public static SmtpClient LocawebSmtp() => new SmtpClient("email-ssl.com.br", 465) { EnableSsl = true };
+        public static SmtpClient LocawebSmtp() => new SmtpClient("email-ssl.com.br", 587) { EnableSsl = true };
 
         /// <summary>
         /// SMTP do Office365

@@ -63,7 +63,7 @@ namespace Extensions.Dates
 
             if (IsSingleDateTime())
             {
-                _timeSpanBase = new TimeSpan(1, 0, 0, 0);
+                _timeSpanBase = new TimeSpan(NoTime ? 1 : 0, 0, 0, 0);
             }
             else
             {
@@ -108,8 +108,8 @@ namespace Extensions.Dates
 
                     case Phase.Days:
                         {
-                            if (CurDate.AddDays(days) > _endDate)
-                            //if (CurDate.AddDays(days + 1) > _endDate)
+                            if (CurDate.AddDays(days + (IsSingleDate() && NoTime ? 0 : 1)) > _endDate)
+
                             {
                                 CurDate = CurDate.AddDays(days);
 
@@ -141,7 +141,7 @@ namespace Extensions.Dates
                 case null: return false;
                 case DateRange dr: return GetHashCode() == dr.GetHashCode();
                 case TimeSpan ts: return TimeSpan.Equals(ts);
-                case int i: return GetHashCode() == i;
+                case int i: return Ticks == i;
                 case long l: return Ticks == l;
                 default: return false;
             }
@@ -182,7 +182,6 @@ namespace Extensions.Dates
         /// </summary>
         /// <param name="StartDate"></param>
         /// <param name="EndDate"></param>
-        /// <param name="ForceFirstAndLastMoments">
         /// Force <see cref="StartDate"/> to the first moment of day (Midnight) and <see
         /// cref="EndDate"/> to last moment of day (23:59:59.999)
         /// </param>
@@ -620,7 +619,7 @@ namespace Extensions.Dates
                 case null: return 0;
                 case DateRange dr: return TimeSpan.CompareTo(dr.TimeSpan);
                 case TimeSpan ts: return TimeSpan.CompareTo(ts);
-                case int i: return GetHashCode().CompareTo(i);
+                case int i: return Ticks.CompareTo(i);
                 case long l: return Ticks.CompareTo(l);
                 default: return 0;
             }
@@ -827,7 +826,7 @@ namespace Extensions.Dates
 
         public IEnumerable<DateTime> GetDays(IEnumerable<DayOfWeek> DaysOfWeek) => StartDate.GetDaysBetween(EndDate, DaysOfWeek.ToArray());
 
-        public override int GetHashCode() => Months.GetHashCode() ^ Years.GetHashCode() ^ Days.GetHashCode() ^ Hours.GetHashCode() ^ Minutes.GetHashCode() ^ Seconds.GetHashCode() ^ Milliseconds.GetHashCode();
+        public override int GetHashCode() => _timeSpanBase.GetHashCode();
 
         /// <summary>
         /// Return the less accurate <see cref="DateRangeInterval"/> by checking the most hight

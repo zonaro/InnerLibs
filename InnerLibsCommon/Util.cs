@@ -6731,6 +6731,9 @@ namespace Extensions
         /// <returns></returns>
         public static T IfBlank<T>(this object Value, T ValueIfBlank = default) => Value.IsBlank() ? ValueIfBlank : ChangeType<T>(Value);
 
+
+        public static string BlankIfNull(this string Text) => IfBlank(Text, "");
+
         /// <summary>
         /// Tenta retornar um valor de um IEnumerable a partir de um Index especifico. retorna um
         /// valor default se o index nao existir ou seu valor for branco ou null
