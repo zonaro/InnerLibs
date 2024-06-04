@@ -7,7 +7,7 @@ using System.Text;
 namespace Extensions.Web
 {
     /// <summary>
-    /// Holds the nodes of a parsed HTML or XML document. Use the <see cref="this.ChildNodes"/>
+    /// Holds the nodes of a parsed HTML or XML document. Use the <see cref="HtmlElementNode.ChildNodes"/>
     /// property to access these nodes. Use the <see cref="ToString()"/> method to convert the nodes
     /// back to markup.
     /// </summary>
@@ -61,6 +61,10 @@ namespace Extensions.Web
                 if (value.IsNotBlank())
                 {
                     this.SetAttribute("lang", value);
+                }
+                else
+                {
+                    this.RemoveAttribute("lang");
                 }
             }
         }
@@ -190,7 +194,7 @@ namespace Extensions.Web
             }
             else
             {
-                throw new ArgumentNullException(nameof(file), "File is not a vali file path");
+                throw new ArgumentNullException(nameof(file), "File is not a valid file path");
             }
         }
         public FileInfo SaveAs(DirectoryInfo directory)

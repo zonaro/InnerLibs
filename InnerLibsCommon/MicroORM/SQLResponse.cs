@@ -6,8 +6,8 @@ namespace Extensions.Databases
 
 
     /// <summary>
-    /// Constantes utilizadas na funçao <see cref="Util.CreateSQLQuickResponse(DbCommand,
-    /// string, bool)"/> e <see cref="Util.CreateSQLQuickResponse(DbCommand, string, bool) "/>
+    /// Constantes utilizadas na funçao <see cref="Util.CreateSQLQuickResponse(DbConnection, System.FormattableString, string)"/>
+    /// e <see  cref="Util.CreateSQLQuickResponse(DbCommand, string)"/>
     /// </summary>
     public static class DataSetType
     {

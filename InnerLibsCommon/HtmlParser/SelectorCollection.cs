@@ -52,7 +52,7 @@ namespace Extensions.Web
         /// <summary>
         /// Returns the last selector or, if the last selector has child selectors, the last
         /// child selector of the last selector. If the collection is empty, a new selector is
-        /// added and returned.
+        /// added and returned.</summary>
         /// <returns>The last child selector of the last selector in the collection.</returns>
         internal Selector GetLastSelector()
         {
