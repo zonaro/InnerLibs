@@ -14,8 +14,8 @@ using Extensions.Web;
 namespace Extensions.Mail
 {
     /// <summary>
-    /// Wrapper de <see cref="System.Net.Mail"/> em FluentAPI com configurações de Template métodos
-    /// auxiliares. Utiliza objetos do tipo <see cref="Dictionary{string, object}"/> para objetos de template
+    /// Wrapper for <see cref="System.Net.Mail"/> in FluentAPI with Template configurations and helper methods.
+    /// Uses objects of type <see cref="Dictionary{string,object}"/> for template objects.
     /// </summary>
     public class FluentMailMessage : FluentMailMessage<Dictionary<string, object>>
     {
@@ -27,66 +27,89 @@ namespace Extensions.Mail
 
         public static FluentMailMessage<T> FromData<T>(IEnumerable<T> Recipients, Expression<Func<T, string>> EmailSelector) where T : class => new FluentMailMessage<T>().AddRecipient(EmailSelector, Recipients?.ToArray() ?? Array.Empty<T>());
 
-
+ 
         /// <summary>
-        /// Cria um <see cref="FluentMailMessage{T}"/> com destinatários a partir de uma <see cref="IEnumerable{T}"/>
+        /// Creates a <see cref="FluentMailMessage{T}"/> instance from the specified data.
         /// </summary>
-        /// <param name="Recipients">objeto de template de destinatários</param>
-        /// <param name="EmailSelector">seletor de email</param>
-        /// <param name="NameSelector">seletor de nome</param>
-        /// <returns></returns>
+        /// <typeparam name="T">The type of the data.</typeparam>
+        /// <param name="EmailSelector">An expression that selects the email address from the data.</param>
+        /// <param name="NameSelector">An expression that selects the name from the data.</param>
+        /// <param name="Recipients">The data objects representing the recipients.</param>
+        /// <returns>A <see cref="FluentMailMessage{T}"/> instance.</returns>
+        /// <remarks>
+        /// This method creates a <see cref="FluentMailMessage{T}"/> instance by extracting the email address and name from the specified data objects.
+        /// The <paramref name="EmailSelector"/> expression is used to select the email address property from the data objects,
+        /// and the <paramref name="NameSelector"/> expression is used to select the name property.
+        /// The <paramref name="Recipients"/> parameter represents the data objects that will be used as recipients.
+        /// </remarks>
         public static FluentMailMessage<T> FromData<T>(Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector, params T[] Recipients) where T : class => FromData(Recipients?.AsEnumerable(), EmailSelector, NameSelector);
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="FluentMailMessage{T}"/> class from the specified data.
+        /// </summary>
+        /// <typeparam name="T">The type of the data.</typeparam>
+        /// <param name="EmailSelector">The expression that selects the email address from the data.</param>
+        /// <param name="Recipients">The array of data objects representing the recipients.</param>
+        /// <returns>An instance of the <see cref="FluentMailMessage{T}"/> class.</returns>
+        /// <remarks>
+        /// This method creates a new instance of the <see cref="FluentMailMessage{T}"/> class using the specified data.
+        /// The <paramref name="EmailSelector"/> expression is used to select the email address from the data.
+        /// The <paramref name="Recipients"/> array represents the recipients of the email.
+        /// </remarks>
         public static FluentMailMessage<T> FromData<T>(Expression<Func<T, string>> EmailSelector, params T[] Recipients) where T : class => FromData(Recipients?.AsEnumerable(), EmailSelector);
 
+  
         /// <summary>
-        /// Cria um <see cref="FluentMailMessage{T}"/> com destinatários a partir de um objeto do
-        /// tipo <typeparamref name="T"/>
+        /// Creates a new instance of the <see cref="FluentMailMessage{T}"/> class using the specified recipient, email selector, and name selector.
         /// </summary>
-        /// <param name="Recipient">objeto de template d edestinatário</param>
-        /// <param name="EmailSelector"></param>
-        /// <param name="NameSelector"></param>
-        /// <returns></returns>
+        /// <typeparam name="T">The type of the recipient.</typeparam>
+        /// <param name="Recipient">The recipient object.</param>
+        /// <param name="EmailSelector">The expression that selects the email address from the recipient object.</param>
+        /// <param name="NameSelector">The expression that selects the name from the recipient object.</param>
+        /// <returns>A new instance of the <see cref="FluentMailMessage{T}"/> class.</returns>
+        /// <remarks>
+        /// This method is used to create a new mail message with a single recipient using the specified expressions to extract the email address and name from the recipient object.
+        /// </remarks>
         public static FluentMailMessage<T> FromData<T>(T Recipient, Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector) where T : class => FromData(EmailSelector, NameSelector, new[] { Recipient });
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="FluentMailMessage{T}"/> class from the specified data.
+        /// </summary>
+        /// <typeparam name="T">The type of the recipient.</typeparam>
+        /// <param name="Recipient">The recipient object.</param>
+        /// <param name="EmailSelector">The expression that selects the email address from the recipient object.</param>
+        /// <returns>A new instance of the <see cref="FluentMailMessage{T}"/> class.</returns>
+        /// <remarks>
+        /// This method is used to create a new <see cref="FluentMailMessage{T}"/> instance by specifying the recipient object and an expression that selects the email address from the recipient object.
+        /// </remarks>
         public static FluentMailMessage<T> FromData<T>(T Recipient, Expression<Func<T, string>> EmailSelector) where T : class => FromData(EmailSelector, new[] { Recipient });
 
+        
         /// <summary>
-        /// SMTP do Gmail
+        /// Represents a Simple Mail Transfer Protocol (SMTP) client that can be used to send email with Gmail Provider.
         /// </summary>
-        /// <returns></returns>
         public static SmtpClient GmailSmtp() => new SmtpClient("smtp.gmail.com", 587) { EnableSsl = true };
 
+     
         /// <summary>
-        /// SMTP da Locaweb
+        /// Represents a Simple Mail Transfer Protocol (SMTP) client that sends email using Locaweb Provider.
         /// </summary>
-        /// <returns></returns>
         public static SmtpClient LocawebSmtp() => new SmtpClient("email-ssl.com.br", 587) { EnableSsl = true };
-
+ 
         /// <summary>
-        /// SMTP do Office365
+        /// Represents a Simple Mail Transfer Protocol (SMTP) client that can be used to send email using Office365 Provider.
         /// </summary>
-        /// <returns></returns>
         public static SmtpClient Office365Smtp() => new SmtpClient("smtp.office365.com", 587) { EnableSsl = true };
 
-        /// <summary>
-        /// SMTP do Outlook
+   /// <summary>
+        /// Represents a Simple Mail Transfer Protocol (SMTP) client that can be used to send email using Outlook Provider.
         /// </summary>
-        /// <returns></returns>
         public static SmtpClient OutlookSmtp() => new SmtpClient("smtp-mail.outlook.com", 587) { EnableSsl = true };
 
-        /// <summary>
-        /// Cria e dispara rapidamente uma <see cref="FluentMailMessage"/>
-        /// </summary>
-        /// <param name="Email">Email do remetende e utilizado nas credenciais de SMTP</param>
-        /// <param name="Password">Senha utilizada nas credenciais de SMTP</param>
-        /// <param name="Recipient">Destinatários</param>
-        /// <param name="Subject">Assunto do Email</param>
-        /// <param name="Message">Corpo da Mensagem</param>
-        /// <returns></returns>
+       
         public static SentStatus QuickSend(string Email, string Password, string Recipient, string Subject, string Message, Dictionary<string, object> TemplateData = null) => QuickSend<Dictionary<string, object>>(Email, Password, Recipient, Subject, Message, TemplateData);
 
-        /// <inheritdoc cref="QuickSend"/>
+     
         public static SentStatus QuickSend<T>(string Email, string Password, string Recipient, string Subject, string Message, T TemplateData) where T : class => new FluentMailMessage<T>().WithQuickConfig(Email, Password).AddRecipient(Recipient, TemplateData).WithSubject(Subject).WithMessage(Message).OnError((m, a, ex) => Util.WriteDebug(ex.ToFullExceptionString())).SendAndDispose();
 
         /// <summary>
@@ -1005,23 +1028,14 @@ namespace Extensions.Mail
             }
         }
 
-        /// <summary>
-        /// Objeto com as informações deste destinatário que serão aplicados ao template
-        /// </summary>
+    
         public virtual T TemplateData { get; set; }
 
         #endregion Public Properties
 
         #region Public Methods
 
-        /// <summary>
-        /// Cria uma <see cref="IEnumerable{TemplateMailAddress{T}}"/> a partir de uma lista de
-        /// objetos de template
-        /// </summary>
-        /// <param name="Data"></param>
-        /// <param name="EmailSelector"></param>
-        /// <param name="NameSelector"></param>
-        /// <returns></returns>
+ 
         public static IEnumerable<TemplateMailAddress<T>> FromData(Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector, params T[] Data) => FromData(Data?.AsEnumerable(), EmailSelector, NameSelector);
         public static IEnumerable<TemplateMailAddress<T>> FromData(IEnumerable<T> Data, Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector) => (Data ?? Array.Empty<T>()).Select(x => new TemplateMailAddress<T>(x, EmailSelector, NameSelector)).Where(x => x != null);
 
