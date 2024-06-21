@@ -2374,6 +2374,12 @@ namespace Extensions
             return type;
         }
 
+        /// <summary>
+        /// Creates an object of type T from XML string.
+        /// </summary>
+        /// <typeparam name="T">The type of object to create.</typeparam>
+        /// <param name="XML">The XML string.</param>
+        /// <returns>The created object.</returns>
         public static T CreateObjectFromXML<T>(this string XML) where T : class
         {
             var serializer = new XmlSerializer(typeof(T));
@@ -2386,7 +2392,13 @@ namespace Extensions
             return obj;
         }
 
-        public static T CreateObjectFromXMLFile<T>(this FileInfo XML) where T : class => File.ReadAllText(XML.FullName).CreateObjectFromXML<T>();
+        /// <summary>
+        /// Creates an object of type T from an XML file.
+        /// </summary>
+        /// <typeparam name="T">The type of object to create.</typeparam>
+        /// <param name="XML">The XML file.</param>
+        /// <returns>The created object.</returns>
+        public static T CreateObjectFromXMLFile<T>(this FileInfo XML) where T : class => XML.ReadAllText().CreateObjectFromXML<T>();
 
         /// <summary>
         /// Create a new instance of <paramref name="Type"/> and set the properties values from <paramref name="Dictionary"/>

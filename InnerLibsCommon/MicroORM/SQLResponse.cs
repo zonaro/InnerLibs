@@ -60,7 +60,29 @@ namespace Extensions.Databases
 
 
 
-    public class SQLResponse<T> : SQLResponse
+
+
+    public class SQLResponse<T> : ApiResponse<T>
+    {
+
+
+        public string SQL { get; set; }
+        public string DataSetType { get; set; }
+
+
+
+    }
+
+    public class ApiResponse
+    {
+        public string Message { get; set; }
+
+        public bool HasError { get; set; }
+        public string Status { get; set; }
+
+    }
+
+    public class ApiResponse<T> : ApiResponse
     {
         #region Public Properties
 
@@ -68,19 +90,7 @@ namespace Extensions.Databases
 
         public bool HasData => Data != null && Data.IsNotBlank();
 
-        public string DataSetType { get; set; }
-
 
         #endregion Public Properties
-    }
-
-    public class SQLResponse
-    {
-        public string Message { get; set; }
-
-        public bool HasError { get; set; }
-        public string SQL { get; set; }
-        public string Status { get; set; }
-
     }
 }
