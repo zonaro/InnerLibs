@@ -124,7 +124,7 @@ namespace Extensions
 
         public static object CreateEnum(Type pt, object v) => Util.GetEnumValue($"{v}", pt);
 
-        public static Guid CreateGuid(string s) => s.IsNotBlank() && s?.Length > 30 ? new Guid(s) : new Guid(Convert.FromBase64String(s));
+        public static Guid CreateGuid(string s) => s.IsValid() && s?.Length > 30 ? new Guid(s) : new Guid(Convert.FromBase64String(s));
 
         public static unsafe int CreateInteger(string s, int index, int count)
         {

@@ -34,12 +34,12 @@ namespace Extensions.vCards
         public override string ToString()
         {
             string result = $"ADR{Preferred.AsIf(";PREF")};CHARSET=UTF-8;TYPE={AddressType.GetEnumValueAsString().ToUpperInvariant()}:;;{ToString(AddressPart.FullBuildingInfo | AddressPart.Neighborhood)};{City};{StateCode.IfBlank(State)};{ZipCode};{Country}".Replace(Environment.NewLine, "=0D=0A");
-            if (Label.IsNotBlank())
+            if (Label.IsValid())
             {
                 result = result.Append($"{Environment.NewLine}LABEL;CHARSET=UTF-8;{Location.ToString().ToUpperInvariant()};{AddressType.GetEnumValueAsString().ToUpperInvariant()}:{Label.Replace(Environment.NewLine, "=0D=0A")}");
             }
 
-            if (GeoLocation().IsNotBlank())
+            if (GeoLocation().IsValid())
             {
                 result = result.Append($"GEO:{Latitude?.ToString(CultureInfo.InvariantCulture)};{Longitude?.ToString(CultureInfo.InvariantCulture)}");
             }
@@ -143,7 +143,7 @@ namespace Extensions.vCards
         public vSocial AddSocial(string Name, Uri URL) => AddSocial(Name, URL?.AbsoluteUri);
         public vSocial AddSocial(string Name, string URL)
         {
-            if (URL.IsNotBlank() && Name.IsNotBlank())
+            if (URL.IsValid() && Name.IsValid())
             {
                 var v = new vSocial(Name, URL);
                 Social = Social ?? new List<vSocial>();
@@ -156,7 +156,7 @@ namespace Extensions.vCards
 
         public vTelephone AddTelephone(string Tel)
         {
-            if (Tel.IsNotBlank())
+            if (Tel.IsValid())
             {
                 var v = new vTelephone(Tel);
                 Telephones = Telephones ?? new List<vTelephone>();
@@ -206,12 +206,12 @@ namespace Extensions.vCards
             result = result.AppendLine("VERSION:3.0");
             result = result.AppendLine($"FN;CHARSET=UTF-8:{FormattedName}");
             result = result.AppendLine($"N;CHARSET=UTF-8:{LastName};{FirstName};{MiddleName};{Title};{Suffix}");
-            if (Nickname.IsNotBlank())
+            if (Nickname.IsValid())
             {
                 result = result.AppendLine($"NICKNAME;CHARSET=UTF-8:{Nickname}");
             }
 
-            if (Gender.IsNotBlank())
+            if (Gender.IsValid())
             {
                 result = result.AppendLine($"GENDER:{Gender.GetFirstChars().ToUpperInvariant()}");
             }
@@ -242,17 +242,17 @@ namespace Extensions.vCards
                 result = result.AppendLine(Addresses.SelectJoinString(x => x.ToString(), Environment.NewLine));
             }
 
-            if (JobTitle.IsNotBlank())
+            if (JobTitle.IsValid())
             {
                 result = result.AppendLine($"TITLE;CHARSET=UTF-8:{JobTitle}");
             }
 
-            if (Role.IsNotBlank())
+            if (Role.IsValid())
             {
                 result = result.AppendLine($"ROLE;CHARSET=UTF-8:{Role}");
             }
 
-            if (Organization.IsNotBlank())
+            if (Organization.IsValid())
             {
                 result = result.AppendLine($"ORG;CHARSET=UTF-8:{Organization}");
             }
@@ -262,7 +262,7 @@ namespace Extensions.vCards
                 result = result.AppendLine(URLs.SelectJoinString(x => x.ToString(), Environment.NewLine));
             }
 
-            if (Note.IsNotBlank())
+            if (Note.IsValid())
             {
                 result = result.AppendLine($"NOTE;CHARSET=UTF-8:{Note}");
             }

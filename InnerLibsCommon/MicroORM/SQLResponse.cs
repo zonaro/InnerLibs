@@ -88,7 +88,7 @@ namespace Extensions.Databases
 
         public T Data { get; set; }
 
-        public bool HasData => Data != null && Data.IsNotBlank();
+        public bool HasData => Data != null && Data.IsValid();
 
 
         #endregion Public Properties

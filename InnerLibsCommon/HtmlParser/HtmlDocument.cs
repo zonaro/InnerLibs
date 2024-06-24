@@ -32,7 +32,7 @@ namespace Extensions.Web
             get => (this.ChildNodes.FirstOfType<HtmlElementNode>(x => x.TagName == "meta" && x.HasAttribute("charset"))?.GetAttribute("charset")).IfBlank(Encoding?.HeaderName);
             set
             {
-                if (value.IsNotBlank())
+                if (value.IsValid())
                 {
                     var m = this.ChildNodes.FirstOfType<HtmlElementNode>(x => x.TagName == "meta" && x.HasAttribute("charset")) ?? new HtmlElementNode("meta");
                     m.SetAttribute("charset", value);
@@ -58,7 +58,7 @@ namespace Extensions.Web
             get => this.GetAttribute("lang");
             set
             {
-                if (value.IsNotBlank())
+                if (value.IsValid())
                 {
                     this.SetAttribute("lang", value);
                 }
@@ -94,7 +94,7 @@ namespace Extensions.Web
             get => this.FindFirst("title")?.InnerHtml;
             set
             {
-                if (value.IsNotBlank())
+                if (value.IsValid())
                 {
                     var m = this.FindFirst("title") ?? new HtmlElementNode("title");
                     m.InnerHtml = value;
@@ -110,7 +110,7 @@ namespace Extensions.Web
         /// <returns></returns>
         public HtmlElementNode AddInlineCss(string InnerCss)
         {
-            if (InnerCss.IsNotBlank())
+            if (InnerCss.IsValid())
             {
                 var stl = new HtmlElementNode("style");
                 stl.AddText(InnerCss);
@@ -127,7 +127,7 @@ namespace Extensions.Web
         /// <returns></returns>
         public HtmlElementNode AddInlineScript(string jsString)
         {
-            if (jsString.IsNotBlank())
+            if (jsString.IsValid())
             {
                 var stl = new HtmlElementNode("script");
                 stl.AddText(jsString);
@@ -144,7 +144,7 @@ namespace Extensions.Web
         /// <returns></returns>
         public HtmlElementNode AddScript(string src, bool AddToHead = false)
         {
-            if (src.IsNotBlank())
+            if (src.IsValid())
             {
                 var scripto = new HtmlElementNode("script", new { src });
                 if (AddToHead) Head.Add(scripto); else Body.Add(scripto);
@@ -160,7 +160,7 @@ namespace Extensions.Web
         /// <returns></returns>
         public HtmlElementNode AddStyleSheet(string href)
         {
-            if (href.IsNotBlank())
+            if (href.IsValid())
             {
                 var sheet = new HtmlElementNode("link", new { rel = "stylesheet", href });
                 Head.Add(sheet);
@@ -188,7 +188,7 @@ namespace Extensions.Web
 
         public FileInfo SaveAs(string file)
         {
-            if (file.IsNotBlank() && file.IsFilePath())
+            if (file.IsValid() && file.IsFilePath())
             {
                 return SaveAs(file.ToFileInfo());
             }
@@ -220,7 +220,7 @@ namespace Extensions.Web
 
         public HtmlElementNode SetMeta(string name, string content)
         {
-            if (name.IsNotBlank())
+            if (name.IsValid())
             {
                 var m = this.FirstOfType<HtmlElementNode>(x => x.TagName == "meta" && x.GetAttribute("name") == name) ?? new HtmlElementNode("meta");
                 m.SetAttribute("name", name);
@@ -231,7 +231,7 @@ namespace Extensions.Web
             return null;
         }
 
-        public HtmlElementNode GetMeta(string name) => name.IsNotBlank() ? this.FirstOfType<HtmlElementNode>(x => x.TagName == "meta" && x.GetAttribute("name") == name) : null;
+        public HtmlElementNode GetMeta(string name) => name.IsValid() ? this.FirstOfType<HtmlElementNode>(x => x.TagName == "meta" && x.GetAttribute("name") == name) : null;
 
         /// <summary>
         /// Gets the source document path. May be empty or <c>null</c> if there was no source file.

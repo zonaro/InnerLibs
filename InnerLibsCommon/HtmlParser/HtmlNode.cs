@@ -91,7 +91,7 @@ namespace Extensions.Web
 
         public HtmlElementNode(string TagName, string InnerHtml) : this(TagName)
         {
-            if (InnerHtml.IsNotBlank())
+            if (InnerHtml.IsValid())
                 this.InnerHtml = InnerHtml;
         }
 
@@ -205,7 +205,7 @@ namespace Extensions.Web
                 // Open tag
                 builder.Append(HtmlRules.TagStart);
                 builder.Append(TagName);
-                builder.Append(AttributeString.IsNotBlank() ? " " : "");
+                builder.Append(AttributeString.IsValid() ? " " : "");
                 // Note: Attributes returned in non-deterministic order
                 builder.Append(AttributeString);
 
@@ -425,7 +425,7 @@ namespace Extensions.Web
 
             if (Properties?.Any() == true)
             {
-                Properties = Properties.Where(x => x.IsNotBlank()).ToArray();
+                Properties = Properties.Where(x => x.IsValid()).ToArray();
             }
             else
             {
@@ -443,7 +443,7 @@ namespace Extensions.Web
             {
                 tag.InnerHtml += Rows.SelectJoinString(row => props(row).SelectJoinString(column => column.GetValue(row)?.ToString().WrapInTag("td")).WrapInTag("tr").With(w =>
                 {
-                    if (IDProperty.IsNotBlank()) w.SetAttribute("Id", row.GetPropertyValue<object, TPoco>(IDProperty).ToString());
+                    if (IDProperty.IsValid()) w.SetAttribute("Id", row.GetPropertyValue<object, TPoco>(IDProperty).ToString());
                 }).ToString()).WrapInTag("tbody");
             }
             return tag;
@@ -579,7 +579,7 @@ namespace Extensions.Web
 
         public HtmlNode Closest(string selector)
         {
-            if (selector.IsNotBlank())
+            if (selector.IsValid())
             {
                 var current = this.ParentNode;
                 do
@@ -654,7 +654,7 @@ namespace Extensions.Web
 
         IEnumerator IEnumerable.GetEnumerator() => _children.GetEnumerator();
 
-        public bool HasAttribute(string AttrName) => AttrName.IsBlank() ? this.Attributes?.Any() ?? false : Attributes.ContainsKey(AttrName);
+        public bool HasAttribute(string AttrName) => AttrName.IsNotValid() ? this.Attributes?.Any() ?? false : Attributes.ContainsKey(AttrName);
 
         /// <summary>
         /// Determine if attributes property has items.
@@ -817,7 +817,7 @@ namespace Extensions.Web
 
         public HtmlElementNode RemoveClass(string ClassName)
         {
-            if (ClassName.IsNotBlank() && ClassName.IsIn(ClassList, StringComparer.InvariantCultureIgnoreCase))
+            if (ClassName.IsValid() && ClassName.IsIn(ClassList, StringComparer.InvariantCultureIgnoreCase))
             {
                 ClassList = ClassList.Where(x => x != null && !x.Equals(ClassName, StringComparison.OrdinalIgnoreCase)).ToArray();
             }
@@ -827,12 +827,12 @@ namespace Extensions.Web
 
         public HtmlElementNode SetAttribute(string AttrName, string Value, bool RemoveIfBlank = false)
         {
-            if (AttrName.IsNotBlank())
+            if (AttrName.IsValid())
                 Attributes.SetOrRemove(AttrName, Value, RemoveIfBlank);
             return this;
         }
 
-        public HtmlElementNode SetData(string Key, string value, bool RemoveIfBlank = false) => SetAttribute(Key.PrependIf("data-", x => x.IsNotBlank()), value, RemoveIfBlank);
+        public HtmlElementNode SetData(string Key, string value, bool RemoveIfBlank = false) => SetAttribute(Key.PrependIf("data-", x => x.IsValid()), value, RemoveIfBlank);
 
         public HtmlElementNode SetID(string Value)
         {
@@ -986,7 +986,7 @@ namespace Extensions.Web
             set { }
         }
 
-        public static IEnumerable<HtmlNode> Parse(string HtmlString) => HtmlString.IsNotBlank() ? new HtmlParser().ParseChildren(HtmlString).AsEnumerable() : Array.Empty<HtmlNode>();
+        public static IEnumerable<HtmlNode> Parse(string HtmlString) => HtmlString.IsValid() ? new HtmlParser().ParseChildren(HtmlString).AsEnumerable() : Array.Empty<HtmlNode>();
 
         public static IEnumerable<HtmlNode> Parse(Uri URL) => Parse(URL?.DownloadString());
 

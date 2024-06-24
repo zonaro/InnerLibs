@@ -71,7 +71,7 @@ namespace Extensions.ComplexText
         /// <summary>
         /// Return if this JsonFile will be encrypted using <see cref="EncryptKey"/>
         /// </summary>
-        [IgnoreDataMember] public bool IsEncrypted => EncryptKey.IsNotBlank();
+        [IgnoreDataMember] public bool IsEncrypted => EncryptKey.IsValid();
 
         /// <summary>
         /// Define JSON serialization parameters
@@ -137,7 +137,7 @@ namespace Extensions.ComplexText
             if (this.File.Exists)
             {
                 string s = this.File.ReadAllText();
-                if (EncryptKey.IsNotBlank())
+                if (EncryptKey.IsValid())
                 {
                     s = s.Decrypt(EncryptKey);
                 }

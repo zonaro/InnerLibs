@@ -654,7 +654,7 @@ namespace Extensions
         /// <returns></returns>
         public static string Atob(this string Base, Encoding Encoding = null)
         {
-            if (Base.IsNotBlank())
+            if (Base.IsValid())
             {
                 Base = (Encoding ?? new UTF8Encoding(false)).GetString(Convert.FromBase64String(Base));
             }
@@ -709,7 +709,7 @@ namespace Extensions
         {
             try
             {
-                if (DataUrlOrBase64String.IsBlank())
+                if (DataUrlOrBase64String.IsNotValid())
                 {
                     return null;
                 }
@@ -751,7 +751,7 @@ namespace Extensions
         public static DbCommand BeforeRunCommand(ref DbConnection Connection, ref DbCommand Command, TextWriter LogWriter = null)
         {
             Connection = Connection ?? Command?.Connection;
-            if (Command == null || Command.CommandText.IsBlank())
+            if (Command == null || Command.CommandText.IsNotValid())
             {
                 throw new ArgumentException("Command is null or blank");
             }
@@ -780,7 +780,7 @@ namespace Extensions
         /// </summary>
         /// <param name="N">Itens</param>
         /// <returns></returns>
-        public static string BlankCoalesce(params string[] N) => (N ?? Array.Empty<string>()).FirstOr(x => x.IsNotBlank(), EmptyString);
+        public static string BlankCoalesce(params string[] N) => (N ?? Array.Empty<string>()).FirstOr(x => x.IsValid(), EmptyString);
 
         /// <summary>
         /// Aplica um borrão a imagem
@@ -1027,7 +1027,7 @@ namespace Extensions
         /// <returns></returns>
         public static string Btoa(this string Text, Encoding Encoding = null)
         {
-            if (Text.IsNotBlank())
+            if (Text.IsValid())
             {
                 Text = Convert.ToBase64String((Encoding ?? new UTF8Encoding(false)).GetBytes(Text));
             }
@@ -1432,7 +1432,7 @@ namespace Extensions
 
                 if (ToType.IsEnum)
                 {
-                    if (Value is string Name && Name.IsNotBlank())
+                    if (Value is string Name && Name.IsValid())
                     {
                         Name = Name.RemoveAccents().ToUpperInvariant();
                         foreach (var x in Enum.GetValues(ToType))
@@ -1735,7 +1735,7 @@ namespace Extensions
                 return true;
             }
 
-            return Text.IsBlank();
+            return Text.IsNotValid();
         }
 
         /// <summary>
@@ -1810,7 +1810,7 @@ namespace Extensions
             }
             else
             {
-                return Text.IsNotBlank();
+                return Text.IsValid();
             }
         }
 
@@ -2009,7 +2009,7 @@ namespace Extensions
         /// <returns></returns>
         public static DbCommand CreateCommand(this DbConnection Connection, string SQL, Dictionary<string, object> Parameters, DbTransaction Transaction = null)
         {
-            if (Connection != null && SQL.IsNotBlank())
+            if (Connection != null && SQL.IsValid())
             {
                 var command = Connection.CreateCommand();
                 command.CommandText = SQL;
@@ -2064,7 +2064,7 @@ namespace Extensions
         /// <returns></returns>
         public static DbCommand CreateCommand(this DbConnection Connection, string SQL, DbTransaction Transaction, params string[] Args)
         {
-            if (SQL.IsNotBlank())
+            if (SQL.IsValid())
             {
                 return Connection.CreateCommand(SQL.ToFormattableString(Args), Transaction);
             }
@@ -2312,7 +2312,7 @@ namespace Extensions
         /// <returns></returns>
         public static Guid CreateGuidOrDefault(this string Source)
         {
-            if (Source.IsNotBlank() || !Guid.TryParse(Source, out Guid g))
+            if (Source.IsValid() || !Guid.TryParse(Source, out Guid g))
             {
                 g = Guid.NewGuid();
             }
@@ -2871,7 +2871,7 @@ namespace Extensions
         /// <returns></returns>
         public static string Decrypt(this string Text, string Key = null)
         {
-            if (Text.IsNotBlank())
+            if (Text.IsValid())
             {
                 byte[] Results = default;
                 var UTF8 = new UTF8Encoding();
@@ -2909,7 +2909,7 @@ namespace Extensions
         /// <returns></returns>
         public static string Decrypt(this string text, string Key, string IV)
         {
-            if (text.IsNotBlank())
+            if (text.IsValid())
             {
                 var aes = new AesCryptoServiceProvider
                 {
@@ -3318,7 +3318,7 @@ namespace Extensions
         /// <returns></returns>
         public static string Encrypt(this string Text, string Key = null)
         {
-            if (Text.IsNotBlank())
+            if (Text.IsValid())
             {
                 byte[] Results = default;
                 var UTF8 = new UTF8Encoding();
@@ -3356,7 +3356,7 @@ namespace Extensions
         /// <returns></returns>
         public static string Encrypt(this string text, string Key, string IV)
         {
-            if (text.IsNotBlank())
+            if (text.IsValid())
             {
                 var aes = new AesCryptoServiceProvider
                 {
@@ -3572,7 +3572,7 @@ namespace Extensions
             var numbers = Regex.Split(Text, @"\D+");
             foreach (var value in numbers)
             {
-                if (!value.IsBlank())
+                if (!value.IsNotValid())
                 {
                     l.Add(value);
                 }
@@ -3789,7 +3789,7 @@ namespace Extensions
         /// <param name="Text"></param>
         /// <returns></returns>
         public static string FixPath(this string Text, bool AlternativeChar = false)
-            => Text?.Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries).Where(x => x.IsNotBlank()).Select((x, i) =>
+            => Text?.Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries).Where(x => x.IsValid()).Select((x, i) =>
                                                                                                     {
                                                                                                         if (i == 0 && x.Length == 2 && x.EndsWith(":"))
                                                                                                         {
@@ -3965,15 +3965,15 @@ namespace Extensions
         /// <returns></returns>
         public static string ForEachLine(this string Text, Func<string, string> Action, bool RemoveBlankLines = false)
         {
-            if (Text.IsNotBlank())
+            if (Text.IsValid())
             {
                 if (Action == null)
                 {
-                    Text = Text.SplitAny(PredefinedArrays.BreakLineChars.ToArray()).Where(x => !RemoveBlankLines || x.IsNotBlank()).SelectJoinString(Environment.NewLine);
+                    Text = Text.SplitAny(PredefinedArrays.BreakLineChars.ToArray()).Where(x => !RemoveBlankLines || x.IsValid()).SelectJoinString(Environment.NewLine);
                 }
                 else
                 {
-                    Text = Text.SplitAny(PredefinedArrays.BreakLineChars.ToArray()).Select(x => Action.Invoke(x)).Where(x => !RemoveBlankLines || x.IsNotBlank()).SelectJoinString(Environment.NewLine);
+                    Text = Text.SplitAny(PredefinedArrays.BreakLineChars.ToArray()).Select(x => Action.Invoke(x)).Where(x => !RemoveBlankLines || x.IsValid()).SelectJoinString(Environment.NewLine);
                 }
             }
 
@@ -4043,7 +4043,7 @@ namespace Extensions
 
         public static Image GenerateAvatarByName(this string Name)
         {
-            if (Name.IsNotBlank())
+            if (Name.IsValid())
             {
                 var x = new HSVColor(Name);
                 var parts = Name.SplitAny(PredefinedArrays.WordSplitters).Select(b => b.GetFirstChars());
@@ -4136,7 +4136,7 @@ namespace Extensions
         /// <returns></returns>
         public static string GenerateLicenseKey(this string productIdentifier)
         {
-            if (productIdentifier.IsBlank()) productIdentifier = Guid.NewGuid().ToString();
+            if (productIdentifier.IsNotValid()) productIdentifier = Guid.NewGuid().ToString();
             var enc = Encoding.Unicode.GetEncoder();
             byte[] unicodeText = new byte[productIdentifier.Length * 2];
             enc.GetBytes(productIdentifier.ToCharArray(), 0, productIdentifier.Length, unicodeText, 0, true);
@@ -4299,7 +4299,7 @@ namespace Extensions
         {
             Value = Value.IfBlank(EmptyString);
 
-            return Text.IsBlank() || Text.IndexOf(Value) == -1
+            return Text.IsNotValid() || Text.IndexOf(Value) == -1
                 ? WhiteIfNotFound ? EmptyString : $"{Text}"
                 : Text.Substring(Text.IndexOf(Value) + Value.Length);
         }
@@ -4370,7 +4370,7 @@ namespace Extensions
         public static string GetBefore(this string Text, string Value, bool WhiteIfNotFound = false)
         {
             Value = Value.IfBlank(EmptyString);
-            return Text.IsBlank() || Text.IndexOf(Value) == -1 ? WhiteIfNotFound ? EmptyString : $"{Text}" : Text.Substring(0, Text.IndexOf(Value));
+            return Text.IsNotValid() || Text.IndexOf(Value) == -1 ? WhiteIfNotFound ? EmptyString : $"{Text}" : Text.Substring(0, Text.IndexOf(Value));
         }
 
         /// <summary>
@@ -4382,7 +4382,7 @@ namespace Extensions
         /// <returns>Uma String com o texto entre o texto anterior e posterior</returns>
         public static string GetBetween(this string Text, string Before, string After)
         {
-            if (Text.IsNotBlank())
+            if (Text.IsValid())
             {
                 int beforeStartIndex = Text.IndexOf(Before);
                 int startIndex = beforeStartIndex + Before.Length;
@@ -4674,7 +4674,7 @@ namespace Extensions
         /// <returns>string mime type</returns>
         public static IEnumerable<string> GetFileType(this Image Image) => Image?.RawFormat.GetMimeType() ?? Array.Empty<string>();
 
-        public static string GetFirstChars(this string Text, int Number = 1) => Text.IsNotBlank() ? Text.Length < Number || Number < 0 ? Text : Text.Substring(0, Number) : EmptyString;
+        public static string GetFirstChars(this string Text, int Number = 1) => Text.IsValid() ? Text.Length < Number || Number < 0 ? Text : Text.Substring(0, Number) : EmptyString;
 
         public static DataRow GetFirstRow(this DataSet Data) => Data?.GetFirstTable()?.GetFirstRow();
 
@@ -4693,7 +4693,7 @@ namespace Extensions
         {
             foreach (var Extension in Extensions ?? Array.Empty<string>())
             {
-                if (Extension.IsNotBlank())
+                if (Extension.IsValid())
                 {
                     switch (Extension.RemoveAny(".").ToLowerInvariant())
                     {
@@ -5025,7 +5025,7 @@ namespace Extensions
 
         public static IEnumerable<string> GetIPs() => GetLocalIP().Union(new[] { GetPublicIP() });
 
-        public static string GetLastChars(this string Text, int Number = 1) => Text.IsNotBlank() ? Text.Length < Number || Number < 0 ? Text : Text.Substring(Text.Length - Number) : EmptyString;
+        public static string GetLastChars(this string Text, int Number = 1) => Text.IsValid() ? Text.Length < Number || Number < 0 ? Text : Text.Substring(Text.Length - Number) : EmptyString;
 
         /// <summary>
         /// Retorna o nome do diretorio onde o arquivo se encontra
@@ -5290,7 +5290,7 @@ namespace Extensions
                         foreach (var ii in PropertyValues)
                         {
                             var item = ii;
-                            if (!(item.GetNullableTypeOf() == typeof(DateTime)) && item.IsNotNumber() && item.ToString().IsNotBlank())
+                            if (!(item.GetNullableTypeOf() == typeof(DateTime)) && item.IsNotNumber() && item.ToString().IsValid())
                             {
                                 item = item.ToString().Length;
                             }
@@ -5336,7 +5336,7 @@ namespace Extensions
                         foreach (var ii in PropertyValues)
                         {
                             var item = ii;
-                            if (!ReferenceEquals(item.GetNullableTypeOf(), typeof(DateTime)) && item.IsNotNumber() && item.ToString().IsNotBlank())
+                            if (!ReferenceEquals(item.GetNullableTypeOf(), typeof(DateTime)) && item.IsNotNumber() && item.ToString().IsValid())
                             {
                                 item = item.ToString().Length;
                             }
@@ -6103,7 +6103,7 @@ namespace Extensions
         public static string GetResourceFileText(this Assembly Assembly, string FileName, bool IsFullQualifiedName = false)
         {
             string txt = null;
-            if (Assembly != null && FileName.IsNotBlank())
+            if (Assembly != null && FileName.IsValid())
             {
                 if (!IsFullQualifiedName)
                 {
@@ -6227,7 +6227,7 @@ namespace Extensions
         /// <returns></returns>
         public static string GetTextPreview(this string Text, int TextLength, string Ellipsis = "...", bool BeforeNewLine = true)
         {
-            if (Text.IsBlank() || Text?.Length <= TextLength || TextLength <= 0)
+            if (Text.IsNotValid() || Text?.Length <= TextLength || TextLength <= 0)
             {
                 return Text;
             }
@@ -6341,7 +6341,7 @@ namespace Extensions
 
                 object v = null;
 
-                if (Name.IsNotBlank() && Name.IsNotNumber())
+                if (Name.IsValid() && Name.IsNotNumber())
                 {
                     v = row[Name];
                 }
@@ -6647,7 +6647,7 @@ namespace Extensions
         /// <returns></returns>
         public static bool HasProperty(this Type Type, string PropertyName, bool GetPrivate = false)
         {
-            if (Type != null && PropertyName.IsNotBlank())
+            if (Type != null && PropertyName.IsValid())
             {
                 var parts = new List<string>();
                 bool stop = false;
@@ -6747,7 +6747,7 @@ namespace Extensions
         /// <param name="Value">Valor</param>
         /// <param name="ValueIfBlank">Valor se estiver em branco</param>
         /// <returns></returns>
-        public static T IfBlank<T>(this object Value, T ValueIfBlank = default) => Value.IsBlank() ? ValueIfBlank : ChangeType<T>(Value);
+        public static T IfBlank<T>(this object Value, T ValueIfBlank = default) => Value.IsNotValid() ? ValueIfBlank : ChangeType<T>(Value);
 
 
         public static string BlankIfNull(this string Text) => IfBlank(Text, "");
@@ -6787,7 +6787,7 @@ namespace Extensions
         /// <returns></returns>
         public static T IfNotBlank<T>(this T Value, Expression<Func<T, T>> ExpressionIfBlank)
         {
-            if (Value.IsNotBlank())
+            if (Value.IsValid())
             {
                 if (ExpressionIfBlank != null)
                 {
@@ -7165,15 +7165,18 @@ namespace Extensions
             return Value.IsGreaterThanOrEqual(MinValue) && Value.IsLessThanOrEqual(MaxValue);
         }
 
+
+
+        public static bool IsBlank(this string text) => text.IsNotValid();
+        public static bool IsNotBlank(this string text) => text.IsValid();
+
+
         /// <summary>
-        /// Verifica se uma variavel está em branco. (nula, vazia ou somente brancos para string,
-        /// null ou 0 para tipos primitivos, null ou ToString() em branco para tipos de referencia.
-        /// Null ou vazio para arrays)
+        /// Verifica se o valor não é válido.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="Value"></param>
-        /// <returns></returns>
-        public static bool IsBlank(this object Value)
+        /// <param name="Value">O valor a ser verificado.</param>
+        /// <returns>True se o valor não for válido, caso contrário, False.</returns>
+        public static bool IsNotValid(this object Value)
         {
             try
             {
@@ -7187,7 +7190,7 @@ namespace Extensions
                     }
                     else if (Value is FormattableString fs)
                     {
-                        return IsBlank($"{fs}".ToUpperInvariant());
+                        return IsNotValid($"{fs}".ToUpperInvariant());
                     }
                     else if (Value is bool b)
                     {
@@ -7219,7 +7222,7 @@ namespace Extensions
                     {
                         foreach (DictionaryEntry item in dic)
                         {
-                            if (item.Value.IsNotBlank())
+                            if (item.Value.IsValid())
                             {
                                 return false;
                             }
@@ -7230,7 +7233,7 @@ namespace Extensions
                     {
                         foreach (object item in enumerable)
                         {
-                            if (item.IsNotBlank())
+                            if (item.IsValid())
                             {
                                 return false;
                             }
@@ -7250,7 +7253,7 @@ namespace Extensions
         /// </summary>
         /// <param name="Text">Uma string</param>
         /// <returns>TRUE se estivar vazia ou em branco, caso contrario FALSE</returns>
-        public static bool IsBlank(this FormattableString Text) => Text == null || $"{Text}".IsBlank();
+        public static bool IsBlank(this FormattableString Text) => Text == null || $"{Text}".IsNotValid();
 
         public static bool IsBool<T>(this T Obj) => GetNullableTypeOf(Obj) == typeof(bool) || $"{Obj}".ToLowerInvariant().IsIn("true", "false");
 
@@ -7304,7 +7307,7 @@ namespace Extensions
         {
             try
             {
-                return new Web.DataURI(Text).ToString().IsNotBlank();
+                return new Web.DataURI(Text).ToString().IsValid();
             }
             catch
             {
@@ -7340,7 +7343,7 @@ namespace Extensions
         /// <returns>TRUE se o caminho for válido</returns>
         public static bool IsDirectoryPath(this string Text)
         {
-            if (Text.IsBlank())
+            if (Text.IsNotValid())
             {
                 return false;
             }
@@ -7369,7 +7372,7 @@ namespace Extensions
                     return true;
                 }
                 // ends with slash if has extension then its a file; directory otherwise
-                return Path.GetExtension(Text).IsBlank();
+                return Path.GetExtension(Text).IsNotValid();
             }
             catch
             {
@@ -7395,7 +7398,7 @@ namespace Extensions
             string trimmedEmail = Text?.Trim();
 
             // Check for whitespace or an empty string
-            if ((trimmedEmail).IsBlank())
+            if ((trimmedEmail).IsNotValid())
                 return false;
 
             // Use a regular expression to validate the email format
@@ -7486,7 +7489,7 @@ namespace Extensions
         /// <returns>TRUE se o caminho for válido</returns>
         public static bool IsFilePath(this string Text)
         {
-            if (Text.IsBlank())
+            if (Text.IsNotValid())
             {
                 return false;
             }
@@ -7510,7 +7513,7 @@ namespace Extensions
             try
             {
                 // if has extension then its a file; directory otherwise
-                return !Text.EndsWith(Convert.ToString(Path.DirectorySeparatorChar, CultureInfo.InvariantCulture), StringComparison.InvariantCultureIgnoreCase) && Path.GetExtension(Text).IsNotBlank();
+                return !Text.EndsWith(Convert.ToString(Path.DirectorySeparatorChar, CultureInfo.InvariantCulture), StringComparison.InvariantCultureIgnoreCase) && Path.GetExtension(Text).IsValid();
             }
             catch { return false; }
         }
@@ -7545,7 +7548,7 @@ namespace Extensions
         {
             Text = Text.RemoveFirstEqual("#");
             var myRegex = new Regex("^[a-fA-F0-9]+$");
-            return Text.IsNotBlank() && myRegex.IsMatch(Text);
+            return Text.IsValid() && myRegex.IsMatch(Text);
         }
 
         /// <summary>
@@ -7647,7 +7650,7 @@ namespace Extensions
         /// </summary>
         /// <param name="IP">Endereco IP</param>
         /// <returns>TRUE ou FALSE</returns>
-        public static bool IsIP(this string IP) => IP.IsNotBlank() && Regex.IsMatch(IP, @"\b((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$\b");
+        public static bool IsIP(this string IP) => IP.IsValid() && Regex.IsMatch(IP, @"\b((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$\b");
 
         public static bool IsLastIndex<T>(this int index, IEnumerable<T> list) => list.IsLastIndex(index);
 
@@ -7708,14 +7711,14 @@ namespace Extensions
         /// </summary>
         /// <param name="Text">Uma string</param>
         /// <returns>FALSE se estiver nula, vazia ou em branco, caso contrario TRUE</returns>
-        public static bool IsNotBlank(this object Value) => !IsBlank(Value);
+        public static bool IsValid(this object Value) => !IsNotValid(Value);
 
         /// <summary>
         /// Verifica se uma String não está em branco
         /// </summary>
         /// <param name="Text">Uma string</param>
         /// <returns>FALSE se estiver nula, vazia ou em branco, caso contrario TRUE</returns>
-        public static bool IsNotBlank(this FormattableString Text) => Text != null && IsNotBlank(FormattableString.Invariant(Text));
+        public static bool IsNotBlank(this FormattableString Text) => Text != null && IsValid(FormattableString.Invariant(Text));
 
         /// <summary>
         /// Verifica se um diretório não está vazio
@@ -7794,7 +7797,7 @@ namespace Extensions
         {
             try
             {
-                if ($"{Value}".IsNotBlank() && $"{Value}".Trim().ToCharArray().All(x => char.IsNumber(x)))
+                if ($"{Value}".IsValid() && $"{Value}".Trim().ToCharArray().All(x => char.IsNumber(x)))
                 {
                     return true;
                 }
@@ -7929,7 +7932,7 @@ namespace Extensions
         /// </summary>
         /// <param name="Text">Texto a ser verificado</param>
         /// <returns>TRUE se for uma URL, FALSE se não for uma URL válida</returns>
-        public static bool IsURL(this string Text) => Text.IsNotBlank() && Uri.TryCreate(Text.Trim(), UriKind.Absolute, out _) && !Text.Trim().Contains(" ");
+        public static bool IsURL(this string Text) => Text.IsValid() && Uri.TryCreate(Text.Trim(), UriKind.Absolute, out _) && !Text.Trim().Contains(" ");
 
         /// <summary>
         /// Verifica se o dominio é válido (existe) em uma URL ou email
@@ -8005,13 +8008,13 @@ namespace Extensions
 
         public static bool IsWrapped(this string Text, StringComparison stringComparison, string OpenWrapText, string CloseWrapText = null)
         {
-            if (Text.IsNotBlank())
+            if (Text.IsValid())
             {
                 OpenWrapText = OpenWrapText.IfBlank("");
                 CloseWrapText = CloseWrapText.IfBlank("");
-                if (OpenWrapText.Length == 1 && (CloseWrapText.IsBlank() || CloseWrapText.Length == 1))
+                if (OpenWrapText.Length == 1 && (CloseWrapText.IsNotValid() || CloseWrapText.Length == 1))
                 {
-                    return CloseWrapText.IsBlank()
+                    return CloseWrapText.IsNotValid()
                         ? IsWrapped(Text, OpenWrapText.FirstOrDefault())
                         : IsWrapped(Text, OpenWrapText.FirstOrDefault(), CloseWrapText.FirstOrDefault());
                 }
@@ -8878,7 +8881,7 @@ namespace Extensions
         /// <returns></returns>
         public static string MinifyCSS(this string CSS, bool PreserveComments = false)
         {
-            if (CSS.IsNotBlank())
+            if (CSS.IsValid())
             {
                 CSS = Regex.Replace(CSS, "[a-zA-Z]+#", "#");
                 CSS = Regex.Replace(CSS, @"[\n\r]+\s*", EmptyString);
@@ -10086,7 +10089,7 @@ namespace Extensions
         {
             var propnames = new List<string>();
 
-            if (Name.IsNotBlank())
+            if (Name.IsValid())
             {
                 if (Name.StartsWith("_", StringComparison.InvariantCultureIgnoreCase))
                 {
@@ -10673,12 +10676,12 @@ namespace Extensions
             RemovedPart = EmptyString;
             Texts = Texts ?? Array.Empty<string>();
             var arr = Texts.WhereNotBlank().ToArray();
-            while (arr.Distinct().Count() > 1 && !arr.Any(x => BreakAt.IsNotBlank() && (FromStart ? x.StartsWith(BreakAt) : x.EndsWith(BreakAt))) && arr.All(x => FromStart ? x.StartsWith(arr.FirstOrDefault().GetFirstChars()) : x.EndsWith(arr.FirstOrDefault().GetLastChars())))
+            while (arr.Distinct().Count() > 1 && !arr.Any(x => BreakAt.IsValid() && (FromStart ? x.StartsWith(BreakAt) : x.EndsWith(BreakAt))) && arr.All(x => FromStart ? x.StartsWith(arr.FirstOrDefault().GetFirstChars()) : x.EndsWith(arr.FirstOrDefault().GetLastChars())))
             {
                 arr = arr.Select(x => FromStart ? x.RemoveFirstChars() : x.RemoveLastChars()).ToArray();
             }
 
-            if (BreakAt.IsNotBlank())
+            if (BreakAt.IsValid())
             {
                 arr = arr.Select(x => FromStart ? x.TrimStartAny(false, BreakAt) : x.TrimEndAny(false, BreakAt)).ToArray();
                 //Difference = FromStart ? Difference.Prepend(BreakAt) : Difference.Append(BreakAt);
@@ -10797,7 +10800,7 @@ namespace Extensions
         /// <param name="Text">Texto</param>
         /// <param name="Quantity">Quantidade de Caracteres</param>
         /// <returns></returns>
-        public static string RemoveFirstChars(this string Text, int Quantity = 1) => Text.IsNotBlank() && Text.Length > Quantity && Quantity > 0 ? Text.Remove(0, Quantity) : EmptyString;
+        public static string RemoveFirstChars(this string Text, int Quantity = 1) => Text.IsValid() && Text.Length > Quantity && Quantity > 0 ? Text.Remove(0, Quantity) : EmptyString;
 
         /// <summary>
         /// Remove um texto do inicio de uma string se ele for um outro texto especificado
@@ -10818,7 +10821,7 @@ namespace Extensions
 
         public static string RemoveHTML(this string Text)
         {
-            if (Text.IsNotBlank())
+            if (Text.IsValid())
             {
                 return Regex.Replace(Text.ReplaceMany(Environment.NewLine, "<br/>", "<br>", "<br />"), "<.*?>", EmptyString).HtmlDecode();
             }
@@ -10880,7 +10883,7 @@ namespace Extensions
         /// <param name="Text">Texto</param>
         /// <param name="Quantity">Quantidade de Caracteres</param>
         /// <returns></returns>
-        public static string RemoveLastChars(this string Text, int Quantity = 1) => Text.IsNotBlank() && Text.Length > Quantity && Quantity > 0 ? Text.Substring(0, Text.Length - Quantity) : EmptyString;
+        public static string RemoveLastChars(this string Text, int Quantity = 1) => Text.IsValid() && Text.Length > Quantity && Quantity > 0 ? Text.Substring(0, Text.Length - Quantity) : EmptyString;
 
         /// <summary>
         /// Remove um texto do final de uma string se ele for um outro texto
@@ -10901,7 +10904,7 @@ namespace Extensions
 
         public static string RemoveMask(this string MaskedText, params char[] AllowCharacters)
         {
-            if (MaskedText.IsNotBlank())
+            if (MaskedText.IsValid())
             {
                 string ns = "";
                 foreach (char c in MaskedText)
@@ -11010,7 +11013,7 @@ namespace Extensions
         /// <returns></returns>
         public static DirectoryInfo Rename(this DirectoryInfo Directory, string Name)
         {
-            if (Directory != null && Name.IsNotBlank() && Directory.Exists)
+            if (Directory != null && Name.IsValid() && Directory.Exists)
             {
                 var pt = Path.Combine(Directory.Parent.FullName, Name);
                 Directory.MoveTo(pt);
@@ -11028,7 +11031,7 @@ namespace Extensions
         /// <returns></returns>
         public static FileInfo Rename(this FileInfo File, string Name, bool KeepOriginalExtension = false)
         {
-            if (File != null && Name.IsNotBlank() && File.Exists)
+            if (File != null && Name.IsValid() && File.Exists)
             {
                 if (KeepOriginalExtension)
                 {
@@ -11140,7 +11143,7 @@ namespace Extensions
         /// </summary>
         public static string ReplaceFrom(this string Text, IDictionary<string, string> Dic)
         {
-            if (Dic != null && Text.IsNotBlank())
+            if (Dic != null && Text.IsValid())
             {
                 foreach (var p in Dic)
                 {
@@ -11156,7 +11159,7 @@ namespace Extensions
         /// </summary>
         public static string ReplaceFrom<T>(this string Text, IDictionary<string, T> Dic)
         {
-            if (Dic != null && Text.IsNotBlank())
+            if (Dic != null && Text.IsValid())
             {
                 foreach (var p in Dic)
                 {
@@ -11195,7 +11198,7 @@ namespace Extensions
         /// </summary>
         public static string ReplaceFrom(this string Text, IDictionary<string, string[]> Dic, StringComparison Comparison = StringComparison.InvariantCultureIgnoreCase)
         {
-            if (Dic != null && Text.IsNotBlank())
+            if (Dic != null && Text.IsValid())
             {
                 foreach (var p in Dic)
                 {
@@ -11211,7 +11214,7 @@ namespace Extensions
         /// </summary>
         public static string ReplaceFrom(this string Text, IDictionary<string[], string> Dic, StringComparison Comparison = StringComparison.InvariantCultureIgnoreCase)
         {
-            if (Dic != null && Text.IsNotBlank())
+            if (Dic != null && Text.IsValid())
             {
                 foreach (var p in Dic)
                 {
@@ -11227,7 +11230,7 @@ namespace Extensions
         /// </summary>
         public static string ReplaceFrom(this string Text, IDictionary<string[], string[]> Dic, StringComparison Comparison = StringComparison.InvariantCultureIgnoreCase)
         {
-            if (Dic != null && Text.IsNotBlank())
+            if (Dic != null && Text.IsValid())
             {
                 foreach (var p in Dic)
                 {
@@ -11903,7 +11906,7 @@ namespace Extensions
         public static IEnumerable<FileSystemInfo> Search(this DirectoryInfo Directory, SearchOption SearchOption, params string[] Searches)
         {
             var FilteredList = new List<FileSystemInfo>();
-            foreach (string pattern in (Searches ?? Array.Empty<string>()).SelectMany(z => z.SplitAny(":", "|")).Where(x => x.IsNotBlank()).DefaultIfEmpty("*"))
+            foreach (string pattern in (Searches ?? Array.Empty<string>()).SelectMany(z => z.SplitAny(":", "|")).Where(x => x.IsValid()).DefaultIfEmpty("*"))
             {
                 if (Directory != null)
                     FilteredList.AddRange(Directory.GetFileSystemInfos(pattern.Trim(), SearchOption));
@@ -11959,7 +11962,7 @@ namespace Extensions
         public static IEnumerable<DirectoryInfo> SearchDirectories(this DirectoryInfo Directory, SearchOption SearchOption, params string[] Searches)
         {
             var FilteredList = new List<DirectoryInfo>();
-            foreach (string pattern in (Searches ?? Array.Empty<string>()).Where(x => x.IsNotBlank()).DefaultIfEmpty("*"))
+            foreach (string pattern in (Searches ?? Array.Empty<string>()).Where(x => x.IsValid()).DefaultIfEmpty("*"))
             {
                 if (Directory != null)
                     FilteredList.AddRange(Directory.GetDirectories(pattern.Trim(), SearchOption));
@@ -11997,7 +12000,7 @@ namespace Extensions
             {
                 foreach (var s in Text)
                 {
-                    if (s.IsNotBlank())
+                    if (s.IsValid())
                     {
                         var param = prop.Parameters.First();
                         var con = Expression.Constant(s);
@@ -12023,7 +12026,7 @@ namespace Extensions
         /// </param>
         /// <param name="Searches">Padrões de pesquisa (*.txt, arquivo.*, *)</param>
         /// <returns></returns>
-        public static IEnumerable<FileInfo> SearchFiles(this DirectoryInfo Directory, SearchOption SearchOption, params string[] Searches) => (Searches ?? Array.Empty<string>()).Where(x => x.IsNotBlank()).DefaultIfEmpty("*").SelectMany(x => Directory.GetFiles(x.Trim(), SearchOption));
+        public static IEnumerable<FileInfo> SearchFiles(this DirectoryInfo Directory, SearchOption SearchOption, params string[] Searches) => (Searches ?? Array.Empty<string>()).Where(x => x.IsValid()).DefaultIfEmpty("*").SelectMany(x => Directory.GetFiles(x.Trim(), SearchOption));
 
         /// <summary>
         /// Retorna uma lista de arquivos baseado em um ou mais padrões de pesquisas dentro de um
@@ -12162,7 +12165,7 @@ namespace Extensions
         /// <returns></returns>
         public static string SensitiveReplace(this string Text, string NewValue, IEnumerable<string> OldValues, StringComparison ComparisonType = StringComparison.InvariantCulture)
         {
-            if (Text.IsNotBlank())
+            if (Text.IsValid())
             {
                 foreach (var oldvalue in OldValues ?? new[] { EmptyString })
                 {
@@ -12227,7 +12230,7 @@ namespace Extensions
             return Dictionary;
         }
 
-        public static IDictionary<TKey, string> SetOrRemove<TKey, TK>(this IDictionary<TKey, string> Dic, TK Key, string Value, bool NullIfBlank) => Dic.SetOrRemove(Key, NullIfBlank.AsIf(Value.NullIf(x => x.IsBlank()), Value));
+        public static IDictionary<TKey, string> SetOrRemove<TKey, TK>(this IDictionary<TKey, string> Dic, TK Key, string Value, bool NullIfBlank) => Dic.SetOrRemove(Key, NullIfBlank.AsIf(Value.NullIf(x => x.IsNotValid()), Value));
 
         public static IDictionary<TKey, TValue> SetOrRemove<TKey, TValue, TK, TV>(this IDictionary<TKey, TValue> Dic, TK Key, TV Value)
         {
@@ -12257,7 +12260,7 @@ namespace Extensions
         /// </typeparam>
         public static T SetPropertyValue<T>(this T MyObject, string PropertyName, object Value) where T : class
         {
-            if (PropertyName.IsNotBlank() && MyObject != null)
+            if (PropertyName.IsValid() && MyObject != null)
             {
                 var props = MyObject.GetProperties();
 
@@ -13026,7 +13029,7 @@ namespace Extensions
             for (int index = 0, loopTo = ch.Length - 1; index <= loopTo; index++)
             {
                 char antec = ch.IfNoIndex(index - 1, '\0');
-                if (antec.ToString().IsBlank() || char.IsLower(antec) || antec.ToString() == null)
+                if (antec.ToString().IsNotValid() || char.IsLower(antec) || antec.ToString() == null)
                 {
                     ch[index] = char.ToUpper(ch[index]);
                 }
@@ -13055,7 +13058,7 @@ namespace Extensions
         public static int ToArabic(this string RomanNumber)
         {
             RomanNumber = $"{RomanNumber}".ToUpper(CultureInfo.InvariantCulture).Replace("IIII", "IV").Trim();
-            if (RomanNumber == "N" || RomanNumber.IsBlank())
+            if (RomanNumber == "N" || RomanNumber.IsNotValid())
             {
                 return 0;
             }
@@ -13327,12 +13330,17 @@ namespace Extensions
                 return Array.Empty<byte>();
             }
 
-            var pos = stream.Position;
-            using (var ms = new MemoryStream())
+            if (stream is MemoryStream ms)
             {
-                stream.CopyTo(ms);
-                stream.Position = pos;
                 return ms.ToArray();
+            }
+
+            var pos = stream.Position;
+            using (var ms2 = new MemoryStream())
+            {
+                stream.CopyTo(ms2);
+                stream.Position = pos;
+                return ms2.ToArray();
             }
         }
 
@@ -13376,7 +13384,7 @@ namespace Extensions
         /// <returns></returns>
         public static Color ToColor(this string Text)
         {
-            if (Text.IsBlank()) return Color.Transparent;
+            if (Text.IsNotValid()) return Color.Transparent;
 
             if (Text == "random" || Text == "rnd") return RandomColor();
 
@@ -13609,7 +13617,7 @@ namespace Extensions
 
             foreach (string key in NameValueCollection.Keys)
             {
-                if (key.IsNotBlank() && key.IsLikeAny(Keys))
+                if (key.IsValid() && key.IsLikeAny(Keys))
                 {
                     var values = NameValueCollection.GetValues(key);
                     if (result.ContainsKey(key))
@@ -15261,7 +15269,7 @@ namespace Extensions
 
         public static string ToMD5String(this string Text)
         {
-            if (Text.IsNotBlank())
+            if (Text.IsValid())
             {
                 var md5 = MD5.Create();
                 var inputBytes = Encoding.ASCII.GetBytes(Text);
@@ -15387,7 +15395,7 @@ namespace Extensions
 
             Texts = (Texts ?? Array.Empty<T>()).WhereNotBlank();
 
-            if (PhraseStart.IsNotBlank() && !PhraseStart.EndsWithAny(StringComparison.InvariantCultureIgnoreCase, PredefinedArrays.BreakLineChars.ToArray()) && !PhraseStart.EndsWith(WhitespaceChar, StringComparison.InvariantCultureIgnoreCase))
+            if (PhraseStart.IsValid() && !PhraseStart.EndsWithAny(StringComparison.InvariantCultureIgnoreCase, PredefinedArrays.BreakLineChars.ToArray()) && !PhraseStart.EndsWith(WhitespaceChar, StringComparison.InvariantCultureIgnoreCase))
             {
                 PhraseStart += WhitespaceChar;
             }
@@ -15486,7 +15494,7 @@ namespace Extensions
         /// <returns></returns>
         public static string ToProperCase(this string Text, bool ForceCase = false)
         {
-            if (Text.IsBlank())
+            if (Text.IsNotValid())
             {
                 return Text;
             }
@@ -15501,7 +15509,7 @@ namespace Extensions
             {
                 string pal = l[index];
                 bool artigo = index > 0 && IsIn(pal, "o", "a", "os", "as", "um", "uma", "uns", "umas", "de", "do", "dos", "das", "e", "ou", "of");
-                if (pal.IsNotBlank())
+                if (pal.IsValid())
                 {
                     if (ForceCase || artigo == false)
                     {
@@ -15528,14 +15536,14 @@ namespace Extensions
         /// </summary>
         /// <param name="Dic"></param>
         /// <returns></returns>
-        public static string ToQueryString(this Dictionary<string, string> Dic) => Dic?.Where(x => x.Key.IsNotBlank()).SelectJoinString(x => new[] { x.Key, (x.Value ?? EmptyString).UrlEncode() }.SelectJoinString("="), "&") ?? EmptyString;
+        public static string ToQueryString(this Dictionary<string, string> Dic) => Dic?.Where(x => x.Key.IsValid()).SelectJoinString(x => new[] { x.Key, (x.Value ?? EmptyString).UrlEncode() }.SelectJoinString("="), "&") ?? EmptyString;
 
         /// <summary>
         /// Retorna um <see cref="NameValueCollection"/> em QueryString
         /// </summary>
         /// <param name="NVC"></param>
         /// <returns></returns>
-        public static string ToQueryString(this NameValueCollection NVC) => NVC?.AllKeys.SelectManyJoinString(n => NVC.GetValues(n).Select(v => n + "=" + v).Where(x => x.IsNotBlank() && x != "="), "&");
+        public static string ToQueryString(this NameValueCollection NVC) => NVC?.AllKeys.SelectManyJoinString(n => NVC.GetValues(n).Select(v => n + "=" + v).Where(x => x.IsValid() && x != "="), "&");
 
         /// <summary>
         /// COnverte graus para radianos
@@ -16134,7 +16142,7 @@ namespace Extensions
         /// <returns></returns>
         public static string TrimAny(this string Text, bool ContinuouslyRemove, params string[] StringTest)
         {
-            if (Text.IsNotBlank())
+            if (Text.IsValid())
             {
                 Text = Text.TrimStartAny(ContinuouslyRemove, StringTest);
                 Text = Text.TrimEndAny(ContinuouslyRemove, StringTest);
@@ -16156,7 +16164,7 @@ namespace Extensions
         public static string TrimBetween(this string Text)
         {
             Text = Text.IfBlank(EmptyString);
-            if (Text.IsNotBlank())
+            if (Text.IsValid())
             {
                 var arr = Text.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
                 Text = arr.SelectJoinString(Environment.NewLine);
@@ -16319,7 +16327,7 @@ namespace Extensions
 
         public static string UnQuote(this string Text, char OpenQuoteChar, bool ContinuouslyRemove = false)
         {
-            if ($"{OpenQuoteChar}".RemoveNonPrintable().IsBlank())
+            if ($"{OpenQuoteChar}".RemoveNonPrintable().IsNotValid())
             {
                 while (Text.EndsWithAny(PredefinedArrays.CloseWrappers.ToArray()) || Text.StartsWithAny(PredefinedArrays.OpenWrappers.ToArray()))
                 {
@@ -16346,14 +16354,14 @@ namespace Extensions
         /// </summary>
         /// <param name="Text">Texto</param>
         /// <returns></returns>
-        public static string UrlDecode(this string Text) => Text.IsNotBlank() ? WebUtility.UrlDecode(Text) : EmptyString;
+        public static string UrlDecode(this string Text) => Text.IsValid() ? WebUtility.UrlDecode(Text) : EmptyString;
 
         /// <summary>
         /// Encoda uma string para transmissão por URL
         /// </summary>
         /// <param name="Text">Texto</param>
         /// <returns></returns>
-        public static string UrlEncode(this string Text) => Text.IsNotBlank() ? WebUtility.UrlEncode(Text) : EmptyString;
+        public static string UrlEncode(this string Text) => Text.IsValid() ? WebUtility.UrlEncode(Text) : EmptyString;
 
         /// <summary>
         /// Returns true if all logical operations return true
@@ -16602,7 +16610,7 @@ namespace Extensions
         /// <returns></returns>
         public static IQueryable<T> WhereExpression<T>(this IQueryable<T> List, string PropertyName, string Operator, IEnumerable<IComparable> PropertyValue, bool Is = true) => List.Where(WhereExpression<T>(PropertyName, Operator, PropertyValue, Is));
 
-        public static IEnumerable<T> WhereNotBlank<T>(this IEnumerable<T> List) => List.Where(x => x.IsNotBlank());
+        public static IEnumerable<T> WhereNotBlank<T>(this IEnumerable<T> List) => List.Where(x => x.IsValid());
 
         public static IQueryable<T> WhereNotNull<T>(this IQueryable<T> List) => List.Where(x => x != null);
 
@@ -16749,7 +16757,7 @@ namespace Extensions
         {
             if (EnableDebugMessages)
             {
-                category = $"{new StackFrame(1, true).GetMethod()?.Name.AppendIf(" => ", category.IsNotBlank())} {category}".Trim();
+                category = $"{new StackFrame(1, true).GetMethod()?.Name.AppendIf(" => ", category.IsValid())} {category}".Trim();
                 Debug.WriteLine(value, category);
             }
             return value;

@@ -1805,7 +1805,7 @@ namespace Extensions
         /// <summary>
         /// Converte uma string dd/mm/aaaa hh:mm:ss.llll para o formato de string do SQL server ou Mysql
         /// </summary>
-        public static string ToSQLDateString(this string Date, CultureInfo FromCulture) => Date.IsNotBlank() ? Convert.ToDateTime(Date, (FromCulture ?? CultureInfo.CurrentCulture).DateTimeFormat).ToSQLDateString() : Date;
+        public static string ToSQLDateString(this string Date, CultureInfo FromCulture) => Date.IsValid() ? Convert.ToDateTime(Date, (FromCulture ?? CultureInfo.CurrentCulture).DateTimeFormat).ToSQLDateString() : Date;
 
         /// <summary>
         /// Converte um <see cref="Date"/> para um timezone Especifico

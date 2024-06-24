@@ -266,7 +266,7 @@ namespace Extensions.RolePlayingGame
             return this;
         }
 
-        public override string ToString() => $"{Type}{$"{Value}".PrependIf(" - ", x => x.IsNotBlank())}";
+        public override string ToString() => $"{Type}{$"{Value}".PrependIf(" - ", x => x.IsValid())}";
 
         #endregion Public Methods
 
@@ -319,7 +319,7 @@ namespace Extensions.RolePlayingGame
             {
                 get
                 {
-                    if (_name.IsBlank())
+                    if (_name.IsNotValid())
                     {
                         if (dice.Type == DiceType.Coin)
                         {

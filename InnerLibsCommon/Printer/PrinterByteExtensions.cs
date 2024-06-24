@@ -91,7 +91,7 @@ namespace Extensions.Printers
 
         public static byte[] AddTextBytes(this byte[] bytes, string value, Encoding Encoding)
         {
-            if (value.IsBlank())
+            if (value.IsNotValid())
                 return bytes;
             var list = new List<byte>();
             list.AddRange(bytes);

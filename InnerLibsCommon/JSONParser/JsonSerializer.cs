@@ -74,7 +74,7 @@ namespace Extensions
             }
             else if (obj is string || obj is char)
             {
-                if ((_params.SerializeBlankStringsAsNull && obj.IsBlank()))
+                if ((_params.SerializeBlankStringsAsNull && obj.IsNotValid()))
                 {
                     _output.Append("null");
                 }
@@ -246,7 +246,7 @@ namespace Extensions
 
             foreach (string key in nameValueCollection)
             {
-                if (_params.SerializeNullValues == false && ((nameValueCollection[key] == null) || (nameValueCollection[key] is string s && s.IsBlank() && _params.SerializeBlankStringsAsNull)))
+                if (_params.SerializeNullValues == false && ((nameValueCollection[key] == null) || (nameValueCollection[key] is string s && s.IsNotValid() && _params.SerializeBlankStringsAsNull)))
                 {
                 }
                 else
@@ -279,7 +279,7 @@ namespace Extensions
 
             foreach (DictionaryEntry entry in stringDictionary)
             {
-                if (_params.SerializeNullValues == false && ((entry.Value == null) || (entry.Value is string s && s.IsBlank() && _params.SerializeBlankStringsAsNull)))
+                if (_params.SerializeNullValues == false && ((entry.Value == null) || (entry.Value is string s && s.IsNotValid() && _params.SerializeBlankStringsAsNull)))
                 {
                 }
                 else
@@ -597,7 +597,7 @@ namespace Extensions
                 }
 
                 object o = p.Getter(obj);
-                if (_params.SerializeNullValues == false && ((o == null || o is DBNull) || (o is string s && s.IsBlank() && _params.SerializeBlankStringsAsNull)))
+                if (_params.SerializeNullValues == false && ((o == null || o is DBNull) || (o is string s && s.IsNotValid() && _params.SerializeBlankStringsAsNull)))
                 {
                     //append = false;
                 }
@@ -718,7 +718,7 @@ namespace Extensions
 
             foreach (DictionaryEntry entry in dic)
             {
-                if (_params.SerializeNullValues == false && ((entry.Value == null) || (entry.Value is string s && s.IsBlank() && _params.SerializeBlankStringsAsNull)))
+                if (_params.SerializeNullValues == false && ((entry.Value == null) || (entry.Value is string s && s.IsNotValid() && _params.SerializeBlankStringsAsNull)))
                 {
                 }
                 else
@@ -750,7 +750,7 @@ namespace Extensions
             bool pendingSeparator = false;
             foreach (KeyValuePair<string, object> entry in dic)
             {
-                if (_params.SerializeNullValues == false && ((entry.Value == null) || (entry.Value is string s && s.IsBlank() && _params.SerializeBlankStringsAsNull)))
+                if (_params.SerializeNullValues == false && ((entry.Value == null) || (entry.Value is string s && s.IsNotValid() && _params.SerializeBlankStringsAsNull)))
                 {
                 }
                 else

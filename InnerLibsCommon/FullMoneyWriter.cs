@@ -504,7 +504,7 @@ namespace Extensions.NumberWriters
 
                                 case var case1 when case1 == typeof(QuantityTextPair):
                                     {
-                                        if (((QuantityTextPair)prop.GetValue(this)).Plural.IsBlank())
+                                        if (((QuantityTextPair)prop.GetValue(this)).Plural.IsNotValid())
                                         {
                                             prop.SetValue(this, new QuantityTextPair(prop.Name + "s", prop.Name));
                                         }

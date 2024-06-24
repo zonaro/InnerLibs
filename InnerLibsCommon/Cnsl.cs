@@ -29,7 +29,7 @@ namespace Extensions.Console
             }
             catch
             {
-                if (InvalidResponseMessage.IsNotBlank()) ConsoleWriteLine(InvalidResponseMessage.Trim() + Util.WhitespaceChar);
+                if (InvalidResponseMessage.IsValid()) ConsoleWriteLine(InvalidResponseMessage.Trim() + Util.WhitespaceChar);
                 return AskYesNo(Question);
             }
         }
@@ -44,7 +44,7 @@ namespace Extensions.Console
             }
             catch
             {
-                if (InvalidResponseMessage.IsNotBlank()) ConsoleWriteLine(InvalidResponseMessage.Trim() + Util.WhitespaceChar);
+                if (InvalidResponseMessage.IsValid()) ConsoleWriteLine(InvalidResponseMessage.Trim() + Util.WhitespaceChar);
                 return AskYesNoCancel(Question);
             }
         }
@@ -136,7 +136,7 @@ namespace Extensions.Console
             CustomColoredWords = CustomColoredWords.SelectMany(x => x.Key.Split(" ").Distinct().ToDictionary(y => y, y => x.Value)).ToDictionary();
             var lastcolor = System.Console.ForegroundColor;
             var maincolor = CustomColoredWords.GetValueOr(string.Empty, lastcolor);
-            if (Text.IsNotBlank())
+            if (Text.IsValid())
             {
                 var substrings = Text.Split(" ");
                 foreach (string substring in substrings)
@@ -247,7 +247,7 @@ namespace Extensions.Console
                 catch
                 {
                 }
-            } while (aw.IsBlank() && !typeof(T).IsNullableType());
+            } while (aw.IsNotValid() && !typeof(T).IsNullableType());
 
             return aw.IfBlank(defaultValue);
         }
@@ -263,7 +263,7 @@ namespace Extensions.Console
             {
                 ConsoleWriteLine(Text + " ");
                 aw = System.Console.ReadLine();
-            } while (aw.IsBlank() && !allowBlank);
+            } while (aw.IsNotValid() && !allowBlank);
             return aw.IfBlank(defaultValue);
         }
 
@@ -279,7 +279,7 @@ namespace Extensions.Console
         /// <returns></returns>
         public static string ConsoleWriteSeparator(this string Text, char Separator = '-', ConsoleColor? Color = null, int BreakLines = 1)
         {
-            if (Text.IsNotBlank())
+            if (Text.IsValid())
             {
                 Text = Text.Wrap(" ");
             }
@@ -313,7 +313,7 @@ namespace Extensions.Console
         /// <returns></returns>
         public static T GetArgumentValue<T>(this string[] args, string ArgName, T ValueIfNull = default)
         {
-            if (ArgName.IsBlank())
+            if (ArgName.IsNotValid())
             {
                 return ValueIfNull;
             }
@@ -324,7 +324,7 @@ namespace Extensions.Console
                 if (index > -1)
                 {
                     var s = args.IfBlankOrNoIndex(index + 1, default);
-                    return s.IsBlank() ? ValueIfNull : s.ChangeType<T>();
+                    return s.IsNotValid() ? ValueIfNull : s.ChangeType<T>();
                 }
             }
             return ValueIfNull;

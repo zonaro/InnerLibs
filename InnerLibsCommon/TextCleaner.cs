@@ -16,7 +16,7 @@ namespace Extensions.ComplexText
         internal Paragraph(string Text, StructuredText StructuredText)
         {
             this.StructuredText = StructuredText;
-            if (Text.IsNotBlank())
+            if (Text.IsValid())
             {
                 char sep0 = '.';
                 char sep1 = '!';
@@ -26,7 +26,7 @@ namespace Extensions.ComplexText
                 var matches = regex.Matches(Text);
                 foreach (Match match in matches)
                 {
-                    if (match.ToString().IsNotBlank())
+                    if (match.ToString().IsValid())
                         Add(new Sentence(match.ToString(), this));
                 }
             }
@@ -65,7 +65,7 @@ namespace Extensions.ComplexText
         internal Sentence(string Text, Paragraph Paragraph)
         {
             this.Paragraph = Paragraph;
-            if (Text.IsNotBlank())
+            if (Text.IsValid())
             {
                 var charlist = Text.Trim().ToArray().ToList();
                 string palavra = Util.EmptyString;
@@ -88,7 +88,7 @@ namespace Extensions.ComplexText
                         case object _ when PredefinedArrays.EndOfSentencePunctuation.Contains(Convert.ToString(p)):
                         case object _ when PredefinedArrays.MidSentencePunctuation.Contains(Convert.ToString(p)):
                             {
-                                if (palavra.IsNotBlank())
+                                if (palavra.IsValid())
                                 {
                                     listabase.Add(palavra); // adiciona a plavra atual
                                     palavra = Util.EmptyString;
@@ -100,7 +100,7 @@ namespace Extensions.ComplexText
                         // caso for espaco
                         case object _ when Convert.ToString(p) == Util.WhitespaceChar:
                             {
-                                if (palavra.IsNotBlank())
+                                if (palavra.IsValid())
                                 {
                                     listabase.Add(palavra); // adiciona a plavra atual                                   
                                 }
@@ -118,7 +118,7 @@ namespace Extensions.ComplexText
                 }
 
                 // e entao adiciona ultima palavra se existir
-                if (palavra.IsNotBlank())
+                if (palavra.IsValid())
                 {
                     listabase.Add(palavra);
                 }
@@ -140,7 +140,7 @@ namespace Extensions.ComplexText
                     // processar palavra a palavra
                     for (int index = 0, loopTo = listabase.Count - 1; index <= loopTo; index++)
                     {
-                        if (listabase[index].IsNotBlank())
+                        if (listabase[index].IsValid())
                         {
                             Add(new SentencePart(listabase[index], this));
                         }
@@ -377,11 +377,11 @@ namespace Extensions.ComplexText
             {
                 _originalText = value;
                 Clear();
-                if (OriginalText.IsNotBlank())
+                if (OriginalText.IsValid())
                 {
                     foreach (var p in OriginalText.Split(PredefinedArrays.BreakLineChars.ToArray(), StringSplitOptions.RemoveEmptyEntries))
                     {
-                        if (p.IsNotBlank())
+                        if (p.IsValid())
                         {
                             Add(new Paragraph(p, this));
                         }

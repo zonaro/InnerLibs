@@ -85,7 +85,7 @@ namespace Extensions.Databases
 
         public ColumnNameAttribute(string ColumnName, params string[] AlternativeNames)
         {
-            if (ColumnName.IsBlank())
+            if (ColumnName.IsNotValid())
             {
                 throw new ArgumentException("ColumnName is null or blank");
             }
@@ -121,7 +121,7 @@ namespace Extensions.Databases
         {
             foreach (var condition in Conditions ?? Array.Empty<FormattableString>())
             {
-                if (condition != null && condition.ToString().IsNotBlank())
+                if (condition != null && condition.ToString().IsValid())
                 {
                     if (LogicOperator.ToLowerInvariant() == "or")
                     {
@@ -139,7 +139,7 @@ namespace Extensions.Databases
         {
             foreach (var condition in Conditions ?? Array.Empty<Condition>())
             {
-                if (condition != null && condition.ToString().IsNotBlank())
+                if (condition != null && condition.ToString().IsValid())
                 {
                     if (LogicOperator.ToLowerInvariant() == "or")
                     {
@@ -171,7 +171,7 @@ namespace Extensions.Databases
         /// <param name="condition">Copies to the condition being constructed</param>
         public Condition(Condition condition)
         {
-            if (condition != null && condition.ToString().IsNotBlank())
+            if (condition != null && condition.ToString().IsValid())
             {
                 _tokens.Add(condition.ParenthesisToString());
             }
@@ -182,7 +182,7 @@ namespace Extensions.Databases
         /// </summary>
         public Condition(string Column, object Value, string Operator = "=")
         {
-            if (Column.IsNotBlank())
+            if (Column.IsValid())
             {
                 if (Value == null)
                 {
@@ -226,7 +226,7 @@ namespace Extensions.Databases
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
         public Condition And(FormattableString condition)
         {
-            if (!(condition == null) && condition.ToString().IsNotBlank())
+            if (!(condition == null) && condition.ToString().IsValid())
             {
                 if (_tokens.Any())
                 {
@@ -257,7 +257,7 @@ namespace Extensions.Databases
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
         public Condition Or(FormattableString condition)
         {
-            if (!(condition == null) && condition.ToString().IsNotBlank())
+            if (!(condition == null) && condition.ToString().IsValid())
             {
                 if (_tokens.Any())
                 {
@@ -327,18 +327,18 @@ namespace Extensions.Databases
         {
             get
             {
-                if (sql.IsNotBlank())
+                if (sql.IsValid())
                 {
                     return sql;
                 }
 
-                if (File.IsNotBlank())
+                if (File.IsValid())
                 {
                     if (File.IsFilePath())
                     {
                         if (System.IO.File.Exists(File))
                         {
-                            return System.IO.File.ReadAllText(File).ValidateOr(x => x.IsNotBlank(), new ArgumentException("No file content"));
+                            return System.IO.File.ReadAllText(File).ValidateOr(x => x.IsValid(), new ArgumentException("No file content"));
                         }
                         else
                         {
@@ -351,12 +351,12 @@ namespace Extensions.Databases
                     }
                 }
 
-                return $"SELECT * FROM {TableName.ValidateOr(x => x.IsNotBlank(), new ArgumentException("No table name defined"))}";
+                return $"SELECT * FROM {TableName.ValidateOr(x => x.IsValid(), new ArgumentException("No table name defined"))}";
             }
 
             set
             {
-                if (value.IsNotBlank() && value != sql)
+                if (value.IsValid() && value != sql)
                 {
                     sql = value;
                 }
@@ -515,7 +515,7 @@ namespace Extensions.Databases
 
         public Select<T> AddColumns(params string[] Columns)
         {
-            Columns = (Columns ?? Array.Empty<string>()).SelectMany(x => x.Split(",")).Distinct().Where(x => x.IsNotBlank()).ToArray();
+            Columns = (Columns ?? Array.Empty<string>()).SelectMany(x => x.Split(",")).Distinct().Where(x => x.IsValid()).ToArray();
             _columns = _columns ?? new List<string>();
             _columns.AddRange(Columns);
             return this;
@@ -543,7 +543,7 @@ namespace Extensions.Databases
         {
             foreach (var condition in conditions ?? Array.Empty<Condition>())
             {
-                if (condition != null && condition.ToString().IsNotBlank())
+                if (condition != null && condition.ToString().IsValid())
                 {
                     if (_where is null)
                     {
@@ -672,7 +672,7 @@ namespace Extensions.Databases
         /// <returns></returns>
         public Select<T> From(string TableOrSubQuery)
         {
-            if (TableOrSubQuery.IsNotBlank())
+            if (TableOrSubQuery.IsValid())
             {
                 _from = TableOrSubQuery.QuoteIf(TableOrSubQuery.StartsWith("SELECT "), '(');
                 _fromsub = null;
@@ -688,7 +688,7 @@ namespace Extensions.Databases
         /// <returns></returns>
         public Select<T> From<TO>(Select<TO> SubQuery, string SubQueryAlias = null) where TO : class
         {
-            if (SubQuery != null && SubQuery.ToString(true).IsNotBlank() && !ReferenceEquals(SubQuery, this))
+            if (SubQuery != null && SubQuery.ToString(true).IsValid() && !ReferenceEquals(SubQuery, this))
             {
                 _from = null;
                 _fromsub = SubQuery;
@@ -792,7 +792,7 @@ namespace Extensions.Databases
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
         public Select<T> Having(string condition)
         {
-            if (condition.IsNotBlank())
+            if (condition.IsValid())
             {
                 _having = condition;
             }
@@ -836,7 +836,7 @@ namespace Extensions.Databases
 
         public Select<T> Join(JoinType JoinType, string Table, Condition on)
         {
-            if (Table.IsNotBlank() && (JoinType == JoinType.CrossApply || (!(on == null) && on.ToString().IsNotBlank())))
+            if (Table.IsValid() && (JoinType == JoinType.CrossApply || (!(on == null) && on.ToString().IsValid())))
             {
                 _joins = _joins ?? new List<Join>();
                 _joins.Add(new Join()
@@ -905,7 +905,7 @@ namespace Extensions.Databases
         {
             foreach (var condition in conditions ?? Array.Empty<Condition>())
             {
-                if (condition != null && condition.ToString().IsNotBlank())
+                if (condition != null && condition.ToString().IsValid())
                 {
                     if (_where is null)
                     {
@@ -1073,18 +1073,18 @@ namespace Extensions.Databases
         {
             var sql = new StringBuilder("SELECT ");
 
-            if (_top?.IsNotBlank() ?? false)
+            if (_top?.IsValid() ?? false)
             {
                 sql.Append($"{_top}");
             }
             var cols = (_columns?.Distinct().SelectJoinString(",") ?? Util.EmptyString).IfBlank(" * ");
             sql.Append(cols);
-            if (_fromsub != null && _fromsub.ToString().IsNotBlank())
+            if (_fromsub != null && _fromsub.ToString().IsValid())
             {
                 _from = _fromsub.ToString(true).Quote('(') + " as " + _fromsubname;
             }
 
-            if (_from?.IsNotBlank() ?? false)
+            if (_from?.IsValid() ?? false)
             {
                 sql.Append(" FROM ");
                 sql.Append(_from);
@@ -1119,7 +1119,7 @@ namespace Extensions.Databases
                 sql.Append(string.Join(", ", _orderBy));
             }
 
-            if (_offset?.IsNotBlank() ?? false && AsSubquery == false)
+            if (_offset?.IsValid() ?? false && AsSubquery == false)
             {
                 sql.Append($" {_offset} ");
             }
@@ -1159,7 +1159,7 @@ namespace Extensions.Databases
             LogicOperator = LogicOperator.IfBlank("and");
             foreach (var condition in conditions ?? Array.Empty<FormattableString>())
             {
-                if (condition != null && condition.ToString().IsNotBlank())
+                if (condition != null && condition.ToString().IsValid())
                 {
                     if (LogicOperator.ToLowerInvariant().IsAny("||", "|", "or"))
                     {
@@ -1251,7 +1251,7 @@ namespace Extensions.Databases
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
         public Select<T> Where(Condition condition)
         {
-            if (condition != null && condition.ToString().IsNotBlank())
+            if (condition != null && condition.ToString().IsValid())
             {
                 if (_where != null)
                 {
@@ -1299,7 +1299,7 @@ namespace Extensions.Databases
                 FilterKeys = Dic.Keys.ToArray();
             }
 
-            FilterKeys = FilterKeys.Where(x => Dic[x] != null && Dic[x].ToString().IsNotBlank()).ToArray();
+            FilterKeys = FilterKeys.Where(x => Dic[x] != null && Dic[x].ToString().IsValid()).ToArray();
             if (FilterKeys.Any())
             {
                 foreach (var f in FilterKeys)
@@ -1331,7 +1331,7 @@ namespace Extensions.Databases
             NVC = NVC ?? new NameValueCollection();
             foreach (var k in NVC.AllKeys)
             {
-                if (k.IsNotBlank())
+                if (k.IsValid())
                 {
                     string col = k.UrlDecode();
                     if (!FilterKeys.Any() || col.IsLikeAny(FilterKeys))

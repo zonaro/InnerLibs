@@ -27,7 +27,7 @@ namespace Extensions.Web
                 Extension = match.Groups["extension"].Value.ToLowerInvariant();
                 Encoding = match.Groups["encoding"].Value.ToLowerInvariant();
                 Data = match.Groups["data"].Value;
-                if (new[] { Mime, Extension, Encoding, Data }.Any(x => x.IsBlank()))
+                if (new[] { Mime, Extension, Encoding, Data }.Any(x => x.IsNotValid()))
                 {
                     throw new Exception("Some parts are blank");
                 }

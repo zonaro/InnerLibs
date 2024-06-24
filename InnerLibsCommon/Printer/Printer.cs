@@ -77,7 +77,7 @@ namespace Extensions.Printers
         internal string GetDotLine(string LeftText, string RightText, int? Columns = default, char CharLine = ' ')
         {
             Columns = Columns ?? GetCurrentColumns();
-            if (CharLine.ToString().IsBlank())
+            if (CharLine.ToString().IsNotValid())
             {
                 CharLine = ' ';
             }
@@ -96,7 +96,7 @@ namespace Extensions.Printers
             string s1 = $"{LeftText}";
             string s2 = $"{RightText}";
             string dots;
-            if (s2.IsNotBlank() && Columns.Value > 0)
+            if (s2.IsValid() && Columns.Value > 0)
             {
                 dots = GetDotLine(s1, s2, Columns, CharLine);
             }
@@ -147,7 +147,7 @@ namespace Extensions.Printers
         public Printer(IPrintCommand Command, string PrinterName, int ColsNormal, int ColsCondensed, int ColsExpanded, Encoding Encoding)
         {
             txw = new PrinterWriter(this);
-            if (PrinterName.IsBlank())
+            if (PrinterName.IsNotValid())
             {
                 throw new ArgumentException("PrinterName is null or empty", nameof(PrinterName));
             }
@@ -861,10 +861,10 @@ namespace Extensions.Printers
                 {
                     foreach (var line in value.SplitAny(PredefinedArrays.BreakLineChars.ToArray()))
                     {
-                        WriteLine(line, Test && line.IsNotBlank());
+                        WriteLine(line, Test && line.IsValid());
                     }
                 }
-                else if (value.IsNotBlank())
+                else if (value.IsValid())
                 {
                     if (!Diacritics)
                     {
@@ -957,7 +957,7 @@ namespace Extensions.Printers
         /// </summary>
         /// <param name="Format"></param>
         /// <returns></returns>
-        public Printer WriteDate(DateTime DateAndTime, string Format = null) => Format.IsNotBlank() ? Write(DateAndTime.ToString(Format)) : Write(DateAndTime.ToString());
+        public Printer WriteDate(DateTime DateAndTime, string Format = null) => Format.IsValid() ? Write(DateAndTime.ToString(Format)) : Write(DateAndTime.ToString());
 
         /// <summary>
         /// Escreve uma data usando uma Cultura especifica
@@ -1078,7 +1078,7 @@ namespace Extensions.Printers
         /// <returns></returns>
         public Printer WriteLine(params string[] values)
         {
-            values = (values ?? Array.Empty<string>()).Where(x => x.IsNotBlank()).ToArray();
+            values = (values ?? Array.Empty<string>()).Where(x => x.IsValid()).ToArray();
             if (values.Any())
             {
                 WriteLine(values.SelectJoinString(Environment.NewLine));
@@ -1123,7 +1123,7 @@ namespace Extensions.Printers
         /// <summary>
         /// Escreve um par de informações no <see cref="DocumentBuffer"/>.
         /// </summary>
-        public Printer WritePair(object Key, object Value, int? Columns = default, char CharLine = ' ') => WriteLine(GetPair($"{Key}", $"{Value}", Columns, CharLine), x => x.IsNotBlank());
+        public Printer WritePair(object Key, object Value, int? Columns = default, char CharLine = ' ') => WriteLine(GetPair($"{Key}", $"{Value}", Columns, CharLine), x => x.IsValid());
 
         /// <summary>
         /// Escreve uma linha de preço no <see cref="DocumentBuffer"/>
@@ -1168,7 +1168,7 @@ namespace Extensions.Printers
             NewLine(5);
             AlignCenter();
             Separator('_', Columns);
-            WriteLine(Name, Name.IsNotBlank());
+            WriteLine(Name, Name.IsValid());
             ResetFont();
             return this;
         }
@@ -1196,7 +1196,7 @@ namespace Extensions.Printers
         /// <returns></returns>
         public Printer WriteTemplate<T>(string TemplateString, bool PartialCutOnEach, params T[] Objects)
         {
-            if (TemplateString.IsNotBlank())
+            if (TemplateString.IsValid())
             {
                 Objects = Objects ?? Array.Empty<T>();
                 if (TemplateString.IsFilePath())
@@ -1438,7 +1438,7 @@ namespace Extensions.Printers.XmlTemplates
             if (name.IsIn("list"))
             {
                 string v = Xml.Attribute("property")?.Value;
-                if (v.IsNotBlank())
+                if (v.IsValid())
                 {
                     var prop = typeof(T).GetProperty(v);
                     if (prop != null && Item != null)

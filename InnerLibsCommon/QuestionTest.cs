@@ -1082,7 +1082,7 @@ namespace Extensions.QuestionTests
             var form = new HtmlElementNode("form");
             var header = new HtmlElementNode("header").InsertInto(form) as HtmlElementNode;
 
-            if (Title.IsNotBlank())
+            if (Title.IsValid())
             {
                 header.Add("h1", Title).AddClass("main-title");
             }

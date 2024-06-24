@@ -264,7 +264,7 @@ namespace Extensions.ComplexText
                 Text = Text.Replace("L", "R");
                 Text = Text.Replace("H", Util.EmptyString);
                 var sb = new StringBuilder(Text);
-                if (Text.IsNotBlank())
+                if (Text.IsValid())
                 {
                     int tam = sb.Length - 1;
                     if (tam > -1)

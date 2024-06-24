@@ -152,7 +152,7 @@ namespace Extensions.Files
 
         public FileTree Rename(string Name, bool KeepOriginalExtension = false)
         {
-            if (Name.IsNotBlank())
+            if (Name.IsValid())
             {
                 if (this.IsFile)
                     this.FullPath = new FileInfo(Path).Rename(Name, KeepOriginalExtension).FullName;

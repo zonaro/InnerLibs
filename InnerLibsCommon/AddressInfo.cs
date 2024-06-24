@@ -72,7 +72,7 @@ namespace Extensions.Locations
         public static PropertyInfo GetAddressTypeProperty(string Address)
         {
             string tp = Address.IfBlank(Util.EmptyString).Split(PredefinedArrays.WordSplitters.ToArray(), StringSplitOptions.RemoveEmptyEntries).FirstOr(Util.EmptyString);
-            if (tp.IsNotBlank())
+            if (tp.IsValid())
             {
                 var df = typeof(AddressTypes);
                 return df.GetProperties(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy).FirstOrDefault(x => x.Name == tp || Util.IsIn(tp, x.GetValue(null) as string[]));
@@ -109,7 +109,7 @@ namespace Extensions.Locations
 
         #region Private Methods
 
-        protected static string PropCleaner(string value) => value.IfBlank(Util.EmptyString).TrimAny(true, " ", ".", " ", ",", " ", "-", " ").ToTitle().NullIf(x => x.IsBlank());
+        protected static string PropCleaner(string value) => value.IfBlank(Util.EmptyString).TrimAny(true, " ", ".", " ", ",", " ", "-", " ").ToTitle().NullIf(x => x.IsNotValid());
 
         #endregion Private Methods
 
@@ -181,7 +181,7 @@ namespace Extensions.Locations
                     details = new Dictionary<string, string>();
                 }
 
-                if (key.IsBlank())
+                if (key.IsNotValid())
                 {
                     return Util.EmptyString;
                 }
@@ -232,9 +232,9 @@ namespace Extensions.Locations
 
             set
             {
-                if (key.IsNotBlank())
+                if (key.IsValid())
                 {
-                    details.SetOrRemove(key.ToLowerInvariant(), value?.Trim().NullIf(x => x.IsBlank()));
+                    details.SetOrRemove(key.ToLowerInvariant(), value?.Trim().NullIf(x => x.IsNotValid()));
                 }
             }
         }
@@ -281,7 +281,7 @@ namespace Extensions.Locations
         /// Retorna o Logradouro e numero
         /// </summary>
         /// <returns>Uma String com o endereço completo devidamente formatado</returns>
-        public string BuildingInfo => ToString(AddressPart.BuildingInfo).NullIf(x => x.IsBlank());
+        public string BuildingInfo => ToString(AddressPart.BuildingInfo).NullIf(x => x.IsNotValid());
 
         public string City
         {
@@ -711,12 +711,12 @@ namespace Extensions.Locations
             var d = Activator.CreateInstance<T>();
             d["original_string"] = PostalCode;
             d.PostalCode = PostalCode;
-            if (Number.IsNotBlank())
+            if (Number.IsValid())
             {
                 d.Number = Number;
             }
 
-            if (Complement.IsNotBlank())
+            if (Complement.IsValid())
             {
                 d.Complement = Complement;
             }
@@ -733,7 +733,7 @@ namespace Extensions.Locations
                 d.Street = x.GetValueOr("logradouro") as string;
                 d.Complement = Complement.IfBlank(x.GetValueOr("complemento", d.Complement)) as string;
                 d.StateCode = x.GetValueOr("uf") as string;
-                if (d.StateCode.IsNotBlank())
+                if (d.StateCode.IsValid())
                 {
                     d.State = Brasil.PegarNomeEstado(d.StateCode);
                     d.Region = Brasil.PegarRegiao(d.StateCode);
@@ -995,48 +995,48 @@ namespace Extensions.Locations
 
             var p = GetAddressPart(Parts);
 
-            retorno = retorno.AppendIf($"{Label}:", Label.IsNotBlank() && p.HasFlag(AddressPart.Label));
+            retorno = retorno.AppendIf($"{Label}:", Label.IsValid() && p.HasFlag(AddressPart.Label));
 
             if (p.HasFlag(AddressPart.Street))
             {
-                retorno = retorno.AppendIf($" {Street}", Street.IsNotBlank() && p.HasFlag(AddressPart.Street));
+                retorno = retorno.AppendIf($" {Street}", Street.IsValid() && p.HasFlag(AddressPart.Street));
             }
             else
             {
-                retorno = retorno.AppendIf(Type, Type.IsNotBlank() && p.HasFlag(AddressPart.StreetType))
-                .AppendIf($" {Name}", Name.IsNotBlank() && p.HasFlag(AddressPart.StreetName));
+                retorno = retorno.AppendIf(Type, Type.IsValid() && p.HasFlag(AddressPart.StreetType))
+                .AppendIf($" {Name}", Name.IsValid() && p.HasFlag(AddressPart.StreetName));
             }
 
-            retorno = retorno.AppendIf($", {Number}", Number.IsNotBlank() && p.HasFlag(AddressPart.Number))
-            .AppendIf($", {Complement}", Complement.IsNotBlank() && p.HasFlag(AddressPart.Complement))
-            .AppendIf($" - {Neighborhood.FixText()}", Neighborhood.IsNotBlank() && p.HasFlag(AddressPart.Neighborhood))
-            .AppendIf($" - {City}", City.IsNotBlank() && p.HasFlag(AddressPart.City));
+            retorno = retorno.AppendIf($", {Number}", Number.IsValid() && p.HasFlag(AddressPart.Number))
+            .AppendIf($", {Complement}", Complement.IsValid() && p.HasFlag(AddressPart.Complement))
+            .AppendIf($" - {Neighborhood.FixText()}", Neighborhood.IsValid() && p.HasFlag(AddressPart.Neighborhood))
+            .AppendIf($" - {City}", City.IsValid() && p.HasFlag(AddressPart.City));
 
-            if (p.HasFlag(AddressPart.State) && State.IsNotBlank())
+            if (p.HasFlag(AddressPart.State) && State.IsValid())
             {
-                retorno = retorno.AppendIf($" - {State}", State.IsNotBlank() && p.HasFlag(AddressPart.State));
-            }
-            else
-            {
-                retorno = retorno.AppendIf($" - {StateCode}", StateCode.IsNotBlank() && p.HasFlag(AddressPart.StateCode));
-            }
-
-            retorno = retorno.AppendIf($" - {PostalCode}", PostalCode.IsNotBlank() && p.HasFlag(AddressPart.PostalCode));
-
-            if (p.HasFlag(AddressPart.Country) && Country.IsNotBlank())
-            {
-                retorno = retorno.AppendIf($" - {Country}", Country.IsNotBlank() && p.HasFlag(AddressPart.Country));
+                retorno = retorno.AppendIf($" - {State}", State.IsValid() && p.HasFlag(AddressPart.State));
             }
             else
             {
-                retorno = retorno.AppendIf($" - {CountryCode}", CountryCode.IsNotBlank() && p.HasFlag(AddressPart.CountryCode));
+                retorno = retorno.AppendIf($" - {StateCode}", StateCode.IsValid() && p.HasFlag(AddressPart.StateCode));
+            }
+
+            retorno = retorno.AppendIf($" - {PostalCode}", PostalCode.IsValid() && p.HasFlag(AddressPart.PostalCode));
+
+            if (p.HasFlag(AddressPart.Country) && Country.IsValid())
+            {
+                retorno = retorno.AppendIf($" - {Country}", Country.IsValid() && p.HasFlag(AddressPart.Country));
+            }
+            else
+            {
+                retorno = retorno.AppendIf($" - {CountryCode}", CountryCode.IsValid() && p.HasFlag(AddressPart.CountryCode));
             }
 
             retorno = retorno.FixText().TrimAny(".", " ", ",", " ", "-"); //fix antes de processar latlong
 
             if (p.HasFlag(AddressPart.GeoLocation))
             {
-                retorno = retorno.AppendIf($" / {this.GeoLocation().Quote('(')}", GeoLocation().IsNotBlank());
+                retorno = retorno.AppendIf($" / {this.GeoLocation().Quote('(')}", GeoLocation().IsValid());
             }
             else
             {

@@ -522,14 +522,14 @@ namespace Extensions.Pagination
                     l.Add(FirstPage.ToString());
                 }
 
-                if (Trailling.IsNotBlank() && IsFirstTraillingNecessary)
+                if (Trailling.IsValid() && IsFirstTraillingNecessary)
                 {
                     l.Add(Trailling);
                 }
 
                 l.AddRange(PageRange.Select(x => x.ToString()));
 
-                if (Trailling.IsNotBlank() && IsLastTraillingNecessary)
+                if (Trailling.IsValid() && IsLastTraillingNecessary)
                 {
                     l.Add(Trailling);
                 }
@@ -554,7 +554,7 @@ namespace Extensions.Pagination
                 GetFilterQueryString(ForceEnabled),
                 GetPaginationQueryString(PageNumber ?? this.PageNumber, IncludePageSize, IncludePaginationOffset)
             };
-            return Util.SelectJoinString(l.Where(x => x.IsNotBlank()), "&");
+            return Util.SelectJoinString(l.Where(x => x.IsValid()), "&");
         }
 
         /// <summary>
@@ -581,7 +581,7 @@ namespace Extensions.Pagination
         /// name="PropertyValues"></param> <param name="PropertyNames"></param> <returns></returns>
         public PaginationFilter<TClass, TRemap> CreateSearch(IEnumerable<IComparable> PropertyValues, params string[] PropertyNames)
         {
-            PropertyNames = (PropertyNames ?? Array.Empty<string>()).Where(x => x.IsNotBlank()).ToArray();
+            PropertyNames = (PropertyNames ?? Array.Empty<string>()).Where(x => x.IsValid()).ToArray();
             PropertyValues = PropertyValues ?? Array.Empty<IComparable>();
             foreach (var sel in PropertyNames)
             {
@@ -638,12 +638,12 @@ namespace Extensions.Pagination
 
                     if (v.Any())
                     {
-                        querystring = new[] { querystring, v.SelectJoinString(x => q.Key + "=" + x.IfBlank(Util.EmptyString).ToString().UrlDecode(), "&") }.Where(x => x.IsNotBlank()).SelectJoinString("&");
+                        querystring = new[] { querystring, v.SelectJoinString(x => q.Key + "=" + x.IfBlank(Util.EmptyString).ToString().UrlDecode(), "&") }.Where(x => x.IsValid()).SelectJoinString("&");
                     }
                 }
             }
 
-            if (querystring.IsNotBlank())
+            if (querystring.IsValid())
             {
                 UrlPattern = UrlPattern + "?" + querystring;
             }
@@ -669,7 +669,7 @@ namespace Extensions.Pagination
         /// Cria uma querystring com os filtros ativos
         /// </summary>
         /// <returns></returns>
-        public string GetFilterQueryString(bool ForceEnabled = false) => Util.SelectJoinString(Filters.Select(x => x.CreateQueryParameter(ForceEnabled)).Where(x => x.IsNotBlank()), "&");
+        public string GetFilterQueryString(bool ForceEnabled = false) => Util.SelectJoinString(Filters.Select(x => x.CreateQueryParameter(ForceEnabled)).Where(x => x.IsValid()), "&");
 
         /// <summary>
         /// Executa o Filtro e retorna os dados paginados
@@ -931,7 +931,7 @@ namespace Extensions.Pagination
         /// <param name="TraillingTemplate">emplate de botoes de reticencias</param>
         /// <param name="Trailling">botao de reticencias</param>
         /// <returns></returns>
-        public string PageButtonsFromTemplate(string Template, string TraillingTemplate, string SeparatorTemplate = Util.EmptyString, string Trailling = "...") => Template.IsNotBlank() ? TraillingTemplate.IsBlank() || Trailling.IsBlank() ? PageButtonsFromTemplate(Template, SeparatorTemplate) : Util.SelectJoinString(CreatePaginationButtons(Trailling).Select(x =>
+        public string PageButtonsFromTemplate(string Template, string TraillingTemplate, string SeparatorTemplate = Util.EmptyString, string Trailling = "...") => Template.IsValid() ? TraillingTemplate.IsNotValid() || Trailling.IsNotValid() ? PageButtonsFromTemplate(Template, SeparatorTemplate) : Util.SelectJoinString(CreatePaginationButtons(Trailling).Select(x =>
         {
             if (x.IsNumber())
             {
@@ -952,7 +952,7 @@ namespace Extensions.Pagination
         /// </summary>
         /// <param name="Template">Template de pagina</param>
         /// <returns></returns>
-        public string PageButtonsFromTemplate(string Template, string SeparatorTemplate = Util.EmptyString) => Template.IsNotBlank() ? Util.SelectJoinString(CreatePaginationButtons(Util.EmptyString).Select(x => Template.Inject(new { Page = x })), SeparatorTemplate.IfBlank(Util.EmptyString)) : Util.EmptyString;
+        public string PageButtonsFromTemplate(string Template, string SeparatorTemplate = Util.EmptyString) => Template.IsValid() ? Util.SelectJoinString(CreatePaginationButtons(Util.EmptyString).Select(x => Template.Inject(new { Page = x })), SeparatorTemplate.IfBlank(Util.EmptyString)) : Util.EmptyString;
 
         /// <summary>
         /// Seta a lista com os dados a serem filtrados nesse filtro
@@ -1127,7 +1127,7 @@ namespace Extensions.Pagination
                 var l = t.GetProperties();
                 if (l.Any(x => (x.Name ?? Util.EmptyString) == (K ?? Util.EmptyString)))
                 {
-                    if (Collection[K].IsNotBlank() && Collection.GetValues(K).Any())
+                    if (Collection[K].IsValid() && Collection.GetValues(K).Any())
                     {
                         SetMember(K).SetValues(Collection.GetValues(K)).SetOperator(DefaultOperator);
                     }
@@ -1148,7 +1148,7 @@ namespace Extensions.Pagination
         /// <returns></returns>
         public PaginationFilter<TClass, TRemap> UseQueryString(string Query, string DefaultOperator = "=")
         {
-            if (Query.IsNotBlank())
+            if (Query.IsValid())
             {
                 UseNameValueCollection(Query.ParseQueryString(), DefaultOperator);
             }
@@ -1168,7 +1168,7 @@ namespace Extensions.Pagination
                 var t = typeof(TClass);
                 if (t.HasProperty(prop) || K == "this")
                 {
-                    if (Collection[K].IsNotBlank() && Collection.GetValues(K).Any())
+                    if (Collection[K].IsValid() && Collection.GetValues(K).Any())
                     {
                         var buscas = Collection.GetValues(K).GroupBy(x => x.GetBefore(Separator, true).IfBlank("=")).ToDictionary();
                         foreach (var item in buscas)
@@ -1420,8 +1420,8 @@ namespace Extensions.Pagination
         {
             if (Enabled || ForceEnabled)
             {
-                string xx = Operator.AppendIf(QueryStringSeparator, QueryStringSeparator.IsNotBlank() && Operator.ToLowerInvariant().IsNotAny(Util.EmptyString, "=", "==", "===")).UrlEncode();
-                return (OnlyValid ? ValidValues() : PropertyValues).Where(x => x != null && x.ToString().IsNotBlank()).SelectJoinString(x => $"{PropertyName}={xx}{x.ToString().UrlEncode()}");
+                string xx = Operator.AppendIf(QueryStringSeparator, QueryStringSeparator.IsValid() && Operator.ToLowerInvariant().IsNotAny(Util.EmptyString, "=", "==", "===")).UrlEncode();
+                return (OnlyValid ? ValidValues() : PropertyValues).Where(x => x != null && x.ToString().IsValid()).SelectJoinString(x => $"{PropertyName}={xx}{x.ToString().UrlEncode()}");
             }
 
             return Util.EmptyString;

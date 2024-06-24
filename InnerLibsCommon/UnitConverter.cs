@@ -30,9 +30,9 @@ namespace Extensions.Converters
         /// <returns></returns>
         private KeyValuePair<decimal, string> GetUnit(string U)
         {
-            if (U.IsBlank())
+            if (U.IsNotValid())
             {
-                return Units.SingleOrDefault(x => x.Value.IsBlank());
+                return Units.SingleOrDefault(x => x.Value.IsNotValid());
             }
             else
             {
@@ -270,7 +270,7 @@ namespace Extensions.Converters
             {
                 DecimalPlaces = culture.NumberFormat.NumberDecimalDigits;
             }
-            if (Number.IsBlank())
+            if (Number.IsNotValid())
             {
                 return 0m;
             }

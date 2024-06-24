@@ -638,7 +638,7 @@ namespace Extensions
 
         public T ToObject<T>(string json)
         {
-            if (json.IsBlank()) return default;
+            if (json.IsNotValid()) return default;
             Type t = typeof(T);
             var o = ToObject(json, t);
 
@@ -661,7 +661,7 @@ namespace Extensions
 
         public object ToObject(string json, Type type)
         {
-            if (json.IsBlank()) return default;
+            if (json.IsNotValid()) return default;
 
             Type t = null;
             if (type != null && type.IsGenericType)

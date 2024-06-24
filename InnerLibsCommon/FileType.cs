@@ -112,7 +112,7 @@ namespace Extensions.Files
             try
             {
                 string newmime = Path.GetExtension(MimeTypeOrExtensionOrPathOrDataURI);
-                if (newmime.IsNotBlank())
+                if (newmime.IsValid())
                 {
                     MimeTypeOrExtensionOrPathOrDataURI = newmime;
                     ismime = false;
@@ -139,7 +139,7 @@ namespace Extensions.Files
             if (Reset || BaseList == null || BaseList.Any() == false)
             {
                 string r = Util.GetResourceFileText(Assembly.GetExecutingAssembly(), "mimes.xml");
-                if (r.IsNotBlank())
+                if (r.IsValid())
                 {
                     var doc = new XmlDocument();
                     doc.LoadXml(r);

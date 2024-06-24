@@ -27,7 +27,7 @@ namespace Extensions.DOTLanguage
             string dotstring = Util.EmptyString;
             foreach (var prop in this)
             {
-                string val = prop.Value.ToString().QuoteIf(prop.Value.ToString().Contains(" ") | prop.Value.ToString().IsBlank() | prop.Value.ToString().IsURL());
+                string val = prop.Value.ToString().QuoteIf(prop.Value.ToString().Contains(" ") | prop.Value.ToString().IsNotValid() | prop.Value.ToString().IsURL());
                 if (Util.IsIn(val, new[] { "True", "False" }))
                 {
                     val = val.ToLowerInvariant();

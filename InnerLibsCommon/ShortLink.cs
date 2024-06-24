@@ -36,7 +36,7 @@ namespace Exttensions.Web
 
         public ShortLinkGenerator(string Seed)
         {
-            if (Seed.IsNotBlank())
+            if (Seed.IsValid())
             {
                 for (int index = 1, loopTo = Seed.Length; index <= loopTo; index++)
                 {
@@ -51,7 +51,7 @@ namespace Exttensions.Web
                 Token = PredefinedArrays.AlphaNumericChars.SelectJoinString();
             }
 
-            if (Seed.IsURL() && UrlPattern.IsBlank())
+            if (Seed.IsURL() && UrlPattern.IsNotValid())
             {
                 UrlPattern = Seed;
             }
@@ -72,7 +72,7 @@ namespace Exttensions.Web
         /// </summary>
         /// <param name="ID">Valor da Hash</param>
         /// <returns></returns>
-        public Uri CreateLink(string UrlPattern, int ID) => new Uri(UrlPattern.BlankCoalesce(urlPattern).Inject(new { seed = Seed, id = ID, hash = Encode(ID) }).NullIf(x => x.IsBlank()));
+        public Uri CreateLink(string UrlPattern, int ID) => new Uri(UrlPattern.BlankCoalesce(urlPattern).Inject(new { seed = Seed, id = ID, hash = Encode(ID) }).NullIf(x => x.IsNotValid()));
 
         /// <summary>
         /// Gera um link com a hash

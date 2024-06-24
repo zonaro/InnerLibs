@@ -37,7 +37,7 @@ namespace Extensions.Databases
             {
                 Clear();
                 Error = null;
-                if (ConnectionString.IsNotBlank())
+                if (ConnectionString.IsValid())
                 {
                     Util.WriteDebug(ConnectionString, "Parsing ConnectionString");
                     foreach (var ii in ConnectionString.SplitAny(";").Select(t => t.Split(new char[] { '=' }, 2)).ToDictionary(t => t[0].Trim(), t => t[1].Trim(), StringComparer.InvariantCultureIgnoreCase))
@@ -76,11 +76,11 @@ namespace Extensions.Databases
 
         #region Public Properties
 
-        public string InitialCatalog { get => this.GetValueOr("Initial Catalog"); set => this.Set("Initial Catalog", value.NullIf(x => x.IsBlank())); }
+        public string InitialCatalog { get => this.GetValueOr("Initial Catalog"); set => this.Set("Initial Catalog", value.NullIf(x => x.IsNotValid())); }
         public bool IntegratedSecurity { get => this.GetValueOr("Integrated Security", "false").ToLowerInvariant().ToBool(); set => this.SetOrRemove("Integrated Security", value.ToString().ToTitle().NullIf("False")); }
-        public string Password { get => this.GetValueOr("Password"); set => this.SetOrRemove("Password", value.NullIf(x => x.IsBlank())); }
-        public string Server { get => this.GetValueOr("Server"); set => this.SetOrRemove("Server", value.NullIf(x => x.IsBlank())); }
-        public string UserID { get => this.GetValueOr("User Id"); set => this.SetOrRemove("User Id", value.NullIf(x => x.IsBlank())); }
+        public string Password { get => this.GetValueOr("Password"); set => this.SetOrRemove("Password", value.NullIf(x => x.IsNotValid())); }
+        public string Server { get => this.GetValueOr("Server"); set => this.SetOrRemove("Server", value.NullIf(x => x.IsNotValid())); }
+        public string UserID { get => this.GetValueOr("User Id"); set => this.SetOrRemove("User Id", value.NullIf(x => x.IsNotValid())); }
 
         #endregion Public Properties
     }

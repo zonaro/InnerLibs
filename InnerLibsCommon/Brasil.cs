@@ -132,7 +132,7 @@ namespace Extensions.BR
         }
         public static T CriarAddressInfo<T>(string NomeOuUFouIBGE, string Cidade) where T : AddressInfo
         {
-            if (NomeOuUFouIBGE.IsBlank() && Cidade.IsNotBlank())
+            if (NomeOuUFouIBGE.IsNotValid() && Cidade.IsValid())
             {
                 NomeOuUFouIBGE = PegarEstadoPeloNomeDaCidade(Cidade).FirstOrDefault().IfBlank(NomeOuUFouIBGE);
             }
@@ -367,7 +367,7 @@ namespace Extensions.BR
                     break;
             }
 
-            if (x.IsNotBlank())
+            if (x.IsValid())
             {
                 Text = $"{x}: {Text}";
             }
@@ -409,7 +409,7 @@ namespace Extensions.BR
         public static string FormatarTelefone(this string Number)
         {
             Number = Number ?? Util.EmptyString;
-            if (Number.IsBlank()) return Number;
+            if (Number.IsNotValid()) return Number;
             Number = Number.ParseDigits().RemoveAny(",", ".").TrimBetween().GetLastChars(13);
             string mask;
             if (Number.Length <= 4)
@@ -518,21 +518,21 @@ namespace Extensions.BR
         /// </summary>
         /// <param name="Regiao"></param>
         /// <returns></returns>
-        public static IEnumerable<Estado> PegarEstadosDaRegiao(string Regiao) => Estados.Where(x => (Util.ToSlugCase(x.Regiao) ?? Util.EmptyString) == (Util.TrimBetween(Util.ToSlugCase(Regiao)) ?? Util.EmptyString) || Regiao.IsBlank());
+        public static IEnumerable<Estado> PegarEstadosDaRegiao(string Regiao) => Estados.Where(x => (Util.ToSlugCase(x.Regiao) ?? Util.EmptyString) == (Util.TrimBetween(Util.ToSlugCase(Regiao)) ?? Util.EmptyString) || Regiao.IsNotValid());
 
         /// <summary>
         /// Valida se a string é um telefone
         /// </summary>
         /// <param name="Telefone"></param>
         /// <returns></returns>
-        public static bool TelefoneValido(this string Telefone) => Telefone.IsNotBlank() && new Regex(@"\(?\+[0-9]{1,3}\)? ?-?[0-9]{1,3} ?-?[0-9]{3,5} ?-?[0-9]{4}( ?-?[0-9]{3})? ?(\w{1,10}\s?\d{1,6})?", (RegexOptions)((int)RegexOptions.Singleline + (int)RegexOptions.IgnoreCase)).IsMatch(Telefone.RemoveAny("(", ")"));
+        public static bool TelefoneValido(this string Telefone) => Telefone.IsValid() && new Regex(@"\(?\+[0-9]{1,3}\)? ?-?[0-9]{1,3} ?-?[0-9]{3,5} ?-?[0-9]{4}( ?-?[0-9]{3})? ?(\w{1,10}\s?\d{1,6})?", (RegexOptions)((int)RegexOptions.Singleline + (int)RegexOptions.IgnoreCase)).IsMatch(Telefone.RemoveAny("(", ")"));
 
         /// <summary>
         /// Verifica se uma string é um cep válido
         /// </summary>
         /// <param name="CEP"></param>
         /// <returns></returns>
-        public static bool CEPValido(this string CEP) => CEP.IsNotBlank() && new Regex(@"^\d{5}-\d{3}$").IsMatch(CEP) || (CEP.RemoveAny("-").IsNumber() && CEP.RemoveAny("-").Length == 8);
+        public static bool CEPValido(this string CEP) => CEP.IsValid() && new Regex(@"^\d{5}-\d{3}$").IsMatch(CEP) || (CEP.RemoveAny("-").IsNumber() && CEP.RemoveAny("-").Length == 8);
 
         /// <summary>
         /// Verifica se a string é um CNH válido
@@ -542,7 +542,7 @@ namespace Extensions.BR
         public static bool CNHValido(this string CNH)
         {
             // char firstChar = cnh[0];
-            if (CNH.IsNotBlank() && CNH.Length == 11 && CNH != new string('1', 11))
+            if (CNH.IsValid() && CNH.Length == 11 && CNH != new string('1', 11))
             {
                 int dsc = 0;
                 int v = 0;
@@ -589,7 +589,7 @@ namespace Extensions.BR
         {
             try
             {
-                if (CNPJ.IsNotBlank())
+                if (CNPJ.IsValid())
                 {
                     var multiplicador1 = new int[12] { 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
                     var multiplicador2 = new int[13] { 6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
@@ -658,7 +658,7 @@ namespace Extensions.BR
         {
             try
             {
-                if (CPF.IsNotBlank())
+                if (CPF.IsValid())
                 {
                     CPF = CPF.RemoveAny(".", "-");
                     string digito = Util.EmptyString;
@@ -700,7 +700,7 @@ namespace Extensions.BR
         /// <returns></returns>
         public static bool PISValido(this string PIS)
         {
-            if (PIS.IsBlank())
+            if (PIS.IsNotValid())
             {
                 return false;
             }
@@ -904,7 +904,7 @@ namespace Extensions.BR
             set
             {
 
-                if (value.IsNotBlank() && value.RemoveMask().Length == 4)
+                if (value.IsValid() && value.RemoveMask().Length == 4)
                 {
                     Mes = value.RemoveMask().GetFirstChars(2).ToInt();
                     Ano = value.RemoveMask().GetLastChars(2).ToInt();
@@ -1059,7 +1059,7 @@ namespace Extensions.BR
         /// <param name="NomeOuUF"></param>
         public Estado(string NomeOuUF)
         {
-            if (NomeOuUF.IsNotBlank())
+            if (NomeOuUF.IsValid())
             {
                 Nome = Brasil.PegarNomeEstado(NomeOuUF);
                 UF = Brasil.PegarUfEstado(NomeOuUF);

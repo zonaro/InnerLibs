@@ -155,7 +155,7 @@ namespace Extensions.Mail
         {
             if (Smtp != null)
             {
-                if (TestEmail.IsNotBlank() && !TestEmail.IsEmail())
+                if (TestEmail.IsValid() && !TestEmail.IsEmail())
                 {
                     throw new ArgumentException("TestEmail is not a valid email", nameof(TestEmail));
                 }
@@ -714,7 +714,7 @@ namespace Extensions.Mail
         {
             if (Smtp == null) throw new ArgumentException("SMTP is null, Define SMTP before defining credentials", nameof(Smtp));
             Smtp.Credentials = Credentials ?? throw new ArgumentNullException("Credentials is null", nameof(Credentials));
-            if (From == null || From.Address.IsBlank())
+            if (From == null || From.Address.IsNotValid())
             {
                 From = new MailAddress(Credentials.UserName);
             }
@@ -725,7 +725,7 @@ namespace Extensions.Mail
         /// <summary>
         /// Configura as credenciais do SMTP
         /// </summary>
-        public FluentMailMessage<T> WithCredentials(string Login, string Password) => Smtp == null || Smtp.Host.IsBlank()
+        public FluentMailMessage<T> WithCredentials(string Login, string Password) => Smtp == null || Smtp.Host.IsNotValid()
                 ? WithQuickConfig(Login, Password)
                 : WithCredentials(new NetworkCredential(Login, Password));
 
