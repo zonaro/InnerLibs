@@ -4124,6 +4124,11 @@ namespace Extensions
         /// <inheritdoc cref="GenerateEANFromNumbers(string[])"/>
         public static string GenerateEANFromNumbers(params int[] Numbers) => GenerateEANFromNumbers(Numbers.Select(x => x.ToString()).ToArray());
 
+
+
+        public static string GenerateLicenseKey(this Assembly product) => product.GetName().Name.GenerateLicenseKey();
+
+
         /// <summary>
         /// Gera uma chave de licença para um produto
         /// </summary>
@@ -4131,6 +4136,7 @@ namespace Extensions
         /// <returns></returns>
         public static string GenerateLicenseKey(this string productIdentifier)
         {
+            if (productIdentifier.IsBlank()) productIdentifier = Guid.NewGuid().ToString();
             var enc = Encoding.Unicode.GetEncoder();
             byte[] unicodeText = new byte[productIdentifier.Length * 2];
             enc.GetBytes(productIdentifier.ToCharArray(), 0, productIdentifier.Length, unicodeText, 0, true);
