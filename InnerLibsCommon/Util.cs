@@ -12286,8 +12286,9 @@ namespace Extensions
             return obj;
         }
 
-        public static Task SetTimeout(int milliseconds, Action action) => Task.Delay(milliseconds).ContinueWith(async (t) =>
+        public static Task SetTimeout(int milliseconds, Action action) => Task.Delay(milliseconds).ContinueWith((t) =>
                                                                                      {
+
                                                                                          TryExecute(action);
                                                                                          t.Dispose();
                                                                                      });
