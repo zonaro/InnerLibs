@@ -2902,6 +2902,19 @@ namespace Extensions
             return Text;
         }
 
+        public static string DecryptOrReturn(this string Text, string Key = null)
+        {
+            try
+            {
+                return Text.Decrypt(Key);
+            }
+            catch (Exception)
+            {
+                return Text;
+            }
+
+        }
+
         /// <summary>
         /// Descriptografa uma string
         /// </summary>
