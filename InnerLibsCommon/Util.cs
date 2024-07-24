@@ -2400,6 +2400,9 @@ namespace Extensions
         /// <returns>The created object.</returns>
         public static T CreateObjectFromXMLFile<T>(this FileInfo XML) where T : class => XML.ReadAllText().CreateObjectFromXML<T>();
 
+
+        public static T SetObject<T>(this Dictionary<string, object> Dictionary, T Obj, params object[] args) => (T)CreateOrSetObject(Dictionary, Obj, typeof(T), args);
+
         /// <summary>
         /// Create a new instance of <paramref name="Type"/> and set the properties values from <paramref name="Dictionary"/>
         /// </summary>
@@ -2451,12 +2454,9 @@ namespace Extensions
             {
                 foreach (var k in Dictionary)
                 {
-                    k.Key.PropertyNamesFor();
-                    string propname1 = k.Key.Trim().Replace(" ", "_").Replace("-", "_").Replace("~", "_");
-                    string propname2 = propname1.RemoveAccents();
-                    string propname3 = k.Key.Trim().Replace(" ", EmptyString).Replace("-", EmptyString).Replace("~", EmptyString);
-                    string propname4 = propname3.RemoveAccents();
-                    var prop = NullCoalesce(tipo.GetProperty(propname1), tipo.GetProperty(propname2), tipo.GetProperty(propname3), tipo.GetProperty(propname4));
+                    var names = k.Key.PropertyNamesFor();
+
+                    var prop = NullCoalesce(names.Select(x => tipo.GetProperty(x)));
                     if (prop != null)
                     {
                         if (prop.CanWrite)
@@ -2473,7 +2473,7 @@ namespace Extensions
                     }
                     else
                     {
-                        var fiif = NullCoalesce(tipo.GetField(propname1), tipo.GetField(propname2), tipo.GetField(propname3), tipo.GetField(propname4));
+                        var fiif = NullCoalesce(names.Select(x => tipo.GetField(x)));
                         if (fiif != null)
                         {
                             if (k.Value.GetType() == typeof(DBNull))
@@ -10114,6 +10114,7 @@ namespace Extensions
                 string propname4 = propname3.RemoveAccents();
                 propnames.AddRange(new[] { Name, propname1, propname2, propname3, propname4 });
                 propnames.AddRange(propnames.Select(x => $"_{x}").ToArray());
+                propnames.AddRange(propnames.Select(x => x.ToTitle()).ToArray());
                 return propnames.Where(x => x.Contains(" ") == false).Distinct();
             }
             return Array.Empty<string>();
