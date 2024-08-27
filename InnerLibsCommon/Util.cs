@@ -11272,13 +11272,13 @@ namespace Extensions
         /// <param name="OldText"></param>
         /// <param name="NewText"></param>
         /// <returns></returns>
-        public static string ReplaceLast(this string Text, string OldText, string NewText = EmptyString)
+        public static string ReplaceLast(this string Text, string OldText, string NewText = EmptyString, StringComparison comparison = StringComparison.CurrentCulture)
         {
             if (Text != null)
                 if (Text.Contains(OldText))
                 {
-                    Text = Text.Insert(Text.LastIndexOf(OldText), NewText);
-                    Text = Text.Remove(Text.LastIndexOf(OldText), 1);
+                    Text = Text.Insert(Text.LastIndexOf(OldText, comparison), NewText);
+                    Text = Text.Remove(Text.LastIndexOf(OldText, comparison), 1);
                 }
 
             return Text;
