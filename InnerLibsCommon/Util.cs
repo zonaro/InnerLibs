@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Data;
@@ -10,8 +8,6 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Globalization;
-using System.IO;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Net;
 using System.Net.Mail;
@@ -23,8 +19,6 @@ using System.Runtime.Serialization;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 using Extensions.Colors;
@@ -3802,7 +3796,7 @@ namespace Extensions
         /// <param name="Text"></param>
         /// <returns></returns>
         public static string FixPath(this string Text, bool AlternativeChar = false)
-            => Text?.Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries).Where(x => x.IsValid()).Select((x, i) =>
+            => Text?.Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries).Where(x => x.IsNotBlank()).Select((x, i) =>
                                                                                                     {
                                                                                                         if (i == 0 && x.Length == 2 && x.EndsWith(":"))
                                                                                                         {
@@ -13890,7 +13884,7 @@ namespace Extensions
         /// Indica se os espacos serão substituidos por underscores (underline). Use FALSE para hifens
         /// </param>
         /// <returns>string amigavel para URL</returns>
-        public static string ToFriendlyURL(this string Text, bool UseUnderscore = false) => Text.ReplaceMany(UseUnderscore ? "_" : "-", "_", "-", WhitespaceChar).RemoveAny("(", ")", ".", ",", "#").ToFriendlyPathName().RemoveAccents().ToLowerInvariant();
+        public static string ToFriendlyURL(this string Text, bool UseUnderscore = false) => Text.ReplaceMany(UseUnderscore ? "_" : "-", "_", "-", WhitespaceChar).RemoveAny("(", ")", ".", ",", "#", ":", ";").ToLowerInvariant().Replace("@", "A").Replace("&", "E").RemoveAccents().ToFriendlyPathName();
 
         /// <summary>
         /// Concatena todas as <see cref="Exception.InnerException"/> em uma única string

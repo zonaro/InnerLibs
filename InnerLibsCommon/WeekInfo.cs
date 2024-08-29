@@ -1,4 +1,3 @@
-using System;
 using System.Globalization;
 
 namespace Extensions.Dates
@@ -82,7 +81,7 @@ namespace Extensions.Dates
             return false;
         }
 
-        public bool Equals(WeekInfo other) => other != null && this.GetHashCode() == other.GetHashCode();
+        public bool Equals(WeekInfo other) => this.GetHashCode() == other.GetHashCode();
 
         public override int GetHashCode() => ((int[])this).GetHashCode();
 

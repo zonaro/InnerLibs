@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
+﻿using System.Globalization;
 using Extensions;
 
 namespace Extensions.Console
@@ -105,7 +102,7 @@ namespace Extensions.Console
         /// <returns></returns>
         public static string ConsoleLog(this string Text, DateTime? LogDateTime = null, ConsoleColor? DateColor = null, ConsoleColor? MessageColor = null, string DateFormat = default, int BreakLines = 1)
         {
-            DateFormat = DateFormat.IfBlank("yyyy-MM-dd HH: mm:ss");
+            DateFormat = DateFormat.IfBlank("yyyy-MM-dd HH:mm:ss");
             LogDateTime = LogDateTime ?? DateTime.Now;
             DateColor = DateColor ?? MessageColor ?? System.Console.ForegroundColor;
             MessageColor = MessageColor ?? DateColor;
