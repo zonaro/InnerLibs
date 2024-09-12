@@ -23,6 +23,7 @@ using System.Xml;
 using System.Xml.Serialization;
 using Extensions.Colors;
 using Extensions.ComplexText;
+using Extensions.Console;
 using Extensions.Converters;
 using Extensions.Databases;
 using Extensions.Dates;
@@ -6125,7 +6126,11 @@ namespace Extensions
                         {
                             txt = r.ReadToEnd();
                         }
-                    };
+                    }
+                    else
+                    {
+                        $"{FileName} not found in assembly ({Assembly.GetName()}){Environment.NewLine}Files:{Environment.NewLine}{Assembly.GetManifestResourceNames().SelectJoinString(x => $" - {x}", Environment.NewLine)}".ConsoleLog();
+                    }
                 }
             }
 
