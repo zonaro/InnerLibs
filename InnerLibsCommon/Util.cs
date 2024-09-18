@@ -6108,9 +6108,10 @@ namespace Extensions
         /// </summary>
         /// <param name="FileName">Nome do arquivo embutido dentro do assembly (Embedded Resource)</param>
         /// <returns></returns>
-        public static string GetResourceFileText(this Assembly Assembly, string FileName, bool IsFullQualifiedName = false)
+        public static string GetResourceFileText(this Assembly Assembly, string FileName, bool IsFullQualifiedName = false, Encoding encoding = null)
         {
             string txt = null;
+            encoding = encoding ?? Encoding.Default;
             if (Assembly != null && FileName.IsValid())
             {
                 if (!IsFullQualifiedName)
@@ -6122,7 +6123,7 @@ namespace Extensions
                 {
                     if (x != null)
                     {
-                        using (var r = new StreamReader(x))
+                        using (var r = new StreamReader(x, encoding))
                         {
                             txt = r.ReadToEnd();
                         }
