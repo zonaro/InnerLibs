@@ -314,6 +314,7 @@ namespace Extensions
             var query = UriBuilder.Query.ParseQueryString();
             if (Values is null || Append == false)
             {
+                query = query ?? new NameValueCollection();
                 if (query.AllKeys.Contains(Key))
                 {
                     query.Remove(Key);
@@ -326,7 +327,7 @@ namespace Extensions
             }
 
             UriBuilder.Query = query.ToString();
-            Url = new Uri(UriBuilder.ToString());
+            Url = UriBuilder.Uri;
             return Url;
         }
 
