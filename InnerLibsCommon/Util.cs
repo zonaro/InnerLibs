@@ -9744,6 +9744,9 @@ namespace Extensions
 
         public static IEnumerable<HtmlNode> ParseTags(this Uri URL) => HtmlNode.Parse(URL);
 
+        public static string CamelCaseAdjust(this string Text) => PascalCaseAdjust(Text);
+
+
         /// <summary>
         /// Separa as palavras de um texto PascalCase a partir de suas letras maíusculas
         /// </summary>
@@ -9789,6 +9792,7 @@ namespace Extensions
         /// <param name="Text"></param>
         /// <returns></returns>
         public static IEnumerable<string> PascalCaseSplit(this string Text) => Text.PascalCaseAdjust().Split(WhitespaceChar);
+        public static IEnumerable<string> CamelCaseSplit(this string Text) => PascalCaseSplit(Text);
 
         public static string Peek(this Queue<char> queue, int take) => new String(queue.Take(take).ToArray());
 
@@ -13380,7 +13384,13 @@ namespace Extensions
             return Array.Empty<byte>();
         }
 
+        /// <summary>
+        /// Retrun the string in camelCase form
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <returns></returns>
         public static string ToCamelCase(this string Text) => Text.PascalCaseSplit().Select((x, i) => i == 0 ? x.ToLowerInvariant() : x.ToTitle()).SelectJoinString("");
+        public static string ToPascalCase(this string Text) => Text.PascalCaseSplit().Select(x => x.ToTitle()).SelectJoinString("");
 
         /// <summary>
         /// Retorna a <see cref="Color"/> a partir de uma <see cref="ConsoleColor"/>
@@ -15674,15 +15684,18 @@ namespace Extensions
         public static double ToShort<T>(this T Value) => Value.ChangeType<short>();
 
         /// <summary>
-        /// Prepara uma string para se tornar uma URL amigavel (remove caracteres nao permitidos e
-        /// troca espacos por hifen). É um alias para <see cref="ToFriendlyURL(String, Boolean)"/>
+        /// Converts the specified text to slug case.
         /// </summary>
         /// <param name="Text"></param>
-        /// <param name="UseUnderscore">
-        /// Indica se os espacos serão substituidos por underscores (underline). Use FALSE para hifens
-        /// </param>
-        /// <returns>string amigavel para URL</returns>
+        /// <returns></returns>
         public static string ToSlugCase(this string Text) => Text.Replace(WhitespaceChar, "-").ToLowerInvariant();
+
+        /// <summary>
+        /// Converts the specified text to kebab case.
+        /// </summary>
+        /// <param name="Text">The text to convert.</param>
+        /// <returns>The text converted to kebab case.</returns>
+        public static string ToKebabCase(this string Text) => Text.ToSlugCase();
 
         /// <summary>
         /// Retorna uma string em Snake_Case
