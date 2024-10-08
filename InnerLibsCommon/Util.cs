@@ -33,6 +33,7 @@ using Extensions.Files;
 using Extensions.Locations;
 using Extensions.Pagination;
 using Extensions.Web;
+using static System.Net.Mime.MediaTypeNames;
 using Expression = System.Linq.Expressions.Expression;
 
 namespace Extensions
