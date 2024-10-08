@@ -33,7 +33,7 @@ using Extensions.Files;
 using Extensions.Locations;
 using Extensions.Pagination;
 using Extensions.Web;
-using static System.Net.Mime.MediaTypeNames;
+
 using Expression = System.Linq.Expressions.Expression;
 
 namespace Extensions
@@ -3793,22 +3793,27 @@ namespace Extensions
             return FixOrder(ref FirstValue, ref SecondValue);
         }
 
+        public static char PathChar(this string Text)
+        {
+            if (Text == null) return Path.DirectorySeparatorChar;
+            return (Text.Count(x => x == Path.AltDirectorySeparatorChar) > Text.Count(x => x == Path.DirectorySeparatorChar))
+           .AsIf(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+        }
+
         /// <summary>
         /// Ajusta um caminho colocando as barras corretamente e substituindo caracteres inválidos
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static string FixPath(this string Text, bool AlternativeChar = false)
-            => Text?.Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries).Where(x => x.IsNotBlank()).Select((x, i) =>
-                                                                                                    {
-                                                                                                        if (i == 0 && x.Length == 2 && x.EndsWith(":"))
-                                                                                                        {
-                                                                                                            return x;
-                                                                                                        }
+        public static string FixPath(this string Text, bool? AlternativeChar = null) => Text?.Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }).Where(x => x.IsNotBlank()).Select((x, i) =>
+                                                                                                                                                                                          {
+                                                                                                                                                                                              if (i == 0 && x.Length == 2 && x.EndsWith(":"))
+                                                                                                                                                                                              {
+                                                                                                                                                                                                  return x;
+                                                                                                                                                                                              }
 
-                                                                                                        return x.ToFriendlyPathName();
-                                                                                                    }).SelectJoinString(AlternativeChar.AsIf(Path.AltDirectorySeparatorChar.ToString(), Path.DirectorySeparatorChar.ToString())).TrimEndAny(Path.DirectorySeparatorChar.ToString(), Path.AltDirectorySeparatorChar.ToString());
-
+                                                                                                                                                                                              return x.ToFriendlyPathName();
+                                                                                                                                                                                          }).SelectJoinString(AlternativeChar == null ? Text.PathChar().ToString() : AlternativeChar.AsIf(Path.AltDirectorySeparatorChar.ToString(), Path.DirectorySeparatorChar.ToString())).TrimEndAny(Path.DirectorySeparatorChar.ToString(), Path.AltDirectorySeparatorChar.ToString());
         /// <summary>
         /// Ajusta um caminho unidos partes, colocando as barras corretamente e substituindo caracteres inválidos
         /// </summary>
