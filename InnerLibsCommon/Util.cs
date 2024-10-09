@@ -6560,6 +6560,9 @@ namespace Extensions
         /// <returns></returns>
         public static Dictionary<Group, long> GroupAndCountBy<T, Group>(this IEnumerable<T> obj, Func<T, Group> GroupSelector) => obj.GroupBy(GroupSelector).Select(x => new KeyValuePair<Group, long>(x.Key, x.LongCount())).ToDictionary();
 
+
+        public static Dictionary<Group, decimal> GroupAndSumBy<T, Group >(this IEnumerable<T> obj, Func<T, Group> GroupSelector,Func<T, decimal> SumSelector) => obj.GroupBy(GroupSelector).Select(x => new KeyValuePair<Group, decimal>(x.Key,  x.Sum(SumSelector))).ToDictionary();
+
         /// <summary>
         /// Agrupa itens de uma lista a partir de uma propriedade e conta os resultados de cada
         /// grupo a partir de outra propriedade do mesmo objeto
