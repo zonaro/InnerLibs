@@ -688,9 +688,9 @@ namespace Extensions
         public static double Average(params long[] Values) => Values.Average();
 
         /// <summary>
-        /// Converte uma DATAURL ou Util String em um array de Bytes
+        /// Converte uma DATAURL ou Base64 String em um array de Bytes
         /// </summary>
-        /// <param name="Base64StringOrDataURL">Util String ou DataURL</param>
+        /// <param name="Base64StringOrDataURL">Base64 String ou DataURL</param>
         /// <returns></returns>
         public static byte[] Base64ToBytes(this string Base64StringOrDataURL) => Convert.FromBase64String(Base64StringOrDataURL.FixBase64());
 
@@ -3668,10 +3668,10 @@ namespace Extensions
         public static T FirstOrDefaultExpression<T>(this IQueryable<T> List, string PropertyName, string Operator, object PropertyValue, bool Is = true) => List.FirstOrDefault(WhereExpression<T>(PropertyName, Operator, (IEnumerable<IComparable>)PropertyValue, Is));
 
         /// <summary>
-        /// Arruma os caracteres de uma string Util
+        /// Arruma os caracteres de uma string Base64
         /// </summary>
         /// <param name="Base64StringOrDataUrl">Base64String ou DataURL</param>
-        /// <returns>Retorna apenas a Util</returns>
+        /// <returns>Retorna apenas a Base64</returns>
         public static string FixBase64(this string Base64StringOrDataUrl)
         {
             string dummyData = Base64StringOrDataUrl.GetAfter(",").Trim().Replace(" ", "+");
@@ -3793,6 +3793,11 @@ namespace Extensions
             return FixOrder(ref FirstValue, ref SecondValue);
         }
 
+        /// <summary>
+        /// Return <see cref="Path.DirectorySeparatorChar"/> or <see cref="Path.AltDirectorySeparatorChar"/> based on the number of ocurrences of each in the string
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <returns></returns>
         public static char PathChar(this string Text)
         {
             if (Text == null) return Path.DirectorySeparatorChar;
