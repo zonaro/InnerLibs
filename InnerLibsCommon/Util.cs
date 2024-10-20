@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Data;
@@ -8,6 +9,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Globalization;
+using System.IO;
 using System.Linq.Expressions;
 using System.Net;
 using System.Net.Mail;
@@ -33,8 +35,13 @@ using Extensions.Files;
 using Extensions.Locations;
 using Extensions.Pagination;
 using Extensions.Web;
+using Extensions;
 
 using Expression = System.Linq.Expressions.Expression;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Extensions
 {
@@ -44,11 +51,11 @@ namespace Extensions
 
         private const int ERROR_SHARING_VIOLATION = 32;
 
-        private static readonly MethodInfo containsMethod = typeof(string).GetMethod("Contains", new[] { typeof(string) })!;
+        private static readonly MethodInfo containsMethod = typeof(string).GetMethod("Contains", new[] { typeof(string) });
 
-        private static readonly MethodInfo endsWithMethod = typeof(string).GetMethod("EndsWith", new[] { typeof(string) })!;
+        private static readonly MethodInfo endsWithMethod = typeof(string).GetMethod("EndsWith", new[] { typeof(string) });
 
-        private static readonly MethodInfo equalMethod = typeof(string).GetMethod("Equals", new[] { typeof(string) })!;
+        private static readonly MethodInfo equalMethod = typeof(string).GetMethod("Equals", new[] { typeof(string) });
 
         private static readonly Random init_rnd = new Random();
 
@@ -63,7 +70,7 @@ namespace Extensions
                     x => x.ContainsAny(StringComparison.InvariantCulture, PredefinedArrays.AlphaLowerChars.ToArray())
                 };
 
-        private static readonly MethodInfo startsWithMethod = typeof(string).GetMethod("StartsWith", new[] { typeof(string) })!;
+        private static readonly MethodInfo startsWithMethod = typeof(string).GetMethod("StartsWith", new[] { typeof(string) });
 
 
         static public bool IsCopyOf(this FileInfo file1, FileInfo file2)
@@ -6148,7 +6155,7 @@ namespace Extensions
                     }
                     else
                     {
-                        $"{FileName} not found in assembly ({Assembly.GetName()}){Environment.NewLine}Files:{Environment.NewLine}{Assembly.GetManifestResourceNames().SelectJoinString(x => $" - {x}", Environment.NewLine)}".ConsoleLog();
+                        $"{FileName} not found in assembly ({Assembly.GetName()}){Environment.NewLine}Files:{Environment.NewLine}{Assembly.GetManifestResourceNames().SelectJoinString(xx => $" - {xx}", Environment.NewLine)}".ConsoleLog();
                     }
                 }
             }
@@ -6781,7 +6788,7 @@ namespace Extensions
         /// <param name="Value">Valor</param>
         /// <param name="ValueIfBlank">Valor se estiver em branco</param>
         /// <returns></returns>
-        public static T IfBlank<T>(this object? Value, T ValueIfBlank = default) => Value.IsNotValid() ? ValueIfBlank : ChangeType<T>(Value!);
+        public static T IfBlank<T>(this object Value, T ValueIfBlank = default) => Value.IsNotValid() ? ValueIfBlank : ChangeType<T>(Value);
 
 
         public static string BlankIfNull(this string Text) => IfBlank(Text, "");
@@ -7201,8 +7208,8 @@ namespace Extensions
 
 
 
-        public static bool IsBlank(this string? text) => text.IsNotValid();
-        public static bool IsNotBlank(this string? text) => text.IsValid();
+        public static bool IsBlank(this string text) => text.IsNotValid();
+        public static bool IsNotBlank(this string text) => text.IsValid();
 
 
         /// <summary>
@@ -7210,7 +7217,7 @@ namespace Extensions
         /// </summary>
         /// <param name="Value">O valor a ser verificado.</param>
         /// <returns>True se o valor não for válido, caso contrário, False.</returns>
-        public static bool IsNotValid(this object? Value)
+        public static bool IsNotValid(this object Value)
         {
             try
             {
