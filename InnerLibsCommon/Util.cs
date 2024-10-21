@@ -1188,7 +1188,7 @@ namespace Extensions
 
         public static decimal CalculateValueFromPercent(this decimal Percent, decimal Total) => Percent / 100m * Total;
 
-        public static string OnlyNumbers(this string Text) => Text?.Split().Where(x => x.IsNumber()).SelectJoinString() ?? "";
+        public static string OnlyNumbers(this string Text) => Text?.ToArray().Where(x => char.IsDigit(x)).SelectJoinString() ?? "";
 
         public static int OnlyNumbersInt(this string Text) => Text.OnlyNumbers().ToInt();
 
