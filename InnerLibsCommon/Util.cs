@@ -1190,9 +1190,9 @@ namespace Extensions
 
         public static string OnlyNumbers(this string Text) => Text?.ToArray().Where(x => char.IsDigit(x)).SelectJoinString() ?? "";
 
-        public static int OnlyNumbersInt(this string Text) => Text.OnlyNumbers().ToInt();
+        public static int OnlyNumbersInt(this string Text) => Text?.OnlyNumbers().ToInt() ?? 0;
 
-        public static long OnlyNumbersLong(this string Text) => Text.OnlyNumbers().ToLong();
+        public static long OnlyNumbersLong(this string Text) => Text?.OnlyNumbers().ToLong() ?? 0;
 
         /// <summary>
         /// Verifica se o valor é um numero ou pode ser convertido em numero
@@ -11406,6 +11406,11 @@ namespace Extensions
         /// <returns></returns>
         public static Image Resize(this Image Original, int NewWidth, int MaxHeight, bool OnlyResizeIfWider = true)
         {
+            if (Original == null)
+            {
+                return null;
+            }
+
             Image fullsizeImage = new Bitmap(Original);
             if (OnlyResizeIfWider)
             {
@@ -13964,10 +13969,12 @@ namespace Extensions
         /// <returns></returns>
         public static Image ToImage(this byte[] Bytes)
         {
-            using (var s = new MemoryStream(Bytes))
-            {
-                return Image.FromStream(s);
-            }
+            if (Bytes != null && Bytes.IsNotNullOrEmpty())
+                using (var s = new MemoryStream(Bytes))
+                {
+                    return Image.FromStream(s);
+                }
+            return null;
         }
 
         /// <summary>
