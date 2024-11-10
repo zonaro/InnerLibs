@@ -245,6 +245,7 @@ namespace Extensions
             [typeof(DateTime)] = DbType.DateTime,
             [typeof(DateTimeOffset)] = DbType.DateTimeOffset,
             [typeof(byte[])] = DbType.Binary
+
         };
 
         /// <summary>
@@ -1195,11 +1196,11 @@ namespace Extensions
 
         public static decimal CalculateValueFromPercent(this decimal Percent, decimal Total) => Percent / 100m * Total;
 
-        public static string OnlyNumbers(this string Text) => Text?.Split().Where(x => x.IsNumber()).SelectJoinString() ?? "";
+        public static string OnlyNumbers(this string Text) => Text?.ToArray().Where(x => char.IsDigit(x)).SelectJoinString() ?? "";
 
-        public static int OnlyNumbersInt(this string Text) => Text.OnlyNumbers().ToInt();
+        public static int OnlyNumbersInt(this string Text) => Text?.OnlyNumbers().ToInt() ?? 0;
 
-        public static long OnlyNumbersLong(this string Text) => Text.OnlyNumbers().ToLong();
+        public static long OnlyNumbersLong(this string Text) => Text?.OnlyNumbers().ToLong() ?? 0;
 
         /// <summary>
         /// Verifica se o valor é um numero ou pode ser convertido em numero
@@ -4709,18 +4710,18 @@ namespace Extensions
 
         public static string GetFirstChars(this string Text, int Number = 1) => Text.IsValid() ? Text.Length < Number || Number < 0 ? Text : Text.Substring(0, Number) : EmptyString;
 
-        public static DataRow GetFirstRow(this DataSet Data) => Data?.GetFirstTable()?.GetFirstRow();
+        public static DataRow? GetFirstRow(this DataSet Data) => Data?.GetFirstTable()?.GetFirstRow();
 
-        public static DataRow GetFirstRow(this DataTable Table) => Table != null && Table.Rows.Count > 0 ? Table.Rows[0] : null;
+        public static DataRow? GetFirstRow(this DataTable Table) => Table != null && Table.Rows.Count > 0 ? Table.Rows[0] : null;
 
-        public static DataTable GetFirstTable(this DataSet Data) => Data != null && Data.Tables.Count > 0 ? Data.Tables[0] : null;
+        public static DataTable? GetFirstTable(this DataSet Data) => Data != null && Data.Tables.Count > 0 ? Data.Tables[0] : null;
 
         /// <summary>
         /// Retorna a classe do icone do FontAwesome que representa melhor o arquivo
         /// </summary>
         /// <param name="Extension">Arquivo</param>
         /// <returns></returns>
-        public static string GetFontAwesomeIconByFileExtension(this string Extension) => GetFontAwesomeIconByFileExtension(new[] { Extension });
+        public static string GetFontAwesomeIconByFileExtension(this string? Extension) => GetFontAwesomeIconByFileExtension(new[] { Extension ?? "" });
 
         public static string GetFontAwesomeIconByFileExtension(this string[] Extensions)
         {
@@ -11413,6 +11414,11 @@ namespace Extensions
         /// <returns></returns>
         public static Image Resize(this Image Original, int NewWidth, int MaxHeight, bool OnlyResizeIfWider = true)
         {
+            if (Original == null)
+            {
+                return null;
+            }
+
             Image fullsizeImage = new Bitmap(Original);
             if (OnlyResizeIfWider)
             {
@@ -13971,10 +13977,12 @@ namespace Extensions
         /// <returns></returns>
         public static Image ToImage(this byte[] Bytes)
         {
-            using (var s = new MemoryStream(Bytes))
-            {
-                return Image.FromStream(s);
-            }
+            if (Bytes != null && Bytes.IsNotNullOrEmpty())
+                using (var s = new MemoryStream(Bytes))
+                {
+                    return Image.FromStream(s);
+                }
+            return null;
         }
 
         /// <summary>
