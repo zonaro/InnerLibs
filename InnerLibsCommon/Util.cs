@@ -4710,18 +4710,18 @@ namespace Extensions
 
         public static string GetFirstChars(this string Text, int Number = 1) => Text.IsValid() ? Text.Length < Number || Number < 0 ? Text : Text.Substring(0, Number) : EmptyString;
 
-        public static DataRow? GetFirstRow(this DataSet Data) => Data?.GetFirstTable()?.GetFirstRow();
+        public static DataRow GetFirstRow(this DataSet Data) => Data?.GetFirstTable()?.GetFirstRow();
 
-        public static DataRow? GetFirstRow(this DataTable Table) => Table != null && Table.Rows.Count > 0 ? Table.Rows[0] : null;
+        public static DataRow GetFirstRow(this DataTable Table) => Table != null && Table.Rows.Count > 0 ? Table.Rows[0] : null;
 
-        public static DataTable? GetFirstTable(this DataSet Data) => Data != null && Data.Tables.Count > 0 ? Data.Tables[0] : null;
+        public static DataTable GetFirstTable(this DataSet Data) => Data != null && Data.Tables.Count > 0 ? Data.Tables[0] : null;
 
         /// <summary>
         /// Retorna a classe do icone do FontAwesome que representa melhor o arquivo
         /// </summary>
         /// <param name="Extension">Arquivo</param>
         /// <returns></returns>
-        public static string GetFontAwesomeIconByFileExtension(this string? Extension) => GetFontAwesomeIconByFileExtension(new[] { Extension ?? "" });
+        public static string GetFontAwesomeIconByFileExtension(this string Extension) => GetFontAwesomeIconByFileExtension(new[] { Extension ?? "" });
 
         public static string GetFontAwesomeIconByFileExtension(this string[] Extensions)
         {
