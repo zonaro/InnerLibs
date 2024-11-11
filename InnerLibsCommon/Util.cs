@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Data;
@@ -8,6 +10,8 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Globalization;
+using System.IO;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Net;
 using System.Net.Mail;
@@ -19,6 +23,8 @@ using System.Runtime.Serialization;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 using Extensions.Colors;
@@ -44,11 +50,11 @@ namespace Extensions
 
         private const int ERROR_SHARING_VIOLATION = 32;
 
-        private static readonly MethodInfo containsMethod = typeof(string).GetMethod("Contains", new[] { typeof(string) })!;
+        private static readonly MethodInfo containsMethod = typeof(string).GetMethod("Contains", new[] { typeof(string) });
 
-        private static readonly MethodInfo endsWithMethod = typeof(string).GetMethod("EndsWith", new[] { typeof(string) })!;
+        private static readonly MethodInfo endsWithMethod = typeof(string).GetMethod("EndsWith", new[] { typeof(string) });
 
-        private static readonly MethodInfo equalMethod = typeof(string).GetMethod("Equals", new[] { typeof(string) })!;
+        private static readonly MethodInfo equalMethod = typeof(string).GetMethod("Equals", new[] { typeof(string) });
 
         private static readonly Random init_rnd = new Random();
 
@@ -63,7 +69,7 @@ namespace Extensions
                     x => x.ContainsAny(StringComparison.InvariantCulture, PredefinedArrays.AlphaLowerChars.ToArray())
                 };
 
-        private static readonly MethodInfo startsWithMethod = typeof(string).GetMethod("StartsWith", new[] { typeof(string) })!;
+        private static readonly MethodInfo startsWithMethod = typeof(string).GetMethod("StartsWith", new[] { typeof(string) });
 
 
         static public bool IsCopyOf(this FileInfo file1, FileInfo file2)
@@ -4703,18 +4709,18 @@ namespace Extensions
 
         public static string GetFirstChars(this string Text, int Number = 1) => Text.IsValid() ? Text.Length < Number || Number < 0 ? Text : Text.Substring(0, Number) : EmptyString;
 
-        public static DataRow? GetFirstRow(this DataSet Data) => Data?.GetFirstTable()?.GetFirstRow();
+        public static DataRow GetFirstRow(this DataSet Data) => Data?.GetFirstTable()?.GetFirstRow();
 
-        public static DataRow? GetFirstRow(this DataTable Table) => Table != null && Table.Rows.Count > 0 ? Table.Rows[0] : null;
+        public static DataRow GetFirstRow(this DataTable Table) => Table != null && Table.Rows.Count > 0 ? Table.Rows[0] : null;
 
-        public static DataTable? GetFirstTable(this DataSet Data) => Data != null && Data.Tables.Count > 0 ? Data.Tables[0] : null;
+        public static DataTable GetFirstTable(this DataSet Data) => Data != null && Data.Tables.Count > 0 ? Data.Tables[0] : null;
 
         /// <summary>
         /// Retorna a classe do icone do FontAwesome que representa melhor o arquivo
         /// </summary>
         /// <param name="Extension">Arquivo</param>
         /// <returns></returns>
-        public static string GetFontAwesomeIconByFileExtension(this string? Extension) => GetFontAwesomeIconByFileExtension(new[] { Extension ?? "" });
+        public static string GetFontAwesomeIconByFileExtension(this string Extension) => GetFontAwesomeIconByFileExtension(new[] { Extension ?? "" });
 
         public static string GetFontAwesomeIconByFileExtension(this string[] Extensions)
         {
@@ -6149,7 +6155,7 @@ namespace Extensions
                     }
                     else
                     {
-                        $"{FileName} not found in assembly ({Assembly.GetName()}){Environment.NewLine}Files:{Environment.NewLine}{Assembly.GetManifestResourceNames().SelectJoinString(x => $" - {x}", Environment.NewLine)}".ConsoleLog();
+                        $"{FileName} not found in assembly ({Assembly.GetName()}){Environment.NewLine}Files:{Environment.NewLine}{Assembly.GetManifestResourceNames().SelectJoinString(s => $" - {s}", Environment.NewLine)}".ConsoleLog();
                     }
                 }
             }
@@ -6782,7 +6788,7 @@ namespace Extensions
         /// <param name="Value">Valor</param>
         /// <param name="ValueIfBlank">Valor se estiver em branco</param>
         /// <returns></returns>
-        public static T IfBlank<T>(this object? Value, T ValueIfBlank = default) => Value.IsNotValid() ? ValueIfBlank : ChangeType<T>(Value!);
+        public static T IfBlank<T>(this object Value, T ValueIfBlank = default) => Value.IsNotValid() ? ValueIfBlank : ChangeType<T>(Value);
 
 
         public static string BlankIfNull(this string Text) => IfBlank(Text, "");
@@ -7202,8 +7208,8 @@ namespace Extensions
 
 
 
-        public static bool IsBlank(this string? text) => text.IsNotValid();
-        public static bool IsNotBlank(this string? text) => text.IsValid();
+        public static bool IsBlank(this string text) => text.IsNotValid();
+        public static bool IsNotBlank(this string text) => text.IsValid();
 
 
         /// <summary>
@@ -7211,7 +7217,7 @@ namespace Extensions
         /// </summary>
         /// <param name="Value">O valor a ser verificado.</param>
         /// <returns>True se o valor não for válido, caso contrário, False.</returns>
-        public static bool IsNotValid(this object? Value)
+        public static bool IsNotValid(this object Value)
         {
             try
             {
