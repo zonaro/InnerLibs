@@ -27,6 +27,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
+using Extensions;
 using Extensions.Colors;
 using Extensions.ComplexText;
 using Extensions.Console;
@@ -39,13 +40,7 @@ using Extensions.Files;
 using Extensions.Locations;
 using Extensions.Pagination;
 using Extensions.Web;
-using Extensions;
-
 using Expression = System.Linq.Expressions.Expression;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Extensions
 {
@@ -6160,7 +6155,7 @@ namespace Extensions
                     }
                     else
                     {
-                        $"{FileName} not found in assembly ({Assembly.GetName()}){Environment.NewLine}Files:{Environment.NewLine}{Assembly.GetManifestResourceNames().SelectJoinString(x => $" - {x}", Environment.NewLine)}".ConsoleLog();
+                        $"{FileName} not found in assembly ({Assembly.GetName()}){Environment.NewLine}Files:{Environment.NewLine}{Assembly.GetManifestResourceNames().SelectJoinString(s => $" - {s}", Environment.NewLine)}".ConsoleLog();
                     }
                 }
             }
