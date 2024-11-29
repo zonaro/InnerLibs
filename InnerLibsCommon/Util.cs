@@ -16224,19 +16224,33 @@ namespace Extensions
 
         public static IEnumerable<string> TrimBetween(this IEnumerable<string> Texts) => Texts.Select(x => x.TrimBetween());
 
-        public static string TrimBetween(this string Text)
+        public static string TrimBetween(this string input)
         {
-            Text = Text.IfBlank(EmptyString);
-            if (Text.IsValid())
+            if (input.IsBlank())
             {
-                var arr = Text.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-                Text = arr.SelectJoinString(Environment.NewLine);
-                arr = Text.Split(new string[] { WhitespaceChar }, StringSplitOptions.RemoveEmptyEntries);
-                Text = arr.SelectJoinString(WhitespaceChar);
-                Text = Text.TrimAny(WhitespaceChar, Environment.NewLine).Trim();
+                return input;
             }
 
-            return Text;
+            var lines = input.Split(new[] { "\r\n", "\r", "\n", Environment.NewLine }, StringSplitOptions.None)
+                             .Where(line => line.IsNotBlank());
+
+            var result = lines.Select(value =>
+            {
+                // Remove spaces before any of these chars
+                value = Regex.Replace(value, @"\s+([\%:,.;?!\)\]})])", match => match.Groups[1].Value);
+
+                // Remove spaces after any of these chars
+                value = Regex.Replace(value, @"([\(\[\{])\s+", match => match.Groups[1].Value);
+
+                // Remove extra spaces between words
+                value = Regex.Replace(value, @"\s+", " ");
+
+                return value.Trim();
+            });
+
+            return string.Join(Environment.NewLine, result);
+
+
         }
 
         /// <summary>
