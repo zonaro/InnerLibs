@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Data;
@@ -10,8 +8,6 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Globalization;
-using System.IO;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Net;
 using System.Net.Mail;
@@ -23,8 +19,6 @@ using System.Runtime.Serialization;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 using Extensions;
@@ -15859,8 +15853,9 @@ namespace Extensions
         /// <returns></returns>
         public static Stream ToStream(this Image Image, ImageFormat Format = null)
         {
+            Format = Format ?? ImageFormat.Png;
             Stream s = new MemoryStream();
-            Image.Save(s, Format ?? ImageFormat.Png);
+            Image.Save(s, Format);
             s.Position = 0L;
             return s;
         }
