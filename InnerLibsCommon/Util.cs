@@ -13784,13 +13784,10 @@ namespace Extensions
         public static FileInfo ToFileInfo(this string[] PathParts)
         {
             var x = ToFileSystemInfo(PathParts);
-            if (x is DirectoryInfo)
-            {
-                throw new Exception("File is directory");
-            }
+            if (x is DirectoryInfo) throw new Exception("File is directory");
+            else if (x is FileInfo) return x as FileInfo;
+            throw new Exception("File is not a valid file");
 
-
-            return x as FileInfo;
         }
 
         public static long GetSize(this FileSystemInfo info)

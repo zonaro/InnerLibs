@@ -38,7 +38,7 @@ namespace Extensions.Files
         public FileType(FileInfo File, FileTypeList FileTypeList = null) => Build(File?.Extension ?? ".bin", FileTypeList);
 
         /// <summary>
-        /// Constroi um File T a partir da extensão ou MIME T de um Arquivo
+        /// Constroi um File Type a partir da extensão ou MIME Type de um Arquivo
         /// </summary>
         /// <param name="MimeTypeOrExtensionOrPathOrDataURI">Extensão do arquivo</param>
         public FileType(string MimeTypeOrExtensionOrPathOrDataURI, FileTypeList FileTypeList = null) => Build(MimeTypeOrExtensionOrPathOrDataURI?.ToLowerInvariant(), FileTypeList);
