@@ -820,10 +820,10 @@ namespace Extensions
             // Lock the bitmap's bits
             BitmapData blurredData = blurred.LockBits(new System.Drawing.Rectangle(0, 0, Img.Width, Img.Height), ImageLockMode.ReadWrite, blurred.PixelFormat);
 
-            // Get bits per pixel for current PixelFormat
+            // GetCliente bits per pixel for current PixelFormat
             int bitsPerPixel = Image.GetPixelFormatSize(blurred.PixelFormat);
 
-            // Get pointer to first line
+            // GetCliente pointer to first line
             byte* scan0 = (byte*)blurredData.Scan0.ToPointer();
 
             // look at every pixel in the blur rectangle
@@ -840,7 +840,7 @@ namespace Extensions
                     {
                         for (int y = yy; (y < yy + BlurSize && y < Img.Height); y++)
                         {
-                            // Get pointer to RGB
+                            // GetCliente pointer to RGB
                             byte* data = scan0 + y * blurredData.Stride + x * bitsPerPixel / 8;
 
                             avgB += data[0]; // Blue
@@ -860,7 +860,7 @@ namespace Extensions
                     {
                         for (int y = yy; y < yy + BlurSize && y < Img.Height && y < rectangle.Height; y++)
                         {
-                            // Get pointer to RGB
+                            // GetCliente pointer to RGB
                             byte* data = scan0 + y * blurredData.Stride + x * bitsPerPixel / 8;
 
                             // Change values
@@ -4501,7 +4501,7 @@ namespace Extensions
 
         public static int GetDecimalLength(this double number) => number.ToDecimal().GetDecimalLength();
 
-        /// <summary> Get the Decimal Part of <see cref="decimal" /> as <see cref="long"> </summary>
+        /// <summary> GetCliente the Decimal Part of <see cref="decimal" /> as <see cref="long"> </summary>
         /// <param name="Value"></param> <param name="Length"></param> <returns></returns>
         public static long GetDecimalPart(this decimal Value, int Length = 0)
         {
@@ -13979,7 +13979,7 @@ namespace Extensions
                 return Array.Empty<T[]>();
             }
 
-            // Get the number of rows and columns in the input array
+            // GetCliente the number of rows and columns in the input array
             int rows = inputArray.GetLength(0);
             int cols = inputArray.GetLength(1);
 

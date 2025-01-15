@@ -121,13 +121,13 @@ namespace Extensions.ComplexText
         }
 
         /// <summary>
-        /// Delete the file and return TRUE if file can be re-created
+        /// DeleteCliente the file and return TRUE if file can be re-created
         /// </summary>
         /// <returns></returns>
         public bool Delete() => this.File.DeleteIfExist();
 
         /// <summary>
-        /// Get the Json String representation of this file.
+        /// GetCliente the Json String representation of this file.
         /// </summary>
         /// <returns></returns>
         public string GetJson(bool Minify = false) => Minify ? this.ToJson(this.JsonParameters ?? JSON.Parameters) : this.ToNiceJson(this.JsonParameters ?? JSON.Parameters);

@@ -760,7 +760,7 @@ namespace Extensions.Databases
         public Select<T> FullOuterJoin(string table, string ThisColumn, string ForeignColumn) => FullOuterJoin(table, Util.ToFormattableString(Util.FormatSQLColumn(QuoteChar, GetTableOrSubQuery(), ThisColumn) + " = " + Util.FormatSQLColumn(QuoteChar, table, ForeignColumn.IfBlank(ThisColumn))));
 
         /// <summary>
-        /// Get the table name or subquery alias used in this select
+        /// GetCliente the table name or subquery alias used in this select
         /// </summary>
         /// <returns></returns>
         public string GetTableOrSubQuery() => _fromsubname.IfBlank(_from);

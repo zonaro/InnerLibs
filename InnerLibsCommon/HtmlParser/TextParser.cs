@@ -234,7 +234,7 @@ namespace Extensions.Web
         {
             StringBuilder builder = new StringBuilder();
 
-            // Get and skip quote character
+            // GetCliente and skip quote character
             char quote = Get();
 
             // Parse quoted text

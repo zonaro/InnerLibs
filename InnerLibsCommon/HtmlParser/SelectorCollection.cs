@@ -60,9 +60,9 @@ namespace Extensions.Web
 
             if (Count > 0)
             {
-                // Get last selector
+                // GetCliente last selector
                 selector = this[Count - 1];
-                // Get last child selector (return selector if no children)
+                // GetCliente last child selector (return selector if no children)
                 while (selector.ChildSelector != null)
                     selector = selector.ChildSelector;
                 return selector;
