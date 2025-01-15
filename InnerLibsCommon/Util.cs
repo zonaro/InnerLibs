@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Data;
@@ -8,6 +10,8 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Globalization;
+using System.IO;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Net;
 using System.Net.Mail;
@@ -19,6 +23,8 @@ using System.Runtime.Serialization;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 using Extensions;
@@ -65,7 +71,6 @@ namespace Extensions
 
         private static readonly MethodInfo startsWithMethod = typeof(string).GetMethod("StartsWith", new[] { typeof(string) });
 
-
         static public bool IsCopyOf(this FileInfo file1, FileInfo file2)
         {
             int file1byte;
@@ -78,7 +83,6 @@ namespace Extensions
                 return false;
             }
 
-
             // Determine if the same file was referenced two times.
             if (file1.FullName == file2.FullName)
             {
@@ -88,9 +92,6 @@ namespace Extensions
 
             if (file1.Exists && file2.Exists)
             {
-
-
-
                 // Open the two files.
                 fs1 = new FileStream(file1.FullName, FileMode.Open);
                 fs2 = new FileStream(file2.FullName, FileMode.Open);
@@ -106,8 +107,8 @@ namespace Extensions
                     return false;
                 }
 
-                // Read and compare a byte from each file until either a non-matching set of bytes is found
-                // or until the end of file1 is reached.
+                // Read and compare a byte from each file until either a non-matching set of bytes
+                // is found or until the end of file1 is reached.
                 do
                 {
                     // Read one byte from each file.
@@ -119,8 +120,8 @@ namespace Extensions
                 fs1.Close();
                 fs2.Close();
 
-                // Return the success of the comparison. "file1byte" is equal to "file2byte" at this point
-                // only if the files are the same.
+                // Return the success of the comparison. "file1byte" is equal to "file2byte" at this
+                // point only if the files are the same.
                 return (file1byte - file2byte) == 0;
             }
             return false;
@@ -238,7 +239,6 @@ namespace Extensions
             [typeof(DateTime)] = DbType.DateTime,
             [typeof(DateTimeOffset)] = DbType.DateTimeOffset,
             [typeof(byte[])] = DbType.Binary
-
         };
 
         /// <summary>
@@ -526,16 +526,24 @@ namespace Extensions
         /// Converts an object to a nullable boolean.
         /// </summary>
         /// <param name="Value">The object to be converted.</param>
-        /// <param name="EverythingIsTrue">A flag indicating whether to return true for any value not explicitly mapped to false. Defaults to true.</param>
+        /// <param name="EverythingIsTrue">
+        /// A flag indicating whether to return true for any value not explicitly mapped to false.
+        /// Defaults to true.
+        /// </param>
         /// <returns>
-        /// A nullable boolean representing the converted value of the object.
-        /// The following string values are considered:
+        /// A nullable boolean representing the converted value of the object. The following string
+        /// values are considered:
         /// - "NULL", "CANCEL", "CANCELAR": Returns null.
-        /// - "", "!", "0", "FALSE", "NOT", "NAO", "NO", "NOP", "DISABLED", "DISABLE", "OFF", "DESATIVADO", "DESATIVAR", "DESATIVO", "N": Returns false.
-        /// - "1", "S", "TRUE", "YES", "YEP", "SIM", "ENABLED", "ENABLE", "ON", "Y", "ATIVO", "ATIVAR", "ATIVADO": Returns true.
-        /// Any other value: Returns true if EverythingIsTrue is set to true, otherwise throws an ArgumentException.
+        /// - "", "!", "0", "FALSE", "NOT", "NAO", "NO", "NOP", "DISABLED", "DISABLE", "OFF",
+        ///   "DESATIVADO", "DESATIVAR", "DESATIVO", "N": Returns false.
+        /// - "1", "S", "TRUE", "YES", "YEP", "SIM", "ENABLED", "ENABLE", "ON", "Y", "ATIVO",
+        ///   "ATIVAR", "ATIVADO": Returns true. Any other value: Returns true if EverythingIsTrue
+        /// is set to true, otherwise throws an ArgumentException.
         /// </returns>
-        /// <exception cref="ArgumentException">Thrown when the object does not represent a valid option and the EverythingIsTrue flag is set to false.</exception>
+        /// <exception cref="ArgumentException">
+        /// Thrown when the object does not represent a valid option and the EverythingIsTrue flag
+        /// is set to false.
+        /// </exception>
         public static bool? AsNullableBool(this object Value, bool EverythingIsTrue = true)
         {
             if (Value == null) return null;
@@ -588,14 +596,19 @@ namespace Extensions
         /// Converts an object to a boolean.
         /// </summary>
         /// <param name="Value">The object to be converted.</param>
-        /// <param name="EverythingIsTrue">A flag indicating whether to return true for any value not explicitly mapped to false. Defaults to true.</param>
+        /// <param name="EverythingIsTrue">
+        /// A flag indicating whether to return true for any value not explicitly mapped to false.
+        /// Defaults to true.
+        /// </param>
         /// <returns>
-        /// A boolean representing the converted value of the object.
-        /// The following string values are considered:
+        /// A boolean representing the converted value of the object. The following string values
+        /// are considered:
         /// - "NULL", "CANCEL", "CANCELAR": Returns false as the function is non-nullable.
-        /// - "", "!", "0", "FALSE", "NOT", "NAO", "NO", "NOP", "DISABLED", "DISABLE", "OFF", "DESATIVADO", "DESATIVAR", "DESATIVO", "N": Returns false.
-        /// - "1", "S", "TRUE", "YES", "YEP", "SIM", "ENABLED", "ENABLE", "ON", "Y", "ATIVO", "ATIVAR", "ATIVADO": Returns true.
-        /// Any other value: Returns true if EverythingIsTrue is set to true, otherwise returns false.
+        /// - "", "!", "0", "FALSE", "NOT", "NAO", "NO", "NOP", "DISABLED", "DISABLE", "OFF",
+        ///   "DESATIVADO", "DESATIVAR", "DESATIVO", "N": Returns false.
+        /// - "1", "S", "TRUE", "YES", "YEP", "SIM", "ENABLED", "ENABLE", "ON", "Y", "ATIVO",
+        ///   "ATIVAR", "ATIVADO": Returns true. Any other value: Returns true if EverythingIsTrue
+        /// is set to true, otherwise returns false.
         /// </returns>
         public static bool AsBool(this object Value, bool EverythingIsTrue = true) => AsNullableBool(Value, EverythingIsTrue) ?? false;
 
@@ -2404,11 +2417,11 @@ namespace Extensions
         /// <returns>The created object.</returns>
         public static T CreateObjectFromXMLFile<T>(this FileInfo XML) where T : class => XML.ReadAllText().CreateObjectFromXML<T>();
 
-
         public static T SetObject<T>(this Dictionary<string, object> Dictionary, T Obj, params object[] args) => (T)CreateOrSetObject(Dictionary, Obj, typeof(T), args);
 
         /// <summary>
-        /// Create a new instance of <paramref name="Type"/> and set the properties values from <paramref name="Dictionary"/>
+        /// Create a new instance of <paramref name="Type"/> and set the properties values from
+        /// <paramref name="Dictionary"/>
         /// </summary>
         /// <param name="Dictionary"></param>
         /// <param name="Obj"></param>
@@ -2522,13 +2535,13 @@ namespace Extensions
             return Bmp;
         }
 
-        /// <inheritdoc  cref="CreateSolidImage(Color, int, int)"/>
+        /// <inheritdoc cref="CreateSolidImage(Color, int, int)"/>
         public static Image CreateSolidImage(this Color Color, string WidthHeight) => CreateSolidImage(Color, WidthHeight.ParseSize());
 
-        /// <inheritdoc  cref="CreateSolidImage(Color, int, int)"/>
+        /// <inheritdoc cref="CreateSolidImage(Color, int, int)"/>
         public static Image CreateSolidImage(this Color Color, Size Size) => CreateSolidImage(Color, Size.Width, Size.Height);
 
-        public static SQLResponse<object> CreateSQLQuickResponse(this DbConnection Connection, FormattableString Command, string DataSetType) => CreateSQLQuickResponse(Connection.CreateCommand(Command), DataSetType);
+        public static SQLResponse<object> CreateSQLQuickResponse(this DbConnection Connection, FormattableString Command, string DataSetType, params string[] SetNames) => CreateSQLQuickResponse(Connection.CreateCommand(Command), DataSetType, SetNames);
 
         /// <summary>
         /// Executa um <paramref name="Command"/> e retorna uma <see cref="SQLResponse{object}"/> de
@@ -2540,7 +2553,7 @@ namespace Extensions
         /// <param name="Command">Comando SQL com a <see cref="DbCommand.Connection"/> ja setada</param>
         /// <param name="DataSetType">Tipo da resposta. Ver <see cref="DataSetType"/></param>
         /// <returns></returns>
-        public static SQLResponse<object> CreateSQLQuickResponse(this DbCommand Command, string DataSetType)
+        public static SQLResponse<object> CreateSQLQuickResponse(this DbCommand Command, string DataSetType, params string[] SetNames)
         {
             var resp = new SQLResponse<object>();
             try
@@ -2562,7 +2575,6 @@ namespace Extensions
                     resp.Status = (part == DBNull.Value).AsIf("NULL_VALUE", (part == null).AsIf("EMPTY", "OK"));
                     resp.Data = part;
                     resp.DataSetType = "value";
-
                 }
                 else if (DataSetType.IsAny("one", "first", "row", "single"))
                 {
@@ -2571,7 +2583,6 @@ namespace Extensions
                     resp.Status = (part == null).AsIf("EMPTY", "OK");
                     resp.Data = part;
                     resp.DataSetType = "row";
-
                 }
                 else if (DataSetType.IsAny("array", "values", "list"))
                 {
@@ -2580,7 +2591,6 @@ namespace Extensions
                     resp.Status = (part?.Any()).AsIf("OK", "EMPTY");
                     resp.Data = part;
                     resp.DataSetType = "array";
-
                 }
                 else if (DataSetType.IsAny("pair", "pairs", "dictionary", "associative"))
                 {
@@ -2589,16 +2599,26 @@ namespace Extensions
                     resp.Status = (part?.Any()).AsIf("OK", "EMPTY");
                     resp.Data = part;
                     resp.DataSetType = "pairs";
-
                 }
-                else if (DataSetType.IsAny("many", "sets", "datasets"))
+                else if (DataSetType.IsAny("many", "sets", "datasets", "namedsets"))
                 {
                     //varios sets
                     var part = Connection.RunSQLMany(Command);
                     resp.Status = (part?.Any(x => x.Any())).AsIf("OK", "EMPTY");
-                    resp.Data = part;
-                    resp.DataSetType = "sets";
+                    if (DataSetType == "namedsets")
+                    {
+                        foreach (var k in part.Select((x, i) => new KeyValuePair<string, object>(SetNames.IfBlankOrNoIndex(i, $"set{i}"), x)).ToDictionary())
+                        {
+                            resp[k.Key] = k.Value;
+                        }
 
+                        resp.DataSetType = "namedsets";
+                    }
+                    else
+                    {
+                        resp.Data = part;
+                        resp.DataSetType = "sets";
+                    }
                 }
                 else
                 {
@@ -2607,14 +2627,12 @@ namespace Extensions
                     resp.Status = (part?.Any()).AsIf("OK", "EMPTY");
                     resp.Data = part;
                     resp.DataSetType = "table";
-
                 }
             }
             catch (Exception ex)
             {
                 resp.Status = "ERROR";
                 resp.Message = ex.ToFullExceptionString();
-                resp.HasError = true;
 
             }
             return resp;
@@ -2916,7 +2934,6 @@ namespace Extensions
             {
                 return Text;
             }
-
         }
 
         /// <summary>
@@ -3801,7 +3818,8 @@ namespace Extensions
         }
 
         /// <summary>
-        /// Return <see cref="Path.DirectorySeparatorChar"/> or <see cref="Path.AltDirectorySeparatorChar"/> based on the number of ocurrences of each in the string
+        /// Return <see cref="Path.DirectorySeparatorChar"/> or <see
+        /// cref="Path.AltDirectorySeparatorChar"/> based on the number of ocurrences of each in the string
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
@@ -3827,7 +3845,8 @@ namespace Extensions
                                                                                                                                                                                               return x.ToFriendlyPathName();
                                                                                                                                                                                           }).SelectJoinString(AlternativeChar == null ? Text.PathChar().ToString() : AlternativeChar.AsIf(Path.AltDirectorySeparatorChar.ToString(), Path.DirectorySeparatorChar.ToString())).TrimEndAny(Path.DirectorySeparatorChar.ToString(), Path.AltDirectorySeparatorChar.ToString());
         /// <summary>
-        /// Ajusta um caminho unidos partes, colocando as barras corretamente e substituindo caracteres inválidos
+        /// Ajusta um caminho unidos partes, colocando as barras corretamente e substituindo
+        /// caracteres inválidos
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
@@ -4151,10 +4170,7 @@ namespace Extensions
         /// <inheritdoc cref="GenerateEANFromNumbers(string[])"/>
         public static string GenerateEANFromNumbers(params int[] Numbers) => GenerateEANFromNumbers(Numbers.Select(x => x.ToString()).ToArray());
 
-
-
         public static string GenerateLicenseKey(this Assembly product) => product.GetName().Name.GenerateLicenseKey();
-
 
         /// <summary>
         /// Gera uma chave de licença para um produto
@@ -4660,7 +4676,6 @@ namespace Extensions
         /// <param name="Info"></param>
         /// <returns></returns>
         public static string GetFileNameWithoutExtension(this FileInfo Info) => Info != null ? Path.GetFileNameWithoutExtension(Info.Name) : EmptyString;
-
 
         /// <summary>
         /// Retorna o Mime T a partir de um arquivo
@@ -6088,12 +6103,8 @@ namespace Extensions
         /// <returns></returns>
         public static string GetRelativeURL(this string URL, bool WithQueryString = true) => URL.IsURL() ? new Uri(URL).GetRelativeURL(WithQueryString) : null;
 
-
-
-
         public static DateTime GetLatestCompileTime(this Assembly assembly)
         {
-
             var filePath = assembly.Location;
             const int c_PeHeaderOffset = 60;
             const int c_LinkerTimestampOffset = 8;
@@ -6111,7 +6122,6 @@ namespace Extensions
 
             return linkTimeUtc;
         }
-
 
         /// <summary>
         /// Pega os bytes de um arquivo embutido no assembly
@@ -6567,7 +6577,6 @@ namespace Extensions
         /// <returns></returns>
         public static Dictionary<Group, long> GroupAndCountBy<T, Group>(this IEnumerable<T> obj, Func<T, Group> GroupSelector) => obj.GroupBy(GroupSelector).Select(x => new KeyValuePair<Group, long>(x.Key, x.LongCount())).ToDictionary();
 
-
         public static Dictionary<Group, decimal> GroupAndSumBy<T, Group>(this IEnumerable<T> obj, Func<T, Group> GroupSelector, Func<T, decimal> SumSelector) => obj.GroupBy(GroupSelector).Select(x => new KeyValuePair<Group, decimal>(x.Key, x.Sum(SumSelector))).ToDictionary();
 
         /// <summary>
@@ -6783,7 +6792,6 @@ namespace Extensions
         /// <param name="ValueIfBlank">Valor se estiver em branco</param>
         /// <returns></returns>
         public static T IfBlank<T>(this object Value, T ValueIfBlank = default) => Value.IsNotValid() ? ValueIfBlank : ChangeType<T>(Value);
-
 
         public static string BlankIfNull(this string Text) => IfBlank(Text, "");
 
@@ -7200,11 +7208,8 @@ namespace Extensions
             return Value.IsGreaterThanOrEqual(MinValue) && Value.IsLessThanOrEqual(MaxValue);
         }
 
-
-
         public static bool IsBlank(this string text) => text.IsNotValid();
         public static bool IsNotBlank(this string text) => text.IsValid();
-
 
         /// <summary>
         /// Verifica se o valor não é válido.
@@ -7251,8 +7256,6 @@ namespace Extensions
                     {
                         return off.Equals(DateTimeOffset.MinValue);
                     }
-
-
                     else if (Value is IDictionary dic)
                     {
                         foreach (DictionaryEntry item in dic)
@@ -7262,7 +7265,6 @@ namespace Extensions
                                 return false;
                             }
                         }
-
                     }
                     else if (Value.IsEnumerableNotString() && Value is IEnumerable enumerable)
                     {
@@ -7436,15 +7438,10 @@ namespace Extensions
             if ((trimmedEmail).IsNotValid())
                 return false;
 
-            // Use a regular expression to validate the email format
-            // This pattern checks for basic email structure
-            // You can enhance it further based on your requirements
+            // Use a regular expression to validate the email format This pattern checks for basic
+            // email structure You can enhance it further based on your requirements
             string pattern = @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$";
             return Regex.IsMatch(trimmedEmail, pattern);
-
-
-
-
         }
 
         /// <summary>
@@ -9767,7 +9764,6 @@ namespace Extensions
 
         public static string CamelCaseAdjust(this string Text) => PascalCaseAdjust(Text);
 
-
         /// <summary>
         /// Separa as palavras de um texto PascalCase a partir de suas letras maíusculas
         /// </summary>
@@ -9781,7 +9777,6 @@ namespace Extensions
             int uppercount = 0;
             foreach (var c in chars)
             {
-
                 if (char.IsUpper(c))
                 {
                     if (!(uppercount > 0))
@@ -10478,8 +10473,8 @@ namespace Extensions
         /// <summary>
         /// Gera um numero Aleatório entre 2 números
         /// </summary>
-        /// <param name="Min">Numero minimo </param>
-        /// <param name="Max">Numero Maximo  </param>
+        /// <param name="Min">Numero minimo</param>
+        /// <param name="Max">Numero Maximo</param>
         /// <returns>Um numero Inteiro</returns>
         public static T Random<T>(this T Min, T Max) where T : IComparable
         {
@@ -12333,7 +12328,6 @@ namespace Extensions
 
         public static Task SetTimeout(int milliseconds, Action action) => Task.Delay(milliseconds).ContinueWith((t) =>
                                                                                      {
-
                                                                                          TryExecute(action);
                                                                                          t.Dispose();
                                                                                      });
@@ -12704,10 +12698,7 @@ namespace Extensions
             return (FirstValue, SecondValue);
         }
 
-
-
         public static IEnumerable<T> TakeLast<T>(this IEnumerable<T> l, int Count = 1) => l.Reverse().Take(Count).Reverse();
-
 
         public static IEnumerable<T> TakeRandom<T>(this IEnumerable<T> l, int Count = 1) => l.OrderByRandom().Take(Count);
 
@@ -13428,10 +13419,11 @@ namespace Extensions
         /// <summary>
         /// Gera uma cor a partir de uma palavra
         /// </summary>
-        /// <param name="Text">,
-        /// Pode ser um texto em branco (Transparent), um valor hexadecimal, um valor int ARGB, uma <see cref="NamedColors"/> (retorna aquela
-        /// cor exata), uma palavra qualquer (gera proceduralmente uma cor) ou uma expressão de cor
-        /// (Red+Blue, Red-Blue,Green*Red etc). A palavra 'random' ou 'rnd' gera uma cor aleatória
+        /// <param name="Text">
+        /// , Pode ser um texto em branco (Transparent), um valor hexadecimal, um valor int ARGB,
+        /// uma <see cref="NamedColors"/> (retorna aquela cor exata), uma palavra qualquer (gera
+        /// proceduralmente uma cor) ou uma expressão de cor (Red+Blue, Red-Blue,Green*Red etc). A
+        /// palavra 'random' ou 'rnd' gera uma cor aleatória
         /// </param>
         /// <returns></returns>
         public static Color ToColor(this string Text)
@@ -13787,7 +13779,6 @@ namespace Extensions
             if (x is DirectoryInfo) throw new Exception("File is directory");
             else if (x is FileInfo) return x as FileInfo;
             throw new Exception("File is not a valid file");
-
         }
 
         public static long GetSize(this FileSystemInfo info)
@@ -13822,7 +13813,6 @@ namespace Extensions
         /// <param name="Size">Tamanho</param>
         /// <returns>String com o tamanho + unidade de medida</returns>
         public static string ToFileSizeString(this byte[] Size, int DecimalPlaces = -1) => (Size?.LongLength ?? 0).ToFileSizeString(DecimalPlaces);
-
 
         /// <summary>
         /// Retorna o uma string representando um valor em bytes, KB, MB, GB ou TB
@@ -13887,7 +13877,6 @@ namespace Extensions
                 }
             }
         }
-
 
         /// <summary>
         /// Retorna um Objeto FileType a partir de uma string MIME T, Nome ou Extensão de Arquivo
@@ -15537,7 +15526,6 @@ namespace Extensions
             return $"{ProcedureName} {Keys.SelectJoinString(key => $" @{key} = @__{key}", ", ")}";
         }
 
-
         /// <summary>
         /// Coloca o texto em TitleCase
         /// </summary>
@@ -16241,8 +16229,6 @@ namespace Extensions
             });
 
             return string.Join(Environment.NewLine, result);
-
-
         }
 
         /// <summary>
@@ -16662,8 +16648,8 @@ namespace Extensions
         }
 
         /// <summary>
-        /// Busca em um <see cref="IQueryable{T}"/> usando uma expressao lambda a partir do nome
-        /// de uma propriedade, uma operacao e um valor
+        /// Busca em um <see cref="IQueryable{T}"/> usando uma expressao lambda a partir do nome de
+        /// uma propriedade, uma operacao e um valor
         /// </summary>
         /// <typeparam name="T">Tipo do objeto acessado</typeparam>
         /// <param name="List">Lista</param>

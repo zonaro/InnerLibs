@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data.Common;
 
 namespace Extensions.Databases
@@ -47,6 +48,11 @@ namespace Extensions.Databases
         /// <remarks>pode tambem ser representado pelas strings "ARRAY", "LIST"</remarks>
         public const string Values = "VALUES";
 
+        /// <summary>
+        /// Coloca todos os datasets no <see cref="SQLResponse{T}.Data"/> como um <see cref="Dictionary{string, object}"/>
+        /// </summary>
+        public const string NamedSets = "NAMEDSETS";
+
         #endregion Public Fields
 
         #region Public Methods
@@ -66,19 +72,32 @@ namespace Extensions.Databases
     {
 
 
-        public string SQL { get; set; }
-        public string DataSetType { get; set; }
+
+        public string DataSetType { get => this.GetValueOr("dataSetType").ChangeType<string>(); set => this["dataSetType"] = value; }
+        public string SQL { get => this.GetValueOr("sql").ChangeType<string>(); set => this["sql"] = value; }
+
 
 
 
     }
 
-    public class ApiResponse
+    public class ApiResponse : Dictionary<string, object>
     {
-        public string Message { get; set; }
+        public string Message { get => this.GetValueOr("message").ChangeType<string>(); set => this["message"] = value; }
 
-        public bool HasError { get; set; }
-        public string Status { get; set; }
+        public bool HasError => this.ContainsKey("error") || Status.EqualsIgnoreCaseAndAccents("error");
+        public string Status { get => this.GetValueOr("status").ChangeType<string>(); set => this["status"] = value; }
+
+        public void SetError(string message)
+        {
+            this["message"] = message;
+            this["status"] = "error";
+        }
+
+        public void SetError(Exception ex)
+        {
+            SetError(ex.ToFullExceptionString());
+        }
 
     }
 
@@ -86,9 +105,11 @@ namespace Extensions.Databases
     {
         #region Public Properties
 
-        public T Data { get; set; }
+        public T Data { get => this.GetValueOr("data").ChangeType<T>(); set => this["data"] = value; }
 
         public bool HasData => Data != null && Data.IsValid();
+
+
 
 
         #endregion Public Properties
