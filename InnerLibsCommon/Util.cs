@@ -13406,8 +13406,8 @@ namespace Extensions
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static string ToCamelCase(this string Text) => Text.PascalCaseSplit().Select((x, i) => i == 0 ? x.ToLowerInvariant() : x.ToTitle()).SelectJoinString("");
-        public static string ToPascalCase(this string Text) => Text.PascalCaseSplit().Select(x => x.ToTitle()).SelectJoinString("");
+        public static string ToCamelCase(this string Text) => Text.PascalCaseSplit().Select((x, i) => i == 0 ? x.ToLowerInvariant() : x.ToTitle(true)).SelectJoinString("");
+        public static string ToPascalCase(this string Text) => Text.PascalCaseSplit().Select(x => x.ToTitle(true)).SelectJoinString("");
 
         /// <summary>
         /// Retorna a <see cref="Color"/> a partir de uma <see cref="ConsoleColor"/>
