@@ -10228,6 +10228,25 @@ namespace Extensions
             return forceSingular || OutQuantity.Floor() == 1m || OutQuantity.Floor() == -1 ? PluralText.Singularize() : PluralText;
         }
 
+        public static string QuantifyText(this decimal Quantity, string PluralText, string SingularText = "")
+        {
+            PluralText = PluralText.IfBlank("Items");
+            return Quantity.Floor() == 1 || Quantity.Floor() == -1 ? SingularText.IfBlank(PluralText.Singularize()) : PluralText;
+        }
+
+        public static string QuantifyText(this int Quantity, string PluralText, string SingularText = "")
+        => Quantity.ToDecimal().QuantifyText(PluralText, SingularText);
+
+        public static string QuantifyText(this long Quantity, string PluralText, string SingularText = "")
+       => Quantity.ToDecimal().QuantifyText(PluralText, SingularText);
+
+        public static string QuantifyText(this short Quantity, string PluralText, string SingularText = "")
+       => Quantity.ToDecimal().QuantifyText(PluralText, SingularText);
+
+        public static string QuantifyText(this double Quantity, string PluralText, string SingularText = "")
+       => Quantity.ToDecimal().QuantifyText(PluralText, SingularText);
+
+
         /// <summary>
         /// Retorna o texto a na sua forma singular ou plural de acordo com um numero determinado.
         /// </summary>
