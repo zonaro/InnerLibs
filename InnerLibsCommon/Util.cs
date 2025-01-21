@@ -1383,6 +1383,11 @@ namespace Extensions
         {
             try
             {
+                if (Value.GetType() == typeof(T))
+                {
+                    return (T)Value;
+                }
+
                 var tp = typeof(T).GetNullableTypeOf() ?? typeof(T);
                 if (Value != null)
                 {
@@ -1407,6 +1412,11 @@ namespace Extensions
             if (ToType == null)
             {
                 WriteDebug($"ToType is null, using {typeof(TFrom).Name}");
+                return Value;
+            }
+
+            if (typeof(TFrom) == ToType)
+            {
                 return Value;
             }
 
