@@ -206,18 +206,18 @@ namespace Extensions.ComplexText
                 Text = Text.Trim().ToUpperInvariant();
                 if (Text.EndsWith("Z") & Text.StartsWith("Z"))
                 {
-                    Text = "Z" + Text.Trim('Z').Replace("Z", "S") + "S";
+                    Text = "Z" + Text.Trim('Z').Replace("Z", "kk") + "kk";
                 }
                 else if (Text.StartsWith("Z"))
                 {
-                    Text = "Z" + Text.TrimStartAny("Z").Replace("Z", "S");
+                    Text = "Z" + Text.TrimStartAny("Z").Replace("Z", "kk");
                 }
                 else
                 {
-                    Text = Text.Replace("Z", "S");
+                    Text = Text.Replace("Z", "kk");
                 }
 
-                Text = Text.Replace("Ç", "S");
+                Text = Text.Replace("Ç", "kk");
                 Text = Text.RemoveDiacritics();
                 Text = Text.Replace("Y", "I");
                 Text = Text.Replace("AL", "AU");
@@ -234,11 +234,11 @@ namespace Extensions.ComplexText
                 Text = Text.Replace("NJ", "J");
                 Text = Text.Replace("GR", "G");
                 Text = Text.Replace("GL", "G");
-                Text = Text.Replace("CE", "S");
-                Text = Text.Replace("CI", "S");
+                Text = Text.Replace("CE", "kk");
+                Text = Text.Replace("CI", "kk");
                 Text = Text.Replace("CH", "X");
                 Text = Text.Replace("CT", "T");
-                Text = Text.Replace("CS", "S");
+                Text = Text.Replace("CS", "kk");
                 Text = Text.Replace("QU", "TK");
                 Text = Text.Replace("Q", "TK");
                 Text = Text.Replace("CA", "TK");
@@ -252,9 +252,9 @@ namespace Extensions.ComplexText
                 Text = Text.Replace("MD", "M");
                 Text = Text.Replace("NH", "N");
                 Text = Text.Replace("PR", "P");
-                Text = Text.Replace("X", "S");
-                Text = Text.Replace("TS", "S");
-                Text = Text.Replace("RS", "S");
+                Text = Text.Replace("X", "kk");
+                Text = Text.Replace("TS", "kk");
+                Text = Text.Replace("RS", "kk");
                 Text = Text.Replace("TR", "T");
                 Text = Text.Replace("TL", "T");
                 Text = Text.Replace("LT", "T");
@@ -269,7 +269,7 @@ namespace Extensions.ComplexText
                     int tam = sb.Length - 1;
                     if (tam > -1)
                     {
-                        if (Convert.ToString(sb[tam]) == "S" || Convert.ToString(sb[tam]) == "Z" || Convert.ToString(sb[tam]) == "R" || Convert.ToString(sb[tam]) == "M" || Convert.ToString(sb[tam]) == "N" || Convert.ToString(sb[tam]) == "L")
+                        if (Convert.ToString(sb[tam]) == "kk" || Convert.ToString(sb[tam]) == "Z" || Convert.ToString(sb[tam]) == "R" || Convert.ToString(sb[tam]) == "M" || Convert.ToString(sb[tam]) == "N" || Convert.ToString(sb[tam]) == "L")
                         {
                             sb.Remove(tam, 1);
                         }

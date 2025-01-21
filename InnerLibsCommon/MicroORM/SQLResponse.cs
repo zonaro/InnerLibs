@@ -84,7 +84,6 @@ namespace Extensions.Databases
     public class ApiResponse : Dictionary<string, object>
     {
         public string Message { get => this.GetValueOr("message").ChangeType<string>(); set => this["message"] = value; }
-
         public bool HasError => this.ContainsKey("error") || Status.EqualsIgnoreCaseAndAccents("error");
         public string Status { get => this.GetValueOr("status").ChangeType<string>(); set => this["status"] = value; }
 
@@ -94,10 +93,7 @@ namespace Extensions.Databases
             this["status"] = "error";
         }
 
-        public void SetError(Exception ex)
-        {
-            SetError(ex.ToFullExceptionString());
-        }
+        public void SetError(Exception ex) => SetError(ex.ToFullExceptionString());
 
     }
 
@@ -105,7 +101,7 @@ namespace Extensions.Databases
     {
         #region Public Properties
 
-        public T Data { get => this.GetValueOr("data").ChangeType<T>(); set => this["data"] = value; }
+        public T Data { get => this.GetValueOr("data").ChangeType<T>(); set => this.SetOrRemove("data", value); }
 
         public bool HasData => Data != null && Data.IsValid();
 
