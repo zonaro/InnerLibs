@@ -536,7 +536,7 @@ namespace Extensions
         /// - "NULL", "CANCEL", "CANCELAR": Returns null.
         /// - "", "!", "0", "FALSE", "NOT", "NAO", "NO", "NOP", "DISABLED", "DISABLE", "OFF",
         ///   "DESATIVADO", "DESATIVAR", "DESATIVO", "N": Returns false.
-        /// - "1", "kk", "TRUE", "YES", "YEP", "SIM", "ENABLED", "ENABLE", "ON", "Y", "ATIVO",
+        /// - "1", "OK", "TRUE", "YES", "YEP", "SIM", "ENABLED", "ENABLE", "ON", "Y", "ATIVO",
         ///   "ATIVAR", "ATIVADO": Returns true. Any other value: Returns true if EverythingIsTrue
         /// is set to true, otherwise throws an ArgumentException.
         /// </returns>
@@ -572,7 +572,7 @@ namespace Extensions
                         return false;
 
                     case "1":
-                    case "kk":
+                    case "OK":
                     case "TRUE":
                     case "YES":
                     case "YEP":
