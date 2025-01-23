@@ -1,64 +1,90 @@
-using System.Text.RegularExpressions;
+using System.Linq;
 
 namespace Extensions.BR
 {
-
+    /// <summary>
     /// Classe que representa um número de telefone.
+    /// </summary>
     public class Telefone
     {
+        /// <summary>
+        /// Código de Discagem Direta à Distância (DDD).
+        /// </summary>
         public string DDD { get; set; }
+
+        /// <summary>
+        /// Prefixo do número de telefone.
+        /// </summary>
         public string Prefixo { get; set; }
+
+        /// <summary>
+        /// Sufixo do número de telefone.
+        /// </summary>
         public string Sufixo { get; set; }
 
 
-        public Telefone(int numero) => new Telefone(numero.ToString());
+
+        /// <summary>
+        /// Inicializa uma nova instância da classe <see cref="Telefone"/> com um número longo.
+        /// </summary>
+        /// <param name="numero">Número de telefone.</param>
         public Telefone(long numero) => new Telefone(numero.ToString());
-        public Telefone(int ddd, int numero) => new Telefone(ddd.ToString(), numero.ToString());
 
-        public Telefone(string ddd, string numero) => new Telefone(ddd + numero);
+        /// <summary>
+        /// Inicializa uma nova instância da classe <see cref="Telefone"/> com DDD e número.
+        /// </summary>
+        /// <param name="ddd">Código de Discagem Direta à Distância (DDD).</param>
+        /// <param name="numero">Número de telefone.</param>
+        public Telefone(int numero, int? ddd = null) => new Telefone(numero.ToString(), ddd?.ToString());
 
 
-        /// Construtor da classe Telefone.
-        ///
-        /// [numero] é um parâmetro (int ou string) que representa o número de telefone.
-        /// Se [numero] for fornecido e for válido, o número será formatado e
-        /// atribuído às propriedades [DDD], [Prefixo] e [Sufixo].
-        public Telefone(string numero)
+
+        /// <summary>
+        /// Inicializa uma nova instância da classe <see cref="Telefone"/> com um número de telefone.
+        /// </summary>
+        /// <param name="ddd">Código de Discagem Direta à Distância (DDD).</param>
+        /// <param name="numero">Número de telefone.</param>
+        /// <remarks>O numero de telefone pode possuir um DDD. neste caso, o parâmetro <paramref name="ddd"/> será ignorado.</remarks>
+        /// </remarks>
+        /// <exception cref="System.ArgumentException">Lançada quando o número de telefone é inválido.</exception>
+        public Telefone(string numero, string ddd = null)
         {
-            DDD = "";
-            Prefixo = "";
-            Sufixo = "";
-
             if (Brasil.ValidarTelefone(numero))
             {
-                string t = Regex.Replace(numero.ToString(), @"\D", "");
-                if (t.Length > 11)
+                numero = numero.OnlyNumbers();
+                ddd = ddd.OnlyNumbers();
+                if (numero.Length > 11)
                 {
-                    t = t.Substring(0, 11);
+                    numero = numero.GetLastChars(11);
                 }
 
-                if (t.Length == 11)
+                var c = new string[] { };
+
+                if (numero.Length == 11)
                 {
-                    DDD = t.Substring(0, 2);
-                    Prefixo = t.Substring(2, 7);
-                    Sufixo = t.Substring(7, 4);
+                    c = numero.SplitChunk(2, 5, 4).ToArray();
                 }
-                else if (t.Length == 10)
+                else if (numero.Length == 10)
                 {
-                    DDD = t.Substring(0, 2);
-                    Prefixo = t.Substring(2, 6);
-                    Sufixo = t.Substring(6, 4);
+
+                    c = numero.SplitChunk(2, 4, 4).ToArray();
                 }
-                else if (t.Length == 9)
+                else if (numero.Length == 9)
                 {
-                    Prefixo = t.Substring(0, 5);
-                    Sufixo = t.Substring(5, 4);
+                    c = numero.SplitChunk(0, 5, 4).ToArray();
+                    c[0] = ddd;
+
                 }
-                else if (t.Length == 8)
+                else if (numero.Length == 8)
                 {
-                    Prefixo = t.Substring(0, 4);
-                    Sufixo = t.Substring(4, 4);
+                    c = numero.SplitChunk(0, 4, 4).ToArray();
+                    c[0] = ddd;
+
                 }
+
+                DDD = c[0];
+                Prefixo = c[1];
+                Sufixo = c[2];
             }
             else
             {
@@ -66,20 +92,31 @@ namespace Extensions.BR
             }
         }
 
+        /// <summary>
         /// Retorna o número de telefone completo, incluindo o DDD.
+        /// </summary>
         public string Completo => $"{DDD}{Numero}";
 
+        /// <summary>
         /// Retorna o número de telefone completo, incluindo o DDD, formatado com máscara.
-        public string CompletoMascara => !string.IsNullOrEmpty(DDD) ? $"({DDD}) {NumeroMascara}" : NumeroMascara;
+        /// </summary>
+        public string CompletoMascara => DDD.IsNotBlank() ? $"({DDD}) {NumeroMascara}" : NumeroMascara;
 
-
+        /// <summary>
         /// Retorna o número de telefone.
+        /// </summary>
         public string Numero => $"{Prefixo}{Sufixo}";
 
+        /// <summary>
         /// Retorna o número de telefone formatado com máscara.
+        /// </summary>
         public string NumeroMascara => $"{Prefixo}-{Sufixo}";
 
+        /// <summary>
         /// Compara se dois números de telefone são iguais.
+        /// </summary>
+        /// <param name="obj">Objeto a ser comparado.</param>
+        /// <returns>Retorna <c>true</c> se os números de telefone forem iguais; caso contrário, <c>false</c>.</returns>
         public override bool Equals(object obj)
         {
             if (obj is Telefone telefone)
@@ -98,18 +135,46 @@ namespace Extensions.BR
             return false;
         }
 
+        /// <summary>
         /// Retorna uma representação em string do número de telefone.
+        /// </summary>
+        /// <returns>Representação em string do número de telefone.</returns>
         public override string ToString() => CompletoMascara;
 
-
+        /// <summary>
+        /// Conversão implícita de <see cref="Telefone"/> para <see cref="string"/>.
+        /// </summary>
+        /// <param name="telefone">Instância de <see cref="Telefone"/>.</param>
         public static implicit operator string(Telefone telefone) => telefone.ToString();
+
+        /// <summary>
+        /// Conversão implícita de <see cref="Telefone"/> para <see cref="long"/>.
+        /// </summary>
+        /// <param name="telefone">Instância de <see cref="Telefone"/>.</param>
         public static implicit operator long(Telefone telefone) => telefone.Completo.OnlyNumbersLong();
+
+        /// <summary>
+        /// Conversão implícita de <see cref="Telefone"/> para <see cref="int"/>.
+        /// </summary>
+        /// <param name="telefone">Instância de <see cref="Telefone"/>.</param>
         public static implicit operator int(Telefone telefone) => telefone.Completo.OnlyNumbersInt();
 
+        /// <summary>
+        /// Conversão implícita de <see cref="string"/> para <see cref="Telefone"/>.
+        /// </summary>
+        /// <param name="telefone">Número de telefone em formato de string.</param>
         public static implicit operator Telefone(string telefone) => new Telefone(telefone);
+
+        /// <summary>
+        /// Conversão implícita de <see cref="int"/> para <see cref="Telefone"/>.
+        /// </summary>
+        /// <param name="telefone">Número de telefone em formato de inteiro.</param>
         public static implicit operator Telefone(int telefone) => new Telefone(telefone);
+
+        /// <summary>
+        /// Conversão implícita de <see cref="long"/> para <see cref="Telefone"/>.
+        /// </summary>
+        /// <param name="telefone">Número de telefone em formato de longo.</param>
         public static implicit operator Telefone(long telefone) => new Telefone(telefone);
-
     }
-
 }

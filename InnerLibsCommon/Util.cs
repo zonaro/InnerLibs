@@ -10864,7 +10864,25 @@ namespace Extensions
         /// <param name="Text">Texto</param>
         /// <param name="Quantity">Quantidade de Caracteres</param>
         /// <returns></returns>
-        public static string RemoveFirstChars(this string Text, int Quantity = 1) => Text.IsValid() && Text.Length > Quantity && Quantity > 0 ? Text.Remove(0, Quantity) : EmptyString;
+        public static string RemoveFirstChars(this string Text, int Quantity = 1)
+        {
+            if (Text.IsNotBlank())
+            {
+                if (Quantity > 0)
+                {
+                    if (Text.Length >= Quantity) return Text.Remove(0, Quantity);
+                }
+                else if (Quantity < 0)
+                {
+                    return Text.Remove(0, Text.Length + Quantity);
+                }
+                else
+                {
+                    return Text;
+                }
+            }
+            return Text;
+        }
 
         /// <summary>
         /// Remove um texto do inicio de uma string se ele for um outro texto especificado
@@ -10947,7 +10965,26 @@ namespace Extensions
         /// <param name="Text">Texto</param>
         /// <param name="Quantity">Quantidade de Caracteres</param>
         /// <returns></returns>
-        public static string RemoveLastChars(this string Text, int Quantity = 1) => Text.IsValid() && Text.Length > Quantity && Quantity > 0 ? Text.Substring(0, Text.Length - Quantity) : EmptyString;
+        public static string RemoveLastChars(this string Text, int Quantity = 1)
+        {
+            if (Text.IsNotBlank())
+            {
+                if (Quantity > 0)
+                {
+                    if (Text.Length >= Quantity) return Text.Substring(0, Text.Length - Quantity);
+                }
+                else if (Quantity < 0)
+                {
+                    return Text.Substring(0, Text.Length + Quantity);
+                }
+                else
+                {
+                    return Text;
+                }
+            }
+            return Text;
+
+        }
 
         /// <summary>
         /// Remove um texto do final de uma string se ele for um outro texto
@@ -12620,14 +12657,16 @@ namespace Extensions
                 while (input.Length > 0)
                 {
                     var size = chunkSizes.IfNoIndex(0, input.Length);
-                    if (size <= 0) size = input.Length;
+                    if (size < 0) size = (input.Length - size).LimitRange(0, input.Length);
+
+
                     var chunk = input.GetFirstChars(size);
-                    if (chunk.Length == 0)
-                    {
-                        if (input.Length > 0)
-                            yield return input;
-                        break;
-                    }
+                    //if (chunk.Length == 0)
+                    //{
+                    //    if (input.Length > 0)
+                    //        yield return input;
+                    //    break;
+                    //}
                     yield return chunk;
                     input = input.RemoveFirstChars(size);
                     chunkSizes = chunkSizes.Skip(1).ToArray();

@@ -37,6 +37,7 @@ namespace Extensions.BR
             {
                 string telefoneStr = telefone.ToString();
                 string apenasNumeros = telefoneStr.OnlyNumbers();
+                if (apenasNumeros.IsBlank()) throw new Exception("Telefone em branco");
 
                 if (apenasNumeros.Length == 13 && apenasNumeros.StartsWith("55"))
                 {
@@ -53,13 +54,13 @@ namespace Extensions.BR
                     int ddd = int.Parse(apenasNumeros.Substring(0, 2));
                     if (ddd < 11 || ddd > 99)
                     {
-                        return false;
+                        throw new Exception("DDD inválido");
                     }
                 }
 
                 return true;
             }
-            catch (Exception)
+            catch
             {
                 return false;
             }
