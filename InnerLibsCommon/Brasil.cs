@@ -13,10 +13,59 @@ using Extensions.Locations;
 namespace Extensions.BR
 {
     /// <summary>
-    /// Objeto para manipular cidades e estados do Brasil
+    /// Objeto para manipular operações relacionadas ao Brasil
     /// </summary>
     public static class Brasil
     {
+        /// <inheritdoc cref = "ValidarTelefone(string)" />
+        public static bool ValidarTelefone(int telefone)
+        => ValidarTelefone(telefone.ToString());
+
+        /// <summary>
+        /// Valida um número de telefone.
+        ///
+        /// Esta função verifica se um número de telefone é válido de acordo com as seguintes regras:
+        /// - Remove todos os caracteres não numéricos do número de telefone.
+        /// - Verifica se o número tem o tamanho correto (8 ou 9 dígitos locais + 0 ou 2 dígitos DDD).
+        /// - Se o número tem 10 ou 11 dígitos, verifica se os dois primeiros são um DDD válido.
+        ///
+        /// Retorna `true` se o número de telefone for válido, caso contrário retorna `false`.
+        /// </summary>
+        public static bool ValidarTelefone(string telefone)
+        {
+            try
+            {
+                string telefoneStr = telefone.ToString();
+                string apenasNumeros = telefoneStr.OnlyNumbers();
+
+                if (apenasNumeros.Length == 13 && apenasNumeros.StartsWith("55"))
+                {
+                    apenasNumeros = apenasNumeros.Substring(2);
+                }
+
+                if (apenasNumeros.Length < 8 || apenasNumeros.Length > 11)
+                {
+                    return false;
+                }
+
+                if (apenasNumeros.Length > 9)
+                {
+                    int ddd = int.Parse(apenasNumeros.Substring(0, 2));
+                    if (ddd < 11 || ddd > 99)
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+
         private static List<Estado> l = new List<Estado>();
 
         /// <summary>
@@ -429,6 +478,9 @@ namespace Extensions.BR
 
             return string.Format(mask, long.Parse(Number.IfBlank("0")));
         }
+
+
+
 
         /// <inheritdoc cref="FormatarTelefone(int)"/>
         public static string FormatarTelefone(this long Number) => FormatarTelefone($"{Number}");
