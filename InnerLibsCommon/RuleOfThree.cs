@@ -3,26 +3,18 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 
-
 namespace Extensions.Equations
 {
-
     /// <summary>
     /// Representa um Par X,Y para operaçoes matemáticas
     /// </summary>
     public class EquationPair<T> where T : struct
     {
-        #region Public Constructors
-
         public EquationPair(T? X, T? Y)
         {
             this.X = X;
             this.Y = Y;
         }
-
-        #endregion Public Constructors
-
-        #region Public Properties
 
         public bool IsComplete => X.HasValue && Y.HasValue;
         public bool IsNotComplete => !IsComplete;
@@ -30,10 +22,6 @@ namespace Extensions.Equations
         public bool MissY => !Y.HasValue;
         public T? X { get; set; }
         public T? Y { get; set; }
-
-        #endregion Public Properties
-
-        #region Public Methods
 
         public static explicit operator EquationPair<T>(Tuple<T?, T?> Equation) => new EquationPair<T>(Equation.Item1, Equation.Item2);
 
@@ -57,25 +45,95 @@ namespace Extensions.Equations
         public void SetMissing(decimal value) => GetMissing()?.SetValue(this, value);
 
         public T?[] ToArray() => new[] { X, Y };
-
-        #endregion Public Methods
     }
-
 
     public class RuleOfThree
     {
-        #region Private Fields
-
         private string custom_param_name;
-
         private Func<decimal?> equationexp;
-
         private string paramname;
 
-        #endregion Private Fields
+        /// <summary>
+        /// Inicializa uma nova instância da classe <see cref="RuleOfThree"/> com duas equações.
+        /// </summary>
+        /// <param name="FirstEquation">Primeira equação.</param>
+        /// <param name="SecondEquation">Segunda equação.</param>
+        public RuleOfThree(EquationPair<decimal> FirstEquation, EquationPair<decimal> SecondEquation)
+        {
+            this.FirstEquation = FirstEquation;
+            this.SecondEquation = SecondEquation;
+            GetExpression();
+        }
 
-        #region Private Methods
+        /// <summary>
+        /// Inicializa uma nova instância da classe <see cref="RuleOfThree"/> com um array de números.
+        /// </summary>
+        /// <param name="Numbers">Array de números decimais, onde um dos valores deve ser nulo.</param>
+        public RuleOfThree(params decimal?[] Numbers) => RuleExpression(Numbers);
 
+        /// <summary>
+        /// Inicializa uma nova instância da classe <see cref="RuleOfThree"/> com uma string de equação.
+        /// </summary>
+        /// <param name="Equation">String contendo a equação.</param>
+        public RuleOfThree(string Equation)
+        {
+            var eqs = Equation.SplitAny(";", Environment.NewLine).Take(2);
+            var e1 = eqs.First().Split("=");
+            var e2 = eqs.Last().Split("=");
+            string e1xs = e1.FirstOrDefault()?.TrimBetween();
+            string e1ys = e1.LastOrDefault()?.TrimBetween();
+            string e2xs = e2.FirstOrDefault()?.TrimBetween();
+            string e2ys = e2.LastOrDefault()?.TrimBetween();
+            decimal? e1x = default;
+            if (e1xs.IsNumber())
+                e1x = Util.ChangeType<decimal>(e1xs);
+            else
+                custom_param_name = e1xs;
+            decimal? e1y = default;
+            if (e1ys.IsNumber())
+                e1y = Util.ChangeType<decimal>(e1ys);
+            else
+                custom_param_name = e1ys;
+            decimal? e2x = default;
+            if (e2xs.IsNumber())
+                e2x = Util.ChangeType<decimal>(e2xs);
+            else
+                custom_param_name = e2xs;
+            decimal? e2y = default;
+            if (e2ys.IsNumber())
+                e2y = Util.ChangeType<decimal>(e2ys);
+            else
+                custom_param_name = e2ys;
+            RuleExpression(e1x, e1y, e2x, e2y);
+        }
+
+        /// <summary>
+        /// Primeira Equação.
+        /// </summary>
+        /// <returns>Retorna a primeira equação.</returns>
+        public EquationPair<decimal> FirstEquation { get; private set; }
+
+        /// <summary>
+        /// Segunda Equação.
+        /// </summary>
+        /// <returns>Retorna a segunda equação.</returns>
+        public EquationPair<decimal> SecondEquation { get; private set; }
+
+        /// <summary>
+        /// Nome do valor desconhecido.
+        /// </summary>
+        /// <returns>Retorna o nome do valor desconhecido.</returns>
+        public string UnknownName => custom_param_name.IfBlank(paramname);
+
+        /// <summary>
+        /// Valor desconhecido calculado pela regra de três.
+        /// </summary>
+        /// <returns>Retorna o valor desconhecido.</returns>
+        public decimal? UnknownValue => equationexp();
+
+        /// <summary>
+        /// Define a expressão da equação com base nos valores conhecidos e desconhecidos.
+        /// </summary>
         private void GetExpression()
         {
             if (FirstEquation.IsNotComplete && SecondEquation.IsComplete)
@@ -111,6 +169,12 @@ namespace Extensions.Equations
             }
         }
 
+        /// <summary>
+        /// Configura as equações com os números fornecidos e define a expressão da equação.
+        /// </summary>
+        /// <param name="numbers">Array de números decimais, onde um dos valores deve ser nulo.</param>
+        /// <exception cref="NoNullAllowedException">Lançada quando menos de três números são fornecidos.</exception>
+        /// <exception cref="ArgumentException">Lançada quando todos os números fornecidos são conhecidos.</exception>
         internal void RuleExpression(params decimal?[] numbers)
         {
             FirstEquation = FirstEquation ?? new EquationPair<decimal>(default, default);
@@ -148,87 +212,10 @@ namespace Extensions.Equations
             }
         }
 
-        #endregion Private Methods
-
-        #region Public Constructors
-
         /// <summary>
-        /// Calcula uma regra de tres
+        /// Atualiza o campo nulo da <see cref="EquationPair"/> correspondente pelo <see cref="UnknownValue"/>.
         /// </summary>
-        /// <param name="FirstEquation"></param>
-        /// <param name="SecondEquation"></param>
-        public RuleOfThree(EquationPair<decimal> FirstEquation, EquationPair<decimal> SecondEquation)
-        {
-            this.FirstEquation = FirstEquation;
-            this.SecondEquation = SecondEquation;
-            GetExpression();
-        }
-
-        /// <summary>
-        /// Calcula uma regra de três
-        /// </summary>
-        public RuleOfThree(params decimal?[] Numbers) => RuleExpression(Numbers);
-
-        public RuleOfThree(string Equation)
-        {
-            var eqs = Equation.SplitAny(";", Environment.NewLine).Take(2);
-            var e1 = eqs.First().Split("=");
-            var e2 = eqs.Last().Split("=");
-            string e1xs = e1.FirstOrDefault()?.TrimBetween();
-            string e1ys = e1.LastOrDefault()?.TrimBetween();
-            string e2xs = e2.FirstOrDefault()?.TrimBetween();
-            string e2ys = e2.LastOrDefault()?.TrimBetween();
-            decimal? e1x = default;
-            if (e1xs.IsNumber())
-                e1x = Util.ChangeType<decimal>(e1xs);
-            else
-                custom_param_name = e1xs;
-            decimal? e1y = default;
-            if (e1ys.IsNumber())
-                e1y = Util.ChangeType<decimal>(e1ys);
-            else
-                custom_param_name = e1ys;
-            decimal? e2x = default;
-            if (e2xs.IsNumber())
-                e2x = Util.ChangeType<decimal>(e2xs);
-            else
-                custom_param_name = e2xs;
-            decimal? e2y = default;
-            if (e2ys.IsNumber())
-                e2y = Util.ChangeType<decimal>(e2ys);
-            else
-                custom_param_name = e2ys;
-            RuleExpression(e1x, e1y, e2x, e2y);
-        }
-
-        #endregion Public Constructors
-
-        #region Public Properties
-
-        /// <summary>
-        /// Primeira Equação
-        /// </summary>
-        /// <returns></returns>
-        public EquationPair<decimal> FirstEquation { get; private set; }
-
-        /// <summary>
-        /// Segunda Equação
-        /// </summary>
-        /// <returns></returns>
-        public EquationPair<decimal> SecondEquation { get; private set; }
-
-        public string UnknownName => custom_param_name.IfBlank(paramname);
-
-        public decimal? UnknownValue => equationexp();
-
-        #endregion Public Properties
-
-        #region Public Methods
-
-        /// <summary>
-        /// Atualiza o campo nulo da <see cref="EquationPair"/> correspondente pelo <see cref="UnknownValue"/>
-        /// </summary>
-        /// <returns></returns>
+        /// <returns>Retorna a instância atualizada de <see cref="RuleOfThree"/>.</returns>
         public RuleOfThree Resolve()
         {
             GetExpression();
@@ -244,10 +231,22 @@ namespace Extensions.Equations
             return this;
         }
 
+        /// <summary>
+        /// Converte as equações em um array de arrays de valores decimais.
+        /// </summary>
+        /// <returns>Retorna um array de arrays de valores decimais.</returns>
         public decimal?[][] ToArray() => new[] { FirstEquation.ToArray(), SecondEquation.ToArray() };
 
+        /// <summary>
+        /// Converte as equações em um array plano de valores decimais.
+        /// </summary>
+        /// <returns>Retorna um array plano de valores decimais.</returns>
         public decimal?[] ToFlatArray() => FirstEquation.ToArray().Union(SecondEquation.ToArray()).ToArray();
 
+        /// <summary>
+        /// Retorna uma string que representa a equação e o valor desconhecido.
+        /// </summary>
+        /// <returns>Retorna uma string que representa a equação e o valor desconhecido.</returns>
         public override string ToString()
         {
             if (UnknownValue != null)
@@ -257,7 +256,5 @@ namespace Extensions.Equations
 
             return null;
         }
-
-        #endregion Public Methods
     }
 }
