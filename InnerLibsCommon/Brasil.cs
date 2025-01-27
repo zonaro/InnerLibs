@@ -35,8 +35,8 @@ namespace Extensions.BR
         {
             try
             {
-                string telefoneStr = telefone.ToString();
-                string apenasNumeros = telefoneStr.OnlyNumbers();
+
+                string apenasNumeros = telefone.OnlyNumbers();
                 if (apenasNumeros.IsBlank()) throw new Exception("Telefone em branco");
 
                 if (apenasNumeros.Length == 13 && apenasNumeros.StartsWith("55"))

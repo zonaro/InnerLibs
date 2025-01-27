@@ -6765,6 +6765,30 @@ namespace Extensions
         public static bool HasProperty(this object Obj, string Name) => Obj?.GetType().HasProperty(Name, true) ?? false;
 
         /// <summary>
+        /// Verifica se um valor possui propriedades com os mesmos valores de outro objeto
+        /// </summary>
+        /// <param name="Obj"></param>
+        /// <param name="OtherObj"></param>
+        /// <returns></returns>
+        public static bool HasSamePropertyValues<T>(this T Obj, T OtherObj)
+        {
+            if (Obj != null && OtherObj != null)
+            {
+                var props = Obj.GetType().GetProperties();
+                foreach (var prop in props)
+                {
+                    var val = prop.GetValue(Obj);
+                    var otherval = prop.GetValue(OtherObj);
+                    if (val != otherval)
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
         /// Hides the specified directory or file.
         /// </summary>
         /// <typeparam name="T">The type of the directory or file to hide.</typeparam>
@@ -7435,6 +7459,14 @@ namespace Extensions
         /// <param name="Text">The string to validate.</param>
         /// <returns>True if the string is a valid domain name, otherwise false.</returns>
         public static bool IsDomain(this string Text) => new Regex(@"^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$", RegexOptions.IgnoreCase).IsMatch(Text) && $"http://{Text}".IsURL();
+
+        /// <summary>
+        /// Verifica se um texto é uma lista de emails separados por virgula, ponto e virgula ou espaço
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <returns></returns>
+        public static bool IsMultiEmail(this string Text) => Text.SplitAny(" ", ",", ";").All(x => x.IsEmail());
+
 
         /// <summary>
         /// Verifica se um determinado texto é um email
@@ -9211,11 +9243,53 @@ namespace Extensions
                 {
                     if (item.CanRead && item.CanWrite && item.GetValue(Obj) is null)
                     {
-                        switch (item.PropertyType)
+                        switch (item.PropertyType.GetNullableTypeOf())
                         {
                             case var @case when @case == typeof(string):
                                 {
                                     item.SetValue(Obj, EmptyString);
+                                    break;
+                                }
+
+                            case var @case when @case == typeof(DateTime):
+                                {
+                                    item.SetValue(Obj, DateTime.MinValue);
+                                    break;
+                                }
+
+                            case var @case when @case == typeof(byte):
+                                {
+                                    item.SetValue(Obj, default(byte));
+                                    break;
+                                }
+
+                            case var @case when @case == typeof(short):
+                                {
+                                    item.SetValue(Obj, default(short));
+                                    break;
+                                }
+
+                            case var @case when @case == typeof(int):
+                                {
+                                    item.SetValue(Obj, default(int));
+                                    break;
+                                }
+
+                            case var @case when @case == typeof(long):
+                                {
+                                    item.SetValue(Obj, default(long));
+                                    break;
+                                }
+
+                            case var @case when @case == typeof(double):
+                                {
+                                    item.SetValue(Obj, default(double));
+                                    break;
+                                }
+
+                            case var @case when @case == typeof(decimal):
+                                {
+                                    item.SetValue(Obj, default(decimal));
                                     break;
                                 }
 

@@ -93,6 +93,15 @@ namespace Extensions.BR
         }
 
         /// <summary>
+        /// Verifica se este telefone possui nono digito
+        /// </summary>
+        public bool NonoDigito { get => Prefixo.Length == 5; set => Prefixo = (value ? "9" : "") + Prefixo.GetLastChars(4); }
+
+        public bool IsValid => Brasil.ValidarTelefone(Completo);
+
+        public bool HasValidDDD => DDD.IsNotBlank() && DDD.ToInt().IsBetween(11, 99);
+
+        /// <summary>
         /// Retorna o número de telefone completo, incluindo o DDD.
         /// </summary>
         public string Completo => $"{DDD}{Numero}";
@@ -100,7 +109,7 @@ namespace Extensions.BR
         /// <summary>
         /// Retorna o número de telefone completo, incluindo o DDD, formatado com máscara.
         /// </summary>
-        public string CompletoMascara => DDD.IsNotBlank() ? $"({DDD}) {NumeroMascara}" : NumeroMascara;
+        public string CompletoMascara => HasValidDDD ? $"({DDD}) {NumeroMascara}" : NumeroMascara;
 
         /// <summary>
         /// Retorna o número de telefone.
@@ -125,11 +134,11 @@ namespace Extensions.BR
             }
             if (obj is string str)
             {
-                return Completo == str;
+                return Completo == new Telefone(str).Completo;
             }
             if (obj is int num)
             {
-                return Completo == num.ToString();
+                return Completo == new Telefone(num).Completo;
             }
 
             return false;

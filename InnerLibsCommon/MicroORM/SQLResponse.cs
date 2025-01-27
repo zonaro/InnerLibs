@@ -101,7 +101,24 @@ namespace Extensions.Databases
     {
         #region Public Properties
 
-        public T Data { get => this.GetValueOr("data").ChangeType<T>(); set => this.SetOrRemove("data", value); }
+        public T Data
+        {
+            get
+            {
+                var item = this.GetValueOr("data");
+                if (item is T v)
+                {
+                    return v;
+                }
+
+                return item.ChangeType<T>();
+            }
+
+            set
+            {
+                this.SetOrRemove("data", value);
+            }
+        }
 
         public bool HasData => Data != null && Data.IsValid();
 
