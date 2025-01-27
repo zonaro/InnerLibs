@@ -3476,8 +3476,10 @@ namespace Extensions
             return Expression.Equal(MemberExpression, ValueExpression);
         }
 
+        public static bool EqualsAnyIgnoreCase(this string Text, params string[] CompareText) => CompareText?.Any(x => Text.EqualsIgnoreCase(x)) ?? false;
         public static bool EqualsIgnoreCase(this string Text, string CompareText) => string.Equals(Text ?? "", CompareText ?? "", StringComparison.OrdinalIgnoreCase);
 
+        public static bool EqualsAnyIgnoreCaseAndAccents(this string Text, params string[] CompareText) => CompareText?.Any(x => Text.EqualsIgnoreCaseAndAccents(x)) ?? false;
         public static bool EqualsIgnoreCaseAndAccents(this string Text, string CompareText) => EqualsIgnoreCase(Text.RemoveAccents(), CompareText.RemoveAccents());
 
         /// <summary>
@@ -9192,6 +9194,8 @@ namespace Extensions
 
             return Value;
         }
+
+        public static string NullIfBlank(this string Value) => Value.NullIf(x => x.IsBlank());
 
         /// <summary>
         /// Substitui todas as propriedades nulas de uma classe pelos seus valores Default
