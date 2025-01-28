@@ -161,13 +161,13 @@ namespace Extensions.BR
         }
 
         /// <summary>
-        /// Retorna um <see cref="AddressInfo"/> da cidade e estado correspondentes
+        /// Retorna um <see cref="BrasilAddressInfo"/> da cidade e estado correspondentes
         /// </summary>
         /// <param name="NomeOuUFouIBGE"></param>
         /// <param name="Cidade"></param>
         /// <returns></returns>
-        public static AddressInfo CriarAddressInfo(string NomeOuUFouIBGE, string Cidade) => CriarAddressInfo<AddressInfo>(NomeOuUFouIBGE, Cidade);
-        public static AddressInfo CriarAddressInfo(string CidadeOuIBGE) => CriarAddressInfo<AddressInfo>(CidadeOuIBGE);
+        public static BrasilAddressInfo CriarAddressInfo(string NomeOuUFouIBGE, string Cidade) => CriarAddressInfo<BrasilAddressInfo>(NomeOuUFouIBGE, Cidade);
+        public static BrasilAddressInfo CriarAddressInfo(string CidadeOuIBGE) => CriarAddressInfo<BrasilAddressInfo>(CidadeOuIBGE);
 
         /// <summary>
         /// Retorna um <see cref="AddressInfo"/> da cidade e estado correspondentes
@@ -198,12 +198,12 @@ namespace Extensions.BR
                 ends.Region = s.Regiao;
                 ends.Country = "Brasil";
                 ends.CountryCode = "BR";
-                ends["StateIBGE"] = s.IBGE.ToString();
-                ends["IBGE"] = c?.IBGE.ToString();
-                ends["DDD"] = c?.DDD.ToString();
-                ends["SIAFI"] = c?.SIAFI.ToString();
-                ends["Capital"] = c?.Capital.ToString();
-                ends["TimeZone"] = c?.TimeZone.ToString();
+                ends[nameof(BrasilAddressInfo.StateIBGE)] = s.IBGE.ToString();
+                ends[nameof(BrasilAddressInfo.IBGE)] = c?.IBGE.ToString();
+                ends[nameof(BrasilAddressInfo.DDD)] = c?.DDD.ToString();
+                ends[nameof(BrasilAddressInfo.SIAFI)] = c?.SIAFI.ToString();
+                ends[nameof(BrasilAddressInfo.TimeZone)] = c?.TimeZone.ToString();
+                ends.Capital = c?.Capital ?? false;
                 ends.Latitude = c?.Latitude;
                 ends.Longitude = c?.Longitude;
                 return ends;
@@ -532,7 +532,14 @@ namespace Extensions.BR
         /// </summary>
         /// <param name="NomeOuUFouIBGE"></param>
         /// <returns></returns>
-        public static int? PegarCodigoIBGE(string NomeOuUFouIBGE) => PegarEstado(NomeOuUFouIBGE)?.IBGE;
+        public static int? PegarCodigoIbgeEstado(string NomeOuUFouIBGE) => PegarEstado(NomeOuUFouIBGE)?.IBGE;
+
+        /// <summary>
+        /// Retorna o código IBGE da cidade
+        /// </summary>
+        /// <param name="NomeOuUFouIBGE"></param>
+        /// <returns></returns>
+        public static int? PegarCodigoIbgeCidade(string NomeOuUFouIBGE) => PegarCidade(NomeOuUFouIBGE)?.IBGE;
 
         /// <summary>
         /// Retorna o nome do estado a partir da sigla

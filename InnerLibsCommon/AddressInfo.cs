@@ -12,6 +12,80 @@ using Extensions.BR;
 namespace Extensions.Locations
 {
 
+
+    public class BrasilAddressInfo : AddressInfo
+    {
+        public BrasilAddressInfo() : base()
+        {
+            Country = "Brasil";
+            CountryCode = "BR";
+        }
+
+        public string TimeZone
+        {
+            get => this[nameof(TimeZone)];
+            set => this[nameof(TimeZone)] = value;
+        }
+
+        public int? IBGE
+        {
+            get => this[nameof(IBGE)]?.ToInt();
+            set
+            {
+                var cid = Brasil.PegarCidade($"{value}");
+                this[nameof(IBGE)] = cid?.IBGE.ToString();
+                City = cid?.Nome;
+                State = cid?.Estado?.Nome;
+                StateCode = cid?.Estado?.UF;
+                Region = cid?.Estado?.Regiao;
+                Country = "Brasil";
+                CountryCode = "BR";
+
+            }
+        }
+
+        public int StateIBGE
+        {
+            get => this[nameof(StateIBGE)]?.ToInt() ?? 0;
+            set
+            {
+                var est = Brasil.PegarEstado($"{value}");
+                this[nameof(StateIBGE)] = est?.IBGE.ToString();
+                State = est?.Nome;
+                StateCode = est?.UF;
+                Region = est?.Regiao;
+                Country = "Brasil";
+                CountryCode = "BR";
+            }
+        }
+
+        public string UF => this.StateCode;
+
+
+
+        public string DDD
+        {
+            get => this[nameof(DDD)];
+            set => this[nameof(DDD)] = value;
+        }
+
+        public string SIAFI
+        {
+            get => this[nameof(SIAFI)];
+            set => this[nameof(SIAFI)] = value;
+        }
+
+        public string CEP
+        {
+            get => PostalCode.FormatarCEP();
+            set => PostalCode = value.FormatarCEP();
+        }
+
+
+
+    }
+
+
     public static class AddressTypes
     {
         #region Public Properties
@@ -242,6 +316,12 @@ namespace Extensions.Locations
         #endregion Public Indexers
 
         #region Public Properties
+
+        public bool Capital
+        {
+            get => this[nameof(Capital)].AsBool();
+            set => this[nameof(Capital)] = value.ToString();
+        }
 
         /// <summary>
         /// Formato global de todas as intancias de <see cref="AddressInfo"/> quando chamadas pelo
@@ -681,7 +761,7 @@ namespace Extensions.Locations
         /// </summary>
         /// <param name="PostalCode"></param>
         /// <param name="Number">Numero da casa</param>
-        public static AddressInfo FromViaCEP(int PostalCode, string Number = null, string Complement = null) => FromViaCEP<AddressInfo>($"{PostalCode}", Number, Complement);
+        public static BrasilAddressInfo FromViaCEP(int PostalCode, string Number = null, string Complement = null) => FromViaCEP<BrasilAddressInfo>($"{PostalCode}", Number, Complement);
 
         /// <summary>
         /// Cria um objeto de localização e imadiatamente pesquisa as informações de um local
@@ -689,7 +769,7 @@ namespace Extensions.Locations
         /// </summary>
         /// <param name="PostalCode"></param>
         /// <param name="Number">Numero da casa</param>
-        public static AddressInfo FromViaCEP(string PostalCode, string Number = null, string Complement = null) => FromViaCEP<AddressInfo>(PostalCode, Number, Complement);
+        public static BrasilAddressInfo FromViaCEP(string PostalCode, string Number = null, string Complement = null) => FromViaCEP<BrasilAddressInfo>(PostalCode, Number, Complement);
 
         /// <summary>
         /// Cria um objeto de localização e imadiatamente pesquisa as informações de um local
