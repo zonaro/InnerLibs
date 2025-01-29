@@ -803,7 +803,7 @@ namespace Extensions.Locations
 
             try
             {
-                var url = new Uri($"https://viacep.com.br/ws/{d.PostalCode.RemoveAny("-")}/json/");
+                var url = new Uri($"http://viacep.com.br/ws/{d.PostalCode.RemoveAny("-")}/json/");
                 d["search_url"] = url.ToString();
                 var x = url.DownloadJson() as Dictionary<string, object>;
                 d.Country = "Brasil";
@@ -813,15 +813,23 @@ namespace Extensions.Locations
                 d.Street = x.GetValueOr("logradouro") as string;
                 d.Complement = Complement.IfBlank(x.GetValueOr("complemento", d.Complement)) as string;
                 d.StateCode = x.GetValueOr("uf") as string;
-                if (d.StateCode.IsValid())
-                {
-                    d.State = Brasil.PegarNomeEstado(d.StateCode);
-                    d.Region = Brasil.PegarRegiao(d.StateCode);
-                }
+
                 foreach (var item in new[] { "ddd", "ibge", "gia", "siafi" })
                 {
                     Util.TryExecute(() => d[item.ToUpperInvariant()] = x.GetValueOr(item) as string);
                 }
+
+                if (d.StateCode.IsValid())
+                {
+                    var est = Brasil.PegarEstado(d.StateCode);
+                    d.State = est.Nome;
+                    d.Region = est.Regiao;
+                    d["StateIBGE"] = est.IBGE.ToString();
+                    d.Capital = est.Capital.IBGE == d["IBGE"]?.ToInt();
+
+                }
+
+
             }
             catch { }
 
