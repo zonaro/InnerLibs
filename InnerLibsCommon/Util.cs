@@ -2569,12 +2569,7 @@ namespace Extensions
             try
             {
                 DataSetType = DataSetType.IfBlank("table").ToLowerInvariant();
-                var Connection = Command?.Connection;
-                if (Connection == null)
-                {
-                    throw new Exception("Command or Connection is null");
-                }
-
+                var Connection = (Command?.Connection) ?? throw new Exception("Command or Connection is null");
                 resp.SQL = Command.CommandText;
                 resp.DataSetType = DataSetType;
 
@@ -2582,7 +2577,7 @@ namespace Extensions
                 {
                     //primeiro valor da primeira linha do primeiro set
                     var part = Connection.RunSQLValue(Command);
-                    resp.Status = (part == DBNull.Value).AsIf("NULL_VALUE", (part == null).AsIf("EMPTY", "OK"));
+                    resp.Status = (part == DBNull.Value).AsIf("NULL_VALUE", (part == null).AsIf("empty", "OK"));
                     resp.Data = part;
                     resp.DataSetType = "value";
                 }
@@ -2590,7 +2585,7 @@ namespace Extensions
                 {
                     //primeiro do primeiro set (1 linha como objeto)
                     var part = Connection.RunSQLRow(Command);
-                    resp.Status = (part == null).AsIf("EMPTY", "OK");
+                    resp.Status = (part == null).AsIf("empty", "OK");
                     resp.Data = part;
                     resp.DataSetType = "row";
                 }
@@ -2598,7 +2593,7 @@ namespace Extensions
                 {
                     //primeira coluna do primeiro set como array
                     var part = Connection.RunSQLArray(Command);
-                    resp.Status = (part?.Any()).AsIf("OK", "EMPTY");
+                    resp.Status = (part?.Any()).AsIf("OK", "empty");
                     resp.Data = part;
                     resp.DataSetType = "array";
                 }
@@ -2606,7 +2601,7 @@ namespace Extensions
                 {
                     //primeira e ultima coluna do primeiro set como dictionary
                     var part = Connection.RunSQLPairs(Command);
-                    resp.Status = (part?.Any()).AsIf("OK", "EMPTY");
+                    resp.Status = (part?.Any()).AsIf("OK", "empty");
                     resp.Data = part;
                     resp.DataSetType = "pairs";
                 }
@@ -2614,7 +2609,7 @@ namespace Extensions
                 {
                     //varios sets
                     var part = Connection.RunSQLMany(Command);
-                    resp.Status = (part?.Any(x => x.Any())).AsIf("OK", "EMPTY");
+                    resp.Status = (part?.Any(x => x.Any())).AsIf("OK", "empty");
                     if (DataSetType == "namedsets")
                     {
                         foreach (var k in part.Select((x, i) => new KeyValuePair<string, object>(SetNames.IfBlankOrNoIndex(i, $"set{i}"), x)).ToDictionary())
@@ -2634,7 +2629,7 @@ namespace Extensions
                 {
                     //tudo do primeiro set (lista de objetos)
                     var part = Connection.RunSQLSet(Command);
-                    resp.Status = (part?.Any()).AsIf("OK", "EMPTY");
+                    resp.Status = (part?.Any()).AsIf("OK", "empty");
                     resp.Data = part;
                     resp.DataSetType = "table";
                 }
