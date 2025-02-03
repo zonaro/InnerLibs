@@ -92,7 +92,7 @@ namespace Extensions.Databases
             var l = ColumnName.StartList();
             l.AddRange(AlternativeNames ?? Array.Empty<string>());
 
-            Names = l.Select(x => x.UnQuote()).SelectMany(x => x.Split(",")).ToArray();
+            Names = l.Select(x => x.UnQuote()).SelectMany(x => x.Split(",")).Distinct().ToArray();
         }
 
         #endregion Public Constructors

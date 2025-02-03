@@ -7,7 +7,7 @@ namespace Extensions
 {
 
 
-   
+
     /// <summary>
     /// Classe estática que contém arrays pré-definidos de caracteres e tipos.
     /// </summary>
@@ -43,7 +43,7 @@ namespace Extensions
         /// <summary>
         /// Gets the collection of characters used for line breaks.
         /// </summary>
-        public static IEnumerable<string> BreakLineChars => new[] { Environment.NewLine, "\t", "\n", "\r", "\r\n" }.AsEnumerable();
+        public static IEnumerable<string> BreakLineChars => new[] { Environment.NewLine, "\n", "\r", "\r\n" }.AsEnumerable();
 
         /// <summary>
         /// Gets the collection of characters used for closing wrappers (quotes, brackets, etc.).
