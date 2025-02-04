@@ -699,12 +699,12 @@ namespace Extensions.QuestionTests
         /// <returns></returns>
         public decimal Average => this.Count > 0 ? this.Sum(x => (x.IsCorrect ? x.Hits : 0) * x.Weight) / this.Sum(x => x.Weight) : 0;
 
-        public decimal Bonus { get; set; }
-
         /// <summary>
         /// Pontos de bonificação que serão somados a média final da avaliação
         /// </summary>
         /// <returns></returns>
+        public decimal Bonus { get; set; }
+
         /// <summary>
         /// Porcentagem de Erros do Usuário
         /// </summary>

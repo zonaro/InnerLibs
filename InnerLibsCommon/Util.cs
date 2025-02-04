@@ -15672,14 +15672,20 @@ namespace Extensions
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static string ToProperCase(this string Text, bool ForceCase = false)
+        public static string ToProperCase(this string Text, bool? ForceCase = null)
         {
             if (Text.IsNotValid())
             {
                 return Text;
             }
 
-            if (ForceCase)
+            if (ForceCase == null)
+            {
+                ForceCase = Text.Where(char.IsLetter).All(char.IsUpper);
+            }
+
+
+            if (ForceCase == true)
             {
                 Text = Text.ToLowerInvariant();
             }
@@ -15691,7 +15697,7 @@ namespace Extensions
                 bool artigo = index > 0 && IsIn(pal, "o", "a", "os", "as", "um", "uma", "uns", "umas", "de", "do", "dos", "das", "e", "ou", "of");
                 if (pal.IsValid())
                 {
-                    if (ForceCase || artigo == false)
+                    if (ForceCase == true || artigo == false)
                     {
                         char c = pal.First();
                         if (!char.IsUpper(c))
@@ -16061,7 +16067,7 @@ namespace Extensions
         /// demais como LOWERCASE
         /// </param>
         /// <returns>Uma String com o texto em nome próprio</returns>
-        public static string ToTitle(this string Text, bool ForceCase = false) => Text?.ToProperCase(ForceCase);
+        public static string ToTitle(this string Text, bool? ForceCase = null) => Text?.ToProperCase(ForceCase);
 
         /// <summary>
         /// Transforma um XML Document em string
