@@ -87,7 +87,7 @@ namespace Extensions.ComplexText
         /// <summary>
         /// Load values of a JsonFile into a <typeparamref name="T"/> object
         /// </summary>
-        /// <typeparam name="T">Object T</typeparam>
+        /// <typeparam name="T">Object TEntity</typeparam>
         /// <param name="File">File File</param>
         /// <param name="EncryptKey">Encrypt Key. Leave Null or blank to not encrypt</param>
         /// <returns></returns>

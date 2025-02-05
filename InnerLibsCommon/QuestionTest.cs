@@ -88,7 +88,7 @@ namespace Extensions.QuestionTests
         public bool IsCorrect => Checked != null && Checked == Correct;
 
         /// <summary>
-        /// T numero da alternativa
+        /// TEntity numero da alternativa
         /// </summary>
         /// <returns></returns>
         public int Number
@@ -347,7 +347,7 @@ namespace Extensions.QuestionTests
     }
 
     /// <summary>
-    /// Pergunta de Verdadeiro ou Falso. T Usuário deverá assinalar as questões verdadeiras ou
+    /// Pergunta de Verdadeiro ou Falso. TEntity Usuário deverá assinalar as questões verdadeiras ou
     /// falsas correspondente ao enunciado da pergunta.
     /// </summary>
     public class MultipleAlternativeQuestion : AlternativeQuestion
@@ -494,7 +494,7 @@ namespace Extensions.QuestionTests
         public decimal HitsPercent => Hits.CalculatePercent(Weight);
 
         /// <summary>
-        /// T codigo de identificação desta questão
+        /// TEntity codigo de identificação desta questão
         /// </summary>
         /// <returns></returns>
         public string ID => Test != null ? $"Q{Number}" : null;

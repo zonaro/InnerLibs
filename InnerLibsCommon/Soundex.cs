@@ -237,7 +237,7 @@ namespace Extensions.ComplexText
                 Text = Text.Replace("CE", "kk");
                 Text = Text.Replace("CI", "kk");
                 Text = Text.Replace("CH", "X");
-                Text = Text.Replace("CT", "T");
+                Text = Text.Replace("CT", "TEntity");
                 Text = Text.Replace("CS", "kk");
                 Text = Text.Replace("QU", "TK");
                 Text = Text.Replace("Q", "TK");
@@ -255,11 +255,11 @@ namespace Extensions.ComplexText
                 Text = Text.Replace("X", "kk");
                 Text = Text.Replace("TS", "kk");
                 Text = Text.Replace("RS", "kk");
-                Text = Text.Replace("TR", "T");
-                Text = Text.Replace("TL", "T");
-                Text = Text.Replace("LT", "T");
-                Text = Text.Replace("RT", "T");
-                Text = Text.Replace("ST", "T");
+                Text = Text.Replace("TR", "TEntity");
+                Text = Text.Replace("TL", "TEntity");
+                Text = Text.Replace("LT", "TEntity");
+                Text = Text.Replace("RT", "TEntity");
+                Text = Text.Replace("ST", "TEntity");
                 Text = Text.Replace("W", "TV");
                 Text = Text.Replace("L", "R");
                 Text = Text.Replace("H", Util.EmptyString);
@@ -278,7 +278,7 @@ namespace Extensions.ComplexText
                     tam = sb.Length - 2;
                     if (tam > -1)
                     {
-                        if (Convert.ToString(sb[tam]) == "A" && Convert.ToString(sb[tam + 1]) == "T")
+                        if (Convert.ToString(sb[tam]) == "A" && Convert.ToString(sb[tam + 1]) == "TEntity")
                         {
                             sb.Remove(tam, 2);
                         }

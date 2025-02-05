@@ -644,7 +644,7 @@ namespace Extensions
 
             if (t.IsArray)
             {
-                if ((o as ICollection).Count == 0) // edge case for "[]" -> T[]
+                if ((o as ICollection).Count == 0) // edge case for "[]" -> TEntity[]
                 {
                     Type tt = t.GetElementType();
                     object oo = Array.CreateInstance(tt, 0);

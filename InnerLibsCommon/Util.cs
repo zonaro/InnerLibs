@@ -2402,7 +2402,7 @@ namespace Extensions
         }
 
         /// <summary>
-        /// Creates an object of type T from XML string.
+        /// Creates an object of type TEntity from XML string.
         /// </summary>
         /// <typeparam name="T">The type of object to create.</typeparam>
         /// <param name="XML">The XML string.</param>
@@ -2420,7 +2420,7 @@ namespace Extensions
         }
 
         /// <summary>
-        /// Creates an object of type T from an XML file.
+        /// Creates an object of type TEntity from an XML file.
         /// </summary>
         /// <typeparam name="T">The type of object to create.</typeparam>
         /// <param name="XML">The XML file.</param>
@@ -3635,7 +3635,7 @@ namespace Extensions
         public static PropertyInfo FindProperty(this Type type, string Name) => FindProperties(type, Name).FirstOrDefault();
 
         /// <summary>
-        /// T primeiro valor não nulo de acordo com uma lista de predicados executados nesta lista
+        /// TEntity primeiro valor não nulo de acordo com uma lista de predicados executados nesta lista
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="source"></param>
@@ -3657,7 +3657,7 @@ namespace Extensions
         }
 
         /// <summary>
-        /// T primeiro valor não nulo de acordo com uma lista de predicados executados nesta lista
+        /// TEntity primeiro valor não nulo de acordo com uma lista de predicados executados nesta lista
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="source"></param>
@@ -4357,9 +4357,9 @@ namespace Extensions
         /// <summary>
         /// Retorna todas as ocorrencias de um texto entre dois textos
         /// </summary>
-        /// <param name="Text">T texto correspondente</param>
-        /// <param name="Before">T texto Anterior</param>
-        /// <param name="After">T texto Posterior</param>
+        /// <param name="Text">TEntity texto correspondente</param>
+        /// <param name="Before">TEntity texto Anterior</param>
+        /// <param name="After">TEntity texto Posterior</param>
         /// <returns>Uma String com o texto entre o texto anterior e posterior</returns>
         public static string[] GetAllBetween(this string Text, string Before, string After = EmptyString)
         {
@@ -4426,9 +4426,9 @@ namespace Extensions
         /// <summary>
         /// Retorna o texto entre dois textos
         /// </summary>
-        /// <param name="Text">T texto correspondente</param>
-        /// <param name="Before">T texto Anterior</param>
-        /// <param name="After">T texto Posterior</param>
+        /// <param name="Text">TEntity texto correspondente</param>
+        /// <param name="Before">TEntity texto Anterior</param>
+        /// <param name="After">TEntity texto Posterior</param>
         /// <returns>Uma String com o texto entre o texto anterior e posterior</returns>
         public static string GetBetween(this string Text, string Before, string After)
         {
@@ -4618,7 +4618,7 @@ namespace Extensions
         /// <returns></returns>
         public static string GetEnumValueAsString<T>(this T Value)
         {
-            if (!typeof(T).IsEnum) throw new ArgumentException("T must be an Enumeration type.", nameof(T));
+            if (!typeof(T).IsEnum) throw new ArgumentException("TEntity must be an Enumeration type.", nameof(T));
             return Enum.GetName(typeof(T), Value);
         }
 
@@ -4685,14 +4685,14 @@ namespace Extensions
         public static string GetFileNameWithoutExtension(this FileInfo Info) => Info != null ? Path.GetFileNameWithoutExtension(Info.Name) : EmptyString;
 
         /// <summary>
-        /// Retorna o Mime T a partir de um arquivo
+        /// Retorna o Mime TEntity a partir de um arquivo
         /// </summary>
         /// <param name="File">Arquivo</param>
         /// <returns>string mime type</returns>
         public static IEnumerable<string> GetMimeType(this FileInfo File) => File.Extension.GetFileType().MimeTypes;
 
         /// <summary>
-        /// Retorna o Mime T a partir de de um formato de Imagem
+        /// Retorna o Mime TEntity a partir de de um formato de Imagem
         /// </summary>
         /// <param name="RawFormat">Formato de Imagem</param>
         /// <returns>string mime type</returns>
@@ -4717,7 +4717,7 @@ namespace Extensions
         }
 
         /// <summary>
-        /// Retorna o Mime T a partir de de uma Imagem
+        /// Retorna o Mime TEntity a partir de de uma Imagem
         /// </summary>
         /// <param name="Image">Imagem</param>
         /// <returns>string mime type</returns>
@@ -5006,7 +5006,7 @@ namespace Extensions
         /// <summary>
         /// Retorna a classe do icone do FontAwesome que representa melhor o arquivo
         /// </summary>
-        /// <param name="MIME">MIME T do Arquivo</param>
+        /// <param name="MIME">MIME TEntity do Arquivo</param>
         /// <returns></returns>
         public static string GetIconByFileType(this FileType MIME) => GetFontAwesomeIconByFileExtension(MIME?.Extensions.ToArray() ?? Array.Empty<string>());
 
@@ -7045,7 +7045,7 @@ namespace Extensions
             try
             {
                 var ValueType = Obj.GetType();
-                return !(ValueType == typeof(string)) && ValueType.IsArray; //  GetType(T).IsAssignableFrom(ValueType.GetElementType())
+                return !(ValueType == typeof(string)) && ValueType.IsArray; //  GetType(TEntity).IsAssignableFrom(ValueType.GetElementType())
             }
             catch
             {
@@ -8367,7 +8367,7 @@ namespace Extensions
             {
                 foreach (DbParameter item in Command.Parameters)
                 {
-                    string bx = $"Parameter: @{item.ParameterName}{Environment.NewLine}Value: {item.Value}{Environment.NewLine}T: {item.DbType}{Environment.NewLine}Precision/Scale: {item.Precision}/{item.Scale}";
+                    string bx = $"Parameter: @{item.ParameterName}{Environment.NewLine}Value: {item.Value}{Environment.NewLine}TEntity: {item.DbType}{Environment.NewLine}Precision/Scale: {item.Precision}/{item.Scale}";
                     LogWriter.WriteLine(bx);
                     LogWriter.WriteLine("-".Repeat(10));
                 }
@@ -12032,7 +12032,7 @@ namespace Extensions
         {
             if (!typeof(T).IsValueType())
             {
-                throw new ArgumentException("The type param T is not a value type or string");
+                throw new ArgumentException("The type param TEntity is not a value type or string");
             }
             var vv = Connection.RunSQLValue(Command);
             return vv != null && vv != DBNull.Value ? vv.ChangeType<T>() : default;
@@ -13288,7 +13288,7 @@ namespace Extensions
                 int digito = Convert.ToInt32(Enum.Parse(typeof(RomanDigit), numeral.ToString()));
 
                 // Um numeral de pequena valor pode ser colocado à esquerda de um valor maior Quando
-                // isto ocorre, por exemplo IX, o menor número é subtraído do maior T dígito
+                // isto ocorre, por exemplo IX, o menor número é subtraído do maior TEntity dígito
                 // subtraído deve ser de pelo menos um décimo do valor do maior numeral e deve ser
                 // ou I, X ou C Valores como MCMD ou CMC não são permitidos
                 if (digito > digitoMaximo)
@@ -13321,7 +13321,7 @@ namespace Extensions
             }
 
             // Outra regra é a que compara o tamanho do valor de cada numeral lido a partir da
-            // esquerda para a direita. T valor nunca deve aumentar a partir de uma letra para a
+            // esquerda para a direita. TEntity valor nunca deve aumentar a partir de uma letra para a
             // próxima. Onde houver um numeral subtrativo, esta regra se aplica ao valor combinado
             // dos dois algarismos envolvidos na subtração quando comparado com a letra anterior.
             // Isto significa que XIX é aceitável, mas XIM e IIV não são.
@@ -13711,7 +13711,7 @@ namespace Extensions
         public static string ToDataURL(this Image Image) => $"data:{Image.GetFileType().First().ToLowerInvariant().Replace("application/octet-stream", GetFileType(".png").GetMimeTypesOrDefault().First())};base64,{Image.ToBase64()}";
 
         /// <summary>
-        /// Converte uma imagem para DataURI trocando o MIME T
+        /// Converte uma imagem para DataURI trocando o MIME TEntity
         /// </summary>
         /// <param name="OriginalImage">Imagem</param>
         /// <param name="OriginalImageFormat">Formato da Imagem</param>
@@ -14020,7 +14020,7 @@ namespace Extensions
         }
 
         /// <summary>
-        /// Retorna um Objeto FileType a partir de uma string MIME T, Nome ou Extensão de Arquivo
+        /// Retorna um Objeto FileType a partir de uma string MIME TEntity, Nome ou Extensão de Arquivo
         /// </summary>
         /// <param name="MimeTypeOrExtensionOrPathOrDataURI"></param>
         /// <returns></returns>
@@ -17022,7 +17022,7 @@ namespace Extensions
         /// <summary>
         /// Salva um array de bytes em um arquivo
         /// </summary>
-        /// <param name="File">T arquivo a ser convertido</param>
+        /// <param name="File">TEntity arquivo a ser convertido</param>
         /// <returns>Um array do tipo Byte()</returns>
         /// <summary>
         /// Salva um texto em um arquivo

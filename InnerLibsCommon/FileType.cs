@@ -25,14 +25,14 @@ namespace Extensions.Files
         }
 
         /// <summary>
-        /// Constroi um MIME T Default
+        /// Constroi um MIME TEntity Default
         /// </summary>
         public FileType()
         {
         }
 
         /// <summary>
-        /// Constroi um File T a partir de um Arquivo (FileInfo)
+        /// Constroi um File TEntity a partir de um Arquivo (FileInfo)
         /// </summary>
         /// <param name="File">Fileinfo com o Arquivo</param>
         public FileType(FileInfo File, FileTypeList FileTypeList = null) => Build(File?.Extension ?? ".bin", FileTypeList);
@@ -56,19 +56,19 @@ namespace Extensions.Files
         public List<string> Extensions { get; set; } = new List<string>();
 
         /// <summary>
-        /// Tipo do arquivo (MIME T String)
+        /// Tipo do arquivo (MIME TEntity String)
         /// </summary>
         /// <returns></returns>
         public List<string> MimeTypes { get; set; } = new List<string>();
 
         /// <summary>
-        /// Retorna o subtipo do MIME T (depois da barra)
+        /// Retorna o subtipo do MIME TEntity (depois da barra)
         /// </summary>
         /// <returns></returns>
         public IEnumerable<string> SubTypes => GetMimeTypesOrDefault().Select(p => p.ToLowerInvariant().Trim().GetAfter("/")).Distinct();
 
         /// <summary>
-        /// Retorna o tipo do MIME T (antes da barra)
+        /// Retorna o tipo do MIME TEntity (antes da barra)
         /// </summary>
         /// <returns></returns>
         public IEnumerable<string> Types => GetMimeTypesOrDefault().Select(p => p.ToLowerInvariant().Trim().GetBefore("/")).Distinct();
@@ -76,7 +76,7 @@ namespace Extensions.Files
         /// <summary>
         /// Traz uma lista de extensões de acordo com o MIME type especificado
         /// </summary>
-        /// <param name="MIME">MIME T String</param>
+        /// <param name="MIME">MIME TEntity String</param>
         /// <returns></returns>
         public static IEnumerable<string> GetExtensions(string MIME, FileTypeList FileTypeList = null)
         {

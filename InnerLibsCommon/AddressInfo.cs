@@ -494,7 +494,7 @@ namespace Extensions.Locations
         }
 
         /// <summary>
-        /// T nome do endereço
+        /// TEntity nome do endereço
         /// </summary>
         /// <value></value>
         /// <returns></returns>

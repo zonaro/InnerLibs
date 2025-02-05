@@ -136,7 +136,7 @@ namespace Extensions.Converters
         /// Cria um <see cref="UnitConverter"/> de Base 1000 (de y a E)
         /// </summary>
         /// <returns></returns>
-        public static UnitConverter CreateBase1000Converter() => new UnitConverter(1000m, 0.000000000000000000000001m, "y", "z", "a", "f", "p", "n", "µ", "m", Util.EmptyString, "K", "M", "G", "T", "P", "E");
+        public static UnitConverter CreateBase1000Converter() => new UnitConverter(1000m, 0.000000000000000000000001m, "y", "z", "a", "f", "p", "n", "µ", "m", Util.EmptyString, "K", "M", "G", "TEntity", "P", "E");
 
         /// <summary>
         /// Cria um <see cref="UnitConverter"/> de de Massa (peso) complexos de base 10 (de mg a kg)
@@ -151,10 +151,10 @@ namespace Extensions.Converters
         public static UnitConverter CreateFileSizeConverter() => new UnitConverter(1024, "B", "KB", "MB", "GB", "TB", "PB", "EB") { UnitComparisonType = StringComparison.OrdinalIgnoreCase };
 
         /// <summary>
-        /// Cria um <see cref="UnitConverter"/> de de Massa (peso) simples de base 1000 (de mg a T)
+        /// Cria um <see cref="UnitConverter"/> de de Massa (peso) simples de base 1000 (de mg a TEntity)
         /// </summary>
         /// <returns></returns>
-        public static UnitConverter CreateSimpleMassConverter() => new UnitConverter(1000, "mg", "g", "kg", "T") { UnitComparisonType = StringComparison.OrdinalIgnoreCase };
+        public static UnitConverter CreateSimpleMassConverter() => new UnitConverter(1000, "mg", "g", "kg", "TEntity") { UnitComparisonType = StringComparison.OrdinalIgnoreCase };
 
         /// <summary>
         /// Abrevia um numero com a unidade mais alta encontrada dentro do conversor

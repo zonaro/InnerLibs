@@ -375,7 +375,7 @@ namespace Dapper
             var idProps = GetIdProperties(currenttype).ToList();
 
             if (!idProps.Any())
-                throw new ArgumentException("Delete<T> only supports an entity with a [Key] or Id property");
+                throw new ArgumentException("Delete<TEntity> only supports an entity with a [Key] or Id property");
 
             var name = GetTableName(currenttype);
 
@@ -467,9 +467,9 @@ namespace Dapper
             StringBuilderCache(masterSb, $"{typeof(T).FullName}_DeleteWhere{conditions}", sb =>
             {
                 if (string.IsNullOrEmpty(conditions))
-                    throw new ArgumentException("DeleteList<T> requires a where clause");
+                    throw new ArgumentException("DeleteList<TEntity> requires a where clause");
                 if (!conditions.ToLower().Contains("where"))
-                    throw new ArgumentException("DeleteList<T> requires a where clause and must contain the WHERE keyword");
+                    throw new ArgumentException("DeleteList<TEntity> requires a where clause and must contain the WHERE keyword");
 
                 var currenttype = typeof(T);
                 var name = GetTableName(currenttype);
@@ -501,21 +501,21 @@ namespace Dapper
         /// -Id column name can be overridden by adding an attribute on your primary key property [Key]
         /// </para>
         /// <para>Supports transaction and command timeout</para>
-        /// <para>Returns a single entity by a single id from table T</para>
+        /// <para>Returns a single entity by a single id from table TEntity</para>
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="connection"></param>
         /// <param name="id"></param>
         /// <param name="transaction"></param>
         /// <param name="commandTimeout"></param>
-        /// <returns>Returns a single entity by a single id from table T.</returns>
+        /// <returns>Returns a single entity by a single id from table TEntity.</returns>
         public static T Get<T>(this IDbConnection connection, object id, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             var currenttype = typeof(T);
             var idProps = GetIdProperties(currenttype).ToList();
 
             if (!idProps.Any())
-                throw new ArgumentException("Get<T> only supports an entity with a [Key] or Id property");
+                throw new ArgumentException("Get<TEntity> only supports an entity with a [Key] or Id property");
 
             var name = GetTableName(currenttype);
             var sb = new StringBuilder();
@@ -665,6 +665,9 @@ namespace Dapper
             return connection.Query<T>(sb.ToString(), parameters, transaction, true, commandTimeout);
         }
 
+
+
+
         /// <summary>
         /// <para>By default queries the table matching the class name</para>
         /// <para>-Table name can be overridden by adding an attribute on your class [Table("YourTableName")]</para>
@@ -678,10 +681,51 @@ namespace Dapper
             return connection.GetList<T>(new { });
         }
 
-        public static IEnumerable<T> GetListPaged<T, V>(this IDbConnection connection, int pageNumber, int rowsPerPage, string conditions, Expression<Func<T, V>> orderby, object parameters = null, IDbTransaction transaction = null, int? commandTimeout = null)
+        /// <summary>
+        /// <para>By default queries the table matching the class name</para>
+        /// <para>-Table name can be overridden by adding an attribute on your class [Table("YourTableName")]</para>
+        /// <para>
+        /// conditions is an SQL where clause ex: "where name='bob'" or "where age&gt;=@Age" - not required
+        /// </para>
+        /// <para>
+        /// orderby is a column or list of columns to order by ex: "lastname, age desc" - not
+        /// required - default is by primary key
+        /// </para>
+        /// <para>
+        /// parameters is an anonymous type to pass in named parameter values: new { Age = 15 }
+        /// </para>
+        /// <para>Supports transaction and command timeout</para>
+        /// <para>Returns a list of entities that match where conditions</para>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="connection"></param>
+        /// <param name="pageNumber">PageNumber (starts with 0)</param>
+        /// <param name="rowsPerPage"></param>
+        /// <param name="conditions"></param>
+        /// <param name="orderby"></param>
+        /// <param name="parameters"></param>
+        /// <param name="transaction"></param>
+        /// <param name="commandTimeout"></param>
+        /// <returns>Gets a paged list of entities with optional exact match where conditions</returns>
+        /// <param name="countOnly"></param>
+        /// <returns></returns>
+        public static PageResult<T> GetPage<T>(this IDbConnection connection, int pageNumber, int rowsPerPage, string conditions, string orderby, object parameters = null, IDbTransaction transaction = null, int? commandTimeout = null, bool countOnly = false)
         {
-            return GetListPaged<T>(connection, pageNumber, rowsPerPage, conditions, GetColumnName(orderby), parameters, transaction, commandTimeout);
+            var total = connection.RecordCount<T>(conditions, parameters, transaction, commandTimeout);
+            var result = new PageResult<T>(rowsPerPage, pageNumber, total, countOnly);
+            if (countOnly == false)
+            {
+                var list = connection.GetListPaged<T>(pageNumber, rowsPerPage, conditions, orderby, parameters, transaction, commandTimeout);
+                result.Items = list;
+            }
+            return result;
         }
+
+        /// <inheritdoc cref="GetPage{T}(IDbConnection, int, int, string, string, object, IDbTransaction, int?, bool)"/>
+        public static PageResult<T> GetPage<T, V>(this IDbConnection connection, int pageNumber, int rowsPerPage, string conditions, Expression<Func<T, V>> orderby, object parameters = null, IDbTransaction transaction = null, int? commandTimeout = null, bool countOnly = false) => GetPage<T>(connection, pageNumber, rowsPerPage, conditions, GetColumnName(orderby), parameters, transaction, commandTimeout, countOnly);
+
+        /// <inheritdoc cref="GetListPaged{T}(IDbConnection, int, int, string, string, object, IDbTransaction, int?)" />
+        public static IEnumerable<T> GetListPaged<T, V>(this IDbConnection connection, int pageNumber, int rowsPerPage, string conditions, Expression<Func<T, V>> orderby, object parameters = null, IDbTransaction transaction = null, int? commandTimeout = null) => GetListPaged<T>(connection, pageNumber, rowsPerPage, conditions, GetColumnName(orderby), parameters, transaction, commandTimeout);
 
         /// <summary>
         /// <para>By default queries the table matching the class name</para>
@@ -829,7 +873,7 @@ namespace Dapper
             var idProps = GetIdProperties(entityToInsert).ToList();
 
             if (!idProps.Any())
-                throw new ArgumentException("Insert<T> only supports an entity with a [Key] or Id property");
+                throw new ArgumentException("Insert<TEntity> only supports an entity with a [Key] or Id property");
 
             var name = GetTableName(entityToInsert);
             var sb = new StringBuilder();
@@ -903,7 +947,7 @@ namespace Dapper
         /// <summary>
         /// <para>By default queries the table matching the class name</para>
         /// <para>-Table name can be overridden by adding an attribute on your class [Table("YourTableName")]</para>
-        /// <para>Returns a number of records entity by a single id from table T</para>
+        /// <para>Returns a number of records entity by a single id from table TEntity</para>
         /// <para>Supports transaction and command timeout</para>
         /// <para>
         /// conditions is an SQL where clause ex: "where name='bob'" or "where age&gt;=@Age" - not required
@@ -937,7 +981,7 @@ namespace Dapper
         /// <summary>
         /// <para>By default queries the table matching the class name</para>
         /// <para>-Table name can be overridden by adding an attribute on your class [Table("YourTableName")]</para>
-        /// <para>Returns a number of records entity by a single id from table T</para>
+        /// <para>Returns a number of records entity by a single id from table TEntity</para>
         /// <para>Supports transaction and command timeout</para>
         /// <para>
         /// whereConditions is an anonymous type to filter the results ex: new {Category = 1, SubCategory=2}
@@ -1313,8 +1357,92 @@ namespace Dapper
     {
     }
 
+    /// <summary>
+    /// Represent a Paginated Result of a query with pagination information
+    /// </summary>
+    /// <typeparam name="TEntity">Entity Type</typeparam>
+    public class PageResult<TEntity>
+    {
 
+        internal PageResult(int PageSize, int PageNumber, int TotalItems, bool countOnly)
+        {
+            //antes de setar o range, verifica se explicitamente foi a primeira pagina
+            if (PageNumber == 0 && PageSize >= 1 && countOnly == false)
+            {
+                try
+                {
+                    InsertPlaceholder = Activator.CreateInstance<TEntity>();
+                }
+                catch (Exception)
+                {
+                    InsertPlaceholder = default;
+                }
+            }
 
+            if (PageSize < 1) { PageSize = TotalItems; }
+
+            this.PageSize = PageSize;
+
+            this.TotalPages = (int)Math.Ceiling(TotalItems / (double)PageSize);
+
+            if (PageNumber > TotalPages)
+            {
+                PageNumber = TotalPages;
+            }
+
+            this.PageNumber = PageNumber;
+            this.TotalItems = TotalItems;
+
+        }
+
+        #region Public Properties
+        /// <summary>
+        /// Current Page Number
+        /// </summary>
+        public int PageNumber { get; }
+        /// <summary>
+        /// Items in the current page
+        /// </summary>
+        public IEnumerable<TEntity> Items { get; internal set; }
+        /// <summary>
+        /// Page Size (items per page)
+        /// </summary>
+        public int PageSize { get; }
+
+        /// <summary>
+        /// Total Items in the query
+        /// </summary>
+        public int TotalItems { get; }
+
+        /// <summary>
+        /// Total Pages in the query
+        /// </summary>
+        public int TotalPages { get; }
+
+        /// <summary>
+        /// Intance of TEntity to be inserted in the first position of the list, used to represent a empty item with default values.
+        /// This is only inserted in the first page.
+        /// </summary>
+        public TEntity InsertPlaceholder { get; }
+
+        /// <summary>
+        /// Return a List of TEntity. Includes the InsertPlaceholder if it is the first page and it is not null.
+        /// </summary>
+        /// <returns></returns>
+        public List<TEntity> GetList()
+        {
+            var l = Items.ToList();
+            if (InsertPlaceholder != null)
+            {
+                l.Insert(0, InsertPlaceholder);
+            }
+            return l;
+        }
+
+        public IEnumerable<int> Pages => Enumerable.Range(0, TotalPages);
+
+        #endregion Public Properties
+    }
 
 
 
