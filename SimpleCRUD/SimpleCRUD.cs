@@ -19,8 +19,6 @@ namespace Dapper
     /// </summary>
     public static partial class SimpleCRUD
     {
-        #region Private Fields
-
         private static readonly ConcurrentDictionary<string, string> ColumnNames = new ConcurrentDictionary<string, string>();
 
         private static readonly ConcurrentDictionary<string, string> StringBuilderCacheDict = new ConcurrentDictionary<string, string>();
@@ -40,10 +38,6 @@ namespace Dapper
         private static ITableNameResolver _tableNameResolver = new TableNameResolver();
 
         private static bool StringBuilderCacheEnabled = true;
-
-        #endregion Private Fields
-
-        #region Private Methods
 
         //build insert parameters which include all properties in the class that are not:
         //marked with the Editable(false) attribute
@@ -303,18 +297,10 @@ namespace Dapper
             sb.Append(value);
         }
 
-        #endregion Private Methods
-
-        #region Public Constructors
-
         static SimpleCRUD()
         {
             SetDialect(_dialect);
         }
-
-        #endregion Public Constructors
-
-        #region Public Methods
 
         /// <summary>
         /// <para>Deletes a record or records in the database that match the object passed in</para>
@@ -665,9 +651,6 @@ namespace Dapper
             return connection.Query<T>(sb.ToString(), parameters, transaction, true, commandTimeout);
         }
 
-
-
-
         /// <summary>
         /// <para>By default queries the table matching the class name</para>
         /// <para>-Table name can be overridden by adding an attribute on your class [Table("YourTableName")]</para>
@@ -699,32 +682,75 @@ namespace Dapper
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="connection"></param>
-        /// <param name="pageNumber">PageNumber (starts with 0)</param>
+        /// <param name="pageNumber">pageNumber (starts with 0)</param>
         /// <param name="rowsPerPage"></param>
         /// <param name="conditions"></param>
         /// <param name="orderby"></param>
         /// <param name="parameters"></param>
         /// <param name="transaction"></param>
         /// <param name="commandTimeout"></param>
-        /// <returns>Gets a paged list of entities with optional exact match where conditions</returns>
-        /// <param name="countOnly"></param>
+        /// <returns>Gets a paged list of entities with optional exact match where conditions</returns> 
         /// <returns></returns>
-        public static PageResult<T> GetPage<T>(this IDbConnection connection, int pageNumber, int rowsPerPage, string conditions, string orderby, object parameters = null, IDbTransaction transaction = null, int? commandTimeout = null, bool countOnly = false)
+        public static PageResult<T> GetPage<T>(this IDbConnection connection, int pageNumber, int rowsPerPage, string conditions, string orderby, object parameters = null, IDbTransaction transaction = null, int? commandTimeout = null, bool IncludeInsertPlaceholder = false)
         {
-            var total = connection.RecordCount<T>(conditions, parameters, transaction, commandTimeout);
-            var result = new PageResult<T>(rowsPerPage, pageNumber, total, countOnly);
-            if (countOnly == false)
+            var result = new PageResult<T>();
+
+            //antes de setar o range, verifica se explicitamente foi a primeira pagina
+            if (IncludeInsertPlaceholder && pageNumber == 0 && rowsPerPage >= 1)
             {
-                var list = connection.GetListPaged<T>(pageNumber, rowsPerPage, conditions, orderby, parameters, transaction, commandTimeout);
-                result.Items = list;
+                try
+                {
+                    result.InsertPlaceholder = Activator.CreateInstance<T>();
+                }
+                catch
+                {
+                    result.InsertPlaceholder = default(T);
+                }
             }
+
+            var TotalItems = connection.RecordCount<T>(conditions, parameters, transaction, commandTimeout);
+
+
+
+            var TotalPages = (int)Math.Ceiling(TotalItems / (decimal)rowsPerPage);
+
+            if (TotalPages < 0)
+            {
+                TotalPages = 0;
+            }
+
+            if (pageNumber < 0) pageNumber = 0;
+            if (pageNumber > TotalPages) pageNumber = TotalPages;
+
+            if (rowsPerPage == 0)
+            {
+                rowsPerPage = TotalItems;
+
+            }
+            else if (rowsPerPage < 0)
+            {
+                //count only
+            }
+
+
+            if (rowsPerPage > 0)
+            {
+                result.TotalPages = TotalPages;
+                result.PageSize = rowsPerPage;
+                result.PageNumber = pageNumber;
+                result.Pages = Enumerable.Range(0, TotalPages);
+                result.Items = connection.GetListPaged<T>(pageNumber, rowsPerPage, conditions, orderby, parameters, transaction, commandTimeout);
+            }
+
+            result.TotalItems = TotalItems;
+
             return result;
         }
 
         /// <inheritdoc cref="GetPage{T}(IDbConnection, int, int, string, string, object, IDbTransaction, int?, bool)"/>
-        public static PageResult<T> GetPage<T, V>(this IDbConnection connection, int pageNumber, int rowsPerPage, string conditions, Expression<Func<T, V>> orderby, object parameters = null, IDbTransaction transaction = null, int? commandTimeout = null, bool countOnly = false) => GetPage<T>(connection, pageNumber, rowsPerPage, conditions, GetColumnName(orderby), parameters, transaction, commandTimeout, countOnly);
+        public static PageResult<T> GetPage<T, V>(this IDbConnection connection, int pageNumber, int rowsPerPage, string conditions, Expression<Func<T, V>> orderby, object parameters = null, IDbTransaction transaction = null, int? commandTimeout = null, bool IncludeInsertPlaceholder = false) => GetPage<T>(connection, pageNumber, rowsPerPage, conditions, GetColumnName(orderby), parameters, transaction, commandTimeout, IncludeInsertPlaceholder);
 
-        /// <inheritdoc cref="GetListPaged{T}(IDbConnection, int, int, string, string, object, IDbTransaction, int?)" />
+        /// <inheritdoc cref="GetListPaged{T}(IDbConnection, int, int, string, string, object, IDbTransaction, int?)"/>
         public static IEnumerable<T> GetListPaged<T, V>(this IDbConnection connection, int pageNumber, int rowsPerPage, string conditions, Expression<Func<T, V>> orderby, object parameters = null, IDbTransaction transaction = null, int? commandTimeout = null) => GetListPaged<T>(connection, pageNumber, rowsPerPage, conditions, GetColumnName(orderby), parameters, transaction, commandTimeout);
 
         /// <summary>
@@ -745,7 +771,7 @@ namespace Dapper
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="connection"></param>
-        /// <param name="pageNumber">PageNumber (starts with 0)</param>
+        /// <param name="pageNumber">pageNumber (starts with 0)</param>
         /// <param name="rowsPerPage"></param>
         /// <param name="conditions"></param>
         /// <param name="orderby"></param>
@@ -780,7 +806,7 @@ namespace Dapper
             BuildSelect(sb, GetScaffoldableProperties<T>().ToArray());
             query = query.Replace("{SelectColumns}", sb.ToString());
             query = query.Replace("{TableName}", name);
-            query = query.Replace("{PageNumber}", pageNumber.ToString());
+            query = query.Replace("{pageNumber}", pageNumber.ToString());
             query = query.Replace("{RowsPerPage}", rowsPerPage.ToString());
             query = query.Replace("{OrderBy}", orderby);
             query = query.Replace("{WhereClause}", conditions);
@@ -1053,14 +1079,14 @@ namespace Dapper
                     _dialect = Dialect.PostgreSQL;
                     _encapsulation = "\"{0}\"";
                     _getIdentitySql = string.Format("SELECT LASTVAL() AS id");
-                    _getPagedListSql = "Select {SelectColumns} from {TableName} {WhereClause} Order By {OrderBy} LIMIT {RowsPerPage} OFFSET (({PageNumber}-1) * {RowsPerPage})";
+                    _getPagedListSql = "Select {SelectColumns} from {TableName} {WhereClause} Order By {OrderBy} LIMIT {RowsPerPage} OFFSET (({pageNumber}-1) * {RowsPerPage})";
                     break;
 
                 case Dialect.SQLite:
                     _dialect = Dialect.SQLite;
                     _encapsulation = "\"{0}\"";
                     _getIdentitySql = string.Format("SELECT LAST_INSERT_ROWID() AS id");
-                    _getPagedListSql = "Select {SelectColumns} from {TableName} {WhereClause} Order By {OrderBy} LIMIT {RowsPerPage} OFFSET (({PageNumber}-1) * {RowsPerPage})";
+                    _getPagedListSql = "Select {SelectColumns} from {TableName} {WhereClause} Order By {OrderBy} LIMIT {RowsPerPage} OFFSET (({pageNumber}-1) * {RowsPerPage})";
                     break;
 
                 case Dialect.MySQL:
@@ -1074,21 +1100,21 @@ namespace Dapper
                     _dialect = Dialect.Oracle;
                     _encapsulation = "\"{0}\"";
                     _getIdentitySql = "";
-                    _getPagedListSql = "SELECT * FROM (SELECT ROWNUM PagedNUMBER, u.* FROM(SELECT {SelectColumns} from {TableName} {WhereClause} Order By {OrderBy}) u) WHERE PagedNUMBER BETWEEN (({PageNumber}-1) * {RowsPerPage} + 1) AND ({PageNumber} * {RowsPerPage})";
+                    _getPagedListSql = "SELECT * FROM (SELECT ROWNUM PagedNUMBER, u.* FROM(SELECT {SelectColumns} from {TableName} {WhereClause} Order By {OrderBy}) u) WHERE PagedNUMBER BETWEEN (({pageNumber}-1) * {RowsPerPage} + 1) AND ({pageNumber} * {RowsPerPage})";
                     break;
 
                 case Dialect.DB2:
                     _dialect = Dialect.DB2;
                     _encapsulation = "\"{0}\"";
                     _getIdentitySql = string.Format("SELECT CAST(IDENTITY_VAL_LOCAL() AS DEC(31,0)) AS \"id\" FROM SYSIBM.SYSDUMMY1");
-                    _getPagedListSql = "Select * from (Select {SelectColumns}, row_number() over(order by {OrderBy}) as PagedNumber from {TableName} {WhereClause} Order By {OrderBy}) as t where t.PagedNumber between (({PageNumber}-1) * {RowsPerPage} + 1) AND ({PageNumber} * {RowsPerPage})";
+                    _getPagedListSql = "Select * from (Select {SelectColumns}, row_number() over(order by {OrderBy}) as PagedNumber from {TableName} {WhereClause} Order By {OrderBy}) as t where t.PagedNumber between (({pageNumber}-1) * {RowsPerPage} + 1) AND ({pageNumber} * {RowsPerPage})";
                     break;
 
                 default:
                     _dialect = Dialect.SQLServer;
                     _encapsulation = "[{0}]";
                     _getIdentitySql = string.Format("SELECT CAST(SCOPE_IDENTITY()  AS BIGINT) AS [id]");
-                    _getPagedListSql = "SELECT * FROM (SELECT ROW_NUMBER() OVER(ORDER BY {OrderBy}) AS PagedNumber, {SelectColumns} FROM {TableName} {WhereClause}) AS u WHERE PagedNumber BETWEEN (({PageNumber}-1) * {RowsPerPage} + 1) AND ({PageNumber} * {RowsPerPage})";
+                    _getPagedListSql = "SELECT * FROM (SELECT ROW_NUMBER() OVER(ORDER BY {OrderBy}) AS PagedNumber, {SelectColumns} FROM {TableName} {WhereClause}) AS u WHERE PagedNumber BETWEEN (({pageNumber}-1) * {RowsPerPage} + 1) AND ({pageNumber} * {RowsPerPage})";
                     break;
             }
         }
@@ -1181,10 +1207,6 @@ namespace Dapper
             }
         }
 
-        #endregion Public Methods
-
-        #region Public Enums
-
         /// <summary>
         /// Database server dialects
         /// </summary>
@@ -1198,14 +1220,8 @@ namespace Dapper
             DB2
         }
 
-        #endregion Public Enums
-
-        #region Public Classes
-
         public class ColumnNameResolver : IColumnNameResolver
         {
-            #region Public Methods
-
             public virtual string ResolveColumnName(PropertyInfo propertyInfo)
             {
                 string columnName;
@@ -1228,14 +1244,10 @@ namespace Dapper
                 }
                 return columnName;
             }
-
-            #endregion Public Methods
         }
 
         public class TableNameResolver : ITableNameResolver
         {
-            #region Public Methods
-
             public virtual string ResolveTableName(Type type)
             {
                 string tableName;
@@ -1269,36 +1281,18 @@ namespace Dapper
 
                 return tableName;
             }
-
-            #endregion Public Methods
         }
-
-        #endregion Public Classes
-
-        #region Public Interfaces
 
         public interface IColumnNameResolver
         {
-            #region Public Methods
-
             string ResolveColumnName(PropertyInfo propertyInfo);
-
-            #endregion Public Methods
         }
 
         public interface ITableNameResolver
         {
-            #region Public Methods
-
             string ResolveTableName(Type type);
-
-            #endregion Public Methods
         }
-
-        #endregion Public Interfaces
     }
-
-
 
     /// <summary>
     /// Optional Editable attribute. You can use the System.ComponentModel.DataAnnotations version
@@ -1307,8 +1301,6 @@ namespace Dapper
     [AttributeUsage(AttributeTargets.Property)]
     public class EditableAttribute : Attribute
     {
-        #region Public Constructors
-
         /// <summary>
         /// Optional Editable attribute.
         /// </summary>
@@ -1318,16 +1310,10 @@ namespace Dapper
             AllowEdit = iseditable;
         }
 
-        #endregion Public Constructors
-
-        #region Public Properties
-
         /// <summary>
         /// Does this property persist to the database?
         /// </summary>
         public bool AllowEdit { get; private set; }
-
-        #endregion Public Properties
     }
 
     /// <summary>
@@ -1363,75 +1349,46 @@ namespace Dapper
     /// <typeparam name="TEntity">Entity Type</typeparam>
     public class PageResult<TEntity>
     {
+        internal PageResult() { }
 
-        internal PageResult(int PageSize, int PageNumber, int TotalItems, bool countOnly)
-        {
-            //antes de setar o range, verifica se explicitamente foi a primeira pagina
-            if (PageNumber == 0 && PageSize >= 1 && countOnly == false)
-            {
-                try
-                {
-                    InsertPlaceholder = Activator.CreateInstance<TEntity>();
-                }
-                catch (Exception)
-                {
-                    InsertPlaceholder = default;
-                }
-            }
-
-            if (PageSize < 1) { PageSize = TotalItems; }
-
-            this.PageSize = PageSize;
-
-            this.TotalPages = (int)Math.Ceiling(TotalItems / (double)PageSize);
-
-            if (PageNumber > TotalPages)
-            {
-                PageNumber = TotalPages;
-            }
-
-            this.PageNumber = PageNumber;
-            this.TotalItems = TotalItems;
-
-        }
-
-        #region Public Properties
         /// <summary>
         /// Current Page Number
         /// </summary>
-        public int PageNumber { get; }
+        public int? PageNumber { get; internal set; }
         /// <summary>
         /// Items in the current page
         /// </summary>
         public IEnumerable<TEntity> Items { get; internal set; }
+
         /// <summary>
-        /// Page Size (items per page)
+        /// Page Size (items per page). Can be null if the query is not paged
         /// </summary>
-        public int PageSize { get; }
+        public int? PageSize { get; internal set; }
 
         /// <summary>
         /// Total Items in the query
         /// </summary>
-        public int TotalItems { get; }
+        public int TotalItems { get; internal set; }
 
         /// <summary>
-        /// Total Pages in the query
+        /// Total Pages in the query. Can be null if the query is not paged
         /// </summary>
-        public int TotalPages { get; }
+        public int? TotalPages { get; internal set; }
 
         /// <summary>
-        /// Intance of TEntity to be inserted in the first position of the list, used to represent a empty item with default values.
-        /// This is only inserted in the first page.
+        /// Intance of TEntity to be inserted in the first position of the list, used to represent a
+        /// empty item with default values. This is only inserted in the first page.
         /// </summary>
-        public TEntity InsertPlaceholder { get; }
+        public TEntity InsertPlaceholder { get; internal set; }
 
         /// <summary>
-        /// Return a List of TEntity. Includes the InsertPlaceholder if it is the first page and it is not null.
+        /// Return a List of TEntity. Includes the InsertPlaceholder if it is the first page and it
+        /// is not null.
         /// </summary>
         /// <returns></returns>
         public List<TEntity> GetList()
         {
-            var l = Items.ToList();
+            var l = Items?.ToList() ?? new List<TEntity>();
             if (InsertPlaceholder != null)
             {
                 l.Insert(0, InsertPlaceholder);
@@ -1439,21 +1396,12 @@ namespace Dapper
             return l;
         }
 
-        public IEnumerable<int> Pages => Enumerable.Range(0, TotalPages);
-
-        #endregion Public Properties
+        public IEnumerable<int> Pages { get; internal set; }
     }
-
-
-
-
-
 }
 
 internal static class TypeExtension
 {
-    #region Public Methods
-
     public static string CacheKey(this IEnumerable<PropertyInfo> props) => string.Join(",", props.Select(p => p.DeclaringType.FullName + "." + p.Name).ToArray());
 
     //You can't insert or update complex types. Lets filter them out.
@@ -1485,6 +1433,4 @@ internal static class TypeExtension
                               };
         return simpleTypes.Contains(type) || type.IsEnum;
     }
-
-    #endregion Public Methods
 }
