@@ -712,12 +712,20 @@ namespace Dapper
 
 
 
-            var TotalPages = (int)Math.Ceiling(TotalItems / (decimal)rowsPerPage);
+            var TotalPages = 0;
+
+            if (rowsPerPage > 0)
+            {
+                TotalPages = (int)Math.Ceiling(TotalItems / (decimal)rowsPerPage);
+
+            }
+
 
             if (TotalPages < 0)
             {
-                TotalPages = 0;
+                TotalPages = 1;
             }
+
 
             if (pageNumber < 0) pageNumber = 0;
             if (pageNumber > TotalPages) pageNumber = TotalPages;
