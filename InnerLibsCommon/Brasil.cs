@@ -383,13 +383,29 @@ namespace Extensions.BR
         /// <summary>
         /// Retorna um documento formatado com seu rótulo
         /// </summary>
-        /// <param name="Text">CPF, CNPJ, CEP, PIS, Email, Celular ou Telefone</param>
+        /// <param name="Text">CPF, CNPJ, CNH, CEP, PIS, Email, Celular ou Telefone</param>
         /// <param name="DefaultString"></param>
         /// <returns></returns>
         public static string FormatarDocumentoComRotulo(this string Text, string DefaultString = Util.EmptyString)
         {
             var x = Text.PegarRotuloDocumento(DefaultString);
-            switch (x)
+
+            if (x.IsValid())
+            {
+                Text = $"{x}: {Text}";
+            }
+            return Text;
+        }
+
+        /// <summary>
+        /// Retorna um documento formatado
+        /// </summary>
+        /// <param name="Text">CPF, CNPJ, CNH, CEP, PIS, Email, Celular ou Telefone</param>
+
+        /// <returns></returns>
+        public static string FormatarDocumento(this string Text)
+        {
+            switch (Text)
             {
                 case "CPF":
                 case "CNPJ":
@@ -404,9 +420,19 @@ namespace Extensions.BR
                     Text = Text.FormatarPIS();
                     break;
 
+                case "CNH":
+                    Text = Text.FormatarCNH();
+                    break;
+
+                case "RENAVAM":
+                    Text = Text.FormatarRENAVAM();
+                    break;
+
                 case "Email":
                     Text = Text.ToLowerInvariant();
                     break;
+
+
 
                 case "Telefone":
                 case "Celular":
@@ -414,15 +440,12 @@ namespace Extensions.BR
                     break;
 
                 default:
-                    break;
-            }
 
-            if (x.IsValid())
-            {
-                Text = $"{x}: {Text}";
+                    break;
             }
             return Text;
         }
+
 
         /// <summary>
         /// Formata o PIS no padrão ###.#####.##-#
@@ -445,11 +468,90 @@ namespace Extensions.BR
         }
 
         /// <summary>
+        /// Formata o CNH no padrão ########
+        /// </summary>
+        /// <param name="CNH"></param>
+        /// <returns></returns>
+        /// <exception cref="FormatException"></exception>
+        public static string FormatarCNH(this string CNH)
+        {
+            if (CNH.CNHValido())
+            {
+                CNH = CNH.OnlyNumbersLong().FixedLenght(8);
+                return CNH;
+            }
+            else
+            {
+                throw new FormatException("String is not a valid CNH");
+            }
+        }
+
+        /// <summary>
         /// Formata o PIS no padrão ###.#####.##-#
         /// </summary>
         /// <param name="PIS">PIS a ser formatado</param>
         /// <returns>PIS formatado</returns>
         public static string FormatarPIS(this long PIS) => FormatarPIS(PIS.ToString(CultureInfo.InvariantCulture));
+
+        /// <summary>
+        /// Formata a CNH no padrão ########
+        /// </summary>
+        /// <param name="CNH"></param>
+        /// <returns></returns>
+        public static string FormatarCNH(this int CNH) => FormatarCNH(CNH.ToString(CultureInfo.InvariantCulture));
+
+        /// <summary>
+        /// Formata o RENAVAM no padrão ###########
+        /// </summary>
+        /// <param name="RENAVAM"></param>
+        /// <returns></returns>
+        /// <exception cref="FormatException"></exception>
+        public static string FormatarRENAVAM(this string RENAVAM)
+        {
+            if (RENAVAM.RENAVAMValido())
+            {
+                RENAVAM = RENAVAM.OnlyNumbersLong().FixedLenght(11);
+                return RENAVAM;
+            }
+            else
+            {
+                throw new FormatException("String is not a valid RENAVAM");
+            }
+        }
+
+        public static string FormatarRENAVAM(this long RENAVAM) => FormatarRENAVAM(RENAVAM.ToString(CultureInfo.InvariantCulture));
+
+        /// <summary>
+        /// Verifica se um número de RENAVAM é válido
+        /// </summary>
+        /// <param name="renavam"></param>
+        /// <returns></returns>
+        public static bool RENAVAMValido(this string renavam)
+        {
+
+            // Remover quaisquer caracteres não numéricos
+            renavam = renavam.OnlyNumbers();
+
+            if (renavam.Length != 11)
+            {
+                return false;
+            }
+
+            // Inverter os caracteres do número de RENAVAM
+            renavam = new string(renavam.Reverse().ToArray());
+
+            int soma = 0;
+            for (int i = 0; i < 10; i++)
+            {
+                soma += int.Parse(renavam[i].ToString()) * (i % 10 + 2);
+            }
+
+            int resto = soma % 11;
+            int digitoVerificador = resto < 2 ? 0 : 11 - resto;
+
+            return digitoVerificador == int.Parse(renavam[10].ToString());
+
+        }
 
         /// <summary>
         /// Aplica uma mascara a um numero de telefone
@@ -520,6 +622,7 @@ namespace Extensions.BR
             if (Input.IsValidEAN()) return "EAN";
             if (Input.PISValido()) return "PIS";
             if (Input.CNHValido()) return "CNH";
+            if (Input.RENAVAMValido()) return "RENAVAM";
             if (Input.IsEmail()) return "Email";
             if (Input.IsIP()) return "IP";
             if (Input.TelefoneValido()) return Input.RemoveMask().Length.IsAny(8, 10) ? "Telefone" : "Celular";

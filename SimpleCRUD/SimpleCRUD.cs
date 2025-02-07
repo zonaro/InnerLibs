@@ -10,6 +10,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+using Extensions;
 using Microsoft.CSharp.RuntimeBinder;
 
 namespace Dapper
@@ -746,7 +747,6 @@ namespace Dapper
                 result.TotalPages = TotalPages;
                 result.PageSize = rowsPerPage;
                 result.PageNumber = pageNumber;
-                result.Pages = Enumerable.Range(0, TotalPages);
                 result.Items = connection.GetListPaged<T>(pageNumber, rowsPerPage, conditions, orderby, parameters, transaction, commandTimeout);
             }
 
@@ -1359,6 +1359,51 @@ namespace Dapper
     {
         internal PageResult() { }
 
+        public int? PreviousPage
+        {
+            get
+            {
+                if (PageNumber.HasValue)
+                {
+                    var pg = PageNumber - 1;
+
+                    if (pg < 1)
+                    {
+                        pg = LastPage;
+                    }
+                    return pg;
+                }
+
+                return null;
+            }
+        }
+        public int? NextPage
+        {
+            get
+            {
+                if (PageNumber.HasValue)
+                {
+                    var pg = PageNumber + 1;
+                    if (pg > LastPage)
+                    {
+                        pg = 1;
+                    }
+                    return pg;
+                }
+                return null;
+            }
+        }
+
+
+
+
+        public bool IsFirstPage => PageNumber == 0;
+        public bool IsLastPage => PageNumber == LastPage;
+
+
+
+        public int? LastPage => TotalPages;
+
         /// <summary>
         /// Current Page Number
         /// </summary>
@@ -1404,20 +1449,74 @@ namespace Dapper
             return l;
         }
 
-        public IEnumerable<int> Pages { get; internal set; }
+        public IEnumerable<int> GetPages() => Enumerable.Range(0, TotalPages ?? 0);
+
+        /// <summary>
+        /// Return a Dictionary with the page number and the page number button text
+        /// </summary>
+        /// <param name="PaginationOffset"></param>
+        /// <returns></returns>
+        public Dictionary<string, int> GetPaginationButtons(int PaginationOffset)
+        {
+
+            var pages = GetPages(PaginationOffset).Select(x => (Button: x.ToString(), Number: x)).ToList();
+
+            if (TotalPages.HasValue)
+            {
+
+                if (pages.Any(x => x.Number == 0) == false)
+                {
+                    pages.Insert(0, ("«", 0));
+                    pages.Insert(1, ("‹", PreviousPage.Value));
+                }
+
+                if (pages.Any(x => x.Number == TotalPages.Value) == false)
+                {
+                    pages.Add(("›", NextPage.Value));
+                    pages.Add(("»", TotalPages.Value));
+                }
+
+
+            }
+
+            return pages.ToDictionary(x => x.Button, x => x.Number);
+
+        }
+
+        public IEnumerable<int> GetPages(int PaginationOffset)
+        {
+            var arr = new List<int>();
+            if (PageNumber.HasValue && TotalPages.HasValue)
+            {
+                int frange = 1;
+                int lrange = 1;
+                if (TotalPages > 1)
+                {
+                    frange = new[] { PageNumber.Value - PaginationOffset, 0 }.Max();
+                    lrange = new[] { PageNumber.Value + PaginationOffset, TotalPages.Value }.Min();
+                }
+
+                for (int index = frange, loopTo = lrange; index <= loopTo; index++)
+                {
+                    arr.Add(index);
+                }
+
+            }
+
+            return arr;
+        }
     }
-}
 
-internal static class TypeExtension
-{
-    public static string CacheKey(this IEnumerable<PropertyInfo> props) => string.Join(",", props.Select(p => p.DeclaringType.FullName + "." + p.Name).ToArray());
-
-    //You can't insert or update complex types. Lets filter them out.
-    public static bool IsSimpleType(this Type type)
+    internal static class TypeExtension
     {
-        var underlyingType = Nullable.GetUnderlyingType(type);
-        type = underlyingType ?? type;
-        var simpleTypes = new List<Type>
+        public static string CacheKey(this IEnumerable<PropertyInfo> props) => string.Join(",", props.Select(p => p.DeclaringType.FullName + "." + p.Name).ToArray());
+
+        //You can't insert or update complex types. Lets filter them out.
+        public static bool IsSimpleType(this Type type)
+        {
+            var underlyingType = Nullable.GetUnderlyingType(type);
+            type = underlyingType ?? type;
+            var simpleTypes = new List<Type>
                               {
                                   typeof(byte),
                                   typeof(sbyte),
@@ -1439,6 +1538,7 @@ internal static class TypeExtension
                                   typeof(TimeSpan),
                                   typeof(byte[])
                               };
-        return simpleTypes.Contains(type) || type.IsEnum;
+            return simpleTypes.Contains(type) || type.IsEnum;
+        }
     }
 }
