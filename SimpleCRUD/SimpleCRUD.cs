@@ -6,20 +6,134 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Extensions;
 using Microsoft.CSharp.RuntimeBinder;
 
+/*
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+* This file add overloads for each Dapper.SQLMapper method, allowing the use of FormattableString     *
+* for building parametrized queries. Each parameter of string will be converted into a SQL parameter. *
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+*/
+
 namespace Dapper
 {
+    /// <inheritdoc cref="SqlMapper"/>
     /// <summary>
     /// Main class for Dapper.SimpleCRUD extensions
     /// </summary>
     public static partial class SimpleCRUD
+
     {
+        private const string DefaultParameterPrefix = "@__p";
+
+        /// <inheritdoc cref="SqlMapper.Execute"/>
+        public static int Execute(this IDbConnection cnn, FormattableString sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null, string parameterPrefix = DefaultParameterPrefix, CultureInfo culture = null)
+        {
+            var (queryString, parameters) = sql.ToInterpolatedQuery(parameterPrefix, param, culture);
+            return cnn.Execute(queryString, parameters, transaction, commandTimeout, commandType);
+        }
+
+        /// <inheritdoc cref="SqlMapper.ExecuteAsync"/>
+        public static Task<int> ExecuteAsync(this IDbConnection cnn, FormattableString sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null, string parameterPrefix = DefaultParameterPrefix, CultureInfo culture = null)
+        {
+            var (queryString, parameters) = sql.ToInterpolatedQuery(parameterPrefix, param, culture);
+            return cnn.ExecuteAsync(queryString, parameters, transaction, commandTimeout, commandType);
+        }
+
+        /// <inheritdoc cref="SqlMapper.Query{T}"/>
+        public static IEnumerable<T> Query<T>(this IDbConnection cnn, FormattableString sql, object param = null, IDbTransaction transaction = null, bool buffered = true, int? commandTimeout = null, CommandType? commandType = null, string parameterPrefix = DefaultParameterPrefix, CultureInfo culture = null)
+        {
+            var (queryString, parameters) = sql.ToInterpolatedQuery(parameterPrefix, param, culture);
+            return cnn.Query<T>(queryString, parameters, transaction, buffered, commandTimeout, commandType);
+        }
+
+        /// <inheritdoc cref="SqlMapper.QueryAsync{T}"/>
+        public static Task<IEnumerable<T>> QueryAsync<T>(this IDbConnection cnn, FormattableString sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null, string parameterPrefix = DefaultParameterPrefix, CultureInfo culture = null)
+        {
+            var (queryString, parameters) = sql.ToInterpolatedQuery(parameterPrefix, param, culture);
+            return cnn.QueryAsync<T>(queryString, parameters, transaction, commandTimeout, commandType);
+        }
+
+        /// <inheritdoc cref="SqlMapper.QueryFirst{T}"/>
+        public static T QueryFirst<T>(this IDbConnection cnn, FormattableString sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null, string parameterPrefix = DefaultParameterPrefix, CultureInfo culture = null)
+        {
+            var (queryString, parameters) = sql.ToInterpolatedQuery(parameterPrefix, param, culture);
+            return cnn.QueryFirst<T>(queryString, parameters, transaction, commandTimeout, commandType);
+        }
+
+        /// <inheritdoc cref="SqlMapper.QueryFirstAsync{T}"/>
+        public static Task<T> QueryFirstAsync<T>(this IDbConnection cnn, FormattableString sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null, string parameterPrefix = DefaultParameterPrefix, CultureInfo culture = null)
+        {
+            var (queryString, parameters) = sql.ToInterpolatedQuery(parameterPrefix, param, culture);
+            return cnn.QueryFirstAsync<T>(queryString, parameters, transaction, commandTimeout, commandType);
+        }
+
+        /// <inheritdoc cref="SqlMapper.QueryFirstOrDefault{T}"/>
+        public static T QueryFirstOrDefault<T>(this IDbConnection cnn, FormattableString sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null, string parameterPrefix = DefaultParameterPrefix, CultureInfo culture = null)
+        {
+            var (queryString, parameters) = sql.ToInterpolatedQuery(parameterPrefix, param, culture);
+            return cnn.QueryFirstOrDefault<T>(queryString, parameters, transaction, commandTimeout, commandType);
+        }
+
+        /// <inheritdoc cref="SqlMapper.QueryFirstOrDefaultAsync{T}"/>
+        public static Task<T> QueryFirstOrDefaultAsync<T>(this IDbConnection cnn, FormattableString sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null, string parameterPrefix = DefaultParameterPrefix, CultureInfo culture = null)
+        {
+            var (queryString, parameters) = sql.ToInterpolatedQuery(parameterPrefix, param, culture);
+            return cnn.QueryFirstOrDefaultAsync<T>(queryString, parameters, transaction, commandTimeout, commandType);
+        }
+
+        /// <summary>
+        /// Converts a FormattableString to a InterpolatedQuery. It contains the Qeery string and DynamicParameters.
+        /// </summary>
+        /// <param name="sql">The FormattableString to convert.</param>
+        /// <param name="parameterPrefix">the prefix used for each parameter</param>
+        /// <param name="aditionalParameters">Append aditional parameters using <see cref="DynamicParameters.AddDynamicParams(object)"/></param>
+        /// <returns>A tuple containing the query string and DynamicParameters.</returns>
+        public static InterpolatedQuery ToInterpolatedQuery(this FormattableString sql, string parameterPrefix = null, object aditionalParameters = null, CultureInfo culture = null)
+        {
+            culture = culture ?? culture ?? CultureInfo.InvariantCulture;
+            parameterPrefix = string.IsNullOrWhiteSpace(parameterPrefix) ? DefaultParameterPrefix : parameterPrefix;
+            var dynamicParameters = new DynamicParameters();
+            for (int i = 0; i < sql.ArgumentCount; i++)
+            {
+                var arg = sql.GetArgument(i);
+                var format = sql.Format;
+                var index = "{" + i + ":";
+                var f = format.IndexOf(index);
+                if (f >= 0)
+                {
+                    if (arg is IFormattable farg && farg != null)
+                    {
+                        var argumentFormat = format.Substring(f + index.Length);
+                        argumentFormat = argumentFormat.Substring(0, argumentFormat.IndexOf("}"));
+                        arg = farg.ToString(argumentFormat, culture);
+                    }
+                    else
+                    {
+                        arg = arg?.ToString();
+                    }
+                }
+
+                dynamicParameters.Add($"{parameterPrefix}{i}", arg);
+            }
+
+            if (aditionalParameters != null)
+            {
+                dynamicParameters.AddDynamicParams(aditionalParameters);
+            }
+            var q = new Regex(@"\{(\d+)(:[^}]+)?\}").Replace(sql.Format, match => $"{parameterPrefix}{match.Groups[1].Value}");
+
+            return new InterpolatedQuery(query: q, parameters: dynamicParameters);
+        }
+
         private static readonly ConcurrentDictionary<string, string> ColumnNames = new ConcurrentDictionary<string, string>();
 
         private static readonly ConcurrentDictionary<string, string> StringBuilderCacheDict = new ConcurrentDictionary<string, string>();
@@ -189,7 +303,7 @@ namespace Dapper
         //Get all properties in an entity
         private static IEnumerable<PropertyInfo> GetAllProperties<T>(T entity) where T : class
         {
-            if (entity == null) return new PropertyInfo[0];
+            if (entity == null) return Array.Empty<PropertyInfo>();
             return entity.GetType().GetProperties();
         }
 
@@ -499,6 +613,7 @@ namespace Dapper
         public static T Get<T>(this IDbConnection connection, object id, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             var currenttype = typeof(T);
+
             var idProps = GetIdProperties(currenttype).ToList();
 
             if (!idProps.Any())
@@ -519,15 +634,51 @@ namespace Dapper
             }
 
             var dynParms = new DynamicParameters();
+
             if (idProps.Count == 1)
-                dynParms.Add("@" + idProps.First().Name, id);
+            {
+                if (id.GetType().IsSimpleType())
+                {
+                    dynParms.Add("@" + idProps.First().Name, id);
+                }
+                else if (id is IDictionary<string, object> dic)
+                {
+                    var prop = idProps.First();
+
+                    if (dic.ContainsKey(prop.Name))
+                    {
+                        dynParms.Add("@" + prop.Name, dic[prop.Name]);
+                    }
+                }
+                else
+                {
+                    var idProp = id.GetType().GetProperty(idProps.First().Name);
+                    var v = idProp.GetValue(id, null);
+                    dynParms.Add("@" + idProps.First().Name, v);
+                }
+            }
             else
             {
-                foreach (var prop in idProps)
+                if (id.GetType().IsSimpleType()) throw new ArgumentException($"{typeof(T).Name} needs a object with following properties: ${idProps.Select(x => x.Name).SelectJoinString(", ")}");
+
+                if (id is IDictionary<string, object> dic)
                 {
-                    var idProp = id.GetType().GetProperty(prop.Name);
-                    var v = idProp.GetValue(id, null);
-                    dynParms.Add("@" + prop.Name, v);
+                    foreach (var prop in idProps)
+                    {
+                        if (dic.ContainsKey(prop.Name))
+                        {
+                            dynParms.Add("@" + prop.Name, dic[prop.Name]);
+                        }
+                    }
+                }
+                else
+                {
+                    foreach (var prop in idProps)
+                    {
+                        var idProp = id.GetType().GetProperty(prop.Name);
+                        var v = idProp.GetValue(id, null);
+                        dynParms.Add("@" + prop.Name, v);
+                    }
                 }
             }
 
@@ -642,9 +793,20 @@ namespace Dapper
             sb.Append("Select ");
             //create a new empty instance of the type to get the base properties
             BuildSelect(sb, GetScaffoldableProperties<T>().ToArray());
-            sb.AppendFormat(" from {0}", name);
+            sb.AppendFormat(" from {0} ", name);
+            sb.Append(" ");
 
-            sb.Append(" " + conditions);
+            if (string.IsNullOrWhiteSpace(conditions) == false)
+            {
+                conditions = conditions.Trim();
+
+                if (!conditions.Trim().StartsWith("where", StringComparison.OrdinalIgnoreCase))
+                {
+                    sb.Append(" where ");
+                }
+
+                sb.Append(conditions);
+            }
 
             if (Debugger.IsAttached)
                 Trace.WriteLine(String.Format("GetList<{0}>: {1}", currenttype, sb));
@@ -690,7 +852,7 @@ namespace Dapper
         /// <param name="parameters"></param>
         /// <param name="transaction"></param>
         /// <param name="commandTimeout"></param>
-        /// <returns>Gets a paged list of entities with optional exact match where conditions</returns> 
+        /// <returns>Gets a paged list of entities with optional exact match where conditions</returns>
         /// <returns></returns>
         public static PageResult<T> GetPage<T>(this IDbConnection connection, int pageNumber, int rowsPerPage, string conditions, string orderby, object parameters = null, IDbTransaction transaction = null, int? commandTimeout = null, bool IncludeInsertPlaceholder = false)
         {
@@ -711,22 +873,17 @@ namespace Dapper
 
             var TotalItems = connection.RecordCount<T>(conditions, parameters, transaction, commandTimeout);
 
-
-
             var TotalPages = 0;
 
             if (rowsPerPage > 0)
             {
                 TotalPages = (int)Math.Ceiling(TotalItems / (decimal)rowsPerPage);
-
             }
-
 
             if (TotalPages < 0)
             {
                 TotalPages = 1;
             }
-
 
             if (pageNumber < 0) pageNumber = 0;
             if (pageNumber > TotalPages) pageNumber = TotalPages;
@@ -734,13 +891,11 @@ namespace Dapper
             if (rowsPerPage == 0)
             {
                 rowsPerPage = TotalItems;
-
             }
             else if (rowsPerPage < 0)
             {
                 //count only
             }
-
 
             if (rowsPerPage > 0)
             {
@@ -1185,6 +1340,98 @@ namespace Dapper
             return connection.Execute(masterSb.ToString(), entityToUpdate, transaction, commandTimeout);
         }
 
+        public static int UpdateWhere<TEntity>(this IDbConnection connection, string whereConditions, TEntity entityToUpdate, IDbTransaction transaction = null, int? commandTimeout = null)
+        {
+            var masterSb = new StringBuilder();
+            StringBuilderCache(masterSb, $"{typeof(TEntity).FullName}_UpdateWhere", sb =>
+            {
+                var name = GetTableName(entityToUpdate);
+                sb.AppendFormat("update {0}", name);
+                sb.Append(" set ");
+                BuildUpdateSet(entityToUpdate, sb);
+                sb.Append(" ");
+                if (string.IsNullOrWhiteSpace(whereConditions) == false)
+                {
+                    whereConditions = whereConditions.Trim();
+                    if (whereConditions.StartsWith("where", StringComparison.OrdinalIgnoreCase) == false)
+                    {
+                        sb.Append("where ");
+                    }
+
+                    sb.Append(whereConditions);
+                }
+            });
+            return connection.Execute(masterSb.ToString(), entityToUpdate, transaction, commandTimeout);
+        }
+
+        public static int UpdateWhere<TEntity>(this IDbConnection connection, TEntity entityToUpdate, object whereConditions, IDbTransaction transaction = null, int? commandTimeout = null)
+        {
+            var sb = new StringBuilder();
+            var whereprops = GetAllProperties(whereConditions).ToArray();
+            BuildWhere<TEntity>(sb, whereprops);
+            return UpdateWhere(connection, sb.ToString(), entityToUpdate, transaction, commandTimeout);
+        }
+
+        public static int UpdateWhere<TEntity>(this IDbConnection connection, TEntity entityToUpdate, Expression<Func<TEntity, bool>>[] whereConditions, IDbTransaction transaction = null, int? commandTimeout = null)
+        {
+            var sb = new StringBuilder();
+
+            var parameters = new DynamicParameters();
+            for (int i = 0; i < whereConditions.Length; i++)
+            {
+                var condition = whereConditions[i];
+                if (condition.Body is BinaryExpression binaryExpression)
+                {
+                    MemberExpression left = binaryExpression.Left as MemberExpression;
+                    if (left != null)
+                    {
+                        var columnName = GetColumnName(left.Member as PropertyInfo);
+                        var parameterName = left.Member.Name;
+                        Expression right = binaryExpression.Right as ConstantExpression;
+                        object parameterValue;
+                        if (right is ConstantExpression c)
+                        {
+                            parameterValue = c.Value;
+                        }
+                        else if (right is MemberExpression m)
+                        {
+                            parameterValue = Expression.Lambda(m).Compile().DynamicInvoke();
+                        }
+                        else
+                        {
+                            continue;
+                        }
+                        parameters.Add("@" + parameterName, parameterValue);
+                        sb.AppendFormat("{0} = @{1}", columnName, parameterName);
+                    }
+                }
+                if (i < whereConditions.Length - 1)
+                {
+                    sb.Append(" AND ");
+                }
+            }
+
+            return connection.Execute(sb.ToString(), entityToUpdate, transaction, commandTimeout);
+        }
+
+        public static int UpdateColumn<TEntity, V>(this IDbConnection connection, Expression<Func<TEntity, object>> column, V value, object whereConditions, IDbTransaction transaction = null, int? commandTimeout = null)
+        {
+            var masterSb = new StringBuilder();
+            StringBuilderCache(masterSb, $"{typeof(TEntity).FullName}_UpdateColumn", sb =>
+            {
+                var name = GetTableName(typeof(TEntity));
+                sb.AppendFormat("update {0}", name);
+                sb.AppendFormat(" set {0} = @value", GetColumnName(column));
+                sb.Append(" ");
+                if (whereConditions != null)
+                {
+                    var whereprops = GetAllProperties(whereConditions).ToArray();
+                    BuildWhere<TEntity>(sb, whereprops);
+                }
+            });
+            return connection.Execute(masterSb.ToString(), new { value }, transaction, commandTimeout);
+        }
+
         /// <summary>
         /// <para>Inserts or updates a record in the database.</para>
         /// <para>If the record exists, it updates the record.</para>
@@ -1394,13 +1641,8 @@ namespace Dapper
             }
         }
 
-
-
-
         public bool IsFirstPage => PageNumber == 0;
         public bool IsLastPage => PageNumber == LastPage;
-
-
 
         public int? LastPage => TotalPages;
 
@@ -1458,12 +1700,9 @@ namespace Dapper
         /// <returns></returns>
         public Dictionary<string, int> GetPaginationButtons(int PaginationOffset)
         {
-
-            var pages = GetPages(PaginationOffset).Select(x => (Button: x.ToString(), Number: x)).ToList();
-
             if (TotalPages.HasValue)
             {
-
+                var pages = GetPages(PaginationOffset).Select(x => (Button: x.ToString(), Number: x)).ToList();
                 if (pages.Any(x => x.Number == 0) == false)
                 {
                     pages.Insert(0, ("«", 0));
@@ -1476,11 +1715,10 @@ namespace Dapper
                     pages.Add(("»", TotalPages.Value));
                 }
 
-
+                return pages.ToDictionary(x => x.Button, x => x.Number);
             }
 
-            return pages.ToDictionary(x => x.Button, x => x.Number);
-
+            return new Dictionary<string, int>();
         }
 
         public IEnumerable<int> GetPages(int PaginationOffset)
@@ -1500,10 +1738,28 @@ namespace Dapper
                 {
                     arr.Add(index);
                 }
-
             }
 
             return arr;
+        }
+    }
+
+    public class InterpolatedQuery
+    {
+        internal InterpolatedQuery(string query, DynamicParameters parameters)
+        {
+            Query = query;
+            Parameters = parameters;
+        }
+
+        public string Query { get; }
+        public DynamicParameters Parameters { get; }
+
+        //desconstruct function
+        public void Deconstruct(out string query, out DynamicParameters parameters)
+        {
+            query = Query;
+            parameters = Parameters;
         }
     }
 
