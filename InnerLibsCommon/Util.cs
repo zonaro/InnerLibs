@@ -304,7 +304,7 @@ namespace Extensions
         }
 
         /// <summary>
-        /// Adciona um parametro a Query String de uma URL
+        /// Adciona um parametro a QueryInterpolated String de uma URL
         /// </summary>
         /// <param name="Url">Uri</param>
         /// <param name="Key">Nome do parâmetro</param>
@@ -334,7 +334,7 @@ namespace Extensions
         }
 
         /// <summary>
-        /// Adciona um parametro a Query String de uma URL
+        /// Adciona um parametro a QueryInterpolated String de uma URL
         /// </summary>
         /// <param name="Url">Uri</param>
         /// <param name="Key">Nome do parâmetro</param>
@@ -3478,7 +3478,7 @@ namespace Extensions
         public static bool EqualsIgnoreCaseAndAccents(this string Text, string CompareText) => EqualsIgnoreCase(Text.RemoveAccents(), CompareText.RemoveAccents());
 
         /// <summary>
-        /// Prepara uma string com aspas simples para uma Query TransactSQL
+        /// Prepara uma string com aspas simples para uma QueryInterpolated TransactSQL
         /// </summary>
         /// <param name="Text">Texto a ser tratado</param>
         /// <returns>String pronta para a query</returns>
@@ -11116,7 +11116,7 @@ namespace Extensions
         }
 
         /// <summary>
-        /// Remove um parametro da Query String de uma URL
+        /// Remove um parametro da QueryInterpolated String de uma URL
         /// </summary>
         /// <param name="Url">Uri</param>
         /// <param name="Key">Nome do parâmetro</param>

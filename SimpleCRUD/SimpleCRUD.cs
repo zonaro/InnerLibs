@@ -11,7 +11,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Extensions;
 using Microsoft.CSharp.RuntimeBinder;
@@ -35,56 +34,56 @@ namespace Dapper
         private const string DefaultParameterPrefix = "@__p";
 
         /// <inheritdoc cref="SqlMapper.Execute"/>
-        public static int Execute(this IDbConnection cnn, FormattableString sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null, string parameterPrefix = DefaultParameterPrefix, CultureInfo culture = null)
+        public static int ExecuteInterpolated(this IDbConnection cnn, FormattableString sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null, string parameterPrefix = DefaultParameterPrefix, CultureInfo culture = null)
         {
             var (queryString, parameters) = sql.ToInterpolatedQuery(parameterPrefix, param, culture);
             return cnn.Execute(queryString, parameters, transaction, commandTimeout, commandType);
         }
 
         /// <inheritdoc cref="SqlMapper.ExecuteAsync"/>
-        public static Task<int> ExecuteAsync(this IDbConnection cnn, FormattableString sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null, string parameterPrefix = DefaultParameterPrefix, CultureInfo culture = null)
+        public static Task<int> ExecuteInterpolatedAsync(this IDbConnection cnn, FormattableString sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null, string parameterPrefix = DefaultParameterPrefix, CultureInfo culture = null)
         {
             var (queryString, parameters) = sql.ToInterpolatedQuery(parameterPrefix, param, culture);
             return cnn.ExecuteAsync(queryString, parameters, transaction, commandTimeout, commandType);
         }
 
         /// <inheritdoc cref="SqlMapper.Query{T}"/>
-        public static IEnumerable<T> Query<T>(this IDbConnection cnn, FormattableString sql, object param = null, IDbTransaction transaction = null, bool buffered = true, int? commandTimeout = null, CommandType? commandType = null, string parameterPrefix = DefaultParameterPrefix, CultureInfo culture = null)
+        public static IEnumerable<T> QueryInterpolated<T>(this IDbConnection cnn, FormattableString sql, object param = null, IDbTransaction transaction = null, bool buffered = true, int? commandTimeout = null, CommandType? commandType = null, string parameterPrefix = DefaultParameterPrefix, CultureInfo culture = null)
         {
             var (queryString, parameters) = sql.ToInterpolatedQuery(parameterPrefix, param, culture);
             return cnn.Query<T>(queryString, parameters, transaction, buffered, commandTimeout, commandType);
         }
 
         /// <inheritdoc cref="SqlMapper.QueryAsync{T}"/>
-        public static Task<IEnumerable<T>> QueryAsync<T>(this IDbConnection cnn, FormattableString sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null, string parameterPrefix = DefaultParameterPrefix, CultureInfo culture = null)
+        public static Task<IEnumerable<T>> QueryInterpolatedAsync<T>(this IDbConnection cnn, FormattableString sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null, string parameterPrefix = DefaultParameterPrefix, CultureInfo culture = null)
         {
             var (queryString, parameters) = sql.ToInterpolatedQuery(parameterPrefix, param, culture);
             return cnn.QueryAsync<T>(queryString, parameters, transaction, commandTimeout, commandType);
         }
 
         /// <inheritdoc cref="SqlMapper.QueryFirst{T}"/>
-        public static T QueryFirst<T>(this IDbConnection cnn, FormattableString sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null, string parameterPrefix = DefaultParameterPrefix, CultureInfo culture = null)
+        public static T QueryFirstInterpolated<T>(this IDbConnection cnn, FormattableString sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null, string parameterPrefix = DefaultParameterPrefix, CultureInfo culture = null)
         {
             var (queryString, parameters) = sql.ToInterpolatedQuery(parameterPrefix, param, culture);
             return cnn.QueryFirst<T>(queryString, parameters, transaction, commandTimeout, commandType);
         }
 
         /// <inheritdoc cref="SqlMapper.QueryFirstAsync{T}"/>
-        public static Task<T> QueryFirstAsync<T>(this IDbConnection cnn, FormattableString sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null, string parameterPrefix = DefaultParameterPrefix, CultureInfo culture = null)
+        public static Task<T> QueryFirstInterpolatedAsync<T>(this IDbConnection cnn, FormattableString sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null, string parameterPrefix = DefaultParameterPrefix, CultureInfo culture = null)
         {
             var (queryString, parameters) = sql.ToInterpolatedQuery(parameterPrefix, param, culture);
             return cnn.QueryFirstAsync<T>(queryString, parameters, transaction, commandTimeout, commandType);
         }
 
         /// <inheritdoc cref="SqlMapper.QueryFirstOrDefault{T}"/>
-        public static T QueryFirstOrDefault<T>(this IDbConnection cnn, FormattableString sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null, string parameterPrefix = DefaultParameterPrefix, CultureInfo culture = null)
+        public static T QueryFirstOrDefaultInterpolated<T>(this IDbConnection cnn, FormattableString sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null, string parameterPrefix = DefaultParameterPrefix, CultureInfo culture = null)
         {
             var (queryString, parameters) = sql.ToInterpolatedQuery(parameterPrefix, param, culture);
             return cnn.QueryFirstOrDefault<T>(queryString, parameters, transaction, commandTimeout, commandType);
         }
 
         /// <inheritdoc cref="SqlMapper.QueryFirstOrDefaultAsync{T}"/>
-        public static Task<T> QueryFirstOrDefaultAsync<T>(this IDbConnection cnn, FormattableString sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null, string parameterPrefix = DefaultParameterPrefix, CultureInfo culture = null)
+        public static Task<T> QueryFirstOrDefaultInterpolatedAsync<T>(this IDbConnection cnn, FormattableString sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null, string parameterPrefix = DefaultParameterPrefix, CultureInfo culture = null)
         {
             var (queryString, parameters) = sql.ToInterpolatedQuery(parameterPrefix, param, culture);
             return cnn.QueryFirstOrDefaultAsync<T>(queryString, parameters, transaction, commandTimeout, commandType);
@@ -102,12 +101,14 @@ namespace Dapper
             culture = culture ?? culture ?? CultureInfo.InvariantCulture;
             parameterPrefix = string.IsNullOrWhiteSpace(parameterPrefix) ? DefaultParameterPrefix : parameterPrefix;
             var dynamicParameters = new DynamicParameters();
+            var format = sql.Format;
+
             for (int i = 0; i < sql.ArgumentCount; i++)
             {
                 var arg = sql.GetArgument(i);
-                var format = sql.Format;
                 var index = "{" + i + ":";
                 var f = format.IndexOf(index);
+
                 if (f >= 0)
                 {
                     if (arg is IFormattable farg && farg != null)
@@ -120,18 +121,42 @@ namespace Dapper
                     {
                         arg = arg?.ToString();
                     }
+
+                    dynamicParameters.Add($"{parameterPrefix}{i}", arg);
                 }
-
-                dynamicParameters.Add($"{parameterPrefix}{i}", arg);
+                else
+                {
+                    if (arg is Type t)
+                    {
+                        format = format.Replace("{" + i + "}", GetTableName(t));
+                    }
+                    else if (arg is TableAttribute table)
+                    {
+                        format = format.Replace("{" + i + "}", Encapsulate(table.Name));
+                    }
+                    else if (arg is PropertyInfo member)
+                    {
+                        format = format.Replace("{" + i + "}", GetColumnName(member));
+                    }
+                    else if (arg is ColumnAttribute c)
+                    {
+                        format = format.Replace("{" + i + "}", Encapsulate(c.Name));
+                    }
+                    else
+                    {
+                        format = format.Replace("{" + i + "}", $"{parameterPrefix}{i}");
+                        dynamicParameters.Add($"{parameterPrefix}{i}", arg);
+                    }
+                }
             }
-
             if (aditionalParameters != null)
             {
                 dynamicParameters.AddDynamicParams(aditionalParameters);
             }
-            var q = new Regex(@"\{(\d+)(:[^}]+)?\}").Replace(sql.Format, match => $"{parameterPrefix}{match.Groups[1].Value}");
 
-            return new InterpolatedQuery(query: q, parameters: dynamicParameters);
+            //var q = new Regex(@"\{(\d+)(:[^}]+)?\}").Replace(format, match => $"{parameterPrefix}{match.Groups[1].Value}");
+
+            return new InterpolatedQuery(query: format, parameters: dynamicParameters);
         }
 
         private static readonly ConcurrentDictionary<string, string> ColumnNames = new ConcurrentDictionary<string, string>();
@@ -153,6 +178,104 @@ namespace Dapper
         private static ITableNameResolver _tableNameResolver = new TableNameResolver();
 
         private static bool StringBuilderCacheEnabled = true;
+
+        public static V GeneratePrimaryKey<T, V>(this IDbConnection connection, Expression<Func<T, V>> column, object whereConditions = null)
+        {
+            var columnName = GetColumnName(column);
+            return GeneratePrimaryKey<T, V>(connection, columnName, whereConditions);
+        }
+
+
+        /// <summary>
+        /// Generate a new ID for the entity
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="V"></typeparam>
+        /// <param name="connection"></param>
+        /// <param name="keyName"></param>
+        /// <param name="whereConditions"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        public static V GeneratePrimaryKey<T, V>(this IDbConnection connection, string keyName = null, object whereConditions = null)
+        {
+            var t = typeof(T);
+            var sb = new StringBuilder();
+            var keys = GetIdProperties(t);
+
+            if (typeof(V) == typeof(Guid))
+            {
+                var vv = SequentialGuid();
+                if (vv is V g)
+                {
+                    return g;
+                }
+            }
+            else
+            {
+                if (keys.Any() == false)
+                    throw new ArgumentException("Entity must have at least one [Key] or Id property");
+
+                if (string.IsNullOrWhiteSpace(keyName))
+                {
+                    if (keys.Count(x => x.PropertyType == typeof(V)) > 1)
+                    {
+                        throw new ArgumentException("Entity has multiple keys, please specify the keyName");
+                    }
+
+                    keyName = GetColumnName(keys.FirstOrDefault(x => x.PropertyType == typeof(V)));
+                }
+                else
+                {
+                    keyName = t.GetColumnName(keyName);
+                }
+
+                var tableName = GetTableName(t);
+
+                sb.Append($"SELECT MAX({keyName}) FROM {tableName} ");
+
+                if (whereConditions is string s && string.IsNullOrWhiteSpace(s) == false)
+                {
+                    if (s.Trim().StartsWith("where", StringComparison.OrdinalIgnoreCase) == false)
+                    {
+                        sb.Append(" WHERE ");
+                    }
+
+                    sb.Append(s);
+                }
+                else
+                {
+                    BuildWhere<T>(sb, GetAllProperties(t), whereConditions);
+                }
+
+                var sql = sb.ToString();
+
+                var value = connection.QueryFirstOrDefault<V>(sql);
+
+                if (value is long v1)
+                {
+                    return (V)Convert.ChangeType(v1 + 1, typeof(V));
+                }
+                else
+
+                if (value is int v2)
+                {
+                    return (V)Convert.ChangeType(v2 + 1, typeof(V));
+
+                }
+
+                if (value is string)
+                {
+                    if (decimal.TryParse(value.ToString(), out decimal v3))
+                    {
+                        return (V)Convert.ChangeType(v3 + 1, typeof(V));
+                    }
+
+                    return value;
+                }
+
+            }
+            return default;
+        }
 
         //build insert parameters which include all properties in the class that are not:
         //marked with the Editable(false) attribute
@@ -325,9 +448,12 @@ namespace Dapper
         }
 
         //Get all properties that are not decorated with the Editable(false) attribute
-        private static IEnumerable<PropertyInfo> GetScaffoldableProperties<T>()
+
+        private static IEnumerable<PropertyInfo> GetScaffoldableProperties<T>() => typeof(T).GetScaffoldableProperties();
+
+        private static IEnumerable<PropertyInfo> GetScaffoldableProperties(this Type type)
         {
-            IEnumerable<PropertyInfo> props = typeof(T).GetProperties();
+            IEnumerable<PropertyInfo> props = type.GetProperties();
 
             props = props.Where(p => p.GetCustomAttributes(true).Any(attr => attr.GetType().Name == typeof(EditableAttribute).Name && !IsEditable(p)) == false);
 
@@ -688,6 +814,29 @@ namespace Dapper
             return connection.QueryFirstOrDefault<T>(sb.ToString(), dynParms, transaction, commandTimeout);
         }
 
+        public static ColumnAttribute Column(this PropertyInfo propertyInfo)
+        {
+            return propertyInfo.GetCustomAttributes(true).FirstOrDefault(attr => attr.GetType().Name == typeof(ColumnAttribute).Name) as ColumnAttribute;
+        }
+        public static ColumnAttribute Column<T, V>(Expression<Func<T, V>> expression)
+        {
+            return GetProperty(expression).Column();
+        }
+
+        public static PropertyInfo GetProperty<T, V>(this Expression<Func<T, V>> expression)
+        {
+            if (expression.Body is MemberExpression memberExpression)
+            {
+                return memberExpression.Member as PropertyInfo;
+            }
+            throw new ArgumentException("Expression must be a property expression");
+        }
+
+        public static string GetColumnName(this Type t, string searchName)
+        {
+            var props = GetScaffoldableProperties(t).ToArray();
+            return props.FirstOrDefault(x => x.Name.Equals(searchName, StringComparison.OrdinalIgnoreCase) || x.Column().Name == searchName)?.Name;
+        }
         public static string GetColumnName(PropertyInfo propertyInfo)
         {
             string columnName, key = string.Format("{0}.{1}", propertyInfo.DeclaringType, propertyInfo.Name);
@@ -706,12 +855,7 @@ namespace Dapper
 
         public static string GetColumnName<T, V>(Expression<Func<T, V>> propertyExpression)
         {
-            if (propertyExpression.Body is MemberExpression memberExpression)
-            {
-                return GetColumnName(memberExpression.Member as PropertyInfo);
-            }
-
-            throw new ArgumentException("Expression must be a property expression");
+            return GetColumnName(GetProperty(propertyExpression));
         }
 
         public static string GetColumnName<T, V>(this T obj, Expression<Func<T, V>> propertyExpression) => GetColumnName(propertyExpression);
@@ -1372,10 +1516,17 @@ namespace Dapper
             return UpdateWhere(connection, sb.ToString(), entityToUpdate, transaction, commandTimeout);
         }
 
+        public static int UpdateWhere<TEntity>(this IDbConnection connection, TEntity entityToUpdate, Expression<Func<TEntity, bool>> whereConditions, IDbTransaction transaction = null, int? commandTimeout = null)
+        {
+            return UpdateWhere(connection, entityToUpdate, new[] { whereConditions }, transaction, commandTimeout);
+        }
         public static int UpdateWhere<TEntity>(this IDbConnection connection, TEntity entityToUpdate, Expression<Func<TEntity, bool>>[] whereConditions, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             var sb = new StringBuilder();
-
+            sb.Append("update ");
+            sb.Append(GetTableName(entityToUpdate));
+            sb.Append(" set ");
+            BuildUpdateSet(entityToUpdate, sb);
             var parameters = new DynamicParameters();
             for (int i = 0; i < whereConditions.Length; i++)
             {
@@ -1752,7 +1903,7 @@ namespace Dapper
             Parameters = parameters;
         }
 
-        public string Query { get; }
+        public string Query { get; private set; }
         public DynamicParameters Parameters { get; }
 
         //desconstruct function
@@ -1761,6 +1912,41 @@ namespace Dapper
             query = Query;
             parameters = Parameters;
         }
+
+        public InterpolatedQuery Append(InterpolatedQuery query)
+        {
+            Query += query.Query;
+            Parameters.AddDynamicParams(query.Parameters);
+            return this;
+        }
+
+        public InterpolatedQuery Append(FormattableString query)
+        {
+            return Append(query.ToInterpolatedQuery());
+        }
+
+        public InterpolatedQuery Append(string query, object obj)
+        {
+            Query += query;
+            Parameters.AddDynamicParams(obj);
+            return this;
+        }
+
+        public InterpolatedQuery AppendIf(bool condition, FormattableString query)
+        {
+            if (condition) Append(query);
+            return this;
+        }
+
+        public InterpolatedQuery AppendIf(bool condition, string query, object obj)
+        {
+            if (condition) Append(query, obj);
+            return this;
+        }
+
+        public static implicit operator InterpolatedQuery((string query, DynamicParameters parameters) tuple) => new InterpolatedQuery(tuple.query, tuple.parameters);
+
+        public static implicit operator InterpolatedQuery((FormattableString query, DynamicParameters parameters) tuple) => new InterpolatedQuery(tuple.query.ToString(), tuple.parameters);
     }
 
     internal static class TypeExtension
@@ -1770,31 +1956,29 @@ namespace Dapper
         //You can't insert or update complex types. Lets filter them out.
         public static bool IsSimpleType(this Type type)
         {
-            var underlyingType = Nullable.GetUnderlyingType(type);
-            type = underlyingType ?? type;
-            var simpleTypes = new List<Type>
-                              {
-                                  typeof(byte),
-                                  typeof(sbyte),
-                                  typeof(short),
-                                  typeof(ushort),
-                                  typeof(int),
-                                  typeof(uint),
-                                  typeof(long),
-                                  typeof(ulong),
-                                  typeof(float),
-                                  typeof(double),
-                                  typeof(decimal),
-                                  typeof(bool),
-                                  typeof(string),
-                                  typeof(char),
-                                  typeof(Guid),
-                                  typeof(DateTime),
-                                  typeof(DateTimeOffset),
-                                  typeof(TimeSpan),
-                                  typeof(byte[])
-                              };
-            return simpleTypes.Contains(type) || type.IsEnum;
+            type = Nullable.GetUnderlyingType(type) ?? type;
+            return new List<Type>
+                           {
+                               typeof(byte),
+                               typeof(sbyte),
+                               typeof(short),
+                               typeof(ushort),
+                               typeof(int),
+                               typeof(uint),
+                               typeof(long),
+                               typeof(ulong),
+                               typeof(float),
+                               typeof(double),
+                               typeof(decimal),
+                               typeof(bool),
+                               typeof(string),
+                               typeof(char),
+                               typeof(Guid),
+                               typeof(DateTime),
+                               typeof(DateTimeOffset),
+                               typeof(TimeSpan),
+                               typeof(byte[])
+                           }.Contains(type) || type.IsEnum;
         }
     }
 }
