@@ -11,7 +11,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
 using Extensions;
 using Microsoft.CSharp.RuntimeBinder;
 
@@ -31,133 +30,27 @@ namespace Dapper
     public static partial class SimpleCRUD
 
     {
-        private const string DefaultParameterPrefix = "@__p";
+        internal const string DefaultParameterPrefix = "@__p";
 
-        /// <inheritdoc cref="SqlMapper.Execute"/>
-        public static int ExecuteInterpolated(this IDbConnection cnn, FormattableString sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null, string parameterPrefix = DefaultParameterPrefix, CultureInfo culture = null)
-        {
-            var (queryString, parameters) = sql.ToInterpolatedQuery(parameterPrefix, param, culture);
-            return cnn.Execute(queryString, parameters, transaction, commandTimeout, commandType);
-        }
+        public static int Execute(this IDbConnection cnn, InterpolatedQuery sql, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null) => cnn.Execute(sql.Query, sql.Parameters, transaction, commandTimeout, commandType);
 
-        /// <inheritdoc cref="SqlMapper.ExecuteAsync"/>
-        public static Task<int> ExecuteInterpolatedAsync(this IDbConnection cnn, FormattableString sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null, string parameterPrefix = DefaultParameterPrefix, CultureInfo culture = null)
-        {
-            var (queryString, parameters) = sql.ToInterpolatedQuery(parameterPrefix, param, culture);
-            return cnn.ExecuteAsync(queryString, parameters, transaction, commandTimeout, commandType);
-        }
+        public static IEnumerable<T> Query<T>(this IDbConnection cnn, InterpolatedQuery sql, IDbTransaction transaction = null, bool buffered = true, int? commandTimeout = null, CommandType? commandType = null) => cnn.Query<T>(sql.Query, sql.Parameters, transaction, buffered, commandTimeout, commandType);
+        public static T QueryFirst<T>(this IDbConnection cnn, InterpolatedQuery sql, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null) => cnn.QueryFirst<T>(sql.Query, sql.Parameters, transaction, commandTimeout, commandType);
 
-        /// <inheritdoc cref="SqlMapper.Query{T}"/>
-        public static IEnumerable<T> QueryInterpolated<T>(this IDbConnection cnn, FormattableString sql, object param = null, IDbTransaction transaction = null, bool buffered = true, int? commandTimeout = null, CommandType? commandType = null, string parameterPrefix = DefaultParameterPrefix, CultureInfo culture = null)
-        {
-            var (queryString, parameters) = sql.ToInterpolatedQuery(parameterPrefix, param, culture);
-            return cnn.Query<T>(queryString, parameters, transaction, buffered, commandTimeout, commandType);
-        }
+        public static T QueryFirstOrDefault<T>(this IDbConnection cnn, InterpolatedQuery sql, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null) => cnn.QueryFirstOrDefault<T>(sql.Query, sql.Parameters, transaction, commandTimeout, commandType);
 
-        /// <inheritdoc cref="SqlMapper.QueryAsync{T}"/>
-        public static Task<IEnumerable<T>> QueryInterpolatedAsync<T>(this IDbConnection cnn, FormattableString sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null, string parameterPrefix = DefaultParameterPrefix, CultureInfo culture = null)
-        {
-            var (queryString, parameters) = sql.ToInterpolatedQuery(parameterPrefix, param, culture);
-            return cnn.QueryAsync<T>(queryString, parameters, transaction, commandTimeout, commandType);
-        }
+        public static T QuerySingle<T>(this IDbConnection cnn, InterpolatedQuery sql, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null) => cnn.QuerySingle<T>(sql.Query, sql.Parameters, transaction, commandTimeout, commandType);
 
-        /// <inheritdoc cref="SqlMapper.QueryFirst{T}"/>
-        public static T QueryFirstInterpolated<T>(this IDbConnection cnn, FormattableString sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null, string parameterPrefix = DefaultParameterPrefix, CultureInfo culture = null)
-        {
-            var (queryString, parameters) = sql.ToInterpolatedQuery(parameterPrefix, param, culture);
-            return cnn.QueryFirst<T>(queryString, parameters, transaction, commandTimeout, commandType);
-        }
-
-        /// <inheritdoc cref="SqlMapper.QueryFirstAsync{T}"/>
-        public static Task<T> QueryFirstInterpolatedAsync<T>(this IDbConnection cnn, FormattableString sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null, string parameterPrefix = DefaultParameterPrefix, CultureInfo culture = null)
-        {
-            var (queryString, parameters) = sql.ToInterpolatedQuery(parameterPrefix, param, culture);
-            return cnn.QueryFirstAsync<T>(queryString, parameters, transaction, commandTimeout, commandType);
-        }
-
-        /// <inheritdoc cref="SqlMapper.QueryFirstOrDefault{T}"/>
-        public static T QueryFirstOrDefaultInterpolated<T>(this IDbConnection cnn, FormattableString sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null, string parameterPrefix = DefaultParameterPrefix, CultureInfo culture = null)
-        {
-            var (queryString, parameters) = sql.ToInterpolatedQuery(parameterPrefix, param, culture);
-            return cnn.QueryFirstOrDefault<T>(queryString, parameters, transaction, commandTimeout, commandType);
-        }
-
-        /// <inheritdoc cref="SqlMapper.QueryFirstOrDefaultAsync{T}"/>
-        public static Task<T> QueryFirstOrDefaultInterpolatedAsync<T>(this IDbConnection cnn, FormattableString sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null, string parameterPrefix = DefaultParameterPrefix, CultureInfo culture = null)
-        {
-            var (queryString, parameters) = sql.ToInterpolatedQuery(parameterPrefix, param, culture);
-            return cnn.QueryFirstOrDefaultAsync<T>(queryString, parameters, transaction, commandTimeout, commandType);
-        }
+        public static T QuerySingleOrDefault<T>(this IDbConnection cnn, InterpolatedQuery sql, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null) => cnn.QuerySingleOrDefault<T>(sql.Query, sql.Parameters, transaction, commandTimeout, commandType);
 
         /// <summary>
-        /// Converts a FormattableString to a InterpolatedQuery. It contains the Qeery string and DynamicParameters.
+        /// Converts a FormattableString to a InterpolatedQuery. It contains the Query string and DynamicParameters.
         /// </summary>
         /// <param name="sql">The FormattableString to convert.</param>
         /// <param name="parameterPrefix">the prefix used for each parameter</param>
         /// <param name="aditionalParameters">Append aditional parameters using <see cref="DynamicParameters.AddDynamicParams(object)"/></param>
         /// <returns>A tuple containing the query string and DynamicParameters.</returns>
-        public static InterpolatedQuery ToInterpolatedQuery(this FormattableString sql, string parameterPrefix = null, object aditionalParameters = null, CultureInfo culture = null)
-        {
-            culture = culture ?? culture ?? CultureInfo.InvariantCulture;
-            parameterPrefix = string.IsNullOrWhiteSpace(parameterPrefix) ? DefaultParameterPrefix : parameterPrefix;
-            var dynamicParameters = new DynamicParameters();
-            var format = sql.Format;
-
-            for (int i = 0; i < sql.ArgumentCount; i++)
-            {
-                var arg = sql.GetArgument(i);
-                var index = "{" + i + ":";
-                var f = format.IndexOf(index);
-
-                if (f >= 0)
-                {
-                    if (arg is IFormattable farg && farg != null)
-                    {
-                        var argumentFormat = format.Substring(f + index.Length);
-                        argumentFormat = argumentFormat.Substring(0, argumentFormat.IndexOf("}"));
-                        arg = farg.ToString(argumentFormat, culture);
-                    }
-                    else
-                    {
-                        arg = arg?.ToString();
-                    }
-
-                    dynamicParameters.Add($"{parameterPrefix}{i}", arg);
-                }
-                else
-                {
-                    if (arg is Type t)
-                    {
-                        format = format.Replace("{" + i + "}", GetTableName(t));
-                    }
-                    else if (arg is TableAttribute table)
-                    {
-                        format = format.Replace("{" + i + "}", Encapsulate(table.Name));
-                    }
-                    else if (arg is PropertyInfo member)
-                    {
-                        format = format.Replace("{" + i + "}", GetColumnName(member));
-                    }
-                    else if (arg is ColumnAttribute c)
-                    {
-                        format = format.Replace("{" + i + "}", Encapsulate(c.Name));
-                    }
-                    else
-                    {
-                        format = format.Replace("{" + i + "}", $"{parameterPrefix}{i}");
-                        dynamicParameters.Add($"{parameterPrefix}{i}", arg);
-                    }
-                }
-            }
-            if (aditionalParameters != null)
-            {
-                dynamicParameters.AddDynamicParams(aditionalParameters);
-            }
-
-            //var q = new Regex(@"\{(\d+)(:[^}]+)?\}").Replace(format, match => $"{parameterPrefix}{match.Groups[1].Value}");
-
-            return new InterpolatedQuery(query: format, parameters: dynamicParameters);
-        }
+        public static InterpolatedQuery ToInterpolatedQuery(this FormattableString sql, string parameterPrefix = null, object aditionalParameters = null, CultureInfo culture = null) => new InterpolatedQuery(sql, parameterPrefix, aditionalParameters, culture);
 
         private static readonly ConcurrentDictionary<string, string> ColumnNames = new ConcurrentDictionary<string, string>();
 
@@ -184,7 +77,6 @@ namespace Dapper
             var columnName = GetColumnName(column);
             return GeneratePrimaryKey<T, V>(connection, columnName, whereConditions);
         }
-
 
         /// <summary>
         /// Generate a new ID for the entity
@@ -260,7 +152,6 @@ namespace Dapper
                 if (value is int v2)
                 {
                     return (V)Convert.ChangeType(v2 + 1, typeof(V));
-
                 }
 
                 if (value is string)
@@ -272,7 +163,6 @@ namespace Dapper
 
                     return value;
                 }
-
             }
             return default;
         }
@@ -814,13 +704,13 @@ namespace Dapper
             return connection.QueryFirstOrDefault<T>(sb.ToString(), dynParms, transaction, commandTimeout);
         }
 
-        public static ColumnAttribute Column(this PropertyInfo propertyInfo)
+        public static ColumnAttribute ColumnAttr(this PropertyInfo propertyInfo)
         {
             return propertyInfo.GetCustomAttributes(true).FirstOrDefault(attr => attr.GetType().Name == typeof(ColumnAttribute).Name) as ColumnAttribute;
         }
-        public static ColumnAttribute Column<T, V>(Expression<Func<T, V>> expression)
+        public static ColumnAttribute ColumnAttr<T, V>(Expression<Func<T, V>> expression)
         {
-            return GetProperty(expression).Column();
+            return GetProperty(expression).ColumnAttr();
         }
 
         public static PropertyInfo GetProperty<T, V>(this Expression<Func<T, V>> expression)
@@ -835,8 +725,9 @@ namespace Dapper
         public static string GetColumnName(this Type t, string searchName)
         {
             var props = GetScaffoldableProperties(t).ToArray();
-            return props.FirstOrDefault(x => x.Name.Equals(searchName, StringComparison.OrdinalIgnoreCase) || x.Column().Name == searchName)?.Name;
+            return props.FirstOrDefault(x => x.Name.Equals(searchName, StringComparison.OrdinalIgnoreCase) || x.ColumnAttr().Name == searchName)?.Name ?? searchName;
         }
+
         public static string GetColumnName(PropertyInfo propertyInfo)
         {
             string columnName, key = string.Format("{0}.{1}", propertyInfo.DeclaringType, propertyInfo.Name);
@@ -1897,16 +1788,102 @@ namespace Dapper
 
     public class InterpolatedQuery
     {
-        internal InterpolatedQuery(string query, DynamicParameters parameters)
+        public InterpolatedQuery(string parameterPrefix = null, CultureInfo culture = null)
         {
-            Query = query;
-            Parameters = parameters;
+            this.ParameterPrefix = parameterPrefix;
+            this.Culture = culture;
+            defaults();
+        }
+
+
+        internal void processQuery(FormattableString sql, object aditionalParameters = null)
+        {
+            this.defaults();
+
+            if (sql == null)
+            {
+                return;
+            }
+
+            var format = sql.Format;
+
+            for (int i = 0; i < sql.ArgumentCount; i++)
+            {
+                var arg = sql.GetArgument(i);
+                var index = "{" + i + ":";
+                var f = format.IndexOf(index);
+
+                if (f >= 0)
+                {
+                    if (arg is IFormattable farg && farg != null)
+                    {
+                        var argumentFormat = format.Substring(f + index.Length);
+                        argumentFormat = argumentFormat.Substring(0, argumentFormat.IndexOf("}"));
+                        arg = farg.ToString(argumentFormat, this.Culture);
+                    }
+                    else
+                    {
+                        arg = arg?.ToString();
+                    }
+
+                    this.Parameters.Add($"{this.ParameterPrefix}{i}", arg);
+                }
+                else
+                {
+                    if (arg is Type t)
+                    {
+                        format = format.Replace("{" + i + "}", SimpleCRUD.GetTableName(t));
+                    }
+                    else if (arg is TableAttribute table)
+                    {
+                        format = format.Replace("{" + i + "}", SimpleCRUD.Encapsulate(table.Name));
+                    }
+                    else if (arg is PropertyInfo member)
+                    {
+                        format = format.Replace("{" + i + "}", SimpleCRUD.GetColumnName(member));
+                    }
+                    else if (arg is ColumnAttribute c)
+                    {
+                        format = format.Replace("{" + i + "}", SimpleCRUD.Encapsulate(c.Name));
+                    }
+                    else
+                    {
+                        format = format.Replace("{" + i + "}", $"{this.ParameterPrefix}{i}");
+                        this.Parameters.Add($"{this.ParameterPrefix}{i}", arg);
+                    }
+                }
+            }
+
+            if (aditionalParameters != null)
+            {
+                this.Parameters.AddDynamicParams(aditionalParameters);
+            }
+
+            this.Query += format;
+        }
+
+        internal void defaults()
+        {
+            this.Parameters = this.Parameters ?? new DynamicParameters();
+            this.ParameterPrefix = this.ParameterPrefix ?? SimpleCRUD.DefaultParameterPrefix;
+            this.Culture = this.Culture ?? CultureInfo.InvariantCulture;
+            this.Query = this.Query ?? "";
+        }
+
+        public InterpolatedQuery(FormattableString sql, string parameterPrefix = null, object aditionalParameters = null, CultureInfo culture = null) : this(parameterPrefix, culture)
+        {
+            this.Culture = culture;
+            this.ParameterPrefix = parameterPrefix;
+            processQuery(sql, aditionalParameters);
         }
 
         public string Query { get; private set; }
-        public DynamicParameters Parameters { get; }
+        public DynamicParameters Parameters { get; private set; }
 
-        //desconstruct function
+        public string ParameterPrefix { get; private set; }
+        public CultureInfo Culture { get; private set; }
+
+
         public void Deconstruct(out string query, out DynamicParameters parameters)
         {
             query = Query;
@@ -1915,22 +1892,17 @@ namespace Dapper
 
         public InterpolatedQuery Append(InterpolatedQuery query)
         {
-            Query += query.Query;
+            defaults();
+            this.Query += query.Query;
             Parameters.AddDynamicParams(query.Parameters);
             return this;
         }
 
-        public InterpolatedQuery Append(FormattableString query)
+        public InterpolatedQuery Append(FormattableString query, object aditionalParameters = null)
         {
-            return Append(query.ToInterpolatedQuery());
+            return Append(query.ToInterpolatedQuery(this.ParameterPrefix, aditionalParameters, this.Culture));
         }
 
-        public InterpolatedQuery Append(string query, object obj)
-        {
-            Query += query;
-            Parameters.AddDynamicParams(obj);
-            return this;
-        }
 
         public InterpolatedQuery AppendIf(bool condition, FormattableString query)
         {
@@ -1938,15 +1910,11 @@ namespace Dapper
             return this;
         }
 
-        public InterpolatedQuery AppendIf(bool condition, string query, object obj)
-        {
-            if (condition) Append(query, obj);
-            return this;
-        }
 
-        public static implicit operator InterpolatedQuery((string query, DynamicParameters parameters) tuple) => new InterpolatedQuery(tuple.query, tuple.parameters);
 
-        public static implicit operator InterpolatedQuery((FormattableString query, DynamicParameters parameters) tuple) => new InterpolatedQuery(tuple.query.ToString(), tuple.parameters);
+        public static implicit operator InterpolatedQuery(FormattableString query) => new InterpolatedQuery(query);
+
+        public static implicit operator InterpolatedQuery((FormattableString query, DynamicParameters parameters) tuple) => new InterpolatedQuery(tuple.query, null, tuple.parameters, null);
     }
 
     internal static class TypeExtension
