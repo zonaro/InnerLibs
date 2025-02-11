@@ -287,7 +287,7 @@ namespace Dapper
                 var useIsNull = false;
 
                 //match up generic properties to source entity properties to allow fetching of the column attribute
-                //the anonymous object used for search doesn't have the custom attributes attached to them so this allows us to build the correct where clause
+                //the anonymous object used for search doesn'classType have the custom attributes attached to them so this allows us to build the correct where clause
                 //by converting the model type to the database column name via the column attribute
                 var propertyToUse = propertyInfos.ElementAt(i);
                 var sourceProperties = GetScaffoldableProperties<TEntity>().ToArray();
@@ -330,7 +330,7 @@ namespace Dapper
         }
 
         //Get all properties that are named Id or have the Key attribute
-        //For Get(id) and Delete(id) we don't have an entity, just the type so this method is used
+        //For Get(id) and Delete(id) we don'classType have an entity, just the type so this method is used
         private static IEnumerable<PropertyInfo> GetIdProperties(Type type)
         {
             var tp = type.GetProperties().Where(p => p.GetCustomAttributes(true).Any(attr => attr.GetType().Name == typeof(KeyAttribute).Name)).ToList();
@@ -704,13 +704,13 @@ namespace Dapper
             return connection.QueryFirstOrDefault<T>(sb.ToString(), dynParms, transaction, commandTimeout);
         }
 
-        public static ColumnAttribute ColumnAttr(this PropertyInfo propertyInfo)
+        public static ColumnAttribute GetColumnAttribute(this PropertyInfo propertyInfo)
         {
             return propertyInfo.GetCustomAttributes(true).FirstOrDefault(attr => attr.GetType().Name == typeof(ColumnAttribute).Name) as ColumnAttribute;
         }
-        public static ColumnAttribute ColumnAttr<T, V>(Expression<Func<T, V>> expression)
+        public static ColumnAttribute GetColumnAttribute<T, V>(this Expression<Func<T, V>> expression)
         {
-            return GetProperty(expression).ColumnAttr();
+            return GetProperty(expression).GetColumnAttribute();
         }
 
         public static PropertyInfo GetProperty<T, V>(this Expression<Func<T, V>> expression)
@@ -722,10 +722,10 @@ namespace Dapper
             throw new ArgumentException("Expression must be a property expression");
         }
 
-        public static string GetColumnName(this Type t, string searchName)
+        public static string GetColumnName(this Type classType, string searchName)
         {
-            var props = GetScaffoldableProperties(t).ToArray();
-            return props.FirstOrDefault(x => x.Name.Equals(searchName, StringComparison.OrdinalIgnoreCase) || x.ColumnAttr().Name == searchName)?.Name ?? searchName;
+            var props = GetScaffoldableProperties(classType).ToArray();
+            return props.FirstOrDefault(x => x.Name.Equals(searchName, StringComparison.OrdinalIgnoreCase) || x.GetColumnAttribute().Name == searchName)?.Name ?? searchName;
         }
 
         public static string GetColumnName(PropertyInfo propertyInfo)
@@ -750,6 +750,8 @@ namespace Dapper
         }
 
         public static string GetColumnName<T, V>(this T obj, Expression<Func<T, V>> propertyExpression) => GetColumnName(propertyExpression);
+
+        public static ColumnAttribute GetColumnAttribute<T, V>(this T obj, Expression<Func<T, V>> propertyExpression) => propertyExpression.GetColumnAttribute<T, V>();
 
         /// <summary>
         /// Returns the current dialect name
@@ -1017,7 +1019,7 @@ namespace Dapper
         }
 
         //Gets the table name for this type
-        //For Get(id) and Delete(id) we don't have an entity, just the type so this method is used
+        //For Get(id) and Delete(id) we don'classType have an entity, just the type so this method is used
         //Use dynamic type to be able to handle both our Table-attribute and the DataAnnotation
         //Uses class name by default and overrides if the class has a Table attribute
         public static string GetTableName(Type type)
@@ -1305,7 +1307,7 @@ namespace Dapper
                     _dialect = Dialect.DB2;
                     _encapsulation = "\"{0}\"";
                     _getIdentitySql = string.Format("SELECT CAST(IDENTITY_VAL_LOCAL() AS DEC(31,0)) AS \"id\" FROM SYSIBM.SYSDUMMY1");
-                    _getPagedListSql = "Select * from (Select {SelectColumns}, row_number() over(order by {OrderBy}) as PagedNumber from {TableName} {WhereClause} Order By {OrderBy}) as t where t.PagedNumber between (({pageNumber}-1) * {RowsPerPage} + 1) AND ({pageNumber} * {RowsPerPage})";
+                    _getPagedListSql = "Select * from (Select {SelectColumns}, row_number() over(order by {OrderBy}) as PagedNumber from {TableName} {WhereClause} Order By {OrderBy}) as classType where classType.PagedNumber between (({pageNumber}-1) * {RowsPerPage} + 1) AND ({pageNumber} * {RowsPerPage})";
                     break;
 
                 default:
@@ -1572,7 +1574,7 @@ namespace Dapper
                     }
                     catch (RuntimeBinderException)
                     {
-                        //Schema doesn't exist on this attribute.
+                        //Schema doesn'classType exist on this attribute.
                     }
                 }
 
@@ -1921,7 +1923,7 @@ namespace Dapper
     {
         public static string CacheKey(this IEnumerable<PropertyInfo> props) => string.Join(",", props.Select(p => p.DeclaringType.FullName + "." + p.Name).ToArray());
 
-        //You can't insert or update complex types. Lets filter them out.
+        //You can'classType insert or update complex types. Lets filter them out.
         public static bool IsSimpleType(this Type type)
         {
             type = Nullable.GetUnderlyingType(type) ?? type;
