@@ -72,11 +72,8 @@ namespace Dapper
 
         private static bool StringBuilderCacheEnabled = true;
 
-        public static V GeneratePrimaryKey<T, V>(this IDbConnection connection, Expression<Func<T, V>> column, object whereConditions = null)
-        {
-            var columnName = GetColumnName(column);
-            return GeneratePrimaryKey<T, V>(connection, columnName, whereConditions);
-        }
+        public static V GeneratePrimaryKey<T, V>(this IDbConnection connection, Expression<Func<T, V>> column, object whereConditions = null) where T : class => GeneratePrimaryKey<T, V>(connection, GetColumnName(column), whereConditions);
+
 
         /// <summary>
         /// Generate a new ID for the entity
@@ -88,7 +85,7 @@ namespace Dapper
         /// <param name="whereConditions"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public static V GeneratePrimaryKey<T, V>(this IDbConnection connection, string keyName = null, object whereConditions = null)
+        public static V GeneratePrimaryKey<T, V>(this IDbConnection connection, string keyName = null, object whereConditions = null) where T : class
         {
             var t = typeof(T);
             var sb = new StringBuilder();
@@ -136,12 +133,16 @@ namespace Dapper
                 }
                 else
                 {
-                    BuildWhere<T>(sb, GetAllProperties(t), whereConditions);
+                    if (whereConditions != null)
+                    {
+                        sb.Append(" WHERE ");
+                        BuildWhere<T>(sb, GetAllProperties(t), whereConditions);
+                    }
                 }
 
                 var sql = sb.ToString();
 
-                var value = connection.QueryFirstOrDefault<V>(sql);
+                var value = connection.QueryFirstOrDefault<V>(sql, whereConditions);
 
                 if (value is long v1)
                 {
@@ -317,7 +318,12 @@ namespace Dapper
         private static IEnumerable<PropertyInfo> GetAllProperties<T>(T entity) where T : class
         {
             if (entity == null) return Array.Empty<PropertyInfo>();
-            return entity.GetType().GetProperties();
+            if (entity is Type type)
+            {
+                return type.GetProperties();
+            }
+
+            return GetAllProperties(entity.GetType());
         }
 
         //Get all properties that are named Id or have the Key attribute
