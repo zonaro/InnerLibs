@@ -183,10 +183,12 @@ namespace Dapper
                 for (var i = 0; i < props.Count(); i++)
                 {
                     var property = props.ElementAt(i);
+
                     if (property.PropertyType != typeof(Guid) && property.PropertyType != typeof(string)
                         && property.GetCustomAttributes(true).Any(attr => attr.GetType().Name == typeof(KeyAttribute).Name)
                            && property.GetCustomAttributes(true).All(attr => attr.GetType().Name != typeof(RequiredAttribute).Name))
                         continue;
+
                     if (property.GetCustomAttributes(true).Any(attr =>
                         attr.GetType().Name == typeof(IgnoreInsertAttribute).Name ||
                         attr.GetType().Name == typeof(NotMappedAttribute).Name ||
@@ -1041,6 +1043,8 @@ namespace Dapper
 
             return tableName;
         }
+
+        public static string GetTableName<T, V>(this Expression<Func<T, V>> exp) => GetTableName(typeof(T));
 
         public static string GetTableName<T>(this T entity)
         {

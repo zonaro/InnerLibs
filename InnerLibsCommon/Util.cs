@@ -2204,6 +2204,15 @@ namespace Extensions
             {
                 Keys = Keys ?? Array.Empty<string>();
 
+                if (Obj.GetTypeOf() == typeof((string, object)))
+                {
+                    (string, object) t = Obj.ChangeType<(string, object)>();
+                    return new Dictionary<string, object>()
+                    {
+                        { t.Item1, t.Item2 }
+                    };
+                }
+
                 if (Obj.GetTypeOf() == typeof(IEnumerable<(string, object)>))
                 {
                     var oo = Obj.ChangeType<IEnumerable<(string, object)>>();
@@ -4087,7 +4096,7 @@ namespace Extensions
         public static string FormatSQLColumn(params string[] ColumnNameParts) => FormatSQLColumn('[', ColumnNameParts);
 
         /// <summary>
-        /// Extension Method para <see cref="String.Format(String,Object())"/>
+        /// Extension Method para <see cref="string.Format(string,object)"/>
         /// </summary>
         /// <param name="Text">Texto</param>
         /// <param name="Args">Objetos de substituição</param>
@@ -12248,6 +12257,9 @@ namespace Extensions
 
             return SearchRet;
         }
+
+        public static IOrderedEnumerable<TClass> SearchInOrder<TClass>(this IEnumerable<TClass> Table, string SearchTerms, bool Ascending, params Expression<Func<TClass, string>>[] Properties) where TClass : class
+        => SearchInOrder(Table, ForceArray<string>(SearchTerms), Ascending, Properties);
 
         public static IOrderedEnumerable<TClass> SearchInOrder<TClass>(this IEnumerable<TClass> Table, IEnumerable<string> SearchTerms, params Expression<Func<TClass, string>>[] Properties) where TClass : class => SearchInOrder(Table, SearchTerms, true, Properties);
 
