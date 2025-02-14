@@ -74,7 +74,6 @@ namespace Dapper
 
         public static V GeneratePrimaryKey<T, V>(this IDbConnection connection, Expression<Func<T, V>> column, object whereConditions = null) where T : class => GeneratePrimaryKey<T, V>(connection, GetColumnName(column), whereConditions);
 
-
         /// <summary>
         /// Generate a new ID for the entity
         /// </summary>
@@ -1072,9 +1071,9 @@ namespace Dapper
         /// The ID (primary key) of the newly inserted record if it is identity using the int? type,
         /// otherwise null
         /// </returns>
-        public static int? Insert<TEntity>(this IDbConnection connection, TEntity entityToInsert, IDbTransaction transaction = null, int? commandTimeout = null)
+        public static TEntity Insert<TEntity>(this IDbConnection connection, TEntity entityToInsert, IDbTransaction transaction = null, int? commandTimeout = null)
         {
-            return Insert<int?, TEntity>(connection, entityToInsert, transaction, commandTimeout);
+            return Insert<TEntity, TEntity>(connection, entityToInsert, transaction, commandTimeout);
         }
 
         /// <summary>
@@ -1147,11 +1146,18 @@ namespace Dapper
                 sb.Append(";select '" + idProps.First().GetValue(entityToInsert, null) + "' as id");
             }
 
-            if ((keytype == typeof(int) || keytype == typeof(long)) && Convert.ToInt64(idProps.First().GetValue(entityToInsert, null)) == 0)
+            try
             {
-                sb.Append(";" + _getIdentitySql);
+                if ((keytype == typeof(int) || keytype == typeof(long)) && Convert.ToInt64(idProps.First().GetValue(entityToInsert, null)) == 0)
+                {
+                    sb.Append(";" + _getIdentitySql);
+                }
+                else
+                {
+                    keyHasPredefinedValue = true;
+                }
             }
-            else
+            catch
             {
                 keyHasPredefinedValue = true;
             }
@@ -1159,25 +1165,33 @@ namespace Dapper
             if (Debugger.IsAttached)
                 Trace.WriteLine(String.Format("Insert: {0}", sb));
 
-            var r = connection.Query(sb.ToString(), entityToInsert, transaction, true, commandTimeout);
+            var r = connection.Query<TKey>(sb.ToString(), entityToInsert, transaction, true, commandTimeout).FirstOrDefault();
+
+            if (r != null) return r;
 
             if (keytype == typeof(TEntity))
             {
-                if (entityToInsert is TKey e)
+                var ee = connection.Get<TEntity>(entityToInsert, transaction, commandTimeout);
+                if (ee is TKey kk)
                 {
-                    return e;
-                }
-                else
-                {
-                    throw new InvalidCastException($"Entity must be of type {typeof(TKey)}");
+                    return kk;
                 }
             }
 
             if (keytype == typeof(Guid) || keyHasPredefinedValue)
             {
-                return (TKey)idProps.First().GetValue(entityToInsert, null);
+                var v = idProps.First().GetValue(entityToInsert, null);
+                if (v is TKey key)
+                {
+                    return key;
+                }
+                else
+                {
+                    return (TKey)Convert.ChangeType(v, keytype);
+                }
             }
-            return (TKey)r.First().id;
+
+            throw new DataException("The entity must have a [Key] or Id property");
         }
 
         /// <summary>
@@ -1807,7 +1821,6 @@ namespace Dapper
             defaults();
         }
 
-
         internal void processQuery(FormattableString sql, object aditionalParameters = null)
         {
             this.defaults();
@@ -1895,7 +1908,6 @@ namespace Dapper
         public string ParameterPrefix { get; private set; }
         public CultureInfo Culture { get; private set; }
 
-
         public void Deconstruct(out string query, out DynamicParameters parameters)
         {
             query = Query;
@@ -1915,14 +1927,11 @@ namespace Dapper
             return Append(query.ToInterpolatedQuery(this.ParameterPrefix, aditionalParameters, this.Culture));
         }
 
-
         public InterpolatedQuery AppendIf(bool condition, FormattableString query)
         {
             if (condition) Append(query);
             return this;
         }
-
-
 
         public static implicit operator InterpolatedQuery(FormattableString query) => new InterpolatedQuery(query);
 
