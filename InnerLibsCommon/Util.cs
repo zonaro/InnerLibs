@@ -7064,7 +7064,7 @@ namespace Extensions
         {
             try
             {
-                var ValueType = Obj.GetType();
+                var ValueType = Obj?.GetType() ?? typeof(T);
                 return !(ValueType == typeof(string)) && ValueType.IsArray; //  GetType(TEntity).IsAssignableFrom(ValueType.GetElementType())
             }
             catch
@@ -8875,13 +8875,10 @@ namespace Extensions
                                 }
                             }
                         }
-                        else if (dic[key].GetType() != typeof(string) && (IsArray(dic[key]) || dic[key].IsList()))
-                        {
-                            result.Add(key, dic[key].ChangeType<object[]>());
-                        }
+
                         else
                         {
-                            result.Add(key, dic[key]);
+                            result[key] = dic[key];
                         }
                     }
                 }
