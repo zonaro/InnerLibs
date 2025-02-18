@@ -22,7 +22,7 @@ namespace Extensions.Web
         /// <summary>
         /// Current document BODY tag. Return this <see cref="HtmlDocument"/> if body is not present
         /// </summary>
-        public HtmlElementNode Body => ChildNodes.FirstOfType<HtmlElementNode>(x => x.TagName.EqualsIgnoreCaseAndAccents("body")) ?? this;
+        public HtmlElementNode Body => ChildNodes.FirstOfType<HtmlElementNode>(x => x.TagName.FlatEqual("body")) ?? this;
 
         /// <summary>
         /// Document Meta Charset
@@ -48,7 +48,7 @@ namespace Extensions.Web
         /// <summary>
         /// The current HEAD tag of document. Return BODY tag if HEAD is not present
         /// </summary>
-        public HtmlElementNode Head => ChildNodes.FirstOfType<HtmlElementNode>(x => x.TagName.EqualsIgnoreCaseAndAccents("head")) ?? Body;
+        public HtmlElementNode Head => ChildNodes.FirstOfType<HtmlElementNode>(x => x.TagName.FlatEqual("head")) ?? Body;
 
         /// <summary>
         /// Document language
@@ -288,19 +288,19 @@ namespace Extensions.Web
 
             this.Add(n);
 
-            var head = n.FindOfType<HtmlElementNode>(x => x.TagName.EqualsIgnoreCaseAndAccents("head"));
+            var head = n.FindOfType<HtmlElementNode>(x => x.TagName.FlatEqual("head"));
 
             this.Add(head);
 
-            var body = n.FindOfType<HtmlElementNode>(x => x.TagName.EqualsIgnoreCaseAndAccents("body"));
+            var body = n.FindOfType<HtmlElementNode>(x => x.TagName.FlatEqual("body"));
 
             this.Add(body);
 
-            var title = n.FindOfType<HtmlElementNode>(x => x.TagName.EqualsIgnoreCaseAndAccents("title"));
+            var title = n.FindOfType<HtmlElementNode>(x => x.TagName.FlatEqual("title"));
 
             Head.Add(title);
 
-            var meta = n.FindOfType<HtmlElementNode>(x => x.TagName.EqualsIgnoreCaseAndAccents("meta"));
+            var meta = n.FindOfType<HtmlElementNode>(x => x.TagName.FlatEqual("meta"));
 
             Head.Add(meta);
 
@@ -321,7 +321,7 @@ namespace Extensions.Web
                 xh = xh?.Where(x => x != item);
             } while (item != null);
 
-            var html = n.FindOfType<HtmlElementNode>(x => x.TagName.EqualsIgnoreCaseAndAccents("html"));
+            var html = n.FindOfType<HtmlElementNode>(x => x.TagName.FlatEqual("html"));
             foreach (var x in html)
             {
                 foreach (var att in x.Attributes.AsEnumerable())
@@ -333,7 +333,7 @@ namespace Extensions.Web
 
             var outros = this.Select(x => x as HtmlElementNode)
                    .WhereNotNull()
-                   .Where(x => x.TagName.EqualsIgnoreCaseAndAccents("html") && x.Any() == false).ToList();
+                   .Where(x => x.TagName.FlatEqual("html") && x.Any() == false).ToList();
 
             foreach (var o in outros)
             {

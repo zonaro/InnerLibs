@@ -3480,14 +3480,25 @@ namespace Extensions
             return Expression.Equal(MemberExpression, ValueExpression);
         }
 
-        public static bool EqualsAnyIgnoreCase(this string Text, params string[] CompareText) => CompareText?.Any(x => Text.EqualsIgnoreCase(x)) ?? false;
-        public static bool EqualsIgnoreCase(this string Text, string CompareText) => string.Equals(Text ?? "", CompareText ?? "", StringComparison.OrdinalIgnoreCase);
-
-        public static bool EqualsAnyIgnoreCaseAndAccents(this string Text, params string[] CompareText) => CompareText?.Any(x => Text.EqualsIgnoreCaseAndAccents(x)) ?? false;
-        public static bool EqualsIgnoreCaseAndAccents(this string Text, string CompareText) => EqualsIgnoreCase(Text.RemoveAccents(), CompareText.RemoveAccents());
+        /// <summary>
+        /// Compara uma string com outra ou mais strings ignorando a diferença entre maiusculas e minusculas
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <param name="CompareText">Um ou mais textos para comapração</param>
+        /// <returns></returns>
+        public static bool InsensitiveEqual(this string Text, params string[] CompareText) => CompareText?.Any(x => x.Equals(Text ?? "", StringComparison.OrdinalIgnoreCase)) ?? false;
 
         /// <summary>
-        /// Prepara uma string com aspas simples para uma QueryInterpolated TransactSQL
+        /// Compara uma string com outra ou mais strings ignorando a diferença entre maiusculas e minusculas e acentos
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <param name="CompareText">Um ou mais textos para comapração</param>
+        /// <returns></returns>
+        public static bool FlatEqual(this string Text, params string[] CompareText) => CompareText?.Any(x => InsensitiveEqual(Text.RemoveAccents(), x.RemoveAccents())) ?? false;
+
+
+        /// <summary>
+        /// Prepara uma string com aspas simples para uma string TransactSQL
         /// </summary>
         /// <param name="Text">Texto a ser tratado</param>
         /// <returns>String pronta para a query</returns>

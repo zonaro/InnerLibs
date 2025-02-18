@@ -1051,6 +1051,11 @@ namespace Dapper
             return GetTableName(entity.GetType());
         }
 
+        public static string GetTableName<T>()
+        {
+            return GetTableName(typeof(T));
+        }
+
         /// <summary>
         /// <para>Inserts a row into the database</para>
         /// <para>By default inserts into the table matching the class name</para>
@@ -1401,16 +1406,67 @@ namespace Dapper
             return connection.Execute(masterSb.ToString(), entityToUpdate, transaction, commandTimeout);
         }
 
-        public static int UpdateWhere<TEntity>(this IDbConnection connection, string whereConditions, TEntity entityToUpdate, IDbTransaction transaction = null, int? commandTimeout = null)
+        public static int UpdateWhere<TEntity, Tup>(this IDbConnection connection, TEntity entityToUpdate, Tup whereConditions, IDbTransaction transaction = null, int? commandTimeout = null) where TEntity : class where Tup : class
+
+        {
+            if (typeof(TEntity).IsInterface) //FallBack to BaseType Generic Method: https://stackoverflow.com/questions/4101784/calling-a-generic-method-with-a-dynamic-type
+            {
+                return (int)typeof(SimpleCRUD)
+                    .GetMethods().Where(methodInfo => methodInfo.Name == nameof(UpdateWhere) && methodInfo.GetGenericArguments().Count() == 2).Single()
+                    .MakeGenericMethod(new Type[] { entityToUpdate.GetType() })
+                    .Invoke(null, new object[] { connection, entityToUpdate, whereConditions, transaction, commandTimeout });
+            }
+            var masterSb = new StringBuilder();
+            var para = new DynamicParameters();
+            StringBuilderCache(masterSb, $"{typeof(TEntity).FullName}_Update", sb =>
+            {
+                var whereProps = GetAllProperties(whereConditions).ToList();
+
+                var name = GetTableName(entityToUpdate);
+
+                sb.AppendFormat("update {0}", name);
+
+                sb.AppendFormat(" set ");
+                BuildUpdateSet(entityToUpdate, sb);
+
+                GetUpdateableProperties(entityToUpdate).ToList().ForEach(property =>
+                {
+                    para.Add(property.Name, property.GetValue(entityToUpdate));
+                });
+
+                if (whereProps.Any())
+                {
+                    sb.Append(" where ");
+                    BuildWhere<TEntity>(sb, whereProps, whereProps);
+                    foreach (var prop in whereProps)
+                    {
+                        para.Add(prop.Name, prop.GetValue(whereConditions));
+                    }
+
+                }
+
+                if (Debugger.IsAttached)
+                    Trace.WriteLine(String.Format("Update: {0}", sb));
+            });
+            return connection.Execute(masterSb.ToString(), para, transaction, commandTimeout);
+        }
+
+
+
+
+        public static int UpdateWhere<TEntity>(this IDbConnection connection, TEntity fieldsToUpdate, string whereConditions, IDbTransaction transaction = null, int? commandTimeout = null) where TEntity : class
         {
             var masterSb = new StringBuilder();
             StringBuilderCache(masterSb, $"{typeof(TEntity).FullName}_UpdateWhere", sb =>
             {
-                var name = GetTableName(entityToUpdate);
+
+
+                var name = GetTableName<TEntity>();
                 sb.AppendFormat("update {0}", name);
                 sb.Append(" set ");
-                BuildUpdateSet(entityToUpdate, sb);
+                BuildUpdateSet(fieldsToUpdate, sb);
                 sb.Append(" ");
+
                 if (string.IsNullOrWhiteSpace(whereConditions) == false)
                 {
                     whereConditions = whereConditions.Trim();
@@ -1422,16 +1478,10 @@ namespace Dapper
                     sb.Append(whereConditions);
                 }
             });
-            return connection.Execute(masterSb.ToString(), entityToUpdate, transaction, commandTimeout);
+            return connection.Execute(masterSb.ToString(), fieldsToUpdate, transaction, commandTimeout);
         }
 
-        public static int UpdateWhere<TEntity>(this IDbConnection connection, TEntity entityToUpdate, object whereConditions, IDbTransaction transaction = null, int? commandTimeout = null)
-        {
-            var sb = new StringBuilder();
-            var whereprops = GetAllProperties(whereConditions).ToArray();
-            BuildWhere<TEntity>(sb, whereprops);
-            return UpdateWhere(connection, sb.ToString(), entityToUpdate, transaction, commandTimeout);
-        }
+
 
         public static int UpdateWhere<TEntity>(this IDbConnection connection, TEntity entityToUpdate, Expression<Func<TEntity, bool>> whereConditions, IDbTransaction transaction = null, int? commandTimeout = null)
         {
@@ -1482,22 +1532,37 @@ namespace Dapper
             return connection.Execute(sb.ToString(), entityToUpdate, transaction, commandTimeout);
         }
 
-        public static int UpdateColumn<TEntity, V>(this IDbConnection connection, Expression<Func<TEntity, object>> column, V value, object whereConditions, IDbTransaction transaction = null, int? commandTimeout = null)
+        public static int UpdateColumn<TEntity, V>(this IDbConnection connection, Expression<Func<TEntity, object>> column, V value, object whereConditions, IDbTransaction transaction = null, int? commandTimeout = null) => UpdateColumn(connection, new[] { column }, value, whereConditions, transaction, commandTimeout);
+
+        public static int UpdateColumn<TEntity, V>(this IDbConnection connection, IEnumerable<Expression<Func<TEntity, object>>> column, V value, object whereConditions, IDbTransaction transaction = null, int? commandTimeout = null)
         {
-            var masterSb = new StringBuilder();
-            StringBuilderCache(masterSb, $"{typeof(TEntity).FullName}_UpdateColumn", sb =>
+            var sb = new StringBuilder();
+            DynamicParameters para = new DynamicParameters();
+
+            var name = GetTableName(typeof(TEntity));
+            sb.AppendFormat("update {0}", name);
+            sb.AppendFormat(" set ", name);
+            foreach (var col in column)
             {
-                var name = GetTableName(typeof(TEntity));
-                sb.AppendFormat("update {0}", name);
-                sb.AppendFormat(" set {0} = @value", GetColumnName(column));
-                sb.Append(" ");
-                if (whereConditions != null)
+                var pname = $"value_{DateTime.Now.Ticks}";
+                para.Add(pname, value);
+                sb.AppendFormat(" {0} = @{1}, ", GetColumnName(col), pname);
+            }
+            sb.Remove(sb.Length - 2, 2);
+            sb.Append(" ");
+            if (whereConditions != null)
+            {
+                sb.Append(" WHERE ");
+
+                var whereprops = GetAllProperties(whereConditions).ToArray();
+                BuildWhere<TEntity>(sb, whereprops);
+                foreach (var prop in whereprops)
                 {
-                    var whereprops = GetAllProperties(whereConditions).ToArray();
-                    BuildWhere<TEntity>(sb, whereprops);
+                    para.Add(prop.Name, prop.GetValue(whereConditions));
                 }
-            });
-            return connection.Execute(masterSb.ToString(), new { value }, transaction, commandTimeout);
+            }
+
+            return connection.Execute(sb.ToString(), para, transaction, commandTimeout);
         }
 
         /// <summary>
