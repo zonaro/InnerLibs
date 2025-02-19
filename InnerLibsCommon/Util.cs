@@ -257,7 +257,7 @@ namespace Extensions
         /// </summary>
         public static IEnumerable<Color> KnowColors => GetEnumValues<KnownColor>().Select(x => Color.FromKnownColor(x));
 
-        public static IEnumerable<HSVColor> KnowHSVColors => KnowColors.Select(x => new HSVColor(x));
+        public static IEnumerable<HSVColor> KnownHSVColors => GetEnumValues<KnownColor>().Select(x => HSVColor.FromKnownColor(x));
 
         /// <summary>
         /// Quando Configurado, escreve os parametros e queries executadas no <see
@@ -6833,7 +6833,7 @@ namespace Extensions
         /// </summary>
         /// <param name="Text">string HTML</param>
         /// <returns>String HTML corrigido</returns>
-        public static string HtmlEncode(this string Text) => WebUtility.HtmlEncode(EmptyString + Text.ReplaceMany("<br>", PredefinedArrays.BreakLineChars.ToArray()));
+        public static string HtmlEncode(this string Text) => WebUtility.HtmlEncode(Text?.ReplaceMany("<br>", PredefinedArrays.BreakLineChars.ToArray()) ?? EmptyString);
 
         /// <summary>
         /// Verifica se uma variavel está vazia, em branco ou nula e retorna um outro valor caso TRUE
