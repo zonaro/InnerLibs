@@ -3497,6 +3497,8 @@ namespace Extensions
         public static bool FlatEqual(this string Text, params string[] CompareText) => CompareText?.Any(x => InsensitiveEqual(Text.RemoveAccents(), x.RemoveAccents())) ?? false;
 
 
+        public static bool FlatContains(this string Text, params string[] CompareText) => Text.RemoveAccents().ContainsAny(StringComparison.OrdinalIgnoreCase, CompareText.Select(y => y.RemoveAccents()).ToArray());
+
         /// <summary>
         /// Prepara uma string com aspas simples para uma string TransactSQL
         /// </summary>
