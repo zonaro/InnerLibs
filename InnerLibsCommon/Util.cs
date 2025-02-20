@@ -4198,17 +4198,16 @@ namespace Extensions
             return T.ToString(CultureInfo.InvariantCulture);
         }
 
-        public static string GenerateEAN(int ContryCode, int ManufacturerCode, int ProductCode) => GenerateEANFromNumbers(ContryCode, ManufacturerCode, ProductCode);
 
         /// <summary>
         /// Gera um numero de EAN válido a aprtir da combinação de vários numeros
         /// </summary>
         /// <param name="Numbers"></param>
         /// <returns></returns>
-        public static string GenerateEANFromNumbers(params string[] Numbers) => Numbers.Where(x => x.IsNumber()).SelectJoinString(EmptyString).AppendBarcodeCheckSum();
+        public static string GenerateEAN(params string[] Numbers) => Numbers.Where(x => x.IsNumber()).SelectJoinString(EmptyString).AppendBarcodeCheckSum();
 
-        /// <inheritdoc cref="GenerateEANFromNumbers(string[])"/>
-        public static string GenerateEANFromNumbers(params int[] Numbers) => GenerateEANFromNumbers(Numbers.Select(x => x.ToString()).ToArray());
+        /// <inheritdoc cref="GenerateEAN(string[])"/>
+        public static string GenerateEAN(params int[] Numbers) => GenerateEAN(Numbers.Select(x => x.ToString()).ToArray());
 
         public static string GenerateLicenseKey(this Assembly product) => product.GetName().Name.GenerateLicenseKey();
 

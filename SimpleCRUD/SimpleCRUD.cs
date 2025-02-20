@@ -513,6 +513,12 @@ namespace Dapper
             return connection.Execute(masterSb.ToString(), entityToDelete, transaction, commandTimeout);
         }
 
+
+        public static int Delete<T>(this IDbConnection connection, IEnumerable<T> entities, IDbTransaction transaction = null, int? commandTimeout = null)
+        {
+            return entities.Sum(entity => Delete<T>(connection, entity, transaction, commandTimeout));
+        }
+
         /// <summary>
         /// <para>Deletes a record or records in the database by ID</para>
         /// <para>By default deletes records in the table matching the class name</para>
