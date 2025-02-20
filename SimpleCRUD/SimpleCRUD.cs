@@ -135,13 +135,45 @@ namespace Dapper
                     if (whereConditions != null)
                     {
                         sb.Append(" WHERE ");
-                        BuildWhere<T>(sb, GetAllProperties(t), whereConditions);
+                        var wheres = new List<string>();
+                        if (whereConditions is DynamicParameters pp)
+                        {
+                            wheres = pp.ParameterNames.Select(x => $"{typeof(T).GetColumnName(x)} = @{x}").ToList();
+                        }
+                        else if (whereConditions is Dictionary<string, object> dic)
+                        {
+                            wheres = dic.Select(x => $"{typeof(T).GetColumnName(x.Key)} = @{x.Key}").ToList();
+                            whereConditions = new DynamicParameters(dic);
+                        }
+                        else
+                        {
+                            wheres = GetAllProperties(whereConditions).Select(x => $"{typeof(T).GetColumnName(x.Name)} = @{x.Name}").ToList();
+                        }
+                        sb.Append(string.Join(" AND ", wheres));
                     }
                 }
 
                 var sql = sb.ToString();
 
                 var value = connection.QueryFirstOrDefault<V>(sql, whereConditions);
+
+                if (value == null)
+                {
+                    if (connection.RecordCount<T>(whereConditions) == 0)
+                    {
+                        return (V)Convert.ChangeType(1, typeof(V));
+                    }
+                    else
+                    {
+                        throw new Exception("Cannot get the max value to increment");
+                    }
+
+                }
+
+                if (value is V v)
+                {
+                    return v;
+                }
 
                 if (value is long v1)
                 {
@@ -316,6 +348,8 @@ namespace Dapper
         }
 
         //Get all properties in an entity
+        private static IEnumerable<PropertyInfo> GetAllProperties<T>() where T : class => typeof(T).GetProperties();
+
         private static IEnumerable<PropertyInfo> GetAllProperties<T>(T entity) where T : class
         {
             if (entity == null) return Array.Empty<PropertyInfo>();
@@ -327,9 +361,12 @@ namespace Dapper
             return GetAllProperties(entity.GetType());
         }
 
+        private static IEnumerable<PropertyInfo> GetIdProperties<T>() where T : class
+        => typeof(T).GetIdProperties();
+
         //Get all properties that are named Id or have the Key attribute
         //For Inserts and updates we have a whole entity so this method is used
-        private static IEnumerable<PropertyInfo> GetIdProperties<T>(T entity)
+        private static IEnumerable<PropertyInfo> GetIdProperties<T>(this T entity) where T : class
         {
             if (entity is Type type)
                 return GetIdProperties(type);
@@ -338,7 +375,7 @@ namespace Dapper
 
         //Get all properties that are named Id or have the Key attribute
         //For Get(id) and Delete(id) we don'classType have an entity, just the type so this method is used
-        private static IEnumerable<PropertyInfo> GetIdProperties(Type type)
+        private static IEnumerable<PropertyInfo> GetIdProperties(this Type type)
         {
             var tp = type.GetProperties().Where(p => p.GetCustomAttributes(true).Any(attr => attr.GetType().Name == typeof(KeyAttribute).Name)).ToList();
             return tp.Any() ? tp : type.GetProperties().Where(p => p.Name.Equals("Id", StringComparison.OrdinalIgnoreCase));
@@ -453,12 +490,12 @@ namespace Dapper
         /// <param name="transaction"></param>
         /// <param name="commandTimeout"></param>
         /// <returns>The number of records affected</returns>
-        public static int Delete<T>(this IDbConnection connection, T entityToDelete, IDbTransaction transaction = null, int? commandTimeout = null)
+        public static int Delete<T>(this IDbConnection connection, T entityToDelete, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
         {
             var masterSb = new StringBuilder();
             StringBuilderCache(masterSb, $"{typeof(T).FullName}_Delete", sb =>
             {
-                var idProps = GetIdProperties(entityToDelete).ToList();
+                var idProps = entityToDelete.GetIdProperties().ToList();
 
                 if (!idProps.Any())
                     throw new ArgumentException("Entity must have at least one [Key] or Id property");
@@ -715,10 +752,7 @@ namespace Dapper
         {
             return propertyInfo.GetCustomAttributes(true).FirstOrDefault(attr => attr.GetType().Name == typeof(ColumnAttribute).Name) as ColumnAttribute;
         }
-        public static ColumnAttribute GetColumnAttribute<T, V>(this Expression<Func<T, V>> expression)
-        {
-            return GetProperty(expression).GetColumnAttribute();
-        }
+        public static ColumnAttribute GetColumnAttribute<T, V>(this Expression<Func<T, V>> expression) => GetProperty(expression).GetColumnAttribute();
 
         public static PropertyInfo GetProperty<T, V>(this Expression<Func<T, V>> expression)
         {
@@ -729,11 +763,7 @@ namespace Dapper
             throw new ArgumentException("Expression must be a property expression");
         }
 
-        public static string GetColumnName(this Type classType, string searchName)
-        {
-            var props = GetScaffoldableProperties(classType).ToArray();
-            return props.FirstOrDefault(x => x.Name.Equals(searchName, StringComparison.OrdinalIgnoreCase) || x.GetColumnAttribute().Name == searchName)?.Name ?? searchName;
-        }
+        public static string GetColumnName(this Type classType, string searchName) => GetScaffoldableProperties(classType).FirstOrDefault(x => x.Name.Equals(searchName, StringComparison.OrdinalIgnoreCase) || x.GetColumnAttribute().Name == searchName)?.Name ?? searchName;
 
         public static string GetColumnName(PropertyInfo propertyInfo)
         {
@@ -751,10 +781,7 @@ namespace Dapper
             return columnName;
         }
 
-        public static string GetColumnName<T, V>(Expression<Func<T, V>> propertyExpression)
-        {
-            return GetColumnName(GetProperty(propertyExpression));
-        }
+        public static string GetColumnName<T, V>(Expression<Func<T, V>> propertyExpression) => GetColumnName(GetProperty(propertyExpression));
 
         public static string GetColumnName<T, V>(this T obj, Expression<Func<T, V>> propertyExpression) => GetColumnName(propertyExpression);
 
@@ -784,12 +811,14 @@ namespace Dapper
         /// <param name="transaction"></param>
         /// <param name="commandTimeout"></param>
         /// <returns>Gets a list of entities with optional exact match where conditions</returns>
-        public static IEnumerable<T> GetList<T>(this IDbConnection connection, object whereConditions, IDbTransaction transaction = null, int? commandTimeout = null)
+        public static IEnumerable<T> GetList<T>(this IDbConnection connection, object whereConditions = null, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             var currenttype = typeof(T);
             var name = GetTableName(currenttype);
 
             var sb = new StringBuilder();
+            if (whereConditions == null) whereConditions = new { };
+
             var whereprops = GetAllProperties(whereConditions).ToArray();
             sb.Append("Select ");
             //create a new empty instance of the type to get the base properties
@@ -861,19 +890,6 @@ namespace Dapper
         /// <summary>
         /// <para>By default queries the table matching the class name</para>
         /// <para>-Table name can be overridden by adding an attribute on your class [Table("YourTableName")]</para>
-        /// <para>Returns a list of all entities</para>
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="connection"></param>
-        /// <returns>Gets a list of all entities</returns>
-        public static IEnumerable<T> GetList<T>(this IDbConnection connection)
-        {
-            return connection.GetList<T>(new { });
-        }
-
-        /// <summary>
-        /// <para>By default queries the table matching the class name</para>
-        /// <para>-Table name can be overridden by adding an attribute on your class [Table("YourTableName")]</para>
         /// <para>
         /// conditions is an SQL where clause ex: "where name='bob'" or "where age&gt;=@Age" - not required
         /// </para>
@@ -898,7 +914,7 @@ namespace Dapper
         /// <param name="commandTimeout"></param>
         /// <returns>Gets a paged list of entities with optional exact match where conditions</returns>
         /// <returns></returns>
-        public static PageResult<T> GetPage<T>(this IDbConnection connection, int pageNumber, int rowsPerPage, string conditions, string orderby, object parameters = null, IDbTransaction transaction = null, int? commandTimeout = null, bool IncludeInsertPlaceholder = false)
+        public static PageResult<T> GetPage<T>(this IDbConnection connection, int pageNumber, int rowsPerPage, string conditions, string orderby, object parameters = null, IDbTransaction transaction = null, int? commandTimeout = null, bool IncludeInsertPlaceholder = false) where T : class
         {
             var result = new PageResult<T>();
 
@@ -955,10 +971,11 @@ namespace Dapper
         }
 
         /// <inheritdoc cref="GetPage{T}(IDbConnection, int, int, string, string, object, IDbTransaction, int?, bool)"/>
-        public static PageResult<T> GetPage<T, V>(this IDbConnection connection, int pageNumber, int rowsPerPage, string conditions, Expression<Func<T, V>> orderby, object parameters = null, IDbTransaction transaction = null, int? commandTimeout = null, bool IncludeInsertPlaceholder = false) => GetPage<T>(connection, pageNumber, rowsPerPage, conditions, GetColumnName(orderby), parameters, transaction, commandTimeout, IncludeInsertPlaceholder);
+        public static PageResult<T> GetPage<T, V>(this IDbConnection connection, int pageNumber, int rowsPerPage, string conditions, Expression<Func<T, V>> orderby, object parameters = null, IDbTransaction transaction = null, int? commandTimeout = null, bool IncludeInsertPlaceholder = false) where T : class
+            => GetPage<T>(connection, pageNumber, rowsPerPage, conditions, GetColumnName(orderby), parameters, transaction, commandTimeout, IncludeInsertPlaceholder);
 
         /// <inheritdoc cref="GetListPaged{T}(IDbConnection, int, int, string, string, object, IDbTransaction, int?)"/>
-        public static IEnumerable<T> GetListPaged<T, V>(this IDbConnection connection, int pageNumber, int rowsPerPage, string conditions, Expression<Func<T, V>> orderby, object parameters = null, IDbTransaction transaction = null, int? commandTimeout = null) => GetListPaged<T>(connection, pageNumber, rowsPerPage, conditions, GetColumnName(orderby), parameters, transaction, commandTimeout);
+        public static IEnumerable<T> GetListPaged<T, V>(this IDbConnection connection, int pageNumber, int rowsPerPage, string conditions, Expression<Func<T, V>> orderby, object parameters = null, IDbTransaction transaction = null, int? commandTimeout = null) where T : class => GetListPaged<T>(connection, pageNumber, rowsPerPage, conditions, GetColumnName(orderby), parameters, transaction, commandTimeout);
 
         /// <summary>
         /// <para>By default queries the table matching the class name</para>
@@ -986,7 +1003,7 @@ namespace Dapper
         /// <param name="transaction"></param>
         /// <param name="commandTimeout"></param>
         /// <returns>Gets a paged list of entities with optional exact match where conditions</returns>
-        public static IEnumerable<T> GetListPaged<T>(this IDbConnection connection, int pageNumber, int rowsPerPage, string conditions, string orderby, object parameters = null, IDbTransaction transaction = null, int? commandTimeout = null)
+        public static IEnumerable<T> GetListPaged<T>(this IDbConnection connection, int pageNumber, int rowsPerPage, string conditions, string orderby, object parameters = null, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
         {
             if (string.IsNullOrEmpty(_getPagedListSql))
                 throw new Exception("GetListPage is not supported with the current SQL Dialect");
@@ -998,15 +1015,15 @@ namespace Dapper
 
             var currenttype = typeof(T);
             var idProps = GetIdProperties(currenttype).ToList();
-            if (!idProps.Any())
-                throw new ArgumentException("Entity must have at least one [Key] property");
 
             var name = GetTableName(currenttype);
             var sb = new StringBuilder();
             var query = _getPagedListSql;
             if (string.IsNullOrEmpty(orderby))
             {
-                orderby = GetColumnName(idProps.First());
+                var props = idProps.FirstOrDefault() ?? GetAllProperties<T>().FirstOrDefault();
+                if (props == null) throw new ArgumentException("Entity must have at least one [Key] or [Column] property");
+                orderby = GetColumnName(props);
             }
 
             //create a new empty instance of the type to get the base properties
@@ -1051,10 +1068,7 @@ namespace Dapper
             return GetTableName(entity.GetType());
         }
 
-        public static string GetTableName<T>()
-        {
-            return GetTableName(typeof(T));
-        }
+        public static string GetTableName<T>() => GetTableName(typeof(T));
 
         /// <summary>
         /// <para>Inserts a row into the database</para>
@@ -1076,10 +1090,7 @@ namespace Dapper
         /// The ID (primary key) of the newly inserted record if it is identity using the int? type,
         /// otherwise null
         /// </returns>
-        public static TEntity Insert<TEntity>(this IDbConnection connection, TEntity entityToInsert, IDbTransaction transaction = null, int? commandTimeout = null)
-        {
-            return Insert<TEntity, TEntity>(connection, entityToInsert, transaction, commandTimeout);
-        }
+        public static TEntity Insert<TEntity>(this IDbConnection connection, TEntity entityToInsert, IDbTransaction transaction = null, int? commandTimeout = null) where TEntity : class => Insert<TEntity, TEntity>(connection, entityToInsert, transaction, commandTimeout);
 
         /// <summary>
         /// <para>Inserts a row into the database, using ONLY the properties defined by TEntity</para>
@@ -1101,7 +1112,7 @@ namespace Dapper
         /// The ID (primary key) of the newly inserted record if it is identity using the defined
         /// type, otherwise null
         /// </returns>
-        public static TKey Insert<TKey, TEntity>(this IDbConnection connection, TEntity entityToInsert, IDbTransaction transaction = null, int? commandTimeout = null)
+        public static TKey Insert<TKey, TEntity>(this IDbConnection connection, TEntity entityToInsert, IDbTransaction transaction = null, int? commandTimeout = null) where TEntity : class
         {
             if (typeof(TEntity).IsInterface) //FallBack to BaseType Generic Method : https://stackoverflow.com/questions/4101784/calling-a-generic-method-with-a-dynamic-type
             {
@@ -1224,8 +1235,17 @@ namespace Dapper
             var name = GetTableName(currenttype);
             var sb = new StringBuilder();
             sb.Append("Select count(0)");
-            sb.AppendFormat(" from {0}", name);
-            sb.Append(" " + conditions);
+            sb.AppendFormat(" from {0} ", name);
+
+            if (!string.IsNullOrWhiteSpace(conditions))
+            {
+                conditions = conditions.Trim();
+                if (!conditions.Trim().StartsWith("where", StringComparison.OrdinalIgnoreCase))
+                {
+                    sb.Append(" where ");
+                }
+                sb.Append(conditions);
+            }
 
             if (Debugger.IsAttached)
                 Trace.WriteLine(String.Format("RecordCount<{0}>: {1}", currenttype, sb));
@@ -1374,7 +1394,7 @@ namespace Dapper
         /// <param name="transaction"></param>
         /// <param name="commandTimeout"></param>
         /// <returns>The number of affected records</returns>
-        public static int Update<TEntity>(this IDbConnection connection, TEntity entityToUpdate, IDbTransaction transaction = null, int? commandTimeout = null)
+        public static int Update<TEntity>(this IDbConnection connection, TEntity entityToUpdate, IDbTransaction transaction = null, int? commandTimeout = null) where TEntity : class
         {
             if (typeof(TEntity).IsInterface) //FallBack to BaseType Generic Method: https://stackoverflow.com/questions/4101784/calling-a-generic-method-with-a-dynamic-type
             {
@@ -1442,7 +1462,6 @@ namespace Dapper
                     {
                         para.Add(prop.Name, prop.GetValue(whereConditions));
                     }
-
                 }
 
                 if (Debugger.IsAttached)
@@ -1451,16 +1470,11 @@ namespace Dapper
             return connection.Execute(masterSb.ToString(), para, transaction, commandTimeout);
         }
 
-
-
-
         public static int UpdateWhere<TEntity>(this IDbConnection connection, TEntity fieldsToUpdate, string whereConditions, IDbTransaction transaction = null, int? commandTimeout = null) where TEntity : class
         {
             var masterSb = new StringBuilder();
             StringBuilderCache(masterSb, $"{typeof(TEntity).FullName}_UpdateWhere", sb =>
             {
-
-
                 var name = GetTableName<TEntity>();
                 sb.AppendFormat("update {0}", name);
                 sb.Append(" set ");
@@ -1480,8 +1494,6 @@ namespace Dapper
             });
             return connection.Execute(masterSb.ToString(), fieldsToUpdate, transaction, commandTimeout);
         }
-
-
 
         public static int UpdateWhere<TEntity>(this IDbConnection connection, TEntity entityToUpdate, Expression<Func<TEntity, bool>> whereConditions, IDbTransaction transaction = null, int? commandTimeout = null)
         {
@@ -1580,7 +1592,7 @@ namespace Dapper
         /// <param name="transaction">The transaction to use, or null.</param>
         /// <param name="commandTimeout">The command timeout, or null.</param>
         /// <returns>TRUE if the record was inserted, FALSE if the record was updated.</returns>
-        public static bool Upsert<TEntity>(this IDbConnection connection, TEntity entity, IDbTransaction transaction = null, int? commandTimeout = null)
+        public static bool Upsert<TEntity>(this IDbConnection connection, TEntity entity, IDbTransaction transaction = null, int? commandTimeout = null) where TEntity : class
         {
             var exists = Get<TEntity>(connection, entity, transaction, commandTimeout);
             if (exists == null)
@@ -1679,6 +1691,95 @@ namespace Dapper
         public interface ITableNameResolver
         {
             string ResolveTableName(Type type);
+        }
+
+        public static IEnumerable<string> ValidateEntity<TEntity>(this TEntity entity, bool throwError = false) where TEntity : class
+        {
+            var errors = new List<string>();
+            var properties = GetScaffoldableProperties<TEntity>().Union(GetIdProperties<TEntity>()).ToList();
+            foreach (var prop in properties)
+            {
+                var value = prop.GetValue(entity);
+
+                //required
+                if (value == null && prop.GetCustomAttributes(true).Any(x => x.GetType().Name == typeof(RequiredAttribute).Name))
+                {
+                    var attr = prop.GetCustomAttributes(true).SingleOrDefault(x => x.GetType().Name == typeof(RequiredAttribute).Name);
+                    var message = "";
+                    if (attr.GetType().GetProperty(nameof(RequiredAttribute.ErrorMessage)) is PropertyInfo pi)
+                    {
+                        message = pi.GetValue(attr) as string;
+                    }
+                    if (string.IsNullOrEmpty(message))
+                    {
+                        message = $"{prop.Name} is required.";
+                    }
+                    errors.Add(message);
+                }
+
+                if (value is string s)
+                {
+                    //maxlength
+                    if (prop.GetCustomAttributes(true).Any(x => x.GetType().Name == typeof(MaxLengthAttribute).Name))
+                    {
+                        var attr = prop.GetCustomAttributes(true).SingleOrDefault(x => x.GetType().Name == typeof(MaxLengthAttribute).Name);
+                        if (attr.GetType().GetProperty(nameof(MaxLengthAttribute.Length)) is PropertyInfo pi)
+                        {
+                            if (pi.GetValue(attr) is int length)
+                            {
+                                if (s.Length > length)
+                                {
+                                    var message = "";
+                                    if (attr.GetType().GetProperty(nameof(MaxLengthAttribute.ErrorMessage)) is PropertyInfo pi2)
+                                    {
+                                        message = pi2.GetValue(attr) as string;
+                                    }
+                                    if (string.IsNullOrWhiteSpace(message))
+                                    {
+                                        message = $"{prop.Name} must be less than {length} characters.";
+                                    }
+                                    message += $" ({s})";
+                                    errors.Add(message);
+                                }
+                            }
+                        }
+                    }
+
+                    //minlength
+                    if (prop.GetCustomAttributes(true).Any(x => x.GetType().Name == typeof(MinLengthAttribute).Name))
+                    {
+                        var attr = prop.GetCustomAttributes(true).SingleOrDefault(x => x.GetType().Name == typeof(MinLengthAttribute).Name);
+                        if (attr.GetType().GetProperty(nameof(MinLengthAttribute.Length)) is PropertyInfo pi)
+                        {
+                            if (pi.GetValue(attr) is int length)
+                            {
+                                if (s.Length < length)
+
+                                {
+                                    var message = "";
+                                    if (attr.GetType().GetProperty(nameof(MinLengthAttribute.ErrorMessage)) is PropertyInfo pi2)
+                                    {
+                                        message = pi2.GetValue(attr) as string;
+                                    }
+                                    if (string.IsNullOrWhiteSpace(message))
+                                    {
+                                        message = $"{prop.Name} must be more than {length} characters.";
+                                    }
+                                    message += $" ({s})";
+                                    errors.Add(message);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            errors = errors.Distinct().ToList();
+
+            if (throwError && errors.Any())
+            {
+                throw new ValidationException(string.Join(Environment.NewLine, errors.Select(x => $" - {x}")));
+            }
+            return errors;
         }
     }
 

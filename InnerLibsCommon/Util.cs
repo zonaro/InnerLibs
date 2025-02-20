@@ -71,7 +71,18 @@ namespace Extensions
 
         private static readonly MethodInfo startsWithMethod = typeof(string).GetMethod("StartsWith", new[] { typeof(string) });
 
-        static public bool IsCopyOf(this FileInfo file1, FileInfo file2)
+
+        public static IEnumerable<string> GetInitials(this string Text)
+        {
+            return Text?.SplitAny(PredefinedArrays.WordSplitters).Select(x => x.GetFirstChars().ToUpper()) ?? Array.Empty<string>();
+        }
+
+        public static string GetInitialsString(this string Text)
+        {
+            return Text.GetInitials().SelectJoinString();
+        }
+
+        public static bool IsCopyOf(this FileInfo file1, FileInfo file2)
         {
             int file1byte;
             int file2byte;
@@ -2781,8 +2792,8 @@ namespace Extensions
         /// Cropa uma imagem a patir do centro
         /// </summary>
         /// <param name="Image">Imagem</param>
-        /// <param name="maxWidth">Largura maxima</param>
-        /// <param name="maxHeight">Altura maxima</param>
+        /// <param name="MaxWidth">Largura maxima</param>
+        /// <param name="MaxHeight">Altura maxima</param>
         /// <returns></returns>
         public static Image Crop(this Image Image, int MaxWidth, int MaxHeight)
         {
@@ -4116,12 +4127,12 @@ namespace Extensions
         /// <returns></returns>
         public static string FormatString(this string Text, params string[] Args) => string.Format(Text, Args);
 
-        public static Image GenerateAvatarByName(this string Name)
+        public static Image GenerateAvatarByName(this string Name, string Size = "")
         {
             if (Name.IsValid())
             {
                 var x = new HSVColor(Name);
-                var parts = Name.SplitAny(PredefinedArrays.WordSplitters).Select(b => b.GetFirstChars());
+                var parts = Name.GetInitials();
                 if (parts.Count() > 1)
                 {
                     x.Name = parts.First() + parts.Last();
@@ -4131,10 +4142,10 @@ namespace Extensions
                     x.Name = parts.First();
                 }
 
-                var img = x.ImageSample.CropToCircle();
+                var img = x.GetImageSample(Size).CropToCircle();
                 return img;
             }
-            return new HSVColor().ImageSample.CropToCircle();
+            return new HSVColor().GetImageSample(Size).CropToCircle();
         }
 
         /// <inheritdoc cref="GenerateBarcodeCheckSum(string)"/>

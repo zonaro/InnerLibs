@@ -366,7 +366,8 @@ namespace Extensions.Colors
             }
         }
 
-        public Bitmap ImageSample => (Bitmap)CreateSolidImage().DrawString(Name);
+        public Bitmap ImageSample => GetImageSample();
+        public Bitmap GetImageSample(string size = "") => (Bitmap)CreateSolidImage(size).DrawString(Name);
 
         /// <summary>
         /// Luminância
