@@ -167,12 +167,6 @@ namespace Dapper
                     {
                         throw new Exception("Cannot get the max value to increment");
                     }
-
-                }
-
-                if (value is V v)
-                {
-                    return v;
                 }
 
                 if (value is long v1)
@@ -186,14 +180,21 @@ namespace Dapper
                     return (V)Convert.ChangeType(v2 + 1, typeof(V));
                 }
 
-                if (value is string)
+                if (value is string ss)
                 {
                     if (decimal.TryParse(value.ToString(), out decimal v3))
                     {
                         return (V)Convert.ChangeType(v3 + 1, typeof(V));
                     }
+                    else
+                    {
+                        return (V)Convert.ChangeType(SequentialGuid().ToString(), typeof(V));
+                    }
+                }
 
-                    return value;
+                if (value is V v)
+                {
+                    throw new Exception($"Cannot generate a primary key for {typeof(T).Name}");
                 }
             }
             return default;
@@ -512,7 +513,6 @@ namespace Dapper
             });
             return connection.Execute(masterSb.ToString(), entityToDelete, transaction, commandTimeout);
         }
-
 
         public static int Delete<T>(this IDbConnection connection, IEnumerable<T> entities, IDbTransaction transaction = null, int? commandTimeout = null)
         {
@@ -1699,6 +1699,14 @@ namespace Dapper
             string ResolveTableName(Type type);
         }
 
+        /// <summary>
+        /// Validate an entity for required fields and string lengths
+        /// </summary>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
+        /// <param name="entity">The entity to validate.</param>
+        /// <param name="throwError">When true, throws a ValidationException if validation fails.</param>
+        /// <returns>An IEnumerable of strings containing the validation errors.</returns>
+        /// <exception cref="ValidationException"></exception>
         public static IEnumerable<string> ValidateEntity<TEntity>(this TEntity entity, bool throwError = false) where TEntity : class
         {
             var errors = new List<string>();
@@ -1783,7 +1791,9 @@ namespace Dapper
 
             if (throwError && errors.Any())
             {
-                throw new ValidationException(string.Join(Environment.NewLine, errors.Select(x => $" - {x}")));
+                ValidationException ex = new ValidationException(string.Join(Environment.NewLine, errors.Select(x => $" - {x}")));
+                ex.Data.Add("ValidationErrors", errors);
+                throw ex;
             }
             return errors;
         }
