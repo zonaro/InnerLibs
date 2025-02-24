@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -2053,6 +2054,17 @@ namespace Dapper
                     {
                         format = format.Replace("{" + i + "}", SimpleCRUD.Encapsulate(c.Name));
                     }
+                    else if (typeof(IEnumerable).IsAssignableFrom(arg.GetType()) && arg.GetType() != typeof(string))
+                    {
+                        var list = arg as IEnumerable<object>;
+                        var parameters = string.Join(", ", list.Select((x, j) =>
+                        {
+                            this.Parameters.Add($"{this.ParameterPrefix}{i}_{j}", x);
+                            return $"{this.ParameterPrefix}{i}_{j}";
+                        }));
+
+                        format = format.Replace("{" + i + "}", parameters);
+                    }
                     else
                     {
                         format = format.Replace("{" + i + "}", $"{this.ParameterPrefix}{i}");
@@ -2079,8 +2091,6 @@ namespace Dapper
 
         public InterpolatedQuery(FormattableString sql, string parameterPrefix = null, object aditionalParameters = null, CultureInfo culture = null) : this(parameterPrefix, culture)
         {
-            this.Culture = culture;
-            this.ParameterPrefix = parameterPrefix;
             processQuery(sql, aditionalParameters);
         }
 
@@ -2124,7 +2134,7 @@ namespace Dapper
     {
         public static string CacheKey(this IEnumerable<PropertyInfo> props) => string.Join(",", props.Select(p => p.DeclaringType.FullName + "." + p.Name).ToArray());
 
-        //You can'classType insert or update complex types. Lets filter them out.
+        //You can't insert or update complex types. Lets filter them out.
         public static bool IsSimpleType(this Type type)
         {
             type = Nullable.GetUnderlyingType(type) ?? type;
