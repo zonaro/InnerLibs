@@ -1394,7 +1394,7 @@ namespace Extensions
         {
             try
             {
-                if (Value.GetType() == typeof(T))
+                if (Value != null && Value.GetType() == typeof(T))
                 {
                     return (T)Value;
                 }
