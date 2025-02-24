@@ -703,45 +703,40 @@ namespace Extensions.BR
         /// </summary>
         /// <param name="Text">CNH</param>
         /// <returns></returns>
-        public static bool CNHValido(this string CNH)
+        public static bool CNHValido(this string cnh)
         {
-            // char firstChar = cnh[0];
-            if (CNH.IsValid() && CNH.Length == 11 && CNH != new string('1', 11))
+            cnh = cnh.OnlyNumbers();
+            if (String.IsNullOrEmpty(cnh))
+                return false;
+            if (cnh.Length != 11)
+                return false;
+            if (cnh == new string(cnh[0], 11))
+                return false;
+
+            int digitoVerificador1 = GerarDigitoVerificadorCNH(cnh.Substring(0, 9), false);
+            int diferencial = 0;
+            if (digitoVerificador1 == 10)
             {
-                int dsc = 0;
-                int v = 0;
-                int i = 0;
-                int j = 9;
-                while (i < 9)
-                {
-                    v += Convert.ToInt32(CNH[i].ToString()) * j;
-                    i += 1;
-                    j -= 1;
-                }
-
-                int vl1 = v % 11;
-                if (vl1 >= 10)
-                {
-                    vl1 = 0;
-                    dsc = 2;
-                }
-
-                v = 0;
-                i = 0;
-                j = 1;
-                while (i < 9)
-                {
-                    v += Convert.ToInt32(CNH[i]) * j;
-                    i += 1;
-                    j += 1;
-                }
-
-                int x = v % 11;
-                int vl2 = x >= 10 ? 0 : x - dsc;
-                return $"{vl1}{vl2}" == (CNH.Substring(CNH.Length - 2, 2));
+                digitoVerificador1 = 0;
+                diferencial = 2;
             }
+            int digitoVerificador2 = GerarDigitoVerificadorCNH(cnh.Substring(0, 9), true);
+            digitoVerificador2 = digitoVerificador2 == 10 ? 0 : digitoVerificador2 - diferencial;
+            string CNHReal = cnh.Substring(0, 9) + digitoVerificador1.ToString() + digitoVerificador2.ToString();
 
-            return false;
+            return cnh == CNHReal;
+        }
+
+        public static int GerarDigitoVerificadorCNH(string digitos, bool crescente)
+        {
+            int soma = 0;
+            int multiplicador = crescente ? 1 : 9;
+            for (int indice = 0; indice < digitos.Length; indice++)
+            {
+                soma += int.Parse(digitos.Substring(indice, 1)) * multiplicador;
+                multiplicador += crescente ? 1 : -1;
+            }
+            return soma % 11;
         }
 
         /// <summary>
