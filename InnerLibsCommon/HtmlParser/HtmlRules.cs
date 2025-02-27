@@ -205,7 +205,7 @@ namespace Extensions.Web
         }
 
         /// <summary>
-        /// Defines element tag nesting values. Tags cannot appear within tags with a lower value. Used when parsing to detected
+        /// Defines element tag nesting values. Keywords cannot appear within tags with a lower value. Used when parsing to detected
         /// mismatches open/close tags.
         /// </summary>
         private static readonly Dictionary<string, int> NestLevelLookup = new Dictionary<string, int>(StringComparer.CurrentCultureIgnoreCase)
@@ -230,7 +230,7 @@ namespace Extensions.Web
         public static int GetTagPriority(string tag) => GetTagNestLevel(tag);
 
         /// <summary>
-        /// Returns a value that signifies the relative nest level of the specified tag. Tags with higher values
+        /// Returns a value that signifies the relative nest level of the specified tag. Keywords with higher values
         /// cannot be contained within tags with lower levels.
         /// </summary>
         /// <param name="tag">The element tag for which to get the nest level.</param>

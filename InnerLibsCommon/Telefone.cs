@@ -49,7 +49,7 @@ namespace Extensions.BR
         /// <exception cref="System.ArgumentException">Lançada quando o número de telefone é inválido.</exception>
         public Telefone(string numero, string ddd = null)
         {
-            if (Brasil.ValidarTelefone(numero))
+            if (Brasil.TelefoneValido(numero))
             {
                 numero = numero.OnlyNumbers();
                 ddd = ddd.OnlyNumbers();
@@ -97,7 +97,7 @@ namespace Extensions.BR
         /// </summary>
         public bool NonoDigito { get => Prefixo.Length == 5; set => Prefixo = (value ? "9" : "") + Prefixo.GetLastChars(4); }
 
-        public bool IsValid => Brasil.ValidarTelefone(Completo);
+        public bool IsValid => Brasil.TelefoneValido(Completo);
 
         public bool HasValidDDD => DDD.IsNotBlank() && DDD.ToInt().IsBetween(11, 99);
 

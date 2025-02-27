@@ -196,7 +196,7 @@ namespace Extensions.Locations
         {
         }
 
-        public AddressInfo(string Label, decimal Latitude, decimal Longitude) : this()
+        public AddressInfo(string Label, string Latitude, string Longitude) : this()
         {
             this.Latitude = Latitude;
             this.Longitude = Longitude;
@@ -436,24 +436,22 @@ namespace Extensions.Locations
             set => this[nameof(Label)] = value; //Label is a plain Text, no need to propclean
         }
 
-        public decimal? Latitude
+        public string Latitude
         {
             get
             {
                 string value = this[nameof(Latitude)];
-                if (value != null)
-                {
-                    return Convert.ToDecimal(value, CultureInfo.InvariantCulture);
-                }
 
-                return null;
+                return value;
+
+
             }
 
             set
             {
-                if (value.HasValue)
+                if (value.CanBeNumber())
                 {
-                    this[nameof(Latitude)] = Convert.ToString(value.Value, CultureInfo.InvariantCulture);
+                    this[nameof(Latitude)] = value;
                 }
                 else
                 {
@@ -467,24 +465,20 @@ namespace Extensions.Locations
         /// </summary>
         /// <value></value>
         /// <returns>Longitude</returns>
-        public decimal? Longitude
+        public string Longitude
         {
             get
             {
                 string value = this[nameof(Longitude)];
-                if (value != null)
-                {
-                    return Convert.ToDecimal(value, CultureInfo.InvariantCulture);
-                }
+                return value;
 
-                return null;
             }
 
             set
             {
-                if (value.HasValue)
+                if (value.CanBeNumber())
                 {
-                    this[nameof(Longitude)] = Convert.ToString(value, CultureInfo.InvariantCulture);
+                    this[nameof(Longitude)] = value;
                 }
                 else
                 {
@@ -669,8 +663,8 @@ namespace Extensions.Locations
                         if (item.Name == "geometry")
                         {
                             var cultura = new CultureInfo("en-US");
-                            decimal lat = Convert.ToDecimal(item["location"]["lat"].InnerText, cultura);
-                            decimal lng = Convert.ToDecimal(item["location"]["lng"].InnerText, cultura);
+                            var lat = item["location"]["lat"].InnerText;
+                            var lng = item["location"]["lng"].InnerText;
                             d.Latitude = lat;
                             d.Longitude = lng;
                         }
@@ -819,6 +813,29 @@ namespace Extensions.Locations
                     Util.TryExecute(() => d[item.ToUpperInvariant()] = x.GetValueOr(item) as string);
                 }
 
+            }
+            catch { }
+
+            try
+            {
+
+                if (PostalCode.CEPValido())
+                {
+                    d.PostalCode = PostalCode.FormatarCEP();
+                    var cidade = Brasil.PegarCidade(d.PostalCode);
+                    if (cidade != null)
+                    {
+                        d.City = cidade.Nome;
+                        d.State = cidade.Estado.Nome;
+                        d.StateCode = cidade.Estado.UF;
+                        d.Region = cidade.Estado.Regiao;
+                        d["IBGE"] = cidade.IBGE.ToString();
+                        d["StateIBGE"] = cidade.Estado.IBGE.ToString();
+                        d.Capital = cidade.IBGE == cidade.Estado.Capital.IBGE;
+                        d["TimeZone"] = cidade.TimeZone;
+                    }
+                }
+
                 if (d.StateCode.IsValid())
                 {
                     var est = Brasil.PegarEstado(d.StateCode);
@@ -826,12 +843,11 @@ namespace Extensions.Locations
                     d.Region = est.Regiao;
                     d["StateIBGE"] = est.IBGE.ToString();
                     d.Capital = est.Capital.IBGE == d["IBGE"]?.ToInt();
-
                 }
-
-
             }
-            catch { }
+            catch
+            {
+            }
 
             return d;
         }
@@ -1019,7 +1035,7 @@ namespace Extensions.Locations
 
         public bool ContainsKey(string key) => details.ContainsKey(key.ToLowerInvariant());
 
-        public string GeoLocation() => Latitude.HasValue && Longitude.HasValue ? $"{Latitude?.ToString(CultureInfo.InvariantCulture)}, {Longitude?.ToString(CultureInfo.InvariantCulture)}" : null;
+        public string GeoLocation() => Latitude.CanBeNumber() && Longitude.CanBeNumber() ? $"{Latitude}, {Longitude}" : null;
 
         /// <summary>
         /// Retona uma informação deste endereço
@@ -1038,14 +1054,15 @@ namespace Extensions.Locations
             return this;
         }
 
-        public AddressInfo SetLatitudeLongitudeFromPoint(Point Point)
+        public AddressInfo SetLatitudeLongitudeFromPoint(Point Point, CultureInfo culture = null)
         {
-            Longitude = Point.X * 0.000001m;
-            Latitude = Point.Y * 0.000001m;
+            culture = culture ?? CultureInfo.InvariantCulture;
+            Longitude = (Point.X * 0.000001m).ToString(culture);
+            Latitude = (Point.Y * 0.000001m).ToString(culture);
             return this;
         }
 
-        public Point ToPoint() => Latitude.HasValue && Longitude.HasValue ? new Point((Longitude * 1000000).ToInt(), (Latitude * 1000000).ToInt()) : new Point();
+        public Point ToPoint(CultureInfo culture = null) => Latitude.CanBeNumber() && Longitude.CanBeNumber() ? new Point((Convert.ToDecimal(Longitude, culture ?? CultureInfo.InvariantCulture) * 1000000).ToInt(), (Convert.ToDecimal(Latitude, culture ?? CultureInfo.InvariantCulture) * 1000000).ToInt()) : new Point();
 
         /// <summary>
         /// Retorna uma String contendo as informações do Local

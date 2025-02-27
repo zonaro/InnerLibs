@@ -73,7 +73,7 @@ namespace Dapper
 
         private static bool StringBuilderCacheEnabled = true;
 
-        public static V GeneratePrimaryKey<T, V>(this IDbConnection connection, Expression<Func<T, V>> column, object whereConditions = null) where T : class => GeneratePrimaryKey<T, V>(connection, GetColumnName(column), whereConditions);
+        public static V GeneratePrimaryKey<T, V>(this IDbConnection connection, Expression<Func<T, V>> column, object whereConditions = null, IDbTransaction transaction = null, int? commandTimeout = null) where T : class => GeneratePrimaryKey<T, V>(connection, GetColumnName(column), whereConditions, transaction, commandTimeout);
 
         /// <summary>
         /// Generate a new ID for the entity
@@ -85,7 +85,7 @@ namespace Dapper
         /// <param name="whereConditions"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public static V GeneratePrimaryKey<T, V>(this IDbConnection connection, string keyName = null, object whereConditions = null) where T : class
+        public static V GeneratePrimaryKey<T, V>(this IDbConnection connection, string keyName = null, object whereConditions = null, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
         {
             var t = typeof(T);
             var sb = new StringBuilder();
@@ -156,7 +156,7 @@ namespace Dapper
 
                 var sql = sb.ToString();
 
-                var value = connection.QueryFirstOrDefault<V>(sql, whereConditions);
+                var value = connection.QueryFirstOrDefault<V>(sql, whereConditions, transaction, commandTimeout);
 
                 if (value == null)
                 {
@@ -2134,32 +2134,7 @@ namespace Dapper
     {
         public static string CacheKey(this IEnumerable<PropertyInfo> props) => string.Join(",", props.Select(p => p.DeclaringType.FullName + "." + p.Name).ToArray());
 
-        //You can't insert or update complex types. Lets filter them out.
-        public static bool IsSimpleType(this Type type)
-        {
-            type = Nullable.GetUnderlyingType(type) ?? type;
-            return new List<Type>
-                           {
-                               typeof(byte),
-                               typeof(sbyte),
-                               typeof(short),
-                               typeof(ushort),
-                               typeof(int),
-                               typeof(uint),
-                               typeof(long),
-                               typeof(ulong),
-                               typeof(float),
-                               typeof(double),
-                               typeof(decimal),
-                               typeof(bool),
-                               typeof(string),
-                               typeof(char),
-                               typeof(Guid),
-                               typeof(DateTime),
-                               typeof(DateTimeOffset),
-                               typeof(TimeSpan),
-                               typeof(byte[])
-                           }.Contains(type) || type.IsEnum;
-        }
+
+
     }
 }

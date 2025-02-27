@@ -101,6 +101,11 @@ namespace Extensions
         public static IEnumerable<string> NumberChars => new[] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" }.AsEnumerable();
 
         /// <summary>
+        /// Gets the collection of telephone characters.
+        /// </summary>
+        public static IEnumerable<string> TelephoneChars => NumberChars.Union(new[] { "+", "(", ")", "-", " " }).AsEnumerable();
+
+        /// <summary>
         /// Gets the collection of numeric types.
         /// </summary>
         public static IEnumerable<Type> NumericTypes => new[] { typeof(float), typeof(ushort), typeof(short), typeof(int), typeof(uint), typeof(ulong), typeof(long), typeof(double), typeof(decimal) }.AsEnumerable();

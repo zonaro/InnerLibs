@@ -830,6 +830,9 @@ namespace Extensions
         /// <param name="json"></param>
         /// <returns></returns>
         public static T FromJson<T>(this string json) => new deserializer(Parameters).ToObject<T>(json);
+        public static T FromJson<T>(this string json, T anonymousDefinition) => FromJson<T>(json);
+        public static T FromJson<T>(this string json, JSONParameters param, T anonymousDefinition) => FromJson<T>(json, param);
+
 
         /// <summary>
         /// Create a typed generic object from the json with parameter override on this call
@@ -839,6 +842,7 @@ namespace Extensions
         /// <param name="param"></param>
         /// <returns></returns>
         public static T FromJson<T>(this string json, JSONParameters param) => new deserializer(param).ToObject<T>(json);
+
 
         /// <summary>
         /// Create an object from the json with parameter override on this call

@@ -1402,6 +1402,7 @@ namespace Extensions
                 var tp = typeof(T).GetNullableTypeOf() ?? typeof(T);
                 if (Value != null)
                 {
+                    if (Value is string ss && ss.IsBlank()) return default;
                     return (T)Value.ChangeType(tp);
                 }
                 return default;
@@ -3505,10 +3506,12 @@ namespace Extensions
         /// <param name="Text">Texto</param>
         /// <param name="CompareText">Um ou mais textos para comapração</param>
         /// <returns></returns>
-        public static bool FlatEqual(this string Text, params string[] CompareText) => CompareText?.Any(x => InsensitiveEqual(Text.RemoveAccents(), x.RemoveAccents())) ?? false;
+        public static bool FlatEqual(this string Text, params object[] CompareText) => CompareText?.Any(x => InsensitiveEqual(Text.RemoveAccents(), x.ChangeType<string>().RemoveAccents())) ?? false;
 
 
-        public static bool FlatContains(this string Text, params string[] CompareText) => Text.RemoveAccents().ContainsAny(StringComparison.OrdinalIgnoreCase, CompareText.Select(y => y.RemoveAccents()).ToArray());
+        public static bool FlatContains(this string Text, params object[] CompareText) => Text.RemoveAccents().ContainsAny(StringComparison.OrdinalIgnoreCase, CompareText.Select(y => y.ChangeType<string>().RemoveAccents()).ToArray());
+
+
 
         /// <summary>
         /// Prepara uma string com aspas simples para uma string TransactSQL
@@ -4104,8 +4107,10 @@ namespace Extensions
         public static double Similarity(this string Text1, string Text2) => (1.0 - ((double)Text1.LevenshteinDistance(Text2) / (double)Math.Max(Text1.Length, Text2.Length)));
 
         public static double SimilarityCaseInsensitive(this string Text1, string Text2) => (1.0 - ((double)Text1.LevenshteinDistanceCaseInsensitive(Text2) / (double)Math.Max(Text1.Length, Text2.Length)));
+        public static double SimilarityFlat(this string Text1, string Text2) => SimilarityCaseInsensitive(Text1.RemoveAccents(), Text2.RemoveAccents());
 
         public static int LevenshteinDistanceCaseInsensitive(this string Text1, string Text2) => Text1.ToLower().LevenshteinDistance(Text2.ToLower());
+        public static int LevenshteinDistanceFlat(this string Text1, string Text2) => Text1.ToLower().RemoveAccents().LevenshteinDistance(Text2.ToLower().RemoveAccents());
 
         /// <summary>
         /// Formata o nome de uma coluna SQL adicionando <paramref name="QuoteChar"/> as <paramref
@@ -6792,24 +6797,62 @@ namespace Extensions
         public static bool HasProperty(this object Obj, string Name) => Obj?.GetType().HasProperty(Name, true) ?? false;
 
         /// <summary>
+        /// Check if object is a simple type.
+        /// </summary>
+        /// <param name="objOrType"></param>
+        /// <returns></returns>
+        public static bool IsSimpleType(this object objOrType)
+        {
+            var type = objOrType.GetNullableTypeOf();
+            return new List<Type>
+                           {
+                               typeof(byte),
+                               typeof(sbyte),
+                               typeof(short),
+                               typeof(ushort),
+                               typeof(int),
+                               typeof(uint),
+                               typeof(long),
+                               typeof(ulong),
+                               typeof(float),
+                               typeof(double),
+                               typeof(decimal),
+                               typeof(bool),
+                               typeof(string),
+                               typeof(char),
+                               typeof(Guid),
+                               typeof(DateTime),
+                               typeof(DateTimeOffset),
+                               typeof(TimeSpan),
+                               typeof(byte[])
+                           }.Contains(type) || type.IsEnum;
+        }
+
+        /// <summary>
         /// Verifica se um valor possui propriedades com os mesmos valores de outro objeto
         /// </summary>
         /// <param name="Obj"></param>
         /// <param name="OtherObj"></param>
         /// <returns></returns>
-        public static bool HasSamePropertyValues<T>(this T Obj, T OtherObj)
+        public static bool HasSamePropertyValues<T, O>(this T Obj, O OtherObj)
         {
             if (Obj != null && OtherObj != null)
             {
-                var props = Obj.GetType().GetProperties();
+                var props = Obj.GetNullableTypeOf().GetProperties();
+                var otherProps = OtherObj.GetNullableTypeOf().GetProperties();
+
                 foreach (var prop in props)
                 {
-                    var val = prop.GetValue(Obj);
-                    var otherval = prop.GetValue(OtherObj);
-                    if (val != otherval)
+                    if (otherProps.Any(x => x.Name == prop.Name))
                     {
-                        return false;
+                        var val = prop.GetValue(Obj);
+                        var otherval = otherProps.First(x => x.Name == prop.Name).GetValue(OtherObj);
+                        if (val != otherval)
+                        {
+                            return false;
+                        }
                     }
+
                 }
             }
             return true;
@@ -7905,7 +7948,7 @@ namespace Extensions
                     return true;
                 }
                 Convert.ToDecimal(Value, CultureInfo.InvariantCulture);
-                return $"{Value}".IsIP() == false && ((Value.GetType() == typeof(DateTime)) == false);
+                return Value != null && $"{Value}".IsIP() == false && ((Value.GetType() == typeof(DateTime)) == false);
             }
             catch
             {
@@ -15880,7 +15923,7 @@ namespace Extensions
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static string ToSlugCase(this string Text) => Text.Replace(WhitespaceChar, "-").ToLowerInvariant();
+        public static string ToSlugCase(this string Text) => Text?.Replace(WhitespaceChar, "-").ToLowerInvariant();
 
         /// <summary>
         /// Converts the specified text to kebab case.
@@ -15894,7 +15937,7 @@ namespace Extensions
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static string ToSnakeCase(this string Text) => Text.Replace(WhitespaceChar, "_").ToLowerInvariant();
+        public static string ToSnakeCase(this string Text) => Text?.Replace(WhitespaceChar, "_").ToLowerInvariant();
 
         ///<summary> Monta um Comando SQL para executar um SELECT com
         /// filtros a partir de um <see cref="NameValueCollection" />
