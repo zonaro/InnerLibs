@@ -13,11 +13,93 @@ using Extensions.Locations;
 namespace Extensions.BR
 {
     /// <summary>
-    /// Objeto para manipular cidades e estados do Brasil
+    /// Objeto para manipular operações relacionadas ao Brasil
     /// </summary>
     public static class Brasil
     {
-        private static List<Estado> l = new List<Estado>();
+
+        /// <summary>
+        /// Formata uma data para o padrão brasileiro, encurtando a data para o padrão dd/MM/yyyy quando não houver horas, minutos ou segundos
+        /// </summary>
+        /// <param name="dateTime"></param>
+        /// <returns></returns>
+        public static string FormatarDataBrasileira(this DateTime dateTime)
+        {
+            if (dateTime == DateTime.MinValue) return string.Empty;
+
+            if (dateTime.Millisecond > 0)
+                return dateTime.ToString("dd/MM/yyyy HH:mm:ss:FFFFFFF");
+
+            else if (dateTime.Second > 0)
+                return dateTime.ToString("dd/MM/yyyy HH:mm:ss");
+
+            else if (dateTime.Minute > 0 || dateTime.Hour > 0)
+                return dateTime.ToString("dd/MM/yyyy HH:mm");
+            else
+
+                return dateTime.ToString("dd/MM/yyyy");
+        }
+
+        public static string FormatarDataBrasileira(this DateTime? dateTime) => (dateTime ?? DateTime.MinValue).FormatarDataBrasileira();
+
+
+        public static string FormatarDataBrasileira(this string dateTime) => dateTime.ToDateTime().FormatarDataBrasileira();
+
+
+        /// <inheritdoc cref = "TelefoneValido(string)" />
+        public static bool TelefoneValido(int telefone)
+        => TelefoneValido(telefone.ToString());
+
+        /// <summary>
+        /// Valida um número de telefone.
+        ///
+        /// Esta função verifica se um número de telefone é válido de acordo com as seguintes regras:
+        /// - Remove todos os caracteres não numéricos do número de telefone.
+        /// - Verifica se o número tem o tamanho correto (8 ou 9 dígitos locais + 0 ou 2 dígitos DDD).
+        /// - Se o número tem 10 ou 11 dígitos, verifica se os dois primeiros são um DDD válido.
+        ///
+        /// Retorna `true` se o número de telefone for válido, caso contrário retorna `false`.
+        /// </summary>
+        public static bool TelefoneValido(this string telefone)
+        {
+            try
+            {
+                if (telefone.RemoveAny(PredefinedArrays.TelephoneChars.ToArray()).IsNotBlank()) return false;
+
+                string apenasNumeros = telefone.OnlyNumbers();
+
+                if (apenasNumeros.IsBlank()) return false;
+
+                if (apenasNumeros.Length == 13 && apenasNumeros.StartsWith("55"))
+                {
+                    apenasNumeros = apenasNumeros.Substring(2);
+                }
+
+                if (apenasNumeros.Length < 8 || apenasNumeros.Length > 11)
+                {
+                    return false;
+                }
+
+                if (apenasNumeros.Length > 9)
+                {
+                    int ddd = int.Parse(apenasNumeros.Substring(0, 2));
+                    if (ddd < 11 || ddd > 99)
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+
+        internal static List<Estado> states = new List<Estado>();
+        internal static List<Cidade> cities = new List<Cidade>();
 
         /// <summary>
         /// Array contendo os nomes mais comuns no Brasil
@@ -60,7 +142,14 @@ namespace Extensions.BR
             return ad;
         }
 
-        public static IEnumerable<Cidade> Cidades => Estados.SelectMany(x => x.Cidades).ToArray();
+        public static IEnumerable<Cidade> Cidades
+        {
+            get
+            {
+                LoadXML();
+                return cities.OrderBy(x => x.Nome).ThenByDescending(x => x.TotalMunicipio).DistinctBy(x => x.IBGE);
+            }
+        }
 
         /// <summary>
         /// Retorna as Regiões dos estados brasileiros
@@ -76,48 +165,96 @@ namespace Extensions.BR
         {
             get
             {
-                l = l ?? new List<Estado>();
-                if (!l.Any())
+                LoadXML();
+
+                return states;
+            }
+        }
+        private static bool cached = false;
+        static private void LoadXML()
+        {
+
+            states = states ?? new List<Estado>();
+            cities = cities ?? new List<Cidade>();
+            if (!cached)
+            {
+                cached = true;
+                states.Clear();
+                cities.Clear();
+                string s = Assembly.GetExecutingAssembly().GetResourceFileText("brasil.xml");
+                var doc = new XmlDocument();
+                doc.LoadXml(s);
+
+                foreach (XmlNode estado in doc.SelectNodes("brasil/Estados"))
                 {
-                    string s = Assembly.GetExecutingAssembly().GetResourceFileText("brasil.xml");
-                    var doc = new XmlDocument();
-                    doc.LoadXml(s);
+                    var e = new Estado();
+                    e.UF = estado["UF"].InnerText;
+                    e.Nome = estado["Nome"].InnerText;
+                    e.Regiao = estado["Regiao"].InnerText;
+                    e.IBGE = estado["IBGE"].InnerText.ToInt();
+                    e.Pais = "Brasil";
+                    e.CodigoPais = "BR";
+                    e.Longitude = estado["Longitude"].InnerText;
+                    e.Latitude = estado["Latitude"].InnerText;
 
-                    foreach (XmlNode estado in doc.SelectNodes("brasil/state"))
-                    {
-                        var e = new Estado(estado["StateCode"].InnerText, estado["Name"].InnerText, estado["Region"].InnerText, estado["IBGE"].InnerText.ToInt(), "Brasil", "BR", estado["Longitude"].InnerText.ToDecimal(), estado["Latitude"].InnerText.ToDecimal());
-                        var cities = new List<Cidade>();
-
-                        foreach (XmlNode node in doc.SelectNodes($"brasil/city[StateCode = '{e.UF}']"))
-                        {
-                            cities.Add(new Cidade(
-                                node["Name"].InnerText,
-                                node["IBGE"].InnerText.ToInt(),
-                                node["DDD"].InnerText.ToInt(),
-                                node["SIAFI"].InnerText,
-                                node["TimeZone"].InnerText,
-                                node["Latitude"].InnerText.ToDecimal(),
-                                node["Longitude"].InnerText.ToDecimal(),
-                                node["Capital"].InnerText.AsBool()
-                                ));
-                        }
-
-                        e.Cidades = cities;
-                        l.Add(e);
-                    }
+                    states.Add(e);
                 }
-                return l;
+
+
+                foreach (XmlNode node in doc.SelectNodes($"brasil/Cidades"))
+                {
+                    var cid = new Cidade();
+
+                    cid.Id = node["id"].InnerText.ToInt();
+                    cid.IBGE = node["IBGE"].InnerText.ToInt();
+                    cid.Nome = node["Nome"].InnerText.ToTitle();
+                    cid.DDD = node["DDD"].InnerText.ToInt();
+                    cid.SIAFI = node["SIAFI"].InnerText;
+                    cid.TimeZone = node["TimeZone"].InnerText;
+                    cid.Latitude = node["Latitude"].InnerText;
+                    cid.Longitude = node["Longitude"].InnerText;
+                    cid.Capital = node["Capital"].InnerText.AsBool();
+                    cid.Altitude = node["Altitude"].InnerText;
+                    cid.CepFinal = node["CepFinal"].InnerText.ToLong();
+                    cid.CepInicial = node["CepInicial"].InnerText.ToLong();
+                    cid.CodigoGeograficoDistrito = node["CodigoGeograficoDistrito"].InnerText;
+                    cid.CodigoGeograficoSubdivisao = node["CodigoGeograficoSubdivisao"].InnerText;
+                    cid.MacroRegiao = node["MacroRegiao"].InnerText.ToTitle();
+                    cid.MicroRegiao = node["MicroRegiao"].InnerText.ToTitle();
+                    cid.ExclusivaSedeUrbana = node["TipoDeFaixa"].InnerText.FlatEqual("Exclusiva da sede urbana");
+                    cid.TotalMunicipio = node["TipoDeFaixa"].InnerText.FlatEqual("Total do Município");
+
+                    cid.Estado = states.FirstOrDefault(x => cid.IBGE.ToString().GetFirstChars(2).FlatEqual(x.IBGE));
+
+                    var tags = new List<string>
+                    {
+                        cid.Nome,
+                        cid.Estado?.UF,
+                        cid.Estado?.Nome,
+                        cid.Estado?.Regiao,
+
+                    }.WhereNotBlank().SelectMany(x => new List<string> {
+                       x.ToUpperInvariant().Split(Util.WhitespaceChar).SelectJoinString(),
+                       x.ToUpperInvariant().Split(Util.WhitespaceChar).RemoveAny("DO", "DOS", "DE", "DA","D","D'","DAS").SelectJoinString(),
+                       x.ToUpperInvariant().Split(Util.WhitespaceChar).SelectJoinString(c => c.GetFirstChars()),
+                       x.ToUpperInvariant().Split(Util.WhitespaceChar).RemoveAny("DO", "DOS", "DE", "DA","D","D'","DAS").SelectJoinString(c => c.GetFirstChars()),
+                    });
+
+                    cid.Keywords = tags.Where(x => x.Length >= 2).Distinct();
+
+                    cities.Add(cid);
+                }
             }
         }
 
         /// <summary>
-        /// Retorna um <see cref="AddressInfo"/> da cidade e estado correspondentes
+        /// Retorna um <see cref="BrasilAddressInfo"/> da cidade e estado correspondentes
         /// </summary>
         /// <param name="NomeOuUFouIBGE"></param>
         /// <param name="Cidade"></param>
         /// <returns></returns>
-        public static AddressInfo CriarAddressInfo(string NomeOuUFouIBGE, string Cidade) => CriarAddressInfo<AddressInfo>(NomeOuUFouIBGE, Cidade);
-        public static AddressInfo CriarAddressInfo(string CidadeOuIBGE) => CriarAddressInfo<AddressInfo>(CidadeOuIBGE);
+        public static BrasilAddressInfo CriarAddressInfo(string NomeOuUFouIBGE, string Cidade) => CriarAddressInfo<BrasilAddressInfo>(NomeOuUFouIBGE, Cidade);
+        public static BrasilAddressInfo CriarAddressInfo(string CidadeOuIBGE) => CriarAddressInfo<BrasilAddressInfo>(CidadeOuIBGE);
 
         /// <summary>
         /// Retorna um <see cref="AddressInfo"/> da cidade e estado correspondentes
@@ -148,12 +285,12 @@ namespace Extensions.BR
                 ends.Region = s.Regiao;
                 ends.Country = "Brasil";
                 ends.CountryCode = "BR";
-                ends["StateIBGE"] = s.IBGE.ToString();
-                ends["IBGE"] = c?.IBGE.ToString();
-                ends["DDD"] = c?.DDD.ToString();
-                ends["SIAFI"] = c?.SIAFI.ToString();
-                ends["Capital"] = c?.Capital.ToString();
-                ends["TimeZone"] = c?.TimeZone.ToString();
+                ends[nameof(BrasilAddressInfo.StateIBGE)] = s.IBGE.ToString();
+                ends[nameof(BrasilAddressInfo.IBGE)] = c?.IBGE.ToString();
+                ends[nameof(BrasilAddressInfo.DDD)] = c?.DDD.ToString();
+                ends[nameof(BrasilAddressInfo.SIAFI)] = c?.SIAFI.ToString();
+                ends[nameof(BrasilAddressInfo.TimeZone)] = c?.TimeZone.ToString();
+                ends.Capital = c?.Capital ?? false;
                 ends.Latitude = c?.Latitude;
                 ends.Longitude = c?.Longitude;
                 return ends;
@@ -165,38 +302,115 @@ namespace Extensions.BR
 
 
         /// <summary>
-        /// Retorna uma cidade a partir de seu nome ou codigo IBGE. Caso a cidade não seja encontrada mas o estado seja identificado, a capital desse estado é retornada no lugar
+        /// Retorna uma cidade a partir de seu nome ou codigo IBGEouCEP. Caso a cidade não seja encontrada mas o estado seja identificado, a capital desse estado é retornada no lugar
         /// </summary>
         public static Cidade PegarCidade(string NomeDaCidadeOuIBGE) => PegarCidade(NomeDaCidadeOuIBGE, 100);
         /// <summary>
-        /// Retorna uma cidade a partir de seu nome ou codigo IBGE. A busca por nome da cidade é feita a partir da similaridade entre o nome fornecido e o nome cadastrado no banco de dados. Caso a cidade não seja encontrada mas o estado seja identificado, a capital desse estado é retornada no lugar
+        /// Retorna uma cidade a partir de seu nome ou codigo IBGEouCEP. A busca por nome da cidade é feita a partir da similaridade entre o nome fornecido e o nome cadastrado no banco de dados. Caso a cidade não seja encontrada mas o estado seja identificado, a capital desse estado é retornada no lugar
         /// </summary>
         public static Cidade PegarCidade(string NomeDaCidadeOuIBGE, int Similaridade) => PegarCidade(NomeDaCidadeOuIBGE, null, Similaridade);
         /// <summary>
-        /// Retorna uma cidade a partir de seu nome ou codigo IBGE. Caso a cidade não seja encontrada mas o estado seja identificado, a capital desse estado é retornada no lugar
+        /// Retorna uma cidade a partir de seu nome ou codigo IBGEouCEP. Caso a cidade não seja encontrada mas o estado seja identificado, a capital desse estado é retornada no lugar
         /// </summary>
         public static Cidade PegarCidade(string NomeDaCidadeOuIBGE, string NomeOuUFOuIBGE) => PegarCidade(NomeDaCidadeOuIBGE, NomeOuUFOuIBGE, 100);
 
         /// <summary>
-        /// Retorna uma cidade a partir de seu nome ou codigo IBGE.A busca por nome da cidade é feita a partir da similaridade entre o nome fornecido e o nome cadastrado no banco de dados. Caso a cidade não seja encontrada mas o estado seja identificado, a capital desse estado é retornada no lugar
+        /// Retorna uma cidade a partir de seu nome ou codigo IBGEouCEP.A busca por nome da cidade é feita a partir da similaridade entre o nome fornecido e o nome cadastrado no banco de dados. Caso a cidade não seja encontrada mas o estado seja identificado, a capital desse estado é retornada no lugar
         /// </summary>
-        /// <param name="NomeOuUFOuIBGE">Nome do Estado ou Sigla do Estado ou código IBGE do Estado ou Cidade</param>
-        /// <param name="NomeDaCidadeOuIBGE">Nome da cidade ou código IBGE da cidade</param>
+        /// <param name="NomeOuUFOuIBGE">Nome do Estado ou Sigla do Estado ou código IBGEouCEP do Estado ou Cidade</param>
+        /// <param name="NomeDaCidadeOuIBGE">Nome da cidade ou código IBGEouCEP da cidade</param>
         /// <param name="Similaridade">Porcentagem de similaridade entre o nome da cidade fornecido (<paramref name="NomeDaCidadeOuIBGE"/>) e o nome da cidade dentro do banco de dados (<see cref="Cidade.Nome"/>)</param>
         /// <returns>as informações da cidade encontrada</returns>
         public static Cidade PegarCidade(string NomeDaCidadeOuIBGE, string NomeOuUFOuIBGE, int Similaridade)
         {
-            NomeOuUFOuIBGE = NomeOuUFOuIBGE.IfBlank(NomeDaCidadeOuIBGE);
-            List<Cidade> cids = Cidades.ToList();
-            var est = (PegarEstado(NomeOuUFOuIBGE) ?? PegarEstado(NomeDaCidadeOuIBGE));
-            cids = est?.Cidades.ToList() ?? cids;
+            NomeDaCidadeOuIBGE = NomeDaCidadeOuIBGE ?? "";
 
-            cids = cids
-                .Where(x => (NomeDaCidadeOuIBGE.SimilarityCaseInsensitive(x.Nome) >= (Similaridade / 100)) || x.IBGE == NomeDaCidadeOuIBGE.RemoveMaskInt() || x.Nome.ToUpperInvariant().Split(Util.WhitespaceChar).SelectJoinString(c => c.GetFirstChars()) == NomeDaCidadeOuIBGE.ToUpperInvariant() || x.Nome.ToUpperInvariant().Split(Util.WhitespaceChar).RemoveAny("DO", "DOS", "DE").SelectJoinString(c => c.GetFirstChars()) == NomeDaCidadeOuIBGE.ToUpperInvariant()).ToList();
+            if (NomeOuUFOuIBGE.IsBlank() && NomeDaCidadeOuIBGE.Contains("- "))
+            {
+                NomeOuUFOuIBGE = NomeDaCidadeOuIBGE.GetAfter(" -").TrimBetween();
+            }
 
+            if (NomeDaCidadeOuIBGE.Contains(" -"))
+            {
+                NomeDaCidadeOuIBGE = NomeDaCidadeOuIBGE.GetBefore(" -").TrimBetween();
+            }
+
+
+            var est = PegarEstado(NomeOuUFOuIBGE) ?? PegarEstado(NomeDaCidadeOuIBGE);
+            var cids = PesquisarCidade(NomeDaCidadeOuIBGE, NomeOuUFOuIBGE, Similaridade);
             return cids.FirstOrDefault(x => x.IBGE == NomeDaCidadeOuIBGE.RemoveMaskInt()) ?? cids.OrderByDescending(x => x.Nome.SimilarityCaseInsensitive(NomeDaCidadeOuIBGE)).ThenByDescending(x => x.Capital).FirstOrDefault() ?? est?.Capital;
         }
-        public static Cidade PegarCidade(int IBGE) => PegarEstado(IBGE.ToString())?.Cidades.FirstOrDefault(x => x.IBGE == IBGE);
+
+        public static IEnumerable<Cidade> PesquisarCidade(string NomeDaCidadeOuIBGE, string NomeOuUFOuIBGE = "", int Similaridade = 90)
+        {
+            NomeDaCidadeOuIBGE = NomeDaCidadeOuIBGE ?? "";
+            NomeOuUFOuIBGE = NomeOuUFOuIBGE.IfBlank(NomeDaCidadeOuIBGE);
+            if (NomeOuUFOuIBGE.IsBlank() && NomeDaCidadeOuIBGE.Contains("- "))
+            {
+                NomeOuUFOuIBGE = NomeDaCidadeOuIBGE.GetAfter(" -").TrimBetween();
+            }
+
+            if (NomeDaCidadeOuIBGE.Contains(" -"))
+            {
+                NomeDaCidadeOuIBGE = NomeDaCidadeOuIBGE.GetBefore(" -").TrimBetween();
+            }
+
+
+
+            List<Cidade> cids = Cidades.ToList();
+
+            if (NomeDaCidadeOuIBGE.FormatoCodigoIBGEValido())
+            {
+                if (NomeDaCidadeOuIBGE.Length == 7)
+                {
+                    return cids.Where(x => x.IBGE == NomeDaCidadeOuIBGE.RemoveMaskInt());
+                }
+                else
+                {
+                    return Estados.FirstOrDefault(x => x.IBGE == NomeDaCidadeOuIBGE.RemoveMaskInt())?.Cidades;
+                }
+            }
+
+            if (NomeDaCidadeOuIBGE.CEPValido())
+            {
+                return cids.Where(x => x.ContemCep(NomeDaCidadeOuIBGE));
+            }
+
+            var est = PegarEstado(NomeOuUFOuIBGE) ?? PegarEstado(NomeDaCidadeOuIBGE);
+            cids = est?.Cidades.ToList() ?? cids;
+
+            if (NomeDaCidadeOuIBGE.IsBlank())
+            {
+                return cids;
+            }
+
+            var similar = cids.Where(x =>
+            {
+                if (x.Nome.FlatContains(NomeDaCidadeOuIBGE))
+                {
+                    return true;
+                }
+
+                double sim = NomeDaCidadeOuIBGE.SimilarityFlat(x.Nome);
+                var limit = (double)Similaridade / 100;
+                return sim >= limit;
+            });
+
+            if (similar.Any())
+            {
+                cids = similar.ToList();
+            }
+            else
+            {
+                cids = cids.Where(x => x.Keywords.Any(c => c.FlatEqual(NomeOuUFOuIBGE))).ToList();
+            }
+
+            return cids.OrderByDescending(x => x.Nome.SimilarityFlat(NomeDaCidadeOuIBGE)).ThenByDescending(x => x.Capital);
+        }
+
+
+        public static Cidade PegarCidade(int IBGEouCEP) => PegarCidade(IBGEouCEP.ToString());
+        public static Cidade PegarCidade(long IBGEouCEP) => PegarCidade(IBGEouCEP.ToString());
 
         /// <summary>
         /// Retorna o estado de uma cidade especifa. Pode trazer mais de um estado caso o nome da
@@ -333,13 +547,29 @@ namespace Extensions.BR
         /// <summary>
         /// Retorna um documento formatado com seu rótulo
         /// </summary>
-        /// <param name="Text">CPF, CNPJ, CEP, PIS, Email, Celular ou Telefone</param>
+        /// <param name="Text">CPF, CNPJ, CNH, CEP, PIS, Email, Celular ou Telefone</param>
         /// <param name="DefaultString"></param>
         /// <returns></returns>
         public static string FormatarDocumentoComRotulo(this string Text, string DefaultString = Util.EmptyString)
         {
             var x = Text.PegarRotuloDocumento(DefaultString);
-            switch (x)
+
+            if (x.IsValid())
+            {
+                Text = $"{x}: {Text}";
+            }
+            return Text;
+        }
+
+        /// <summary>
+        /// Retorna um documento formatado
+        /// </summary>
+        /// <param name="Text">CPF, CNPJ, CNH, CEP, PIS, Email, Celular ou Telefone</param>
+
+        /// <returns></returns>
+        public static string FormatarDocumento(this string Text)
+        {
+            switch (Text)
             {
                 case "CPF":
                 case "CNPJ":
@@ -354,9 +584,19 @@ namespace Extensions.BR
                     Text = Text.FormatarPIS();
                     break;
 
+                case "CNH":
+                    Text = Text.FormatarCNH();
+                    break;
+
+                case "RENAVAM":
+                    Text = Text.FormatarRENAVAM();
+                    break;
+
                 case "Email":
                     Text = Text.ToLowerInvariant();
                     break;
+
+
 
                 case "Telefone":
                 case "Celular":
@@ -364,15 +604,12 @@ namespace Extensions.BR
                     break;
 
                 default:
-                    break;
-            }
 
-            if (x.IsValid())
-            {
-                Text = $"{x}: {Text}";
+                    break;
             }
             return Text;
         }
+
 
         /// <summary>
         /// Formata o PIS no padrão ###.#####.##-#
@@ -395,11 +632,90 @@ namespace Extensions.BR
         }
 
         /// <summary>
+        /// Formata o CNH no padrão ########
+        /// </summary>
+        /// <param name="CNH"></param>
+        /// <returns></returns>
+        /// <exception cref="FormatException"></exception>
+        public static string FormatarCNH(this string CNH)
+        {
+            if (CNH.CNHValido())
+            {
+                CNH = CNH.OnlyNumbersLong().FixedLenght(8);
+                return CNH;
+            }
+            else
+            {
+                throw new FormatException("String is not a valid CNH");
+            }
+        }
+
+        /// <summary>
         /// Formata o PIS no padrão ###.#####.##-#
         /// </summary>
         /// <param name="PIS">PIS a ser formatado</param>
         /// <returns>PIS formatado</returns>
         public static string FormatarPIS(this long PIS) => FormatarPIS(PIS.ToString(CultureInfo.InvariantCulture));
+
+        /// <summary>
+        /// Formata a CNH no padrão ########
+        /// </summary>
+        /// <param name="CNH"></param>
+        /// <returns></returns>
+        public static string FormatarCNH(this int CNH) => FormatarCNH(CNH.ToString(CultureInfo.InvariantCulture));
+
+        /// <summary>
+        /// Formata o RENAVAM no padrão ###########
+        /// </summary>
+        /// <param name="RENAVAM"></param>
+        /// <returns></returns>
+        /// <exception cref="FormatException"></exception>
+        public static string FormatarRENAVAM(this string RENAVAM)
+        {
+            if (RENAVAM.RENAVAMValido())
+            {
+                RENAVAM = RENAVAM.OnlyNumbersLong().FixedLenght(11);
+                return RENAVAM;
+            }
+            else
+            {
+                throw new FormatException("String is not a valid RENAVAM");
+            }
+        }
+
+        public static string FormatarRENAVAM(this long RENAVAM) => FormatarRENAVAM(RENAVAM.ToString(CultureInfo.InvariantCulture));
+
+        /// <summary>
+        /// Verifica se um número de RENAVAM é válido
+        /// </summary>
+        /// <param name="renavam"></param>
+        /// <returns></returns>
+        public static bool RENAVAMValido(this string renavam)
+        {
+
+            // Remover quaisquer caracteres não numéricos
+            renavam = renavam.OnlyNumbers();
+
+            if (renavam.Length != 11)
+            {
+                return false;
+            }
+
+            // Inverter os caracteres do número de RENAVAM
+            renavam = new string(renavam.Reverse().ToArray());
+
+            int soma = 0;
+            for (int i = 0; i < 10; i++)
+            {
+                soma += int.Parse(renavam[i].ToString()) * (i % 10 + 2);
+            }
+
+            int resto = soma % 11;
+            int digitoVerificador = resto < 2 ? 0 : 11 - resto;
+
+            return digitoVerificador == int.Parse(renavam[10].ToString());
+
+        }
 
         /// <summary>
         /// Aplica uma mascara a um numero de telefone
@@ -429,6 +745,9 @@ namespace Extensions.BR
 
             return string.Format(mask, long.Parse(Number.IfBlank("0")));
         }
+
+
+
 
         /// <inheritdoc cref="FormatarTelefone(int)"/>
         public static string FormatarTelefone(this long Number) => FormatarTelefone($"{Number}");
@@ -467,19 +786,28 @@ namespace Extensions.BR
             if (Input.IsValidEAN()) return "EAN";
             if (Input.PISValido()) return "PIS";
             if (Input.CNHValido()) return "CNH";
+            if (Input.RENAVAMValido()) return "RENAVAM";
             if (Input.IsEmail()) return "Email";
             if (Input.IsIP()) return "IP";
             if (Input.TelefoneValido()) return Input.RemoveMask().Length.IsAny(8, 10) ? "Telefone" : "Celular";
+            if (Estado.ValidarInscricaoEstadual(Input, "")) return "Inscrição Estadual";
 
             return DefaultLabel;
         }
 
         /// <summary>
-        /// Retorna o código IBGE do estado
+        /// Retorna o código IBGEouCEP do estado
         /// </summary>
         /// <param name="NomeOuUFouIBGE"></param>
         /// <returns></returns>
-        public static int? PegarCodigoIBGE(string NomeOuUFouIBGE) => PegarEstado(NomeOuUFouIBGE)?.IBGE;
+        public static int? PegarCodigoIbgeEstado(string NomeOuUFouIBGE) => PegarEstado(NomeOuUFouIBGE)?.IBGE;
+
+        /// <summary>
+        /// Retorna o código IBGEouCEP da cidade
+        /// </summary>
+        /// <param name="NomeOuUFouIBGE"></param>
+        /// <returns></returns>
+        public static int? PegarCodigoIbgeCidade(string NomeOuUFouIBGE) => PegarCidade(NomeOuUFouIBGE)?.IBGE;
 
         /// <summary>
         /// Retorna o nome do estado a partir da sigla
@@ -496,14 +824,51 @@ namespace Extensions.BR
         public static string PegarRegiao(string NomeOuUFOuIBGE) => PegarEstado(NomeOuUFOuIBGE)?.Regiao;
 
         /// <summary>
-        /// Retorna a as informações do estado a partir de um nome de estado, sigla ou numero do IBGE do estado ou cidade
+        /// Retorna a as informações do estado a partir de um nome de estado, sigla ou numero do IBGEouCEP do estado ou cidade
         /// </summary>
         /// <param name="NomeOuUFOuIBGE">Nome ou UF</param>
         /// <returns></returns>
         public static Estado PegarEstado(string NomeOuUFOuIBGE)
         {
             NomeOuUFOuIBGE = NomeOuUFOuIBGE.TrimBetween().ToSlugCase();
-            return Estados.FirstOrDefault(x => (x.Nome.ToSlugCase() ?? Util.EmptyString) == (NomeOuUFOuIBGE ?? Util.EmptyString) || (x.UF.ToSlugCase() ?? Util.EmptyString) == (NomeOuUFOuIBGE ?? Util.EmptyString) || (x.IBGE.ToString()) == (NomeOuUFOuIBGE.GetFirstChars(2) ?? Util.EmptyString));
+            if (NomeOuUFOuIBGE.CEPValido())
+            {
+                return Cidades.FirstOrDefault(x => x.ContemCep(NomeOuUFOuIBGE))?.Estado;
+            }
+
+            if (NomeOuUFOuIBGE.FormatoCodigoIBGEValido())
+            {
+                if (NomeOuUFOuIBGE.Length == 7)
+                {
+                    return Cidades.FirstOrDefault(x => x.IBGE == NomeOuUFOuIBGE.ToInt())?.Estado;
+                }
+                else
+                {
+                    return Estados.FirstOrDefault(x => x.IBGE == NomeOuUFOuIBGE.ToInt());
+                }
+            }
+
+            return Estados.FirstOrDefault(x => (x.Nome.ToSlugCase() ?? Util.EmptyString) == (NomeOuUFOuIBGE ?? Util.EmptyString) || (x.UF.ToSlugCase() ?? Util.EmptyString) == (NomeOuUFOuIBGE ?? Util.EmptyString));
+        }
+
+
+        public static bool FormatoCodigoIBGEValido(this string IBGE) => IBGE.IsNumber() && IBGE.ToInt() > 0 && (IBGE.Length == 7 || IBGE.Length == 2);
+
+        public static bool IBGEValido(this string IBGE)
+        {
+            if (IBGE.FormatoCodigoIBGEValido())
+            {
+                if (IBGE.Length == 2)
+                {
+                    return Estados.Any(x => x.IBGE == IBGE.ToInt());
+                }
+
+                if (IBGE.Length == 7)
+                {
+                    return Cidades.Any(x => x.IBGE == IBGE.ToInt());
+                }
+            }
+            return false;
         }
 
         /// <summary>
@@ -520,12 +885,8 @@ namespace Extensions.BR
         /// <returns></returns>
         public static IEnumerable<Estado> PegarEstadosDaRegiao(string Regiao) => Estados.Where(x => (Util.ToSlugCase(x.Regiao) ?? Util.EmptyString) == (Util.TrimBetween(Util.ToSlugCase(Regiao)) ?? Util.EmptyString) || Regiao.IsNotValid());
 
-        /// <summary>
-        /// Valida se a string é um telefone
-        /// </summary>
-        /// <param name="Telefone"></param>
-        /// <returns></returns>
-        public static bool TelefoneValido(this string Telefone) => Telefone.IsValid() && new Regex(@"\(?\+[0-9]{1,3}\)? ?-?[0-9]{1,3} ?-?[0-9]{3,5} ?-?[0-9]{4}( ?-?[0-9]{3})? ?(\w{1,10}\s?\d{1,6})?", (RegexOptions)((int)RegexOptions.Singleline + (int)RegexOptions.IgnoreCase)).IsMatch(Telefone.RemoveAny("(", ")"));
+
+
 
         /// <summary>
         /// Verifica se uma string é um cep válido
@@ -539,45 +900,40 @@ namespace Extensions.BR
         /// </summary>
         /// <param name="Text">CNH</param>
         /// <returns></returns>
-        public static bool CNHValido(this string CNH)
+        public static bool CNHValido(this string cnh)
         {
-            // char firstChar = cnh[0];
-            if (CNH.IsValid() && CNH.Length == 11 && CNH != new string('1', 11))
+            cnh = cnh.OnlyNumbers();
+            if (String.IsNullOrEmpty(cnh))
+                return false;
+            if (cnh.Length != 11)
+                return false;
+            if (cnh == new string(cnh[0], 11))
+                return false;
+
+            int digitoVerificador1 = GerarDigitoVerificadorCNH(cnh.Substring(0, 9), false);
+            int diferencial = 0;
+            if (digitoVerificador1 == 10)
             {
-                int dsc = 0;
-                int v = 0;
-                int i = 0;
-                int j = 9;
-                while (i < 9)
-                {
-                    v += Convert.ToInt32(CNH[i].ToString()) * j;
-                    i += 1;
-                    j -= 1;
-                }
-
-                int vl1 = v % 11;
-                if (vl1 >= 10)
-                {
-                    vl1 = 0;
-                    dsc = 2;
-                }
-
-                v = 0;
-                i = 0;
-                j = 1;
-                while (i < 9)
-                {
-                    v += Convert.ToInt32(CNH[i]) * j;
-                    i += 1;
-                    j += 1;
-                }
-
-                int x = v % 11;
-                int vl2 = x >= 10 ? 0 : x - dsc;
-                return $"{vl1}{vl2}" == (CNH.Substring(CNH.Length - 2, 2));
+                digitoVerificador1 = 0;
+                diferencial = 2;
             }
+            int digitoVerificador2 = GerarDigitoVerificadorCNH(cnh.Substring(0, 9), true);
+            digitoVerificador2 = digitoVerificador2 == 10 ? 0 : digitoVerificador2 - diferencial;
+            string CNHReal = cnh.Substring(0, 9) + digitoVerificador1.ToString() + digitoVerificador2.ToString();
 
-            return false;
+            return cnh == CNHReal;
+        }
+
+        public static int GerarDigitoVerificadorCNH(string digitos, bool crescente)
+        {
+            int soma = 0;
+            int multiplicador = crescente ? 1 : 9;
+            for (int indice = 0; indice < digitos.Length; indice++)
+            {
+                soma += int.Parse(digitos.Substring(indice, 1)) * multiplicador;
+                multiplicador += crescente ? 1 : -1;
+            }
+            return soma % 11;
         }
 
         /// <summary>
@@ -741,7 +1097,12 @@ namespace Extensions.BR
             return false;
         }
 
-        public static void Reload() => l = new List<Estado>();
+        public static void Reload()
+        {
+            states = new List<Estado>();
+            cities = new List<Cidade>();
+            cached = false;
+        }
     }
 
     public class ChaveNFe
@@ -1001,104 +1362,1192 @@ namespace Extensions.BR
         public override string ToString() => ChaveFormatadaTraco.RemoveMask();
     }
 
-    public partial class Cidade
+    public class Cidade : IEqualityComparer<Cidade>
     {
-        public Cidade(string Name, int IBGE, int DDD, string SIAFI, string TimeZone, decimal Latitude, decimal Longitude, bool Capital) : base()
-        {
-            this.Nome = Name;
-            this.IBGE = IBGE;
-            this.DDD = DDD;
-            this.SIAFI = SIAFI;
-            this.TimeZone = TimeZone;
-            this.Latitude = Latitude;
-            this.Longitude = Longitude;
-            this.Capital = Capital;
-        }
 
-        public bool Capital { get; }
-        public int DDD { get; }
+        public static bool operator ==(Cidade x, Cidade y) => x?.Equals(y) ?? false;
+
+        public static bool operator !=(Cidade x, Cidade y) => !x?.Equals(y) ?? false;
+
+        public bool Equals(Cidade x, Cidade y) => x != null && y != null && x.IBGE == y.IBGE && x.IBGE > 0;
+
+        public int GetHashCode(Cidade obj) => obj.IBGE.GetHashCode();
+
+        public int Id { get; internal set; }
+
+        public string Nome { get; internal set; }
+
+        public IEnumerable<string> Keywords { get; set; }
+
+        public long CepInicial { get; internal set; }
+
+        public long CepFinal { get; internal set; }
+
+        public bool ExclusivaSedeUrbana { get; internal set; }
+        public bool TotalMunicipio { get; internal set; }
+
+        public string Latitude { get; internal set; }
+        public string Longitude { get; internal set; }
+        public string CodigoGeograficoSubdivisao { get; internal set; }
+        public string CodigoGeograficoDistrito { get; internal set; }
+        public string MicroRegiao { get; internal set; }
+        public string MacroRegiao { get; internal set; }
+        public string Altitude { get; internal set; }
+        public int DDD { get; internal set; }
+        public bool Capital { get; internal set; }
+        public string TimeZone { get; internal set; }
+        public string UF => Estado?.UF;
+        public string Pais => Estado?.Pais;
+
+        public string CodigoPais => Estado?.CodigoPais;
+
+        public string Regiao => Estado?.Regiao;
+
+        public string CidadeEstado => $"{Nome} - {Estado?.UF}".TrimAny("-", " ");
+
+        public int IBGEEstado => Estado?.IBGE ?? 0;
+
+
+
+
+
+        [IgnoreDataMember]
+        public TimeZoneInfo TimeZoneInfo => TimeZoneInfo.FindSystemTimeZoneById(TimeZone);
+
 
         [DataMember(Name = "ibge_id")]
-        public int IBGE { get; }
-        public decimal Latitude { get; }
-        public decimal Longitude { get; }
-        public string Nome { get; }
+        public int IBGE { get; internal set; }
+
 
         [DataMember(Name = "siafi_id")]
         public string SIAFI { get; internal set; }
-        public Estado Estado => Brasil.PegarEstado($"{IBGE}");
-        public string TimeZone { get; }
 
-        public override string ToString() => Nome;
+        [IgnoreDataMember]
+        public Estado Estado { get; internal set; }
+
+        public bool ContemCep(long Cep) => Cep.IsBetweenOrEqual(CepInicial, CepFinal);
+
+        public bool ContemCep(string Cep) => Brasil.CEPValido(Cep) && ContemCep(Cep.OnlyNumbersLong());
+
+        public override string ToString() => CidadeEstado;
     }
 
     /// <summary>
     /// Objeto que representa um estado do Brasil e seus respectivos detalhes
     /// </summary>
-    public partial class Estado
+    public class Estado : IEqualityComparer<Estado>
     {
-        /// <summary>
-        /// Sigla do estado
-        /// </summary>
-        /// <returns></returns>
-        public Estado(string UF, string Nome, string Regiao, int IBGE, string Pais, string CodigoPais, decimal Longitude, decimal Latitude)
-        {
-            this.UF = UF;
-            this.Nome = Nome;
-            this.Regiao = Regiao;
-            this.IBGE = IBGE;
-            this.Pais = Pais;
-            this.CodigoPais = CodigoPais;
-            this.Longitude = Longitude;
-            this.Latitude = Latitude;
-        }
 
-        /// <summary>
-        /// Inicializa um objeto Estado a partir de uma sigla
-        /// </summary>
-        /// <param name="NomeOuUF"></param>
-        public Estado(string NomeOuUF)
-        {
-            if (NomeOuUF.IsValid())
-            {
-                Nome = Brasil.PegarNomeEstado(NomeOuUF);
-                UF = Brasil.PegarUfEstado(NomeOuUF);
-                Cidades = Brasil.PegarCidades(NomeOuUF);
-                Regiao = Brasil.PegarRegiao(NomeOuUF);
-            }
-        }
 
         /// <summary>
         /// Lista de cidades do estado
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<Cidade> Cidades { get; internal set; }
+        public IEnumerable<Cidade> Cidades => Brasil.Cidades.Where(x => x.IBGE.ToString(CultureInfo.InvariantCulture).GetFirstChars(2).FlatEqual(IBGE));
 
         public Cidade Capital => Cidades?.FirstOrDefault(x => x.Capital);
 
-        public string Pais { get; }
+        public string Pais { get; internal set; }
 
-        public string CodigoPais { get; }
+        public string CodigoPais { get; internal set; }
 
-        public int IBGE { get; }
+        public int IBGE { get; internal set; }
 
-        public decimal Latitude { get; }
+        public string Latitude { get; internal set; }
 
-        public decimal Longitude { get; }
+        public string Longitude { get; internal set; }
 
         /// <summary>
         /// Nome do estado
         /// </summary>
         /// <returns></returns>
-        public string Nome { get; }
+        public string Nome { get; internal set; }
 
-        public string Regiao { get; }
-        public string UF { get; }
+        public string Regiao { get; internal set; }
+        public string UF { get; internal set; }
 
         /// <summary>
         /// Retorna a String correspondente ao estado
         /// </summary>
         /// <returns></returns>
         public override string ToString() => UF;
+
+
+        public static Estado AC => Brasil.PegarEstado("AC");
+        public static Estado AL => Brasil.PegarEstado("AL");
+        public static Estado AP => Brasil.PegarEstado("AP");
+        public static Estado AM => Brasil.PegarEstado("AM");
+        public static Estado BA => Brasil.PegarEstado("BA");
+        public static Estado CE => Brasil.PegarEstado("CE");
+        public static Estado DF => Brasil.PegarEstado("DF");
+        public static Estado ES => Brasil.PegarEstado("ES");
+        public static Estado GO => Brasil.PegarEstado("GO");
+        public static Estado MA => Brasil.PegarEstado("MA");
+        public static Estado MT => Brasil.PegarEstado("MT");
+        public static Estado MS => Brasil.PegarEstado("MS");
+        public static Estado MG => Brasil.PegarEstado("MG");
+        public static Estado PA => Brasil.PegarEstado("PA");
+        public static Estado PB => Brasil.PegarEstado("PB");
+        public static Estado PR => Brasil.PegarEstado("PR");
+        public static Estado PE => Brasil.PegarEstado("PE");
+        public static Estado PI => Brasil.PegarEstado("PI");
+        public static Estado RJ => Brasil.PegarEstado("RJ");
+        public static Estado RN => Brasil.PegarEstado("RN");
+        public static Estado RS => Brasil.PegarEstado("RS");
+        public static Estado RO => Brasil.PegarEstado("RO");
+        public static Estado RR => Brasil.PegarEstado("RR");
+        public static Estado SC => Brasil.PegarEstado("SC");
+        public static Estado SP => Brasil.PegarEstado("SP");
+        public static Estado SE => Brasil.PegarEstado("SE");
+        public static Estado TO => Brasil.PegarEstado("TO");
+
+
+
+        /// <summary>
+        /// Verifica se uma string é uma Inscricao Estadual Válida
+        /// </summary>
+        /// <param name="inscricao"></param>
+        /// <returns></returns>
+        public bool ValidarInscricaoEstadual(string inscricao) => ValidarInscricaoEstadual(inscricao, UF);
+
+        /// <summary>
+        /// Verifica se uma string é uma Inscricao Estadual Válida
+        /// </summary>
+        /// <param name="inscricao"></param>
+        /// <returns></returns>
+        public static bool ValidarInscricaoEstadual(string inscricao, string estado)
+        {
+            bool retorno = false;
+            string strBase;
+            string strBase2;
+            string strOrigem;
+            string strDigito1;
+            string strDigito2;
+            int intPos;
+            int intValor;
+            int intSoma = 0;
+            int intResto;
+            int intNumero;
+            int intPeso = 0;
+            strBase = "";
+            strBase2 = "";
+            strOrigem = "";
+
+            if ((inscricao.Trim().ToUpper() == "ISENTO"))
+                return true;
+
+            for (intPos = 1; intPos <= inscricao.Trim().Length; intPos++)
+            {
+                if ((("0123456789P".IndexOf(inscricao.Substring((intPos - 1), 1), 0, StringComparison.OrdinalIgnoreCase) + 1) > 0))
+                    strOrigem = (strOrigem + inscricao.Substring((intPos - 1), 1));
+            }
+
+            switch (Brasil.PegarUfEstado(estado))
+            {
+                case "AC":
+                    #region
+                    strBase = (strOrigem.Trim() + "00000000000").Substring(0, 11);
+                    if (strBase.Substring(0, 2) == "01")
+                    {
+                        intSoma = 0;
+                        intPeso = 4;
+                        for (intPos = 1; (intPos <= 11); intPos++)
+                        {
+                            intValor = int.Parse(strBase.Substring((intPos - 1), 1));
+                            if (intPeso == 1) intPeso = 9;
+                            intSoma += intValor * intPeso;
+                            intPeso--;
+                        }
+
+                        intResto = (intSoma % 11);
+                        strDigito1 = ((intResto < 2) ? "0" : Convert.ToString((11 - intResto))).Substring((((intResto < 2) ? "0" : Convert.ToString((11 - intResto))).Length - 1));
+                        intSoma = 0;
+                        strBase = (strOrigem.Trim() + "000000000000").Substring(0, 12);
+                        intPeso = 5;
+
+                        for (intPos = 1; (intPos <= 12); intPos++)
+                        {
+                            intValor = int.Parse(strBase.Substring((intPos - 1), 1));
+                            if (intPeso == 1) intPeso = 9;
+                            intSoma += intValor * intPeso;
+                            intPeso--;
+                        }
+
+                        intResto = (intSoma % 11);
+                        strDigito2 = ((intResto < 2) ? "0" : Convert.ToString((11 - intResto))).Substring((((intResto < 2) ? "0" : Convert.ToString((11 - intResto))).Length - 1));
+                        strBase2 = (strBase.Substring(0, 12) + strDigito2);
+                        if ((strBase2 == strOrigem))
+                            retorno = true;
+                    }
+                    #endregion
+                    break;
+
+                case "AL":
+                    #region
+                    strBase = (strOrigem.Trim() + "000000000").Substring(0, 9);
+                    if ((strBase.Substring(0, 2) == "24"))
+                    {
+                        //24000004-8
+                        //98765432
+                        intSoma = 0;
+                        intPeso = 9;
+                        for (intPos = 1; (intPos <= 8); intPos++)
+                        {
+                            intValor = int.Parse(strBase.Substring((intPos - 1), 1));
+                            intSoma += intValor * intPeso;
+                            intPeso--;
+                        }
+
+                        intSoma = (intSoma * 10);
+                        intResto = (intSoma % 11);
+                        strDigito1 = ((intResto == 10) ? "0" : Convert.ToString(intResto)).Substring((((intResto == 10) ? "0" : Convert.ToString(intResto)).Length - 1));
+                        strBase2 = (strBase.Substring(0, 8) + strDigito1);
+                        if ((strBase2 == strOrigem))
+                            retorno = true;
+
+                    }
+                    #endregion
+                    break;
+
+                case "AM":
+                    #region
+                    strBase = (strOrigem.Trim() + "000000000").Substring(0, 9);
+                    intSoma = 0;
+                    intPeso = 9;
+                    for (intPos = 1; (intPos <= 8); intPos++)
+                    {
+                        intValor = int.Parse(strBase.Substring((intPos - 1), 1));
+                        intSoma += intValor * intPeso;
+                        intPeso--;
+                    }
+
+                    intResto = (intSoma % 11);
+                    if (intSoma < 11)
+                        strDigito1 = (11 - intSoma).ToString();
+                    else
+                        strDigito1 = ((intResto < 2) ? "0" : Convert.ToString((11 - intResto))).Substring((((intResto < 2) ? "0" : Convert.ToString((11 - intResto))).Length - 1));
+
+                    strBase2 = (strBase.Substring(0, 8) + strDigito1);
+                    if ((strBase2 == strOrigem))
+                        retorno = true;
+                    #endregion
+                    break;
+
+                case "AP":
+                    #region
+                    strBase = (strOrigem.Trim() + "000000000").Substring(0, 9);
+                    intPeso = 9;
+                    if ((strBase.Substring(0, 2) == "03"))
+                    {
+                        strBase = (strOrigem.Trim() + "000000000").Substring(0, 9);
+                        intSoma = 0;
+                        for (intPos = 1; (intPos <= 8); intPos++)
+                        {
+                            intValor = int.Parse(strBase.Substring((intPos - 1), 1));
+                            intSoma += intValor * intPeso;
+                            intPeso--;
+                        }
+
+                        intResto = (intSoma % 11);
+                        intValor = (11 - intResto);
+
+                        strDigito1 = Convert.ToString(intValor).Substring((Convert.ToString(intValor).Length - 1));
+                        strBase2 = (strBase.Substring(0, 8) + strDigito1);
+                        if ((strBase2 == strOrigem))
+                            retorno = true;
+                    }
+                    #endregion
+                    break;
+
+                case "BA":
+                    #region
+                    if (strOrigem.Length == 8)
+                        strBase = (strOrigem.Trim() + "00000000").Substring(0, 8);
+                    else if (strOrigem.Length == 9)
+                        strBase = (strOrigem.Trim() + "00000000").Substring(0, 9);
+                    if ((("0123458".IndexOf(strBase.Substring(0, 1), 0, System.StringComparison.OrdinalIgnoreCase) + 1) > 0) && strBase.Length == 8)
+                    {
+                        #region
+                        intSoma = 0;
+                        for (intPos = 1; (intPos <= 6); intPos++)
+                        {
+                            intValor = int.Parse(strBase.Substring((intPos - 1), 1));
+                            if (intPos == 1) intPeso = 7;
+                            intSoma += intValor * intPeso;
+                            intPeso--;
+                        }
+
+                        intResto = (intSoma % 10);
+                        strDigito2 = ((intResto == 0) ? "0" : Convert.ToString((10 - intResto))).Substring((((intResto == 0) ? "0" : Convert.ToString((10 - intResto))).Length - 1));
+                        strBase2 = strBase.Substring(0, 7) + strDigito2;
+                        if (strBase2 == strOrigem)
+                            retorno = true;
+                        if (retorno)
+                        {
+                            intSoma = 0;
+                            intPeso = 0;
+                            for (intPos = 1; (intPos <= 7); intPos++)
+                            {
+                                intValor = int.Parse(strBase.Substring((intPos - 1), 1));
+                                if (intPos == 7)
+                                    intValor = int.Parse(strBase.Substring((intPos), 1));
+                                if (intPos == 1) intPeso = 8;
+
+                                intSoma += intValor * intPeso;
+                                intPeso--;
+                            }
+
+                            intResto = (intSoma % 10);
+                            strDigito1 = ((intResto == 0) ? "0" : Convert.ToString((10 - intResto))).Substring((((intResto == 0) ? "0" : Convert.ToString((10 - intResto))).Length - 1));
+                            strBase2 = (strBase.Substring(0, 6) + strDigito1 + strDigito2);
+                            if ((strBase2 == strOrigem))
+                                retorno = true;
+                        }
+                        #endregion
+                    }
+                    else if ((("679".IndexOf(strBase.Substring(0, 1), 0, System.StringComparison.OrdinalIgnoreCase) + 1) > 0) && strBase.Length == 8)
+                    {
+                        #region
+                        intSoma = 0;
+                        for (intPos = 1; (intPos <= 6); intPos++)
+                        {
+                            intValor = int.Parse(strBase.Substring((intPos - 1), 1));
+                            if (intPos == 1) intPeso = 7;
+                            intSoma += intValor * intPeso;
+                            intPeso--;
+                        }
+
+                        intResto = (intSoma % 11);
+                        strDigito2 = ((intResto == 0) ? "0" : Convert.ToString((11 - intResto))).Substring((((intResto == 0) ? "0" : Convert.ToString((11 - intResto))).Length - 1));
+                        strBase2 = strBase.Substring(0, 7) + strDigito2;
+                        if (strBase2 == strOrigem)
+                            retorno = true;
+                        if (retorno)
+                        {
+                            intSoma = 0;
+                            intPeso = 0;
+                            for (intPos = 1; (intPos <= 7); intPos++)
+                            {
+                                intValor = int.Parse(strBase.Substring((intPos - 1), 1));
+                                if (intPos == 7)
+                                    intValor = int.Parse(strBase.Substring((intPos), 1));
+
+                                if (intPos == 1) intPeso = 8;
+                                intSoma += intValor * intPeso;
+                                intPeso--;
+                            }
+
+                            intResto = (intSoma % 11);
+                            strDigito1 = ((intResto == 0) ? "0" : Convert.ToString((11 - intResto))).Substring((((intResto == 0) ? "0" : Convert.ToString((11 - intResto))).Length - 1));
+                            strBase2 = (strBase.Substring(0, 6) + strDigito1 + strDigito2);
+                            if ((strBase2 == strOrigem))
+                                retorno = true;
+                        }
+
+                        #endregion
+                    }
+                    else if ((("0123458".IndexOf(strBase.Substring(1, 1), 0, System.StringComparison.OrdinalIgnoreCase) + 1) > 0) && strBase.Length == 9)
+                    {
+
+                        #region
+                        /* Segundo digito */
+                        //1000003
+                        //8765432
+                        intSoma = 0;
+                        for (intPos = 1; (intPos <= 7); intPos++)
+                        {
+                            intValor = int.Parse(strBase.Substring((intPos - 1), 1));
+                            if (intPos == 1) intPeso = 8;
+                            intSoma += intValor * intPeso;
+                            intPeso--;
+                        }
+
+                        intResto = (intSoma % 10);
+                        strDigito2 = ((intResto == 0) ? "0" : Convert.ToString((10 - intResto))).Substring((((intResto == 0) ? "0" : Convert.ToString((10 - intResto))).Length - 1));
+                        strBase2 = strBase.Substring(0, 8) + strDigito2;
+                        if (strBase2 == strOrigem)
+                            retorno = true;
+
+                        if (retorno)
+                        {
+                            //1000003 6
+                            //9876543 2
+                            intSoma = 0;
+                            intPeso = 0;
+                            for (intPos = 1; (intPos <= 8); intPos++)
+                            {
+                                intValor = int.Parse(strBase.Substring((intPos - 1), 1));
+                                if (intPos == 8)
+                                    intValor = int.Parse(strBase.Substring((intPos), 1));
+
+                                if (intPos == 1) intPeso = 9;
+                                intSoma += intValor * intPeso;
+                                intPeso--;
+                            }
+
+                            intResto = (intSoma % 10);
+                            strDigito1 = ((intResto == 0) ? "0" : Convert.ToString((11 - intResto))).Substring((((intResto == 0) ? "0" : Convert.ToString((11 - intResto))).Length - 1));
+
+                            strBase2 = (strBase.Substring(0, 7) + strDigito1 + strDigito2);
+                            if ((strBase2 == strOrigem))
+                                retorno = true;
+                        }
+                        #endregion
+                    }
+                    #endregion
+                    break;
+
+                case "CE":
+                    #region
+                    strBase = (strOrigem.Trim() + "000000000").Substring(0, 9);
+
+                    intSoma = 0;
+                    for (intPos = 1; (intPos <= 8); intPos++)
+                    {
+                        intValor = int.Parse(strBase.Substring((intPos - 1), 1));
+                        intValor = (intValor * (10 - intPos));
+                        intSoma = (intSoma + intValor);
+                    }
+
+                    intResto = (intSoma % 11);
+                    intValor = (11 - intResto);
+                    if ((intValor > 9))
+                        intValor = 0;
+
+                    strDigito1 = Convert.ToString(intValor).Substring((Convert.ToString(intValor).Length - 1));
+
+                    strBase2 = (strBase.Substring(0, 8) + strDigito1);
+                    if ((strBase2 == strOrigem))
+                        retorno = true;
+                    #endregion
+                    break;
+
+                case "DF":
+
+                    #region
+                    strBase = (strOrigem.Trim() + "0000000000000").Substring(0, 13);
+                    if ((strBase.Substring(0, 3) == "073"))
+                    {
+                        intSoma = 0;
+                        intPeso = 2;
+                        for (intPos = 11; (intPos >= 1); intPos = (intPos + -1))
+                        {
+                            intValor = int.Parse(strBase.Substring((intPos - 1), 1));
+                            intValor = (intValor * intPeso);
+                            intSoma = (intSoma + intValor);
+                            intPeso = (intPeso + 1);
+
+                            if ((intPeso > 9))
+                                intPeso = 2;
+                        }
+
+                        intResto = (intSoma % 11);
+
+                        strDigito1 = ((intResto < 2) ? "0" : Convert.ToString((11 - intResto))).Substring((((intResto < 2) ? "0" : Convert.ToString((11 - intResto))).Length - 1));
+
+                        strBase2 = (strBase.Substring(0, 11) + strDigito1);
+
+                        intSoma = 0;
+
+                        intPeso = 2;
+
+                        for (intPos = 12; (intPos >= 1); intPos = (intPos + -1))
+                        {
+                            intValor = int.Parse(strBase.Substring((intPos - 1), 1));
+                            intValor = (intValor * intPeso);
+                            intSoma = (intSoma + intValor);
+                            intPeso = (intPeso + 1);
+                            if ((intPeso > 9))
+                                intPeso = 2;
+                        }
+
+                        intResto = (intSoma % 11);
+                        strDigito2 = ((intResto < 2) ? "0" : Convert.ToString((11 - intResto))).Substring((((intResto < 2) ? "0" : Convert.ToString((11 - intResto))).Length - 1));
+                        strBase2 = (strBase.Substring(0, 12) + strDigito2);
+                        if ((strBase2 == strOrigem))
+                            retorno = true;
+                    }
+                    #endregion
+                    break;
+
+                case "ES":
+                    #region
+                    strBase = (strOrigem.Trim() + "000000000").Substring(0, 9);
+                    intSoma = 0;
+
+                    for (intPos = 1; (intPos <= 8); intPos++)
+                    {
+                        intValor = int.Parse(strBase.Substring((intPos - 1), 1));
+                        intValor = (intValor * (10 - intPos));
+                        intSoma = (intSoma + intValor);
+                    }
+
+                    intResto = (intSoma % 11);
+                    strDigito1 = ((intResto < 2) ? "0" : Convert.ToString((11 - intResto))).Substring((((intResto < 2) ? "0" : Convert.ToString((11 - intResto))).Length - 1));
+                    strBase2 = (strBase.Substring(0, 8) + strDigito1);
+                    if ((strBase2 == strOrigem))
+                        retorno = true;
+                    #endregion
+                    break;
+
+                case "GO":
+                    #region
+                    strBase = (strOrigem.Trim() + "000000000").Substring(0, 9);
+
+                    if ((("10,11,15".IndexOf(strBase.Substring(0, 2), 0, System.StringComparison.OrdinalIgnoreCase) + 1) > 0))
+                    {
+                        intSoma = 0;
+                        for (intPos = 1; (intPos <= 8); intPos++)
+                        {
+                            intValor = int.Parse(strBase.Substring((intPos - 1), 1));
+                            intValor = (intValor * (10 - intPos));
+                            intSoma = (intSoma + intValor);
+                        }
+
+                        intResto = (intSoma % 11);
+                        if ((intResto == 0))
+                            strDigito1 = "0";
+                        else if ((intResto == 1))
+                        {
+                            intNumero = int.Parse(strBase.Substring(0, 8));
+                            strDigito1 = (((intNumero >= 10103105) && (intNumero <= 10119997)) ? "1" : "0").Substring(((((intNumero >= 10103105) && (intNumero <= 10119997)) ? "1" : "0").Length - 1));
+                        }
+                        else
+                            strDigito1 = Convert.ToString((11 - intResto)).Substring((Convert.ToString((11 - intResto)).Length - 1));
+
+                        strBase2 = (strBase.Substring(0, 8) + strDigito1);
+
+                        if ((strBase2 == strOrigem))
+                            retorno = true;
+                    }
+                    #endregion
+                    break;
+
+                case "MA":
+                    #region
+                    strBase = (strOrigem.Trim() + "000000000").Substring(0, 9);
+
+                    if ((strBase.Substring(0, 2) == "12"))
+                    {
+                        intSoma = 0;
+                        for (intPos = 1; (intPos <= 8); intPos++)
+                        {
+                            intValor = int.Parse(strBase.Substring((intPos - 1), 1));
+                            intValor = (intValor * (10 - intPos));
+                            intSoma = (intSoma + intValor);
+                        }
+
+                        intResto = (intSoma % 11);
+
+                        strDigito1 = ((intResto < 2) ? "0" : Convert.ToString((11 - intResto))).Substring((((intResto < 2) ? "0" : Convert.ToString((11 - intResto))).Length - 1));
+
+                        strBase2 = (strBase.Substring(0, 8) + strDigito1);
+
+                        if ((strBase2 == strOrigem))
+                            retorno = true;
+                    }
+                    #endregion
+                    break;
+
+                case "MT":
+                    #region
+                    strBase = (strOrigem.Trim() + "0000000000").Substring(0, 10);
+                    intSoma = 0;
+                    intPeso = 2;
+
+                    for (intPos = 10; intPos >= 1; intPos = (intPos + -1))
+                    {
+                        intValor = int.Parse(strBase.Substring((intPos - 1), 1));
+                        intValor = (intValor * intPeso);
+                        intSoma = (intSoma + intValor);
+                        intPeso = (intPeso + 1);
+                        if ((intPeso > 9))
+                            intPeso = 2;
+                    }
+
+                    intResto = (intSoma % 11);
+                    strDigito1 = ((intResto < 2) ? "0" : Convert.ToString((11 - intResto))).Substring((((intResto < 2) ? "0" : Convert.ToString((11 - intResto))).Length - 1));
+                    strBase2 = (strBase.Substring(0, 10) + strDigito1);
+
+                    if ((strBase2 == strOrigem))
+                        retorno = true;
+                    #endregion
+                    break;
+
+                case "MS":
+                    #region
+                    strBase = (strOrigem.Trim() + "000000000").Substring(0, 9);
+
+                    if ((strBase.Substring(0, 2) == "28"))
+                    {
+                        intSoma = 0;
+                        for (intPos = 1; (intPos <= 8); intPos++)
+                        {
+                            intValor = int.Parse(strBase.Substring((intPos - 1), 1));
+                            intValor = (intValor * (10 - intPos));
+                            intSoma = (intSoma + intValor);
+                        }
+
+                        intResto = (intSoma % 11);
+                        strDigito1 = ((intResto < 2) ? "0" : Convert.ToString((11 - intResto))).Substring((((intResto < 2) ? "0" : Convert.ToString((11 - intResto))).Length - 1));
+                        strBase2 = (strBase.Substring(0, 8) + strDigito1);
+
+                        if ((strBase2 == strOrigem))
+                            retorno = true;
+                    }
+                    #endregion
+                    break;
+
+                case "MG":
+                    if (strBase.Trim().Length > 12)
+                    {
+                        strBase = (strOrigem.Trim() + "0000000000000").Substring(0, 13);
+                        strBase2 = strBase.Substring(0, 3) + "0" + strBase.Substring(3, 9);
+                        intNumero = 1;
+
+                        intSoma = 0;
+
+                        for (intPos = 0; intPos < 12; intPos++)
+                        {
+
+                            if (int.Parse(strBase2.Substring(intPos, 1)) * intNumero >= 10)
+                                intSoma += (int.Parse(strBase2.Substring(intPos, 1)) * intNumero) - 9;
+                            else
+                                intSoma += int.Parse(strBase2.Substring(intPos, 1)) * intNumero;
+
+                            intNumero = intNumero + 1;
+
+                            if (intNumero == 3)
+                                intNumero = 1;
+
+                        }
+
+                        intNumero = (int)((Math.Floor((Convert.ToDecimal(intSoma) + 10) / 10) * 10) - intSoma);
+                        if (intNumero % 10 == 0)
+                            intNumero = 0;
+
+                        if (intNumero != Convert.ToInt32(strOrigem.Substring(11, 1)))
+                            return false;
+
+
+                        intNumero = 3;
+                        intSoma = 0;
+
+                        for (intPos = 0; intPos < 12; intPos++)
+                        {
+
+                            intSoma += int.Parse(strOrigem.Substring(intPos, 1)) * intNumero;
+
+                            intNumero = intNumero - 1;
+                            if (intNumero == 1)
+                                intNumero = 11;
+
+                        }
+
+                        intNumero = 11 - (intSoma % 11);
+                        if (intNumero >= 10)
+                            intNumero = 0;
+
+                        retorno = intNumero == Convert.ToInt32(strOrigem.Substring(12, 1));
+                    }
+                    break;
+
+                case "PA":
+                    #region
+                    strBase = (strOrigem.Trim() + "000000000").Substring(0, 9);
+
+                    if ((strBase.Substring(0, 2) == "15"))
+                    {
+                        intSoma = 0;
+                        for (intPos = 1; (intPos <= 8); intPos++)
+                        {
+                            intValor = int.Parse(strBase.Substring((intPos - 1), 1));
+                            intValor = (intValor * (10 - intPos));
+                            intSoma = (intSoma + intValor);
+                        }
+
+                        intResto = (intSoma % 11);
+                        strDigito1 = ((intResto < 2) ? "0" : Convert.ToString((11 - intResto))).Substring((((intResto < 2) ? "0" : Convert.ToString((11 - intResto))).Length - 1));
+                        strBase2 = (strBase.Substring(0, 8) + strDigito1);
+
+                        if ((strBase2 == strOrigem))
+                            retorno = true;
+                    }
+                    #endregion
+                    break;
+
+                case "PB":
+                    #region
+                    strBase = (strOrigem.Trim() + "000000000").Substring(0, 9);
+                    intSoma = 0;
+
+                    for (intPos = 1; (intPos <= 8); intPos++)
+                    {
+                        intValor = int.Parse(strBase.Substring((intPos - 1), 1));
+                        intValor = (intValor * (10 - intPos));
+                        intSoma = (intSoma + intValor);
+                    }
+
+                    intResto = (intSoma % 11);
+                    intValor = (11 - intResto);
+
+                    if ((intValor > 9))
+                        intValor = 0;
+
+                    strDigito1 = Convert.ToString(intValor).Substring((Convert.ToString(intValor).Length - 1));
+                    strBase2 = (strBase.Substring(0, 8) + strDigito1);
+
+                    if ((strBase2 == strOrigem))
+                        retorno = true;
+
+                    #endregion
+                    break;
+
+                case "PE":
+                    #region
+                    strBase = (strOrigem.Trim() + "00000000000000").Substring(0, 14);
+                    intSoma = 0;
+                    intPeso = 2;
+
+                    for (intPos = 7; (intPos >= 1); intPos = (intPos + -1))
+                    {
+                        intValor = int.Parse(strBase.Substring((intPos - 1), 1));
+                        intValor = (intValor * intPeso);
+                        intSoma = (intSoma + intValor);
+                        intPeso = (intPeso + 1);
+
+                        if ((intPeso > 9))
+                            intPeso = 2;
+                    }
+
+                    intResto = (intSoma % 11);
+                    intValor = (11 - intResto);
+
+                    if ((intValor > 9))
+                        intValor = (intValor - 10);
+
+                    strDigito1 = Convert.ToString(intValor).Substring((Convert.ToString(intValor).Length - 1));
+                    strBase2 = (strBase.Substring(0, 7) + strDigito1);
+
+                    if ((strBase2 == strOrigem.Substring(0, 8)))
+                        retorno = true;
+
+                    if (retorno)
+                    {
+                        intSoma = 0;
+                        intPeso = 2;
+
+                        for (intPos = 8; (intPos >= 1); intPos = (intPos + -1))
+                        {
+                            intValor = int.Parse(strBase.Substring((intPos - 1), 1));
+                            intValor = (intValor * intPeso);
+                            intSoma = (intSoma + intValor);
+                            intPeso = (intPeso + 1);
+
+                            if ((intPeso > 9))
+                                intPeso = 2;
+                        }
+
+                        intResto = (intSoma % 11);
+                        intValor = (11 - intResto);
+
+                        if ((intValor > 9))
+                            intValor = (intValor - 10);
+
+                        strDigito2 = Convert.ToString(intValor).Substring((Convert.ToString(intValor).Length - 1));
+                        strBase2 = (strBase.Substring(0, 8) + strDigito2);
+
+                        if ((strBase2 == strOrigem))
+                            retorno = true;
+                    }
+                    #endregion
+                    break;
+
+                case "PI":
+                    #region
+                    strBase = (strOrigem.Trim() + "000000000").Substring(0, 9);
+                    intSoma = 0;
+
+                    for (intPos = 1; (intPos <= 8); intPos++)
+                    {
+                        intValor = int.Parse(strBase.Substring((intPos - 1), 1));
+                        intValor = (intValor * (10 - intPos));
+                        intSoma = (intSoma + intValor);
+                    }
+
+                    intResto = (intSoma % 11);
+                    strDigito1 = ((intResto < 2) ? "0" : Convert.ToString((11 - intResto))).Substring((((intResto < 2) ? "0" : Convert.ToString((11 - intResto))).Length - 1));
+                    strBase2 = (strBase.Substring(0, 8) + strDigito1);
+
+                    if ((strBase2 == strOrigem))
+                        retorno = true;
+                    #endregion
+                    break;
+
+                case "PR":
+                    #region
+                    strBase = (strOrigem.Trim() + "0000000000").Substring(0, 10);
+                    intSoma = 0;
+                    intPeso = 2;
+
+                    for (intPos = 8; (intPos >= 1); intPos = (intPos + -1))
+                    {
+                        intValor = int.Parse(strBase.Substring((intPos - 1), 1));
+                        intValor = (intValor * intPeso);
+                        intSoma = (intSoma + intValor);
+
+                        intPeso = (intPeso + 1);
+                        if ((intPeso > 7))
+                            intPeso = 2;
+                    }
+
+                    intResto = (intSoma % 11);
+                    strDigito1 = ((intResto < 2) ? "0" : Convert.ToString((11 - intResto))).Substring((((intResto < 2) ? "0" : Convert.ToString((11 - intResto))).Length - 1));
+                    strBase2 = (strBase.Substring(0, 8) + strDigito1);
+                    intSoma = 0;
+                    intPeso = 2;
+
+                    for (intPos = 9; (intPos >= 1); intPos = (intPos + -1))
+                    {
+                        intValor = int.Parse(strBase2.Substring((intPos - 1), 1));
+                        intValor = (intValor * intPeso);
+                        intSoma = (intSoma + intValor);
+                        intPeso = (intPeso + 1);
+
+                        if ((intPeso > 7))
+                            intPeso = 2;
+                    }
+
+                    intResto = (intSoma % 11);
+                    strDigito2 = ((intResto < 2) ? "0" : Convert.ToString((11 - intResto))).Substring((((intResto < 2) ? "0" : Convert.ToString((11 - intResto))).Length - 1));
+                    strBase2 = (strBase2 + strDigito2);
+
+                    if ((strBase2 == strOrigem))
+                        retorno = true;
+                    #endregion
+                    break;
+
+                case "RJ":
+                    #region
+                    strBase = (strOrigem.Trim() + "00000000").Substring(0, 8);
+                    intSoma = 0;
+                    intPeso = 2;
+
+                    for (intPos = 7; (intPos >= 1); intPos = (intPos + -1))
+                    {
+                        intValor = int.Parse(strBase.Substring((intPos - 1), 1));
+                        intValor = (intValor * intPeso);
+                        intSoma = (intSoma + intValor);
+                        intPeso = (intPeso + 1);
+
+                        if ((intPeso > 7))
+                            intPeso = 2;
+                    }
+
+                    intResto = (intSoma % 11);
+                    strDigito1 = ((intResto < 2) ? "0" : Convert.ToString((11 - intResto))).Substring((((intResto < 2) ? "0" : Convert.ToString((11 - intResto))).Length - 1));
+                    strBase2 = (strBase.Substring(0, 7) + strDigito1);
+
+                    if ((strBase2 == strOrigem))
+                        retorno = true;
+
+                    #endregion
+                    break;
+
+                case "RN": //Verficar com 10 digitos
+                    #region
+
+                    if (strOrigem.Length == 9)
+                        strBase = (strOrigem.Trim() + "000000000").Substring(0, 9);
+                    else if (strOrigem.Length == 10)
+                        strBase = (strOrigem.Trim() + "000000000").Substring(0, 10);
+
+                    if ((strBase.Substring(0, 2) == "20") && strBase.Length == 9)
+                    {
+                        intSoma = 0;
+
+                        for (intPos = 1; (intPos <= 8); intPos++)
+                        {
+                            intValor = int.Parse(strBase.Substring((intPos - 1), 1));
+                            intValor = (intValor * (10 - intPos));
+                            intSoma = (intSoma + intValor);
+                        }
+
+                        intSoma = (intSoma * 10);
+                        intResto = (intSoma % 11);
+                        strDigito1 = ((intResto > 9) ? "0" : Convert.ToString(intResto)).Substring((((intResto > 9) ? "0" : Convert.ToString(intResto)).Length - 1));
+                        strBase2 = (strBase.Substring(0, 8) + strDigito1);
+
+                        if ((strBase2 == strOrigem))
+                            retorno = true;
+                    }
+                    else if (strBase.Length == 10)
+                    {
+                        intSoma = 0;
+
+                        for (intPos = 1; (intPos <= 9); intPos++)
+                        {
+                            intValor = int.Parse(strBase.Substring((intPos - 1), 1));
+                            intValor = (intValor * (11 - intPos));
+                            intSoma = (intSoma + intValor);
+                        }
+
+                        intSoma = (intSoma * 10);
+                        intResto = (intSoma % 11);
+
+                        strDigito1 = ((intResto > 10) ? "0" : Convert.ToString(intResto)).Substring((((intResto > 10) ? "0" : Convert.ToString(intResto)).Length - 1));
+                        strBase2 = (strBase.Substring(0, 9) + strDigito1);
+
+                        if ((strBase2 == strOrigem))
+                            retorno = true;
+                    }
+                    #endregion
+                    break;
+
+                case "RO":
+                    #region
+                    strBase = (strOrigem.Trim() + "000000000").Substring(0, 9);
+                    strBase2 = strBase.Substring(3, 5);
+                    intSoma = 0;
+
+                    for (intPos = 1; (intPos <= 5); intPos++)
+                    {
+                        intValor = int.Parse(strBase2.Substring((intPos - 1), 1));
+                        intValor = (intValor * (7 - intPos));
+                        intSoma = (intSoma + intValor);
+                    }
+
+                    intResto = (intSoma % 11);
+                    intValor = (11 - intResto);
+
+                    if ((intValor > 9))
+                        intValor = (intValor - 10);
+
+                    strDigito1 = Convert.ToString(intValor).Substring((Convert.ToString(intValor).Length - 1));
+                    strBase2 = (strBase.Substring(0, 8) + strDigito1);
+
+                    if ((strBase2 == strOrigem))
+                        retorno = true;
+                    #endregion
+                    break;
+
+                case "RR":
+                    #region
+                    strBase = (strOrigem.Trim() + "000000000").Substring(0, 9);
+
+                    if ((strBase.Substring(0, 2) == "24"))
+                    {
+                        intSoma = 0;
+                        for (intPos = 1; (intPos <= 8); intPos++)
+                        {
+                            intValor = int.Parse(strBase.Substring((intPos - 1), 1));
+                            intValor = intValor * intPos;
+                            intSoma += intValor;
+                        }
+
+                        intResto = (intSoma % 9);
+                        strDigito1 = Convert.ToString(intResto).Substring((Convert.ToString(intResto).Length - 1));
+                        strBase2 = (strBase.Substring(0, 8) + strDigito1);
+
+                        if ((strBase2 == strOrigem))
+                            retorno = true;
+                    }
+                    #endregion
+                    break;
+
+                case "RS":
+                    #region
+                    strBase = (strOrigem.Trim() + "0000000000").Substring(0, 10);
+                    intNumero = int.Parse(strBase.Substring(0, 3));
+
+                    if (((intNumero > 0) && (intNumero < 468)))
+                    {
+                        intSoma = 0;
+                        intPeso = 2;
+
+                        for (intPos = 9; (intPos >= 1); intPos = (intPos + -1))
+                        {
+                            intValor = int.Parse(strBase.Substring((intPos - 1), 1));
+                            intValor = (intValor * intPeso);
+                            intSoma = (intSoma + intValor);
+                            intPeso = (intPeso + 1);
+
+                            if ((intPeso > 9))
+                                intPeso = 2;
+                        }
+
+                        intResto = (intSoma % 11);
+                        intValor = (11 - intResto);
+                        if ((intValor > 9))
+                            intValor = 0;
+
+                        strDigito1 = Convert.ToString(intValor).Substring((Convert.ToString(intValor).Length - 1));
+                        strBase2 = (strBase.Substring(0, 9) + strDigito1);
+
+                        if ((strBase2 == strOrigem))
+                            retorno = true;
+                    }
+                    #endregion
+                    break;
+
+                case "SC":
+                    #region
+                    strBase = (strOrigem.Trim() + "000000000").Substring(0, 9);
+                    intSoma = 0;
+
+                    for (intPos = 1; (intPos <= 8); intPos++)
+                    {
+                        intValor = int.Parse(strBase.Substring((intPos - 1), 1));
+                        intValor = (intValor * (10 - intPos));
+                        intSoma = (intSoma + intValor);
+                    }
+
+                    intResto = (intSoma % 11);
+                    strDigito1 = ((intResto < 2) ? "0" : Convert.ToString((11 - intResto))).Substring((((intResto < 2) ? "0" : Convert.ToString((11 - intResto))).Length - 1));
+                    strBase2 = (strBase.Substring(0, 8) + strDigito1);
+
+                    if ((strBase2 == strOrigem))
+                        retorno = true;
+                    #endregion
+                    break;
+
+                case "SE":
+                    #region
+                    strBase = (strOrigem.Trim() + "000000000").Substring(0, 9);
+                    intSoma = 0;
+
+                    for (intPos = 1; (intPos <= 8); intPos++)
+                    {
+                        intValor = int.Parse(strBase.Substring((intPos - 1), 1));
+                        intValor = (intValor * (10 - intPos));
+                        intSoma = (intSoma + intValor);
+                    }
+
+                    intResto = (intSoma % 11);
+                    intValor = (11 - intResto);
+
+                    if ((intValor > 9))
+                        intValor = 0;
+
+                    strDigito1 = Convert.ToString(intValor).Substring((Convert.ToString(intValor).Length - 1));
+                    strBase2 = (strBase.Substring(0, 8) + strDigito1);
+
+                    if ((strBase2 == strOrigem))
+                        retorno = true;
+                    #endregion
+                    break;
+
+                case "SP":
+                    #region
+                    if ((strOrigem.Substring(0, 1) == "P"))
+                    {
+                        strBase = (strOrigem.Trim() + "0000000000000").Substring(0, 13);
+                        strBase2 = strBase.Substring(1, 8);
+                        intSoma = 0;
+                        intPeso = 1;
+
+                        for (intPos = 1; (intPos <= 8); intPos++)
+                        {
+                            intValor = int.Parse(strBase.Substring((intPos), 1));
+                            intValor = (intValor * intPeso);
+                            intSoma = (intSoma + intValor);
+                            intPeso = (intPeso + 1);
+
+                            if ((intPeso == 2))
+                                intPeso = 3;
+
+                            if ((intPeso == 9))
+                                intPeso = 10;
+                        }
+
+                        intResto = (intSoma % 11);
+                        strDigito1 = Convert.ToString(intResto).Substring((Convert.ToString(intResto).Length - 1));
+                        strBase2 = (strBase.Substring(0, 9) + (strDigito1 + strBase.Substring(10, 3)));
+                    }
+                    else
+                    {
+                        strBase = (strOrigem.Trim() + "000000000000").Substring(0, 12);
+                        intSoma = 0;
+                        intPeso = 1;
+
+                        for (intPos = 1; (intPos <= 8); intPos++)
+                        {
+                            intValor = int.Parse(strBase.Substring((intPos - 1), 1));
+                            intValor = (intValor * intPeso);
+                            intSoma = (intSoma + intValor);
+                            intPeso = (intPeso + 1);
+
+                            if ((intPeso == 2))
+                                intPeso = 3;
+
+                            if ((intPeso == 9))
+                                intPeso = 10;
+                        }
+
+                        intResto = (intSoma % 11);
+                        strDigito1 = Convert.ToString(intResto).Substring((Convert.ToString(intResto).Length - 1));
+                        strBase2 = (strBase.Substring(0, 8) + (strDigito1 + strBase.Substring(9, 2)));
+                        intSoma = 0;
+                        intPeso = 2;
+
+                        for (intPos = 11; (intPos >= 1); intPos = (intPos + -1))
+                        {
+                            intValor = int.Parse(strBase.Substring((intPos - 1), 1));
+                            intValor = (intValor * intPeso);
+                            intSoma = (intSoma + intValor);
+                            intPeso = (intPeso + 1);
+                            if ((intPeso > 10))
+                                intPeso = 2;
+                        }
+
+                        intResto = (intSoma % 11);
+                        strDigito2 = Convert.ToString(intResto).Substring((Convert.ToString(intResto).Length - 1));
+                        strBase2 = (strBase2 + strDigito2);
+                    }
+
+                    if ((strBase2 == strOrigem))
+                        retorno = true;
+                    #endregion
+                    break;
+
+                case "TO":
+                    #region
+                    strBase = (strOrigem.Trim() + "00000000000").Substring(0, 11);
+                    if ((("01,02,03,99".IndexOf(strBase.Substring(2, 2), 0, System.StringComparison.OrdinalIgnoreCase) + 1) > 0))
+                    {
+                        strBase2 = (strBase.Substring(0, 2) + strBase.Substring(4, 6));
+                        intSoma = 0;
+
+                        for (intPos = 1; (intPos <= 8); intPos++)
+                        {
+                            intValor = int.Parse(strBase2.Substring((intPos - 1), 1));
+                            intValor = (intValor * (10 - intPos));
+                            intSoma = (intSoma + intValor);
+                        }
+
+                        intResto = (intSoma % 11);
+                        strDigito1 = ((intResto < 2) ? "0" : Convert.ToString((11 - intResto))).Substring((((intResto < 2) ? "0" : Convert.ToString((11 - intResto))).Length - 1));
+                        strBase2 = (strBase.Substring(0, 10) + strDigito1);
+
+                        if ((strBase2 == strOrigem))
+                            retorno = true;
+                    }
+                    #endregion
+
+                    break;
+                default:
+                    return Brasil.Estados.Any(x => x.ValidarInscricaoEstadual(inscricao));
+            }
+
+            return retorno;
+        }
+
+        public static bool operator ==(Estado x, Estado y) => x.Equals(y);
+
+        public static bool operator !=(Estado x, Estado y) => !x.Equals(y);
+
+        public bool Equals(Estado x, Estado y) => x != null && y != null && x.IBGE == y.IBGE && x.IBGE > 0;
+
+        public int GetHashCode(Estado obj) => obj.IBGE.GetHashCode();
     }
 }

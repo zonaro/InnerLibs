@@ -229,7 +229,7 @@ namespace Extensions.Files
 
         }
         /// <summary>
-        /// Delete and remove a file or directory from tree at especific index
+        /// DeleteCliente and remove a file or directory from tree at especific index
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
@@ -263,7 +263,7 @@ namespace Extensions.Files
         public void CopyTo(FileTree[] array, int arrayIndex) => _children.CopyTo(array, arrayIndex);
 
         /// <summary>
-        /// Delete and remove a file or directory from tree
+        /// DeleteCliente and remove a file or directory from tree
         /// </summary>
         /// <param name="item"></param>
         /// <returns></returns>

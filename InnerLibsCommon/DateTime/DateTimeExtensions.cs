@@ -148,6 +148,10 @@ namespace Extensions
         /// <returns><see cref="DateTime"/> with hour and minutes and seconds set to given values.</returns>
         public static DateTime At(this DateTime current, int hour, int minute, int second, int milliseconds) => current.SetTime(hour, minute, second, milliseconds);
 
+        /// <summary>
+        /// Returns the given <see cref="DateTime"/> with hour and minutes and seconds and
+        /// milliseconds set At given value.
+        /// </summary>
         public static DateTime At(this DateTime current, TimeSpan Time) => current.SetTime(Time);
 
         /// <summary>
@@ -1877,6 +1881,10 @@ namespace Extensions
 
         #endregion DateStrings
     }
+
+
+
+
 
     public class PeriodFormat
     {

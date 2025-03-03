@@ -55,6 +55,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)JSONParser\JsonSerializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)JSONParser\Reflection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)JSONParser\SafeDictionary.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Telefone.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Util.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FileTree.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FileType.cs" />
@@ -66,7 +67,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)JSONParser\JsonFile.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Like.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Mailer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)MicroORM\SelectWrapper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MicroORM\SQLResponse.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PasswordLevel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PredefinedArrays.cs" />

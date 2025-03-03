@@ -37,9 +37,9 @@ namespace Extensions.Printers.EscDarumaCommands
 
         public byte[] Center() => new byte[] { 27, 'j'.ToByte(), 1 };
 
-        public byte[] Code128(string code) => (new byte[] { 27, 'b'.ToByte(), 5 }).AddBytes(new byte[] { 2 }).AddBytes(new byte[] { 50 }).AddBytes(new byte[] { 0 }).AddTextBytes(code, Encoding).AddBytes(new byte[] { 0 }); // Code T// Witdh Height If print code informed (1 print, 0 dont print)
+        public byte[] Code128(string code) => (new byte[] { 27, 'b'.ToByte(), 5 }).AddBytes(new byte[] { 2 }).AddBytes(new byte[] { 50 }).AddBytes(new byte[] { 0 }).AddTextBytes(code, Encoding).AddBytes(new byte[] { 0 }); // Code TEntity// Witdh Height If print code informed (1 print, 0 dont print)
 
-        public byte[] Code39(string code) => (new byte[] { 27, 'b'.ToByte(), 6 }).AddBytes(new byte[] { 2 }).AddBytes(new byte[] { 50 }).AddBytes(new byte[] { 0 }).AddTextBytes(code, Encoding).AddBytes(new byte[] { 0 }); // Code T// Witdh Height If print code informed (1 print, 0 dont print)
+        public byte[] Code39(string code) => (new byte[] { 27, 'b'.ToByte(), 6 }).AddBytes(new byte[] { 2 }).AddBytes(new byte[] { 50 }).AddBytes(new byte[] { 0 }).AddTextBytes(code, Encoding).AddBytes(new byte[] { 0 }); // Code TEntity// Witdh Height If print code informed (1 print, 0 dont print)
 
         public byte[] Condensed(bool state) => state == true ? (new byte[] { 27, 15 }) : (new byte[] { 27, 18, 20 });
 
@@ -47,7 +47,7 @@ namespace Extensions.Printers.EscDarumaCommands
         {
             if (code.Trim().Length != 13)
                 return new byte[0];
-            return (new byte[] { 27, 'b'.ToByte(), 1 }).AddBytes(new byte[] { 2 }).AddBytes(new byte[] { 50 }).AddBytes(new byte[] { 0 }).AddTextBytes(code.Substring(0, 12), Encoding).AddBytes(new byte[] { 0 }); // Code T
+            return (new byte[] { 27, 'b'.ToByte(), 1 }).AddBytes(new byte[] { 2 }).AddBytes(new byte[] { 50 }).AddBytes(new byte[] { 0 }).AddTextBytes(code.Substring(0, 12), Encoding).AddBytes(new byte[] { 0 }); // Code TEntity
             // Witdh Height If print code informed (1 print, 0 dont print)
         }
 

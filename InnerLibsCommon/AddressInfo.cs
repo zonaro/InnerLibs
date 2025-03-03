@@ -12,6 +12,80 @@ using Extensions.BR;
 namespace Extensions.Locations
 {
 
+
+    public class BrasilAddressInfo : AddressInfo
+    {
+        public BrasilAddressInfo() : base()
+        {
+            Country = "Brasil";
+            CountryCode = "BR";
+        }
+
+        public string TimeZone
+        {
+            get => this[nameof(TimeZone)];
+            set => this[nameof(TimeZone)] = value;
+        }
+
+        public int? IBGE
+        {
+            get => this[nameof(IBGE)]?.ToInt();
+            set
+            {
+                var cid = Brasil.PegarCidade($"{value}");
+                this[nameof(IBGE)] = cid?.IBGE.ToString();
+                City = cid?.Nome;
+                State = cid?.Estado?.Nome;
+                StateCode = cid?.Estado?.UF;
+                Region = cid?.Estado?.Regiao;
+                Country = "Brasil";
+                CountryCode = "BR";
+
+            }
+        }
+
+        public int StateIBGE
+        {
+            get => this[nameof(StateIBGE)]?.ToInt() ?? 0;
+            set
+            {
+                var est = Brasil.PegarEstado($"{value}");
+                this[nameof(StateIBGE)] = est?.IBGE.ToString();
+                State = est?.Nome;
+                StateCode = est?.UF;
+                Region = est?.Regiao;
+                Country = "Brasil";
+                CountryCode = "BR";
+            }
+        }
+
+        public string UF => this.StateCode;
+
+
+
+        public string DDD
+        {
+            get => this[nameof(DDD)];
+            set => this[nameof(DDD)] = value;
+        }
+
+        public string SIAFI
+        {
+            get => this[nameof(SIAFI)];
+            set => this[nameof(SIAFI)] = value;
+        }
+
+        public string CEP
+        {
+            get => PostalCode.FormatarCEP();
+            set => PostalCode = value.FormatarCEP();
+        }
+
+
+
+    }
+
+
     public static class AddressTypes
     {
         #region Public Properties
@@ -122,7 +196,7 @@ namespace Extensions.Locations
         {
         }
 
-        public AddressInfo(string Label, decimal Latitude, decimal Longitude) : this()
+        public AddressInfo(string Label, string Latitude, string Longitude) : this()
         {
             this.Latitude = Latitude;
             this.Longitude = Longitude;
@@ -243,6 +317,12 @@ namespace Extensions.Locations
 
         #region Public Properties
 
+        public bool Capital
+        {
+            get => this[nameof(Capital)].AsBool();
+            set => this[nameof(Capital)] = value.ToString();
+        }
+
         /// <summary>
         /// Formato global de todas as intancias de <see cref="AddressInfo"/> quando chamadas pelo
         /// <see cref="AddressInfo.ToString()"/>
@@ -356,24 +436,22 @@ namespace Extensions.Locations
             set => this[nameof(Label)] = value; //Label is a plain Text, no need to propclean
         }
 
-        public decimal? Latitude
+        public string Latitude
         {
             get
             {
                 string value = this[nameof(Latitude)];
-                if (value != null)
-                {
-                    return Convert.ToDecimal(value, CultureInfo.InvariantCulture);
-                }
 
-                return null;
+                return value;
+
+
             }
 
             set
             {
-                if (value.HasValue)
+                if (value.CanBeNumber())
                 {
-                    this[nameof(Latitude)] = Convert.ToString(value.Value, CultureInfo.InvariantCulture);
+                    this[nameof(Latitude)] = value;
                 }
                 else
                 {
@@ -387,24 +465,20 @@ namespace Extensions.Locations
         /// </summary>
         /// <value></value>
         /// <returns>Longitude</returns>
-        public decimal? Longitude
+        public string Longitude
         {
             get
             {
                 string value = this[nameof(Longitude)];
-                if (value != null)
-                {
-                    return Convert.ToDecimal(value, CultureInfo.InvariantCulture);
-                }
+                return value;
 
-                return null;
             }
 
             set
             {
-                if (value.HasValue)
+                if (value.CanBeNumber())
                 {
-                    this[nameof(Longitude)] = Convert.ToString(value, CultureInfo.InvariantCulture);
+                    this[nameof(Longitude)] = value;
                 }
                 else
                 {
@@ -414,7 +488,7 @@ namespace Extensions.Locations
         }
 
         /// <summary>
-        /// T nome do endereço
+        /// TEntity nome do endereço
         /// </summary>
         /// <value></value>
         /// <returns></returns>
@@ -589,8 +663,8 @@ namespace Extensions.Locations
                         if (item.Name == "geometry")
                         {
                             var cultura = new CultureInfo("en-US");
-                            decimal lat = Convert.ToDecimal(item["location"]["lat"].InnerText, cultura);
-                            decimal lng = Convert.ToDecimal(item["location"]["lng"].InnerText, cultura);
+                            var lat = item["location"]["lat"].InnerText;
+                            var lng = item["location"]["lng"].InnerText;
                             d.Latitude = lat;
                             d.Longitude = lng;
                         }
@@ -681,7 +755,7 @@ namespace Extensions.Locations
         /// </summary>
         /// <param name="PostalCode"></param>
         /// <param name="Number">Numero da casa</param>
-        public static AddressInfo FromViaCEP(int PostalCode, string Number = null, string Complement = null) => FromViaCEP<AddressInfo>($"{PostalCode}", Number, Complement);
+        public static BrasilAddressInfo FromViaCEP(int PostalCode, string Number = null, string Complement = null) => FromViaCEP<BrasilAddressInfo>($"{PostalCode}", Number, Complement);
 
         /// <summary>
         /// Cria um objeto de localização e imadiatamente pesquisa as informações de um local
@@ -689,7 +763,7 @@ namespace Extensions.Locations
         /// </summary>
         /// <param name="PostalCode"></param>
         /// <param name="Number">Numero da casa</param>
-        public static AddressInfo FromViaCEP(string PostalCode, string Number = null, string Complement = null) => FromViaCEP<AddressInfo>(PostalCode, Number, Complement);
+        public static BrasilAddressInfo FromViaCEP(string PostalCode, string Number = null, string Complement = null) => FromViaCEP<BrasilAddressInfo>(PostalCode, Number, Complement);
 
         /// <summary>
         /// Cria um objeto de localização e imadiatamente pesquisa as informações de um local
@@ -723,7 +797,7 @@ namespace Extensions.Locations
 
             try
             {
-                var url = new Uri($"https://viacep.com.br/ws/{d.PostalCode.RemoveAny("-")}/json/");
+                var url = new Uri($"http://viacep.com.br/ws/{d.PostalCode.RemoveAny("-")}/json/");
                 d["search_url"] = url.ToString();
                 var x = url.DownloadJson() as Dictionary<string, object>;
                 d.Country = "Brasil";
@@ -733,17 +807,47 @@ namespace Extensions.Locations
                 d.Street = x.GetValueOr("logradouro") as string;
                 d.Complement = Complement.IfBlank(x.GetValueOr("complemento", d.Complement)) as string;
                 d.StateCode = x.GetValueOr("uf") as string;
-                if (d.StateCode.IsValid())
-                {
-                    d.State = Brasil.PegarNomeEstado(d.StateCode);
-                    d.Region = Brasil.PegarRegiao(d.StateCode);
-                }
+
                 foreach (var item in new[] { "ddd", "ibge", "gia", "siafi" })
                 {
                     Util.TryExecute(() => d[item.ToUpperInvariant()] = x.GetValueOr(item) as string);
                 }
+
             }
             catch { }
+
+            try
+            {
+
+                if (PostalCode.CEPValido())
+                {
+                    d.PostalCode = PostalCode.FormatarCEP();
+                    var cidade = Brasil.PegarCidade(d.PostalCode);
+                    if (cidade != null)
+                    {
+                        d.City = cidade.Nome;
+                        d.State = cidade.Estado.Nome;
+                        d.StateCode = cidade.Estado.UF;
+                        d.Region = cidade.Estado.Regiao;
+                        d["IBGE"] = cidade.IBGE.ToString();
+                        d["StateIBGE"] = cidade.Estado.IBGE.ToString();
+                        d.Capital = cidade.IBGE == cidade.Estado.Capital.IBGE;
+                        d["TimeZone"] = cidade.TimeZone;
+                    }
+                }
+
+                if (d.StateCode.IsValid())
+                {
+                    var est = Brasil.PegarEstado(d.StateCode);
+                    d.State = est.Nome;
+                    d.Region = est.Regiao;
+                    d["StateIBGE"] = est.IBGE.ToString();
+                    d.Capital = est.Capital.IBGE == d["IBGE"]?.ToInt();
+                }
+            }
+            catch
+            {
+            }
 
             return d;
         }
@@ -931,7 +1035,7 @@ namespace Extensions.Locations
 
         public bool ContainsKey(string key) => details.ContainsKey(key.ToLowerInvariant());
 
-        public string GeoLocation() => Latitude.HasValue && Longitude.HasValue ? $"{Latitude?.ToString(CultureInfo.InvariantCulture)}, {Longitude?.ToString(CultureInfo.InvariantCulture)}" : null;
+        public string GeoLocation() => Latitude.CanBeNumber() && Longitude.CanBeNumber() ? $"{Latitude}, {Longitude}" : null;
 
         /// <summary>
         /// Retona uma informação deste endereço
@@ -950,14 +1054,15 @@ namespace Extensions.Locations
             return this;
         }
 
-        public AddressInfo SetLatitudeLongitudeFromPoint(Point Point)
+        public AddressInfo SetLatitudeLongitudeFromPoint(Point Point, CultureInfo culture = null)
         {
-            Longitude = Point.X * 0.000001m;
-            Latitude = Point.Y * 0.000001m;
+            culture = culture ?? CultureInfo.InvariantCulture;
+            Longitude = (Point.X * 0.000001m).ToString(culture);
+            Latitude = (Point.Y * 0.000001m).ToString(culture);
             return this;
         }
 
-        public Point ToPoint() => Latitude.HasValue && Longitude.HasValue ? new Point((Longitude * 1000000).ToInt(), (Latitude * 1000000).ToInt()) : new Point();
+        public Point ToPoint(CultureInfo culture = null) => Latitude.CanBeNumber() && Longitude.CanBeNumber() ? new Point((Convert.ToDecimal(Longitude, culture ?? CultureInfo.InvariantCulture) * 1000000).ToInt(), (Convert.ToDecimal(Latitude, culture ?? CultureInfo.InvariantCulture) * 1000000).ToInt()) : new Point();
 
         /// <summary>
         /// Retorna uma String contendo as informações do Local

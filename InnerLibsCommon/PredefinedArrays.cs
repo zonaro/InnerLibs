@@ -7,7 +7,7 @@ namespace Extensions
 {
 
 
-   
+
     /// <summary>
     /// Classe estática que contém arrays pré-definidos de caracteres e tipos.
     /// </summary>
@@ -43,7 +43,7 @@ namespace Extensions
         /// <summary>
         /// Gets the collection of characters used for line breaks.
         /// </summary>
-        public static IEnumerable<string> BreakLineChars => new[] { Environment.NewLine, "\t", "\n", "\r", "\r\n" }.AsEnumerable();
+        public static IEnumerable<string> BreakLineChars => new[] { Environment.NewLine, "\n", "\r", "\r\n" }.AsEnumerable();
 
         /// <summary>
         /// Gets the collection of characters used for closing wrappers (quotes, brackets, etc.).
@@ -99,6 +99,11 @@ namespace Extensions
         /// Gets the collection of numeric characters.
         /// </summary>
         public static IEnumerable<string> NumberChars => new[] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" }.AsEnumerable();
+
+        /// <summary>
+        /// Gets the collection of telephone characters.
+        /// </summary>
+        public static IEnumerable<string> TelephoneChars => NumberChars.Union(new[] { "+", "(", ")", "-", " " }).AsEnumerable();
 
         /// <summary>
         /// Gets the collection of numeric types.

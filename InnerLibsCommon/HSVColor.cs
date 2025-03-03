@@ -199,7 +199,7 @@ namespace Extensions.Colors
         /// <param name="Name">Nome da cor</param>
         public HSVColor(Color Color, string Name) : this(Color) => _name = Name;
 
-        public static HSVColor FromKnowColor(KnownColor color) => new HSVColor(Color.FromKnownColor(color));
+        public static HSVColor FromKnownColor(KnownColor color) => new HSVColor(Color.FromKnownColor(color), Util.GetEnumValueAsString(color));
 
 
         #endregion Public Constructors
@@ -366,7 +366,8 @@ namespace Extensions.Colors
             }
         }
 
-        public Bitmap ImageSample => (Bitmap)CreateSolidImage().DrawString(Name);
+        public Bitmap ImageSample => GetImageSample();
+        public Bitmap GetImageSample(string size = "") => (Bitmap)CreateSolidImage(size).DrawString(Name);
 
         /// <summary>
         /// Luminância

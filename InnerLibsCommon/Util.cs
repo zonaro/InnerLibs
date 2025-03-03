@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Data;
@@ -10,6 +11,7 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Net;
 using System.Net.Mail;
@@ -21,8 +23,11 @@ using System.Runtime.Serialization;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
+using Extensions;
 using Extensions.Colors;
 using Extensions.ComplexText;
 using Extensions.Console;
@@ -35,13 +40,7 @@ using Extensions.Files;
 using Extensions.Locations;
 using Extensions.Pagination;
 using Extensions.Web;
-using Extensions;
-
 using Expression = System.Linq.Expressions.Expression;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Extensions
 {
@@ -73,7 +72,17 @@ namespace Extensions
         private static readonly MethodInfo startsWithMethod = typeof(string).GetMethod("StartsWith", new[] { typeof(string) });
 
 
-        static public bool IsCopyOf(this FileInfo file1, FileInfo file2)
+        public static IEnumerable<string> GetInitials(this string Text)
+        {
+            return Text?.SplitAny(PredefinedArrays.WordSplitters).Select(x => x.GetFirstChars().ToUpper()) ?? Array.Empty<string>();
+        }
+
+        public static string GetInitialsString(this string Text)
+        {
+            return Text.GetInitials().SelectJoinString();
+        }
+
+        public static bool IsCopyOf(this FileInfo file1, FileInfo file2)
         {
             int file1byte;
             int file2byte;
@@ -85,7 +94,6 @@ namespace Extensions
                 return false;
             }
 
-
             // Determine if the same file was referenced two times.
             if (file1.FullName == file2.FullName)
             {
@@ -95,9 +103,6 @@ namespace Extensions
 
             if (file1.Exists && file2.Exists)
             {
-
-
-
                 // Open the two files.
                 fs1 = new FileStream(file1.FullName, FileMode.Open);
                 fs2 = new FileStream(file2.FullName, FileMode.Open);
@@ -113,8 +118,8 @@ namespace Extensions
                     return false;
                 }
 
-                // Read and compare a byte from each file until either a non-matching set of bytes is found
-                // or until the end of file1 is reached.
+                // Read and compare a byte from each file until either a non-matching set of bytes
+                // is found or until the end of file1 is reached.
                 do
                 {
                     // Read one byte from each file.
@@ -126,8 +131,8 @@ namespace Extensions
                 fs1.Close();
                 fs2.Close();
 
-                // Return the success of the comparison. "file1byte" is equal to "file2byte" at this point
-                // only if the files are the same.
+                // Return the success of the comparison. "file1byte" is equal to "file2byte" at this
+                // point only if the files are the same.
                 return (file1byte - file2byte) == 0;
             }
             return false;
@@ -245,7 +250,6 @@ namespace Extensions
             [typeof(DateTime)] = DbType.DateTime,
             [typeof(DateTimeOffset)] = DbType.DateTimeOffset,
             [typeof(byte[])] = DbType.Binary
-
         };
 
         /// <summary>
@@ -264,7 +268,7 @@ namespace Extensions
         /// </summary>
         public static IEnumerable<Color> KnowColors => GetEnumValues<KnownColor>().Select(x => Color.FromKnownColor(x));
 
-        public static IEnumerable<HSVColor> KnowHSVColors => KnowColors.Select(x => new HSVColor(x));
+        public static IEnumerable<HSVColor> KnownHSVColors => GetEnumValues<KnownColor>().Select(x => HSVColor.FromKnownColor(x));
 
         /// <summary>
         /// Quando Configurado, escreve os parametros e queries executadas no <see
@@ -311,7 +315,7 @@ namespace Extensions
         }
 
         /// <summary>
-        /// Adciona um parametro a Query String de uma URL
+        /// Adciona um parametro a QueryInterpolated String de uma URL
         /// </summary>
         /// <param name="Url">Uri</param>
         /// <param name="Key">Nome do parâmetro</param>
@@ -341,7 +345,7 @@ namespace Extensions
         }
 
         /// <summary>
-        /// Adciona um parametro a Query String de uma URL
+        /// Adciona um parametro a QueryInterpolated String de uma URL
         /// </summary>
         /// <param name="Url">Uri</param>
         /// <param name="Key">Nome do parâmetro</param>
@@ -533,16 +537,24 @@ namespace Extensions
         /// Converts an object to a nullable boolean.
         /// </summary>
         /// <param name="Value">The object to be converted.</param>
-        /// <param name="EverythingIsTrue">A flag indicating whether to return true for any value not explicitly mapped to false. Defaults to true.</param>
+        /// <param name="EverythingIsTrue">
+        /// A flag indicating whether to return true for any value not explicitly mapped to false.
+        /// Defaults to true.
+        /// </param>
         /// <returns>
-        /// A nullable boolean representing the converted value of the object.
-        /// The following string values are considered:
+        /// A nullable boolean representing the converted value of the object. The following string
+        /// values are considered:
         /// - "NULL", "CANCEL", "CANCELAR": Returns null.
-        /// - "", "!", "0", "FALSE", "NOT", "NAO", "NO", "NOP", "DISABLED", "DISABLE", "OFF", "DESATIVADO", "DESATIVAR", "DESATIVO", "N": Returns false.
-        /// - "1", "S", "TRUE", "YES", "YEP", "SIM", "ENABLED", "ENABLE", "ON", "Y", "ATIVO", "ATIVAR", "ATIVADO": Returns true.
-        /// Any other value: Returns true if EverythingIsTrue is set to true, otherwise throws an ArgumentException.
+        /// - "", "!", "0", "FALSE", "NOT", "NAO", "NO", "NOP", "DISABLED", "DISABLE", "OFF",
+        ///   "DESATIVADO", "DESATIVAR", "DESATIVO", "N": Returns false.
+        /// - "1", "OK", "TRUE", "YES", "YEP", "SIM", "ENABLED", "ENABLE", "ON", "Y", "ATIVO",
+        ///   "ATIVAR", "ATIVADO": Returns true. Any other value: Returns true if EverythingIsTrue
+        /// is set to true, otherwise throws an ArgumentException.
         /// </returns>
-        /// <exception cref="ArgumentException">Thrown when the object does not represent a valid option and the EverythingIsTrue flag is set to false.</exception>
+        /// <exception cref="ArgumentException">
+        /// Thrown when the object does not represent a valid option and the EverythingIsTrue flag
+        /// is set to false.
+        /// </exception>
         public static bool? AsNullableBool(this object Value, bool EverythingIsTrue = true)
         {
             if (Value == null) return null;
@@ -571,7 +583,7 @@ namespace Extensions
                         return false;
 
                     case "1":
-                    case "S":
+                    case "OK":
                     case "TRUE":
                     case "YES":
                     case "YEP":
@@ -595,14 +607,19 @@ namespace Extensions
         /// Converts an object to a boolean.
         /// </summary>
         /// <param name="Value">The object to be converted.</param>
-        /// <param name="EverythingIsTrue">A flag indicating whether to return true for any value not explicitly mapped to false. Defaults to true.</param>
+        /// <param name="EverythingIsTrue">
+        /// A flag indicating whether to return true for any value not explicitly mapped to false.
+        /// Defaults to true.
+        /// </param>
         /// <returns>
-        /// A boolean representing the converted value of the object.
-        /// The following string values are considered:
+        /// A boolean representing the converted value of the object. The following string values
+        /// are considered:
         /// - "NULL", "CANCEL", "CANCELAR": Returns false as the function is non-nullable.
-        /// - "", "!", "0", "FALSE", "NOT", "NAO", "NO", "NOP", "DISABLED", "DISABLE", "OFF", "DESATIVADO", "DESATIVAR", "DESATIVO", "N": Returns false.
-        /// - "1", "S", "TRUE", "YES", "YEP", "SIM", "ENABLED", "ENABLE", "ON", "Y", "ATIVO", "ATIVAR", "ATIVADO": Returns true.
-        /// Any other value: Returns true if EverythingIsTrue is set to true, otherwise returns false.
+        /// - "", "!", "0", "FALSE", "NOT", "NAO", "NO", "NOP", "DISABLED", "DISABLE", "OFF",
+        ///   "DESATIVADO", "DESATIVAR", "DESATIVO", "N": Returns false.
+        /// - "1", "kk", "TRUE", "YES", "YEP", "SIM", "ENABLED", "ENABLE", "ON", "Y", "ATIVO",
+        ///   "ATIVAR", "ATIVADO": Returns true. Any other value: Returns true if EverythingIsTrue
+        /// is set to true, otherwise returns false.
         /// </returns>
         public static bool AsBool(this object Value, bool EverythingIsTrue = true) => AsNullableBool(Value, EverythingIsTrue) ?? false;
 
@@ -744,31 +761,7 @@ namespace Extensions
             }
         }
 
-        /// <summary>
-        /// Valida se uma conexao e um comando nao sao nulos. Valida se o texto do comando esta em
-        /// branco e associa este comando a conexao especifica. Escreve o comando no <see
-        /// cref="LogWriter"/> e retorna o mesmo
-        /// </summary>
-        /// <param name="Connection"></param>
-        /// <param name="Command"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentException"></exception>
-        public static DbCommand BeforeRunCommand(ref DbConnection Connection, ref DbCommand Command, TextWriter LogWriter = null)
-        {
-            Connection = Connection ?? Command?.Connection;
-            if (Command == null || Command.CommandText.IsNotValid())
-            {
-                throw new ArgumentException("Command is null or blank");
-            }
 
-            Command.Connection = Connection ?? throw new ArgumentException("Connection is null");
-            if (!Connection.IsOpen())
-            {
-                Connection.Open();
-            }
-
-            return Command.LogCommand(LogWriter);
-        }
 
         /// <summary>
         /// Verifica se dois ou mais string estão nulas ou em branco e retorna o primeiro elemento
@@ -814,10 +807,10 @@ namespace Extensions
             // Lock the bitmap's bits
             BitmapData blurredData = blurred.LockBits(new System.Drawing.Rectangle(0, 0, Img.Width, Img.Height), ImageLockMode.ReadWrite, blurred.PixelFormat);
 
-            // Get bits per pixel for current PixelFormat
+            // GetCliente bits per pixel for current PixelFormat
             int bitsPerPixel = Image.GetPixelFormatSize(blurred.PixelFormat);
 
-            // Get pointer to first line
+            // GetCliente pointer to first line
             byte* scan0 = (byte*)blurredData.Scan0.ToPointer();
 
             // look at every pixel in the blur rectangle
@@ -834,7 +827,7 @@ namespace Extensions
                     {
                         for (int y = yy; (y < yy + BlurSize && y < Img.Height); y++)
                         {
-                            // Get pointer to RGB
+                            // GetCliente pointer to RGB
                             byte* data = scan0 + y * blurredData.Stride + x * bitsPerPixel / 8;
 
                             avgB += data[0]; // Blue
@@ -854,7 +847,7 @@ namespace Extensions
                     {
                         for (int y = yy; y < yy + BlurSize && y < Img.Height && y < rectangle.Height; y++)
                         {
-                            // Get pointer to RGB
+                            // GetCliente pointer to RGB
                             byte* data = scan0 + y * blurredData.Stride + x * bitsPerPixel / 8;
 
                             // Change values
@@ -1377,9 +1370,15 @@ namespace Extensions
         {
             try
             {
+                if (Value != null && Value.GetType() == typeof(T))
+                {
+                    return (T)Value;
+                }
+
                 var tp = typeof(T).GetNullableTypeOf() ?? typeof(T);
                 if (Value != null)
                 {
+                    if (Value is string ss && ss.IsBlank()) return default;
                     return (T)Value.ChangeType(tp);
                 }
                 return default;
@@ -1401,6 +1400,11 @@ namespace Extensions
             if (ToType == null)
             {
                 WriteDebug($"ToType is null, using {typeof(TFrom).Name}");
+                return Value;
+            }
+
+            if (typeof(TFrom) == ToType)
+            {
                 return Value;
             }
 
@@ -1968,186 +1972,6 @@ namespace Extensions
             return dic;
         }
 
-        /// <summary>
-        /// Cria um <see cref="DbCommand"/> a partir de um arquivo SQL e um objeto,
-        /// </summary>
-        /// <param name="Connection"></param>
-        /// <param name="SQL"></param>
-        /// <returns></returns>
-        public static DbCommand CreateCommand<T>(this DbConnection Connection, FileInfo SQLFile, T obj, DbTransaction Transaction = null) => CreateCommand(Connection, SQLFile.Exists ? SQLFile.ReadAllText() : EmptyString, obj, Transaction);
-
-        /// <summary>
-        /// Cria um <see cref="DbCommand"/> a partir de uma string SQL e um objeto,
-        /// </summary>
-        /// <param name="Connection"></param>
-        /// <param name="SQL"></param>
-        /// <returns></returns>
-        public static DbCommand CreateCommand<T>(DbConnection connection, string SQL, T obj, DbTransaction transaction = null) => CreateCommand(connection, SQL.InjectSQL(obj).ToFormattableString(), transaction);
-
-        /// <summary>
-        /// Cria um <see cref="DbCommand"/> a partir de uma string SQL e um <see cref="Dictionary(Of
-        /// String, Object)"/>, tratando os parametros desta string como parametros SQL
-        /// </summary>
-        /// <param name="Connection"></param>
-        /// <param name="SQL"></param>
-        /// <returns></returns>
-        public static DbCommand CreateCommand(this DbConnection Connection, FileInfo SQLFile, Dictionary<string, object> Parameters, DbTransaction Transaction = null) => SQLFile != null && SQLFile.Exists ? CreateCommand(Connection, SQLFile.ReadAllText(), Parameters, Transaction) : null;
-
-        /// <summary>
-        /// Cria um <see cref="DbCommand"/> a partir de uma string SQL e um <see
-        /// cref="NameValueCollection"/>, tratando os parametros desta string como parametros SQL
-        /// </summary>
-        /// <param name="Connection"></param>
-        /// <param name="SQL"></param>
-        /// <returns></returns>
-        public static DbCommand CreateCommand(this DbConnection Connection, FileInfo SQLFile, NameValueCollection Parameters, DbTransaction Transaction = null) => Connection.CreateCommand(SQLFile, Parameters.ToDictionary(), Transaction);
-
-        /// <summary>
-        /// Cria um <see cref="DbCommand"/> a partir de uma string SQL e um <see
-        /// cref="NameValueCollection"/>, tratando os parametros desta string como parametros SQL
-        /// </summary>
-        /// <param name="Connection"></param>
-        /// <param name="SQL"></param>
-        /// <returns></returns>
-        public static DbCommand CreateCommand(this DbConnection Connection, string SQL, NameValueCollection Parameters, DbTransaction Transaction = null) => Connection.CreateCommand(SQL, Parameters.ToDictionary(), Transaction);
-
-        /// <summary>
-        /// Cria um <see cref="DbCommand"/> a partir de uma string SQL e um <see
-        /// cref="Dictionary{TKey, TValue}"/>, tratando os parametros desta string como parametros SQL
-        /// </summary>
-        /// <param name="Connection"></param>
-        /// <param name="SQL"></param>
-        /// <returns></returns>
-        public static DbCommand CreateCommand(this DbConnection Connection, string SQL, Dictionary<string, object> Parameters, DbTransaction Transaction = null)
-        {
-            if (Connection != null && SQL.IsValid())
-            {
-                var command = Connection.CreateCommand();
-                command.CommandText = SQL;
-                if (Parameters != null && Parameters.Any())
-                {
-                    foreach (var p in Parameters.Keys)
-                    {
-                        var v = Parameters.GetValueOr(p);
-                        var arr = ForceArray(v, typeof(object)).ToList();
-                        for (int index = 0, loopTo = arr.Count - 1; index <= loopTo; index++)
-                        {
-                            var param = command.CreateParameter();
-                            if (arr.Count == 1)
-                            {
-                                param.ParameterName = $"__{p}";
-                            }
-                            else
-                            {
-                                param.ParameterName = $"__{p}_{index}";
-                            }
-
-                            param.Value = arr[index] ?? DBNull.Value;
-                            command.Parameters.Add(param);
-                        }
-                    }
-                }
-                if (Transaction != null)
-                {
-                    command.Transaction = Transaction;
-                }
-                return command;
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Cria um <see cref="DbCommand"/> a partir de uma string , tratando os parametros {p}
-        /// desta string como parametros SQL
-        /// </summary>
-        /// <param name="Connection"></param>
-        /// <param name="SQL"></param>
-        /// <returns></returns>
-        public static DbCommand CreateCommand(this DbConnection Connection, string SQL, params string[] Args) => CreateCommand(Connection, SQL, null, Args);
-
-        /// <summary>
-        /// Cria um <see cref="DbCommand"/> a partir de uma string , tratando os parametros {p}
-        /// desta string como parametros SQL
-        /// </summary>
-        /// <param name="Connection"></param>
-        /// <param name="SQL"></param>
-        /// <returns></returns>
-        public static DbCommand CreateCommand(this DbConnection Connection, string SQL, DbTransaction Transaction, params string[] Args)
-        {
-            if (SQL.IsValid())
-            {
-                return Connection.CreateCommand(SQL.ToFormattableString(Args), Transaction);
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Cria um <see cref="DbCommand"/> a partir de um arquivo SQL
-        /// </summary>
-        /// <param name="Connection"></param>
-        /// <param name="SQL"></param>
-        /// <returns></returns>
-        public static DbCommand CreateCommand(this DbConnection Connection, FileInfo SQLFile, params string[] Args) => CreateCommand(Connection, SQLFile.ReadAllText().ToFormattableString(Args));
-
-        public static DbCommand CreateCommand(this DbConnection Connection, FileInfo SQLFile, DbTransaction Transaction, params string[] Args) => CreateCommand(Connection, SQLFile.ReadAllText().ToFormattableString(Args), Transaction);
-
-        /// <summary>
-        /// Cria um <see cref="DbCommand"/> a partir de uma string interpolada, tratando os
-        /// parametros desta string como parametros SQL
-        /// </summary>
-        /// <param name="Connection"></param>
-        /// <param name="SQL"></param>
-        /// <returns></returns>
-        public static DbCommand CreateCommand(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null)
-        {
-            if (SQL != null && Connection != null && SQL.IsNotBlank())
-            {
-                var cmd = Connection.CreateCommand();
-                if (SQL.ArgumentCount > 0)
-                {
-                    cmd.CommandText = SQL.Format;
-                    for (int index = 0, loopTo = SQL.ArgumentCount - 1; index <= loopTo; index++)
-                    {
-                        var valores = SQL.GetArgument(index);
-                        var v = ForceArray(valores, typeof(object)).ToList();
-                        var param_names = new List<string>();
-                        for (int v_index = 0, loopTo1 = v.Count - 1; v_index <= loopTo1; v_index++)
-                        {
-                            var param = cmd.CreateParameter();
-                            if (v.Count == 1)
-                            {
-                                param.ParameterName = $"__p{index}";
-                            }
-                            else
-                            {
-                                param.ParameterName = $"__p{index}_{v_index}";
-                            }
-
-                            param.Value = v[v_index] ?? DBNull.Value;
-                            cmd.Parameters.Add(param);
-                            param_names.Add("@" + param.ParameterName);
-                        }
-
-                        cmd.CommandText = cmd.CommandText.Replace("{" + index + "}", param_names.SelectJoinString(",").IfBlank("NULL").UnQuote('(', true).Quote('('));
-                    }
-                }
-                else
-                {
-                    cmd.CommandText = SQL.ToString();
-                }
-
-                if (Transaction != null)
-                {
-                    cmd.Transaction = Transaction;
-                }
-
-                return cmd;
-            }
-
-            return null;
-        }
 
         /// <summary>
         /// Cria uma constante a partir de um valor para ser usada em expressões lambda
@@ -2187,6 +2011,15 @@ namespace Extensions
             if (Obj != null)
             {
                 Keys = Keys ?? Array.Empty<string>();
+
+                if (Obj.GetTypeOf() == typeof((string, object)))
+                {
+                    (string, object) t = Obj.ChangeType<(string, object)>();
+                    return new Dictionary<string, object>()
+                    {
+                        { t.Item1, t.Item2 }
+                    };
+                }
 
                 if (Obj.GetTypeOf() == typeof(IEnumerable<(string, object)>))
                 {
@@ -2331,50 +2164,6 @@ namespace Extensions
             return g;
         }
 
-        /// <summary>
-        /// Cria comandos de INSERT para cada objeto do tipo <typeparamref name="T"/> em uma lista
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="Connection"></param>
-        /// <param name="obj"></param>
-        /// <param name="TableName"></param>
-        /// <returns></returns>
-        public static IEnumerable<DbCommand> CreateINSERTCommand<T>(this DbConnection Connection, IEnumerable<T> obj, string TableName = null, DbTransaction Transaction = null) where T : class => (obj ?? Array.Empty<T>()).Select(x => Connection.CreateINSERTCommand(x, TableName, Transaction));
-
-        /// <summary>
-        /// Cria um comando de INSERT para o objeto do tipo <typeparamref name="T"/>
-        /// </summary>
-        /// <remarks>
-        /// <typeparamref name="T"/> pode ser uma classe, <see cref="NameValueCollection"/> ou <see
-        /// cref="Dictionary{TKey, TValue}"/>
-        /// </remarks>
-        public static DbCommand CreateINSERTCommand<T>(this DbConnection Connection, T obj, string TableName = null, DbTransaction Transaction = null) where T : class
-        {
-            var d = typeof(T);
-            var dic = new Dictionary<string, object>();
-            if (obj != null && Connection != null)
-            {
-                dic = obj.CreateDictionary();
-
-                var cmd = Connection.CreateCommand();
-                cmd.CommandText = string.Format($"INSERT INTO {TableName.IfBlank(d.Name)} ({{0}}) values ({{1}})", dic.Keys.SelectJoinString(","), dic.Keys.SelectJoinString(x => $"@__{x}", ","));
-                foreach (var k in dic.Keys)
-                {
-                    var param = cmd.CreateParameter();
-                    param.ParameterName = $"__{k}";
-                    param.Value = dic.GetValueOr(k, DBNull.Value);
-                    cmd.Parameters.Add(param);
-                }
-                if (Transaction != null)
-                {
-                    cmd.Transaction = Transaction;
-                }
-                return cmd;
-            }
-
-            return null;
-        }
-
         public static Type CreateNullableType(this Type type)
         {
             if (type.IsValueType && (!type.IsGenericType || type.GetGenericTypeDefinition() != typeof(object)))
@@ -2386,7 +2175,7 @@ namespace Extensions
         }
 
         /// <summary>
-        /// Creates an object of type T from XML string.
+        /// Creates an object of type TEntity from XML string.
         /// </summary>
         /// <typeparam name="T">The type of object to create.</typeparam>
         /// <param name="XML">The XML string.</param>
@@ -2404,18 +2193,18 @@ namespace Extensions
         }
 
         /// <summary>
-        /// Creates an object of type T from an XML file.
+        /// Creates an object of type TEntity from an XML file.
         /// </summary>
         /// <typeparam name="T">The type of object to create.</typeparam>
         /// <param name="XML">The XML file.</param>
         /// <returns>The created object.</returns>
         public static T CreateObjectFromXMLFile<T>(this FileInfo XML) where T : class => XML.ReadAllText().CreateObjectFromXML<T>();
 
-
         public static T SetObject<T>(this Dictionary<string, object> Dictionary, T Obj, params object[] args) => (T)CreateOrSetObject(Dictionary, Obj, typeof(T), args);
 
         /// <summary>
-        /// Create a new instance of <paramref name="Type"/> and set the properties values from <paramref name="Dictionary"/>
+        /// Create a new instance of <paramref name="Type"/> and set the properties values from
+        /// <paramref name="Dictionary"/>
         /// </summary>
         /// <param name="Dictionary"></param>
         /// <param name="Obj"></param>
@@ -2529,159 +2318,11 @@ namespace Extensions
             return Bmp;
         }
 
-        /// <inheritdoc  cref="CreateSolidImage(Color, int, int)"/>
+        /// <inheritdoc cref="CreateSolidImage(Color, int, int)"/>
         public static Image CreateSolidImage(this Color Color, string WidthHeight) => CreateSolidImage(Color, WidthHeight.ParseSize());
 
-        /// <inheritdoc  cref="CreateSolidImage(Color, int, int)"/>
+        /// <inheritdoc cref="CreateSolidImage(Color, int, int)"/>
         public static Image CreateSolidImage(this Color Color, Size Size) => CreateSolidImage(Color, Size.Width, Size.Height);
-
-        public static SQLResponse<object> CreateSQLQuickResponse(this DbConnection Connection, FormattableString Command, string DataSetType) => CreateSQLQuickResponse(Connection.CreateCommand(Command), DataSetType);
-
-        /// <summary>
-        /// Executa um <paramref name="Command"/> e retorna uma <see cref="SQLResponse{object}"/> de
-        /// acordo com o formato especificado em <paramref name="DataSetType"/>
-        /// </summary>
-        /// <remarks>
-        /// Utilize as constantes de <see cref="DataSetType"/> no parametro <paramref name="DataSetType"/>
-        /// </remarks>
-        /// <param name="Command">Comando SQL com a <see cref="DbCommand.Connection"/> ja setada</param>
-        /// <param name="DataSetType">Tipo da resposta. Ver <see cref="DataSetType"/></param>
-        /// <returns></returns>
-        public static SQLResponse<object> CreateSQLQuickResponse(this DbCommand Command, string DataSetType)
-        {
-            var resp = new SQLResponse<object>();
-            try
-            {
-                DataSetType = DataSetType.IfBlank("table").ToLowerInvariant();
-                var Connection = Command?.Connection;
-                if (Connection == null)
-                {
-                    throw new Exception("Command or Connection is null");
-                }
-
-                resp.SQL = Command.CommandText;
-                resp.DataSetType = DataSetType;
-
-                if (DataSetType.IsAny("value", "id", "key", "singlevalue"))
-                {
-                    //primeiro valor da primeira linha do primeiro set
-                    var part = Connection.RunSQLValue(Command);
-                    resp.Status = (part == DBNull.Value).AsIf("NULL_VALUE", (part == null).AsIf("EMPTY", "OK"));
-                    resp.Data = part;
-                    resp.DataSetType = "value";
-
-                }
-                else if (DataSetType.IsAny("one", "first", "row", "single"))
-                {
-                    //primeiro do primeiro set (1 linha como objeto)
-                    var part = Connection.RunSQLRow(Command);
-                    resp.Status = (part == null).AsIf("EMPTY", "OK");
-                    resp.Data = part;
-                    resp.DataSetType = "row";
-
-                }
-                else if (DataSetType.IsAny("array", "values", "list"))
-                {
-                    //primeira coluna do primeiro set como array
-                    var part = Connection.RunSQLArray(Command);
-                    resp.Status = (part?.Any()).AsIf("OK", "EMPTY");
-                    resp.Data = part;
-                    resp.DataSetType = "array";
-
-                }
-                else if (DataSetType.IsAny("pair", "pairs", "dictionary", "associative"))
-                {
-                    //primeira e ultima coluna do primeiro set como dictionary
-                    var part = Connection.RunSQLPairs(Command);
-                    resp.Status = (part?.Any()).AsIf("OK", "EMPTY");
-                    resp.Data = part;
-                    resp.DataSetType = "pairs";
-
-                }
-                else if (DataSetType.IsAny("many", "sets", "datasets"))
-                {
-                    //varios sets
-                    var part = Connection.RunSQLMany(Command);
-                    resp.Status = (part?.Any(x => x.Any())).AsIf("OK", "EMPTY");
-                    resp.Data = part;
-                    resp.DataSetType = "sets";
-
-                }
-                else
-                {
-                    //tudo do primeiro set (lista de objetos)
-                    var part = Connection.RunSQLSet(Command);
-                    resp.Status = (part?.Any()).AsIf("OK", "EMPTY");
-                    resp.Data = part;
-                    resp.DataSetType = "table";
-
-                }
-            }
-            catch (Exception ex)
-            {
-                resp.Status = "ERROR";
-                resp.Message = ex.ToFullExceptionString();
-                resp.HasError = true;
-
-            }
-            return resp;
-        }
-
-        /// <summary>
-        /// Cria um comando de UPDATE para o objeto do tipo <typeparamref name="T"/>
-        /// </summary>
-        /// <remarks>
-        /// <typeparamref name="T"/> pode ser uma classe, <see cref="NameValueCollection"/> ou <see
-        /// cref="Dictionary{TKey, TValue}"/>
-        /// </remarks>
-        public static DbCommand CreateUPDATECommand<T>(this DbConnection Connection, T obj, FormattableString WhereClausule, string TableName = null, DbTransaction Transaction = null) where T : class
-        {
-            var d = typeof(T);
-            Dictionary<string, object> dic;
-
-            if (obj != null && Connection != null)
-            {
-                dic = obj.CreateDictionary();
-
-                var cmd = Connection.CreateCommand();
-                cmd.CommandText = $"UPDATE " + TableName.IfBlank(d.Name) + " set" + Environment.NewLine;
-                foreach (var k in dic.Keys)
-                {
-                    cmd.CommandText += $"{k} = @__{k}, {Environment.NewLine}";
-                    var param = cmd.CreateParameter();
-                    param.ParameterName = $"__{k}";
-                    param.Value = dic.GetValueOr(k, DBNull.Value);
-                    cmd.Parameters.Add(param);
-                }
-
-                cmd.CommandText = cmd.CommandText.TrimAny(Environment.NewLine, ",", " ");
-
-                if (WhereClausule.IsNotBlank())
-                {
-                    var wherecmd = Connection.CreateCommand(WhereClausule);
-                    var wheretxt = wherecmd.CommandText.Trim();
-                    foreach (DbParameter item in wherecmd.Parameters)
-                    {
-                        var param = cmd.CreateParameter();
-                        param.ParameterName = item.ParameterName;
-                        param.Value = item.Value;
-                        param.DbType = item.DbType;
-                        cmd.Parameters.Add(param);
-                    }
-                    cmd.CommandText += $"{Environment.NewLine}{wheretxt.PrependIf("WHERE ", x => !x.StartsWith("WHERE"))}";
-                    wherecmd.Dispose();
-                }
-
-                if (Transaction != null)
-                {
-                    cmd.Transaction = Transaction;
-                }
-
-                return cmd;
-            }
-
-            return null;
-        }
 
         /// <summary>
         /// Cria uma <see cref="Expression"/> condicional a partir de um valor <see cref="Boolean"/>
@@ -2756,8 +2397,8 @@ namespace Extensions
         /// Cropa uma imagem a patir do centro
         /// </summary>
         /// <param name="Image">Imagem</param>
-        /// <param name="maxWidth">Largura maxima</param>
-        /// <param name="maxHeight">Altura maxima</param>
+        /// <param name="MaxWidth">Largura maxima</param>
+        /// <param name="MaxHeight">Altura maxima</param>
         /// <returns></returns>
         public static Image Crop(this Image Image, int MaxWidth, int MaxHeight)
         {
@@ -2923,7 +2564,6 @@ namespace Extensions
             {
                 return Text;
             }
-
         }
 
         /// <summary>
@@ -3456,12 +3096,29 @@ namespace Extensions
             return Expression.Equal(MemberExpression, ValueExpression);
         }
 
-        public static bool EqualsIgnoreCase(this string Text, string CompareText) => string.Equals(Text ?? "", CompareText ?? "", StringComparison.OrdinalIgnoreCase);
-
-        public static bool EqualsIgnoreCaseAndAccents(this string Text, string CompareText) => EqualsIgnoreCase(Text.RemoveAccents(), CompareText.RemoveAccents());
+        /// <summary>
+        /// Compara uma string com outra ou mais strings ignorando a diferença entre maiusculas e minusculas
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <param name="CompareText">Um ou mais textos para comapração</param>
+        /// <returns></returns>
+        public static bool InsensitiveEqual(this string Text, params string[] CompareText) => CompareText?.Any(x => x.Equals(Text ?? "", StringComparison.OrdinalIgnoreCase)) ?? false;
 
         /// <summary>
-        /// Prepara uma string com aspas simples para uma Query TransactSQL
+        /// Compara uma string com outra ou mais strings ignorando a diferença entre maiusculas e minusculas e acentos
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <param name="CompareText">Um ou mais textos para comapração</param>
+        /// <returns></returns>
+        public static bool FlatEqual(this string Text, params object[] CompareText) => CompareText?.Any(x => InsensitiveEqual(Text.RemoveAccents(), x.ChangeType<string>().RemoveAccents())) ?? false;
+
+
+        public static bool FlatContains(this string Text, params object[] CompareText) => Text.RemoveAccents().ContainsAny(StringComparison.OrdinalIgnoreCase, CompareText.Select(y => y.ChangeType<string>().RemoveAccents()).ToArray());
+
+
+
+        /// <summary>
+        /// Prepara uma string com aspas simples para uma string TransactSQL
         /// </summary>
         /// <param name="Text">Texto a ser tratado</param>
         /// <returns>String pronta para a query</returns>
@@ -3618,7 +3275,7 @@ namespace Extensions
         public static PropertyInfo FindProperty(this Type type, string Name) => FindProperties(type, Name).FirstOrDefault();
 
         /// <summary>
-        /// T primeiro valor não nulo de acordo com uma lista de predicados executados nesta lista
+        /// TEntity primeiro valor não nulo de acordo com uma lista de predicados executados nesta lista
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="source"></param>
@@ -3640,7 +3297,7 @@ namespace Extensions
         }
 
         /// <summary>
-        /// T primeiro valor não nulo de acordo com uma lista de predicados executados nesta lista
+        /// TEntity primeiro valor não nulo de acordo com uma lista de predicados executados nesta lista
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="source"></param>
@@ -3808,7 +3465,8 @@ namespace Extensions
         }
 
         /// <summary>
-        /// Return <see cref="Path.DirectorySeparatorChar"/> or <see cref="Path.AltDirectorySeparatorChar"/> based on the number of ocurrences of each in the string
+        /// Return <see cref="Path.DirectorySeparatorChar"/> or <see
+        /// cref="Path.AltDirectorySeparatorChar"/> based on the number of ocurrences of each in the string
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
@@ -3834,7 +3492,8 @@ namespace Extensions
                                                                                                                                                                                               return x.ToFriendlyPathName();
                                                                                                                                                                                           }).SelectJoinString(AlternativeChar == null ? Text.PathChar().ToString() : AlternativeChar.AsIf(Path.AltDirectorySeparatorChar.ToString(), Path.DirectorySeparatorChar.ToString())).TrimEndAny(Path.DirectorySeparatorChar.ToString(), Path.AltDirectorySeparatorChar.ToString());
         /// <summary>
-        /// Ajusta um caminho unidos partes, colocando as barras corretamente e substituindo caracteres inválidos
+        /// Ajusta um caminho unidos partes, colocando as barras corretamente e substituindo
+        /// caracteres inválidos
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
@@ -4052,8 +3711,10 @@ namespace Extensions
         public static double Similarity(this string Text1, string Text2) => (1.0 - ((double)Text1.LevenshteinDistance(Text2) / (double)Math.Max(Text1.Length, Text2.Length)));
 
         public static double SimilarityCaseInsensitive(this string Text1, string Text2) => (1.0 - ((double)Text1.LevenshteinDistanceCaseInsensitive(Text2) / (double)Math.Max(Text1.Length, Text2.Length)));
+        public static double SimilarityFlat(this string Text1, string Text2) => SimilarityCaseInsensitive(Text1.RemoveAccents(), Text2.RemoveAccents());
 
         public static int LevenshteinDistanceCaseInsensitive(this string Text1, string Text2) => Text1.ToLower().LevenshteinDistance(Text2.ToLower());
+        public static int LevenshteinDistanceFlat(this string Text1, string Text2) => Text1.ToLower().RemoveAccents().LevenshteinDistance(Text2.ToLower().RemoveAccents());
 
         /// <summary>
         /// Formata o nome de uma coluna SQL adicionando <paramref name="QuoteChar"/> as <paramref
@@ -4068,19 +3729,19 @@ namespace Extensions
         public static string FormatSQLColumn(params string[] ColumnNameParts) => FormatSQLColumn('[', ColumnNameParts);
 
         /// <summary>
-        /// Extension Method para <see cref="String.Format(String,Object())"/>
+        /// Extension Method para <see cref="string.Format(string,object)"/>
         /// </summary>
         /// <param name="Text">Texto</param>
         /// <param name="Args">Objetos de substituição</param>
         /// <returns></returns>
         public static string FormatString(this string Text, params string[] Args) => string.Format(Text, Args);
 
-        public static Image GenerateAvatarByName(this string Name)
+        public static Image GenerateAvatarByName(this string Name, string Size = "")
         {
             if (Name.IsValid())
             {
                 var x = new HSVColor(Name);
-                var parts = Name.SplitAny(PredefinedArrays.WordSplitters).Select(b => b.GetFirstChars());
+                var parts = Name.GetInitials();
                 if (parts.Count() > 1)
                 {
                     x.Name = parts.First() + parts.Last();
@@ -4090,10 +3751,10 @@ namespace Extensions
                     x.Name = parts.First();
                 }
 
-                var img = x.ImageSample.CropToCircle();
+                var img = x.GetImageSample(Size).CropToCircle();
                 return img;
             }
-            return new HSVColor().ImageSample.CropToCircle();
+            return new HSVColor().GetImageSample(Size).CropToCircle();
         }
 
         /// <inheritdoc cref="GenerateBarcodeCheckSum(string)"/>
@@ -4146,22 +3807,18 @@ namespace Extensions
             return T.ToString(CultureInfo.InvariantCulture);
         }
 
-        public static string GenerateEAN(int ContryCode, int ManufacturerCode, int ProductCode) => GenerateEANFromNumbers(ContryCode, ManufacturerCode, ProductCode);
 
         /// <summary>
         /// Gera um numero de EAN válido a aprtir da combinação de vários numeros
         /// </summary>
         /// <param name="Numbers"></param>
         /// <returns></returns>
-        public static string GenerateEANFromNumbers(params string[] Numbers) => Numbers.Where(x => x.IsNumber()).SelectJoinString(EmptyString).AppendBarcodeCheckSum();
+        public static string GenerateEAN(params string[] Numbers) => Numbers.Where(x => x.IsNumber()).SelectJoinString(EmptyString).AppendBarcodeCheckSum();
 
-        /// <inheritdoc cref="GenerateEANFromNumbers(string[])"/>
-        public static string GenerateEANFromNumbers(params int[] Numbers) => GenerateEANFromNumbers(Numbers.Select(x => x.ToString()).ToArray());
-
-
+        /// <inheritdoc cref="GenerateEAN(string[])"/>
+        public static string GenerateEAN(params int[] Numbers) => GenerateEAN(Numbers.Select(x => x.ToString()).ToArray());
 
         public static string GenerateLicenseKey(this Assembly product) => product.GetName().Name.GenerateLicenseKey();
-
 
         /// <summary>
         /// Gera uma chave de licença para um produto
@@ -4341,9 +3998,9 @@ namespace Extensions
         /// <summary>
         /// Retorna todas as ocorrencias de um texto entre dois textos
         /// </summary>
-        /// <param name="Text">T texto correspondente</param>
-        /// <param name="Before">T texto Anterior</param>
-        /// <param name="After">T texto Posterior</param>
+        /// <param name="Text">  texto correspondente</param>
+        /// <param name="Before"> texto Anterior</param>
+        /// <param name="After"> texto Posterior</param>
         /// <returns>Uma String com o texto entre o texto anterior e posterior</returns>
         public static string[] GetAllBetween(this string Text, string Before, string After = EmptyString)
         {
@@ -4410,9 +4067,9 @@ namespace Extensions
         /// <summary>
         /// Retorna o texto entre dois textos
         /// </summary>
-        /// <param name="Text">T texto correspondente</param>
-        /// <param name="Before">T texto Anterior</param>
-        /// <param name="After">T texto Posterior</param>
+        /// <param name="Text">TEntity texto correspondente</param>
+        /// <param name="Before">TEntity texto Anterior</param>
+        /// <param name="After">TEntity texto Posterior</param>
         /// <returns>Uma String com o texto entre o texto anterior e posterior</returns>
         public static string GetBetween(this string Text, string Before, string After)
         {
@@ -4492,7 +4149,7 @@ namespace Extensions
 
         public static int GetDecimalLength(this double number) => number.ToDecimal().GetDecimalLength();
 
-        /// <summary> Get the Decimal Part of <see cref="decimal" /> as <see cref="long"> </summary>
+        /// <summary> GetCliente the Decimal Part of <see cref="decimal" /> as <see cref="long"> </summary>
         /// <param name="Value"></param> <param name="Length"></param> <returns></returns>
         public static long GetDecimalPart(this decimal Value, int Length = 0)
         {
@@ -4668,16 +4325,15 @@ namespace Extensions
         /// <returns></returns>
         public static string GetFileNameWithoutExtension(this FileInfo Info) => Info != null ? Path.GetFileNameWithoutExtension(Info.Name) : EmptyString;
 
-
         /// <summary>
-        /// Retorna o Mime T a partir de um arquivo
+        /// Retorna o Mime TEntity a partir de um arquivo
         /// </summary>
         /// <param name="File">Arquivo</param>
         /// <returns>string mime type</returns>
         public static IEnumerable<string> GetMimeType(this FileInfo File) => File.Extension.GetFileType().MimeTypes;
 
         /// <summary>
-        /// Retorna o Mime T a partir de de um formato de Imagem
+        /// Retorna o Mime TEntity a partir de de um formato de Imagem
         /// </summary>
         /// <param name="RawFormat">Formato de Imagem</param>
         /// <returns>string mime type</returns>
@@ -4702,7 +4358,7 @@ namespace Extensions
         }
 
         /// <summary>
-        /// Retorna o Mime T a partir de de uma Imagem
+        /// Retorna o Mime TEntity a partir de de uma Imagem
         /// </summary>
         /// <param name="Image">Imagem</param>
         /// <returns>string mime type</returns>
@@ -4991,7 +4647,7 @@ namespace Extensions
         /// <summary>
         /// Retorna a classe do icone do FontAwesome que representa melhor o arquivo
         /// </summary>
-        /// <param name="MIME">MIME T do Arquivo</param>
+        /// <param name="MIME">MIME TEntity do Arquivo</param>
         /// <returns></returns>
         public static string GetIconByFileType(this FileType MIME) => GetFontAwesomeIconByFileExtension(MIME?.Extensions.ToArray() ?? Array.Empty<string>());
 
@@ -5080,6 +4736,10 @@ namespace Extensions
             }
         }
 
+        public static TType GetMemberInfo<TType, TSource, TProperty>(this Expression<Func<TSource, TProperty>> propertyLambda) where TType : MemberInfo
+        {
+            return GetMemberInfo<TSource, TProperty>(propertyLambda) as TType;
+        }
         public static MemberInfo GetMemberInfo<TSource, TProperty>(this Expression<Func<TSource, TProperty>> propertyLambda)
         {
             MemberExpression member;
@@ -5203,7 +4863,7 @@ namespace Extensions
             }
 
             BinaryExpression body = null;
-            // Dim body As Expression = Nothing
+
             switch (Operator.ToLowerInvariant().IfBlank("equal"))
             {
                 case "blank":
@@ -5737,6 +5397,7 @@ namespace Extensions
                         break;
                     }
 
+                case "in":
                 case "isin":
                 case "inside":
                     {
@@ -6095,12 +5756,8 @@ namespace Extensions
         /// <returns></returns>
         public static string GetRelativeURL(this string URL, bool WithQueryString = true) => URL.IsURL() ? new Uri(URL).GetRelativeURL(WithQueryString) : null;
 
-
-
-
         public static DateTime GetLatestCompileTime(this Assembly assembly)
         {
-
             var filePath = assembly.Location;
             const int c_PeHeaderOffset = 60;
             const int c_LinkerTimestampOffset = 8;
@@ -6118,7 +5775,6 @@ namespace Extensions
 
             return linkTimeUtc;
         }
-
 
         /// <summary>
         /// Pega os bytes de um arquivo embutido no assembly
@@ -6156,7 +5812,7 @@ namespace Extensions
                     }
                     else
                     {
-                        $"{FileName} not found in assembly ({Assembly.GetName()}){Environment.NewLine}Files:{Environment.NewLine}{Assembly.GetManifestResourceNames().SelectJoinString(xx => $" - {xx}", Environment.NewLine)}".ConsoleLog();
+                        $"{FileName} not found in assembly ({Assembly.GetName()}){Environment.NewLine}Files:{Environment.NewLine}{Assembly.GetManifestResourceNames().SelectJoinString(s => $" - {s}", Environment.NewLine)}".ConsoleLog();
                     }
                 }
             }
@@ -6574,7 +6230,6 @@ namespace Extensions
         /// <returns></returns>
         public static Dictionary<Group, long> GroupAndCountBy<T, Group>(this IEnumerable<T> obj, Func<T, Group> GroupSelector) => obj.GroupBy(GroupSelector).Select(x => new KeyValuePair<Group, long>(x.Key, x.LongCount())).ToDictionary();
 
-
         public static Dictionary<Group, decimal> GroupAndSumBy<T, Group>(this IEnumerable<T> obj, Func<T, Group> GroupSelector, Func<T, decimal> SumSelector) => obj.GroupBy(GroupSelector).Select(x => new KeyValuePair<Group, decimal>(x.Key, x.Sum(SumSelector))).ToDictionary();
 
         /// <summary>
@@ -6751,6 +6406,68 @@ namespace Extensions
         public static bool HasProperty(this object Obj, string Name) => Obj?.GetType().HasProperty(Name, true) ?? false;
 
         /// <summary>
+        /// Check if object is a simple type.
+        /// </summary>
+        /// <param name="objOrType"></param>
+        /// <returns></returns>
+        public static bool IsSimpleType(this object objOrType)
+        {
+            var type = objOrType.GetNullableTypeOf();
+            return new List<Type>
+                           {
+                               typeof(byte),
+                               typeof(sbyte),
+                               typeof(short),
+                               typeof(ushort),
+                               typeof(int),
+                               typeof(uint),
+                               typeof(long),
+                               typeof(ulong),
+                               typeof(float),
+                               typeof(double),
+                               typeof(decimal),
+                               typeof(bool),
+                               typeof(string),
+                               typeof(char),
+                               typeof(Guid),
+                               typeof(DateTime),
+                               typeof(DateTimeOffset),
+                               typeof(TimeSpan),
+                               typeof(byte[])
+                           }.Contains(type) || type.IsEnum;
+        }
+
+        /// <summary>
+        /// Verifica se um valor possui propriedades com os mesmos valores de outro objeto
+        /// </summary>
+        /// <param name="Obj"></param>
+        /// <param name="OtherObj"></param>
+        /// <returns></returns>
+        public static bool HasSamePropertyValues<T, O>(this T Obj, O OtherObj)
+        {
+            if (Obj != null && OtherObj != null)
+            {
+                var props = Obj.GetNullableTypeOf().GetProperties();
+                var otherProps = OtherObj.GetNullableTypeOf().GetProperties();
+
+                foreach (var prop in props)
+                {
+                    if (otherProps.Any(x => x.Name == prop.Name))
+                    {
+                        var val = prop.GetValue(Obj);
+                        var otherval = otherProps.First(x => x.Name == prop.Name).GetValue(OtherObj);
+                        if (val != otherval)
+                        {
+                            return false;
+                        }
+                    }
+
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
         /// Hides the specified directory or file.
         /// </summary>
         /// <typeparam name="T">The type of the directory or file to hide.</typeparam>
@@ -6780,7 +6497,7 @@ namespace Extensions
         /// </summary>
         /// <param name="Text">string HTML</param>
         /// <returns>String HTML corrigido</returns>
-        public static string HtmlEncode(this string Text) => WebUtility.HtmlEncode(EmptyString + Text.ReplaceMany("<br>", PredefinedArrays.BreakLineChars.ToArray()));
+        public static string HtmlEncode(this string Text) => WebUtility.HtmlEncode(Text?.ReplaceMany("<br>", PredefinedArrays.BreakLineChars.ToArray()) ?? EmptyString);
 
         /// <summary>
         /// Verifica se uma variavel está vazia, em branco ou nula e retorna um outro valor caso TRUE
@@ -6790,7 +6507,6 @@ namespace Extensions
         /// <param name="ValueIfBlank">Valor se estiver em branco</param>
         /// <returns></returns>
         public static T IfBlank<T>(this object Value, T ValueIfBlank = default) => Value.IsNotValid() ? ValueIfBlank : ChangeType<T>(Value);
-
 
         public static string BlankIfNull(this string Text) => IfBlank(Text, "");
 
@@ -7012,8 +6728,8 @@ namespace Extensions
         {
             try
             {
-                var ValueType = Obj.GetType();
-                return !(ValueType == typeof(string)) && ValueType.IsArray; //  GetType(T).IsAssignableFrom(ValueType.GetElementType())
+                var ValueType = Obj?.GetType() ?? typeof(T);
+                return !(ValueType == typeof(string)) && ValueType.IsArray; //  GetType(TEntity).IsAssignableFrom(ValueType.GetElementType())
             }
             catch
             {
@@ -7207,11 +6923,8 @@ namespace Extensions
             return Value.IsGreaterThanOrEqual(MinValue) && Value.IsLessThanOrEqual(MaxValue);
         }
 
-
-
         public static bool IsBlank(this string text) => text.IsNotValid();
         public static bool IsNotBlank(this string text) => text.IsValid();
-
 
         /// <summary>
         /// Verifica se o valor não é válido.
@@ -7258,8 +6971,6 @@ namespace Extensions
                     {
                         return off.Equals(DateTimeOffset.MinValue);
                     }
-
-
                     else if (Value is IDictionary dic)
                     {
                         foreach (DictionaryEntry item in dic)
@@ -7269,7 +6980,6 @@ namespace Extensions
                                 return false;
                             }
                         }
-
                     }
                     else if (Value.IsEnumerableNotString() && Value is IEnumerable enumerable)
                     {
@@ -7299,9 +7009,7 @@ namespace Extensions
 
         public static bool IsBool<T>(this T Obj) => GetNullableTypeOf(Obj) == typeof(bool) || $"{Obj}".ToLowerInvariant().IsIn("true", "false");
 
-        public static bool IsBroken(this DbConnection Connection) => Connection != null && (Connection.State == ConnectionState.Broken);
 
-        public static bool IsClosed(this DbConnection Connection) => Connection != null && (Connection.State == ConnectionState.Closed);
 
         public static bool IsCloseWrapChar(this string Text) => Text.GetFirstChars().IsIn(PredefinedArrays.CloseWrappers);
 
@@ -7329,7 +7037,6 @@ namespace Extensions
             }
         }
 
-        public static bool IsConnecting(this DbConnection Connection) => Connection != null && (Connection.State == ConnectionState.Connecting);
 
         public static bool IsCrossLikeAny(this string Text, IEnumerable<string> Patterns) => (Patterns ?? Array.Empty<string>()).Any(x => Like(Text.IfBlank(EmptyString), x) || Like(x, Text));
 
@@ -7430,6 +7137,14 @@ namespace Extensions
         public static bool IsDomain(this string Text) => new Regex(@"^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$", RegexOptions.IgnoreCase).IsMatch(Text) && $"http://{Text}".IsURL();
 
         /// <summary>
+        /// Verifica se um texto é uma lista de emails separados por virgula, ponto e virgula ou espaço
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <returns></returns>
+        public static bool IsMultiEmail(this string Text) => Text.SplitAny(" ", ",", ";").All(x => x.IsEmail());
+
+
+        /// <summary>
         /// Verifica se um determinado texto é um email
         /// </summary>
         /// <param name="Text">Texto a ser validado</param>
@@ -7443,15 +7158,10 @@ namespace Extensions
             if ((trimmedEmail).IsNotValid())
                 return false;
 
-            // Use a regular expression to validate the email format
-            // This pattern checks for basic email structure
-            // You can enhance it further based on your requirements
+            // Use a regular expression to validate the email format This pattern checks for basic
+            // email structure You can enhance it further based on your requirements
             string pattern = @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$";
             return Regex.IsMatch(trimmedEmail, pattern);
-
-
-
-
         }
 
         /// <summary>
@@ -7522,7 +7232,6 @@ namespace Extensions
         /// <returns></returns>
         public static bool IsEven(this double Value) => Value % 2d == 0d;
 
-        public static bool IsExecuting(this DbConnection Connection) => Connection != null && (Connection.State == ConnectionState.Executing);
 
         /// <summary>
         /// Verifica se uma string é um caminho de arquivo válido
@@ -7844,7 +7553,7 @@ namespace Extensions
                     return true;
                 }
                 Convert.ToDecimal(Value, CultureInfo.InvariantCulture);
-                return $"{Value}".IsIP() == false && ((Value.GetType() == typeof(DateTime)) == false);
+                return Value != null && $"{Value}".IsIP() == false && ((Value.GetType() == typeof(DateTime)) == false);
             }
             catch
             {
@@ -7900,7 +7609,6 @@ namespace Extensions
         /// <returns></returns>
         public static bool IsOdd(this float Value) => !Value.IsEven();
 
-        public static bool IsOpen(this DbConnection Connection) => Connection != null && (Connection.State == ConnectionState.Open);
 
         /// <summary>
         /// Retorna o caractere de encapsulamento oposto ao caractere indicado
@@ -8338,7 +8046,7 @@ namespace Extensions
             {
                 foreach (DbParameter item in Command.Parameters)
                 {
-                    string bx = $"Parameter: @{item.ParameterName}{Environment.NewLine}Value: {item.Value}{Environment.NewLine}T: {item.DbType}{Environment.NewLine}Precision/Scale: {item.Precision}/{item.Scale}";
+                    string bx = $"Parameter: @{item.ParameterName}{Environment.NewLine}Value: {item.Value}{Environment.NewLine}TEntity: {item.DbType}{Environment.NewLine}Precision/Scale: {item.Precision}/{item.Scale}";
                     LogWriter.WriteLine(bx);
                     LogWriter.WriteLine("-".Repeat(10));
                 }
@@ -8826,13 +8534,10 @@ namespace Extensions
                                 }
                             }
                         }
-                        else if (dic[key].GetType() != typeof(string) && (IsArray(dic[key]) || dic[key].IsList()))
-                        {
-                            result.Add(key, dic[key].ChangeType<object[]>());
-                        }
+
                         else
                         {
-                            result.Add(key, dic[key]);
+                            result[key] = dic[key];
                         }
                     }
                 }
@@ -9193,6 +8898,8 @@ namespace Extensions
             return Value;
         }
 
+        public static string NullIfBlank(this string Value) => Value.NullIf(x => x.IsBlank());
+
         /// <summary>
         /// Substitui todas as propriedades nulas de uma classe pelos seus valores Default
         /// </summary>
@@ -9207,11 +8914,53 @@ namespace Extensions
                 {
                     if (item.CanRead && item.CanWrite && item.GetValue(Obj) is null)
                     {
-                        switch (item.PropertyType)
+                        switch (item.PropertyType.GetNullableTypeOf())
                         {
                             case var @case when @case == typeof(string):
                                 {
                                     item.SetValue(Obj, EmptyString);
+                                    break;
+                                }
+
+                            case var @case when @case == typeof(DateTime):
+                                {
+                                    item.SetValue(Obj, DateTime.MinValue);
+                                    break;
+                                }
+
+                            case var @case when @case == typeof(byte):
+                                {
+                                    item.SetValue(Obj, default(byte));
+                                    break;
+                                }
+
+                            case var @case when @case == typeof(short):
+                                {
+                                    item.SetValue(Obj, default(short));
+                                    break;
+                                }
+
+                            case var @case when @case == typeof(int):
+                                {
+                                    item.SetValue(Obj, default(int));
+                                    break;
+                                }
+
+                            case var @case when @case == typeof(long):
+                                {
+                                    item.SetValue(Obj, default(long));
+                                    break;
+                                }
+
+                            case var @case when @case == typeof(double):
+                                {
+                                    item.SetValue(Obj, default(double));
+                                    break;
+                                }
+
+                            case var @case when @case == typeof(decimal):
+                                {
+                                    item.SetValue(Obj, default(decimal));
                                     break;
                                 }
 
@@ -9242,17 +8991,7 @@ namespace Extensions
         /// <returns></returns>
         public static bool OnlyOneOf<T>(this IEnumerable<T> List, Func<T, bool> predicate) => List?.Count(predicate) == 1;
 
-        public static TConnection OpenConnection<TConnection>(this ConnectionStringParser connection) where TConnection : DbConnection
-        {
-            if (connection != null)
-            {
-                TConnection dbcon = Activator.CreateInstance<TConnection>();
-                dbcon.ConnectionString = connection.ConnectionString;
-                dbcon.Open();
-                return dbcon;
-            }
-            return null;
-        }
+
 
         /// <summary>
         /// Concatena uma expressão com outra usando o operador OR (||)
@@ -9774,7 +9513,6 @@ namespace Extensions
 
         public static string CamelCaseAdjust(this string Text) => PascalCaseAdjust(Text);
 
-
         /// <summary>
         /// Separa as palavras de um texto PascalCase a partir de suas letras maíusculas
         /// </summary>
@@ -9788,7 +9526,6 @@ namespace Extensions
             int uppercount = 0;
             foreach (var c in chars)
             {
-
                 if (char.IsUpper(c))
                 {
                     if (!(uppercount > 0))
@@ -10023,113 +9760,6 @@ namespace Extensions
         /// <returns></returns>
         public static string PrintIf(this string Text, bool BooleanValue) => BooleanValue ? Text : EmptyString;
 
-        /// <summary>
-        /// Processa uma propriedade de uma classe marcada com <see cref="FromSQL"/>
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="Connection"></param>
-        /// <param name="d"></param>
-        /// <param name="PropertyName"></param>
-        /// <param name="Recursive"></param>
-        /// <returns></returns>
-        public static T ProccessSubQuery<T>(this DbConnection Connection, T d, string PropertyName, bool Recursive = false)
-        {
-            if (d != null)
-            {
-                var prop = d.GetProperty(PropertyName);
-                if (prop != null)
-                {
-                    var attr = prop.GetCustomAttributes<FromSQLAttribute>(true).FirstOrDefault();
-                    string Sql = attr.SQL.Inject(d);
-                    bool gen = prop.PropertyType.IsGenericType;
-                    bool lista = gen && prop.PropertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>));
-                    bool enume = gen && prop.PropertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(IEnumerable<>));
-                    bool cole = gen && prop.PropertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(ICollection<>));
-                    if (lista || enume || cole)
-                    {
-                        IList baselist = (IList)Activator.CreateInstance(prop.PropertyType);
-                        var eltipo = prop.PropertyType.GetGenericArguments().FirstOrDefault();
-                        foreach (var x in Connection.RunSQLSet(Sql.ToFormattableString()))
-                        {
-                            baselist.Add(x.CreateOrSetObject(null, eltipo));
-                        }
-
-                        prop.SetValue(d, baselist);
-                        if (Recursive)
-                        {
-                            foreach (var uu in baselist)
-                            {
-                                Connection.ProccessSubQuery(uu, Recursive);
-                            }
-                        }
-
-                        return d;
-                    }
-                    else if (prop.PropertyType.IsClass)
-                    {
-                        if (prop.GetValue(d) == null)
-                        {
-                            var oo = Connection.RunSQLRow(Sql.ToFormattableString()).CreateOrSetObject(null, prop.PropertyType);
-                            prop.SetValue(d, oo);
-                            if (Recursive)
-                            {
-                                Connection.ProccessSubQuery(oo, Recursive);
-                            }
-                        }
-
-                        return d;
-                    }
-                    else if (prop.PropertyType.IsValueType)
-                    {
-                        if (prop.GetValue(d) == null)
-                        {
-                            var oo = Connection.RunSQLValue(Sql.ToFormattableString());
-                            prop.SetValue(d, ChangeType(oo, prop.PropertyType));
-                            if (Recursive)
-                            {
-                                Connection.ProccessSubQuery(oo, Recursive);
-                            }
-                        }
-
-                        return d;
-                    }
-                }
-            }
-
-            return d;
-        }
-
-        /// <summary>
-        /// Processa todas as propriedades de uma classe marcadas com <see cref="FromSQL"/>
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="Connection"></param>
-        /// <param name="d"></param>
-        /// <param name="Recursive"></param>
-        /// <returns></returns>
-        public static T ProccessSubQuery<T>(this DbConnection Connection, T d, bool Recursive = false) where T : class
-        {
-            foreach (var prop in GetProperties(d).Where(x => x.HasAttribute<FromSQLAttribute>()))
-            {
-                Connection.ProccessSubQuery(d, prop.Name, Recursive);
-            }
-
-            return d;
-        }
-
-        public static Expression PropertyExpression(this ParameterExpression Parameter, string PropertyName)
-        {
-            Expression prop = Parameter;
-            if (PropertyName.IfBlank("this") != "this")
-            {
-                foreach (var name in PropertyName.SplitAny(".", "/"))
-                {
-                    prop = Expression.Property(prop, name);
-                }
-            }
-
-            return prop;
-        }
 
         public static IEnumerable<string> PropertyNamesFor(this string Name)
         {
@@ -10239,6 +9869,25 @@ namespace Extensions
             }
             return forceSingular || OutQuantity.Floor() == 1m || OutQuantity.Floor() == -1 ? PluralText.Singularize() : PluralText;
         }
+
+        public static string QuantifyText(this decimal Quantity, string PluralText, string SingularText = "")
+        {
+            PluralText = PluralText.IfBlank("Items");
+            return Quantity.Floor() == 1 || Quantity.Floor() == -1 ? SingularText.IfBlank(PluralText.Singularize()) : PluralText;
+        }
+
+        public static string QuantifyText(this int Quantity, string PluralText, string SingularText = "")
+        => Quantity.ToDecimal().QuantifyText(PluralText, SingularText);
+
+        public static string QuantifyText(this long Quantity, string PluralText, string SingularText = "")
+       => Quantity.ToDecimal().QuantifyText(PluralText, SingularText);
+
+        public static string QuantifyText(this short Quantity, string PluralText, string SingularText = "")
+       => Quantity.ToDecimal().QuantifyText(PluralText, SingularText);
+
+        public static string QuantifyText(this double Quantity, string PluralText, string SingularText = "")
+       => Quantity.ToDecimal().QuantifyText(PluralText, SingularText);
+
 
         /// <summary>
         /// Retorna o texto a na sua forma singular ou plural de acordo com um numero determinado.
@@ -10485,8 +10134,8 @@ namespace Extensions
         /// <summary>
         /// Gera um numero Aleatório entre 2 números
         /// </summary>
-        /// <param name="Min">Numero minimo </param>
-        /// <param name="Max">Numero Maximo  </param>
+        /// <param name="Min">Numero minimo</param>
+        /// <param name="Max">Numero Maximo</param>
         /// <returns>Um numero Inteiro</returns>
         public static T Random<T>(this T Min, T Max) where T : IComparable
         {
@@ -10847,7 +10496,25 @@ namespace Extensions
         /// <param name="Text">Texto</param>
         /// <param name="Quantity">Quantidade de Caracteres</param>
         /// <returns></returns>
-        public static string RemoveFirstChars(this string Text, int Quantity = 1) => Text.IsValid() && Text.Length > Quantity && Quantity > 0 ? Text.Remove(0, Quantity) : EmptyString;
+        public static string RemoveFirstChars(this string Text, int Quantity = 1)
+        {
+            if (Text.IsNotBlank())
+            {
+                if (Quantity > 0)
+                {
+                    if (Text.Length >= Quantity) return Text.Remove(0, Quantity);
+                }
+                else if (Quantity < 0)
+                {
+                    return Text.Remove(0, Text.Length + Quantity);
+                }
+                else
+                {
+                    return Text;
+                }
+            }
+            return Text;
+        }
 
         /// <summary>
         /// Remove um texto do inicio de uma string se ele for um outro texto especificado
@@ -10930,7 +10597,26 @@ namespace Extensions
         /// <param name="Text">Texto</param>
         /// <param name="Quantity">Quantidade de Caracteres</param>
         /// <returns></returns>
-        public static string RemoveLastChars(this string Text, int Quantity = 1) => Text.IsValid() && Text.Length > Quantity && Quantity > 0 ? Text.Substring(0, Text.Length - Quantity) : EmptyString;
+        public static string RemoveLastChars(this string Text, int Quantity = 1)
+        {
+            if (Text.IsNotBlank())
+            {
+                if (Quantity > 0)
+                {
+                    if (Text.Length >= Quantity) return Text.Substring(0, Text.Length - Quantity);
+                }
+                else if (Quantity < 0)
+                {
+                    return Text.Substring(0, Text.Length + Quantity);
+                }
+                else
+                {
+                    return Text;
+                }
+            }
+            return Text;
+
+        }
 
         /// <summary>
         /// Remove um texto do final de uma string se ele for um outro texto
@@ -10989,7 +10675,7 @@ namespace Extensions
         }
 
         /// <summary>
-        /// Remove um parametro da Query String de uma URL
+        /// Remove um parametro da QueryInterpolated String de uma URL
         /// </summary>
         /// <param name="Url">Uri</param>
         /// <param name="Key">Nome do parâmetro</param>
@@ -11550,374 +11236,6 @@ namespace Extensions
         public static long RoundLong(this double Number) => Math.Round(Number).ToLong();
 
         /// <summary>
-        /// Retorna os resultado da primeira coluna de uma consulta SQL como um array do tipo
-        /// <typeparamref name="T"/>
-        /// </summary>
-        public static IEnumerable<T> RunSQLArray<T>(this DbConnection Connection, DbCommand Command) => Connection.RunSQLArray(Command).Select(x => x == null ? default : x.ChangeType<T>());
-
-        /// <summary>
-        /// Retorna os resultado da primeira coluna de uma consulta SQL como um array do tipo
-        /// <typeparamref name="T"/>
-        /// </summary>
-        public static IEnumerable<T> RunSQLArray<T>(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLArray<T>(Connection.CreateCommand(SQL, Transaction));
-
-        /// <summary>
-        /// Retorna os resultado da primeira coluna de uma consulta SQL como um array
-        /// </summary>
-        public static IEnumerable<object> RunSQLArray(this DbConnection Connection, DbCommand Command) => Connection.RunSQLSet(Command).Select(x => x.Values.FirstOrDefault());
-
-        /// <summary>
-        /// Retorna os resultado da primeira coluna de uma consulta SQL como um array
-        /// </summary>
-        public static IEnumerable<object> RunSQLArray(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLArray(Connection.CreateCommand(SQL, Transaction));
-
-        /// <summary>
-        /// Executa uma query SQL parametrizada e retorna os resultados mapeados em listas de <see
-        /// cref="Dictionary{TKey, TValue}"/>
-        /// </summary>
-        /// <param name="Connection"></param>
-        /// <param name="SQL"></param>
-        /// <returns></returns>
-        public static IEnumerable<IEnumerable<Dictionary<string, object>>> RunSQLMany(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLMany(Connection.CreateCommand(SQL, Transaction));
-
-        /// <summary>
-        /// Executa uma query SQL e retorna todos os seus resultsets mapeados em uma <see
-        /// cref="IEnumerable{IEnumerable{Dictionary{String, Object}}}"/>
-        /// </summary>
-        /// <param name="Connection"></param>
-        /// <param name="Command"></param>
-        /// <returns></returns>
-        public static IEnumerable<IEnumerable<Dictionary<string, object>>> RunSQLMany(this DbConnection Connection, DbCommand Command)
-        {
-            IEnumerable<IEnumerable<Dictionary<string, object>>> resposta;
-            using (var reader = Connection.RunSQLReader(Command))
-            {
-                resposta = reader.MapMany();
-            }
-
-            return resposta;
-        }
-
-        /// <summary>
-        /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de
-        /// tipos específicos
-        /// </summary>
-        /// <param name="Connection"></param>
-        /// <param name="SQL"></param>
-        /// <returns></returns>
-        public static Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>, IEnumerable<T5>> RunSQLMany<T1, T2, T3, T4, T5>(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null)
-            where T1 : class
-            where T2 : class
-            where T3 : class
-            where T4 : class
-            where T5 : class => Connection.RunSQLMany<T1, T2, T3, T4, T5>(Connection.CreateCommand(SQL, Transaction));
-
-        /// <summary>
-        /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de
-        /// tipos especificos
-        /// </summary>
-        /// <param name="Connection"></param>
-        /// <param name="Command"></param>
-        /// <returns></returns>
-        public static Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>, IEnumerable<T5>> RunSQLMany<T1, T2, T3, T4, T5>(this DbConnection Connection, DbCommand Command)
-            where T1 : class
-            where T2 : class
-            where T3 : class
-            where T4 : class
-            where T5 : class
-        {
-            Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>, IEnumerable<T5>> resposta;
-            using (var reader = Connection.RunSQLReader(Command))
-            {
-                resposta = reader.MapMany<T1, T2, T3, T4, T5>();
-            }
-
-            return resposta;
-        }
-
-        /// <summary>
-        /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de
-        /// tipos especificos
-        /// </summary>
-        /// <param name="Connection"></param>
-        /// <param name="SQL"></param>
-        /// <returns></returns>
-        public static Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>> RunSQLMany<T1, T2, T3, T4>(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null)
-            where T1 : class
-            where T2 : class
-            where T3 : class
-            where T4 : class => Connection.RunSQLMany<T1, T2, T3, T4>(Connection.CreateCommand(SQL, Transaction));
-
-        /// <summary>
-        /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de
-        /// tipos especificos
-        /// </summary>
-        /// <param name="Connection"></param>
-        /// <param name="Command"></param>
-        /// <returns></returns>
-        public static Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>> RunSQLMany<T1, T2, T3, T4>(this DbConnection Connection, DbCommand Command)
-            where T1 : class
-            where T2 : class
-            where T3 : class
-            where T4 : class
-        {
-            Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>> resposta;
-            using (var reader = Connection.RunSQLReader(Command))
-            {
-                resposta = reader.MapMany<T1, T2, T3, T4>();
-            }
-
-            return resposta;
-        }
-
-        /// <summary>
-        /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de
-        /// tipos especificos
-        /// </summary>
-        /// <param name="Connection"></param>
-        /// <param name="SQL"></param>
-        /// <returns></returns>
-        public static Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>> RunSQLMany<T1, T2, T3>(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null)
-            where T1 : class
-            where T2 : class
-            where T3 : class => Connection.RunSQLMany<T1, T2, T3>(Connection.CreateCommand(SQL, Transaction));
-
-        /// <summary>
-        /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de
-        /// tipos especificos
-        /// </summary>
-        /// <param name="Connection"></param>
-        /// <param name="Command"></param>
-        /// <returns></returns>
-        public static Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>> RunSQLMany<T1, T2, T3>(this DbConnection Connection, DbCommand Command)
-            where T1 : class
-            where T2 : class
-            where T3 : class
-        {
-            Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>> resposta;
-            using (var reader = Connection.RunSQLReader(Command))
-            {
-                resposta = reader.MapMany<T1, T2, T3>();
-            }
-
-            return resposta;
-        }
-
-        /// <summary>
-        /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de
-        /// tipos especificos
-        /// </summary>
-        /// <param name="Connection"></param>
-        /// <param name="SQL"></param>
-        /// <returns></returns>
-        public static Tuple<IEnumerable<T1>, IEnumerable<T2>> RunSQLMany<T1, T2>(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null)
-            where T1 : class
-            where T2 : class => Connection.RunSQLMany<T1, T2>(Connection.CreateCommand(SQL, Transaction));
-
-        /// <summary>
-        /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de
-        /// tipos especificos
-        /// </summary>
-        /// <param name="Connection"></param>
-        /// <param name="Command"></param>
-        /// <returns></returns>
-        public static Tuple<IEnumerable<T1>, IEnumerable<T2>> RunSQLMany<T1, T2>(this DbConnection Connection, DbCommand Command)
-            where T1 : class
-            where T2 : class
-        {
-            Tuple<IEnumerable<T1>, IEnumerable<T2>> resposta;
-            using (var reader = Connection.RunSQLReader(Command))
-            {
-                resposta = reader.MapMany<T1, T2>();
-            }
-
-            return resposta;
-        }
-
-        /// <summary>
-        /// Executa um comando SQL e retorna o numero de linhas afetadas
-        /// </summary>
-        /// <param name="Connection"></param>
-        /// <param name="SQL"></param>
-        /// <returns></returns>
-        public static int RunSQLNone(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLNone(Connection.CreateCommand(SQL, Transaction));
-
-        /// <summary>
-        /// Executa um comando SQL e retorna o numero de linhas afetadas
-        /// </summary>
-        public static int RunSQLNone(this DbConnection Connection, DbCommand Command) => BeforeRunCommand(ref Connection, ref Command).ExecuteNonQuery();
-
-        /// <summary>
-        /// Retorna os resultado das primeiras e ultimas colunas de uma consulta SQL como pares em
-        /// um <see cref="Dictionary{Object, Object}"/>
-        /// </summary>
-        public static Dictionary<object, object> RunSQLPairs(this DbConnection Connection, DbCommand SQL) => Connection.RunSQLSet(SQL).DistinctBy(x => x.Values.FirstOrDefault()).ToDictionary(x => x.Values.FirstOrDefault(), x => x.Values.LastOrDefault());
-
-        /// <summary>
-        /// Retorna os resultado das primeiras e ultimas colunas de uma consulta SQL como pares em
-        /// um <see cref="Dictionary{object,object}"/>
-        /// </summary>
-        public static Dictionary<object, object> RunSQLPairs(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLPairs(Connection.CreateCommand(SQL, Transaction));
-
-        /// <summary>
-        /// Retorna os resultado das primeiras e ultimas colunas de uma consulta SQL como pares em
-        /// um <see cref="Dictionary{K, V}"/>
-        /// </summary>
-        public static Dictionary<TK, TV> RunSQLPairs<TK, TV>(this DbConnection Connection, DbCommand SQL) => Connection.RunSQLPairs(SQL).ToDictionary(x => x.Key.ChangeType<TK>(), x => x.Value.ChangeType<TV>());
-
-        /// <summary>
-        /// Retorna os resultado das primeiras e ultimas colunas de uma consulta SQL como pares em
-        /// um <see cref="Dictionary{K, V}"/>
-        /// </summary>
-        public static Dictionary<TK, TV> RunSQLPairs<TK, TV>(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLPairs<TK, TV>(Connection.CreateCommand(SQL, Transaction));
-
-        /// <summary>
-        /// Executa um comando SQL e retorna o <see cref="DbDataReader"/> com os resultados
-        /// </summary>
-        public static DbDataReader RunSQLReader(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLReader(Connection.CreateCommand(SQL, Transaction));
-
-        /// <summary>
-        /// Executa um comando SQL e retorna o <see cref="DbDataReader"/> com os resultados
-        /// </summary>
-        public static DbDataReader RunSQLReader(this DbConnection Connection, DbCommand Command) => BeforeRunCommand(ref Connection, ref Command).ExecuteReader();
-
-        /// <summary>
-        /// Executa uma query SQL parametrizada e retorna os resultados da primeira linha como um
-        /// <typeparamref name="T"/>
-        /// </summary>
-        /// <returns></returns>
-        public static T RunSQLRow<T>(this DbConnection Connection, Select<T> Select, bool WithSubQueries = false, DbTransaction Transaction = null) where T : class => Connection.RunSQLRow<T>(Select.CreateDbCommand(Connection, Transaction), WithSubQueries);
-
-        /// <summary>
-        /// Executa uma query SQL parametrizada e retorna o resultado da primeira linha mapeada para
-        /// um <see cref="Dictionary{String, Object}"/>
-        /// </summary>
-        public static Dictionary<string, object> RunSQLRow(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLRow<Dictionary<string, object>>(SQL, false, Transaction);
-
-        /// <summary>
-        /// Executa uma query SQL parametrizada e retorna o resultado da primeira linha mapeada para
-        /// um <see cref="Dictionary{String, Object}"/>
-        /// </summary>
-        public static Dictionary<string, object> RunSQLRow(this DbConnection Connection, DbCommand SQL) => Connection.RunSQLRow<Dictionary<string, object>>(SQL);
-
-        /// <summary>
-        /// Executa uma query SQL parametrizada e retorna o resultado da primeira linha mapeada para
-        /// uma classe POCO do tipo <typeparamref name="T"/>
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="Connection"></param>
-        /// <param name="SQL"></param>
-        /// <returns></returns>
-        public static T RunSQLRow<T>(this DbConnection Connection, DbCommand SQL, bool WithSubQueries = false) where T : class
-        {
-            var x = Connection.RunSQLSet<T>(SQL, false).FirstOrDefault();
-            if (x != null && WithSubQueries)
-            {
-                Connection.ProccessSubQuery(x, WithSubQueries);
-            }
-
-            return x ?? default;
-        }
-
-        /// <summary>
-        /// Executa uma query SQL parametrizada e retorna o resultado da primeira linha mapeada para
-        /// uma classe POCO do tipo <typeparamref name="T"/>
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="Connection"></param>
-        /// <param name="SQL"></param>
-        /// <returns></returns>
-        public static T RunSQLRow<T>(this DbConnection Connection, FormattableString SQL, bool WithSubQueries = false, DbTransaction Transaction = null) where T : class => Connection.RunSQLRow<T>(Connection.CreateCommand(SQL, Transaction), WithSubQueries);
-
-        public static T RunSQLRow<T>(this DbConnection Connection, bool WithSubQueries = false, DbTransaction Transaction = null, object InjectionObject = null) where T : class => RunSQLRow<T>(Connection, SQLQueryForClass<T>(InjectionObject).ToFormattableString(), WithSubQueries, Transaction);
-
-        /// <summary>
-        /// Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset
-        /// mapeados para uma lista de <typeparamref name="T"/>
-        /// </summary>
-        /// <returns></returns>
-        public static IEnumerable<T> RunSQLSet<T>(this DbConnection Connection, Select<T> Select, bool WithSubQueries = false, DbTransaction Transaction = null) where T : class => Connection.RunSQLSet<T>(Select.CreateDbCommand(Connection, Transaction), WithSubQueries);
-
-        public static IEnumerable<T> RunSQLSet<T>(this DbConnection Connection, bool WithSubQueries = false, DbTransaction Transaction = null, object InjectionObject = null) where T : class => RunSQLSet<T>(Connection, SQLQueryForClass<T>(InjectionObject).ToFormattableString(), WithSubQueries, Transaction);
-
-        /// <summary>
-        /// Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset
-        /// mapeados para uma lista de <see cref="Dictionary{String, Object}"/>
-        /// </summary>
-        /// <param name="Connection"></param>
-        /// <param name="SQL"></param>
-        /// <returns></returns>
-        public static IEnumerable<Dictionary<string, object>> RunSQLSet(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLSet<Dictionary<string, object>>(SQL, false, Transaction);
-
-        /// <summary>
-        /// Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset
-        /// mapeados para uma lista de <see cref="Dictionary(Of String, Object)"/>
-        /// </summary>
-        public static IEnumerable<Dictionary<string, object>> RunSQLSet(this DbConnection Connection, DbCommand SQL) => Connection.RunSQLSet<Dictionary<string, object>>(SQL);
-
-        /// <summary>
-        /// Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset
-        /// mapeados para uma lista de classe POCO do tipo <typeparamref name="T"/>
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="Connection"></param>
-        /// <param name="SQL"></param>
-        /// <returns></returns>
-        public static IEnumerable<T> RunSQLSet<T>(this DbConnection Connection, FormattableString SQL, bool WithSubQueries = false, DbTransaction Transaction = null) where T : class => Connection.RunSQLSet<T>(Connection.CreateCommand(SQL, Transaction), WithSubQueries);
-
-        /// <summary>
-        /// Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset
-        /// mapeados para uma lista de classe POCO do tipo <typeparamref name="T"/>
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="Connection"></param>
-        /// <param name="SQL"></param>
-        /// <returns></returns>
-        public static IEnumerable<T> RunSQLSet<T>(this DbConnection Connection, DbCommand SQL, bool WithSubQueries = false) where T : class
-            => Connection.RunSQLMany(SQL)?.FirstOrDefault()?.Select(x =>
-            {
-                T v = (T)x.CreateOrSetObject(null, typeof(T));
-                if (WithSubQueries)
-                {
-                    Connection.ProccessSubQuery(v, WithSubQueries);
-                }
-                return v;
-            }).AsEnumerable();
-
-        /// <summary>
-        /// Retorna o primeiro resultado da primeira coluna de uma consulta SQL
-        /// </summary>
-        /// <param name="Connection"></param>
-        /// <param name="Command"></param>
-        /// <returns></returns>
-        public static object RunSQLValue(this DbConnection Connection, DbCommand Command) => BeforeRunCommand(ref Connection, ref Command).ExecuteScalar();
-
-        /// <summary>
-        /// Retorna o valor da primeira coluna da primeira linha uma consulta SQL
-        /// </summary>
-        public static object RunSQLValue(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLValue(Connection.CreateCommand(SQL, Transaction));
-
-        /// <summary>
-        /// Retorna o valor da primeira coluna da primeira linha uma consulta SQL como um tipo
-        /// <typeparamref name="T"/>
-        /// </summary>
-        public static T RunSQLValue<T>(this DbConnection Connection, DbCommand Command)
-        {
-            if (!typeof(T).IsValueType())
-            {
-                throw new ArgumentException("The type param T is not a value type or string");
-            }
-            var vv = Connection.RunSQLValue(Command);
-            return vv != null && vv != DBNull.Value ? vv.ChangeType<T>() : default;
-        }
-
-        /// <summary>
-        /// Retorna o valor da primeira coluna da primeira linha uma consulta SQL como um tipo
-        /// <typeparamref name="T"/>
-        /// </summary>
-        public static T RunSQLValue<T>(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLValue<T>(Connection.CreateCommand(SQL, Transaction));
-
-        /// <summary>
         /// Salva um anexo para um diretório
         /// </summary>
         /// <param name="attachment"></param>
@@ -12121,6 +11439,9 @@ namespace Extensions
 
             return SearchRet;
         }
+
+        public static IOrderedEnumerable<TClass> SearchInOrder<TClass>(this IEnumerable<TClass> Table, string SearchTerms, bool Ascending, params Expression<Func<TClass, string>>[] Properties) where TClass : class
+        => SearchInOrder(Table, ForceArray<string>(SearchTerms), Ascending, Properties);
 
         public static IOrderedEnumerable<TClass> SearchInOrder<TClass>(this IEnumerable<TClass> Table, IEnumerable<string> SearchTerms, params Expression<Func<TClass, string>>[] Properties) where TClass : class => SearchInOrder(Table, SearchTerms, true, Properties);
 
@@ -12340,7 +11661,6 @@ namespace Extensions
 
         public static Task SetTimeout(int milliseconds, Action action) => Task.Delay(milliseconds).ContinueWith((t) =>
                                                                                      {
-
                                                                                          TryExecute(action);
                                                                                          t.Dispose();
                                                                                      });
@@ -12604,14 +11924,16 @@ namespace Extensions
                 while (input.Length > 0)
                 {
                     var size = chunkSizes.IfNoIndex(0, input.Length);
-                    if (size <= 0) size = input.Length;
+                    if (size < 0) size = (input.Length - size).LimitRange(0, input.Length);
+
+
                     var chunk = input.GetFirstChars(size);
-                    if (chunk.Length == 0)
-                    {
-                        if (input.Length > 0)
-                            yield return input;
-                        break;
-                    }
+                    //if (chunk.Length == 0)
+                    //{
+                    //    if (input.Length > 0)
+                    //        yield return input;
+                    //    break;
+                    //}
                     yield return chunk;
                     input = input.RemoveFirstChars(size);
                     chunkSizes = chunkSizes.Skip(1).ToArray();
@@ -12641,8 +11963,6 @@ namespace Extensions
                 foreach (var s in input.SplitChunk(p)) yield return s;
             }
         }
-
-        public static string SQLQueryForClass<T>(object InjectionObject = null) => typeof(T).GetAttributeValue<FromSQLAttribute, string>(x => x.SQL).IfBlank($"SELECT * FROM {typeof(T).Name}").Inject(InjectionObject);
 
         /// <summary>
         /// Cria uma <see cref="List{T}"/> e adciona um objeto a ela. Util para tipos anonimos
@@ -12711,10 +12031,7 @@ namespace Extensions
             return (FirstValue, SecondValue);
         }
 
-
-
         public static IEnumerable<T> TakeLast<T>(this IEnumerable<T> l, int Count = 1) => l.Reverse().Take(Count).Reverse();
-
 
         public static IEnumerable<T> TakeRandom<T>(this IEnumerable<T> l, int Count = 1) => l.OrderByRandom().Take(Count);
 
@@ -13163,7 +12480,7 @@ namespace Extensions
                 int digito = Convert.ToInt32(Enum.Parse(typeof(RomanDigit), numeral.ToString()));
 
                 // Um numeral de pequena valor pode ser colocado à esquerda de um valor maior Quando
-                // isto ocorre, por exemplo IX, o menor número é subtraído do maior T dígito
+                // isto ocorre, por exemplo IX, o menor número é subtraído do maior TEntity dígito
                 // subtraído deve ser de pelo menos um décimo do valor do maior numeral e deve ser
                 // ou I, X ou C Valores como MCMD ou CMC não são permitidos
                 if (digito > digitoMaximo)
@@ -13196,7 +12513,7 @@ namespace Extensions
             }
 
             // Outra regra é a que compara o tamanho do valor de cada numeral lido a partir da
-            // esquerda para a direita. T valor nunca deve aumentar a partir de uma letra para a
+            // esquerda para a direita. TEntity valor nunca deve aumentar a partir de uma letra para a
             // próxima. Onde houver um numeral subtrativo, esta regra se aplica ao valor combinado
             // dos dois algarismos envolvidos na subtração quando comparado com a letra anterior.
             // Isto significa que XIX é aceitável, mas XIM e IIV não são.
@@ -13320,21 +12637,7 @@ namespace Extensions
         /// <returns>Uma string em formato Util</returns>
         public static string ToBase64(this Uri ImageURL, ImageFormat OriginalImageFormat, NameValueCollection Headers = null, Encoding Encoding = null) => ImageURL?.DownloadImage(Headers, Encoding)?.ToBase64(OriginalImageFormat);
 
-        /// <summary>
-        /// Monta um Comando SQL para executar uma procedure especifica para cada item em uma
-        /// coleçao. As propriedades do item serao utilizadas como parametros da procedure
-        /// </summary>
-        /// <param name="Items">Lista de itens que darao origem aos parametros da procedure</param>
-        /// <param name="ProcedureName">Nome da Procedure</param>
-        /// <param name="Keys">CHaves de Dicionário que devem ser utilizadas</param>
-        /// <returns>Um DbCommand parametrizado</returns>
-        public static IEnumerable<DbCommand> ToBatchProcedure<T>(this DbConnection Connection, string ProcedureName, IEnumerable<T> Items, DbTransaction Transaction = null, params string[] Keys)
-        {
-            foreach (var item in Items ?? new List<T>())
-            {
-                yield return Connection.ToProcedure(ProcedureName, item, Transaction, Keys);
-            }
-        }
+
 
         /// <summary>
         /// Retorna uma <see cref="Bitmap"/> a partir de um Image
@@ -13422,8 +12725,8 @@ namespace Extensions
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static string ToCamelCase(this string Text) => Text.PascalCaseSplit().Select((x, i) => i == 0 ? x.ToLowerInvariant() : x.ToTitle()).SelectJoinString("");
-        public static string ToPascalCase(this string Text) => Text.PascalCaseSplit().Select(x => x.ToTitle()).SelectJoinString("");
+        public static string ToCamelCase(this string Text) => Text.PascalCaseSplit().Select((x, i) => i == 0 ? x.ToLowerInvariant() : x.ToTitle(true)).SelectJoinString("");
+        public static string ToPascalCase(this string Text) => Text.PascalCaseSplit().Select(x => x.ToTitle(true)).SelectJoinString("");
 
         /// <summary>
         /// Retorna a <see cref="Color"/> a partir de uma <see cref="ConsoleColor"/>
@@ -13435,10 +12738,11 @@ namespace Extensions
         /// <summary>
         /// Gera uma cor a partir de uma palavra
         /// </summary>
-        /// <param name="Text">,
-        /// Pode ser um texto em branco (Transparent), um valor hexadecimal, um valor int ARGB, uma <see cref="NamedColors"/> (retorna aquela
-        /// cor exata), uma palavra qualquer (gera proceduralmente uma cor) ou uma expressão de cor
-        /// (Red+Blue, Red-Blue,Green*Red etc). A palavra 'random' ou 'rnd' gera uma cor aleatória
+        /// <param name="Text">
+        /// , Pode ser um texto em branco (Transparent), um valor hexadecimal, um valor int ARGB,
+        /// uma <see cref="NamedColors"/> (retorna aquela cor exata), uma palavra qualquer (gera
+        /// proceduralmente uma cor) ou uma expressão de cor (Red+Blue, Red-Blue,Green*Red etc). A
+        /// palavra 'random' ou 'rnd' gera uma cor aleatória
         /// </param>
         /// <returns></returns>
         public static Color ToColor(this string Text)
@@ -13585,7 +12889,7 @@ namespace Extensions
         public static string ToDataURL(this Image Image) => $"data:{Image.GetFileType().First().ToLowerInvariant().Replace("application/octet-stream", GetFileType(".png").GetMimeTypesOrDefault().First())};base64,{Image.ToBase64()}";
 
         /// <summary>
-        /// Converte uma imagem para DataURI trocando o MIME T
+        /// Converte uma imagem para DataURI trocando o MIME TEntity
         /// </summary>
         /// <param name="OriginalImage">Imagem</param>
         /// <param name="OriginalImageFormat">Formato da Imagem</param>
@@ -13791,13 +13095,9 @@ namespace Extensions
         public static FileInfo ToFileInfo(this string[] PathParts)
         {
             var x = ToFileSystemInfo(PathParts);
-            if (x is DirectoryInfo)
-            {
-                throw new Exception("File is directory");
-            }
-
-
-            return x as FileInfo;
+            if (x is DirectoryInfo) throw new Exception("File is directory");
+            else if (x is FileInfo) return x as FileInfo;
+            throw new Exception("File is not a valid file");
         }
 
         public static long GetSize(this FileSystemInfo info)
@@ -13832,7 +13132,6 @@ namespace Extensions
         /// <param name="Size">Tamanho</param>
         /// <returns>String com o tamanho + unidade de medida</returns>
         public static string ToFileSizeString(this byte[] Size, int DecimalPlaces = -1) => (Size?.LongLength ?? 0).ToFileSizeString(DecimalPlaces);
-
 
         /// <summary>
         /// Retorna o uma string representando um valor em bytes, KB, MB, GB ou TB
@@ -13898,9 +13197,8 @@ namespace Extensions
             }
         }
 
-
         /// <summary>
-        /// Retorna um Objeto FileType a partir de uma string MIME T, Nome ou Extensão de Arquivo
+        /// Retorna um Objeto FileType a partir de uma string MIME TEntity, Nome ou Extensão de Arquivo
         /// </summary>
         /// <param name="MimeTypeOrExtensionOrPathOrDataURI"></param>
         /// <returns></returns>
@@ -14000,7 +13298,7 @@ namespace Extensions
                 return Array.Empty<T[]>();
             }
 
-            // Get the number of rows and columns in the input array
+            // GetCliente the number of rows and columns in the input array
             int rows = inputArray.GetLength(0);
             int cols = inputArray.GetLength(1);
 
@@ -15488,40 +14786,7 @@ namespace Extensions
         ///<inheritdoc cref="ToPhrase{TSource}(IEnumerable{TSource}, string, string, string, char)"/>
         public static string ToPhrase(string And, params string[] Texts) => (Texts ?? Array.Empty<string>()).ToPhrase(EmptyString, And);
 
-        /// <summary>
-        /// Monta um Comando SQL para executar uma procedure especifica e trata valores especificos
-        /// de um NameValueCollection como parametros da procedure
-        /// </summary>
-        /// <param name="NVC">Objeto</param>
-        /// <param name="ProcedureName">Nome da Procedure</param>
-        /// <param name="Keys">Valores do nameValueCollection o que devem ser utilizados</param>
-        /// <returns>Um DbCommand parametrizado</returns>
-        public static DbCommand ToProcedure(this DbConnection Connection, string ProcedureName, NameValueCollection NVC, DbTransaction Transaction = null, params string[] Keys) => Connection.ToProcedure(ProcedureName, NVC.ToDictionary(Keys), Transaction, Keys);
 
-        /// <summary>
-        /// Monta um Comando SQL para executar uma procedure especifica e trata propriedades
-        /// específicas de um objeto como parametros da procedure
-        /// </summary>
-        /// <param name="Obj">Objeto</param>
-        /// <param name="ProcedureName">Nome da Procedure</param>
-        /// <param name="Keys">propriedades do objeto que devem ser utilizados</param>
-        /// <returns>Um DbCommand parametrizado</returns>
-        public static DbCommand ToProcedure<T>(this DbConnection Connection, string ProcedureName, T Obj, DbTransaction Transaction = null, params string[] Keys) => Connection.ToProcedure(ProcedureName, Obj?.CreateDictionary() ?? new Dictionary<string, object>(), Transaction, Keys);
-
-        /// <summary>
-        /// Monta um Comando SQL para executar uma procedure especifica e trata os valores
-        /// específicos de um <see cref="Dictionary{TKey, TValue}"/> como parametros da procedure
-        /// </summary>
-        /// <param name="Dic">Objeto</param>
-        /// <param name="ProcedureName">Nome da Procedure</param>
-        /// <param name="Keys">propriedades do objeto que devem ser utilizados</param>
-        /// <returns>Um DbCommand parametrizado</returns>
-        public static DbCommand ToProcedure(this DbConnection Connection, string ProcedureName, Dictionary<string, object> Dic, DbTransaction Transaction = null, params string[] Keys)
-        {
-            var sql = ProcedureName.ToProcedure(Dic, Keys);
-
-            return Connection.CreateCommand(sql, Dic.ToDictionary(x => x.Key, x => x.Value), Transaction);
-        }
 
         /// <summary>
         /// Monta um Comando SQL para executar uma procedure especifica e trata os valores
@@ -15547,20 +14812,25 @@ namespace Extensions
             return $"{ProcedureName} {Keys.SelectJoinString(key => $" @{key} = @__{key}", ", ")}";
         }
 
-
         /// <summary>
         /// Coloca o texto em TitleCase
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static string ToProperCase(this string Text, bool ForceCase = false)
+        public static string ToProperCase(this string Text, bool? ForceCase = null)
         {
             if (Text.IsNotValid())
             {
                 return Text;
             }
 
-            if (ForceCase)
+            if (ForceCase == null)
+            {
+                ForceCase = Text.Where(char.IsLetter).All(char.IsUpper);
+            }
+
+
+            if (ForceCase == true)
             {
                 Text = Text.ToLowerInvariant();
             }
@@ -15572,7 +14842,7 @@ namespace Extensions
                 bool artigo = index > 0 && IsIn(pal, "o", "a", "os", "as", "um", "uma", "uns", "umas", "de", "do", "dos", "das", "e", "ou", "of");
                 if (pal.IsValid())
                 {
-                    if (ForceCase || artigo == false)
+                    if (ForceCase == true || artigo == false)
                     {
                         char c = pal.First();
                         if (!char.IsUpper(c))
@@ -15723,7 +14993,7 @@ namespace Extensions
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static string ToSlugCase(this string Text) => Text.Replace(WhitespaceChar, "-").ToLowerInvariant();
+        public static string ToSlugCase(this string Text) => Text?.Replace(WhitespaceChar, "-").ToLowerInvariant();
 
         /// <summary>
         /// Converts the specified text to kebab case.
@@ -15737,7 +15007,7 @@ namespace Extensions
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static string ToSnakeCase(this string Text) => Text.Replace(WhitespaceChar, "_").ToLowerInvariant();
+        public static string ToSnakeCase(this string Text) => Text?.Replace(WhitespaceChar, "_").ToLowerInvariant();
 
         ///<summary> Monta um Comando SQL para executar um SELECT com
         /// filtros a partir de um <see cref="NameValueCollection" />
@@ -15860,8 +15130,9 @@ namespace Extensions
         /// <returns></returns>
         public static Stream ToStream(this Image Image, ImageFormat Format = null)
         {
+            Format = Format ?? ImageFormat.Png;
             Stream s = new MemoryStream();
-            Image.Save(s, Format ?? ImageFormat.Png);
+            Image.Save(s, Format);
             s.Position = 0L;
             return s;
         }
@@ -15941,7 +15212,7 @@ namespace Extensions
         /// demais como LOWERCASE
         /// </param>
         /// <returns>Uma String com o texto em nome próprio</returns>
-        public static string ToTitle(this string Text, bool ForceCase = false) => Text?.ToProperCase(ForceCase);
+        public static string ToTitle(this string Text, bool? ForceCase = null) => Text?.ToProperCase(ForceCase);
 
         /// <summary>
         /// Transforma um XML Document em string
@@ -16225,19 +15496,31 @@ namespace Extensions
 
         public static IEnumerable<string> TrimBetween(this IEnumerable<string> Texts) => Texts.Select(x => x.TrimBetween());
 
-        public static string TrimBetween(this string Text)
+        public static string TrimBetween(this string input)
         {
-            Text = Text.IfBlank(EmptyString);
-            if (Text.IsValid())
+            if (input.IsBlank())
             {
-                var arr = Text.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-                Text = arr.SelectJoinString(Environment.NewLine);
-                arr = Text.Split(new string[] { WhitespaceChar }, StringSplitOptions.RemoveEmptyEntries);
-                Text = arr.SelectJoinString(WhitespaceChar);
-                Text = Text.TrimAny(WhitespaceChar, Environment.NewLine).Trim();
+                return input;
             }
 
-            return Text;
+            var lines = input.Split(new[] { "\r\n", "\r", "\n", Environment.NewLine }, StringSplitOptions.None)
+                             .Where(line => line.IsNotBlank());
+
+            var result = lines.Select(value =>
+            {
+                // Remove spaces before any of these chars
+                value = Regex.Replace(value, @"\s+([\%:,.;?!\)\]})])", match => match.Groups[1].Value);
+
+                // Remove spaces after any of these chars
+                value = Regex.Replace(value, @"([\(\[\{])\s+", match => match.Groups[1].Value);
+
+                // Remove extra spaces between words
+                value = Regex.Replace(value, @"\s+", " ");
+
+                return value.Trim();
+            });
+
+            return string.Join(Environment.NewLine, result);
         }
 
         /// <summary>
@@ -16657,8 +15940,8 @@ namespace Extensions
         }
 
         /// <summary>
-        /// Busca em um <see cref="IQueryable{T}"/> usando uma expressao lambda a partir do nome
-        /// de uma propriedade, uma operacao e um valor
+        /// Busca em um <see cref="IQueryable{T}"/> usando uma expressao lambda a partir do nome de
+        /// uma propriedade, uma operacao e um valor
         /// </summary>
         /// <typeparam name="T">Tipo do objeto acessado</typeparam>
         /// <param name="List">Lista</param>
@@ -16884,7 +16167,7 @@ namespace Extensions
         /// <summary>
         /// Salva um array de bytes em um arquivo
         /// </summary>
-        /// <param name="File">T arquivo a ser convertido</param>
+        /// <param name="File">TEntity arquivo a ser convertido</param>
         /// <returns>Um array do tipo Byte()</returns>
         /// <summary>
         /// Salva um texto em um arquivo
