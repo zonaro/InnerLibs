@@ -36,6 +36,56 @@ namespace Extensions.Databases
     public static partial class SimpleCRUD
 
     {
+
+
+        public static (PropertyInfo, string, object) ParseExpression(BinaryExpression binaryExpression)
+        {
+            
+                var memberExpression = binaryExpression.Left as MemberExpression;
+                var valueExpression = binaryExpression.Right;
+
+                var value = Expression.Lambda(valueExpression).Compile().DynamicInvoke();
+                var memberInfo = memberExpression.Member as PropertyInfo;
+              
+          
+                    return (memberInfo, GetOperator(binaryExpression.NodeType), value);
+
+            
+        }
+
+        private static string GetOperator(ExpressionType expressionType)
+        {
+            if(expressionType == ExpressionType.NotEqual)
+            {
+                return "!=";
+            }
+            else if(expressionType == ExpressionType.GreaterThan)
+            {
+                return ">";
+            }
+            else if (expressionType == ExpressionType.GreaterThanOrEqual)
+            {
+                return ">=";
+            }
+            else if (expressionType == ExpressionType.LessThan)
+            {
+                return "<";
+            }
+            else if (expressionType == ExpressionType.LessThanOrEqual)
+            {
+                return "<=";
+            }
+            else if (expressionType == ExpressionType.Equal)
+            {
+                return "=";
+            }
+            else
+            {
+                throw new NotSupportedException($"Operator '{expressionType}' is not supported.");
+            }
+            
+        }
+
         internal const string DefaultParameterPrefix = "@__p";
 
         public static int Execute(this DbConnection cnn, InterpolatedQuery sql, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null) => cnn.Execute(sql.Query, sql.Parameters, transaction, commandTimeout, commandType);
@@ -3023,9 +3073,16 @@ namespace Extensions.Databases
                         var list = arg as IEnumerable<object>;
 
                         var parameters = "";
-                        if (list is IEnumerable<Expression> exps)
+                        if (list is IEnumerable<BinaryExpression> exps)
                         {
-                            // TODO: transformar as expressoes em "coluna = valor"
+                            parameters = string.Join(" AND ", exps.Select((x, j) =>
+                            {
+                                var exp = SimpleCRUD.ParseExpression(x);
+                                var column = SimpleCRUD.GetColumnName(exp.Item1);
+                                var paramName = $"{this.ParameterPrefix}{i}_{j}";
+                                this.Parameters.Add(paramName, x);
+                                return $"{column} {exp.Item2.Replace("!=", "<>")} @{paramName}";
+                            }));
 
                         }
                         else
