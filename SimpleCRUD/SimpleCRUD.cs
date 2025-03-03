@@ -2,17 +2,22 @@
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
+using System.Data.Common;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+using Dapper;
 using Extensions;
+using Extensions.Databases;
 using Microsoft.CSharp.RuntimeBinder;
 
 /*
@@ -22,7 +27,7 @@ using Microsoft.CSharp.RuntimeBinder;
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 */
 
-namespace Dapper
+namespace Extensions.Databases
 {
     /// <inheritdoc cref="SqlMapper"/>
     /// <summary>
@@ -33,16 +38,16 @@ namespace Dapper
     {
         internal const string DefaultParameterPrefix = "@__p";
 
-        public static int Execute(this IDbConnection cnn, InterpolatedQuery sql, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null) => cnn.Execute(sql.Query, sql.Parameters, transaction, commandTimeout, commandType);
+        public static int Execute(this DbConnection cnn, InterpolatedQuery sql, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null) => cnn.Execute(sql.Query, sql.Parameters, transaction, commandTimeout, commandType);
 
-        public static IEnumerable<T> Query<T>(this IDbConnection cnn, InterpolatedQuery sql, IDbTransaction transaction = null, bool buffered = true, int? commandTimeout = null, CommandType? commandType = null) => cnn.Query<T>(sql.Query, sql.Parameters, transaction, buffered, commandTimeout, commandType);
-        public static T QueryFirst<T>(this IDbConnection cnn, InterpolatedQuery sql, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null) => cnn.QueryFirst<T>(sql.Query, sql.Parameters, transaction, commandTimeout, commandType);
+        public static IEnumerable<T> Query<T>(this DbConnection cnn, InterpolatedQuery sql, IDbTransaction transaction = null, bool buffered = true, int? commandTimeout = null, CommandType? commandType = null) => cnn.Query<T>(sql.Query, sql.Parameters, transaction, buffered, commandTimeout, commandType);
+        public static T QueryFirst<T>(this DbConnection cnn, InterpolatedQuery sql, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null) => cnn.QueryFirst<T>(sql.Query, sql.Parameters, transaction, commandTimeout, commandType);
 
-        public static T QueryFirstOrDefault<T>(this IDbConnection cnn, InterpolatedQuery sql, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null) => cnn.QueryFirstOrDefault<T>(sql.Query, sql.Parameters, transaction, commandTimeout, commandType);
+        public static T QueryFirstOrDefault<T>(this DbConnection cnn, InterpolatedQuery sql, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null) => cnn.QueryFirstOrDefault<T>(sql.Query, sql.Parameters, transaction, commandTimeout, commandType);
 
-        public static T QuerySingle<T>(this IDbConnection cnn, InterpolatedQuery sql, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null) => cnn.QuerySingle<T>(sql.Query, sql.Parameters, transaction, commandTimeout, commandType);
+        public static T QuerySingle<T>(this DbConnection cnn, InterpolatedQuery sql, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null) => cnn.QuerySingle<T>(sql.Query, sql.Parameters, transaction, commandTimeout, commandType);
 
-        public static T QuerySingleOrDefault<T>(this IDbConnection cnn, InterpolatedQuery sql, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null) => cnn.QuerySingleOrDefault<T>(sql.Query, sql.Parameters, transaction, commandTimeout, commandType);
+        public static T QuerySingleOrDefault<T>(this DbConnection cnn, InterpolatedQuery sql, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null) => cnn.QuerySingleOrDefault<T>(sql.Query, sql.Parameters, transaction, commandTimeout, commandType);
 
         /// <summary>
         /// Converts a FormattableString to a InterpolatedQuery. It contains the Query string and DynamicParameters.
@@ -73,7 +78,958 @@ namespace Dapper
 
         private static bool StringBuilderCacheEnabled = true;
 
-        public static V GeneratePrimaryKey<T, V>(this IDbConnection connection, Expression<Func<T, V>> column, object whereConditions = null, IDbTransaction transaction = null, int? commandTimeout = null) where T : class => GeneratePrimaryKey<T, V>(connection, GetColumnName(column), whereConditions, transaction, commandTimeout);
+
+
+        public static SQLResponse<object> CreateSQLQuickResponse(this DbConnection Connection, FormattableString Command, string DataSetType, params string[] SetNames) => CreateSQLQuickResponse(Connection.CreateCommand(Command), DataSetType, SetNames);
+
+        /// <summary>
+        /// Executa um <paramref name="Command"/> e retorna uma <see cref="SQLResponse{object}"/> de
+        /// acordo com o formato especificado em <paramref name="DataSetType"/>
+        /// </summary>
+        /// <remarks>
+        /// Utilize as constantes de <see cref="DataSetType"/> no parametro <paramref name="DataSetType"/>
+        /// </remarks>
+        /// <param name="Command">Comando SQL com a <see cref="DbCommand.Connection"/> ja setada</param>
+        /// <param name="DataSetType">Tipo da resposta. Ver <see cref="DataSetType"/></param>
+        /// <returns></returns>
+        public static SQLResponse<object> CreateSQLQuickResponse(this DbCommand Command, string DataSetType, params string[] SetNames)
+        {
+            var resp = new SQLResponse<object>();
+            try
+            {
+                DataSetType = DataSetType.IfBlank("table").ToLowerInvariant();
+                var Connection = (Command?.Connection) ?? throw new Exception("Command or Connection is null");
+                resp.SQL = Command.CommandText;
+                resp.DataSetType = DataSetType;
+
+                if (DataSetType.IsAny("value", "id", "key", "singlevalue"))
+                {
+                    //primeiro valor da primeira linha do primeiro set
+                    var part = Connection.RunSQLValue(Command);
+                    resp.Status = (part == DBNull.Value).AsIf("NULL_VALUE", (part == null).AsIf("empty", "OK"));
+                    resp.Data = part;
+                    resp.DataSetType = "value";
+                }
+                else if (DataSetType.IsAny("one", "first", "row", "single"))
+                {
+                    //primeiro do primeiro set (1 linha como objeto)
+                    var part = Connection.RunSQLRow(Command);
+                    resp.Status = (part == null).AsIf("empty", "OK");
+                    resp.Data = part;
+                    resp.DataSetType = "row";
+                }
+                else if (DataSetType.IsAny("array", "values", "list"))
+                {
+                    //primeira coluna do primeiro set como array
+                    var part = Connection.RunSQLArray(Command);
+                    resp.Status = (part?.Any()).AsIf("OK", "empty");
+                    resp.Data = part;
+                    resp.DataSetType = "array";
+                }
+                else if (DataSetType.IsAny("pair", "pairs", "dictionary", "associative"))
+                {
+                    //primeira e ultima coluna do primeiro set como dictionary
+                    var part = Connection.RunSQLPairs(Command);
+                    resp.Status = (part?.Any()).AsIf("OK", "empty");
+                    resp.Data = part;
+                    resp.DataSetType = "pairs";
+                }
+                else if (DataSetType.IsAny("many", "sets", "datasets", "namedsets"))
+                {
+                    //varios sets
+                    var part = Connection.RunSQLMany(Command);
+                    resp.Status = (part?.Any(x => x.Any())).AsIf("OK", "empty");
+                    if (DataSetType == "namedsets")
+                    {
+                        foreach (var k in part.Select((x, i) => new KeyValuePair<string, object>(SetNames.IfBlankOrNoIndex(i, $"set{i}"), x)).ToDictionary())
+                        {
+                            resp[k.Key] = k.Value;
+                        }
+
+                        resp.DataSetType = "namedsets";
+                    }
+                    else
+                    {
+                        resp.Data = part;
+                        resp.DataSetType = "sets";
+                    }
+                }
+                else
+                {
+                    //tudo do primeiro set (lista de objetos)
+                    var part = Connection.RunSQLSet(Command);
+                    resp.Status = (part?.Any()).AsIf("OK", "empty");
+                    resp.Data = part;
+                    resp.DataSetType = "table";
+                }
+            }
+            catch (Exception ex)
+            {
+                resp.Status = "ERROR";
+                resp.Message = ex.ToFullExceptionString();
+
+            }
+            return resp;
+        }
+
+
+        /// <summary>
+        /// Cria um comando de UPDATE para o objeto do tipo <typeparamref name="T"/>
+        /// </summary>
+        /// <remarks>
+        /// <typeparamref name="T"/> pode ser uma classe, <see cref="NameValueCollection"/> ou <see
+        /// cref="Dictionary{TKey, TValue}"/>
+        /// </remarks>
+        public static DbCommand CreateUPDATECommand<T>(this DbConnection Connection, T obj, FormattableString WhereClausule, string TableName = null, DbTransaction Transaction = null) where T : class
+        {
+            var d = typeof(T);
+            Dictionary<string, object> dic;
+
+            if (obj != null && Connection != null)
+            {
+                dic = obj.CreateDictionary();
+
+                var cmd = Connection.CreateCommand();
+                cmd.CommandText = $"UPDATE " + TableName.IfBlank(d.Name) + " set" + Environment.NewLine;
+                foreach (var k in dic.Keys)
+                {
+                    cmd.CommandText += $"{k} = @__{k}, {Environment.NewLine}";
+                    var param = cmd.CreateParameter();
+                    param.ParameterName = $"__{k}";
+                    param.Value = dic.GetValueOr(k, DBNull.Value);
+                    cmd.Parameters.Add(param);
+                }
+
+                cmd.CommandText = cmd.CommandText.TrimAny(Environment.NewLine, ",", " ");
+
+                if (WhereClausule.IsNotBlank())
+                {
+                    var wherecmd = Connection.CreateCommand(WhereClausule);
+                    var wheretxt = wherecmd.CommandText.Trim();
+                    foreach (DbParameter item in wherecmd.Parameters)
+                    {
+                        var param = cmd.CreateParameter();
+                        param.ParameterName = item.ParameterName;
+                        param.Value = item.Value;
+                        param.DbType = item.DbType;
+                        cmd.Parameters.Add(param);
+                    }
+                    cmd.CommandText += $"{Environment.NewLine}{wheretxt.PrependIf(" WHERE ", x => !x.Trim().StartsWith("WHERE"))}";
+                    wherecmd.Dispose();
+                }
+
+                if (Transaction != null)
+                {
+                    cmd.Transaction = Transaction;
+                }
+
+                return cmd;
+            }
+
+            return null;
+        }
+
+
+        /// <summary>
+        /// Retorna os resultado da primeira coluna de uma consulta SQL como um array do tipo
+        /// <typeparamref name="T"/>
+        /// </summary>
+        public static IEnumerable<T> RunSQLArray<T>(this DbConnection Connection, DbCommand Command) => Connection.RunSQLArray(Command).Select(x => x == null ? default : x.ChangeType<T>());
+
+        /// <summary>
+        /// Retorna os resultado da primeira coluna de uma consulta SQL como um array do tipo
+        /// <typeparamref name="T"/>
+        /// </summary>
+        public static IEnumerable<T> RunSQLArray<T>(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLArray<T>(Connection.CreateCommand(SQL, Transaction));
+
+        /// <summary>
+        /// Retorna os resultado da primeira coluna de uma consulta SQL como um array
+        /// </summary>
+        public static IEnumerable<object> RunSQLArray(this DbConnection Connection, DbCommand Command) => Connection.RunSQLSet(Command).Select(x => x.Values.FirstOrDefault());
+
+        /// <summary>
+        /// Retorna os resultado da primeira coluna de uma consulta SQL como um array
+        /// </summary>
+        public static IEnumerable<object> RunSQLArray(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLArray(Connection.CreateCommand(SQL, Transaction));
+
+        /// <summary>
+        /// Executa uma query SQL parametrizada e retorna os resultados mapeados em listas de <see
+        /// cref="Dictionary{TKey, TValue}"/>
+        /// </summary>
+        /// <param name="Connection"></param>
+        /// <param name="SQL"></param>
+        /// <returns></returns>
+        public static IEnumerable<IEnumerable<Dictionary<string, object>>> RunSQLMany(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLMany(Connection.CreateCommand(SQL, Transaction));
+
+        /// <summary>
+        /// Executa uma query SQL e retorna todos os seus resultsets mapeados em uma <see
+        /// cref="IEnumerable{IEnumerable{Dictionary{String, Object}}}"/>
+        /// </summary>
+        /// <param name="Connection"></param>
+        /// <param name="Command"></param>
+        /// <returns></returns>
+        public static IEnumerable<IEnumerable<Dictionary<string, object>>> RunSQLMany(this DbConnection Connection, DbCommand Command)
+        {
+            IEnumerable<IEnumerable<Dictionary<string, object>>> resposta;
+            using (var reader = Connection.RunSQLReader(Command))
+            {
+                resposta = reader.MapMany();
+            }
+
+            return resposta;
+        }
+
+        /// <summary>
+        /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de
+        /// tipos específicos
+        /// </summary>
+        /// <param name="Connection"></param>
+        /// <param name="SQL"></param>
+        /// <returns></returns>
+        public static Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>, IEnumerable<T5>> RunSQLMany<T1, T2, T3, T4, T5>(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null)
+            where T1 : class
+            where T2 : class
+            where T3 : class
+            where T4 : class
+            where T5 : class => Connection.RunSQLMany<T1, T2, T3, T4, T5>(Connection.CreateCommand(SQL, Transaction));
+
+        /// <summary>
+        /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de
+        /// tipos especificos
+        /// </summary>
+        /// <param name="Connection"></param>
+        /// <param name="Command"></param>
+        /// <returns></returns>
+        public static Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>, IEnumerable<T5>> RunSQLMany<T1, T2, T3, T4, T5>(this DbConnection Connection, DbCommand Command)
+            where T1 : class
+            where T2 : class
+            where T3 : class
+            where T4 : class
+            where T5 : class
+        {
+            Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>, IEnumerable<T5>> resposta;
+            using (var reader = Connection.RunSQLReader(Command))
+            {
+                resposta = reader.MapMany<T1, T2, T3, T4, T5>();
+            }
+
+            return resposta;
+        }
+
+        /// <summary>
+        /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de
+        /// tipos especificos
+        /// </summary>
+        /// <param name="Connection"></param>
+        /// <param name="SQL"></param>
+        /// <returns></returns>
+        public static Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>> RunSQLMany<T1, T2, T3, T4>(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null)
+            where T1 : class
+            where T2 : class
+            where T3 : class
+            where T4 : class => Connection.RunSQLMany<T1, T2, T3, T4>(Connection.CreateCommand(SQL, Transaction));
+
+        /// <summary>
+        /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de
+        /// tipos especificos
+        /// </summary>
+        /// <param name="Connection"></param>
+        /// <param name="Command"></param>
+        /// <returns></returns>
+        public static Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>> RunSQLMany<T1, T2, T3, T4>(this DbConnection Connection, DbCommand Command)
+            where T1 : class
+            where T2 : class
+            where T3 : class
+            where T4 : class
+        {
+            Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>> resposta;
+            using (var reader = Connection.RunSQLReader(Command))
+            {
+                resposta = reader.MapMany<T1, T2, T3, T4>();
+            }
+
+            return resposta;
+        }
+
+        /// <summary>
+        /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de
+        /// tipos especificos
+        /// </summary>
+        /// <param name="Connection"></param>
+        /// <param name="SQL"></param>
+        /// <returns></returns>
+        public static Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>> RunSQLMany<T1, T2, T3>(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null)
+            where T1 : class
+            where T2 : class
+            where T3 : class => Connection.RunSQLMany<T1, T2, T3>(Connection.CreateCommand(SQL, Transaction));
+
+        /// <summary>
+        /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de
+        /// tipos especificos
+        /// </summary>
+        /// <param name="Connection"></param>
+        /// <param name="Command"></param>
+        /// <returns></returns>
+        public static Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>> RunSQLMany<T1, T2, T3>(this DbConnection Connection, DbCommand Command)
+            where T1 : class
+            where T2 : class
+            where T3 : class
+        {
+            Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>> resposta;
+            using (var reader = Connection.RunSQLReader(Command))
+            {
+                resposta = reader.MapMany<T1, T2, T3>();
+            }
+
+            return resposta;
+        }
+
+        /// <summary>
+        /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de
+        /// tipos especificos
+        /// </summary>
+        /// <param name="Connection"></param>
+        /// <param name="SQL"></param>
+        /// <returns></returns>
+        public static Tuple<IEnumerable<T1>, IEnumerable<T2>> RunSQLMany<T1, T2>(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null)
+            where T1 : class
+            where T2 : class => Connection.RunSQLMany<T1, T2>(Connection.CreateCommand(SQL, Transaction));
+
+        /// <summary>
+        /// Executa uma query SQL parametrizada e retorna os resultados mapeados em uma tupla de
+        /// tipos especificos
+        /// </summary>
+        /// <param name="Connection"></param>
+        /// <param name="Command"></param>
+        /// <returns></returns>
+        public static Tuple<IEnumerable<T1>, IEnumerable<T2>> RunSQLMany<T1, T2>(this DbConnection Connection, DbCommand Command)
+            where T1 : class
+            where T2 : class
+        {
+            Tuple<IEnumerable<T1>, IEnumerable<T2>> resposta;
+            using (var reader = Connection.RunSQLReader(Command))
+            {
+                resposta = reader.MapMany<T1, T2>();
+            }
+
+            return resposta;
+        }
+
+        /// <summary>
+        /// Executa um comando SQL e retorna o numero de linhas afetadas
+        /// </summary>
+        /// <param name="Connection"></param>
+        /// <param name="SQL"></param>
+        /// <returns></returns>
+        public static int RunSQLNone(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLNone(Connection.CreateCommand(SQL, Transaction));
+
+        /// <summary>
+        /// Executa um comando SQL e retorna o numero de linhas afetadas
+        /// </summary>
+        public static int RunSQLNone(this DbConnection Connection, DbCommand Command) => BeforeRunCommand(ref Connection, ref Command).ExecuteNonQuery();
+
+        /// <summary>
+        /// Retorna os resultado das primeiras e ultimas colunas de uma consulta SQL como pares em
+        /// um <see cref="Dictionary{Object, Object}"/>
+        /// </summary>
+        public static Dictionary<object, object> RunSQLPairs(this DbConnection Connection, DbCommand SQL) => Connection.RunSQLSet(SQL).DistinctBy(x => x.Values.FirstOrDefault()).ToDictionary(x => x.Values.FirstOrDefault(), x => x.Values.LastOrDefault());
+
+        /// <summary>
+        /// Retorna os resultado das primeiras e ultimas colunas de uma consulta SQL como pares em
+        /// um <see cref="Dictionary{object,object}"/>
+        /// </summary>
+        public static Dictionary<object, object> RunSQLPairs(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLPairs(Connection.CreateCommand(SQL, Transaction));
+
+        /// <summary>
+        /// Retorna os resultado das primeiras e ultimas colunas de uma consulta SQL como pares em
+        /// um <see cref="Dictionary{K, V}"/>
+        /// </summary>
+        public static Dictionary<TK, TV> RunSQLPairs<TK, TV>(this DbConnection Connection, DbCommand SQL) => Connection.RunSQLPairs(SQL).ToDictionary(x => x.Key.ChangeType<TK>(), x => x.Value.ChangeType<TV>());
+
+        /// <summary>
+        /// Retorna os resultado das primeiras e ultimas colunas de uma consulta SQL como pares em
+        /// um <see cref="Dictionary{K, V}"/>
+        /// </summary>
+        public static Dictionary<TK, TV> RunSQLPairs<TK, TV>(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLPairs<TK, TV>(Connection.CreateCommand(SQL, Transaction));
+
+        /// <summary>
+        /// Executa um comando SQL e retorna o <see cref="DbDataReader"/> com os resultados
+        /// </summary>
+        public static DbDataReader RunSQLReader(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLReader(Connection.CreateCommand(SQL, Transaction));
+
+        /// <summary>
+        /// Executa um comando SQL e retorna o <see cref="DbDataReader"/> com os resultados
+        /// </summary>
+        public static DbDataReader RunSQLReader(this DbConnection Connection, DbCommand Command) => BeforeRunCommand(ref Connection, ref Command).ExecuteReader();
+
+        /// <summary>
+        /// Executa uma query SQL parametrizada e retorna os resultados da primeira linha como um
+        /// <typeparamref name="T"/>
+        /// </summary>
+        /// <returns></returns>
+        public static T RunSQLRow<T>(this DbConnection Connection, Select<T> Select, bool WithSubQueries = false, DbTransaction Transaction = null) where T : class => Connection.RunSQLRow<T>(Select.CreateDbCommand(Connection, Transaction), WithSubQueries);
+
+        /// <summary>
+        /// Executa uma query SQL parametrizada e retorna o resultado da primeira linha mapeada para
+        /// um <see cref="Dictionary{String, Object}"/>
+        /// </summary>
+        public static Dictionary<string, object> RunSQLRow(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLRow<Dictionary<string, object>>(SQL, false, Transaction);
+
+        /// <summary>
+        /// Executa uma query SQL parametrizada e retorna o resultado da primeira linha mapeada para
+        /// um <see cref="Dictionary{String, Object}"/>
+        /// </summary>
+        public static Dictionary<string, object> RunSQLRow(this DbConnection Connection, DbCommand SQL) => Connection.RunSQLRow<Dictionary<string, object>>(SQL);
+
+        /// <summary>
+        /// Executa uma query SQL parametrizada e retorna o resultado da primeira linha mapeada para
+        /// uma classe POCO do tipo <typeparamref name="T"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Connection"></param>
+        /// <param name="SQL"></param>
+        /// <returns></returns>
+        public static T RunSQLRow<T>(this DbConnection Connection, DbCommand SQL, bool WithSubQueries = false) where T : class
+        {
+            var x = Connection.RunSQLSet<T>(SQL, false).FirstOrDefault();
+            if (x != null && WithSubQueries)
+            {
+                Connection.ProccessSubQuery(x, WithSubQueries);
+            }
+
+            return x ?? default;
+        }
+
+        /// <summary>
+        /// Executa uma query SQL parametrizada e retorna o resultado da primeira linha mapeada para
+        /// uma classe POCO do tipo <typeparamref name="T"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Connection"></param>
+        /// <param name="SQL"></param>
+        /// <returns></returns>
+        public static T RunSQLRow<T>(this DbConnection Connection, FormattableString SQL, bool WithSubQueries = false, DbTransaction Transaction = null) where T : class => Connection.RunSQLRow<T>(Connection.CreateCommand(SQL, Transaction), WithSubQueries);
+
+
+        /// <summary>
+        /// Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset
+        /// mapeados para uma lista de <typeparamref name="T"/>
+        /// </summary>
+        /// <returns></returns>
+        public static IEnumerable<T> RunSQLSet<T>(this DbConnection Connection, Select<T> Select, bool WithSubQueries = false, DbTransaction Transaction = null) where T : class => Connection.RunSQLSet<T>(Select.CreateDbCommand(Connection, Transaction), WithSubQueries);
+
+
+        /// <summary>
+        /// Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset
+        /// mapeados para uma lista de <see cref="Dictionary{String, Object}"/>
+        /// </summary>
+        /// <param name="Connection"></param>
+        /// <param name="SQL"></param>
+        /// <returns></returns>
+        public static IEnumerable<Dictionary<string, object>> RunSQLSet(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLSet<Dictionary<string, object>>(SQL, false, Transaction);
+
+        /// <summary>
+        /// Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset
+        /// mapeados para uma lista de <see cref="Dictionary(Of String, Object)"/>
+        /// </summary>
+        public static IEnumerable<Dictionary<string, object>> RunSQLSet(this DbConnection Connection, DbCommand SQL) => Connection.RunSQLSet<Dictionary<string, object>>(SQL);
+
+        /// <summary>
+        /// Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset
+        /// mapeados para uma lista de classe POCO do tipo <typeparamref name="T"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Connection"></param>
+        /// <param name="SQL"></param>
+        /// <returns></returns>
+        public static IEnumerable<T> RunSQLSet<T>(this DbConnection Connection, FormattableString SQL, bool WithSubQueries = false, DbTransaction Transaction = null) where T : class => Connection.RunSQLSet<T>(Connection.CreateCommand(SQL, Transaction), WithSubQueries);
+
+        /// <summary>
+        /// Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset
+        /// mapeados para uma lista de classe POCO do tipo <typeparamref name="T"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Connection"></param>
+        /// <param name="SQL"></param>
+        /// <returns></returns>
+        public static IEnumerable<T> RunSQLSet<T>(this DbConnection Connection, DbCommand SQL, bool WithSubQueries = false) where T : class
+            => Connection.RunSQLMany(SQL)?.FirstOrDefault()?.Select(x =>
+            {
+                T v = (T)x.CreateOrSetObject(null, typeof(T));
+                if (WithSubQueries)
+                {
+                    Connection.ProccessSubQuery(v, WithSubQueries);
+                }
+                return v;
+            }).AsEnumerable();
+
+        /// <summary>
+        /// Processa uma propriedade de uma classe marcada com <see cref="FromSQL"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Connection"></param>
+        /// <param name="d"></param>
+        /// <param name="PropertyName"></param>
+        /// <param name="Recursive"></param>
+        /// <returns></returns>
+        public static T ProccessSubQuery<T>(this DbConnection Connection, T d, string PropertyName, bool Recursive = false)
+        {
+            if (d != null)
+            {
+                var prop = d.GetProperty(PropertyName);
+                if (prop != null)
+                {
+                    var attr = prop.GetCustomAttributes<FromSQLAttribute>(true).FirstOrDefault();
+                    string Sql = attr.SQL.Inject(d);
+                    bool gen = prop.PropertyType.IsGenericType;
+                    bool lista = gen && prop.PropertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>));
+                    bool enume = gen && prop.PropertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(IEnumerable<>));
+                    bool cole = gen && prop.PropertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(ICollection<>));
+                    if (lista || enume || cole)
+                    {
+                        IList baselist = (IList)Activator.CreateInstance(prop.PropertyType);
+                        var eltipo = prop.PropertyType.GetGenericArguments().FirstOrDefault();
+                        foreach (var x in Connection.RunSQLSet(Sql.ToFormattableString()))
+                        {
+                            baselist.Add(x.CreateOrSetObject(null, eltipo));
+                        }
+
+                        prop.SetValue(d, baselist);
+                        if (Recursive)
+                        {
+                            foreach (var uu in baselist)
+                            {
+                                Connection.ProccessSubQuery(uu, Recursive);
+                            }
+                        }
+
+                        return d;
+                    }
+                    else if (prop.PropertyType.IsClass)
+                    {
+                        if (prop.GetValue(d) == null)
+                        {
+                            var oo = Connection.RunSQLRow(Sql.ToFormattableString()).CreateOrSetObject(null, prop.PropertyType);
+                            prop.SetValue(d, oo);
+                            if (Recursive)
+                            {
+                                Connection.ProccessSubQuery(oo, Recursive);
+                            }
+                        }
+
+                        return d;
+                    }
+                    else if (prop.PropertyType.IsValueType)
+                    {
+                        if (prop.GetValue(d) == null)
+                        {
+                            var oo = Connection.RunSQLValue(Sql.ToFormattableString());
+                            prop.SetValue(d, Util.ChangeType(oo, prop.PropertyType));
+                            if (Recursive)
+                            {
+                                Connection.ProccessSubQuery(oo, Recursive);
+                            }
+                        }
+
+                        return d;
+                    }
+                }
+            }
+
+            return d;
+        }
+
+        /// <summary>
+        /// Processa todas as propriedades de uma classe marcadas com <see cref="FromSQL"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Connection"></param>
+        /// <param name="d"></param>
+        /// <param name="Recursive"></param>
+        /// <returns></returns>
+        public static T ProccessSubQuery<T>(this DbConnection Connection, T d, bool Recursive = false) where T : class
+        {
+            foreach (var prop in Util.GetProperties(d).Where(x => x.HasAttribute<FromSQLAttribute>()))
+            {
+                Connection.ProccessSubQuery(d, prop.Name, Recursive);
+            }
+
+            return d;
+        }
+
+        /// <summary>
+        /// Cria um <see cref="DbCommand"/> a partir de um arquivo SQL e um objeto,
+        /// </summary>
+        /// <param name="Connection"></param>
+        /// <param name="SQL"></param>
+        /// <returns></returns>
+        public static DbCommand CreateCommand<T>(this DbConnection Connection, FileInfo SQLFile, T obj, DbTransaction Transaction = null) => CreateCommand(Connection, SQLFile.Exists ? SQLFile.ReadAllText() : string.Empty, obj, Transaction);
+
+        /// <summary>
+        /// Cria um <see cref="DbCommand"/> a partir de uma string SQL e um objeto,
+        /// </summary>
+        /// <param name="Connection"></param>
+        /// <param name="SQL"></param>
+        /// <returns></returns>
+        public static DbCommand CreateCommand<T>(DbConnection connection, string SQL, T obj, DbTransaction transaction = null) => CreateCommand(connection, SQL.InjectSQL(obj).ToFormattableString(), transaction);
+
+        /// <summary>
+        /// Cria um <see cref="DbCommand"/> a partir de uma string SQL e um <see cref="Dictionary{
+        /// String, Object}"/>, tratando os parametros desta string como parametros SQL
+        /// </summary>
+        /// <param name="Connection"></param>
+        /// <param name="SQL"></param>
+        /// <returns></returns>
+        public static DbCommand CreateCommand(this DbConnection Connection, FileInfo SQLFile, Dictionary<string, object> Parameters, DbTransaction Transaction = null) => SQLFile != null && SQLFile.Exists ? CreateCommand(Connection, SQLFile.ReadAllText(), Parameters, Transaction) : null;
+
+        /// <summary>
+        /// Cria um <see cref="DbCommand"/> a partir de uma string SQL e um <see
+        /// cref="NameValueCollection"/>, tratando os parametros desta string como parametros SQL
+        /// </summary>
+        /// <param name="Connection"></param>
+        /// <param name="SQL"></param>
+        /// <returns></returns>
+        public static DbCommand CreateCommand(this DbConnection Connection, FileInfo SQLFile, NameValueCollection Parameters, DbTransaction Transaction = null) => Connection.CreateCommand(SQLFile, Parameters.ToDictionary(), Transaction);
+
+        /// <summary>
+        /// Cria um <see cref="DbCommand"/> a partir de uma string SQL e um <see
+        /// cref="NameValueCollection"/>, tratando os parametros desta string como parametros SQL
+        /// </summary>
+        /// <param name="Connection"></param>
+        /// <param name="SQL"></param>
+        /// <returns></returns>
+        public static DbCommand CreateCommand(this DbConnection Connection, string SQL, NameValueCollection Parameters, DbTransaction Transaction = null) => Connection.CreateCommand(SQL, Parameters.ToDictionary(), Transaction);
+
+        /// <summary>
+        /// Cria um <see cref="DbCommand"/> a partir de uma string SQL e um <see
+        /// cref="Dictionary{TKey, TValue}"/>, tratando os parametros desta string como parametros SQL
+        /// </summary>
+        /// <param name="Connection"></param>
+        /// <param name="SQL"></param>
+        /// <returns></returns>
+        public static DbCommand CreateCommand(this DbConnection Connection, string SQL, Dictionary<string, object> Parameters, DbTransaction Transaction = null)
+        {
+            if (Connection != null && SQL.IsValid())
+            {
+                var command = Connection.CreateCommand();
+                command.CommandText = SQL;
+                if (Parameters != null && Parameters.Any())
+                {
+                    foreach (var p in Parameters.Keys)
+                    {
+                        var v = Parameters.GetValueOr(p);
+                        var arr = Util.ForceArray(v, typeof(object)).ToList();
+                        for (int index = 0, loopTo = arr.Count - 1; index <= loopTo; index++)
+                        {
+                            var param = command.CreateParameter();
+                            if (arr.Count == 1)
+                            {
+                                param.ParameterName = $"__{p}";
+                            }
+                            else
+                            {
+                                param.ParameterName = $"__{p}_{index}";
+                            }
+
+                            param.Value = arr[index] ?? DBNull.Value;
+                            command.Parameters.Add(param);
+                        }
+                    }
+                }
+                if (Transaction != null)
+                {
+                    command.Transaction = Transaction;
+                }
+                return command;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Cria um <see cref="DbCommand"/> a partir de uma string , tratando os parametros {p}
+        /// desta string como parametros SQL
+        /// </summary>
+        /// <param name="Connection"></param>
+        /// <param name="SQL"></param>
+        /// <returns></returns>
+        public static DbCommand CreateCommand(this DbConnection Connection, string SQL, params string[] Args) => CreateCommand(Connection, SQL, null, Args);
+
+        /// <summary>
+        /// Cria um <see cref="DbCommand"/> a partir de uma string , tratando os parametros {p}
+        /// desta string como parametros SQL
+        /// </summary>
+        /// <param name="Connection"></param>
+        /// <param name="SQL"></param>
+        /// <returns></returns>
+        public static DbCommand CreateCommand(this DbConnection Connection, string SQL, DbTransaction Transaction, params string[] Args)
+        {
+            if (SQL.IsValid())
+            {
+                return Connection.CreateCommand(SQL.ToFormattableString(Args), Transaction);
+            }
+
+            return null;
+        }
+
+        public static TConnection OpenConnection<TConnection>(this ConnectionStringParser connection) where TConnection : DbConnection
+        {
+            if (connection != null)
+            {
+                TConnection dbcon = Activator.CreateInstance<TConnection>();
+                dbcon.ConnectionString = connection.ConnectionString;
+                dbcon.Open();
+                return dbcon;
+            }
+            return null;
+        }
+
+
+        /// <summary>
+        /// Cria um <see cref="DbCommand"/> a partir de um arquivo SQL
+        /// </summary>
+        /// <param name="Connection"></param>
+        /// <param name="SQL"></param>
+        /// <returns></returns>
+        public static DbCommand CreateCommand(this DbConnection Connection, FileInfo SQLFile, params string[] Args) => CreateCommand(Connection, SQLFile.ReadAllText().ToFormattableString(Args));
+
+        public static DbCommand CreateCommand(this DbConnection Connection, FileInfo SQLFile, DbTransaction Transaction, params string[] Args) => CreateCommand(Connection, SQLFile.ReadAllText().ToFormattableString(Args), Transaction);
+        public static bool IsOpen(this DbConnection Connection) => Connection != null && (Connection.State == ConnectionState.Open);
+        /// <summary>
+        /// Valida se uma conexao e um comando nao sao nulos. Valida se o texto do comando esta em
+        /// branco e associa este comando a conexao especifica. Escreve o comando no <see
+        /// cref="LogWriter"/> e retorna o mesmo
+        /// </summary>
+        /// <param name="Connection"></param>
+        /// <param name="Command"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        public static DbCommand BeforeRunCommand(ref DbConnection Connection, ref DbCommand Command, TextWriter LogWriter = null)
+        {
+            Connection = Connection ?? Command?.Connection;
+            if (Command == null || Command.CommandText.IsNotValid())
+            {
+                throw new ArgumentException("Command is null or blank");
+            }
+
+            Command.Connection = Connection ?? throw new ArgumentException("Connection is null");
+            if (!Connection.IsOpen())
+            {
+                Connection.Open();
+            }
+
+            return Command.LogCommand(LogWriter);
+        }
+        /// <summary>
+        /// Monta um Comando SQL para executar uma procedure especifica para cada item em uma
+        /// coleçao. As propriedades do item serao utilizadas como parametros da procedure
+        /// </summary>
+        /// <param name="Items">Lista de itens que darao origem aos parametros da procedure</param>
+        /// <param name="ProcedureName">Nome da Procedure</param>
+        /// <param name="Keys">CHaves de Dicionário que devem ser utilizadas</param>
+        /// <returns>Um DbCommand parametrizado</returns>
+        public static IEnumerable<DbCommand> ToBatchProcedure<T>(this DbConnection Connection, string ProcedureName, IEnumerable<T> Items, DbTransaction Transaction = null, params string[] Keys)
+        {
+            foreach (var item in Items ?? new List<T>())
+            {
+                yield return Connection.ToProcedure(ProcedureName, item, Transaction, Keys);
+            }
+        }
+
+        /// <summary>
+        /// Monta um Comando SQL para executar uma procedure especifica e trata valores especificos
+        /// de um NameValueCollection como parametros da procedure
+        /// </summary>
+        /// <param name="NVC">Objeto</param>
+        /// <param name="ProcedureName">Nome da Procedure</param>
+        /// <param name="Keys">Valores do nameValueCollection o que devem ser utilizados</param>
+        /// <returns>Um DbCommand parametrizado</returns>
+        public static DbCommand ToProcedure(this DbConnection Connection, string ProcedureName, NameValueCollection NVC, DbTransaction Transaction = null, params string[] Keys) => Connection.ToProcedure(ProcedureName, NVC.ToDictionary(Keys), Transaction, Keys);
+
+        /// <summary>
+        /// Monta um Comando SQL para executar uma procedure especifica e trata propriedades
+        /// específicas de um objeto como parametros da procedure
+        /// </summary>
+        /// <param name="Obj">Objeto</param>
+        /// <param name="ProcedureName">Nome da Procedure</param>
+        /// <param name="Keys">propriedades do objeto que devem ser utilizados</param>
+        /// <returns>Um DbCommand parametrizado</returns>
+        public static DbCommand ToProcedure<T>(this DbConnection Connection, string ProcedureName, T Obj, DbTransaction Transaction = null, params string[] Keys) => Connection.ToProcedure(ProcedureName, Obj?.CreateDictionary() ?? new Dictionary<string, object>(), Transaction, Keys);
+
+        /// <summary>
+        /// Monta um Comando SQL para executar uma procedure especifica e trata os valores
+        /// específicos de um <see cref="Dictionary{TKey, TValue}"/> como parametros da procedure
+        /// </summary>
+        /// <param name="Dic">Objeto</param>
+        /// <param name="ProcedureName">Nome da Procedure</param>
+        /// <param name="Keys">propriedades do objeto que devem ser utilizados</param>
+        /// <returns>Um DbCommand parametrizado</returns>
+        public static DbCommand ToProcedure(this DbConnection Connection, string ProcedureName, Dictionary<string, object> Dic, DbTransaction Transaction = null, params string[] Keys)
+        {
+            var sql = ProcedureName.ToProcedure(Dic, Keys);
+
+            return Connection.CreateCommand(sql, Dic.ToDictionary(x => x.Key, x => x.Value), Transaction);
+        }
+
+        public static bool IsConnecting(this DbConnection Connection) => Connection != null && (Connection.State == ConnectionState.Connecting);
+
+
+        public static bool IsBroken(this DbConnection Connection) => Connection != null && (Connection.State == ConnectionState.Broken);
+        public static bool IsExecuting(this DbConnection Connection) => Connection != null && (Connection.State == ConnectionState.Executing);
+
+        public static bool IsClosed(this DbConnection Connection) => Connection != null && (Connection.State == ConnectionState.Closed);
+        /// <summary>
+        /// Cria um <see cref="DbCommand"/> a partir de uma string interpolada, tratando os
+        /// parametros desta string como parametros SQL
+        /// </summary>
+        /// <param name="Connection"></param>
+        /// <param name="SQL"></param>
+        /// <returns></returns>
+        public static DbCommand CreateCommand(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null)
+        {
+            if (SQL != null && Connection != null && SQL.IsNotBlank())
+            {
+                var cmd = Connection.CreateCommand();
+                if (SQL.ArgumentCount > 0)
+                {
+                    cmd.CommandText = SQL.Format;
+                    for (int index = 0, loopTo = SQL.ArgumentCount - 1; index <= loopTo; index++)
+                    {
+                        var valores = SQL.GetArgument(index);
+                        var v = Util.ForceArray(valores, typeof(object)).ToList();
+                        var param_names = new List<string>();
+                        for (int v_index = 0, loopTo1 = v.Count - 1; v_index <= loopTo1; v_index++)
+                        {
+                            var param = cmd.CreateParameter();
+                            if (v.Count == 1)
+                            {
+                                param.ParameterName = $"__p{index}";
+                            }
+                            else
+                            {
+                                param.ParameterName = $"__p{index}_{v_index}";
+                            }
+
+                            param.Value = v[v_index] ?? DBNull.Value;
+                            cmd.Parameters.Add(param);
+                            param_names.Add("@" + param.ParameterName);
+                        }
+
+                        cmd.CommandText = cmd.CommandText.Replace("{" + index + "}", param_names.SelectJoinString(",").IfBlank("NULL").UnQuote('(', true).Quote('('));
+                    }
+                }
+                else
+                {
+                    cmd.CommandText = SQL.ToString();
+                }
+
+                if (Transaction != null)
+                {
+                    cmd.Transaction = Transaction;
+                }
+
+                return cmd;
+            }
+
+            return null;
+        }
+
+
+        public static Expression PropertyExpression(this ParameterExpression Parameter, string PropertyName)
+        {
+            Expression prop = Parameter;
+            if (PropertyName.IfBlank("this") != "this")
+            {
+                foreach (var name in PropertyName.SplitAny(".", "/"))
+                {
+                    prop = Expression.Property(prop, name);
+                }
+            }
+
+            return prop;
+        }
+
+
+        /// <summary>
+        /// Retorna o primeiro resultado da primeira coluna de uma consulta SQL
+        /// </summary>
+        /// <param name="Connection"></param>
+        /// <param name="Command"></param>
+        /// <returns></returns>
+        public static object RunSQLValue(this DbConnection Connection, DbCommand Command) => BeforeRunCommand(ref Connection, ref Command).ExecuteScalar();
+
+        /// <summary>
+        /// Retorna o valor da primeira coluna da primeira linha uma consulta SQL
+        /// </summary>
+        public static object RunSQLValue(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLValue(Connection.CreateCommand(SQL, Transaction));
+
+        /// <summary>
+        /// Retorna o valor da primeira coluna da primeira linha uma consulta SQL como um tipo
+        /// <typeparamref name="T"/>
+        /// </summary>
+        public static T RunSQLValue<T>(this DbConnection Connection, DbCommand Command)
+        {
+            if (!typeof(T).IsValueType())
+            {
+                throw new ArgumentException("The type param TEntity is not a value type or string");
+            }
+            var vv = Connection.RunSQLValue(Command);
+            return vv != null && vv != DBNull.Value ? vv.ChangeType<T>() : default;
+        }
+
+        /// <summary>
+        /// Retorna o valor da primeira coluna da primeira linha uma consulta SQL como um tipo
+        /// <typeparamref name="T"/>
+        /// </summary>
+        public static T RunSQLValue<T>(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLValue<T>(Connection.CreateCommand(SQL, Transaction));
+
+
+        /// <summary>
+        /// Cria comandos de INSERT para cada objeto do tipo <typeparamref name="T"/> em uma lista
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Connection"></param>
+        /// <param name="obj"></param>
+        /// <param name="TableName"></param>
+        /// <returns></returns>
+        public static IEnumerable<DbCommand> CreateINSERTCommand<T>(this DbConnection Connection, IEnumerable<T> obj, string TableName = null, DbTransaction Transaction = null) where T : class => (obj ?? Array.Empty<T>()).Select(x => Connection.CreateINSERTCommand(x, TableName, Transaction));
+
+        /// <summary>
+        /// Cria um comando de INSERT para o objeto do tipo <typeparamref name="T"/>
+        /// </summary>
+        /// <remarks>
+        /// <typeparamref name="T"/> pode ser uma classe, <see cref="NameValueCollection"/> ou <see
+        /// cref="Dictionary{TKey, TValue}"/>
+        /// </remarks>
+        public static DbCommand CreateINSERTCommand<T>(this DbConnection Connection, T obj, string TableName = null, DbTransaction Transaction = null) where T : class
+        {
+            var d = typeof(T);
+            var dic = new Dictionary<string, object>();
+            if (obj != null && Connection != null)
+            {
+                dic = obj.CreateDictionary();
+
+                var cmd = Connection.CreateCommand();
+                cmd.CommandText = string.Format($"INSERT INTO {TableName.IfBlank(d.Name)} ({{0}}) values ({{1}})", dic.Keys.SelectJoinString(","), dic.Keys.SelectJoinString(x => $"@__{x}", ","));
+                foreach (var k in dic.Keys)
+                {
+                    var param = cmd.CreateParameter();
+                    param.ParameterName = $"__{k}";
+                    param.Value = dic.GetValueOr(k, DBNull.Value);
+                    cmd.Parameters.Add(param);
+                }
+                if (Transaction != null)
+                {
+                    cmd.Transaction = Transaction;
+                }
+                return cmd;
+            }
+
+            return null;
+        }
+
+
+        public static V GeneratePrimaryKey<T, V>(this DbConnection connection, Expression<Func<T, V>> column, object whereConditions = null, IDbTransaction transaction = null, int? commandTimeout = null) where T : class => GeneratePrimaryKey<T, V>(connection, GetColumnName(column), whereConditions, transaction, commandTimeout);
 
         /// <summary>
         /// Generate a new ID for the entity
@@ -85,7 +1041,7 @@ namespace Dapper
         /// <param name="whereConditions"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public static V GeneratePrimaryKey<T, V>(this IDbConnection connection, string keyName = null, object whereConditions = null, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
+        public static V GeneratePrimaryKey<T, V>(this DbConnection connection, string keyName = null, object whereConditions = null, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
         {
             var t = typeof(T);
             var sb = new StringBuilder();
@@ -492,7 +1448,7 @@ namespace Dapper
         /// <param name="transaction"></param>
         /// <param name="commandTimeout"></param>
         /// <returns>The number of records affected</returns>
-        public static int Delete<T>(this IDbConnection connection, T entityToDelete, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
+        public static int Delete<T>(this DbConnection connection, T entityToDelete, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
         {
             var masterSb = new StringBuilder();
             StringBuilderCache(masterSb, $"{typeof(T).FullName}_Delete", sb =>
@@ -515,7 +1471,7 @@ namespace Dapper
             return connection.Execute(masterSb.ToString(), entityToDelete, transaction, commandTimeout);
         }
 
-        public static int Delete<T>(this IDbConnection connection, IEnumerable<T> entities, IDbTransaction transaction = null, int? commandTimeout = null)
+        public static int Delete<T>(this DbConnection connection, IEnumerable<T> entities, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             return entities.Sum(entity => Delete<T>(connection, entity, transaction, commandTimeout));
         }
@@ -537,7 +1493,7 @@ namespace Dapper
         /// <param name="transaction"></param>
         /// <param name="commandTimeout"></param>
         /// <returns>The number of records affected</returns>
-        public static int Delete<T>(this IDbConnection connection, object id, IDbTransaction transaction = null, int? commandTimeout = null)
+        public static int Delete<T>(this DbConnection connection, object id, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             var currenttype = typeof(T);
             var idProps = GetIdProperties(currenttype).ToList();
@@ -589,7 +1545,7 @@ namespace Dapper
         /// <param name="transaction"></param>
         /// <param name="commandTimeout"></param>
         /// <returns>The number of records affected</returns>
-        public static int DeleteList<T>(this IDbConnection connection, object whereConditions, IDbTransaction transaction = null, int? commandTimeout = null)
+        public static int DeleteList<T>(this DbConnection connection, object whereConditions, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             var masterSb = new StringBuilder();
             StringBuilderCache(masterSb, $"{typeof(T).FullName}_DeleteWhere{whereConditions?.GetType()?.FullName}", sb =>
@@ -629,7 +1585,7 @@ namespace Dapper
         /// <param name="transaction"></param>
         /// <param name="commandTimeout"></param>
         /// <returns>The number of records affected</returns>
-        public static int DeleteList<T>(this IDbConnection connection, string conditions, object parameters = null, IDbTransaction transaction = null, int? commandTimeout = null)
+        public static int DeleteList<T>(this DbConnection connection, string conditions, object parameters = null, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             var masterSb = new StringBuilder();
             StringBuilderCache(masterSb, $"{typeof(T).FullName}_DeleteWhere{conditions}", sb =>
@@ -677,7 +1633,7 @@ namespace Dapper
         /// <param name="transaction"></param>
         /// <param name="commandTimeout"></param>
         /// <returns>Returns a single entity by a single id from table TEntity.</returns>
-        public static T Get<T>(this IDbConnection connection, object id, IDbTransaction transaction = null, int? commandTimeout = null)
+        public static T Get<T>(this DbConnection connection, object id, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             var currenttype = typeof(T);
 
@@ -818,7 +1774,7 @@ namespace Dapper
         /// <param name="transaction"></param>
         /// <param name="commandTimeout"></param>
         /// <returns>Gets a list of entities with optional exact match where conditions</returns>
-        public static IEnumerable<T> GetList<T>(this IDbConnection connection, object whereConditions = null, IDbTransaction transaction = null, int? commandTimeout = null)
+        public static IEnumerable<T> GetList<T>(this DbConnection connection, object whereConditions = null, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             var currenttype = typeof(T);
             var name = GetTableName(currenttype);
@@ -864,7 +1820,7 @@ namespace Dapper
         /// <param name="transaction"></param>
         /// <param name="commandTimeout"></param>
         /// <returns>Gets a list of entities with optional SQL where conditions</returns>
-        public static IEnumerable<T> GetList<T>(this IDbConnection connection, string conditions, object parameters = null, IDbTransaction transaction = null, int? commandTimeout = null)
+        public static IEnumerable<T> GetList<T>(this DbConnection connection, string conditions, object parameters = null, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             var currenttype = typeof(T);
             var name = GetTableName(currenttype);
@@ -921,7 +1877,7 @@ namespace Dapper
         /// <param name="commandTimeout"></param>
         /// <returns>Gets a paged list of entities with optional exact match where conditions</returns>
         /// <returns></returns>
-        public static PageResult<T> GetPage<T>(this IDbConnection connection, int pageNumber, int rowsPerPage, string conditions, string orderby, object parameters = null, IDbTransaction transaction = null, int? commandTimeout = null, bool IncludeInsertPlaceholder = false) where T : class
+        public static PageResult<T> GetPage<T>(this DbConnection connection, int pageNumber, int rowsPerPage, string conditions, string orderby, object parameters = null, IDbTransaction transaction = null, int? commandTimeout = null, bool IncludeInsertPlaceholder = false) where T : class
         {
             var result = new PageResult<T>();
 
@@ -977,12 +1933,12 @@ namespace Dapper
             return result;
         }
 
-        /// <inheritdoc cref="GetPage{T}(IDbConnection, int, int, string, string, object, IDbTransaction, int?, bool)"/>
-        public static PageResult<T> GetPage<T, V>(this IDbConnection connection, int pageNumber, int rowsPerPage, string conditions, Expression<Func<T, V>> orderby, object parameters = null, IDbTransaction transaction = null, int? commandTimeout = null, bool IncludeInsertPlaceholder = false) where T : class
+        /// <inheritdoc cref="GetPage{T}(DbConnection, int, int, string, string, object, IDbTransaction, int?, bool)"/>
+        public static PageResult<T> GetPage<T, V>(this DbConnection connection, int pageNumber, int rowsPerPage, string conditions, Expression<Func<T, V>> orderby, object parameters = null, IDbTransaction transaction = null, int? commandTimeout = null, bool IncludeInsertPlaceholder = false) where T : class
             => GetPage<T>(connection, pageNumber, rowsPerPage, conditions, GetColumnName(orderby), parameters, transaction, commandTimeout, IncludeInsertPlaceholder);
 
-        /// <inheritdoc cref="GetListPaged{T}(IDbConnection, int, int, string, string, object, IDbTransaction, int?)"/>
-        public static IEnumerable<T> GetListPaged<T, V>(this IDbConnection connection, int pageNumber, int rowsPerPage, string conditions, Expression<Func<T, V>> orderby, object parameters = null, IDbTransaction transaction = null, int? commandTimeout = null) where T : class => GetListPaged<T>(connection, pageNumber, rowsPerPage, conditions, GetColumnName(orderby), parameters, transaction, commandTimeout);
+        /// <inheritdoc cref="GetListPaged{T}(DbConnection, int, int, string, string, object, IDbTransaction, int?)"/>
+        public static IEnumerable<T> GetListPaged<T, V>(this DbConnection connection, int pageNumber, int rowsPerPage, string conditions, Expression<Func<T, V>> orderby, object parameters = null, IDbTransaction transaction = null, int? commandTimeout = null) where T : class => GetListPaged<T>(connection, pageNumber, rowsPerPage, conditions, GetColumnName(orderby), parameters, transaction, commandTimeout);
 
         /// <summary>
         /// <para>By default queries the table matching the class name</para>
@@ -1010,7 +1966,7 @@ namespace Dapper
         /// <param name="transaction"></param>
         /// <param name="commandTimeout"></param>
         /// <returns>Gets a paged list of entities with optional exact match where conditions</returns>
-        public static IEnumerable<T> GetListPaged<T>(this IDbConnection connection, int pageNumber, int rowsPerPage, string conditions, string orderby, object parameters = null, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
+        public static IEnumerable<T> GetListPaged<T>(this DbConnection connection, int pageNumber, int rowsPerPage, string conditions, string orderby, object parameters = null, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
         {
             if (string.IsNullOrEmpty(_getPagedListSql))
                 throw new Exception("GetListPage is not supported with the current SQL Dialect");
@@ -1097,7 +2053,7 @@ namespace Dapper
         /// The ID (primary key) of the newly inserted record if it is identity using the int? type,
         /// otherwise null
         /// </returns>
-        public static TEntity Insert<TEntity>(this IDbConnection connection, TEntity entityToInsert, IDbTransaction transaction = null, int? commandTimeout = null) where TEntity : class => Insert<TEntity, TEntity>(connection, entityToInsert, transaction, commandTimeout);
+        public static TEntity Insert<TEntity>(this DbConnection connection, TEntity entityToInsert, IDbTransaction transaction = null, int? commandTimeout = null) where TEntity : class => Insert<TEntity, TEntity>(connection, entityToInsert, transaction, commandTimeout);
 
         /// <summary>
         /// <para>Inserts a row into the database, using ONLY the properties defined by TEntity</para>
@@ -1119,7 +2075,7 @@ namespace Dapper
         /// The ID (primary key) of the newly inserted record if it is identity using the defined
         /// type, otherwise null
         /// </returns>
-        public static TKey Insert<TKey, TEntity>(this IDbConnection connection, TEntity entityToInsert, IDbTransaction transaction = null, int? commandTimeout = null) where TEntity : class
+        public static TKey Insert<TKey, TEntity>(this DbConnection connection, TEntity entityToInsert, IDbTransaction transaction = null, int? commandTimeout = null) where TEntity : class
         {
             if (typeof(TEntity).IsInterface) //FallBack to BaseType Generic Method : https://stackoverflow.com/questions/4101784/calling-a-generic-method-with-a-dynamic-type
             {
@@ -1236,7 +2192,7 @@ namespace Dapper
         /// <param name="transaction"></param>
         /// <param name="commandTimeout"></param>
         /// <returns>Returns a count of records.</returns>
-        public static int RecordCount<T>(this IDbConnection connection, string conditions = "", object parameters = null, IDbTransaction transaction = null, int? commandTimeout = null)
+        public static int RecordCount<T>(this DbConnection connection, string conditions = "", object parameters = null, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             var currenttype = typeof(T);
             var name = GetTableName(currenttype);
@@ -1260,6 +2216,10 @@ namespace Dapper
             return connection.ExecuteScalar<int>(sb.ToString(), parameters, transaction, commandTimeout);
         }
 
+        public static bool Exists<T>(this DbConnection connection, object whereConditions, IDbTransaction transaction = null, int? commandTimeout = null)
+            => RecordCount<T>(connection, whereConditions, transaction, commandTimeout) > 0;
+
+
         /// <summary>
         /// <para>By default queries the table matching the class name</para>
         /// <para>-Table name can be overridden by adding an attribute on your class [Table("YourTableName")]</para>
@@ -1275,7 +2235,7 @@ namespace Dapper
         /// <param name="transaction"></param>
         /// <param name="commandTimeout"></param>
         /// <returns>Returns a count of records.</returns>
-        public static int RecordCount<T>(this IDbConnection connection, object whereConditions, IDbTransaction transaction = null, int? commandTimeout = null)
+        public static int RecordCount<T>(this DbConnection connection, object whereConditions, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             var currenttype = typeof(T);
             var name = GetTableName(currenttype);
@@ -1401,7 +2361,7 @@ namespace Dapper
         /// <param name="transaction"></param>
         /// <param name="commandTimeout"></param>
         /// <returns>The number of affected records</returns>
-        public static int Update<TEntity>(this IDbConnection connection, TEntity entityToUpdate, IDbTransaction transaction = null, int? commandTimeout = null) where TEntity : class
+        public static int Update<TEntity>(this DbConnection connection, TEntity entityToUpdate, IDbTransaction transaction = null, int? commandTimeout = null) where TEntity : class
         {
             if (typeof(TEntity).IsInterface) //FallBack to BaseType Generic Method: https://stackoverflow.com/questions/4101784/calling-a-generic-method-with-a-dynamic-type
             {
@@ -1433,7 +2393,7 @@ namespace Dapper
             return connection.Execute(masterSb.ToString(), entityToUpdate, transaction, commandTimeout);
         }
 
-        public static int UpdateWhere<TEntity, Tup>(this IDbConnection connection, TEntity entityToUpdate, Tup whereConditions, IDbTransaction transaction = null, int? commandTimeout = null) where TEntity : class where Tup : class
+        public static int UpdateWhere<TEntity, Tup>(this DbConnection connection, TEntity entityToUpdate, Tup whereConditions, IDbTransaction transaction = null, int? commandTimeout = null) where TEntity : class where Tup : class
 
         {
             if (typeof(TEntity).IsInterface) //FallBack to BaseType Generic Method: https://stackoverflow.com/questions/4101784/calling-a-generic-method-with-a-dynamic-type
@@ -1477,7 +2437,7 @@ namespace Dapper
             return connection.Execute(masterSb.ToString(), para, transaction, commandTimeout);
         }
 
-        public static int UpdateWhere<TEntity>(this IDbConnection connection, TEntity fieldsToUpdate, string whereConditions, IDbTransaction transaction = null, int? commandTimeout = null) where TEntity : class
+        public static int UpdateWhere<TEntity>(this DbConnection connection, TEntity fieldsToUpdate, string whereConditions, IDbTransaction transaction = null, int? commandTimeout = null) where TEntity : class
         {
             var masterSb = new StringBuilder();
             StringBuilderCache(masterSb, $"{typeof(TEntity).FullName}_UpdateWhere", sb =>
@@ -1502,11 +2462,11 @@ namespace Dapper
             return connection.Execute(masterSb.ToString(), fieldsToUpdate, transaction, commandTimeout);
         }
 
-        public static int UpdateWhere<TEntity>(this IDbConnection connection, TEntity entityToUpdate, Expression<Func<TEntity, bool>> whereConditions, IDbTransaction transaction = null, int? commandTimeout = null)
+        public static int UpdateWhere<TEntity>(this DbConnection connection, TEntity entityToUpdate, Expression<Func<TEntity, bool>> whereConditions, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             return UpdateWhere(connection, entityToUpdate, new[] { whereConditions }, transaction, commandTimeout);
         }
-        public static int UpdateWhere<TEntity>(this IDbConnection connection, TEntity entityToUpdate, Expression<Func<TEntity, bool>>[] whereConditions, IDbTransaction transaction = null, int? commandTimeout = null)
+        public static int UpdateWhere<TEntity>(this DbConnection connection, TEntity entityToUpdate, Expression<Func<TEntity, bool>>[] whereConditions, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             var sb = new StringBuilder();
             sb.Append("update ");
@@ -1551,9 +2511,9 @@ namespace Dapper
             return connection.Execute(sb.ToString(), entityToUpdate, transaction, commandTimeout);
         }
 
-        public static int UpdateColumn<TEntity, V>(this IDbConnection connection, Expression<Func<TEntity, object>> column, V value, object whereConditions, IDbTransaction transaction = null, int? commandTimeout = null) => UpdateColumn(connection, new[] { column }, value, whereConditions, transaction, commandTimeout);
+        public static int UpdateColumn<TEntity, V>(this DbConnection connection, Expression<Func<TEntity, object>> column, V value, object whereConditions, IDbTransaction transaction = null, int? commandTimeout = null) => UpdateColumn(connection, new[] { column }, value, whereConditions, transaction, commandTimeout);
 
-        public static int UpdateColumn<TEntity, V>(this IDbConnection connection, IEnumerable<Expression<Func<TEntity, object>>> column, V value, object whereConditions, IDbTransaction transaction = null, int? commandTimeout = null)
+        public static int UpdateColumn<TEntity, V>(this DbConnection connection, IEnumerable<Expression<Func<TEntity, object>>> column, V value, object whereConditions, IDbTransaction transaction = null, int? commandTimeout = null)
         {
             var sb = new StringBuilder();
             DynamicParameters para = new DynamicParameters();
@@ -1599,7 +2559,7 @@ namespace Dapper
         /// <param name="transaction">The transaction to use, or null.</param>
         /// <param name="commandTimeout">The command timeout, or null.</param>
         /// <returns>TRUE if the record was inserted, FALSE if the record was updated.</returns>
-        public static bool Upsert<TEntity>(this IDbConnection connection, TEntity entity, IDbTransaction transaction = null, int? commandTimeout = null) where TEntity : class
+        public static bool Upsert<TEntity>(this DbConnection connection, TEntity entity, IDbTransaction transaction = null, int? commandTimeout = null) where TEntity : class
         {
             var exists = Get<TEntity>(connection, entity, transaction, commandTimeout);
             if (exists == null)
@@ -1613,6 +2573,9 @@ namespace Dapper
                 return false;
             }
         }
+
+        public static string CacheKey(this IEnumerable<PropertyInfo> props) => string.Join(",", props.Select(p => p.DeclaringType.FullName + "." + p.Name).ToArray());
+
 
         /// <summary>
         /// Database server dialects
@@ -2054,15 +3017,29 @@ namespace Dapper
                     {
                         format = format.Replace("{" + i + "}", SimpleCRUD.Encapsulate(c.Name));
                     }
-                    else if (typeof(IEnumerable).IsAssignableFrom(arg.GetType()) && arg.GetType() != typeof(string))
+                    else if (arg.GetType().IsEnumerableNotString())
                     {
-                        var list = arg as IEnumerable<object>;
-                        var parameters = string.Join(", ", list.Select((x, j) =>
-                        {
-                            this.Parameters.Add($"{this.ParameterPrefix}{i}_{j}", x);
-                            return $"{this.ParameterPrefix}{i}_{j}";
-                        }));
 
+
+
+
+                        var list = arg as IEnumerable<object>;
+
+                        var parameters = "";
+                        if (list is IEnumerable<Expression> exps)
+                        {
+                            // TODO: transformar as expressoes em "coluna = valor"
+                        }
+                        else
+                        {
+
+                            parameters = string.Join(", ", list.Select((x, j) =>
+                          {
+                              this.Parameters.Add($"{this.ParameterPrefix}{i}_{j}", x);
+                              return $"{this.ParameterPrefix}{i}_{j}";
+                          }));
+
+                        }
                         format = format.Replace("{" + i + "}", parameters);
                     }
                     else
@@ -2130,11 +3107,1406 @@ namespace Dapper
         public static implicit operator InterpolatedQuery((FormattableString query, DynamicParameters parameters) tuple) => new InterpolatedQuery(tuple.query, null, tuple.parameters, null);
     }
 
-    internal static class TypeExtension
+
+
+
+    internal class Join
     {
-        public static string CacheKey(this IEnumerable<PropertyInfo> props) => string.Join(",", props.Select(p => p.DeclaringType.FullName + "." + p.Name).ToArray());
+        #region Private Properties
 
+        private string JoinString
+        {
+            get
+            {
+                switch (Type)
+                {
+                    case JoinType.Inner:
+                        {
+                            return "INNER JOIN";
+                        }
 
+                    case JoinType.LeftOuterJoin:
+                        {
+                            return "LEFT OUTER JOIN";
+                        }
 
+                    case JoinType.RightOuterJoin:
+                        {
+                            return "RIGHT OUTER JOIN";
+                        }
+
+                    case JoinType.FullOuterJoin:
+                        {
+                            return "FULL OUTER JOIN";
+                        }
+
+                    case JoinType.CrossJoin:
+                        {
+                            return "CROSS JOIN";
+                        }
+
+                    case JoinType.CrossApply:
+                        {
+                            return "CROSS APPLY";
+                        }
+
+                    default:
+                        {
+                            return "JOIN";
+                        }
+                }
+            }
+        }
+
+        #endregion Private Properties
+
+        #region Internal Properties
+
+        internal Condition On { get; set; }
+        internal string Table { get; set; }
+        internal JoinType Type { get; set; }
+
+        #endregion Internal Properties
+
+        #region Public Methods
+
+        public override string ToString() => On == null ? string.Format(CultureInfo.InvariantCulture, "{0} {1}", JoinString, Table) : string.Format(CultureInfo.InvariantCulture, "{0} {1} On {2}", JoinString, Table, On);
+
+        #endregion Public Methods
     }
+
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = true, Inherited = true)]
+    public sealed class ColumnNameAttribute : Attribute
+    {
+        #region Public Constructors
+
+        public ColumnNameAttribute(string ColumnName, params string[] AlternativeNames)
+        {
+            if (ColumnName.IsNotValid())
+            {
+                throw new ArgumentException("ColumnName is null or blank");
+            }
+            var l = ColumnName.StartList();
+            l.AddRange(AlternativeNames ?? Array.Empty<string>());
+
+            Names = l.Select(x => x.UnQuote()).SelectMany(x => x.Split(",")).Distinct().ToArray();
+        }
+
+        #endregion Public Constructors
+
+        #region Public Properties
+
+        public string[] Names { get; private set; }
+
+        #endregion Public Properties
+    }
+
+    /// <summary>
+    /// A condition with optional AND and OR clauses that can be used in WHERE or JOIN ON statements.
+    /// </summary>
+    public class Condition
+    {
+        #region Internal Fields
+
+        internal readonly List<string> _tokens = new List<string>();
+
+        #endregion Internal Fields
+
+        #region Public Constructors
+
+        public Condition(string LogicOperator, params FormattableString[] Conditions)
+        {
+            foreach (var condition in Conditions ?? Array.Empty<FormattableString>())
+            {
+                if (condition != null && condition.ToString().IsValid())
+                {
+                    if (LogicOperator.ToLowerInvariant() == "or")
+                    {
+                        Or(condition);
+                    }
+                    else
+                    {
+                        And(condition);
+                    }
+                }
+            }
+        }
+
+        public Condition(string LogicOperator, params Condition[] Conditions)
+        {
+            foreach (var condition in Conditions ?? Array.Empty<Condition>())
+            {
+                if (condition != null && condition.ToString().IsValid())
+                {
+                    if (LogicOperator.ToLowerInvariant() == "or")
+                    {
+                        Or(condition);
+                    }
+                    else
+                    {
+                        And(condition);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Select class constructor
+        /// </summary>
+        /// <param name="condition">Condition to set in this instance</param>
+        public Condition(FormattableString condition)
+        {
+            if (condition.IsNotBlank())
+            {
+                _tokens.Add(condition.ToSQLString());
+            }
+        }
+
+        /// <summary>
+        /// Select class constructor
+        /// </summary>
+        /// <param name="condition">Copies to the condition being constructed</param>
+        public Condition(Condition condition)
+        {
+            if (condition != null && condition.ToString().IsValid())
+            {
+                _tokens.Add(condition.ParenthesisToString());
+            }
+        }
+
+        /// <summary>
+        /// condition class constructor
+        /// </summary>
+        public Condition(string Column, object Value, string Operator = "=")
+        {
+            if (Column.IsValid())
+            {
+                if (Value == null)
+                {
+                    switch (Operator)
+                    {
+                        case "=":
+                            _tokens.Add($"{Column} IS NULL");
+                            return;
+
+                        case "!=":
+                        case "<>":
+                            _tokens.Add($"{Column} IS NOT NULL");
+                            return;
+
+                        default:
+                            Value = default;
+                            break;
+                    }
+                }
+
+                _tokens.Add($"{Column} {Operator.IfBlank("=")} {Util.ToSQLString(Value)}");
+            }
+        }
+
+        public Condition((string, string, string) condition) : this(condition.Item1, condition.Item2, condition.Item3)
+        {
+        }
+
+        #endregion Public Constructors
+
+        #region Public Methods
+
+        public static Condition AndMany(params FormattableString[] conditions) => new Condition("And", conditions);
+
+        public static Condition OrMany(params FormattableString[] conditions) => new Condition("Or", conditions);
+
+        /// <summary>
+        /// Appends the given condition with AND in this condition.
+        /// </summary>
+        /// <param name="condition">Condition to be appended</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Condition And(FormattableString condition)
+        {
+            if (!(condition == null) && condition.ToString().IsValid())
+            {
+                if (_tokens.Any())
+                {
+                    _tokens.Add("And");
+                }
+
+                _tokens.Add(condition.ToSQLString());
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Appends the given condition with AND in this condition.
+        /// </summary>
+        /// <param name="condition">Condition to be appended</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Condition And(Condition condition) => And(condition.ParenthesisToString().ToFormattableString());
+
+        public Condition AndAll(params FormattableString[] Conditions) => And(AndMany(Conditions));
+
+        public Condition AndAny(params FormattableString[] Conditions) => And(OrAny(Conditions));
+
+        /// <summary>
+        /// Appends the given condition with OR in this condition.
+        /// </summary>
+        /// <param name="condition">Condition to be appended</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Condition Or(FormattableString condition)
+        {
+            if (!(condition == null) && condition.ToString().IsValid())
+            {
+                if (_tokens.Any())
+                {
+                    _tokens.Add("Or");
+                }
+
+                _tokens.Add(condition.ToSQLString());
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Appends the given condition with OR in this condition.
+        /// </summary>
+        /// <param name="condition">Condition to be appended</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Condition Or(Condition condition) => Or(condition.ParenthesisToString().ToFormattableString());
+
+        public Condition OrAll(params FormattableString[] Conditions) => Or(AndMany(Conditions));
+
+        public Condition OrAny(params FormattableString[] Conditions) => Or(OrMany(Conditions));
+
+        /// <summary>
+        /// Returns the condition statement as a SQL query in parenthesis.
+        /// </summary>
+        /// <returns>The condition statement as a SQL query in parenthesis</returns>
+        public string ParenthesisToString() => ToString().Quote('(');
+
+        /// <summary>
+        /// Returns the condition statement as a SQL query.
+        /// </summary>
+        /// <returns>The condition statement as a SQL query</returns>
+        public override string ToString() => string.Join(" ", _tokens).QuoteIf(_tokens.Count > 2, '(');
+
+        #endregion Public Methods
+    }
+
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
+    public class FromSQLAttribute : Attribute
+    {
+        #region Private Fields
+
+        private string sql;
+
+        #endregion Private Fields
+
+        #region Public Constructors
+
+        public FromSQLAttribute() : base()
+        {
+        }
+
+        #endregion Public Constructors
+
+        #region Public Properties
+
+        /// <summary>
+        /// Arquivo contendo as instruções sql para esta classe
+        /// </summary>
+        public string File { get; set; }
+
+        /// <summary>
+        /// QueryInterpolated SQL para esta classe
+        /// </summary>
+        public string SQL
+        {
+            get
+            {
+                if (sql.IsValid())
+                {
+                    return sql;
+                }
+
+                if (File.IsValid())
+                {
+                    if (File.IsFilePath())
+                    {
+                        if (System.IO.File.Exists(File))
+                        {
+                            return System.IO.File.ReadAllText(File).ValidateOr(x => x.IsValid(), new ArgumentException("No file content"));
+                        }
+                        else
+                        {
+                            throw new System.IO.FileNotFoundException("File not exists");
+                        }
+                    }
+                    else
+                    {
+                        throw new ArgumentException("File is not a file path");
+                    }
+                }
+
+                return $"SELECT * FROM {TableName.ValidateOr(x => x.IsValid(), new ArgumentException("No table name defined"))}";
+            }
+
+            set
+            {
+                if (value.IsValid() && value != sql)
+                {
+                    sql = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Nome da tabela, gera automaticamente uma query padrão para esta classe
+        /// </summary>
+        public string TableName { get; set; }
+
+        #endregion Public Properties
+    }
+
+    public class Select : Select<Dictionary<string, object>>
+    {
+        #region Public Constructors
+
+        public Select() : base()
+        {
+        }
+
+        public Select(params string[] columns) : base(columns)
+        {
+        }
+
+        public Select(Dictionary<string, object> Obj) : base(Obj)
+        {
+        }
+
+        #endregion Public Constructors
+    }
+
+    /// <summary>
+    /// Class that aids building a SELECT clause using <see cref="Dictionary{TKey, TValue}"/> or
+    /// POCO Classes.
+    /// </summary>
+    public class Select<T> : ISelect where T : class
+    {
+        #region Internal Fields
+
+        internal List<string> _columns;
+
+        internal string _from;
+
+        internal ISelect _fromsub;
+
+        internal string _fromsubname;
+
+        internal List<string> _groupBy;
+
+        internal string _having;
+
+        internal List<Join> _joins;
+        internal string _offset;
+        internal List<string> _orderBy;
+        internal string _top;
+        internal Condition _where;
+
+        #endregion Internal Fields
+
+        #region Public Constructors
+
+        /// <summary>
+        /// Class that aids building a SELECT clause.
+        /// </summary>
+        public Select()
+        {
+            try
+            {
+                SetColumns<T>();
+                From<T>();
+            }
+            catch
+            {
+                SetColumns("*");
+            }
+        }
+
+        /// <summary>
+        /// Class that aids building a SELECT clause.
+        /// </summary>
+        public Select(T obj)
+        {
+            SetColumns<T>();
+            From<T>();
+            WhereObject(obj);
+        }
+
+        /// <summary>
+        /// Class that aids building a SELECT clause.
+        /// </summary>
+        /// <param name="columns">Columns to be selected</param>
+        public Select(params string[] columns)
+        {
+            SetColumns(columns);
+            From<T>();
+        }
+
+        #endregion Public Constructors
+
+        #region Public Properties
+
+        /// <summary>
+        /// The final QueryInterpolated string generated by this instance
+        /// </summary>
+        public string Query => ToString();
+
+        public char QuoteChar { get; set; } = '[';
+
+        #endregion Public Properties
+
+        #region Public Methods
+
+        public static FormattableString CreateSearch(IEnumerable<string> Values, params string[] Columns)
+        {
+            Values = (Values ?? Array.Empty<string>()).WhereNotBlank().ToArray();
+            Columns = (Columns ?? Array.Empty<string>()).WhereNotBlank().ToArray();
+            return Columns.SelectMany(col => Values.Select(valor => $"{col} LIKE {valor.Wrap("%").ToSQLString(false)}"))
+                .SelectJoinString(" OR ").ToFormattableString();
+        }
+
+        /// <summary>
+        /// Operator overload that allows using the class wherever a string is expected.
+        /// </summary>
+        public static implicit operator FormattableString(Select<T> select) => (select?.ToString()).ToFormattableString();
+
+        /// <summary>
+        /// Operator overload that allows using the class wherever a string is expected.
+        /// </summary>
+        public static implicit operator string(Select<T> select) => select?.ToString();
+
+        public Select<T> AddColumns<TO>(TO Obj = null) where TO : class
+        {
+            var eltipo = typeof(TO).GetNullableTypeOf();
+            if (eltipo == typeof(Dictionary<string, object>))
+            {
+                if (Obj != null)
+                {
+                    AddColumns(((Dictionary<string, object>)(object)Obj).Keys.ToArray());
+                }
+            }
+            else if (eltipo == typeof(NameValueCollection))
+            {
+                AddColumns(((NameValueCollection)(object)Obj).AllKeys.ToArray());
+            }
+            else
+            {
+                var props = eltipo.GetProperties().Select(x => x.GetAttributeValue<ColumnNameAttribute, string>(y => y.Names.FirstOrDefault()).IfBlank(x.Name));
+
+                AddColumns(props.ToArray());
+            }
+
+            return this;
+        }
+
+        public Select<T> AddColumns(params string[] Columns)
+        {
+            Columns = (Columns ?? Array.Empty<string>()).SelectMany(x => x.Split(",")).Distinct().Where(x => x.IsValid()).ToArray();
+            _columns = _columns ?? new List<string>();
+            _columns.AddRange(Columns);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the WHERE clause in the SELECT being built. If WHERE is already set, appends the
+        /// condition with an AND clause.
+        /// </summary>
+        /// <param name="conditions">Condition to set</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Select<T> And(IEnumerable<FormattableString> conditions) => And((conditions ?? Array.Empty<FormattableString>()).Select(x => new Condition(x)).ToArray());
+
+        public Select<T> And(FormattableString condition) => And(new Condition(condition));
+
+        public Select<T> And(string Column, object Value, string Operator = "=") => And(new Condition(Column, Value, Operator));
+
+        /// <summary>
+        /// Sets the WHERE clause in the SELECT being built. If WHERE is already set, appends the
+        /// condition with an AND clause.
+        /// </summary>
+        /// <param name="conditions">Condition to set</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Select<T> And(params Condition[] conditions)
+        {
+            foreach (var condition in conditions ?? Array.Empty<Condition>())
+            {
+                if (condition != null && condition.ToString().IsValid())
+                {
+                    if (_where is null)
+                    {
+                        Where(condition);
+                    }
+                    else
+                    {
+                        _where.And(condition);
+                    }
+                }
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the WHERE clause in the SELECT being built. If WHERE is already set, appends the
+        /// condition with an AND clause.
+        /// </summary>
+        /// <param name="conditions">Condition to set</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Select<T> AndAll(params FormattableString[] conditions)
+        {
+            conditions = conditions ?? Array.Empty<FormattableString>();
+            if (conditions.Any())
+            {
+                if (_where is null)
+                {
+                    _where = new Condition("AND", conditions);
+                }
+                else
+                {
+                    _where.AndAll(conditions);
+                }
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the WHERE clause in the SELECT being built. If WHERE is already set, appends the
+        /// condition with an AND clause.
+        /// </summary>
+        /// <param name="conditions">Condition to set</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Select<T> AndAny(params FormattableString[] conditions)
+        {
+            conditions = conditions ?? Array.Empty<FormattableString>();
+            if (conditions.Any())
+            {
+                if (_where is null)
+                {
+                    _where = new Condition("OR", conditions);
+                }
+                else
+                {
+                    _where.AndAny(conditions);
+                }
+            }
+
+            return this;
+        }
+
+        public Select<T> AndIn<TO>(string Column, params TO[] Items) => And(Util.ToFormattableString(Column + " in " + Items.ToSQLString()));
+
+        public Select<T> AndObject<TO>(TO Obj) where TO : class => WhereObject(Obj, "AND");
+
+        public Select<T> AndSearch(string Value, params string[] Columns) => AndSearch(new[] { Value }, Columns);
+
+        public Select<T> AndSearch(IEnumerable<string> Values, params string[] Columns) => And(CreateSearch(Values, Columns));
+
+        /// <summary>
+        /// Sets the <see cref="QuoteChar"/> and apply it to all columns
+        /// </summary>
+        /// <param name="QuoteChar"></param>
+        /// <returns></returns>
+        public Select<T> ColumnQuote(char? QuoteChar = null, bool WithTableName = false)
+        {
+            var _nova = new List<string>();
+            this.QuoteChar = QuoteChar ?? this.QuoteChar;
+
+            foreach (var item in _columns ?? new List<string>())
+            {
+                var c = item;
+                if (item != "*")
+                {
+                    c = item.UnQuote().Split(".", StringSplitOptions.RemoveEmptyEntries).SelectJoinString(x => Util.FormatSQLColumn(this.QuoteChar, WithTableName.AsIf(this.GetTableOrSubQuery()), x.UnQuote()));
+                }
+                _nova.Add(c);
+            }
+
+            SetColumns(_nova.ToArray());
+            return this;
+        }
+
+        public DbCommand CreateDbCommand(DbConnection Connection, Dictionary<string, object> dic, DbTransaction Transaction = null) => Connection.CreateCommand(ToString(), dic, Transaction);
+
+        public DbCommand CreateDbCommand(DbConnection Connection, DbTransaction Transaction = null) => CreateDbCommand(Connection, null, Transaction);
+
+        /// <summary>
+        /// Sets a CROSS APPLY clause in the SELECT being built.
+        /// </summary>
+        /// <param name="table">Table to be join</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Select<T> CrossApply(string table) => Join(JoinType.CrossApply, table, null);
+
+        /// <summary>
+        /// Sets a CROSS JOIN clause in the SELECT being built.
+        /// </summary>
+        /// <param name="table">Table to be join</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Select<T> CrossJoin(string table) => Join(JoinType.CrossJoin, table, null);
+
+        /// <summary>
+        /// Return the full name of <paramref name="ColumnName"/> using current table or alias
+        /// </summary>
+        /// <param name="ColumnName"></param>
+        /// <param name="QuoteChar"></param>
+        /// <returns></returns>
+        public string FormatColumnName(string ColumnName) => Util.FormatSQLColumn(this.QuoteChar, GetTableOrSubQuery(), ColumnName);
+
+        /// <summary>
+        /// Sets the FROM clause in the SELECT being built.
+        /// </summary>
+        /// <param name="TableOrSubQuery">Table to be selected from</param>
+        /// <returns></returns>
+        public Select<T> From(string TableOrSubQuery)
+        {
+            if (TableOrSubQuery.IsValid())
+            {
+                _from = TableOrSubQuery.QuoteIf(TableOrSubQuery.StartsWith("SELECT "), '(');
+                _fromsub = null;
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the FROM clause in the SELECT being built.
+        /// </summary>
+        /// <param name="SubQuery">Subquery to be selected from</param>
+        /// <returns></returns>
+        public Select<T> From<TO>(Select<TO> SubQuery, string SubQueryAlias = null) where TO : class
+        {
+            if (SubQuery != null && SubQuery.ToString(true).IsValid() && !ReferenceEquals(SubQuery, this))
+            {
+                _from = null;
+                _fromsub = SubQuery;
+                _fromsubname = SubQueryAlias.IfBlank(typeof(TO).Name + "_" + DateTime.Now.Ticks.ToString());
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the FROM clause in the SELECT being built.
+        /// </summary>
+        /// <param name="SubQuery">Subquery to be selected from</param>
+        /// <returns></returns>
+        public Select<T> From<TO>(Action<Select<TO>> SubQuery, string SubQueryAlias = null) where TO : class
+        {
+            if (SubQuery != null)
+            {
+                var sl = new Select<TO>();
+                SubQuery(sl);
+                From(sl, SubQueryAlias);
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the FROM clause in the SELECT being built.
+        /// </summary>
+        /// <param name="SubQuery">Subquery to be selected from</param>
+        /// <returns></returns>
+        public Select<T> From(Action<Select> SubQuery)
+        {
+            if (SubQuery != null)
+            {
+                From((Action<Select<Dictionary<string, object>>>)SubQuery);
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the FROM clause in the SELECT being built.
+        /// </summary>
+        /// <returns></returns>
+        public Select<T> From<TO>()
+        {
+            From(typeof(TO).GetNullableTypeOf().Name);
+
+            return this;
+        }
+
+        /// <summary>
+        /// Sets a FULL OUTER JOIN clause in the SELECT being built.
+        /// </summary>
+        /// <param name="table">Table to be join</param>
+        /// <param name="on">Condition of the join (ON clause)</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Select<T> FullOuterJoin(string table, FormattableString on) => Join(JoinType.FullOuterJoin, table, new Condition(on));
+
+        /// <summary>
+        /// Sets a FULL OUTER JOIN clause in the SELECT being built.
+        /// </summary>
+        /// <param name="table">Table to be join</param>
+        /// <param name="on">Condition of the join (ON clause)</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Select<T> FullOuterJoin(string table, Condition on) => Join(JoinType.FullOuterJoin, table, on);
+
+        public Select<T> FullOuterJoin(string table, string ThisColumn, string ForeignColumn) => FullOuterJoin(table, Util.ToFormattableString(Util.FormatSQLColumn(QuoteChar, GetTableOrSubQuery(), ThisColumn) + " = " + Util.FormatSQLColumn(QuoteChar, table, ForeignColumn.IfBlank(ThisColumn))));
+
+        /// <summary>
+        /// GetCliente the table name or subquery alias used in this select
+        /// </summary>
+        /// <returns></returns>
+        public string GetTableOrSubQuery() => _fromsubname.IfBlank(_from);
+
+        /// <summary>
+        /// Sets the GROUP BY clause in the SELECT being built.
+        /// </summary>
+        /// <param name="columns">Columns to be grouped by</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Select<T> GroupBy(params string[] columns)
+        {
+            columns = columns ?? Array.Empty<string>();
+            if (_groupBy is null)
+            {
+                _groupBy = new List<string>(columns);
+            }
+            else
+            {
+                _groupBy.AddRange(columns);
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Sets or overwrite the HAVING clause in the SELECT being built.
+        /// </summary>
+        /// <param name="condition">Condition to set</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Select<T> Having(string condition)
+        {
+            if (condition.IsValid())
+            {
+                _having = condition;
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Sets a INNER JOIN clause in the SELECT being built.
+        /// </summary>
+        /// <param name="table">Table to be join</param>
+        /// <param name="on">Condition of the join (ON clause)</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Select<T> InnerJoin(string table, FormattableString on) => InnerJoin(table, new Condition(on));
+
+        public Select<T> InnerJoin(string table, string ThisColumn, string ForeignColumn) => InnerJoin(table, Util.ToFormattableString(Util.FormatSQLColumn(QuoteChar, GetTableOrSubQuery(), ThisColumn) + " = " + Util.FormatSQLColumn(QuoteChar, table, ForeignColumn.IfBlank(ThisColumn))));
+
+        /// <summary>
+        /// Sets a INNER JOIN clause in the SELECT being built.
+        /// </summary>
+        /// <param name="table">Table to be join</param>
+        /// <param name="on">Condition of the join (ON clause)</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Select<T> InnerJoin(string table, Condition on) => Join(JoinType.Inner, table, on);
+
+        /// <summary>
+        /// Sets a JOIN clause in the SELECT being built.
+        /// </summary>
+        /// <param name="table">Table to be join</param>
+        /// <param name="on">Condition of the join (ON clause)</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Select<T> Join(string table, FormattableString on) => Join(table, new Condition(on));
+
+        /// <summary>
+        /// Sets a JOIN clause in the SELECT being built.
+        /// </summary>
+        /// <param name="table">Table to be join</param>
+        /// <param name="on">Condition of the join (ON clause)</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Select<T> Join(string table, Condition on) => Join(JoinType.Join, table, on);
+
+        public Select<T> Join(JoinType JoinType, string Table, Condition on)
+        {
+            if (Table.IsValid() && (JoinType == JoinType.CrossApply || (!(on == null) && on.ToString().IsValid())))
+            {
+                _joins = _joins ?? new List<Join>();
+                _joins.Add(new Join()
+                {
+                    Type = JoinType,
+                    Table = Table,
+                    On = on
+                });
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Sets a LEFT OUTER JOIN clause in the SELECT being built.
+        /// </summary>
+        /// <param name="table">Table to be join</param>
+        /// <param name="on">Condition of the join (ON clause)</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Select<T> LeftOuterJoin(string table, FormattableString on) => LeftOuterJoin(table, new Condition(on));
+
+        public Select<T> LeftOuterJoin(string table, string ThisColumn, string ForeignColumn) => LeftOuterJoin(table, Util.ToFormattableString(Util.FormatSQLColumn(QuoteChar, GetTableOrSubQuery(), ThisColumn) + " = " + Util.FormatSQLColumn(QuoteChar, table, ForeignColumn.IfBlank(ThisColumn))));
+
+        /// <summary>
+        /// Sets a LEFT OUTER JOIN clause in the SELECT being built.
+        /// </summary>
+        /// <param name="table">Table to be join</param>
+        /// <param name="on">Condition of the join (ON clause)</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Select<T> LeftOuterJoin(string table, Condition on) => Join(JoinType.LeftOuterJoin, table, on);
+
+        public Select<T> OffSet(int Page, int PageSize)
+        {
+            if (Page < 0 || PageSize < 0)
+            {
+                _offset = null;
+            }
+            else
+            {
+                PageSize = PageSize.SetMinValue(0);
+                _offset = $"OFFSET {Page} ROWS FETCH NEXT {PageSize} ROWS ONLY";
+            }
+
+            return this;
+        }
+
+        public Select<T> Or(string Column, object Value, string Operator = "=") => Or(new Condition(Column, Value, Operator));
+
+        /// <summary>
+        /// Sets the WHERE clause in the SELECT being built. If WHERE is already set, appends the
+        /// condition with an OR clause.
+        /// </summary>
+        /// <param name="conditions">Condition to set</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Select<T> Or(IEnumerable<FormattableString> conditions) => Or((conditions ?? Array.Empty<FormattableString>()).Select(x => new Condition(x)).ToArray());
+
+        public Select<T> Or(FormattableString condition) => Or(new Condition(condition));
+
+        /// <summary>
+        /// Sets the WHERE clause in the SELECT being built. If WHERE is already set, appends the
+        /// condition with an OR clause.
+        /// </summary>
+        /// <param name="conditions">Condition of the WHERE clause</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Select<T> Or(params Condition[] conditions)
+        {
+            foreach (var condition in conditions ?? Array.Empty<Condition>())
+            {
+                if (condition != null && condition.ToString().IsValid())
+                {
+                    if (_where is null)
+                    {
+                        Where(condition);
+                    }
+                    else
+                    {
+                        _where.Or(condition);
+                    }
+                }
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the WHERE clause in the SELECT being built. If WHERE is already set, appends the
+        /// condition with an AND clause.
+        /// </summary>
+        /// <param name="conditions">Condition to set</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Select<T> OrAll(params FormattableString[] conditions)
+        {
+            conditions = conditions ?? Array.Empty<FormattableString>();
+            if (conditions.Any())
+            {
+                if (_where is null)
+                {
+                    _where = new Condition("AND", conditions);
+                }
+                else
+                {
+                    _where.OrAll(conditions);
+                }
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the WHERE clause in the SELECT being built. If WHERE is already set, appends the
+        /// condition with an AND clause.
+        /// </summary>
+        /// <param name="conditions">Condition to set</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Select<T> OrAny(params FormattableString[] conditions)
+        {
+            conditions = conditions ?? Array.Empty<FormattableString>();
+            if (conditions.Any())
+            {
+                if (_where is null)
+                {
+                    _where = new Condition("OR", conditions);
+                }
+                else
+                {
+                    _where.OrAny(conditions);
+                }
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the ORDER BY clause in the SELECT being built.
+        /// </summary>
+        /// <param name="columns">Columns to be ordered by</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Select<T> OrderBy(params string[] columns)
+        {
+            columns = columns ?? Array.Empty<string>();
+            if (_orderBy is null)
+            {
+                _orderBy = new List<string>(columns);
+            }
+            else
+            {
+                _orderBy.AddRange(columns);
+            }
+
+            return this;
+        }
+
+        public Select<T> OrIn<TO>(string Column, params TO[] Items) => Or(Util.ToFormattableString(Column + " in " + Items.ToSQLString()));
+
+        public Select<T> OrObject<TO>(TO Obj) where TO : class => WhereObject(Obj, "OR");
+
+        public Select<T> OrSearch(string Value, params string[] Columns) => OrSearch(new[] { Value }, Columns);
+
+        public Select<T> OrSearch(IEnumerable<string> Values, params string[] Columns) => Or(CreateSearch(Values, Columns));
+
+        public Select<T> RemoveColumns(params string[] Columns)
+        {
+            if (_columns != null)
+            {
+                _columns = _columns.Where(x => x.IsNotIn(Columns ?? Array.Empty<string>())).ToList();
+            }
+
+            return this;
+        }
+
+        public Select<T> RightOuterJoin(string table, string ThisColumn, string ForeignColumn) => RightOuterJoin(table, Util.ToFormattableString(Util.FormatSQLColumn(QuoteChar, GetTableOrSubQuery(), ThisColumn) + " = " + Util.FormatSQLColumn(QuoteChar, table, ForeignColumn.IfBlank(ThisColumn))));
+
+        /// <summary>
+        /// Sets a RIGHT OUTER JOIN clause in the SELECT being built.
+        /// </summary>
+        /// <param name="table">Table to be join</param>
+        /// <param name="on">Condition of the join (ON clause)</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Select<T> RightOuterJoin(string table, FormattableString on) => RightOuterJoin(table, new Condition(on));
+
+        /// <summary>
+        /// Sets a RIGHT OUTER JOIN clause in the SELECT being built.
+        /// </summary>
+        /// <param name="table">Table to be join</param>
+        /// <param name="on">Condition of the join (ON clause)</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Select<T> RightOuterJoin(string table, Condition on) => Join(JoinType.RightOuterJoin, table, on);
+
+        public Select<T> SetColumns(params string[] Columns)
+        {
+            _columns = null;
+            AddColumns(Columns);
+            return this;
+        }
+
+        public Select<T> SetColumns<TO>(TO Obj = null) where TO : class
+        {
+            _columns = null;
+            AddColumns(Obj);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a TOP clausule to this SELECT
+        /// </summary>
+        /// <param name="Top"></param>
+        /// <param name="Percent"></param>
+        /// <returns></returns>
+        public Select<T> Top(int Top, bool Percent = false)
+        {
+            if (Top > 0)
+            {
+                _top = $"TOP({Top}) {Percent.AsIf("PERCENT")}";
+            }
+            else
+            {
+                _top = null;
+            }
+            return this;
+        }
+
+        /// <summary>
+        /// Returns the SELECT statement as a SQL query.
+        /// </summary>
+        /// <returns>The SELECT statement as a SQL query</returns>
+        public override string ToString() => ToString(false);
+
+        /// <summary>
+        /// Returns the SELECT statement as a SQL query.
+        /// </summary>
+        /// <param name="AsSubquery">when TRUE, prevent uncompatibble statements for subqueries</param>
+        /// <returns>The SELECT statement as a SQL query</returns>
+        public string ToString(bool AsSubquery)
+        {
+            var sql = new StringBuilder("SELECT ");
+
+            if (_top?.IsValid() ?? false)
+            {
+                sql.Append($"{_top}");
+            }
+            var cols = (_columns?.Distinct().SelectJoinString(",") ?? Util.EmptyString).IfBlank(" * ");
+            sql.Append(cols);
+            if (_fromsub != null && _fromsub.ToString().IsValid())
+            {
+                _from = _fromsub.ToString(true).Quote('(') + " as " + _fromsubname;
+            }
+
+            if (_from?.IsValid() ?? false)
+            {
+                sql.Append(" FROM ");
+                sql.Append(_from);
+            }
+
+            if (_joins != null && _joins.Any())
+            {
+                sql.Append(_joins.SelectJoinString(j => string.Format(CultureInfo.InvariantCulture, " {0}", j), " "));
+            }
+
+            if (_where != null)
+            {
+                sql.Append(" WHERE ");
+                sql.Append(_where);
+            }
+
+            if (_groupBy != null)
+            {
+                sql.Append(" GROUP BY ");
+                sql.Append(string.Join(", ", _groupBy));
+            }
+
+            if (!Equals(_having, null))
+            {
+                sql.Append(" HAVING ");
+                sql.Append(_having);
+            }
+
+            if (_orderBy != null && AsSubquery == false)
+            {
+                sql.Append(" ORDER BY ");
+                sql.Append(string.Join(", ", _orderBy));
+            }
+
+            if (_offset?.IsValid() ?? false && AsSubquery == false)
+            {
+                sql.Append($" {_offset} ");
+            }
+
+            return sql.ToString();
+        }
+
+        /// <summary>
+        /// Sets the WHERE clause in the SELECT being built.
+        /// </summary>
+        /// <param name="condition">Condition to set</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Select<T> Where(FormattableString condition)
+        {
+            if (condition.IsNotBlank())
+            {
+                if (_where != null)
+                {
+                    And(new Condition(condition));
+                }
+                else
+                {
+                    _where = new Condition(condition);
+                }
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the WHERE clause in the SELECT being built.
+        /// </summary>
+        /// <param name="conditions">Condition to set</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Select<T> Where(string LogicOperator, IEnumerable<FormattableString> conditions)
+        {
+            LogicOperator = LogicOperator.IfBlank("and");
+            foreach (var condition in conditions ?? Array.Empty<FormattableString>())
+            {
+                if (condition != null && condition.ToString().IsValid())
+                {
+                    if (LogicOperator.ToLowerInvariant().IsAny("||", "|", "or"))
+                    {
+                        Or(condition);
+                    }
+                    else
+                    {
+                        And(condition);
+                    }
+                }
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the WHERE clause in the SELECT being built.
+        /// </summary>
+        /// <param name="conditions">Condition to set</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Select<T> Where(string LogicOperator, IEnumerable<Condition> conditions)
+        {
+            LogicOperator = LogicOperator.IfBlank("and");
+            foreach (var condition in conditions ?? Array.Empty<Condition>())
+            {
+                if (condition != null)
+                {
+                    if (LogicOperator.ToLowerInvariant().IsAny("||", "|", "or"))
+                    {
+                        Or(condition);
+                    }
+                    else
+                    {
+                        And(condition);
+                    }
+                }
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the WHERE clause in the SELECT being built using a lambda expression. This method
+        /// is experimental
+        /// </summary>
+        /// <param name="predicate">Condition to set</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Select<T> Where(Expression<Func<T, bool>> predicate)
+        {
+            if (predicate != null)
+            {
+                var p = predicate.Body.ToString();
+                var pName = predicate.Parameters.First();
+                //predicate.Body.NodeType
+
+                var rp = new Dictionary<string, string>()
+                {
+                    { $"{pName.Name}.", Util.EmptyString},
+                    {"==", "="},
+                    {"!=", "<>"},
+                    {"AndAlso", " AND "},
+                    {" && ", " AND "},
+                    {" & ", " AND "},
+                    {" || ", " OR "},
+                    {" | ", " OR "},
+                    {"OrElse", " OR "} ,
+                    {" like ", " LIKE "} ,
+                    {".Contains", " LIKE "},
+                    {".Like", " LIKE "},
+                    {".Equal", " = "},
+                    {".IsIn", " in "},
+                    {Util.DoubleQuoteChar, Util.SingleQuoteChar}
+                };
+                Where(p.ReplaceFrom(rp).ToFormattableString());
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the WHERE clause in the SELECT being built.
+        /// </summary>
+        public Select<T> Where(string Column, object Value, string Operator = "=") => Where(new Condition(Column, Value, Operator));
+
+        /// <summary>
+        /// Sets the WHERE clause in the SELECT being built.
+        /// </summary>
+        /// <param name="condition">Condition to set</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Select<T> Where(Condition condition)
+        {
+            if (condition != null && condition.ToString().IsValid())
+            {
+                if (_where != null)
+                {
+                    And(condition);
+                }
+                else
+                {
+                    _where = new Condition(condition);
+                }
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the WHERE clause in the SELECT being built. If WHERE is already set, appends the
+        /// condition with an AND clause.
+        /// </summary>
+        /// <param name="conditions">Conditions to set</param>
+        /// <returns>This instance, so you can use it in a fluent fashion</returns>
+        public Select<T> Where(params Condition[] conditions) => And(conditions);
+
+        public Select<T> Where(params (string, string, string)[] items)
+        {
+            items = items ?? Array.Empty<(string, string, string)>();
+            return Where(items.Select(x => new Condition(x)).ToArray());
+        }
+
+        /// <summary>
+        /// Sets the WHERE clause in the SELECT being built using a <see cref="Dictionary{string,
+        /// object}"/> as column/value
+        /// </summary>
+        /// <param name="Dic"></param>
+        /// <param name="FilterKeys"></param>
+        /// <returns></returns>
+        public object Where(Dictionary<string, object> Dic, Util.LogicConcatenationOperator LogicConcatenation, params string[] FilterKeys)
+        {
+            FilterKeys = FilterKeys ?? Array.Empty<string>();
+            if (FilterKeys.Any())
+            {
+                FilterKeys = Dic.Keys.ToArray().Where(x => x.IsLikeAny(FilterKeys)).ToArray();
+            }
+            else
+            {
+                FilterKeys = Dic.Keys.ToArray();
+            }
+
+            FilterKeys = FilterKeys.Where(x => Dic[x] != null && Dic[x].ToString().IsValid()).ToArray();
+            if (FilterKeys.Any())
+            {
+                foreach (var f in FilterKeys)
+                {
+                    if (LogicConcatenation == Util.LogicConcatenationOperator.OR)
+                    {
+                        Or(f, Dic[f]);
+                    }
+                    else
+                    {
+                        And(f, Dic[f]);
+                    }
+                }
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the WHERE clause in the SELECT being built using a <see
+        /// cref="NameValueCollection"/> as column/operator/value
+        /// </summary>
+        /// <param name="NVC"></param>
+        /// <param name="FilterKeys"></param>
+        /// <returns></returns>
+        public Select<T> Where(NameValueCollection NVC, params string[] FilterKeys)
+        {
+            FilterKeys = FilterKeys ?? Array.Empty<string>();
+            NVC = NVC ?? new NameValueCollection();
+            foreach (var k in NVC.AllKeys)
+            {
+                if (k.IsValid())
+                {
+                    string col = k.UrlDecode();
+                    if (!FilterKeys.Any() || col.IsLikeAny(FilterKeys))
+                    {
+                        var values = NVC.GetValues(k) ?? Array.Empty<string>();
+                        foreach (var v in values)
+                        {
+                            string logic = col.GetBefore(":", true).IfBlank("AND");
+                            string op = v.GetBefore(":", true).IfBlank("=");
+                            col = col.GetAfter(":");
+                            col = col.Contains(" ").AsIf(col.UnQuote(QuoteChar, true).Quote(QuoteChar), col);
+                            string valor = v.GetAfter(":").NullIf("null", StringComparison.InvariantCultureIgnoreCase);
+
+                            if (valor == "'null'")
+                            {
+                                valor = null;
+                            }
+
+                            var cond = new Condition(col, valor, op);
+                            Where(logic, new[] { cond });
+                        }
+                    }
+                }
+            }
+
+            return this;
+        }
+
+        public Select<T> WhereIn<TO>(string Column, params TO[] Items) => AndIn(Column, Items);
+
+        public Select<T> WhereObject<TO>(TO Obj) where TO : class => AndObject(Obj);
+
+        public Select<T> WhereObject<TO>(TO Obj, Util.LogicConcatenationOperator LogicOperator) where TO : class => WhereObject(Obj, LogicOperator.GetEnumValueAsString());
+
+        public Select<T> WhereObject<TO>(TO Obj, string LogicOperator) where TO : class
+        {
+            if (Obj != null)
+            {
+                foreach (var item in Obj.GetNullableTypeOf().GetProperties().Where(x => x.CanRead))
+                {
+                    if (LogicOperator.ToLowerInvariant().IsIn("or", "||", "|"))
+                    {
+                        Or(item.Name, item.GetValue(Obj));
+                    }
+                    else
+                    {
+                        And(item.Name, item.GetValue(Obj));
+                    }
+                }
+            }
+
+            return this;
+        }
+
+        #endregion Public Methods
+    }
+
+    public enum JoinType
+    {
+        Join,
+        Inner,
+        LeftOuterJoin,
+        RightOuterJoin,
+        FullOuterJoin,
+        CrossJoin,
+        CrossApply
+    }
+
+    public interface ISelect
+    {
+        #region Public Methods
+
+        string ToString();
+
+        string ToString(bool SubQuery);
+
+        #endregion Public Methods
+    }
+
+
 }

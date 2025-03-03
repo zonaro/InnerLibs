@@ -148,6 +148,10 @@ namespace Extensions
         /// <returns><see cref="DateTime"/> with hour and minutes and seconds set to given values.</returns>
         public static DateTime At(this DateTime current, int hour, int minute, int second, int milliseconds) => current.SetTime(hour, minute, second, milliseconds);
 
+        /// <summary>
+        /// Returns the given <see cref="DateTime"/> with hour and minutes and seconds and
+        /// milliseconds set At given value.
+        /// </summary>
         public static DateTime At(this DateTime current, TimeSpan Time) => current.SetTime(Time);
 
         /// <summary>
@@ -1869,7 +1873,7 @@ namespace Extensions
 
         public static string QuarterString(this DateTime datetime, string format = null) => format.IfBlank("{number}{ordinal} Q/{year}").Inject(new { number = datetime.GetQuarterOfYear(), ordinal = datetime.GetQuarterOfYear().GetOrdinal(), year = datetime.Year, shortyear = datetime.Year.ToString().GetLastChars(2) });
 
-        public static string SemesterString(this DateTime datetime, string format = null) => format.IfBlank("{number}{ordinal} kk/{year}").Inject(new { number = datetime.GetSemesterOfYear(), ordinal = datetime.GetSemesterOfYear().GetOrdinal(), year = datetime.Year, shortyear = datetime.Year.ToString().GetLastChars(2) });
+        public static string SemesterString(this DateTime datetime, string format = null) => format.IfBlank("{number}{ordinal} S/{year}").Inject(new { number = datetime.GetSemesterOfYear(), ordinal = datetime.GetSemesterOfYear().GetOrdinal(), year = datetime.Year, shortyear = datetime.Year.ToString().GetLastChars(2) });
 
         public static string WeekString(this DateTime datetime, string format = null, CultureInfo culture = null) => datetime.GetWeekInfo(culture, format).WeekString;
 
@@ -1877,6 +1881,10 @@ namespace Extensions
 
         #endregion DateStrings
     }
+
+
+
+
 
     public class PeriodFormat
     {

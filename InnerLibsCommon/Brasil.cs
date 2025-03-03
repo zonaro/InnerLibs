@@ -17,6 +17,35 @@ namespace Extensions.BR
     /// </summary>
     public static class Brasil
     {
+
+        /// <summary>
+        /// Formata uma data para o padrão brasileiro, encurtando a data para o padrão dd/MM/yyyy quando não houver horas, minutos ou segundos
+        /// </summary>
+        /// <param name="dateTime"></param>
+        /// <returns></returns>
+        public static string FormatarDataBrasileira(this DateTime dateTime)
+        {
+            if (dateTime == DateTime.MinValue) return string.Empty;
+
+            if (dateTime.Millisecond > 0)
+                return dateTime.ToString("dd/MM/yyyy HH:mm:ss:FFFFFFF");
+
+            else if (dateTime.Second > 0)
+                return dateTime.ToString("dd/MM/yyyy HH:mm:ss");
+
+            else if (dateTime.Minute > 0 || dateTime.Hour > 0)
+                return dateTime.ToString("dd/MM/yyyy HH:mm");
+            else
+
+                return dateTime.ToString("dd/MM/yyyy");
+        }
+
+        public static string FormatarDataBrasileira(this DateTime? dateTime) => (dateTime ?? DateTime.MinValue).FormatarDataBrasileira();
+
+
+        public static string FormatarDataBrasileira(this string dateTime) => dateTime.ToDateTime().FormatarDataBrasileira();
+
+
         /// <inheritdoc cref = "TelefoneValido(string)" />
         public static bool TelefoneValido(int telefone)
         => TelefoneValido(telefone.ToString());

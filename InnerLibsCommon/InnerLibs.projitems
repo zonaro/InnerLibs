@@ -67,7 +67,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)JSONParser\JsonFile.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Like.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Mailer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)MicroORM\SelectWrapper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MicroORM\SQLResponse.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PasswordLevel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PredefinedArrays.cs" />
