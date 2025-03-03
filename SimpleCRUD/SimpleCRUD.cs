@@ -3020,15 +3020,13 @@ namespace Extensions.Databases
                     else if (arg.GetType().IsEnumerableNotString())
                     {
 
-
-
-
                         var list = arg as IEnumerable<object>;
 
                         var parameters = "";
                         if (list is IEnumerable<Expression> exps)
                         {
                             // TODO: transformar as expressoes em "coluna = valor"
+
                         }
                         else
                         {
