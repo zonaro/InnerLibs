@@ -19,7 +19,9 @@ using Dapper;
 using Extensions;
 using Extensions.Databases;
 using Microsoft.CSharp.RuntimeBinder;
-
+using System;
+using System.Linq.Expressions;
+using System.Text;
 /*
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 * This file add overloads for each Dapper.SQLMapper method, allowing the use of FormattableString     *
@@ -36,30 +38,51 @@ namespace Extensions.Databases
     public static partial class SimpleCRUD
 
     {
-
-
+        public static (PropertyInfo, string, Object) ParseExpression<T>(Expression<Action<T>> expression)
+        {
+            if (expression is LambdaExpression lambdaExpression)
+            {
+                return ParseExpression(lambdaExpression.Body);
+            }
+            else
+            {
+                throw new NotSupportedException($"Expression '{expression}' is not supported.");
+            }
+        }
+        public static (PropertyInfo, string, Object) ParseExpression(Expression expression)
+        {
+            if (expression is BinaryExpression binaryExpression)
+            {
+                return ParseExpression(binaryExpression);
+            }
+            else if (expression is MemberExpression memberExpression)
+            {
+                var memberInfo = memberExpression.Member as PropertyInfo;
+                return (memberInfo, "=", true);
+            }
+            else
+            {
+                throw new NotSupportedException($"Expression '{expression}' is not supported.");
+            }
+        }
         public static (PropertyInfo, string, object) ParseExpression(BinaryExpression binaryExpression)
         {
-            
-                var memberExpression = binaryExpression.Left as MemberExpression;
-                var valueExpression = binaryExpression.Right;
+            var memberExpression = binaryExpression.Left as MemberExpression;
+            var valueExpression = binaryExpression.Right;
 
-                var value = Expression.Lambda(valueExpression).Compile().DynamicInvoke();
-                var memberInfo = memberExpression.Member as PropertyInfo;
-              
-          
-                    return (memberInfo, GetOperator(binaryExpression.NodeType), value);
+            var value = Expression.Lambda(valueExpression).Compile().DynamicInvoke();
+            var memberInfo = memberExpression.Member as PropertyInfo;
 
-            
+            return (memberInfo, GetSQLOperator(binaryExpression.NodeType), value);
         }
 
-        private static string GetOperator(ExpressionType expressionType)
+        public static string GetSQLOperator(this ExpressionType expressionType)
         {
-            if(expressionType == ExpressionType.NotEqual)
+            if (expressionType == ExpressionType.NotEqual)
             {
-                return "!=";
+                return "<>";
             }
-            else if(expressionType == ExpressionType.GreaterThan)
+            else if (expressionType == ExpressionType.GreaterThan)
             {
                 return ">";
             }
@@ -79,11 +102,18 @@ namespace Extensions.Databases
             {
                 return "=";
             }
+            else if (expressionType == ExpressionType.AndAlso)
+            {
+                return "AND";
+            }
+            else if (expressionType == ExpressionType.OrElse)
+            {
+                return "OR";
+            }
             else
             {
                 throw new NotSupportedException($"Operator '{expressionType}' is not supported.");
             }
-            
         }
 
         internal const string DefaultParameterPrefix = "@__p";
@@ -127,8 +157,6 @@ namespace Extensions.Databases
         private static ITableNameResolver _tableNameResolver = new TableNameResolver();
 
         private static bool StringBuilderCacheEnabled = true;
-
-
 
         public static SQLResponse<object> CreateSQLQuickResponse(this DbConnection Connection, FormattableString Command, string DataSetType, params string[] SetNames) => CreateSQLQuickResponse(Connection.CreateCommand(Command), DataSetType, SetNames);
 
@@ -217,11 +245,9 @@ namespace Extensions.Databases
             {
                 resp.Status = "ERROR";
                 resp.Message = ex.ToFullExceptionString();
-
             }
             return resp;
         }
-
 
         /// <summary>
         /// Cria um comando de UPDATE para o objeto do tipo <typeparamref name="T"/>
@@ -278,7 +304,6 @@ namespace Extensions.Databases
 
             return null;
         }
-
 
         /// <summary>
         /// Retorna os resultado da primeira coluna de uma consulta SQL como um array do tipo
@@ -560,14 +585,12 @@ namespace Extensions.Databases
         /// <returns></returns>
         public static T RunSQLRow<T>(this DbConnection Connection, FormattableString SQL, bool WithSubQueries = false, DbTransaction Transaction = null) where T : class => Connection.RunSQLRow<T>(Connection.CreateCommand(SQL, Transaction), WithSubQueries);
 
-
         /// <summary>
         /// Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset
         /// mapeados para uma lista de <typeparamref name="T"/>
         /// </summary>
         /// <returns></returns>
         public static IEnumerable<T> RunSQLSet<T>(this DbConnection Connection, Select<T> Select, bool WithSubQueries = false, DbTransaction Transaction = null) where T : class => Connection.RunSQLSet<T>(Select.CreateDbCommand(Connection, Transaction), WithSubQueries);
-
 
         /// <summary>
         /// Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset
@@ -834,7 +857,6 @@ namespace Extensions.Databases
             return null;
         }
 
-
         /// <summary>
         /// Cria um <see cref="DbCommand"/> a partir de um arquivo SQL
         /// </summary>
@@ -923,7 +945,6 @@ namespace Extensions.Databases
 
         public static bool IsConnecting(this DbConnection Connection) => Connection != null && (Connection.State == ConnectionState.Connecting);
 
-
         public static bool IsBroken(this DbConnection Connection) => Connection != null && (Connection.State == ConnectionState.Broken);
         public static bool IsExecuting(this DbConnection Connection) => Connection != null && (Connection.State == ConnectionState.Executing);
 
@@ -984,7 +1005,6 @@ namespace Extensions.Databases
             return null;
         }
 
-
         public static Expression PropertyExpression(this ParameterExpression Parameter, string PropertyName)
         {
             Expression prop = Parameter;
@@ -998,7 +1018,6 @@ namespace Extensions.Databases
 
             return prop;
         }
-
 
         /// <summary>
         /// Retorna o primeiro resultado da primeira coluna de uma consulta SQL
@@ -1032,7 +1051,6 @@ namespace Extensions.Databases
         /// <typeparamref name="T"/>
         /// </summary>
         public static T RunSQLValue<T>(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLValue<T>(Connection.CreateCommand(SQL, Transaction));
-
 
         /// <summary>
         /// Cria comandos de INSERT para cada objeto do tipo <typeparamref name="T"/> em uma lista
@@ -1077,7 +1095,6 @@ namespace Extensions.Databases
 
             return null;
         }
-
 
         public static V GeneratePrimaryKey<T, V>(this DbConnection connection, Expression<Func<T, V>> column, object whereConditions = null, IDbTransaction transaction = null, int? commandTimeout = null) where T : class => GeneratePrimaryKey<T, V>(connection, GetColumnName(column), whereConditions, transaction, commandTimeout);
 
@@ -2269,7 +2286,6 @@ namespace Extensions.Databases
         public static bool Exists<T>(this DbConnection connection, object whereConditions, IDbTransaction transaction = null, int? commandTimeout = null)
             => RecordCount<T>(connection, whereConditions, transaction, commandTimeout) > 0;
 
-
         /// <summary>
         /// <para>By default queries the table matching the class name</para>
         /// <para>-Table name can be overridden by adding an attribute on your class [Table("YourTableName")]</para>
@@ -2626,7 +2642,6 @@ namespace Extensions.Databases
 
         public static string CacheKey(this IEnumerable<PropertyInfo> props) => string.Join(",", props.Select(p => p.DeclaringType.FullName + "." + p.Name).ToArray());
 
-
         /// <summary>
         /// Database server dialects
         /// </summary>
@@ -2811,200 +2826,248 @@ namespace Extensions.Databases
             }
             return errors;
         }
-    }
 
-    /// <summary>
-    /// Optional Editable attribute. You can use the System.ComponentModel.DataAnnotations version
-    /// in its place to specify the properties that are editable
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Property)]
-    public class EditableAttribute : Attribute
-    {
-        /// <summary>
-        /// Optional Editable attribute.
-        /// </summary>
-        /// <param name="iseditable"></param>
-        public EditableAttribute(bool iseditable)
+        public static string GenerateWhereClause<T>(Expression<Func<T, bool>> expression)
         {
-            AllowEdit = iseditable;
+            var visitor = new WhereClauseVisitor();
+            visitor.Visit(expression);
+            return visitor.WhereClause.ToString();
+        }
+
+        private class WhereClauseVisitor : ExpressionVisitor
+        {
+            private StringBuilder _whereClause;
+
+            public WhereClauseVisitor()
+            {
+                _whereClause = new StringBuilder();
+            }
+
+            public StringBuilder WhereClause => _whereClause;
+
+            protected override Expression VisitBinary(BinaryExpression node)
+            {
+                _whereClause.Append("(");
+                Visit(node.Left);
+                _whereClause.Append(node.NodeType.GetSQLOperator());
+                Visit(node.Right);
+                _whereClause.Append(")");
+                return node;
+            }
+
+            protected override Expression VisitMember(MemberExpression node)
+            {
+                _whereClause.Append(SimpleCRUD.GetColumnName(node.Member.DeclaringType, node.Member.Name));
+                return node;
+            }
+
+            protected override Expression VisitConstant(ConstantExpression node)
+            {
+                if (node.Type.IsSimpleType())
+                {
+                    _whereClause.Append(node.Value.ToSQLString());
+                }
+                else
+                {
+                    _whereClause.Append(node.Value);
+                }
+                return node;
+            }
         }
 
         /// <summary>
-        /// Does this property persist to the database?
+        /// Optional Editable attribute. You can use the System.ComponentModel.DataAnnotations version
+        /// in its place to specify the properties that are editable
         /// </summary>
-        public bool AllowEdit { get; private set; }
-    }
-
-    /// <summary>
-    /// Optional IgnoreInsert attribute. Custom for Dapper.SimpleCRUD to exclude a property from
-    /// Insert methods
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Property)]
-    public class IgnoreInsertAttribute : Attribute
-    {
-    }
-
-    /// <summary>
-    /// Optional IgnoreSelect attribute. Custom for Dapper.SimpleCRUD to exclude a property from
-    /// Select methods
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Property)]
-    public class IgnoreSelectAttribute : Attribute
-    {
-    }
-
-    /// <summary>
-    /// Optional IgnoreUpdate attribute. Custom for Dapper.SimpleCRUD to exclude a property from
-    /// Update methods
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Property)]
-    public class IgnoreUpdateAttribute : Attribute
-    {
-    }
-
-    /// <summary>
-    /// Represent a Paginated Result of a query with pagination information
-    /// </summary>
-    /// <typeparam name="TEntity">Entity Type</typeparam>
-    public class PageResult<TEntity>
-    {
-        internal PageResult() { }
-
-        public int? PreviousPage
+        [AttributeUsage(AttributeTargets.Property)]
+        public class EditableAttribute : Attribute
         {
-            get
+            /// <summary>
+            /// Optional Editable attribute.
+            /// </summary>
+            /// <param name="iseditable"></param>
+            public EditableAttribute(bool iseditable)
             {
-                if (PageNumber.HasValue)
-                {
-                    var pg = PageNumber - 1;
+                AllowEdit = iseditable;
+            }
 
-                    if (pg < 1)
+            /// <summary>
+            /// Does this property persist to the database?
+            /// </summary>
+            public bool AllowEdit { get; private set; }
+        }
+
+        /// <summary>
+        /// Optional IgnoreInsert attribute. Custom for Dapper.SimpleCRUD to exclude a property from
+        /// Insert methods
+        /// </summary>
+        [AttributeUsage(AttributeTargets.Property)]
+        public class IgnoreInsertAttribute : Attribute
+        {
+        }
+
+        /// <summary>
+        /// Optional IgnoreSelect attribute. Custom for Dapper.SimpleCRUD to exclude a property from
+        /// Select methods
+        /// </summary>
+        [AttributeUsage(AttributeTargets.Property)]
+        public class IgnoreSelectAttribute : Attribute
+        {
+        }
+
+        /// <summary>
+        /// Optional IgnoreUpdate attribute. Custom for Dapper.SimpleCRUD to exclude a property from
+        /// Update methods
+        /// </summary>
+        [AttributeUsage(AttributeTargets.Property)]
+        public class IgnoreUpdateAttribute : Attribute
+        {
+        }
+
+        /// <summary>
+        /// Represent a Paginated Result of a query with pagination information
+        /// </summary>
+        /// <typeparam name="TEntity">Entity Type</typeparam>
+        public class PageResult<TEntity>
+        {
+            internal PageResult() { }
+
+            public int? PreviousPage
+            {
+                get
+                {
+                    if (PageNumber.HasValue)
                     {
-                        pg = LastPage;
-                    }
-                    return pg;
-                }
+                        var pg = PageNumber - 1;
 
-                return null;
+                        if (pg < 1)
+                        {
+                            pg = LastPage;
+                        }
+                        return pg;
+                    }
+
+                    return null;
+                }
             }
-        }
-        public int? NextPage
-        {
-            get
+            public int? NextPage
             {
-                if (PageNumber.HasValue)
+                get
                 {
-                    var pg = PageNumber + 1;
-                    if (pg > LastPage)
+                    if (PageNumber.HasValue)
                     {
-                        pg = 1;
+                        var pg = PageNumber + 1;
+                        if (pg > LastPage)
+                        {
+                            pg = 1;
+                        }
+                        return pg;
                     }
-                    return pg;
+                    return null;
                 }
-                return null;
             }
-        }
 
-        public bool IsFirstPage => PageNumber == 0;
-        public bool IsLastPage => PageNumber == LastPage;
+            public bool IsFirstPage => PageNumber == 0;
+            public bool IsLastPage => PageNumber == LastPage;
 
-        public int? LastPage => TotalPages;
+            public int? LastPage => TotalPages;
 
-        /// <summary>
-        /// Current Page Number
-        /// </summary>
-        public int? PageNumber { get; internal set; }
-        /// <summary>
-        /// Items in the current page
-        /// </summary>
-        public IEnumerable<TEntity> Items { get; internal set; }
+            /// <summary>
+            /// Current Page Number
+            /// </summary>
+            public int? PageNumber { get; internal set; }
+            /// <summary>
+            /// Items in the current page
+            /// </summary>
+            public IEnumerable<TEntity> Items { get; internal set; }
 
-        /// <summary>
-        /// Page Size (items per page). Can be null if the query is not paged
-        /// </summary>
-        public int? PageSize { get; internal set; }
+            /// <summary>
+            /// Page Size (items per page). Can be null if the query is not paged
+            /// </summary>
+            public int? PageSize { get; internal set; }
 
-        /// <summary>
-        /// Total Items in the query
-        /// </summary>
-        public int TotalItems { get; internal set; }
+            /// <summary>
+            /// Total Items in the query
+            /// </summary>
+            public int TotalItems { get; internal set; }
 
-        /// <summary>
-        /// Total Pages in the query. Can be null if the query is not paged
-        /// </summary>
-        public int? TotalPages { get; internal set; }
+            /// <summary>
+            /// Total Pages in the query. Can be null if the query is not paged
+            /// </summary>
+            public int? TotalPages { get; internal set; }
 
-        /// <summary>
-        /// Intance of TEntity to be inserted in the first position of the list, used to represent a
-        /// empty item with default values. This is only inserted in the first page.
-        /// </summary>
-        public TEntity InsertPlaceholder { get; internal set; }
+            /// <summary>
+            /// Intance of TEntity to be inserted in the first position of the list, used to represent a
+            /// empty item with default values. This is only inserted in the first page.
+            /// </summary>
+            public TEntity InsertPlaceholder { get; internal set; }
 
-        /// <summary>
-        /// Return a List of TEntity. Includes the InsertPlaceholder if it is the first page and it
-        /// is not null.
-        /// </summary>
-        /// <returns></returns>
-        public List<TEntity> GetList()
-        {
-            var l = Items?.ToList() ?? new List<TEntity>();
-            if (InsertPlaceholder != null)
+            /// <summary>
+            /// Return a List of TEntity. Includes the InsertPlaceholder if it is the first page and it
+            /// is not null.
+            /// </summary>
+            /// <returns></returns>
+            public List<TEntity> GetList()
             {
-                l.Insert(0, InsertPlaceholder);
+                var l = Items?.ToList() ?? new List<TEntity>();
+                if (InsertPlaceholder != null)
+                {
+                    l.Insert(0, InsertPlaceholder);
+                }
+                return l;
             }
-            return l;
-        }
 
-        public IEnumerable<int> GetPages() => Enumerable.Range(0, TotalPages ?? 0);
+            public IEnumerable<int> GetPages() => Enumerable.Range(0, TotalPages ?? 0);
 
-        /// <summary>
-        /// Return a Dictionary with the page number and the page number button text
-        /// </summary>
-        /// <param name="PaginationOffset"></param>
-        /// <returns></returns>
-        public Dictionary<string, int> GetPaginationButtons(int PaginationOffset)
-        {
-            if (TotalPages.HasValue)
+            /// <summary>
+            /// Return a Dictionary with the page number and the page number button text
+            /// </summary>
+            /// <param name="PaginationOffset"></param>
+            /// <returns></returns>
+            public Dictionary<string, int> GetPaginationButtons(int PaginationOffset)
             {
-                var pages = GetPages(PaginationOffset).Select(x => (Button: x.ToString(), Number: x)).ToList();
-                if (pages.Any(x => x.Number == 0) == false)
+                if (TotalPages.HasValue)
                 {
-                    pages.Insert(0, ("«", 0));
-                    pages.Insert(1, ("‹", PreviousPage.Value));
+                    var pages = GetPages(PaginationOffset).Select(x => (Button: x.ToString(), Number: x)).ToList();
+                    if (pages.Any(x => x.Number == 0) == false)
+                    {
+                        pages.Insert(0, ("«", 0));
+                        pages.Insert(1, ("‹", PreviousPage.Value));
+                    }
+
+                    if (pages.Any(x => x.Number == TotalPages.Value) == false)
+                    {
+                        pages.Add(("›", NextPage.Value));
+                        pages.Add(("»", TotalPages.Value));
+                    }
+
+                    return pages.ToDictionary(x => x.Button, x => x.Number);
                 }
 
-                if (pages.Any(x => x.Number == TotalPages.Value) == false)
-                {
-                    pages.Add(("›", NextPage.Value));
-                    pages.Add(("»", TotalPages.Value));
-                }
-
-                return pages.ToDictionary(x => x.Button, x => x.Number);
+                return new Dictionary<string, int>();
             }
 
-            return new Dictionary<string, int>();
-        }
-
-        public IEnumerable<int> GetPages(int PaginationOffset)
-        {
-            var arr = new List<int>();
-            if (PageNumber.HasValue && TotalPages.HasValue)
+            public IEnumerable<int> GetPages(int PaginationOffset)
             {
-                int frange = 1;
-                int lrange = 1;
-                if (TotalPages > 1)
+                var arr = new List<int>();
+                if (PageNumber.HasValue && TotalPages.HasValue)
                 {
-                    frange = new[] { PageNumber.Value - PaginationOffset, 0 }.Max();
-                    lrange = new[] { PageNumber.Value + PaginationOffset, TotalPages.Value }.Min();
+                    int frange = 1;
+                    int lrange = 1;
+                    if (TotalPages > 1)
+                    {
+                        frange = new[] { PageNumber.Value - PaginationOffset, 0 }.Max();
+                        lrange = new[] { PageNumber.Value + PaginationOffset, TotalPages.Value }.Min();
+                    }
+
+                    for (int index = frange, loopTo = lrange; index <= loopTo; index++)
+                    {
+                        arr.Add(index);
+                    }
                 }
 
-                for (int index = frange, loopTo = lrange; index <= loopTo; index++)
-                {
-                    arr.Add(index);
-                }
+                return arr;
             }
-
-            return arr;
         }
     }
 
@@ -3069,12 +3132,12 @@ namespace Extensions.Databases
                     }
                     else if (arg.GetType().IsEnumerableNotString())
                     {
-
                         var list = arg as IEnumerable<object>;
 
                         var parameters = "";
                         if (list is IEnumerable<BinaryExpression> exps)
                         {
+                            var binExps = exps.Where(x => x is BinaryExpression);
                             parameters = string.Join(" AND ", exps.Select((x, j) =>
                             {
                                 var exp = SimpleCRUD.ParseExpression(x);
@@ -3083,17 +3146,14 @@ namespace Extensions.Databases
                                 this.Parameters.Add(paramName, x);
                                 return $"{column} {exp.Item2.Replace("!=", "<>")} @{paramName}";
                             }));
-
                         }
                         else
                         {
-
                             parameters = string.Join(", ", list.Select((x, j) =>
                           {
                               this.Parameters.Add($"{this.ParameterPrefix}{i}_{j}", x);
                               return $"{this.ParameterPrefix}{i}_{j}";
                           }));
-
                         }
                         format = format.Replace("{" + i + "}", parameters);
                     }
@@ -3161,9 +3221,6 @@ namespace Extensions.Databases
 
         public static implicit operator InterpolatedQuery((FormattableString query, DynamicParameters parameters) tuple) => new InterpolatedQuery(tuple.query, null, tuple.parameters, null);
     }
-
-
-
 
     internal class Join
     {
@@ -4562,6 +4619,4 @@ namespace Extensions.Databases
 
         #endregion Public Methods
     }
-
-
 }
