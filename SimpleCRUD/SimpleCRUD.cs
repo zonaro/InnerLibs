@@ -19,9 +19,6 @@ using Dapper;
 using Extensions;
 using Extensions.Databases;
 using Microsoft.CSharp.RuntimeBinder;
-using System;
-using System.Linq.Expressions;
-using System.Text;
 /*
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 * This file add overloads for each Dapper.SQLMapper method, allowing the use of FormattableString     *
@@ -1005,19 +1002,7 @@ namespace Extensions.Databases
             return null;
         }
 
-        public static Expression PropertyExpression(this ParameterExpression Parameter, string PropertyName)
-        {
-            Expression prop = Parameter;
-            if (PropertyName.IfBlank("this") != "this")
-            {
-                foreach (var name in PropertyName.SplitAny(".", "/"))
-                {
-                    prop = Expression.Property(prop, name);
-                }
-            }
 
-            return prop;
-        }
 
         /// <summary>
         /// Retorna o primeiro resultado da primeira coluna de uma consulta SQL
@@ -1780,8 +1765,14 @@ namespace Extensions.Databases
 
         public static ColumnAttribute GetColumnAttribute(this PropertyInfo propertyInfo)
         {
-            return propertyInfo.GetCustomAttributes(true).FirstOrDefault(attr => attr.GetType().Name == typeof(ColumnAttribute).Name) as ColumnAttribute;
+            var aa = propertyInfo.GetCustomAttributes(true).FirstOrDefault(attr => attr.GetType().Name == typeof(ColumnAttribute).Name);
+            if (aa != null && aa is ColumnAttribute ca)
+            {
+                return ca;
+            }
+            return new ColumnAttribute(propertyInfo.Name);
         }
+
         public static ColumnAttribute GetColumnAttribute<T, V>(this Expression<Func<T, V>> expression) => GetProperty(expression).GetColumnAttribute();
 
         public static PropertyInfo GetProperty<T, V>(this Expression<Func<T, V>> expression)
@@ -2710,7 +2701,7 @@ namespace Extensions.Databases
                     }
                     catch (RuntimeBinderException)
                     {
-                        //Schema doesn'classType exist on this attribute.
+                        //Schema doesn't exist on this attribute.
                     }
                 }
 
@@ -3130,6 +3121,10 @@ namespace Extensions.Databases
                     {
                         format = format.Replace("{" + i + "}", SimpleCRUD.Encapsulate(c.Name));
                     }
+                    else if (arg is Condition cn)
+                    {
+                        format = format.Replace("{" + i + "}", cn.ParenthesisToString().Wrap(" "));
+                    }
                     else if (arg.GetType().IsEnumerableNotString())
                     {
                         var list = arg as IEnumerable<object>;
@@ -3137,6 +3132,7 @@ namespace Extensions.Databases
                         var parameters = "";
                         if (list is IEnumerable<BinaryExpression> exps)
                         {
+                            //TODO: precisa testar
                             var binExps = exps.Where(x => x is BinaryExpression);
                             parameters = string.Join(" AND ", exps.Select((x, j) =>
                             {
@@ -3150,10 +3146,10 @@ namespace Extensions.Databases
                         else
                         {
                             parameters = string.Join(", ", list.Select((x, j) =>
-                          {
-                              this.Parameters.Add($"{this.ParameterPrefix}{i}_{j}", x);
-                              return $"{this.ParameterPrefix}{i}_{j}";
-                          }));
+                            {
+                                this.Parameters.Add($"{this.ParameterPrefix}{i}_{j}", x);
+                                return $"{this.ParameterPrefix}{i}_{j}";
+                            }));
                         }
                         format = format.Replace("{" + i + "}", parameters);
                     }

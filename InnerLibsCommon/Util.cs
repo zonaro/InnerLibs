@@ -4035,7 +4035,7 @@ namespace Extensions
             return default;
         }
 
-        public static TValue GetAttributeValue<TAttribute, TValue>(this TAttribute att, Expression<Func<TAttribute, TValue>> ValueSelector)
+        public static TValue GetAttributeValue<TAttribute, TValue>(this TAttribute att, Expression<Func<TAttribute, TValue>> ValueSelector) where TAttribute : Attribute
         {
             if (att != null)
             {
@@ -15902,6 +15902,20 @@ namespace Extensions
                     return Directory.GetFileSystemInfos("*", SearchOption).Where((Func<FileSystemInfo, bool>)predicate) as IEnumerable<T>;
 
             return Array.Empty<T>();
+        }
+
+        public static Expression PropertyExpression(this ParameterExpression Parameter, string PropertyName)
+        {
+            Expression prop = Parameter;
+            if (PropertyName.IfBlank("this") != "this")
+            {
+                foreach (var name in PropertyName.SplitAny(".", "/"))
+                {
+                    prop = Expression.Property(prop, name);
+                }
+            }
+
+            return prop;
         }
 
         /// <summary>
