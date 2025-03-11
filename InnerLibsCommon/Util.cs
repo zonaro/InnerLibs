@@ -4337,7 +4337,7 @@ namespace Extensions
         /// </summary>
         /// <param name="RawFormat">Formato de Imagem</param>
         /// <returns>string mime type</returns>
-        public static IEnumerable<string> GetMimeType(this ImageFormat RawFormat)
+        public static IEnumerable<string> GetMimeTypes(this ImageFormat RawFormat)
         {
             try
             {
@@ -4357,12 +4357,34 @@ namespace Extensions
             return GetFileType(".png").MimeTypes;
         }
 
+        public static string GetMimeType(this ImageFormat RawFormat)
+        {
+            try
+            {
+                RawFormat = RawFormat ?? ImageFormat.Png;
+                foreach (var img in ImageCodecInfo.GetImageEncoders())
+                {
+                    if (img.FormatID == RawFormat.Guid)
+                    {
+                        ImageCodecInfo[] codecs = ImageCodecInfo.GetImageEncoders();
+                        return codecs.First(codec => codec.FormatID == RawFormat.Guid).MimeType;
+                    }
+                }
+            }
+            catch
+            {
+            }
+
+            return "image/png";
+        }
+
         /// <summary>
         /// Retorna o Mime TEntity a partir de de uma Imagem
         /// </summary>
         /// <param name="Image">Imagem</param>
         /// <returns>string mime type</returns>
-        public static IEnumerable<string> GetFileType(this Image Image) => Image?.RawFormat.GetMimeType() ?? Array.Empty<string>();
+        public static IEnumerable<string> GetMimeTypes(this Image Image) => Image?.RawFormat.GetMimeTypes() ?? Array.Empty<string>();
+        public static string GetMimeType(this Image Image) => Image?.RawFormat.GetMimeType() ?? "image/png";
 
         public static string GetFirstChars(this string Text, int Number = 1) => Text.IsValid() ? Text.Length < Number || Number < 0 ? Text : Text.Substring(0, Number) : EmptyString;
 
@@ -12886,7 +12908,7 @@ namespace Extensions
         /// </summary>
         /// <param name="Image">Imagem</param>
         /// <returns>Uma DataURI em string</returns>
-        public static string ToDataURL(this Image Image) => $"data:{Image.GetFileType().First().ToLowerInvariant().Replace("application/octet-stream", GetFileType(".png").GetMimeTypesOrDefault().First())};base64,{Image.ToBase64()}";
+        public static string ToDataURL(this Image Image) => $"data:{Image.GetMimeTypes().First().ToLowerInvariant().Replace("application/octet-stream", GetFileType(".png").GetMimeTypesOrDefault().First())};base64,{Image.ToBase64()}";
 
         /// <summary>
         /// Converte uma imagem para DataURI trocando o MIME TEntity
@@ -15009,21 +15031,21 @@ namespace Extensions
         /// <returns></returns>
         public static string ToSnakeCase(this string Text) => Text?.Replace(WhitespaceChar, "_").ToLowerInvariant();
 
-        ///<summary> Monta um Comando SQL para executar um SELECT com
-        /// filtros a partir de um <see cref="NameValueCollection" />
-        /// </summary>
-        /// <param name="NVC"> Dicionario</param> <param name="TableName">Nome da Tabela</param>
-        public static Select ToSQLFilter(this NameValueCollection NVC, string TableName, string CommaSeparatedColumns, params string[] FilterKeys) => (Select)new Select(CommaSeparatedColumns.Split(",")).From(TableName).Where(NVC, FilterKeys);
+        /////<summary> Monta um Comando SQL para executar um SELECT com
+        ///// filtros a partir de um <see cref="NameValueCollection" />
+        ///// </summary>
+        ///// <param name="NVC"> Dicionario</param> <param name="TableName">Nome da Tabela</param>
+        //public static Select ToSQLFilter(this NameValueCollection NVC, string TableName, string CommaSeparatedColumns, params string[] FilterKeys) => (Select)new Select(CommaSeparatedColumns.Split(",")).From(TableName).Where(NVC, FilterKeys);
 
-        /// <summary>
-        /// Monta um Comando SQL para executar um SELECT com filtros a partir de um <see
-        /// cref="Dictionary{string, object}"/>
-        /// </summary>
-        /// <param name="Dic">Dicionario</param>
-        /// <param name="TableName">Nome da Tabela</param>
-        /// <param name="FilterKeys">Parametros da URL que devem ser utilizados</param>
-        /// <returns>Uma string com o comando montado</returns>
-        public static Select ToSQLFilter(this Dictionary<string, object> Dic, string TableName, string CommaSeparatedColumns, LogicConcatenationOperator LogicConcatenation, params string[] FilterKeys) => (Select)new Select(CommaSeparatedColumns.Split(",")).From(TableName).Where(Dic, LogicConcatenation, FilterKeys);
+        ///// <summary>
+        ///// Monta um Comando SQL para executar um SELECT com filtros a partir de um <see
+        ///// cref="Dictionary{string, object}"/>
+        ///// </summary>
+        ///// <param name="Dic">Dicionario</param>
+        ///// <param name="TableName">Nome da Tabela</param>
+        ///// <param name="FilterKeys">Parametros da URL que devem ser utilizados</param>
+        ///// <returns>Uma string com o comando montado</returns>
+        //public static Select ToSQLFilter(this Dictionary<string, object> Dic, string TableName, string CommaSeparatedColumns, LogicConcatenationOperator LogicConcatenation, params string[] FilterKeys) => (Select)new Select(CommaSeparatedColumns.Split(",")).From(TableName).Where(Dic, LogicConcatenation, FilterKeys);
 
         /// <summary>
         /// Interploa um objeto de tipo <typeparamref name="T"/> em uma <see

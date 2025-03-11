@@ -1763,6 +1763,7 @@ namespace Extensions.Databases
             return connection.QueryFirstOrDefault<T>(sb.ToString(), dynParms, transaction, commandTimeout);
         }
 
+
         public static ColumnAttribute GetColumnAttribute(this PropertyInfo propertyInfo)
         {
             var aa = propertyInfo.GetCustomAttributes(true).FirstOrDefault(attr => attr.GetType().Name == typeof(ColumnAttribute).Name);
@@ -1786,13 +1787,24 @@ namespace Extensions.Databases
 
         public static string GetColumnName(this Type classType, string searchName) => GetScaffoldableProperties(classType).FirstOrDefault(x => x.Name.Equals(searchName, StringComparison.OrdinalIgnoreCase) || x.GetColumnAttribute().Name == searchName)?.Name ?? searchName;
 
-        public static string GetColumnName(PropertyInfo propertyInfo)
+        public static string GetColumnName<T>(PropertyInfo propertyInfo) => GetColumnName(propertyInfo, typeof(T));
+        public static string GetColumnName(PropertyInfo propertyInfo) => GetColumnName(propertyInfo, null);
+        public static string GetColumnName(PropertyInfo propertyInfo, Type classType)
         {
-            string columnName, key = string.Format("{0}.{1}", propertyInfo.DeclaringType, propertyInfo.Name);
+            classType = classType ?? propertyInfo.DeclaringType;
+            string columnName, key = string.Format("{0}.{1}", classType, propertyInfo.Name);
 
             if (ColumnNames.TryGetValue(key, out columnName))
             {
                 return columnName;
+            }
+            if (propertyInfo.DeclaringType != classType)
+            {
+                propertyInfo = classType.GetProperties().FirstOrDefault(x => x.Name == propertyInfo.Name);
+                if (propertyInfo == null)
+                {
+                    throw new ArgumentException($"{classType.Name} wont have a property with name {propertyInfo.Name}", nameof(propertyInfo));
+                }
             }
 
             columnName = _columnNameResolver.ResolveColumnName(propertyInfo);
