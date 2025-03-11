@@ -3736,20 +3736,15 @@ namespace Extensions
         /// <returns></returns>
         public static string FormatString(this string Text, params string[] Args) => string.Format(Text, Args);
 
-        public static Image GenerateAvatarByName(this string Name, string Size = "")
+        public static Image GenerateAvatarByName(this string Name, string Size = "", int maxLenght = 3)
         {
             if (Name.IsValid())
             {
                 var x = new HSVColor(Name);
-                var parts = Name.GetInitials();
-                if (parts.Count() > 1)
-                {
-                    x.Name = parts.First() + parts.Last();
-                }
-                else
-                {
-                    x.Name = parts.First();
-                }
+                var parts = Name.GetInitials().ToList();
+                maxLenght = maxLenght.LimitRange(1, parts.Count);
+
+                x.Name = $"{parts.FirstOrDefault() ?? ""}{parts.Skip(1).TakeLast(maxLenght).SelectJoinString()}";
 
                 var img = x.GetImageSample(Size).CropToCircle();
                 return img;
