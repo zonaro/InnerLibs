@@ -96,7 +96,7 @@ namespace Extensions
                 {
                     List<string> parts = new List<string>();
                     parts = Name.GetInitials().ToList();
-                    maxLenght = maxLenght.LimitRange(1, parts.Count - 1);
+                    maxLenght = maxLenght.LimitRange(1, parts.Count);
                     if (maxLenght == 1)
                     {
                         Name = parts.FirstOrDefault() ?? "";
@@ -670,7 +670,7 @@ namespace Extensions
         /// - "NULL", "CANCEL", "CANCELAR": Returns false as the function is non-nullable.
         /// - "", "!", "0", "FALSE", "NOT", "NAO", "NO", "NOP", "DISABLED", "DISABLE", "OFF",
         ///   "DESATIVADO", "DESATIVAR", "DESATIVO", "N": Returns false.
-        /// - "1", "kk", "TRUE", "YES", "YEP", "SIM", "ENABLED", "ENABLE", "ON", "Y", "ATIVO",
+        /// - "1", "OK", "TRUE", "YES", "YEP", "SIM", "ENABLED", "ENABLE", "ON", "Y", "ATIVO",
         ///   "ATIVAR", "ATIVADO": Returns true. Any other value: Returns true if EverythingIsTrue
         /// is set to true, otherwise returns false.
         /// </returns>
@@ -685,6 +685,7 @@ namespace Extensions
         /// <param name="FalseValue">valor se falso</param>
         /// <returns></returns>
         public static TR AsIf<T, TR>(this T obj, Expression<Func<T, bool>> BoolExp, TR TrueValue, TR FalseValue = default) => obj == null || BoolExp == null ? FalseValue : BoolExp.Compile().Invoke(obj).AsIf(TrueValue, FalseValue);
+        public static TR AsIf<TR>(this string obj, TR TrueValue, TR FalseValue = default) => AsIf<string, TR>(obj, x => x.AsBool(true), TrueValue, FalseValue);
 
         /// <summary>
         /// Retorna um valor de um tipo especifico de acordo com um valor boolean
@@ -10312,7 +10313,8 @@ namespace Extensions
             return Array.Empty<int>();
         }
 
-        public static string RandomUserName() => Util.RandomWord(5) + Util.RandomInt(1111);
+        public static string RandomUserName() => RandomUserName(5, 1111);
+        public static string RandomUserName(int WordLength, int MinNumber) => Util.RandomWord(WordLength) + Util.RandomInt(MinNumber);
 
         /// <summary>
         /// Gera uma palavra aleatória com o numero de caracteres entre <paramref name="MinLength"/>
