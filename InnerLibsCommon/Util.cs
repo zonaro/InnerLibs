@@ -40,6 +40,7 @@ using Extensions.Files;
 using Extensions.Locations;
 using Extensions.Pagination;
 using Extensions.Web;
+
 using Expression = System.Linq.Expressions.Expression;
 
 namespace Extensions
@@ -71,6 +72,58 @@ namespace Extensions
 
         private static readonly MethodInfo startsWithMethod = typeof(string).GetMethod("StartsWith", new[] { typeof(string) });
 
+        public static Image GenerateAvatarByName(this string Name, string Size = "", int maxLenght = 3, bool circle = true)
+        {
+            Color? color = null;
+            if (Name.IsBlank())
+            {
+                color = RandomColor();
+            }
+            else
+            {
+                color = Name.ToColor();
+            }
+
+            color = color?.MakeLighter();
+
+            var fontColor = color?.GetContrastColor();
+
+            var img = color?.CreateSolidImage(Size);
+
+            if (Name.IsNotBlank())
+            {
+                if (Name.Contains(" "))
+                {
+                    List<string> parts = new List<string>();
+                    parts = Name.GetInitials().ToList();
+                    maxLenght = maxLenght.LimitRange(1, parts.Count - 1);
+                    if (maxLenght == 1)
+                    {
+                        Name = parts.FirstOrDefault() ?? "";
+                    }
+                    else
+                    {
+
+                        Name = $"{parts.Detach(0)}{parts.TakeLast(maxLenght - 1).SelectJoinString()}";
+                    }
+                }
+                else
+                {
+                    Name = Name.GetFirstChars(maxLenght).ToTitle();
+                }
+
+                float size = (float)(img.Width * .18);
+                img = img.DrawString(Name, new Font("Arial", size, FontStyle.Bold), fontColor);
+            }
+
+            if (circle)
+            {
+                img = img?.CropToCircle();
+            }
+
+            return img;
+
+        }
 
         public static IEnumerable<string> GetInitials(this string Text)
         {
@@ -3736,21 +3789,7 @@ namespace Extensions
         /// <returns></returns>
         public static string FormatString(this string Text, params string[] Args) => string.Format(Text, Args);
 
-        public static Image GenerateAvatarByName(this string Name, string Size = "", int maxLenght = 3)
-        {
-            if (Name.IsValid())
-            {
-                var x = new HSVColor(Name);
-                var parts = Name.GetInitials().ToList();
-                maxLenght = maxLenght.LimitRange(1, parts.Count);
 
-                x.Name = $"{parts.FirstOrDefault() ?? ""}{parts.Skip(1).TakeLast(maxLenght).SelectJoinString()}";
-
-                var img = x.GetImageSample(Size).CropToCircle();
-                return img;
-            }
-            return new HSVColor().GetImageSample(Size).CropToCircle();
-        }
 
         /// <inheritdoc cref="GenerateBarcodeCheckSum(string)"/>
         public static string GenerateBarcodeCheckSum(long Code) => GenerateBarcodeCheckSum(Code.ToString(CultureInfo.InvariantCulture));

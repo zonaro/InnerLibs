@@ -206,6 +206,8 @@ namespace Extensions.Colors
 
         #region Public Properties
 
+
+
         /// <summary>
         /// Lista com todas as <see cref="HSVColor"/> com nomes oficiais
         /// </summary>
