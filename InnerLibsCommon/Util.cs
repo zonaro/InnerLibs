@@ -72,6 +72,14 @@ namespace Extensions
 
         private static readonly MethodInfo startsWithMethod = typeof(string).GetMethod("StartsWith", new[] { typeof(string) });
 
+        /// <summary>
+        /// Generates an avatar image based on the provided name.
+        /// </summary>
+        /// <param name="Name">The name to generate the avatar from.</param>
+        /// <param name="Size">The size of the avatar image.</param>
+        /// <param name="maxLenght">The maximum length of the initials.</param>
+        /// <param name="circle">Whether the avatar should be circular.</param>
+        /// <returns>An image representing the avatar.</returns>
         public static Image GenerateAvatarByName(this string Name, string Size = "", int maxLenght = 3, bool circle = true)
         {
             Color? color = null;
@@ -125,16 +133,26 @@ namespace Extensions
 
         }
 
-        public static IEnumerable<string> GetInitials(this string Text)
-        {
-            return Text?.SplitAny(PredefinedArrays.WordSplitters).Select(x => x.GetFirstChars().ToUpper()) ?? Array.Empty<string>();
-        }
+        /// <summary>
+        /// Gets the initials of each word in the given text.
+        /// </summary>
+        /// <param name="Text">The text to get initials from.</param>
+        /// <returns>An enumerable of initials from the text.</returns>
+        public static IEnumerable<string> GetInitials(this string Text) => Text?.SplitAny(PredefinedArrays.WordSplitters).Select(x => x.GetFirstChars().ToUpper()) ?? Array.Empty<string>();
 
-        public static string GetInitialsString(this string Text)
-        {
-            return Text.GetInitials().SelectJoinString();
-        }
+        /// <summary>
+        /// Gets the initials of each word in the given text.
+        /// </summary>
+        /// <param name="Text">The text to get initials from.</param>
+        /// <returns>An string of initials from the text.</returns>
+        public static string GetInitialsString(this string Text) => Text.GetInitials().SelectJoinString();
 
+        /// <summary>
+        /// Check if one File is a copy of another file
+        /// </summary>
+        /// <param name="file1"></param>
+        /// <param name="file2"></param>
+        /// <returns></returns>
         public static bool IsCopyOf(this FileInfo file1, FileInfo file2)
         {
             int file1byte;
@@ -146,6 +164,13 @@ namespace Extensions
             {
                 return false;
             }
+
+
+            if (!file1.Exists || !file2.Exists)
+            {
+                return false;
+            }
+
 
             // Determine if the same file was referenced two times.
             if (file1.FullName == file2.FullName)
@@ -191,6 +216,14 @@ namespace Extensions
             return false;
         }
 
+
+        /// <summary>
+        /// Orders the elements of a sequence according to the specified indexes.
+        /// </summary>
+        /// <typeparam name="T">The type of the elements of the sequence.</typeparam>
+        /// <param name="list">The sequence of elements to order.</param>
+        /// <param name="indexes">The indexes to order the elements by.</param>
+        /// <returns>An ordered sequence of elements.</returns>
         public static IEnumerable<T> OrderByIndexes<T>(this IEnumerable<T> list, params int[] indexes)
         {
             if (indexes != null && indexes.Length > 0 && list != null && list.Any())
@@ -213,6 +246,7 @@ namespace Extensions
         /// </summary>
         /// <param name="formatString"></param>
         /// <param name="attributes"></param>
+        /// <param name="IsSQL"></param>
         /// <returns></returns>
         private static string InjectBase(string formatString, Hashtable attributes, bool IsSQL)
         {
@@ -263,6 +297,9 @@ namespace Extensions
             return result;
         }
 
+        /// <summary>
+        /// Represents a double quote character.
+        /// </summary>
         public const string DoubleQuoteChar = "\"";
 
         /// <summary>
