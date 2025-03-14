@@ -9000,77 +9000,79 @@ namespace Extensions
         /// <typeparam name="T"></typeparam>
         /// <param name="Obj"></param>
         /// <returns></returns>
-        public static T NullPropertiesAsDefault<T>(this T Obj, bool IncludeVirtual = false) where T : class
+        public static T NullPropertiesAsDefault<T>(this T Obj, bool IncludeVirtual = false, params Type[] OnlyTypes) where T : class
         {
+            OnlyTypes = OnlyTypes ?? Array.Empty<Type>();
             TryExecute(() => Obj = Obj ?? Activator.CreateInstance<T>());
             if (Obj != null)
                 foreach (var item in Obj.GetProperties())
                 {
-                    if (item.CanRead && item.CanWrite && item.GetValue(Obj) is null)
-                    {
-                        switch (item.PropertyType.GetNullableTypeOf())
+                    if (OnlyTypes.Length == 0 || OnlyTypes.Contains(item.PropertyType.GetTypeOf()))
+                        if (item.CanRead && item.CanWrite && item.GetValue(Obj) is null)
                         {
-                            case var @case when @case == typeof(string):
-                                {
-                                    item.SetValue(Obj, EmptyString);
-                                    break;
-                                }
-
-                            case var @case when @case == typeof(DateTime):
-                                {
-                                    item.SetValue(Obj, DateTime.MinValue);
-                                    break;
-                                }
-
-                            case var @case when @case == typeof(byte):
-                                {
-                                    item.SetValue(Obj, default(byte));
-                                    break;
-                                }
-
-                            case var @case when @case == typeof(short):
-                                {
-                                    item.SetValue(Obj, default(short));
-                                    break;
-                                }
-
-                            case var @case when @case == typeof(int):
-                                {
-                                    item.SetValue(Obj, default(int));
-                                    break;
-                                }
-
-                            case var @case when @case == typeof(long):
-                                {
-                                    item.SetValue(Obj, default(long));
-                                    break;
-                                }
-
-                            case var @case when @case == typeof(double):
-                                {
-                                    item.SetValue(Obj, default(double));
-                                    break;
-                                }
-
-                            case var @case when @case == typeof(decimal):
-                                {
-                                    item.SetValue(Obj, default(decimal));
-                                    break;
-                                }
-
-                            default:
-                                {
-                                    bool IsVirtual = item.GetAccessors().All(x => x.IsVirtual) && IncludeVirtual;
-                                    if (item.IsValueType() || IsVirtual)
+                            switch (item.PropertyType.GetNullableTypeOf())
+                            {
+                                case var @case when @case == typeof(string):
                                     {
-                                        var o = Activator.CreateInstance(item.PropertyType.GetNullableTypeOf());
-                                        item.SetValue(Obj, o);
+                                        item.SetValue(Obj, EmptyString);
+                                        break;
                                     }
 
-                                    break;
-                                }
+                                case var @case when @case == typeof(DateTime):
+                                    {
+                                        item.SetValue(Obj, DateTime.MinValue);
+                                        break;
+                                    }
+
+                                case var @case when @case == typeof(byte):
+                                    {
+                                        item.SetValue(Obj, default(byte));
+                                        break;
+                                    }
+
+                                case var @case when @case == typeof(short):
+                                    {
+                                        item.SetValue(Obj, default(short));
+                                        break;
+                                    }
+
+                                case var @case when @case == typeof(int):
+                                    {
+                                        item.SetValue(Obj, default(int));
+                                        break;
+                                    }
+
+                                case var @case when @case == typeof(long):
+                                    {
+                                        item.SetValue(Obj, default(long));
+                                        break;
+                                    }
+
+                                case var @case when @case == typeof(double):
+                                    {
+                                        item.SetValue(Obj, default(double));
+                                        break;
+                                    }
+
+                                case var @case when @case == typeof(decimal):
+                                    {
+                                        item.SetValue(Obj, default(decimal));
+                                        break;
+                                    }
+
+                                default:
+                                    {
+                                        bool IsVirtual = item.GetAccessors().All(x => x.IsVirtual) && IncludeVirtual;
+                                        if (item.IsValueType() || IsVirtual)
+                                        {
+                                            var o = Activator.CreateInstance(item.PropertyType.GetNullableTypeOf());
+                                            item.SetValue(Obj, o);
+                                        }
+
+                                        break;
+                                    }
+                            }
                         }
-                    }
                 }
 
             return Obj;

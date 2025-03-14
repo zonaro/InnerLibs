@@ -1103,6 +1103,12 @@ namespace Extensions.BR
             cities = new List<Cidade>();
             cached = false;
         }
+
+        public static bool ValidarInscricaoEstadual(string estado, string inscricao)
+        {
+            if (inscricao.FlatEqual("ISENTO")) return true;
+            return Brasil.PegarCidade(estado)?.Estado?.ValidarInscricaoEstadual(inscricao) ?? false;
+        }
     }
 
     public class ChaveNFe
