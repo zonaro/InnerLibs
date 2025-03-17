@@ -25,19 +25,29 @@
         Weak = 3,
 
         /// <summary>
-        /// Medium password level.
+        /// Medium Weak level.
         /// </summary>
-        Medium = 4,
+        MediumWeak = 4,
+
+        /// <summary>
+        /// Medium level.
+        /// </summary>
+        Medium = 5,
+
+        /// <summary>
+        /// Medium Strong level.
+        /// </summary>
+        MediumStrong = 6,
 
         /// <summary>
         /// Strong password level.
         /// </summary>
-        Strong = 5,
+        Strong = 7,
 
         /// <summary>
         /// Very strong password level.
         /// </summary>
-        VeryStrong = 6
+        VeryStrong = 8
     }
 
 }

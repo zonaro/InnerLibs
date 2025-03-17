@@ -67,10 +67,38 @@ namespace Extensions
                     x => x.ContainsAny(StringComparison.InvariantCulture, PredefinedArrays.PasswordSpecialChars.ToArray()),
                     x => x.ContainsAny(StringComparison.InvariantCulture, PredefinedArrays.NumberChars.ToArray()),
                     x => x.ContainsAny(StringComparison.InvariantCulture, PredefinedArrays.AlphaUpperChars.ToArray()),
-                    x => x.ContainsAny(StringComparison.InvariantCulture, PredefinedArrays.AlphaLowerChars.ToArray())
+                    x => x.ContainsAny(StringComparison.InvariantCulture, PredefinedArrays.AlphaLowerChars.ToArray()),
+                    x => x.CountSequentialCharacters() <=3
                 };
 
         private static readonly MethodInfo startsWithMethod = typeof(string).GetMethod("StartsWith", new[] { typeof(string) });
+
+
+        public static int CountSequentialCharacters(this string input)
+        {
+            if (input.IsBlank()) return 0;
+            int somaSequencias = 0;
+            int sequenciaAtual = 1;
+
+            for (int i = 1; i < input.Length; i++)
+            {
+                if (input[i] == input[i - 1] + 1) // Verifica se o caractere atual é sequencial
+                {
+                    sequenciaAtual++;
+                }
+                else
+                {
+                    somaSequencias += sequenciaAtual; // Soma o comprimento da sequência atual
+                    sequenciaAtual = 1; // Reinicia para uma nova sequência
+                }
+            }
+
+            // Adiciona a última sequência à soma
+            somaSequencias += sequenciaAtual;
+
+            return somaSequencias;
+
+        }
 
         /// <summary>
         /// Generates an avatar image based on the provided name.
