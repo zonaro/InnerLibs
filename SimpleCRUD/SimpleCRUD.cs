@@ -18,7 +18,6 @@ using System.Text;
 using Dapper;
 using Extensions;
 using Extensions.Databases;
-using Microsoft.CSharp.RuntimeBinder;
 /*
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 * This file add overloads for each Dapper.SQLMapper method, allowing the use of FormattableString     *
@@ -35,6 +34,325 @@ namespace Extensions.Databases
     public static partial class SimpleCRUD
 
     {
+
+
+        public static T Map<T>(this DataRow Row, params object[] args) where T : class
+        {
+            T d;
+            if (args.Any())
+            {
+                d = (T)Activator.CreateInstance(typeof(T), args);
+            }
+            else
+            {
+                d = Activator.CreateInstance<T>();
+            }
+
+            if (Row?.Table?.Columns != null)
+                for (int ii = 0; ii < Row.Table.Columns.Count; ii++)
+                {
+                    var col = Row.Table.Columns[ii];
+                    string name = col.ColumnName;
+                    var value = Row.GetValue(name);
+                    if (d is Dictionary<string, object> dic)
+                    {
+                        dic.Set(name, value);
+                    }
+                    else if (d is NameValueCollection nvc)
+                    {
+                        nvc.Add(name, $"{value}");
+                    }
+                    else
+                    {
+                        var PropInfos = Util.GetTypeOf(d).FindProperties(name);
+                        var FieldInfos = Util.GetTypeOf(d).FindFields(name).Where(x => x.Name.IsNotIn(PropInfos.Select(y => y.Name)));
+                        foreach (var info in PropInfos)
+                        {
+                            if (info.CanWrite)
+                            {
+                                if (value == null || ReferenceEquals(value.GetType(), typeof(DBNull)))
+                                {
+                                    info.SetValue(d, null);
+                                }
+                                else
+                                {
+                                    info.SetValue(d, Util.ChangeType(value, info.PropertyType));
+                                }
+                            }
+                        }
+
+                        foreach (var info in FieldInfos)
+                        {
+                            if (ReferenceEquals(value.GetType(), typeof(DBNull)))
+                            {
+                                info.SetValue(d, null);
+                            }
+                            else
+                            {
+                                info.SetValue(d, Util.ChangeType(value, info.FieldType));
+                            }
+                        }
+                    }
+                }
+            return d;
+        }
+
+
+
+        public static IEnumerable<T> Map<T>(this DataTable Data, params object[] args) where T : class
+        {
+            var l = new List<T>();
+            args = args ?? Array.Empty<object>();
+            if (Data != null)
+                for (int i = 0; i < Data.Rows.Count; i++) l.Add(Data.Rows[i].Map<T>(args));
+
+            return l.AsEnumerable();
+        }
+
+        /// <summary>
+        /// Mapeia o resultado de um <see cref="DbDataReader"/> para um <see cref="object"/>, <see
+        /// cref="Dictionary{TKey, TValue}"/> ou <see cref="NameValueCollection"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Reader"></param>
+        /// <returns></returns>
+        public static IEnumerable<T> Map<T>(this DbDataReader Reader, params object[] args) where T : class
+        {
+            var l = new List<T>();
+            args = args ?? Array.Empty<object>();
+            while (Reader != null && Reader.Read())
+            {
+                T d;
+                if (args.Any())
+                {
+                    d = (T)Activator.CreateInstance(typeof(T), args);
+                }
+                else
+                {
+                    d = Activator.CreateInstance<T>();
+                }
+
+                for (int i = 0, loopTo = Reader.FieldCount - 1; i <= loopTo; i++)
+                {
+                    string name = Reader.GetName(i);
+                    var value = Reader.GetValue(i);
+                    if (typeof(T) == typeof(Dictionary<string, object>))
+                    {
+                        ((Dictionary<string, object>)(object)d).Set(name, value);
+                    }
+                    else if (typeof(T) == typeof(NameValueCollection))
+                    {
+                        ((NameValueCollection)(object)d).Add(name, $"{value}");
+                    }
+                    else
+                    {
+                        var propnames = name.PropertyNamesFor().ToList();
+                        var PropInfos = Util.GetTypeOf(d).GetProperties().Where(x => x.GetCustomAttributes<ColumnAttribute>().Select(n => n.Name).Contains(x.Name) || x.Name.IsIn(propnames, StringComparer.InvariantCultureIgnoreCase));
+                        var FieldInfos = Util.GetTypeOf(d).GetFields().Where(x => x.GetCustomAttributes<ColumnAttribute>().Select(n => n.Name).Contains(x.Name) || x.Name.IsIn(propnames, StringComparer.InvariantCultureIgnoreCase)).Where(x => x.Name.IsNotIn(PropInfos.Select(y => y.Name)));
+                        foreach (var info in PropInfos)
+                        {
+                            if (info.CanWrite)
+                            {
+                                if (value == null || ReferenceEquals(value.GetType(), typeof(DBNull)))
+                                {
+                                    info.SetValue(d, null);
+                                }
+                                else
+                                {
+                                    info.SetValue(d, Util.ChangeType(value, info.PropertyType));
+                                }
+                            }
+                        }
+
+                        foreach (var info in FieldInfos)
+                        {
+                            if (ReferenceEquals(value.GetType(), typeof(DBNull)))
+                            {
+                                info.SetValue(d, null);
+                            }
+                            else
+                            {
+                                info.SetValue(d, Util.ChangeType(value, info.FieldType));
+                            }
+                        }
+                    }
+                }
+
+                l.Add(d);
+            }
+
+            return l.AsEnumerable();
+        }
+
+        public static T MapFirst<T>(this DataSet Data, params object[] args) where T : class => Data.GetFirstRow().Map<T>(args);
+
+        public static T MapFirst<T>(this DataTable Data, params object[] args) where T : class => Data.GetFirstRow().Map<T>(args);
+
+        /// <summary>
+        /// Mapeia a primeira linha de um datareader para uma classe POCO do tipo <typeparamref name="T"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Reader"></param>
+        /// <param name="args">argumentos para o construtor da classe</param>
+        /// <returns></returns>
+        public static T MapFirst<T>(this DbDataReader Reader, params object[] args) where T : class => Reader.Map<T>(args).FirstOrDefault();
+
+        /// <summary>
+        /// Mapeia os resultsets de um datareader para um <see cref="IEnumerable(Of IEnumerable(Of
+        /// Dictionary(Of String, Object)))"/>
+        /// </summary>
+        /// <param name="Reader"></param>
+        /// <returns></returns>
+        public static IEnumerable<IEnumerable<Dictionary<string, object>>> MapMany(this DbDataReader Reader)
+        {
+            var l = new List<IEnumerable<Dictionary<string, object>>>();
+            if (Reader != null)
+            {
+                do
+                {
+                    l.Add(Reader.Map<Dictionary<string, object>>());
+                }
+                while (Reader.NextResult());
+            }
+
+            return l.AsEnumerable();
+        }
+
+        /// <summary>
+        /// Mapeia os resultsets de um datareader para uma tupla de tipos especificos
+        /// </summary>
+        /// <param name="Reader"></param>
+        /// <returns></returns>
+        public static Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>, IEnumerable<T5>> MapMany<T1, T2, T3, T4, T5>(this DbDataReader Reader)
+            where T1 : class
+            where T2 : class
+            where T3 : class
+            where T4 : class
+            where T5 : class
+        {
+            IEnumerable<T1> o1 = null;
+            IEnumerable<T2> o2 = null;
+            IEnumerable<T3> o3 = null;
+            IEnumerable<T4> o4 = null;
+            IEnumerable<T5> o5 = null;
+            if (Reader != null)
+            {
+                o1 = Reader.Map<T1>();
+                if (Reader.NextResult())
+                {
+                    o2 = Reader.Map<T2>();
+                }
+
+                if (Reader.NextResult())
+                {
+                    o3 = Reader.Map<T3>();
+                }
+
+                if (Reader.NextResult())
+                {
+                    o4 = Reader.Map<T4>();
+                }
+
+                if (Reader.NextResult())
+                {
+                    o5 = Reader.Map<T5>();
+                }
+            }
+
+            return Tuple.Create(o1, o2, o3, o4, o5);
+        }
+
+        /// <summary>
+        /// Mapeia os resultsets de um datareader para uma tupla de tipos especificos
+        /// </summary>
+        /// <param name="Reader"></param>
+        /// <returns></returns>
+        public static Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>> MapMany<T1, T2, T3, T4>(this DbDataReader Reader)
+            where T1 : class
+            where T2 : class
+            where T3 : class
+            where T4 : class
+        {
+            IEnumerable<T1> o1 = null;
+            IEnumerable<T2> o2 = null;
+            IEnumerable<T3> o3 = null;
+            IEnumerable<T4> o4 = null;
+            if (Reader != null)
+            {
+                o1 = Reader.Map<T1>();
+                if (Reader.NextResult())
+                {
+                    o2 = Reader.Map<T2>();
+                }
+
+                if (Reader.NextResult())
+                {
+                    o3 = Reader.Map<T3>();
+                }
+
+                if (Reader.NextResult())
+                {
+                    o4 = Reader.Map<T4>();
+                }
+            }
+
+            return Tuple.Create(o1, o2, o3, o4);
+        }
+
+        /// <summary>
+        /// Mapeia os resultsets de um datareader para uma tupla de tipos especificos
+        /// </summary>
+        /// <param name="Reader"></param>
+        /// <returns></returns>
+        public static Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>> MapMany<T1, T2, T3>(this DbDataReader Reader)
+            where T1 : class
+            where T2 : class
+            where T3 : class
+        {
+            IEnumerable<T1> o1 = null;
+            IEnumerable<T2> o2 = null;
+            IEnumerable<T3> o3 = null;
+            if (Reader != null)
+            {
+                o1 = Reader.Map<T1>();
+                if (Reader.NextResult())
+                {
+                    o2 = Reader.Map<T2>();
+                }
+
+                if (Reader.NextResult())
+                {
+                    o3 = Reader.Map<T3>();
+                }
+            }
+
+            return Tuple.Create(o1, o2, o3);
+        }
+
+        /// <summary>
+        /// Mapeia os resultsets de um datareader para uma tupla de tipos especificos
+        /// </summary>
+        /// <param name="Reader"></param>
+        /// <returns></returns>
+        public static Tuple<IEnumerable<T1>, IEnumerable<T2>> MapMany<T1, T2>(this DbDataReader Reader)
+            where T1 : class
+            where T2 : class
+        {
+            IEnumerable<T1> o1 = null;
+            IEnumerable<T2> o2 = null;
+            if (Reader != null)
+            {
+                o1 = Reader.Map<T1>();
+                if (Reader.NextResult())
+                {
+                    o2 = Reader.Map<T2>();
+                }
+            }
+
+            return Tuple.Create(o1, o2);
+        }
+
+
         public static (PropertyInfo, string, Object) ParseExpression<T>(Expression<Action<T>> expression)
         {
             if (expression is LambdaExpression lambdaExpression)
@@ -2711,7 +3029,7 @@ namespace Extensions.Databases
                             tableName = String.Format("{0}.{1}", schemaName, tableName);
                         }
                     }
-                    catch (RuntimeBinderException)
+                    catch
                     {
                         //Schema doesn't exist on this attribute.
                     }
@@ -3295,31 +3613,6 @@ namespace Extensions.Databases
         #endregion Public Methods
     }
 
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = true, Inherited = true)]
-    public sealed class ColumnNameAttribute : Attribute
-    {
-        #region Public Constructors
-
-        public ColumnNameAttribute(string ColumnName, params string[] AlternativeNames)
-        {
-            if (ColumnName.IsNotValid())
-            {
-                throw new ArgumentException("ColumnName is null or blank");
-            }
-            var l = ColumnName.StartList();
-            l.AddRange(AlternativeNames ?? Array.Empty<string>());
-
-            Names = l.Select(x => x.UnQuote()).SelectMany(x => x.Split(",")).Distinct().ToArray();
-        }
-
-        #endregion Public Constructors
-
-        #region Public Properties
-
-        public string[] Names { get; private set; }
-
-        #endregion Public Properties
-    }
 
     /// <summary>
     /// A condition with optional AND and OR clauses that can be used in WHERE or JOIN ON statements.
@@ -3722,7 +4015,7 @@ namespace Extensions.Databases
             }
             else
             {
-                var props = eltipo.GetProperties().Select(x => x.GetAttributeValue<ColumnNameAttribute, string>(y => y.Names.FirstOrDefault()).IfBlank(x.Name));
+                var props = eltipo.GetProperties().Select(x => x.GetAttributeValue<ColumnAttribute, string>(y => y.Name).IfBlank(x.Name));
 
                 AddColumns(props.ToArray());
             }
