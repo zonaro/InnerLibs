@@ -955,10 +955,8 @@ namespace Extensions.BR
                     string tempCnpj;
                     CNPJ = CNPJ.Trim();
                     CNPJ = CNPJ.Replace(".", Util.EmptyString).Replace("-", Util.EmptyString).Replace("/", Util.EmptyString);
-                    if (CNPJ.Length != 14)
-                    {
-                        return false;
-                    }
+                    if (CNPJ.Length != 14) return false;
+
 
                     tempCnpj = CNPJ.Substring(0, 12);
                     soma = 0;
@@ -1017,6 +1015,7 @@ namespace Extensions.BR
                 if (CPF.IsValid())
                 {
                     CPF = CPF.RemoveAny(".", "-");
+                    if (CPF.Length != 11) return false;
                     string digito = Util.EmptyString;
                     int k;
                     int j;

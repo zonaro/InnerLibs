@@ -1279,9 +1279,14 @@ namespace Extensions.Locations
         OmmitPostalCode = ~PostalCode,
 
         /// <summary>
-        /// Endereço completo
+        /// Endereço completo com país
         /// </summary>
-        FullAddress = Street + BuildingInfo + Neighborhood + CityStateCode + Country + PostalCode,
+        FullAddressWithCountry = Street + BuildingInfo + Neighborhood + CityStateCode + Country + PostalCode,
+
+        /// <summary>
+        /// Endereco completo
+        /// </summary>
+        FullAddress = Street + BuildingInfo + Neighborhood + CityStateCode + PostalCode,
 
         Latitude = 2048,
         OmmitLatitude = ~Latitude,
