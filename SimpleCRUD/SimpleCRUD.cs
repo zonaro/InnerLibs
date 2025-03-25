@@ -198,8 +198,7 @@ namespace Extensions.Databases
         public static T MapFirst<T>(this DbDataReader Reader, params object[] args) where T : class => Reader.Map<T>(args).FirstOrDefault();
 
         /// <summary>
-        /// Mapeia os resultsets de um datareader para um <see cref="IEnumerable(Of IEnumerable(Of
-        /// Dictionary(Of String, Object)))"/>
+        /// Mapeia os resultsets de um datareader para um <see cref="IEnumerable{IEnumerable{  Dictionary{String, Object}}}"/>
         /// </summary>
         /// <param name="Reader"></param>
         /// <returns></returns>

@@ -656,7 +656,7 @@ namespace Extensions
         /// Converts an object to a nullable boolean.
         /// </summary>
         /// <param name="Value">The object to be converted.</param>
-        /// <param name="EverythingIsTrue">
+        /// <param name="defaultReturn">
         /// A flag indicating whether to return true for any value not explicitly mapped to false.
         /// Defaults to true.
         /// </param>
@@ -674,7 +674,7 @@ namespace Extensions
         /// Thrown when the object does not represent a valid option and the EverythingIsTrue flag
         /// is set to false.
         /// </exception>
-        public static bool? AsNullableBool(this object Value, bool EverythingIsTrue = true)
+        public static bool? AsNullableBool(this object Value, bool? defaultReturn = true)
         {
             if (Value == null) return null;
             else switch ($"{Value}".ToUpperInvariant().RemoveDiacritics())
@@ -717,8 +717,8 @@ namespace Extensions
                         return true;
 
                     default:
-                        if (!EverythingIsTrue) throw new ArgumentException(nameof(Value), "Object does not represent a valid option");
-                        else return true;
+                        if (defaultReturn != null) return defaultReturn;
+                        else throw new ArgumentException("Object does not represent a valid option", nameof(Value));
                 }
         }
 
@@ -740,7 +740,7 @@ namespace Extensions
         ///   "ATIVAR", "ATIVADO": Returns true. Any other value: Returns true if EverythingIsTrue
         /// is set to true, otherwise returns false.
         /// </returns>
-        public static bool AsBool(this object Value, bool EverythingIsTrue = true) => AsNullableBool(Value, EverythingIsTrue) ?? false;
+        public static bool AsBool(this object Value, bool? defaultReturn = true) => AsNullableBool(Value, defaultReturn) ?? defaultReturn ?? false;
 
         /// <summary>
         /// Retorna um valor de um tipo especifico de acordo com um valor boolean
@@ -789,7 +789,7 @@ namespace Extensions
         public static string AsSQLColumns(this NameValueCollection obj, char Quote = '[', params string[] Keys) => obj.ToDictionary(Keys).AsSQLColumns(Quote);
 
         /// <summary>
-        /// Decoda uma string em Util
+        /// Decoda uma string em Base64
         /// </summary>
         /// <param name="Base"></param>
         /// <param name="Encoding"></param>
