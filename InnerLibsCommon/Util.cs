@@ -12575,7 +12575,7 @@ namespace Extensions
 
             if (Text.IsNumber()) return Color.FromArgb(Text.ToInt());
 
-            if (Text.IsHexaDecimalColor()) return ColorTranslator.FromHtml("#" + Text.RemoveFirstEqual("#"));
+            if (Text.IsHexaDecimalColor()) return ColorTranslator.FromHtml($"#{Text.RemoveFirstEqual("#")}");
 
             var maybecolor = FindColor(Text);
             if (maybecolor != null)
