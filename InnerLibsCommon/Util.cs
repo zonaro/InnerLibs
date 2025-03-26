@@ -707,6 +707,7 @@ namespace Extensions
                     case "YES":
                     case "YEP":
                     case "SIM":
+                    case "S":
                     case "ENABLED":
                     case "ENABLE":
                     case "ON":
