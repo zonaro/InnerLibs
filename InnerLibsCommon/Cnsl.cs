@@ -25,7 +25,7 @@ namespace Extensions.Console
             string response = System.Console.ReadLine();
             try
             {
-                return response.AsBool(false);
+                return response.AsBool(null);
             }
             catch
             {
