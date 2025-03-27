@@ -3250,7 +3250,7 @@ namespace Extensions
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static IEnumerable<string> ExtractEmails(this string Text) => Text.IfBlank(string.Empty).SplitAny(PredefinedArrays.InvisibleChars.Union(PredefinedArrays.BreakLineChars).ToArray()).Where(x => x.IsEmail()).Select(x => x.ToLowerInvariant()).Distinct().ToArray();
+        public static IEnumerable<string> ExtractEmails(this string Text) => Text.IfBlank(string.Empty).SplitAny(PredefinedArrays.InvisibleChars.Union(PredefinedArrays.BreakLineChars).Union(new[] { ":", ";" }).ToArray()).Where(x => x.IsEmail()).Select(x => x.ToLowerInvariant()).Distinct().ToArray();
 
         /// <summary>
         /// Calcula o fatorial de um numero
