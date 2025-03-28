@@ -3243,7 +3243,7 @@ namespace Extensions
         /// </summary>
         /// <param name="Text">Texto a ser tratado</param>
         /// <returns>String pronta para a query</returns>
-        public static string EscapeQuotesToQuery(this string Text, bool AlsoQuoteText = false) => Text.Replace(SingleQuoteChar, "''").QuoteIf(AlsoQuoteText, '\'');
+        public static string EscapeQuotesToQuery(this string Text, bool AlsoQuoteText = false) => Text.Replace(SingleQuoteChar, SingleQuoteChar.Repeat(2)).QuoteIf(AlsoQuoteText, '\'');
 
         /// <summary>
         /// Extrai emails de uma string
@@ -3816,6 +3816,7 @@ namespace Extensions
             DateAndTime = DateAndTime ?? DateTime.Now;
             FilePath = FilePath.Replace($"#timestamp#", DateAndTime.Value.Ticks.ToString());
             FilePath = FilePath.Replace($"#datedir#", $@"{DateAndTime.Value.Year}\{DateAndTime.Value.Month}\{DateAndTime.Value.Day}");
+            FilePath = FilePath.Replace($"#datetimedir#", $@"{DateAndTime.Value.Year}\{DateAndTime.Value.Month}\{DateAndTime.Value.Day}\{DateAndTime.Value.Hour}-{DateAndTime.Value.Minute}-{DateAndTime.Value.Second}\");
 
             foreach (string item in new[] { "d", "dd", "ddd", "dddd", "hh", "HH", "m", "mm", "M", "MM", "MMM", "MMMM", "s", "ss", "t", "tt", "Y", "YY", "YYY", "YYYY", "f", "ff", "fff", "ffff", "fffff", "ffffff", "fffffff" })
             {
@@ -3837,17 +3838,7 @@ namespace Extensions
         public static int LevenshteinDistanceCaseInsensitive(this string Text1, string Text2) => Text1.ToLower().LevenshteinDistance(Text2.ToLower());
         public static int LevenshteinDistanceFlat(this string Text1, string Text2) => Text1.ToLower().RemoveAccents().LevenshteinDistance(Text2.ToLower().RemoveAccents());
 
-        /// <summary>
-        /// Formata o nome de uma coluna SQL adicionando <paramref name="QuoteChar"/> as <paramref
-        /// name="ColumnNameParts"/> e as unindo com <b>.</b>
-        /// </summary>
-        /// <param name="QuoteChar"></param>
-        /// <param name="ColumnNameParts"></param>
-        /// <returns></returns>
-        public static string FormatSQLColumn(char QuoteChar, params string[] ColumnNameParts) => ColumnNameParts.WhereNotBlank().SelectJoinString(x => x.UnQuote(QuoteChar).Quote(QuoteChar), ".");
 
-        /// <inheritdoc cref="FormatSQLColumn(char, string[])"/>
-        public static string FormatSQLColumn(params string[] ColumnNameParts) => FormatSQLColumn('[', ColumnNameParts);
 
         /// <summary>
         /// Extension Method para <see cref="string.Format(string,object)"/>
@@ -4669,6 +4660,7 @@ namespace Extensions
                         case "sfc":
                         case "wad":
                         case "ndc":
+                        case "nds":
                         case "gci":
                         case "3ds":
                         case "nes":
@@ -5788,6 +5780,8 @@ namespace Extensions
         /// <returns></returns>
         public static PropertyInfo GetPropertyInfo<TSource, TProperty>(this TSource source, Expression<Func<TSource, TProperty>> propertyLambda)
         {
+            if (propertyLambda == null) return null;
+
             var type = source.GetTypeOf() ?? typeof(TSource);
             if (!(propertyLambda.Body is MemberExpression member))
             {
@@ -14809,7 +14803,7 @@ namespace Extensions
         /// <typeparam name="T">Tipo de origem</typeparam>
         /// <param name="Value">Variavel com valor</param>
         /// <returns>Valor convertido em novo ToType</returns>
-        public static double ToShort<T>(this T Value) => Value.ChangeType<short>();
+        public static short ToShort<T>(this T Value) => Value.ChangeType<short>();
 
         /// <summary>
         /// Converts the specified text to slug case.
@@ -14831,22 +14825,6 @@ namespace Extensions
         /// <param name="Text"></param>
         /// <returns></returns>
         public static string ToSnakeCase(this string Text) => Text?.Replace(WhitespaceChar, "_").ToLowerInvariant();
-
-        /////<summary> Monta um Comando SQL para executar um SELECT com
-        ///// filtros a partir de um <see cref="NameValueCollection" />
-        ///// </summary>
-        ///// <param name="NVC"> Dicionario</param> <param name="TableName">Nome da Tabela</param>
-        //public static Select ToSQLFilter(this NameValueCollection NVC, string TableName, string CommaSeparatedColumns, params string[] FilterKeys) => (Select)new Select(CommaSeparatedColumns.Split(",")).From(TableName).Where(NVC, FilterKeys);
-
-        ///// <summary>
-        ///// Monta um Comando SQL para executar um SELECT com filtros a partir de um <see
-        ///// cref="Dictionary{string, object}"/>
-        ///// </summary>
-        ///// <param name="Dic">Dicionario</param>
-        ///// <param name="TableName">Nome da Tabela</param>
-        ///// <param name="FilterKeys">Parametros da URL que devem ser utilizados</param>
-        ///// <returns>Uma string com o comando montado</returns>
-        //public static Select ToSQLFilter(this Dictionary<string, object> Dic, string TableName, string CommaSeparatedColumns, LogicConcatenationOperator LogicConcatenation, params string[] FilterKeys) => (Select)new Select(CommaSeparatedColumns.Split(",")).From(TableName).Where(Dic, LogicConcatenation, FilterKeys);
 
         /// <summary>
         /// Interploa um objeto de tipo <typeparamref name="T"/> em uma <see

@@ -18,6 +18,7 @@ using System.Text;
 using Dapper;
 using Extensions;
 using Extensions.Databases;
+using static Extensions.Util;
 /*
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 * This file add overloads for each Dapper.SQLMapper method, allowing the use of FormattableString     *
@@ -34,6 +35,23 @@ namespace Extensions.Databases
     public static partial class SimpleCRUD
 
     {
+
+
+        ///<summary> Monta um Comando SQL para executar um SELECT com
+        /// filtros a partir de um <see cref="NameValueCollection" />
+        /// </summary>
+        /// <param name="NVC"> Dicionario</param> <param name="TableName">Nome da Tabela</param>
+        public static Select ToSQLFilter(this NameValueCollection NVC, string TableName, string CommaSeparatedColumns, params string[] FilterKeys) => (Select)new Select(CommaSeparatedColumns.Split(",")).From(TableName).Where(NVC, FilterKeys);
+
+        /// <summary>
+        /// Monta um Comando SQL para executar um SELECT com filtros a partir de um <see
+        /// cref="Dictionary{string, object}"/>
+        /// </summary>
+        /// <param name="Dic">Dicionario</param>
+        /// <param name="TableName">Nome da Tabela</param>
+        /// <param name="FilterKeys">Parametros da URL que devem ser utilizados</param>
+        /// <returns>Uma string com o comando montado</returns>
+        public static Select ToSQLFilter(this Dictionary<string, object> Dic, string TableName, string CommaSeparatedColumns, LogicConcatenationOperator LogicConcatenation, params string[] FilterKeys) => (Select)new Select(CommaSeparatedColumns.Split(",")).From(TableName).Where(Dic, LogicConcatenation, FilterKeys);
 
 
         public static T Map<T>(this DataRow Row, params object[] args) where T : class
@@ -564,6 +582,18 @@ namespace Extensions.Databases
         }
 
         /// <summary>
+        /// Formata o nome de uma coluna SQL adicionando <paramref name="QuoteChar"/> as <paramref
+        /// name="ColumnNameParts"/> e as unindo com <b>.</b>
+        /// </summary>
+        /// <param name="QuoteChar"></param>
+        /// <param name="ColumnNameParts"></param>
+        /// <returns></returns>
+        public static string FormatSQLColumn(char QuoteChar, params string[] ColumnNameParts) => ColumnNameParts.WhereNotBlank().SelectJoinString(x => x.UnQuote(QuoteChar).Quote(QuoteChar), ".");
+
+        /// <inheritdoc cref="FormatSQLColumn(char, string[])"/>
+        public static string FormatSQLColumn(params string[] ColumnNameParts) => FormatSQLColumn('[', ColumnNameParts);
+
+        /// <summary>
         /// Cria um comando de UPDATE para o objeto do tipo <typeparamref name="T"/>
         /// </summary>
         /// <remarks>
@@ -580,10 +610,11 @@ namespace Extensions.Databases
                 dic = obj.CreateDictionary();
 
                 var cmd = Connection.CreateCommand();
-                cmd.CommandText = $"UPDATE " + TableName.IfBlank(d.Name) + " set" + Environment.NewLine;
+                cmd.CommandText = $"UPDATE " + TableName.IfBlank(d.GetTableName()) + " set" + Environment.NewLine;
                 foreach (var k in dic.Keys)
                 {
-                    cmd.CommandText += $"{k} = @__{k}, {Environment.NewLine}";
+                    var col = GetColumnName(d, k).IfBlank(Encapsulate(k));
+                    cmd.CommandText += $"{col} = @__{k}, {Environment.NewLine}";
                     var param = cmd.CreateParameter();
                     param.ParameterName = $"__{k}";
                     param.Value = dic.GetValueOr(k, DBNull.Value);
@@ -618,6 +649,8 @@ namespace Extensions.Databases
 
             return null;
         }
+
+
 
         /// <summary>
         /// Retorna os resultado da primeira coluna de uma consulta SQL como um array do tipo
@@ -1714,6 +1747,8 @@ namespace Extensions.Databases
 
         private static IEnumerable<PropertyInfo> GetScaffoldableProperties(this Type type)
         {
+
+
             IEnumerable<PropertyInfo> props = type.GetProperties();
 
             props = props.Where(p => p.GetCustomAttributes(true).Any(attr => attr.GetType().Name == typeof(EditableAttribute).Name && !IsEditable(p)) == false);
@@ -4139,7 +4174,7 @@ namespace Extensions.Databases
                 var c = item;
                 if (item != "*")
                 {
-                    c = item.UnQuote().Split(".", StringSplitOptions.RemoveEmptyEntries).SelectJoinString(x => Util.FormatSQLColumn(this.QuoteChar, WithTableName.AsIf(this.GetTableOrSubQuery()), x.UnQuote()));
+                    c = item.UnQuote().Split(".", StringSplitOptions.RemoveEmptyEntries).SelectJoinString(x => SimpleCRUD.FormatSQLColumn(this.QuoteChar, WithTableName.AsIf(this.GetTableOrSubQuery()), x.UnQuote()));
                 }
                 _nova.Add(c);
             }
@@ -4172,7 +4207,7 @@ namespace Extensions.Databases
         /// <param name="ColumnName"></param>
         /// <param name="QuoteChar"></param>
         /// <returns></returns>
-        public string FormatColumnName(string ColumnName) => Util.FormatSQLColumn(this.QuoteChar, GetTableOrSubQuery(), ColumnName);
+        public string FormatColumnName(string ColumnName) => SimpleCRUD.FormatSQLColumn(this.QuoteChar, GetTableOrSubQuery(), ColumnName);
 
         /// <summary>
         /// Sets the FROM clause in the SELECT being built.
@@ -4266,7 +4301,7 @@ namespace Extensions.Databases
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
         public Select<T> FullOuterJoin(string table, Condition on) => Join(JoinType.FullOuterJoin, table, on);
 
-        public Select<T> FullOuterJoin(string table, string ThisColumn, string ForeignColumn) => FullOuterJoin(table, Util.ToFormattableString(Util.FormatSQLColumn(QuoteChar, GetTableOrSubQuery(), ThisColumn) + " = " + Util.FormatSQLColumn(QuoteChar, table, ForeignColumn.IfBlank(ThisColumn))));
+        public Select<T> FullOuterJoin(string table, string ThisColumn, string ForeignColumn) => FullOuterJoin(table, Util.ToFormattableString(SimpleCRUD.FormatSQLColumn(QuoteChar, GetTableOrSubQuery(), ThisColumn) + " = " + SimpleCRUD.FormatSQLColumn(QuoteChar, table, ForeignColumn.IfBlank(ThisColumn))));
 
         /// <summary>
         /// GetCliente the table name or subquery alias used in this select
@@ -4317,7 +4352,7 @@ namespace Extensions.Databases
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
         public Select<T> InnerJoin(string table, FormattableString on) => InnerJoin(table, new Condition(on));
 
-        public Select<T> InnerJoin(string table, string ThisColumn, string ForeignColumn) => InnerJoin(table, Util.ToFormattableString(Util.FormatSQLColumn(QuoteChar, GetTableOrSubQuery(), ThisColumn) + " = " + Util.FormatSQLColumn(QuoteChar, table, ForeignColumn.IfBlank(ThisColumn))));
+        public Select<T> InnerJoin(string table, string ThisColumn, string ForeignColumn) => InnerJoin(table, Util.ToFormattableString(SimpleCRUD.FormatSQLColumn(QuoteChar, GetTableOrSubQuery(), ThisColumn) + " = " + SimpleCRUD.FormatSQLColumn(QuoteChar, table, ForeignColumn.IfBlank(ThisColumn))));
 
         /// <summary>
         /// Sets a INNER JOIN clause in the SELECT being built.
@@ -4367,7 +4402,7 @@ namespace Extensions.Databases
         /// <returns>This instance, so you can use it in a fluent fashion</returns>
         public Select<T> LeftOuterJoin(string table, FormattableString on) => LeftOuterJoin(table, new Condition(on));
 
-        public Select<T> LeftOuterJoin(string table, string ThisColumn, string ForeignColumn) => LeftOuterJoin(table, Util.ToFormattableString(Util.FormatSQLColumn(QuoteChar, GetTableOrSubQuery(), ThisColumn) + " = " + Util.FormatSQLColumn(QuoteChar, table, ForeignColumn.IfBlank(ThisColumn))));
+        public Select<T> LeftOuterJoin(string table, string ThisColumn, string ForeignColumn) => LeftOuterJoin(table, Util.ToFormattableString(SimpleCRUD.FormatSQLColumn(QuoteChar, GetTableOrSubQuery(), ThisColumn) + " = " + SimpleCRUD.FormatSQLColumn(QuoteChar, table, ForeignColumn.IfBlank(ThisColumn))));
 
         /// <summary>
         /// Sets a LEFT OUTER JOIN clause in the SELECT being built.
@@ -4516,7 +4551,7 @@ namespace Extensions.Databases
             return this;
         }
 
-        public Select<T> RightOuterJoin(string table, string ThisColumn, string ForeignColumn) => RightOuterJoin(table, Util.ToFormattableString(Util.FormatSQLColumn(QuoteChar, GetTableOrSubQuery(), ThisColumn) + " = " + Util.FormatSQLColumn(QuoteChar, table, ForeignColumn.IfBlank(ThisColumn))));
+        public Select<T> RightOuterJoin(string table, string ThisColumn, string ForeignColumn) => RightOuterJoin(table, Util.ToFormattableString(SimpleCRUD.FormatSQLColumn(QuoteChar, GetTableOrSubQuery(), ThisColumn) + " = " + SimpleCRUD.FormatSQLColumn(QuoteChar, table, ForeignColumn.IfBlank(ThisColumn))));
 
         /// <summary>
         /// Sets a RIGHT OUTER JOIN clause in the SELECT being built.
