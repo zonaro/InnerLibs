@@ -515,7 +515,7 @@ namespace Extensions.Databases
                 if (DataSetType.IsAny("value", "id", "key", "singlevalue"))
                 {
                     //primeiro valor da primeira linha do primeiro set
-                    var part = Connection.RunSQLValue(Command);
+                    var v = Connection.QueryFirst(Command)?.FirstOrDefault();
                     resp.Status = (part == DBNull.Value).AsIf("NULL_VALUE", (part == null).AsIf("empty", "OK"));
                     resp.Data = part;
                     resp.DataSetType = "value";
@@ -1373,7 +1373,7 @@ namespace Extensions.Databases
         /// </summary>
         public static T RunSQLValue<T>(this DbConnection Connection, DbCommand Command)
         {
-            if (!typeof(T).IsValueType())
+            if (!typeof(T).IsSimpleType())
             {
                 throw new ArgumentException("The type param TEntity is not a value type or string");
             }
@@ -1413,7 +1413,7 @@ namespace Extensions.Databases
                 dic = obj.CreateDictionary();
 
                 var cmd = Connection.CreateCommand();
-                cmd.CommandText = string.Format($"INSERT INTO {TableName.IfBlank(d.Name)} ({{0}}) values ({{1}})", dic.Keys.SelectJoinString(","), dic.Keys.SelectJoinString(x => $"@__{x}", ","));
+                cmd.CommandText = string.Format($"INSERT INTO {TableName.IfBlank(GetTableName<T>())} ({{0}}) values ({{1}})", dic.Keys.SelectJoinString(","), dic.Keys.SelectJoinString(x => $"@__{x}", ","));
                 foreach (var k in dic.Keys)
                 {
                     var param = cmd.CreateParameter();
