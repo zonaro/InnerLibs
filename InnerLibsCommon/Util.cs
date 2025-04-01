@@ -15600,13 +15600,13 @@ namespace Extensions
         /// Bloqueia a Thread atual enquanto um arquivo estiver em uso
         /// </summary>
         /// <param name="File">Arquivo</param>
-        /// <param name="Seconds">intervalo, em segundo entre as tentativas de acesso</param>
+        /// <param name="millisecondsTimeout">intervalo, em segundo entre as tentativas de acesso</param>
         /// <param name="MaxFailCount">
         /// Numero maximo de tentativas falhas,quando nulo, verifica infinitamente
         /// </param>
         /// <param name="OnAttemptFail">ação a ser executado em caso de falha</param>
         /// <returns>TRUE se o arquivo puder ser utilizado</returns>
-        public static bool WaitForFile(this FileInfo File, int Seconds = 1, int? MaxFailCount = null, Action<int> OnAttemptFail = null)
+        public static bool WaitForFile(this FileInfo File, int millisecondsTimeout = 1000, int? MaxFailCount = null, Action<int> OnAttemptFail = null)
         {
             if (File == null)
             {
@@ -15619,7 +15619,7 @@ namespace Extensions
 
             while (IsInUse(File))
             {
-                Thread.Sleep(Seconds * 1000);
+                Thread.Sleep(millisecondsTimeout);
 
                 if (File.Exists == false)
                 {
@@ -15649,7 +15649,7 @@ namespace Extensions
         /// <param name="X">Posição X</param>
         /// <param name="Y">Posição Y</param>
         /// <returns></returns>
-        public static Image Watermark(this Image Image, Image WaterMarkImage, int X = -1, int Y = -1)
+        public static Image Watermark(this Image Image, Image WaterMarkImage, int X = -1, int Y = -1, Color? transparentColor = null)
         {
             // a imagem onde iremos aplicar a marca d'água
             var bm_Resultado = new Bitmap(Image);
@@ -15672,7 +15672,7 @@ namespace Extensions
                 }
             }
             // Define a marca d'agua como transparente
-            bm_marcaDagua.MakeTransparent(bm_marcaDagua.GetPixel(0, 0));
+            bm_marcaDagua.MakeTransparent(transparentColor ?? bm_marcaDagua.GetPixel(0, 0));
             // Copia o resultado na imagem
             var gr = Graphics.FromImage(bm_Resultado);
             gr.DrawImage(bm_marcaDagua, X, Y);
@@ -15977,7 +15977,7 @@ namespace Extensions
         }
 
         /// <summary>
-        /// Salva um array de bytes em um arquivo
+        /// Salva um texto em um arquivo
         /// </summary>
         /// <param name="File">TEntity arquivo a ser convertido</param>
         /// <returns>Um array do tipo Byte()</returns>
@@ -16000,7 +16000,7 @@ namespace Extensions
                 s = new StreamWriter(FilePath, Append, Enconding ?? new UTF8Encoding(false));
                 s.Write(Text);
                 s.Close();
-                f.CreationTime = DateAndTime.Value;
+                f.LastWriteTime = DateAndTime.Value;
                 return f;
             }
             catch (Exception ex)
