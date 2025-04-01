@@ -57,7 +57,11 @@ namespace Extensions.DebugWriter
 
         public override void SetLength(long value) => throw Bad_op;
 
-        public override void Write(byte[] buffer, int offset, int count) => Debug.Write(Encoding.Unicode.GetString(buffer, offset, count));
+        public override void Write(byte[] buffer, int offset, int count)
+        {
+            if (Debugger.IsAttached)
+                Debug.Write(Encoding.Unicode.GetString(buffer, offset, count));
+        }
 
         #endregion Public Methods
     }

@@ -1550,7 +1550,7 @@ namespace Extensions
                 if (Value == null)
                 {
                     WriteDebug($"Value is null");
-                    if (!ToType.IsValueType() || ToType.IsNullableType())
+                    if (!ToType.IsSimpleType() || ToType.IsNullableType())
                     {
                         return null;
                     }
@@ -1588,7 +1588,7 @@ namespace Extensions
                     }
                 }
 
-                if (ToType.IsValueType())
+                if (ToType.IsSimpleType())
                 {
                     WriteDebug($"{ToType.Name} is value type");
                     var Converter = TypeDescriptor.GetConverter(ToType);
@@ -2335,7 +2335,7 @@ namespace Extensions
         public static object CreateOrSetObject(this Dictionary<string, object> Dictionary, object Obj, Type Type, params object[] args)
         {
             var tipo = Type.GetNullableTypeOf();
-            if (tipo.IsValueType())
+            if (tipo.IsSimpleType())
             {
                 return (Dictionary?.Values.FirstOrDefault()).ChangeType(tipo);
             }
@@ -7860,9 +7860,9 @@ namespace Extensions
 
         public static bool IsValidEAN(this int Code) => Code.ToString(CultureInfo.InvariantCulture).PadLeft(12, '0').ToString().IsValidEAN();
 
-        public static bool IsValueType(this Type T) => T.IsIn(PredefinedArrays.ValueTypes);
 
-        public static bool IsValueType<T>(this T Obj) => Obj.GetNullableTypeOf().IsValueType();
+
+
 
         public static bool IsVisible<T>(this T info) where T : FileSystemInfo => info != null && info.Exists && info.Attributes.HasFlag(FileAttributes.Hidden) == false;
 
@@ -8158,45 +8158,7 @@ namespace Extensions
         /// <returns></returns>
         public static DateTime LimitRange(this DateTime Number, IComparable MinValue = null, IComparable MaxValue = null) => Number.LimitRange<DateTime>(MinValue, MaxValue);
 
-        /// <summary>
-        /// Utiliza o <see cref="TextWriter"/> especificado em <see cref="LogWriter"/> para escrever
-        /// o comando
-        /// </summary>
-        /// <param name="Command"></param>
-        /// <returns></returns>
-        public static DbCommand LogCommand(this DbCommand Command, TextWriter LogWriter = null)
-        {
-            Util.LogWriter = Util.LogWriter ?? new DebugTextWriter();
-            LogWriter = LogWriter ?? Util.LogWriter;
-            LogWriter.WriteLine(Environment.NewLine);
-            LogWriter.WriteLine("=".Repeat(10));
-            if (Command != null)
-            {
-                foreach (DbParameter item in Command.Parameters)
-                {
-                    string bx = $"Parameter: @{item.ParameterName}{Environment.NewLine}Value: {item.Value}{Environment.NewLine}TEntity: {item.DbType}{Environment.NewLine}Precision/Scale: {item.Precision}/{item.Scale}";
-                    LogWriter.WriteLine(bx);
-                    LogWriter.WriteLine("-".Repeat(10));
-                }
 
-                LogWriter.WriteLine($"Command: {Command.CommandText}");
-                LogWriter.WriteLine("/".Repeat(10));
-
-                if (Command.Transaction != null)
-                {
-                    LogWriter.WriteLine($"Transaction Isolation Level: {Command.Transaction.IsolationLevel}");
-                }
-                else
-                {
-                    LogWriter.WriteLine($"No transaction specified");
-                }
-            }
-            else LogWriter.WriteLine("Command is NULL");
-            LogWriter.WriteLine("=".Repeat(10));
-            LogWriter.WriteLine(Environment.NewLine);
-
-            return Command;
-        }
 
         public static StructuredText LoremIpsum(int ParagraphCount = 5, int SentenceCount = 3, int MinWordCount = 10, int MaxWordCount = 50, int IdentSize = 0, int BreakLinesBetweenParagraph = 0, string[] Words = null)
         {
@@ -8783,7 +8745,7 @@ namespace Extensions
                                 default:
                                     {
                                         bool IsVirtual = item.GetAccessors().All(x => x.IsVirtual) && IncludeVirtual;
-                                        if (item.IsValueType() || IsVirtual)
+                                        if (item.IsSimpleType() || IsVirtual)
                                         {
                                             var o = Activator.CreateInstance(item.PropertyType.GetNullableTypeOf());
                                             item.SetValue(Obj, o);
