@@ -15,9 +15,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
-using Dapper;
 using Extensions;
-using Extensions.Databases;
 using Extensions.DebugWriter;
 
 using static Extensions.Util;
@@ -124,7 +122,7 @@ namespace Extensions.Databases
             return l.AsEnumerable();
         }
 
-        public static IEnumerable<T> Map<T>(this DbDataReader Reader, params object[] args) where T : class => Map(Reader, typeof(T), args).Cast<T>();
+
 
         /// <summary>
         /// Mapeia o resultado de um <see cref="DbDataReader"/> para um <see cref="object"/>, <see
@@ -133,9 +131,10 @@ namespace Extensions.Databases
         /// <typeparam name="T"></typeparam>
         /// <param name="Reader"></param>
         /// <returns></returns>
-        public static IEnumerable<object> Map(this DbDataReader Reader, Type type, params object[] args)
+        public static IEnumerable<T> Map<T>(this DbDataReader Reader, params object[] args)
         {
-            var l = new List<object>();
+            var type = typeof(T);
+            var l = new List<T>();
             args = args ?? Array.Empty<object>();
             while (Reader != null && Reader.Read())
             {
@@ -145,18 +144,18 @@ namespace Extensions.Databases
                     if (value == DBNull.Value)
                         l.Add(default);
                     else
-                        l.Add(value.ChangeType(type));
+                        l.Add(value.ChangeType<T>());
                 }
                 else
                 {
-                    object d;
+                    T d;
                     if (args.Any())
                     {
-                        d = Activator.CreateInstance(type, args);
+                        d = (T)Activator.CreateInstance(type, args);
                     }
                     else
                     {
-                        d = Activator.CreateInstance(type);
+                        d = Activator.CreateInstance<T>();
                     }
 
                     for (int i = 0, loopTo = Reader.FieldCount - 1; i <= loopTo; i++)
@@ -179,10 +178,11 @@ namespace Extensions.Databases
                             {
                                 var colname = x.GetAttributeValue<ColumnAttribute, string>(attr => attr.Name)?.UnWrap();
 
-                                return colname == name.UnWrap();
+                                return colname == name;
                             });
 
-                            info = info ?? propinfos.FirstOrDefault(x => x.Name.FlatEqual(name.PropertyNamesFor()));
+                            var names = name.PropertyNamesFor();
+                            info = info ?? propinfos.FirstOrDefault(x => x.Name.FlatEqual(names));
 
                             if (info != null && info.CanWrite)
                             {
@@ -453,9 +453,7 @@ namespace Extensions.Databases
 
         internal const string DefaultParameterPrefix = "@__p";
 
-        public static int Execute(this DbConnection cnn, InterpolatedQuery sql, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null) => cnn.Execute(sql.Query, sql.Parameters, transaction, commandTimeout, commandType);
-
-        public static IEnumerable<T> Query<T>(this DbConnection cnn, InterpolatedQuery sql, IDbTransaction transaction = null, bool buffered = true, int? commandTimeout = null, CommandType? commandType = null) => cnn.Query<T>(sql.Query, sql.Parameters, transaction, buffered, commandTimeout, commandType);
+        public static int RunSQLNone(this DbConnection cnn, InterpolatedQuery sql, DbTransaction transaction = null) => cnn.RunSQLNone(sql.CreateCommand(cnn, transaction));
 
         /// <summary>
         /// Converts a FormattableString to a InterpolatedQuery. It contains the Query string and DynamicParameters.
@@ -511,7 +509,7 @@ namespace Extensions.Databases
                 if (DataSetType.IsAny("value", "id", "key", "singlevalue"))
                 {
                     //primeiro valor da primeira linha do primeiro set
-                    var part = Connection.RunSQL(Command);
+                    var part = Connection.RunSQLValue(Command);
                     resp.Status = (part == DBNull.Value).AsIf("NULL_VALUE", (part == null).AsIf("empty", "OK"));
                     resp.Data = part;
                     resp.DataSetType = "value";
@@ -883,12 +881,14 @@ namespace Extensions.Databases
         /// um <see cref="Dictionary{String, Object}"/>
         /// </summary>
         public static Dictionary<string, object> RunSQLRow(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null, bool WithSubQueries = false) => Connection.RunSQLRow(Connection.CreateCommand(SQL, Transaction), WithSubQueries);
+        public static T RunSQLRow<T>(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null, bool WithSubQueries = false) => Connection.RunSQLRow<T>(Connection.CreateCommand(SQL, Transaction), WithSubQueries);
 
         /// <summary>
         /// Executa uma query SQL parametrizada e retorna o resultado da primeira linha mapeada para
         /// um <see cref="Dictionary{String, Object}"/>
         /// </summary>
-        public static Dictionary<string, object> RunSQLRow(this DbConnection Connection, DbCommand SQL, bool WithSubQueries = false) => Connection.RunSQL<Dictionary<string, object>>(SQL, WithSubQueries);
+        public static Dictionary<string, object> RunSQLRow(this DbConnection Connection, DbCommand SQL, bool WithSubQueries = false) => Connection.RunSQLRow<Dictionary<string, object>>(SQL, WithSubQueries);
+        public static T RunSQLRow<T>(this DbConnection Connection, DbCommand SQL, bool WithSubQueries = false) => Connection.RunSQLSet<T>(SQL, WithSubQueries).FirstOrDefault();
 
         /// <summary>
         /// Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset
@@ -927,7 +927,18 @@ namespace Extensions.Databases
         /// <param name="SQL"></param>
         /// <returns></returns>
         public static IEnumerable<T> RunSQLSet<T>(this DbConnection Connection, DbCommand SQL, bool WithSubQueries = false)
-            => RunSQL<IEnumerable<T>>(Connection, SQL, WithSubQueries);
+        {
+            var res = Connection.RunSQLReader(SQL);
+
+            if (res != null)
+            {
+                var items = res.Map<T>();
+                if (!typeof(T).IsSimpleType() && WithSubQueries) foreach (var i in items) Connection.ProccessSubQuery(i, WithSubQueries);
+                return items;
+            }
+            return null;
+
+        }
 
         /// <summary>
         /// Processa uma propriedade de uma classe marcada com <see cref="FromSQL"/>
@@ -985,12 +996,12 @@ namespace Extensions.Databases
 
                         return d;
                     }
-                    else if (prop.PropertyType.IsValueType)
+                    else if (prop.PropertyType.IsSimpleType())
                     {
                         if (prop.GetValue(d) == null)
                         {
                             var ssql = Sql.ToFormattableString();
-                            var oo = Connection.RunSQL(ssql, null, false, prop.PropertyType);
+                            var oo = Connection.RunSQLValue(ssql, null, false, prop.PropertyType);
                             prop.SetValue(d, oo);
                             if (Recursive)
                             {
@@ -1014,12 +1025,13 @@ namespace Extensions.Databases
         /// <param name="d"></param>
         /// <param name="Recursive"></param>
         /// <returns></returns>
-        public static T ProccessSubQuery<T>(this DbConnection Connection, T d, bool Recursive = false) where T : class
+        public static T ProccessSubQuery<T>(this DbConnection Connection, T d, bool Recursive = false)
         {
-            foreach (var prop in Util.GetProperties(d).Where(x => x.HasAttribute<FromSQLAttribute>()))
-            {
-                Connection.ProccessSubQuery(d, prop.Name, Recursive);
-            }
+            if (!typeof(T).IsSimpleType())
+                foreach (var prop in Util.GetProperties(d).Where(x => x.HasAttribute<FromSQLAttribute>()))
+                {
+                    Connection.ProccessSubQuery(d, prop.Name, Recursive);
+                }
 
             return d;
         }
@@ -1264,7 +1276,7 @@ namespace Extensions.Databases
                             param.ParameterName = v.Count == 1 ? $"__p{index}" : $"__p{index}_{v_index}";
                             param.Value = value;
                             cmd.Parameters.Add(param);
-                            param_names.Add("@" + param.ParameterName);
+                            param_names.Add(param.ParameterName);
                         }
 
                         cmd.CommandText = cmd.CommandText.Replace("{" + index + "}", param_names.SelectJoinString(",").IfBlank("NULL").UnQuote('(', true).Quote('('));
@@ -1308,57 +1320,15 @@ namespace Extensions.Databases
 
             return null;
         }
-        public static T RunSQLValue<T>(this DbConnection Connection, FormattableString sql, DbTransaction transaction = null, bool WithSubQueries = false, Type type = null) => Connection.RunSQLValue<T>(Connection.CreateCommand(sql, transaction), WithSubQueries);
+        public static T RunSQLValue<T>(this DbConnection Connection, FormattableString sql, DbTransaction transaction = null) => Connection.RunSQLValue<T>(Connection.CreateCommand(sql, transaction));
 
-        public static T RunSQLValue<T>(this DbConnection Connection, DbCommand command, bool WithSubQueries = false) => RunSQLValue(Connection, command, WithSubQueries, typeof(T)).ChangeType<T>();
-        public static object RunSQLValue(this DbConnection Connection, DbCommand command, bool WithSubQueries = false, Type type = null)
-            => RunSQLRow(Connection, command, WithSubQueries).Values.FirstOrDefault();
+        public static T RunSQLValue<T>(this DbConnection Connection, DbCommand command) => RunSQLValue(Connection, command).ChangeType<T>();
+        public static object RunSQLValue(this DbConnection Connection, DbCommand command) => command.ExecuteScalar();
 
-        public static object RunSQLValue(this DbConnection Connection, FormattableString sql, DbTransaction transaction = null, bool WithSubQueries = false, Type type = null) => Connection.RunSQLValue(Connection.CreateCommand(sql, transaction), WithSubQueries, type);
-        public static object RunSQL(this DbConnection Connection, FormattableString sql, DbTransaction transaction = null, bool WithSubQueries = false, Type type = null) => Connection.RunSQL(Connection.CreateCommand(sql, transaction), WithSubQueries, type);
-        public static T RunSQL<T>(this DbConnection Connection, FormattableString sql, DbTransaction transaction = null, bool WithSubQueries = false) => Connection.RunSQL<T>(Connection.CreateCommand(sql, transaction), WithSubQueries);
-
-        public static T RunSQL<T>(this DbConnection Connection, DbCommand command, bool WithSubQueries = false) => (T)RunSQL(Connection, command, WithSubQueries, typeof(T));
-
-        public static dynamic RunSQL(this DbConnection Connection, DbCommand command, bool WithSubQueries = false, Type type = null)
-        {
-            type = type ?? typeof(IEnumerable<Dictionary<string, object>>);
+        public static object RunSQLValue(this DbConnection Connection, FormattableString sql, DbTransaction transaction = null, bool WithSubQueries = false, Type type = null) => Connection.RunSQLValue(Connection.CreateCommand(sql, transaction));
 
 
-            if (type.IsSimpleType())
-            {
-                return BeforeRunCommand(ref Connection, ref command).ExecuteScalar().ChangeType(type);
-            }
 
-            var rd = RunSQLReader(Connection, command);
-            if (rd == null) return default;
-
-            if (type.IsEnumerableNotString())
-            {
-                Type subType = type.GetGenericArguments().FirstOrDefault() ?? typeof(Dictionary<string, object>);
-
-                if (subType.IsEnumerableNotString())
-                {
-                    throw new NotSupportedException("RunSQL dont support many sets. Use RunSQLMany for it");
-                }
-                var table = rd.Map(subType);
-                if (WithSubQueries)
-                {
-                    foreach (var x in table) Connection.ProccessSubQuery(x, WithSubQueries);
-
-                }
-                return table.ChangeIEnumerableType(subType).AsEnumerable();
-            }
-
-            var row = rd.Map(type).ChangeType(type);
-
-            if (WithSubQueries)
-            {
-                Connection.ProccessSubQuery(row, WithSubQueries);
-            }
-
-            return row;
-        }
 
         /// <summary>
         /// Cria comandos de INSERT para cada objeto do tipo <typeparamref name="T"/> em uma lista
@@ -1404,7 +1374,7 @@ namespace Extensions.Databases
             return null;
         }
 
-        public static V GeneratePrimaryKey<T, V>(this DbConnection connection, Expression<Func<T, V>> column, object whereConditions = null, IDbTransaction transaction = null, int? commandTimeout = null) where T : class => GeneratePrimaryKey<T, V>(connection, GetColumnName(column), whereConditions, transaction, commandTimeout);
+        public static V GeneratePrimaryKey<T, V>(this DbConnection connection, Expression<Func<T, V>> column, object whereConditions = null, DbTransaction transaction = null, int? commandTimeout = null) where T : class => GeneratePrimaryKey<T, V>(connection, GetColumnName(column), whereConditions, transaction, commandTimeout);
 
         /// <summary>
         /// Generate a new ID for the entity
@@ -1416,7 +1386,7 @@ namespace Extensions.Databases
         /// <param name="whereConditions"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public static V GeneratePrimaryKey<T, V>(this DbConnection connection, string keyName = null, object whereConditions = null, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
+        public static V GeneratePrimaryKey<T, V>(this DbConnection connection, string keyName = null, object whereConditions = null, DbTransaction transaction = null, int? commandTimeout = null) where T : class
         {
             var t = typeof(T);
             var sb = new StringBuilder();
@@ -1468,14 +1438,9 @@ namespace Extensions.Databases
                     {
                         sb.Append(" WHERE ");
                         var wheres = new List<string>();
-                        if (whereConditions is DynamicParameters pp)
-                        {
-                            wheres = pp.ParameterNames.Select(x => $"{typeof(T).GetColumnName(x)} = @{x}").ToList();
-                        }
-                        else if (whereConditions is Dictionary<string, object> dic)
+                        if (whereConditions is Dictionary<string, object> dic)
                         {
                             wheres = dic.Select(x => $"{typeof(T).GetColumnName(x.Key)} = @{x.Key}").ToList();
-                            whereConditions = new DynamicParameters(dic);
                         }
                         else
                         {
@@ -1487,7 +1452,7 @@ namespace Extensions.Databases
 
                 var sql = sb.ToString();
 
-                var value = connection.QueryFirstOrDefault<V>(sql, whereConditions, transaction, commandTimeout);
+                var value = connection.RunSQLRow<V>(sql.ToFormattableString());
 
                 if (value == null)
                 {
@@ -1615,14 +1580,16 @@ namespace Extensions.Databases
                 {
                     var property = propertyInfos.ElementAt(i);
 
-                    if (property.GetCustomAttributes(true).Any(attr => attr.GetType().Name == typeof(IgnoreSelectAttribute).Name || attr.GetType().Name == typeof(NotMappedAttribute).Name)) continue;
+                    if (property.HasAttribute<IgnoreSelectAttribute>() || property.HasAttribute<NotMappedAttribute>()) continue;
 
                     if (addedAny)
                         sb.Append(",");
                     sb.Append(GetColumnName(property));
                     //if there is a custom column name add an "as customcolumnname" to the item so it maps properly
-                    if (property.GetCustomAttributes(true).SingleOrDefault(attr => attr.GetType().Name == typeof(ColumnAttribute).Name) != null)
+                    string colname = property.GetAttributeValue<ColumnAttribute, string>(x => x.Name);
+                    if (colname.IsBlank())
                         sb.Append(" as " + Encapsulate(property.Name));
+
                     addedAny = true;
                 }
             });
@@ -1755,16 +1722,8 @@ namespace Extensions.Databases
         //This allows use of the DataAnnotations property in the model and have the SimpleCRUD engine just figure it out without a reference
         private static bool IsEditable(PropertyInfo pi)
         {
-            var attributes = pi.GetCustomAttributes(false);
-            if (attributes.Length > 0)
-            {
-                dynamic write = attributes.FirstOrDefault(x => x.GetType().Name == typeof(EditableAttribute).Name);
-                if (write != null)
-                {
-                    return write.AllowEdit;
-                }
-            }
-            return false;
+            return pi.GetAttributeValue<EditableAttribute, bool>(x => x.AllowEdit);
+
         }
 
         //Determine if the Attribute has an IsReadOnly key and return its boolean state
@@ -1772,16 +1731,8 @@ namespace Extensions.Databases
         //This allows use of the DataAnnotations property in the model and have the SimpleCRUD engine just figure it out without a reference
         private static bool IsReadOnly(PropertyInfo pi)
         {
-            var attributes = pi.GetCustomAttributes(false);
-            if (attributes.Length > 0)
-            {
-                dynamic write = attributes.FirstOrDefault(x => x.GetType().Name == typeof(ReadOnlyAttribute).Name);
-                if (write != null)
-                {
-                    return write.IsReadOnly;
-                }
-            }
-            return false;
+            return pi.GetAttributeValue<ReadOnlyAttribute, bool>(x => x.IsReadOnly);
+
         }
 
         /// <summary>
@@ -1821,9 +1772,9 @@ namespace Extensions.Databases
         /// <param name="connection"></param>
         /// <param name="entityToDelete"></param>
         /// <param name="transaction"></param>
-        /// <param name="commandTimeout"></param>
+
         /// <returns>The number of records affected</returns>
-        public static int Delete<T>(this DbConnection connection, T entityToDelete, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
+        public static int Delete<T>(this DbConnection connection, T entityToDelete, DbTransaction transaction = null) where T : class
         {
             var masterSb = new StringBuilder();
             StringBuilderCache(masterSb, $"{typeof(T).FullName}_Delete", sb =>
@@ -1843,12 +1794,15 @@ namespace Extensions.Databases
                 if (Debugger.IsAttached)
                     Trace.WriteLine(String.Format("Delete: {0}", sb));
             });
-            return connection.Execute(masterSb.ToString(), entityToDelete, transaction, commandTimeout);
+
+            var cmd = connection.CreateCommand(masterSb.ToString().ToFormattableString(), entityToDelete, transaction);
+
+            return connection.RunSQLNone(cmd);
         }
 
-        public static int Delete<T>(this DbConnection connection, IEnumerable<T> entities, IDbTransaction transaction = null, int? commandTimeout = null)
+        public static int Delete<T>(this DbConnection connection, IEnumerable<T> entities, DbTransaction transaction = null)
         {
-            return entities.Sum(entity => Delete<T>(connection, entity, transaction, commandTimeout));
+            return entities.Sum(entity => Delete<T>(connection, entity, transaction));
         }
 
         /// <summary>
@@ -1866,9 +1820,9 @@ namespace Extensions.Databases
         /// <param name="connection"></param>
         /// <param name="id"></param>
         /// <param name="transaction"></param>
-        /// <param name="commandTimeout"></param>
+
         /// <returns>The number of records affected</returns>
-        public static int Delete<T>(this DbConnection connection, object id, IDbTransaction transaction = null, int? commandTimeout = null)
+        public static int Delete<T>(this DbConnection connection, object id, DbTransaction transaction = null)
         {
             var currenttype = typeof(T);
             var idProps = GetIdProperties(currenttype).ToList();
@@ -1888,19 +1842,21 @@ namespace Extensions.Databases
                 sb.AppendFormat("{0} = @{1}", GetColumnName(idProps[i]), idProps[i].Name);
             }
 
-            var dynParms = new DynamicParameters();
+            var dynParms = new Dictionary<string, object>();
             if (idProps.Count == 1)
-                dynParms.Add("@" + idProps.First().Name, id);
+                dynParms.Add(idProps.First().Name, id);
             else
             {
                 foreach (var prop in idProps)
-                    dynParms.Add("@" + prop.Name, id.GetType().GetProperty(prop.Name).GetValue(id, null));
+                    dynParms.Add(prop.Name, id.GetType().GetProperty(prop.Name).GetValue(id, null));
             }
 
             if (Debugger.IsAttached)
                 Trace.WriteLine(String.Format("Delete<{0}> {1}", currenttype, sb));
 
-            return connection.Execute(sb.ToString(), dynParms, transaction, commandTimeout);
+            var cmd = connection.CreateCommand(sb.ToString().ToFormattableString(), dynParms, transaction);
+
+            return connection.RunSQLNone(cmd);
         }
 
         /// <summary>
@@ -1918,9 +1874,9 @@ namespace Extensions.Databases
         /// <param name="connection"></param>
         /// <param name="whereConditions"></param>
         /// <param name="transaction"></param>
-        /// <param name="commandTimeout"></param>
+
         /// <returns>The number of records affected</returns>
-        public static int DeleteList<T>(this DbConnection connection, object whereConditions, IDbTransaction transaction = null, int? commandTimeout = null)
+        public static int DeleteList<T>(this DbConnection connection, object whereConditions, DbTransaction transaction = null)
         {
             var masterSb = new StringBuilder();
             StringBuilderCache(masterSb, $"{typeof(T).FullName}_DeleteWhere{whereConditions?.GetType()?.FullName}", sb =>
@@ -1939,7 +1895,9 @@ namespace Extensions.Databases
                 if (Debugger.IsAttached)
                     Trace.WriteLine(String.Format("DeleteList<{0}> {1}", currenttype, sb));
             });
-            return connection.Execute(masterSb.ToString(), whereConditions, transaction, commandTimeout);
+
+            var cmd = connection.CreateCommand(masterSb.ToString().ToFormattableString(), whereConditions, transaction);
+            return connection.RunSQLNone(cmd);
         }
 
         /// <summary>
@@ -1958,9 +1916,9 @@ namespace Extensions.Databases
         /// <param name="conditions"></param>
         /// <param name="parameters"></param>
         /// <param name="transaction"></param>
-        /// <param name="commandTimeout"></param>
+
         /// <returns>The number of records affected</returns>
-        public static int DeleteList<T>(this DbConnection connection, string conditions, object parameters = null, IDbTransaction transaction = null, int? commandTimeout = null)
+        public static int DeleteList<T>(this DbConnection connection, string conditions, object parameters = null, DbTransaction transaction = null, int? commandTimeout = null)
         {
             var masterSb = new StringBuilder();
             StringBuilderCache(masterSb, $"{typeof(T).FullName}_DeleteWhere{conditions}", sb =>
@@ -1979,7 +1937,9 @@ namespace Extensions.Databases
                 if (Debugger.IsAttached)
                     Trace.WriteLine(String.Format("DeleteList<{0}> {1}", currenttype, sb));
             });
-            return connection.Execute(masterSb.ToString(), parameters, transaction, commandTimeout);
+            var cmd = connection.CreateCommand(masterSb.ToString().ToFormattableString(), parameters, transaction);
+
+            return connection.RunSQLNone(cmd);
         }
 
         /// <summary>
@@ -2006,9 +1966,9 @@ namespace Extensions.Databases
         /// <param name="connection"></param>
         /// <param name="id"></param>
         /// <param name="transaction"></param>
-        /// <param name="commandTimeout"></param>
+
         /// <returns>Returns a single entity by a single id from table TEntity.</returns>
-        public static T Get<T>(this DbConnection connection, object id, IDbTransaction transaction = null, int? commandTimeout = null)
+        public static T Get<T>(this DbConnection connection, object id, DbTransaction transaction = null)
         {
             var currenttype = typeof(T);
 
@@ -2031,28 +1991,28 @@ namespace Extensions.Databases
                 sb.AppendFormat("{0} = @{1}", GetColumnName(idProps[i]), idProps[i].Name);
             }
 
-            var dynParms = new DynamicParameters();
+            var dynParms = new Dictionary<string, object>();
 
             if (idProps.Count == 1)
             {
                 if (id.GetType().IsSimpleType())
                 {
-                    dynParms.Add("@" + idProps.First().Name, id);
+                    dynParms.Add(idProps.First().Name, id);
                 }
-                else if (id is IDictionary<string, object> dic)
+                else if (id is Dictionary<string, object> dic)
                 {
                     var prop = idProps.First();
 
                     if (dic.ContainsKey(prop.Name))
                     {
-                        dynParms.Add("@" + prop.Name, dic[prop.Name]);
+                        dynParms.Add(prop.Name, dic[prop.Name]);
                     }
                 }
                 else
                 {
                     var idProp = id.GetType().GetProperty(idProps.First().Name);
                     var v = idProp.GetValue(id, null);
-                    dynParms.Add("@" + idProps.First().Name, v);
+                    dynParms.Add(idProps.First().Name, v);
                 }
             }
             else
@@ -2065,7 +2025,7 @@ namespace Extensions.Databases
                     {
                         if (dic.ContainsKey(prop.Name))
                         {
-                            dynParms.Add("@" + prop.Name, dic[prop.Name]);
+                            dynParms.Add(prop.Name, dic[prop.Name]);
                         }
                     }
                 }
@@ -2075,7 +2035,7 @@ namespace Extensions.Databases
                     {
                         var idProp = id.GetType().GetProperty(prop.Name);
                         var v = idProp.GetValue(id, null);
-                        dynParms.Add("@" + prop.Name, v);
+                        dynParms.Add(prop.Name, v);
                     }
                 }
             }
@@ -2083,7 +2043,9 @@ namespace Extensions.Databases
             if (Debugger.IsAttached)
                 Trace.WriteLine(String.Format("Get<{0}>: {1} with Id: {2}", currenttype, sb, id));
 
-            return connection.QueryFirstOrDefault<T>(sb.ToString(), dynParms, transaction, commandTimeout);
+            var cmd = connection.CreateCommand(sb.ToString().ToFormattableString(), dynParms, transaction);
+
+            return connection.RunSQLRow<T>(cmd);
         }
 
         public static ColumnAttribute GetColumnAttribute(this PropertyInfo propertyInfo)
@@ -2164,7 +2126,7 @@ namespace Extensions.Databases
         /// <param name="connection"></param>
         /// <param name="whereConditions"></param>
         /// <param name="transaction"></param>
-        /// <param name="commandTimeout"></param>
+        /// <param name="parameters"></param>
         /// <returns>Gets a list of entities with optional exact match where conditions</returns>
         public static IEnumerable<T> GetList<T>(this DbConnection connection, object whereConditions = null, object parameters = null, DbTransaction transaction = null, bool WithSubQueries = false)
         {
@@ -2173,6 +2135,8 @@ namespace Extensions.Databases
 
             var sb = new StringBuilder();
             if (whereConditions == null) whereConditions = new { };
+
+            var parms = new Dictionary<string, object>();
 
             sb.Append("Select ");
             //create a new empty instance of the type to get the base properties
@@ -2201,15 +2165,30 @@ namespace Extensions.Databases
                 {
                     sb.Append(" where ");
                     BuildWhere<T>(sb, whereprops, whereConditions);
+
+                    foreach (var p in whereConditions.CreateDictionary())
+                    {
+                        parms[p.Key] = p.Value;
+                    }
+
                 }
             }
 
+            if (parameters != null && !parameters.IsSimpleType())
+            {
+
+                foreach (var p in parameters.CreateDictionary())
+                {
+                    if (parms.ContainsKey(p.Key)) Trace.WriteLine($"Replacing {p.Key} from '{parms[p.Key]}' to '{p.Value}'");
+                    parms[p.Key] = p.Value;
+                }
+            }
 
 
             if (Debugger.IsAttached)
                 Trace.WriteLine(String.Format("GetList<{0}>: {1}", currenttype, sb));
 
-            var cmd = connection.CreateCommand(sb.ToString(), transaction);
+            var cmd = connection.CreateCommand(sb.ToString().ToFormattableString(), parms, transaction);
 
             return connection.RunSQLSet<T>(cmd, WithSubQueries);
         }
@@ -2239,10 +2218,10 @@ namespace Extensions.Databases
         /// <param name="orderby"></param>
         /// <param name="parameters"></param>
         /// <param name="transaction"></param>
-        /// <param name="commandTimeout"></param>
+
         /// <returns>Gets a paged list of entities with optional exact match where conditions</returns>
         /// <returns></returns>
-        public static PageResult<T> GetPage<T>(this DbConnection connection, int pageNumber, int rowsPerPage, string conditions, string orderby, object parameters = null, DbTransaction transaction = null, int? commandTimeout = null, bool IncludeInsertPlaceholder = false) where T : class
+        public static PageResult<T> GetPage<T>(this DbConnection connection, int pageNumber, int rowsPerPage, string conditions, string orderby, object parameters = null, DbTransaction transaction = null, bool IncludeInsertPlaceholder = false) where T : class
         {
             var result = new PageResult<T>();
 
@@ -2259,7 +2238,7 @@ namespace Extensions.Databases
                 }
             }
 
-            var TotalItems = connection.RecordCount<T>(conditions, parameters, transaction, commandTimeout);
+            var TotalItems = connection.RecordCount<T>(conditions, parameters, transaction);
 
             var TotalPages = 0;
 
@@ -2290,7 +2269,7 @@ namespace Extensions.Databases
                 result.TotalPages = TotalPages;
                 result.PageSize = rowsPerPage;
                 result.PageNumber = pageNumber;
-                result.Items = connection.GetListPaged<T>(pageNumber, rowsPerPage, conditions, orderby, parameters, transaction, commandTimeout);
+                result.Items = connection.GetListPaged<T>(pageNumber, rowsPerPage, conditions, orderby, parameters, transaction);
             }
 
             result.TotalItems = TotalItems;
@@ -2299,11 +2278,11 @@ namespace Extensions.Databases
         }
 
         /// <inheritdoc cref="GetPage{T}(DbConnection, int, int, string, string, object, DbTransaction, int?, bool)"/>
-        public static PageResult<T> GetPage<T, V>(this DbConnection connection, int pageNumber, int rowsPerPage, string conditions, Expression<Func<T, V>> orderby, object parameters = null, DbTransaction transaction = null, int? commandTimeout = null, bool IncludeInsertPlaceholder = false) where T : class
-            => GetPage<T>(connection, pageNumber, rowsPerPage, conditions, GetColumnName(orderby), parameters, transaction, commandTimeout, IncludeInsertPlaceholder);
+        public static PageResult<T> GetPage<T, V>(this DbConnection connection, int pageNumber, int rowsPerPage, string conditions, Expression<Func<T, V>> orderby, object parameters = null, DbTransaction transaction = null, bool IncludeInsertPlaceholder = false) where T : class
+            => GetPage<T>(connection, pageNumber, rowsPerPage, conditions, GetColumnName(orderby), parameters, transaction, IncludeInsertPlaceholder);
 
         /// <inheritdoc cref="GetListPaged{T}(DbConnection, int, int, string, string, object, DbTransaction, int?)"/>
-        public static IEnumerable<T> GetListPaged<T, V>(this DbConnection connection, int pageNumber, int rowsPerPage, string conditions, Expression<Func<T, V>> orderby, object parameters = null, DbTransaction transaction = null, int? commandTimeout = null) where T : class => GetListPaged<T>(connection, pageNumber, rowsPerPage, conditions, GetColumnName(orderby), parameters, transaction, commandTimeout);
+        public static IEnumerable<T> GetListPaged<T, V>(this DbConnection connection, int pageNumber, int rowsPerPage, string conditions, Expression<Func<T, V>> orderby, object parameters = null, DbTransaction transaction = null) where T : class => GetListPaged<T>(connection, pageNumber, rowsPerPage, conditions, GetColumnName(orderby), parameters, transaction);
 
         /// <summary>
         /// <para>By default queries the table matching the class name</para>
@@ -2329,7 +2308,7 @@ namespace Extensions.Databases
         /// <param name="orderby"></param>
         /// <param name="parameters"></param>
         /// <param name="transaction"></param>
-        /// <param name="commandTimeout"></param>
+
         /// <returns>Gets a paged list of entities with optional exact match where conditions</returns>
         public static IEnumerable<T> GetListPaged<T>(this DbConnection connection, int pageNumber, int rowsPerPage, string conditions, string orderby, object parameters = null, DbTransaction transaction = null, int? commandTimeout = null) where T : class
         {
@@ -2414,13 +2393,12 @@ namespace Extensions.Databases
         /// </summary>
         /// <param name="connection"></param>
         /// <param name="entityToInsert"></param>
-        /// <param name="transaction"></param>
-        /// <param name="commandTimeout"></param>
+        /// <param name="transaction"></param>        
         /// <returns>
         /// The ID (primary key) of the newly inserted record if it is identity using the int? type,
         /// otherwise null
         /// </returns>
-        public static TEntity Insert<TEntity>(this DbConnection connection, TEntity entityToInsert, IDbTransaction transaction = null, int? commandTimeout = null) where TEntity : class => Insert<TEntity, TEntity>(connection, entityToInsert, transaction, commandTimeout);
+        public static TEntity Insert<TEntity>(this DbConnection connection, TEntity entityToInsert, DbTransaction transaction = null) where TEntity : class => Insert<TEntity, TEntity>(connection, entityToInsert, transaction);
 
         /// <summary>
         /// <para>Inserts a row into the database, using ONLY the properties defined by TEntity</para>
@@ -2436,20 +2414,19 @@ namespace Extensions.Databases
         /// </summary>
         /// <param name="connection"></param>
         /// <param name="entityToInsert"></param>
-        /// <param name="transaction"></param>
-        /// <param name="commandTimeout"></param>
+        /// <param name="transaction"></param>        
         /// <returns>
         /// The ID (primary key) of the newly inserted record if it is identity using the defined
         /// type, otherwise null
         /// </returns>
-        public static TKey Insert<TKey, TEntity>(this DbConnection connection, TEntity entityToInsert, IDbTransaction transaction = null, int? commandTimeout = null) where TEntity : class
+        public static TKey Insert<TKey, TEntity>(this DbConnection connection, TEntity entityToInsert, DbTransaction transaction = null) where TEntity : class
         {
             if (typeof(TEntity).IsInterface) //FallBack to BaseType Generic Method : https://stackoverflow.com/questions/4101784/calling-a-generic-method-with-a-dynamic-type
             {
                 return (TKey)typeof(SimpleCRUD)
                     .GetMethods().Where(methodInfo => methodInfo.Name == nameof(Insert) && methodInfo.GetGenericArguments().Count() == 2).Single()
                     .MakeGenericMethod(new Type[] { typeof(TKey), entityToInsert.GetType() })
-                    .Invoke(null, new object[] { connection, entityToInsert, transaction, commandTimeout });
+                    .Invoke(null, new object[] { connection, entityToInsert, transaction });
             }
             var idProps = GetIdProperties(entityToInsert).ToList();
 
@@ -2511,13 +2488,14 @@ namespace Extensions.Databases
             if (Debugger.IsAttached)
                 Trace.WriteLine(String.Format("Insert: {0}", sb));
 
-            var r = connection.Query<TKey>(sb.ToString(), entityToInsert, transaction, true, commandTimeout).FirstOrDefault();
+            var cmd = connection.CreateCommand(sb.ToString().ToFormattableString(), entityToInsert, transaction);
+            var r = connection.RunSQLRow<TKey>(cmd);
 
             if (r != null) return r;
 
             if (keytype == typeof(TEntity))
             {
-                var ee = connection.Get<TEntity>(entityToInsert, transaction, commandTimeout);
+                var ee = connection.Get<TEntity>(entityToInsert, transaction);
                 if (ee is TKey kk)
                 {
                     return kk;
@@ -2557,9 +2535,9 @@ namespace Extensions.Databases
         /// <param name="conditions"></param>
         /// <param name="parameters"></param>
         /// <param name="transaction"></param>
-        /// <param name="commandTimeout"></param>
+
         /// <returns>Returns a count of records.</returns>
-        public static int RecordCount<T>(this DbConnection connection, string conditions = "", object parameters = null, IDbTransaction transaction = null, int? commandTimeout = null)
+        public static int RecordCount<T>(this DbConnection connection, string conditions = "", object parameters = null, DbTransaction transaction = null)
         {
             var currenttype = typeof(T);
             var name = GetTableName(currenttype);
@@ -2580,11 +2558,13 @@ namespace Extensions.Databases
             if (Debugger.IsAttached)
                 Trace.WriteLine(String.Format("RecordCount<{0}>: {1}", currenttype, sb));
 
-            return connection.ExecuteScalar<int>(sb.ToString(), parameters, transaction, commandTimeout);
+            var cmd = connection.CreateCommand(sb.ToString().ToFormattableString(), parameters, transaction);
+
+            return connection.RunSQLValue<int>(cmd);
         }
 
-        public static bool Exists<T>(this DbConnection connection, object whereConditions, IDbTransaction transaction = null, int? commandTimeout = null)
-            => RecordCount<T>(connection, whereConditions, transaction, commandTimeout) > 0;
+        public static bool Exists<T>(this DbConnection connection, object whereConditions, DbTransaction transaction = null)
+            => RecordCount<T>(connection, whereConditions, transaction) > 0;
 
         /// <summary>
         /// <para>By default queries the table matching the class name</para>
@@ -2599,9 +2579,9 @@ namespace Extensions.Databases
         /// <param name="connection"></param>
         /// <param name="whereConditions"></param>
         /// <param name="transaction"></param>
-        /// <param name="commandTimeout"></param>
+
         /// <returns>Returns a count of records.</returns>
-        public static int RecordCount<T>(this DbConnection connection, object whereConditions, IDbTransaction transaction = null, int? commandTimeout = null)
+        public static int RecordCount<T>(this DbConnection connection, object whereConditions, DbTransaction transaction = null, int? commandTimeout = null)
         {
             var currenttype = typeof(T);
             var name = GetTableName(currenttype);
@@ -2619,26 +2599,12 @@ namespace Extensions.Databases
             if (Debugger.IsAttached)
                 Trace.WriteLine(String.Format("RecordCount<{0}>: {1}", currenttype, sb));
 
-            return connection.ExecuteScalar<int>(sb.ToString(), whereConditions, transaction, commandTimeout);
+            var cmd = connection.CreateCommand(sb.ToString().ToFormattableString(), whereConditions, transaction);
+
+            return connection.RunSQLValue<int>(cmd);
         }
 
-        /// <summary>
-        /// Generates a GUID based on the current date/time http://stackoverflow.com/questions/1752004/sequential-guid-generator-c-sharp
-        /// </summary>
-        /// <returns></returns>
-        public static Guid SequentialGuid()
-        {
-            var tempGuid = Guid.NewGuid();
-            var bytes = tempGuid.ToByteArray();
-            var time = DateTime.Now;
-            bytes[3] = (byte)time.Year;
-            bytes[2] = (byte)time.Month;
-            bytes[1] = (byte)time.Day;
-            bytes[0] = (byte)time.Hour;
-            bytes[5] = (byte)time.Minute;
-            bytes[4] = (byte)time.Second;
-            return new Guid(bytes);
-        }
+
 
         /// <summary>
         /// Sets the column name resolver
@@ -2725,16 +2691,16 @@ namespace Extensions.Databases
         /// <param name="connection"></param>
         /// <param name="entityToUpdate"></param>
         /// <param name="transaction"></param>
-        /// <param name="commandTimeout"></param>
+
         /// <returns>The number of affected records</returns>
-        public static int Update<TEntity>(this DbConnection connection, TEntity entityToUpdate, IDbTransaction transaction = null, int? commandTimeout = null) where TEntity : class
+        public static int Update<TEntity>(this DbConnection connection, TEntity entityToUpdate, DbTransaction transaction = null) where TEntity : class
         {
             if (typeof(TEntity).IsInterface) //FallBack to BaseType Generic Method: https://stackoverflow.com/questions/4101784/calling-a-generic-method-with-a-dynamic-type
             {
                 return (int)typeof(SimpleCRUD)
                     .GetMethods().Where(methodInfo => methodInfo.Name == nameof(Update) && methodInfo.GetGenericArguments().Count() == 1).Single()
                     .MakeGenericMethod(new Type[] { entityToUpdate.GetType() })
-                    .Invoke(null, new object[] { connection, entityToUpdate, transaction, commandTimeout });
+                    .Invoke(null, new object[] { connection, entityToUpdate, transaction });
             }
             var masterSb = new StringBuilder();
             StringBuilderCache(masterSb, $"{typeof(TEntity).FullName}_Update", sb =>
@@ -2756,10 +2722,11 @@ namespace Extensions.Databases
                 if (Debugger.IsAttached)
                     Trace.WriteLine(String.Format("Update: {0}", sb));
             });
-            return connection.Execute(masterSb.ToString(), entityToUpdate, transaction, commandTimeout);
+            var cmd = connection.CreateCommand(masterSb.ToString().ToFormattableString(), entityToUpdate, transaction);
+            return connection.RunSQLNone(cmd);
         }
 
-        public static int UpdateWhere<TEntity, Tup>(this DbConnection connection, TEntity entityToUpdate, Tup whereConditions, IDbTransaction transaction = null, int? commandTimeout = null) where TEntity : class where Tup : class
+        public static int UpdateWhere<TEntity, Tup>(this DbConnection connection, TEntity entityToUpdate, Tup whereConditions, DbTransaction transaction = null) where TEntity : class where Tup : class
 
         {
             if (typeof(TEntity).IsInterface) //FallBack to BaseType Generic Method: https://stackoverflow.com/questions/4101784/calling-a-generic-method-with-a-dynamic-type
@@ -2767,10 +2734,10 @@ namespace Extensions.Databases
                 return (int)typeof(SimpleCRUD)
                     .GetMethods().Where(methodInfo => methodInfo.Name == nameof(UpdateWhere) && methodInfo.GetGenericArguments().Count() == 2).Single()
                     .MakeGenericMethod(new Type[] { entityToUpdate.GetType() })
-                    .Invoke(null, new object[] { connection, entityToUpdate, whereConditions, transaction, commandTimeout });
+                    .Invoke(null, new object[] { connection, entityToUpdate, whereConditions, transaction });
             }
             var masterSb = new StringBuilder();
-            var para = new DynamicParameters();
+            var para = new Dictionary<string, object>();
             StringBuilderCache(masterSb, $"{typeof(TEntity).FullName}_Update", sb =>
             {
                 var whereProps = GetAllProperties(whereConditions).ToList();
@@ -2800,10 +2767,12 @@ namespace Extensions.Databases
                 if (Debugger.IsAttached)
                     Trace.WriteLine(String.Format("Update: {0}", sb));
             });
-            return connection.Execute(masterSb.ToString(), para, transaction, commandTimeout);
+
+            var cmd = connection.CreateCommand(masterSb.ToString().ToFormattableString(), para, transaction);
+            return connection.RunSQLNone(cmd);
         }
 
-        public static int UpdateWhere<TEntity>(this DbConnection connection, TEntity fieldsToUpdate, string whereConditions, IDbTransaction transaction = null, int? commandTimeout = null) where TEntity : class
+        public static int UpdateWhere<TEntity>(this DbConnection connection, TEntity fieldsToUpdate, string whereConditions, DbTransaction transaction = null, int? commandTimeout = null) where TEntity : class
         {
             var masterSb = new StringBuilder();
             StringBuilderCache(masterSb, $"{typeof(TEntity).FullName}_UpdateWhere", sb =>
@@ -2825,21 +2794,23 @@ namespace Extensions.Databases
                     sb.Append(whereConditions);
                 }
             });
-            return connection.Execute(masterSb.ToString(), fieldsToUpdate, transaction, commandTimeout);
+            var cmd = connection.CreateCommand(masterSb.ToString().ToFormattableString(), fieldsToUpdate, transaction);
+            return connection.RunSQLNone(cmd);
+
         }
 
-        public static int UpdateWhere<TEntity>(this DbConnection connection, TEntity entityToUpdate, Expression<Func<TEntity, bool>> whereConditions, IDbTransaction transaction = null, int? commandTimeout = null)
+        public static int UpdateWhere<TEntity>(this DbConnection connection, TEntity entityToUpdate, Expression<Func<TEntity, bool>> whereConditions, DbTransaction transaction = null)
         {
-            return UpdateWhere(connection, entityToUpdate, new[] { whereConditions }, transaction, commandTimeout);
+            return UpdateWhere(connection, entityToUpdate, new[] { whereConditions }, transaction);
         }
-        public static int UpdateWhere<TEntity>(this DbConnection connection, TEntity entityToUpdate, Expression<Func<TEntity, bool>>[] whereConditions, IDbTransaction transaction = null, int? commandTimeout = null)
+        public static int UpdateWhere<TEntity>(this DbConnection connection, TEntity entityToUpdate, Expression<Func<TEntity, bool>>[] whereConditions, DbTransaction transaction = null)
         {
             var sb = new StringBuilder();
             sb.Append("update ");
             sb.Append(GetTableName(entityToUpdate));
             sb.Append(" set ");
             BuildUpdateSet(entityToUpdate, sb);
-            var parameters = new DynamicParameters();
+            var parameters = new Dictionary<string, object>();
             for (int i = 0; i < whereConditions.Length; i++)
             {
                 var condition = whereConditions[i];
@@ -2864,7 +2835,7 @@ namespace Extensions.Databases
                         {
                             continue;
                         }
-                        parameters.Add("@" + parameterName, parameterValue);
+                        parameters.Add(parameterName, parameterValue);
                         sb.AppendFormat("{0} = @{1}", columnName, parameterName);
                     }
                 }
@@ -2873,16 +2844,17 @@ namespace Extensions.Databases
                     sb.Append(" AND ");
                 }
             }
+            var cmd = connection.CreateCommand(sb.ToString().ToFormattableString(), entityToUpdate, transaction);
+            return connection.RunSQLNone(cmd);
 
-            return connection.Execute(sb.ToString(), entityToUpdate, transaction, commandTimeout);
         }
 
-        public static int UpdateColumn<TEntity, V>(this DbConnection connection, Expression<Func<TEntity, object>> column, V value, object whereConditions, IDbTransaction transaction = null, int? commandTimeout = null) => UpdateColumn(connection, new[] { column }, value, whereConditions, transaction, commandTimeout);
+        public static int UpdateColumn<TEntity, V>(this DbConnection connection, Expression<Func<TEntity, object>> column, V value, object whereConditions, DbTransaction transaction = null, int? commandTimeout = null) => UpdateColumn(connection, new[] { column }, value, whereConditions, transaction, commandTimeout);
 
-        public static int UpdateColumn<TEntity, V>(this DbConnection connection, IEnumerable<Expression<Func<TEntity, object>>> column, V value, object whereConditions, IDbTransaction transaction = null, int? commandTimeout = null)
+        public static int UpdateColumn<TEntity, V>(this DbConnection connection, IEnumerable<Expression<Func<TEntity, object>>> column, V value, object whereConditions, DbTransaction transaction = null, int? commandTimeout = null)
         {
             var sb = new StringBuilder();
-            DynamicParameters para = new DynamicParameters();
+            var para = new Dictionary<string, object>();
 
             var name = GetTableName(typeof(TEntity));
             sb.AppendFormat("update {0}", name);
@@ -2907,7 +2879,8 @@ namespace Extensions.Databases
                 }
             }
 
-            return connection.Execute(sb.ToString(), para, transaction, commandTimeout);
+            var cmd = connection.CreateCommand(sb.ToString().ToFormattableString(), para, transaction);
+            return connection.RunSQLNone(cmd);
         }
 
         /// <summary>
@@ -2925,17 +2898,17 @@ namespace Extensions.Databases
         /// <param name="transaction">The transaction to use, or null.</param>
         /// <param name="commandTimeout">The command timeout, or null.</param>
         /// <returns>TRUE if the record was inserted, FALSE if the record was updated.</returns>
-        public static bool Upsert<TEntity>(this DbConnection connection, TEntity entity, IDbTransaction transaction = null, int? commandTimeout = null) where TEntity : class
+        public static bool Upsert<TEntity>(this DbConnection connection, TEntity entity, DbTransaction transaction = null) where TEntity : class
         {
-            var exists = Get<TEntity>(connection, entity, transaction, commandTimeout);
+            var exists = Get<TEntity>(connection, entity, transaction);
             if (exists == null)
             {
-                Insert<TEntity, TEntity>(connection, entity, transaction, commandTimeout);
+                Insert<TEntity, TEntity>(connection, entity, transaction);
                 return true;
             }
             else
             {
-                Update(connection, entity, transaction, commandTimeout);
+                Update(connection, entity, transaction);
                 return false;
             }
         }
@@ -2970,12 +2943,12 @@ namespace Extensions.Databases
                     columnName = Encapsulate(propertyInfo.Name);
                 }
 
-                var columnattr = propertyInfo.GetCustomAttributes(true).SingleOrDefault(attr => attr.GetType().Name == typeof(ColumnAttribute).Name) as dynamic;
+                var columnattr = propertyInfo.GetAttributeValue<ColumnAttribute, string>(x => x.Name);
                 if (columnattr != null)
                 {
-                    columnName = Encapsulate(columnattr.Name);
+                    columnName = Encapsulate(columnattr);
                     if (Debugger.IsAttached)
-                        Trace.WriteLine(String.Format("Column name for type overridden from {0} to {1}", propertyInfo.Name, columnName));
+                        Trace.WriteLine(string.Format("Column name for type overridden from {0} to {1}", propertyInfo.Name, columnName));
                 }
                 return columnName;
             }
@@ -2996,16 +2969,16 @@ namespace Extensions.Databases
                     tableName = Encapsulate(type.Name);
                 }
 
-                var tableattr = type.GetCustomAttributes(true).SingleOrDefault(attr => attr.GetType().Name == typeof(TableAttribute).Name) as dynamic;
+                var tableattr = type.GetCustomAttribute<TableAttribute>();
                 if (tableattr != null)
                 {
                     tableName = Encapsulate(tableattr.Name);
                     try
                     {
-                        if (!String.IsNullOrEmpty(tableattr.Schema))
+                        if (!string.IsNullOrEmpty(tableattr.Schema))
                         {
                             string schemaName = Encapsulate(tableattr.Schema);
-                            tableName = String.Format("{0}.{1}", schemaName, tableName);
+                            tableName = string.Format("{0}.{1}", schemaName, tableName);
                         }
                     }
                     catch

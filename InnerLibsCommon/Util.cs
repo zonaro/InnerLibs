@@ -41,7 +41,6 @@ using Extensions.Files;
 using Extensions.Locations;
 using Extensions.Pagination;
 using Extensions.Web;
-
 using Expression = System.Linq.Expressions.Expression;
 
 namespace Extensions
@@ -74,6 +73,104 @@ namespace Extensions
 
         private static readonly MethodInfo startsWithMethod = typeof(string).GetMethod("StartsWith", new[] { typeof(string) });
 
+
+        /// <summary>
+        /// Splits the given text into parts based on a character limit specified by an array. Ensures sentences are not split,
+        /// and also forces splitting at line breaks when present.
+        /// </summary>
+        /// <param name="text">The input text to be split.</param>
+        /// <param name="limits">An array specifying the maximum number of characters allowed in each part.</param>
+        /// <param name="delimiters">Optional delimiters for identifying sentences.</param>
+        /// <returns>A list of text parts that comply with the specified character limits.</returns>
+        /// <remarks>
+        /// Sentences are identified using the delimiters '.', '!', '?', and ';' by default. You can specify the delimiters by passing <paramref name="delimiters"/>. Line breaks ('\n') will
+        /// force splitting even if sentences fit within the character limit.
+        /// </remarks>
+        public static IEnumerable<string> SplitSentencesByLimit(this string text, int[] limits, params char[] delimiters)
+        {
+            limits = (limits ?? Array.Empty<int>()).Where(x => x > 0).ToArray();
+
+            if (limits.Length == 0) return new[] { text };
+
+            delimiters = delimiters ?? Array.Empty<char>();
+            if (delimiters.IsNullOrEmpty())
+            {
+                delimiters = PredefinedArrays.EndOfSentencePunctuation.Union(new[] { ";" }).SelectJoinString().ToArray();
+            }
+
+            List<string> partes = new List<string>();
+            string[] linhas = text.SplitAny(PredefinedArrays.BreakLineChars);
+
+
+            int limitIndex = 0;
+
+            foreach (string linha in linhas)
+            {
+                string parteAtual = "";
+                string[] frases = linha.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
+
+                foreach (string frase in frases)
+                {
+                    string fraseTrim = frase.Trim();
+                    int indexDelim = text.IndexOf(fraseTrim) + fraseTrim.Length;
+                    char delimitador = text.ToCharArray().IfNoIndex(indexDelim, ' ');
+
+                    string fraseComDelim = fraseTrim + delimitador + (delimitador == '\n' ? "" : " ");
+                    int limit = limits[limitIndex % limits.Length]; // Cicla o array de limites
+
+
+
+                    if (parteAtual.Length + fraseComDelim.Length <= limit)
+                    {
+                        parteAtual += fraseComDelim;
+                    }
+                    else
+                    {
+                        if (!string.IsNullOrEmpty(parteAtual))
+                        {
+                            partes.Add(parteAtual.Trim());
+                        }
+
+                        parteAtual = fraseComDelim;
+                        limitIndex++; // Move para o próximo limite
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(parteAtual))
+                {
+                    partes.Add(parteAtual.Trim());
+                    limitIndex++; // Move para o próximo limite para a próxima linha
+                }
+            }
+
+            return partes;
+        }
+
+
+        /// <summary>
+        /// Splits the given text into parts based on a character limit. Ensures sentences are not split,
+        /// and also forces splitting at line breaks when present.
+        /// </summary>
+        /// <param name="text">The input text to be split.</param>
+        /// <param name="limit">The maximum number of characters allowed in each part.</param>
+        /// <returns>A list of text parts that comply with the specified character limit.</returns>
+        /// <example>
+        /// var parts = "This is a test. Another test!\nNew line here.".SplitSentencesByLimit(20);
+        /// foreach (var part in parts)
+        /// {
+        ///     Console.WriteLine(part);
+        /// }
+        /// </example>
+        /// <remarks>
+        /// Sentences are identified using the delimiters '.', '!', '?', and ';' by default. You can specify the delimiters by passing <paramref name="delimiters"/>. Line breaks ('\n') will
+        /// force splitting even if sentences fit within the character limit.
+        /// </remarks>
+        public static IEnumerable<string> SplitSentencesByLimit(this string text, int limit, params char[] delimiters)
+        {
+            if (text.IsBlank()) return Array.Empty<string>();
+            if (limit <= 0) limit = text.Length;
+            return SplitSentencesByLimit(text, new int[] { limit }, delimiters);
+        }
 
         public static int CountSequentialCharacters(this string input)
         {
@@ -1479,7 +1576,7 @@ namespace Extensions
         /// </summary>
         /// <param name="Value">Array com elementos</param>
         /// <returns>Array convertido em novo ToType</returns>
-        public static IEnumerable<object> ChangeIEnumerableType<TFrom>(this IEnumerable<TFrom> Value, Type ToType) => (Value ?? Array.Empty<TFrom>()).Select(el => el.ChangeType(ToType));
+        public static IEnumerable<object> ChangeIEnumerableType<TFrom>(this IEnumerable<TFrom> Value, Type ToType) => (Value ?? Array.Empty<TFrom>()).Select(el => el.ChangeType(ToType)).ToList().AsEnumerable();
 
         /// <summary>
         /// Converte um ToType para outro. Retorna Nothing (NULL) se a conversão falhar
@@ -1491,20 +1588,13 @@ namespace Extensions
         {
             try
             {
-                if (Value != null && Value.GetType() == typeof(T))
-                {
-                    return (T)Value;
-                }
 
-                var tp = typeof(T).GetNullableTypeOf() ?? typeof(T);
-                if (Value != null)
-                {
-                    if (Value is string ss && ss.IsBlank()) return default;
-                    return (T)Value.ChangeType(tp);
-                }
-                return default;
+                var v = Util.ChangeType(Value, typeof(T));
+                if (v == null && typeof(T).IsSimpleType()) return default;
+                return (T)v;
+
             }
-            catch
+            catch (Exception ex)
             {
                 return default;
             }
@@ -1520,7 +1610,7 @@ namespace Extensions
         {
             if (ToType == null)
             {
-                WriteDebug($"ToType is null, using {typeof(TFrom).Name}");
+                WriteDebug($"ToType is null, no conversion performed");
                 return Value;
             }
 
@@ -1528,6 +1618,14 @@ namespace Extensions
             {
                 return Value;
             }
+
+            if (ToType.IsAssignableFrom(typeof(TFrom)))
+            {
+                return Value;
+            }
+
+
+            if ((Value == null || (ToType.IsSimpleType() && Value is string ss && ss.IsBlank()))) return default;
 
             WriteDebug($"Try changing from {typeof(TFrom).Name} to {ToType.Name}");
 
@@ -1543,6 +1641,8 @@ namespace Extensions
             catch
             {
             }
+
+
 
             try
             {
@@ -3223,7 +3323,7 @@ namespace Extensions
         /// <param name="Text">Texto</param>
         /// <param name="CompareText">Um ou mais textos para comapração</param>
         /// <returns></returns>
-        public static bool InsensitiveEqual(this string Text, params string[] CompareText) => CompareText?.Any(x => x.Equals(Text ?? "", StringComparison.OrdinalIgnoreCase)) ?? false;
+        public static bool InsensitiveEqual(this string Text, params string[] CompareText) => CompareText?.Any(x => x?.Equals(Text ?? "", StringComparison.OrdinalIgnoreCase) ?? false) ?? false;
 
         /// <summary>
         /// Compara uma string com outra ou mais strings ignorando a diferença entre maiusculas e minusculas e acentos
@@ -8242,6 +8342,32 @@ namespace Extensions
 
             return lockedBitmap;
         }
+
+        /// <summary>
+        /// Mescla varios dicionarios em um unico dicionario. Quando uma key existir em mais de um
+        /// dicionario ela será substituida
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="FirstDictionary"></param>
+        /// <param name="Dictionaries"></param>
+        /// <returns></returns>
+        public static Dictionary<T, object> MergeReplace<T>(this Dictionary<T, object> FirstDictionary, params Dictionary<T, object>[] Dictionaries)
+        {
+            var result = new Dictionary<T, object>();
+            if (FirstDictionary != null && FirstDictionary.IsNotNullOrEmpty())
+                foreach (var entry in FirstDictionary)
+                {
+                    result[entry.Key] = entry.Value;
+                }
+
+            foreach (var dic in Dictionaries)
+            {
+                foreach (var entry in dic)
+                    result[entry.Key] = entry.Value;
+            }
+            return result;
+        }
+
 
         /// <summary>
         /// Mescla varios dicionarios em um unico dicionario. Quando uma key existir em mais de um
@@ -14757,6 +14883,24 @@ namespace Extensions
             }
 
             return Text.RemoveLastChars(1);
+        }
+
+        /// <summary>
+        /// Generates a GUID based on the current date/time http://stackoverflow.com/questions/1752004/sequential-guid-generator-c-sharp
+        /// </summary>
+        /// <returns></returns>
+        public static Guid SequentialGuid()
+        {
+            var tempGuid = Guid.NewGuid();
+            var bytes = tempGuid.ToByteArray();
+            var time = DateTime.Now;
+            bytes[3] = (byte)time.Year;
+            bytes[2] = (byte)time.Month;
+            bytes[1] = (byte)time.Day;
+            bytes[0] = (byte)time.Hour;
+            bytes[5] = (byte)time.Minute;
+            bytes[4] = (byte)time.Second;
+            return new Guid(bytes);
         }
 
         /// <summary>

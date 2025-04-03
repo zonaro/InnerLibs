@@ -55,6 +55,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)JSONParser\JsonSerializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)JSONParser\Reflection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)JSONParser\SafeDictionary.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SimpleCRUD.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Telefone.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Util.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FileTree.cs" />

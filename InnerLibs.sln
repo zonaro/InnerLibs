@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InnerLibsDLL", "InnerLibs\I
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "InnerLibs", "InnerLibsCommon\InnerLibs.shproj", "{4A6BE46F-380F-4565-A9F3-72E1FF4DA2D3}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "SimpleCRUD", "SimpleCRUD\SimpleCRUD.shproj", "{78D49FAA-C9C4-4184-9F22-D4F4B02D5DF8}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -34,7 +32,6 @@ Global
 	EndGlobalSection
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		InnerLibsCommon\InnerLibs.projitems*{4a6be46f-380f-4565-a9f3-72e1ff4da2d3}*SharedItemsImports = 13
-		SimpleCRUD\SimpleCRUD.projitems*{78d49faa-c9c4-4184-9f22-d4f4b02d5df8}*SharedItemsImports = 13
 		InnerLibsCommon\InnerLibs.projitems*{95cd99d4-4efe-436b-bda6-b608db5b105d}*SharedItemsImports = 5
 	EndGlobalSection
 EndGlobal
