@@ -4,7 +4,7 @@ using System.Linq;
 using Extensions;
 
 
-namespace Extensions.Databases
+namespace Extensions.DataBases
 {
 
     public class ConnectionStringParser : Dictionary<string, string>

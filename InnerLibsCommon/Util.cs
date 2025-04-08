@@ -33,7 +33,7 @@ using Extensions.Colors;
 using Extensions.ComplexText;
 using Extensions.Console;
 using Extensions.Converters;
-using Extensions.Databases;
+using Extensions.DataBases;
 using Extensions.Dates;
 using Extensions.DebugWriter;
 using Extensions.Equations;
@@ -374,14 +374,14 @@ namespace Extensions
         /// <param name="attributes"></param>
         /// <param name="IsSQL"></param>
         /// <returns></returns>
-        private static string InjectBase(string formatString, Hashtable attributes, bool IsSQL)
+        private static string InjectBase(string formatString, Hashtable attributes)
         {
             string result = formatString;
             if (attributes != null && formatString != null)
             {
                 foreach (string attributeKey in attributes.Keys)
                 {
-                    result = result.InjectSingleValueBase(attributeKey, attributes[attributeKey], IsSQL);
+                    result = result.InjectSingleValue(attributeKey, attributes[attributeKey]);
                 }
             }
 
@@ -395,7 +395,7 @@ namespace Extensions
         /// <param name="key"></param>
         /// <param name="replacementValue"></param>
         /// <returns></returns>
-        private static string InjectSingleValueBase(this string formatString, string key, object replacementValue, bool IsSQL = false, CultureInfo cultureInfo = null)
+        public static string InjectSingleValue(this string formatString, string key, object replacementValue, CultureInfo cultureInfo = null)
         {
             string result = formatString ?? "";
             var attributeRegex = new Regex("{(" + key + ")(?:}|(?::(.[^}]*)}))");
@@ -412,10 +412,7 @@ namespace Extensions
                     replacement = (replacementValue ?? default).ToString();
                 }
 
-                if (IsSQL)
-                {
-                    replacement = ToSQLString(replacement);
-                }
+
 
                 result = result.Replace(m.ToString(), replacement);
             }
@@ -441,32 +438,7 @@ namespace Extensions
 
         public const string WhitespaceChar = " ";
 
-        /// <summary>
-        /// Dicionario com os <see cref="Type"/> e seu <see cref="DbType"/> correspondente
-        /// </summary>
-        /// <returns></returns>
-        public static Dictionary<Type, DbType> DbTypes => new Dictionary<Type, DbType>()
-        {
-            [typeof(byte)] = DbType.Byte,
-            [typeof(sbyte)] = DbType.SByte,
-            [typeof(short)] = DbType.Int16,
-            [typeof(ushort)] = DbType.UInt16,
-            [typeof(int)] = DbType.Int32,
-            [typeof(uint)] = DbType.UInt32,
-            [typeof(long)] = DbType.Int64,
-            [typeof(ulong)] = DbType.UInt64,
-            [typeof(float)] = DbType.Single,
-            [typeof(double)] = DbType.Double,
-            [typeof(decimal)] = DbType.Decimal,
-            [typeof(bool)] = DbType.Boolean,
-            [typeof(string)] = DbType.String,
-            [typeof(char[])] = DbType.String,
-            [typeof(char)] = DbType.StringFixedLength,
-            [typeof(Guid)] = DbType.Guid,
-            [typeof(DateTime)] = DbType.DateTime,
-            [typeof(DateTimeOffset)] = DbType.DateTimeOffset,
-            [typeof(byte[])] = DbType.Binary
-        };
+
 
         /// <summary>
         /// Set this flag to true to show InnerLibs Debug messages
@@ -4333,10 +4305,6 @@ namespace Extensions
             return TheColor.MergeWith(Color.FromArgb(d, d, d), Percent);
         }
 
-        /// <summary>
-        /// Retorna um <see cref="DbType"/> a partir do <see cref="Type"/> do <paramref name="obj"/>
-        /// </summary>
-        public static DbType GetDbType<T>(this T obj, DbType DefaultType = DbType.Object) => DbTypes.GetValueOr(GetNullableTypeOf(obj), DefaultType);
 
         public static int GetDecimalLength(this decimal number) => BitConverter.GetBytes(decimal.GetBits(number)[3])[2];
 
@@ -6156,14 +6124,6 @@ namespace Extensions
             }
         }
 
-        /// <summary>
-        /// Retorna um <see cref="Type"/> de um <see cref="DbType"/>
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="Type"></param>
-        /// <param name="DefaultType"></param>
-        /// <returns></returns>
-        public static Type GetTypeFromDb(this DbType Type, Type DefaultType = null) => DbTypes.Where(x => x.Value == Type).Select(x => x.Key).FirstOrDefault() ?? DefaultType ?? typeof(object);
 
         /// <summary>
         /// Retorna o <see cref="Type"/> do objeto mesmo se ele for nulo
@@ -6827,7 +6787,7 @@ namespace Extensions
             return formatString;
         }
 
-        public static string Inject(this string formatString, Hashtable attributes) => InjectBase(formatString, attributes, false);
+        public static string Inject(this string formatString, Hashtable attributes) => InjectBase(formatString, attributes);
 
         /// <summary>
         /// Inject the property values of <typeparamref name="T"/> into <paramref name="TemplatedString"/>
@@ -6838,9 +6798,7 @@ namespace Extensions
         /// <returns></returns>
         public static string InjectInto<T>(this T Obj, string TemplatedString) => TemplatedString.IfBlank(EmptyString).Inject(Obj);
 
-        public static string InjectSingleValue(this string formatString, string key, object replacementValue, CultureInfo cultureInfo = null) => InjectSingleValueBase(formatString, key, replacementValue, false, cultureInfo);
 
-        public static string InjectSingleValueSQL(this string formatString, string key, object replacementValue, CultureInfo cultureInfo = null) => InjectSingleValueBase(formatString, key, replacementValue, true, cultureInfo);
 
         /// <summary>
         /// Inject the property values of <typeparamref name="T"/> into <see cref="String"/>
@@ -6861,9 +6819,8 @@ namespace Extensions
             return formatString;
         }
 
-        public static string InjectSQL(this string formatString, Hashtable attributes) => InjectBase(formatString, attributes, true);
 
-        public static string InjectSQLInto<T>(this T Obj, string TemplatedString) => TemplatedString.IfBlank(EmptyString).InjectSQL(Obj);
+
 
         /// <summary>
         /// Insere uma imagem em outra imagem
@@ -7780,7 +7737,7 @@ namespace Extensions
         }
 
         /// <summary>
-        /// Verifica se o objeto é do tipo numérico.
+        /// Verifica se o objeto é do tipo numérico. Veja <see cref="PredefinedArrays.NumericTypes"/>
         /// </summary>
         /// <remarks>Boolean is not considered numeric.</remarks>
         public static bool IsNumericType<T>(this T Obj) => Obj.GetNullableTypeOf().IsIn(PredefinedArrays.NumericTypes);
@@ -14931,86 +14888,6 @@ namespace Extensions
         /// <param name="Text"></param>
         /// <returns></returns>
         public static string ToSnakeCase(this string Text) => Text?.Replace(WhitespaceChar, "_").ToLowerInvariant();
-
-        /// <summary>
-        /// Interploa um objeto de tipo <typeparamref name="T"/> em uma <see
-        /// cref="FormattableString"/>, e retorna o resultado de <see
-        /// cref="ToSQLString(FormattableString, bool)"/>
-        /// </summary>
-        /// <param name="Obj"></param>
-        /// <returns></returns>
-        public static string ToSQLString<T>(this T Obj, bool Parenthesis = true) => ToSQLString("{0}".ToFormattableString(Obj), Parenthesis);
-
-        /// <summary>
-        /// Converte uma <see cref="FormattableString"/> para uma string SQL, tratando seus
-        /// parametros como parametros da query
-        /// </summary>
-        /// <param name="Parenthesis">indica se o parametro deve ser encapsulando em parentesis</param>
-        public static string ToSQLString(this FormattableString SQL, bool Parenthesis = true)
-        {
-            if (SQL != null)
-            {
-                if (SQL.ArgumentCount > 0)
-                {
-                    string CommandText = SQL.Format.Trim();
-                    for (int index = 0, loopTo = SQL.ArgumentCount - 1; index <= loopTo; index++)
-                    {
-                        var v = SQL.GetArgument(index);
-
-                        if (v.IsEnumerableNotString() == false)
-                        {
-                            v = new[] { v };
-                        }
-
-                        var pv = new List<string>();
-                        if (v is IEnumerable paramvalues)
-                        {
-                            foreach (var x in paramvalues)
-                            {
-                                if (x == null)
-                                {
-                                    pv.Add("NULL");
-                                }
-                                else if (x.IsEnumerableNotString() && x is IEnumerable cc)
-                                {
-                                    foreach (var c in cc)
-                                    {
-                                        pv.Add(c.ToSQLString(false));
-                                    }
-                                }
-                                else if (GetNullableTypeOf(x).IsNumericType())
-                                {
-                                    pv.Add(x.ToDecimal().ToString(CultureInfo.InvariantCulture));
-                                }
-                                else if (IsDate(x))
-                                {
-                                    pv.Add(x.ToDateTime().ToSQLDateString().EscapeQuotesToQuery(true));
-                                }
-                                else if (IsBool(x))
-                                {
-                                    pv.Add(x.ToBool().AsIf("1", "0"));
-                                }
-
-                                else
-                                {
-                                    pv.Add(x.ToString().EscapeQuotesToQuery(true));
-                                }
-                            }
-
-                            CommandText = CommandText.Replace("{" + index + "}", pv.SelectJoinString(",").IfBlank("NULL").UnQuote('(', true).QuoteIf(Parenthesis, '('));
-                        }
-                    }
-
-                    return CommandText;
-                }
-                else
-                {
-                    return SQL.ToString(CultureInfo.InvariantCulture);
-                }
-            }
-
-            return null;
-        }
 
         /// <summary>
         /// Cria um <see cref="Stream"/> a partir de uma string

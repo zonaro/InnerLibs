@@ -17,8 +17,9 @@ using System.Reflection;
 using System.Text;
 using Extensions;
 using Extensions.DebugWriter;
-
 using static Extensions.Util;
+
+
 /*
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 * This file add overloads for each Dapper.SQLMapper method, allowing the use of FormattableString     *
@@ -26,15 +27,59 @@ using static Extensions.Util;
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 */
 
-namespace Extensions.Databases
+namespace Extensions.DataBases
 {
-    /// <inheritdoc cref="SqlMapper"/>
-    /// <summary>
-    /// Main class for Dapper.SimpleCRUD extensions
-    /// </summary>
-    public static partial class SimpleCRUD
 
+    public enum CommandType
     {
+        Select,
+        Insert,
+        Update,
+        Delete
+    }
+
+
+    public static partial class SimpleCRUD
+    {
+
+        /// <summary>
+        /// Retorna um <see cref="Type"/> de um <see cref="DbType"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Type"></param>
+        /// <param name="DefaultType"></param>
+        /// <returns></returns>
+        public static Type GetTypeFromDb(this DbType Type, Type DefaultType = null) => DbTypes.Where(x => x.Value == Type).Select(x => x.Key).FirstOrDefault() ?? DefaultType ?? typeof(object);
+
+
+        /// <summary>
+        /// Dicionario com os <see cref="Type"/> e seu <see cref="DbType"/> correspondente
+        /// </summary>
+        /// <returns></returns>
+        public static Dictionary<Type, DbType> DbTypes => new Dictionary<Type, DbType>()
+        {
+            [typeof(byte)] = DbType.Byte,
+            [typeof(sbyte)] = DbType.SByte,
+            [typeof(short)] = DbType.Int16,
+            [typeof(ushort)] = DbType.UInt16,
+            [typeof(int)] = DbType.Int32,
+            [typeof(uint)] = DbType.UInt32,
+            [typeof(long)] = DbType.Int64,
+            [typeof(ulong)] = DbType.UInt64,
+            [typeof(float)] = DbType.Single,
+            [typeof(double)] = DbType.Double,
+            [typeof(decimal)] = DbType.Decimal,
+            [typeof(bool)] = DbType.Boolean,
+            [typeof(string)] = DbType.String,
+            [typeof(char[])] = DbType.String,
+            [typeof(char)] = DbType.StringFixedLength,
+            [typeof(Guid)] = DbType.Guid,
+            [typeof(DateTime)] = DbType.DateTime,
+            [typeof(DateTimeOffset)] = DbType.DateTimeOffset,
+            [typeof(byte[])] = DbType.Binary
+        };
+
+
         ///<summary> Monta um Comando SQL para executar um SELECT com
         /// filtros a partir de um <see cref="NameValueCollection" />
         /// </summary>
@@ -588,49 +633,64 @@ namespace Extensions.Databases
         public static string FormatSQLColumn(params string[] ColumnNameParts) => FormatSQLColumn('[', ColumnNameParts);
 
         /// <summary>
+        /// Retorna um <see cref="DbType"/> a partir do <see cref="Type"/> do <paramref name="obj"/>
+        /// </summary>
+        public static DbType GetDbType<T>(this T obj, DbType DefaultType = DbType.Object) => DbTypes.GetValueOr(Util.GetNullableTypeOf(obj), DefaultType);
+
+
+        /// <summary>
         /// Cria um comando de UPDATE para o objeto do tipo <typeparamref name="T"/>
         /// </summary>
         /// <remarks>
         /// <typeparamref name="T"/> pode ser uma classe, <see cref="NameValueCollection"/> ou <see
         /// cref="Dictionary{TKey, TValue}"/>
         /// </remarks>
-        public static DbCommand CreateUPDATECommand<T>(this DbConnection Connection, T obj, FormattableString WhereClausule, string TableName = null, DbTransaction Transaction = null) where T : class
+        public static DbCommand CreateUPDATECommand<T>(this DbConnection Connection, T obj, object whereClausule, string TableName = null, DbTransaction Transaction = null) where T : class
         {
             var d = typeof(T);
             Dictionary<string, object> dic;
 
             if (obj != null && Connection != null)
             {
-                dic = obj.CreateDictionary();
+                dic = CreateParameterDictionary(obj, CommandType.Update);
+
+                if (whereClausule == null)
+                {
+                    whereClausule = GetIdProperties<T>().ToDictionary(x => GetColumnName(x), x => x.GetValue(obj));
+                }
 
                 var cmd = Connection.CreateCommand();
                 cmd.CommandText = $"UPDATE " + TableName.IfBlank(d.GetTableName()) + " set" + Environment.NewLine;
                 foreach (var k in dic.Keys)
                 {
                     var col = GetColumnName(d, k).IfBlank(Encapsulate(k));
-                    cmd.CommandText += $"{col} = @__{k}, {Environment.NewLine}";
+                    cmd.CommandText += $"{col} = @_up_{k}, {Environment.NewLine}";
                     var param = cmd.CreateParameter();
-                    param.ParameterName = $"__{k}";
+                    param.ParameterName = $"_up_{k}";
                     param.Value = dic.GetValueOr(k, DBNull.Value);
                     cmd.Parameters.Add(param);
                 }
 
                 cmd.CommandText = cmd.CommandText.TrimAny(Environment.NewLine, ",", " ");
 
-                if (WhereClausule.IsNotBlank())
+                if (whereClausule != null)
                 {
-                    var wherecmd = Connection.CreateCommand(WhereClausule);
-                    var wheretxt = wherecmd.CommandText.Trim();
-                    foreach (DbParameter item in wherecmd.Parameters)
+
+                    var w = WhereParameters(whereClausule);
+                    if (w.SQL.IsNotBlank())
                     {
-                        var param = cmd.CreateParameter();
-                        param.ParameterName = item.ParameterName;
-                        param.Value = item.Value;
-                        param.DbType = item.DbType;
-                        cmd.Parameters.Add(param);
+                        cmd.CommandText += w.SQL;
+                        foreach (var item in w.Parameters)
+                        {
+                            var param = cmd.CreateParameter();
+                            param.ParameterName = item.Key;
+                            param.Value = item.Value;
+                            param.DbType = item.GetDbType();
+                            cmd.Parameters.Add(param);
+                        }
+
                     }
-                    cmd.CommandText += $"{Environment.NewLine}{wheretxt.PrependIf(" WHERE ", x => !x.Trim().StartsWith("WHERE"))}";
-                    wherecmd.Dispose();
+
                 }
 
                 if (Transaction != null)
@@ -1167,7 +1227,7 @@ namespace Extensions.Databases
             {
                 foreach (DbParameter item in Command.Parameters)
                 {
-                    string bx = $"Parameter: @{item.ParameterName}{Environment.NewLine}Value: {item.Value}{Environment.NewLine}TEntity: {item.DbType}{Environment.NewLine}Precision/Scale: {item.Precision}/{item.Scale}";
+                    string bx = $"Parameter: {item.ParameterName}{Environment.NewLine}Value: {item.Value}{Environment.NewLine}Type: {item.DbType}{Environment.NewLine}Precision/Scale: {item.Precision}/{item.Scale}";
                     LogWriter.WriteLine(bx);
                     LogWriter.WriteLine("-".Repeat(10));
                 }
@@ -1178,6 +1238,7 @@ namespace Extensions.Databases
                 if (Command.Transaction != null)
                 {
                     LogWriter.WriteLine($"Transaction Isolation Level: {Command.Transaction.IsolationLevel}");
+
                 }
                 else
                 {
@@ -1293,7 +1354,7 @@ namespace Extensions.Databases
                     {
                         var param = cmd.CreateParameter();
                         param.ParameterName = "value";
-                        param.Value = parameters;
+                        param.Value = parameters ?? DBNull.Value;
                         cmd.Parameters.Add(param);
                     }
                     else
@@ -1304,7 +1365,7 @@ namespace Extensions.Databases
                         {
                             var param = cmd.CreateParameter();
                             param.ParameterName = e.Key;
-                            param.Value = e.Value;
+                            param.Value = e.Value ?? DBNull.Value;
                             cmd.Parameters.Add(param);
                         }
                     }
@@ -1328,6 +1389,61 @@ namespace Extensions.Databases
         public static object RunSQLValue(this DbConnection Connection, FormattableString sql, DbTransaction transaction = null, bool WithSubQueries = false, Type type = null) => Connection.RunSQLValue(Connection.CreateCommand(sql, transaction));
 
 
+        /// <summary>
+        /// Cria um <see cref="Dictionary{String, Object}"/> a partir de um objeto do tipo <typeparamref name="T"/>. 
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="obj"></param>
+        /// <param name="type"></param>
+        /// <param name="Keys"></param>
+        /// <returns></returns>
+        public static Dictionary<string, object> CreateParameterDictionary<T>(T obj, CommandType type = CommandType.Select, params string[] Keys)
+        {
+            if (obj == null) return new Dictionary<string, object>();
+            if (obj.IsDictionary()) return obj.CreateDictionary(Keys);
+            if (obj.IsSimpleType()) return new Dictionary<string, object> { { Encapsulate("value"), obj } };
+            if (obj is NameValueCollection nvc) return nvc.ToDictionary(Keys);
+            var dic = new Dictionary<string, object>();
+            foreach (var property in GetScaffoldableProperties<T>())
+            {
+                if (property.CanRead)
+                {
+                    if (Keys.IsNullOrEmpty() || property.Name.FlatEqual(Keys) || GetColumnName(property).FlatEqual(Keys))
+                    {
+
+
+                        if (property.GetCustomAttributes(true).Any(attr =>
+                                attr.GetType().Name == typeof(NotMappedAttribute).Name ||
+                                attr.GetType().Name == typeof(ReadOnlyAttribute).Name && IsReadOnly(property))) continue;
+
+                        if (type == CommandType.Insert)
+                        {
+                            if (property.GetCustomAttributes(true).Any(attr => attr.GetType().Name == typeof(IgnoreInsertAttribute).Name)) continue;
+                        }
+                        else if (type == CommandType.Update)
+                        {
+                            if (property.GetCustomAttributes(true).Any(attr => attr.GetType().Name == typeof(IgnoreUpdateAttribute).Name)) continue;
+                        }
+                        else if (type == CommandType.Select)
+                        {
+                            if (property.GetCustomAttributes(true).Any(attr => attr.GetType().Name == typeof(IgnoreSelectAttribute).Name)) continue;
+                        }
+
+
+                        if (property.Name.FlatEqual("Id") && property.GetCustomAttributes(true).All(attr => attr.GetType().Name != typeof(RequiredAttribute).Name) && property.PropertyType != typeof(Guid)) continue;
+
+                        var value = property.GetValue(obj);
+                        if (value != null)
+                        {
+                            dic.Add(GetColumnName(property), value);
+                        }
+                    }
+                }
+            }
+
+            return dic;
+        }
 
 
         /// <summary>
@@ -1339,6 +1455,7 @@ namespace Extensions.Databases
         /// <param name="TableName"></param>
         /// <returns></returns>
         public static IEnumerable<DbCommand> CreateINSERTCommand<T>(this DbConnection Connection, IEnumerable<T> obj, string TableName = null, DbTransaction Transaction = null) where T : class => (obj ?? Array.Empty<T>()).Select(x => Connection.CreateINSERTCommand(x, TableName, Transaction));
+
 
         /// <summary>
         /// Cria um comando de INSERT para o objeto do tipo <typeparamref name="T"/>
@@ -1353,7 +1470,12 @@ namespace Extensions.Databases
             var dic = new Dictionary<string, object>();
             if (obj != null && Connection != null)
             {
-                dic = obj.CreateDictionary();
+
+
+
+                dic = CreateParameterDictionary(obj, CommandType.Insert);
+
+
 
                 var cmd = Connection.CreateCommand();
                 cmd.CommandText = string.Format($"INSERT INTO {TableName.IfBlank(GetTableName<T>())} ({{0}}) values ({{1}})", dic.Keys.SelectJoinString(","), dic.Keys.SelectJoinString(x => $"@__{x}", ","));
@@ -1374,7 +1496,146 @@ namespace Extensions.Databases
             return null;
         }
 
-        public static V GeneratePrimaryKey<T, V>(this DbConnection connection, Expression<Func<T, V>> column, object whereConditions = null, DbTransaction transaction = null, int? commandTimeout = null) where T : class => GeneratePrimaryKey<T, V>(connection, GetColumnName(column), whereConditions, transaction, commandTimeout);
+
+        /// <summary>
+        /// Interploa um objeto de tipo <typeparamref name="T"/> em uma <see
+        /// cref="FormattableString"/>, e retorna o resultado de <see
+        /// cref="ToSQLString(FormattableString, bool)"/>
+        /// </summary>
+        /// <param name="Obj"></param>
+        /// <returns></returns>
+        public static string ToSQLString<T>(this T Obj, bool Parenthesis = true) => ToSQLString("{0}".ToFormattableString(Obj), Parenthesis);
+
+        /// <summary>
+        /// Converte uma <see cref="FormattableString"/> para uma string SQL, tratando seus
+        /// parametros como parametros da query
+        /// </summary>
+        /// <param name="Parenthesis">indica se o parametro deve ser encapsulando em parentesis</param>
+        public static string ToSQLString(this FormattableString SQL, bool Parenthesis = true)
+        {
+            if (SQL != null)
+            {
+                if (SQL.ArgumentCount > 0)
+                {
+                    string CommandText = SQL.Format.Trim();
+                    for (int index = 0, loopTo = SQL.ArgumentCount - 1; index <= loopTo; index++)
+                    {
+                        var v = SQL.GetArgument(index);
+
+                        if (v.IsEnumerableNotString() == false)
+                        {
+                            v = new[] { v };
+                        }
+
+                        var pv = new List<string>();
+                        if (v is IEnumerable paramvalues)
+                        {
+                            foreach (var x in paramvalues)
+                            {
+                                if (x == null)
+                                {
+                                    pv.Add("NULL");
+                                }
+                                else if (x.IsEnumerableNotString() && x is IEnumerable cc)
+                                {
+                                    foreach (var c in cc)
+                                    {
+                                        pv.Add(c.ToSQLString(false));
+                                    }
+                                }
+                                else if (Util.GetNullableTypeOf(x).IsNumericType())
+                                {
+                                    pv.Add(x.ToDecimal().ToString(CultureInfo.InvariantCulture));
+                                }
+                                else if (Util.IsDate(x))
+                                {
+                                    pv.Add(x.ToDateTime().ToSQLDateString().EscapeQuotesToQuery(true));
+                                }
+                                else if (Util.IsBool(x))
+                                {
+                                    pv.Add(x.ToBool().AsIf("1", "0"));
+                                }
+
+                                else
+                                {
+                                    pv.Add(x.ToString().EscapeQuotesToQuery(true));
+                                }
+                            }
+
+                            CommandText = CommandText.Replace("{" + index + "}", pv.SelectJoinString(",").IfBlank("NULL").UnQuote('(', true).QuoteIf(Parenthesis, '('));
+                        }
+                    }
+
+                    return CommandText;
+                }
+                else
+                {
+                    return SQL.ToString(CultureInfo.InvariantCulture);
+                }
+            }
+
+            return null;
+        }
+
+        public static (string SQL, Dictionary<string, object> Parameters) WhereParameters<T>(T obj, CommandType type = CommandType.Select, params string[] Keys)
+        {
+            if (obj.IsSimpleType()) return (WhereClausule<T>(obj), null);
+            if (obj is FormattableString fs) return (WhereClausule<T>(fs), null);
+            return (WhereClausule<T>(obj), CreateParameterDictionary(obj, type, Keys));
+        }
+
+        /// <summary>
+        /// Returns the WHERE clause for a SQL statement based on the properties of the object
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="whereConditions"></param>
+        /// <returns></returns>
+        public static string WhereClausule<T>(this object whereConditions)
+        {
+            var sql = "";
+            if (whereConditions is string s)
+            {
+                sql = s;
+            }
+            else if (whereConditions is FormattableString fs)
+            {
+                sql = fs.ToSQLString();
+            }
+            else
+            {
+                if (whereConditions != null)
+                {
+                    var wheres = new List<string>();
+                    if (whereConditions is Dictionary<string, object> dic)
+                    {
+                        wheres = dic.Select(x => $"{typeof(T).GetColumnName(x.Key)} = @{x.Key}").ToList();
+                    }
+                    else
+                    {
+
+                        wheres = GetAllProperties(whereConditions).Select(x => $"{typeof(T).GetColumnName(x.Name)} = @{x.Name}").ToList();
+                    }
+
+                    if (wheres.IsNotNullOrEmpty())
+                    {
+                        sql += " WHERE ";
+                        sql += string.Join(" AND ", wheres);
+                    }
+
+                }
+            }
+            if (sql.IsNotBlank())
+            {
+                if (sql.Trim().StartsWith("where", StringComparison.OrdinalIgnoreCase) == false)
+                {
+                    sql = " WHERE " + sql;
+                }
+            }
+            return sql;
+        }
+
+
+        public static V GeneratePrimaryKey<T, V>(this DbConnection connection, Expression<Func<T, V>> column, object whereConditions = null, DbTransaction transaction = null) where T : class => GeneratePrimaryKey<T, V>(connection, GetColumnName(column), whereConditions, transaction);
 
         /// <summary>
         /// Generate a new ID for the entity
@@ -1386,7 +1647,7 @@ namespace Extensions.Databases
         /// <param name="whereConditions"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public static V GeneratePrimaryKey<T, V>(this DbConnection connection, string keyName = null, object whereConditions = null, DbTransaction transaction = null, int? commandTimeout = null) where T : class
+        public static V GeneratePrimaryKey<T, V>(this DbConnection connection, string keyName = null, object whereConditions = null, DbTransaction transaction = null) where T : class
         {
             var t = typeof(T);
             var sb = new StringBuilder();
@@ -1394,7 +1655,7 @@ namespace Extensions.Databases
 
             if (typeof(V) == typeof(Guid))
             {
-                var vv = SequentialGuid();
+                var vv = Util.SequentialGuid();
                 if (vv is V g)
                 {
                     return g;
@@ -1409,7 +1670,7 @@ namespace Extensions.Databases
                 {
                     if (keys.Count(x => x.PropertyType == typeof(V)) > 1)
                     {
-                        throw new ArgumentException("Entity has multiple keys, please specify the keyName");
+                        throw new ArgumentException("Entity has multiple keys, please specify the keyName", nameof(keyName));
                     }
 
                     keyName = GetColumnName(keys.FirstOrDefault(x => x.PropertyType == typeof(V)));
@@ -1423,7 +1684,7 @@ namespace Extensions.Databases
 
                 sb.Append($"SELECT MAX({keyName}) FROM {tableName} ");
 
-                if (whereConditions is string s && string.IsNullOrWhiteSpace(s) == false)
+                if (whereConditions is string s && s.IsNotBlank())
                 {
                     if (s.Trim().StartsWith("where", StringComparison.OrdinalIgnoreCase) == false)
                     {
@@ -1485,7 +1746,7 @@ namespace Extensions.Databases
                     }
                     else
                     {
-                        return (V)Convert.ChangeType(SequentialGuid().ToString(), typeof(V));
+                        return (V)Convert.ChangeType(Util.SequentialGuid().ToString(), typeof(V));
                     }
                 }
 
@@ -1683,16 +1944,18 @@ namespace Extensions.Databases
 
         //Get all properties that are not decorated with the Editable(false) attribute
 
-        private static IEnumerable<PropertyInfo> GetScaffoldableProperties<T>() => typeof(T).GetScaffoldableProperties();
 
-        private static IEnumerable<PropertyInfo> GetScaffoldableProperties(this Type type)
+        private static IEnumerable<PropertyInfo> GetScaffoldableProperties<T>() => typeof(T).GetScaffoldableProperties();
+        private static IEnumerable<PropertyInfo> GetScaffoldableProperties<T>(this T type)
         {
-            IEnumerable<PropertyInfo> props = type.GetProperties();
+            IEnumerable<PropertyInfo> props = type.GetTypeOf().GetProperties();
 
             props = props.Where(p => p.GetCustomAttributes(true).Any(attr => attr.GetType().Name == typeof(EditableAttribute).Name && !IsEditable(p)) == false);
 
             return props.Where(p => p.PropertyType.IsSimpleType() || IsEditable(p));
         }
+
+
 
         //Get all properties that are:
         //Not named Id
@@ -1704,7 +1967,7 @@ namespace Extensions.Databases
         {
             var updateableProperties = GetScaffoldableProperties<T>();
             //remove ones with ID
-            updateableProperties = updateableProperties.Where(p => !p.Name.Equals("Id", StringComparison.OrdinalIgnoreCase));
+            updateableProperties = updateableProperties.Where(p => !p.Name.FlatEqual("Id"));
             //remove ones with key attribute
             updateableProperties = updateableProperties.Where(p => p.GetCustomAttributes(true).Any(attr => attr.GetType().Name == typeof(KeyAttribute).Name) == false);
             //remove ones that are readonly
@@ -1791,8 +2054,7 @@ namespace Extensions.Databases
                 sb.Append(" where ");
                 BuildWhere<T>(sb, idProps, entityToDelete);
 
-                if (Debugger.IsAttached)
-                    Trace.WriteLine(String.Format("Delete: {0}", sb));
+
             });
 
             var cmd = connection.CreateCommand(masterSb.ToString().ToFormattableString(), entityToDelete, transaction);
@@ -1851,8 +2113,7 @@ namespace Extensions.Databases
                     dynParms.Add(prop.Name, id.GetType().GetProperty(prop.Name).GetValue(id, null));
             }
 
-            if (Debugger.IsAttached)
-                Trace.WriteLine(String.Format("Delete<{0}> {1}", currenttype, sb));
+
 
             var cmd = connection.CreateCommand(sb.ToString().ToFormattableString(), dynParms, transaction);
 
@@ -1892,8 +2153,7 @@ namespace Extensions.Databases
                     BuildWhere<T>(sb, whereprops);
                 }
 
-                if (Debugger.IsAttached)
-                    Trace.WriteLine(String.Format("DeleteList<{0}> {1}", currenttype, sb));
+
             });
 
             var cmd = connection.CreateCommand(masterSb.ToString().ToFormattableString(), whereConditions, transaction);
@@ -1918,7 +2178,7 @@ namespace Extensions.Databases
         /// <param name="transaction"></param>
 
         /// <returns>The number of records affected</returns>
-        public static int DeleteList<T>(this DbConnection connection, string conditions, object parameters = null, DbTransaction transaction = null, int? commandTimeout = null)
+        public static int DeleteList<T>(this DbConnection connection, string conditions, object parameters = null, DbTransaction transaction = null)
         {
             var masterSb = new StringBuilder();
             StringBuilderCache(masterSb, $"{typeof(T).FullName}_DeleteWhere{conditions}", sb =>
@@ -1934,8 +2194,7 @@ namespace Extensions.Databases
                 sb.AppendFormat("Delete from {0}", name);
                 sb.Append(" " + conditions);
 
-                if (Debugger.IsAttached)
-                    Trace.WriteLine(String.Format("DeleteList<{0}> {1}", currenttype, sb));
+
             });
             var cmd = connection.CreateCommand(masterSb.ToString().ToFormattableString(), parameters, transaction);
 
@@ -2040,8 +2299,7 @@ namespace Extensions.Databases
                 }
             }
 
-            if (Debugger.IsAttached)
-                Trace.WriteLine(String.Format("Get<{0}>: {1} with Id: {2}", currenttype, sb, id));
+
 
             var cmd = connection.CreateCommand(sb.ToString().ToFormattableString(), dynParms, transaction);
 
@@ -2185,8 +2443,7 @@ namespace Extensions.Databases
             }
 
 
-            if (Debugger.IsAttached)
-                Trace.WriteLine(String.Format("GetList<{0}>: {1}", currenttype, sb));
+
 
             var cmd = connection.CreateCommand(sb.ToString().ToFormattableString(), parms, transaction);
 
@@ -2310,7 +2567,7 @@ namespace Extensions.Databases
         /// <param name="transaction"></param>
 
         /// <returns>Gets a paged list of entities with optional exact match where conditions</returns>
-        public static IEnumerable<T> GetListPaged<T>(this DbConnection connection, int pageNumber, int rowsPerPage, string conditions, string orderby, object parameters = null, DbTransaction transaction = null, int? commandTimeout = null) where T : class
+        public static IEnumerable<T> GetListPaged<T>(this DbConnection connection, int pageNumber, int rowsPerPage, string conditions, string orderby, object parameters = null, DbTransaction transaction = null) where T : class
         {
             if (string.IsNullOrEmpty(_getPagedListSql))
                 throw new Exception("GetListPage is not supported with the current SQL Dialect");
@@ -2343,8 +2600,7 @@ namespace Extensions.Databases
             query = query.Replace("{WhereClause}", conditions);
             query = query.Replace("{Offset}", ((pageNumber - 1) * rowsPerPage).ToString());
 
-            if (Debugger.IsAttached)
-                Trace.WriteLine(String.Format("GetListPaged<{0}>: {1}", currenttype, query));
+
 
             var cmd = connection.CreateCommand(query, transaction, parameters);
 
@@ -2459,7 +2715,7 @@ namespace Extensions.Databases
                 var guidvalue = (Guid)idProps.First().GetValue(entityToInsert, null);
                 if (guidvalue == Guid.Empty)
                 {
-                    var newguid = SequentialGuid();
+                    var newguid = Util.SequentialGuid();
                     idProps.First().SetValue(entityToInsert, newguid, null);
                 }
                 else
@@ -2485,8 +2741,7 @@ namespace Extensions.Databases
                 keyHasPredefinedValue = true;
             }
 
-            if (Debugger.IsAttached)
-                Trace.WriteLine(String.Format("Insert: {0}", sb));
+
 
             var cmd = connection.CreateCommand(sb.ToString().ToFormattableString(), entityToInsert, transaction);
             var r = connection.RunSQLRow<TKey>(cmd);
@@ -2555,8 +2810,7 @@ namespace Extensions.Databases
                 sb.Append(conditions);
             }
 
-            if (Debugger.IsAttached)
-                Trace.WriteLine(String.Format("RecordCount<{0}>: {1}", currenttype, sb));
+
 
             var cmd = connection.CreateCommand(sb.ToString().ToFormattableString(), parameters, transaction);
 
@@ -2581,7 +2835,7 @@ namespace Extensions.Databases
         /// <param name="transaction"></param>
 
         /// <returns>Returns a count of records.</returns>
-        public static int RecordCount<T>(this DbConnection connection, object whereConditions, DbTransaction transaction = null, int? commandTimeout = null)
+        public static int RecordCount<T>(this DbConnection connection, object whereConditions, DbTransaction transaction = null)
         {
             var currenttype = typeof(T);
             var name = GetTableName(currenttype);
@@ -2596,8 +2850,7 @@ namespace Extensions.Databases
                 BuildWhere<T>(sb, whereprops);
             }
 
-            if (Debugger.IsAttached)
-                Trace.WriteLine(String.Format("RecordCount<{0}>: {1}", currenttype, sb));
+
 
             var cmd = connection.CreateCommand(sb.ToString().ToFormattableString(), whereConditions, transaction);
 
@@ -2719,8 +2972,7 @@ namespace Extensions.Databases
                 sb.Append(" where ");
                 BuildWhere<TEntity>(sb, idProps, entityToUpdate);
 
-                if (Debugger.IsAttached)
-                    Trace.WriteLine(String.Format("Update: {0}", sb));
+
             });
             var cmd = connection.CreateCommand(masterSb.ToString().ToFormattableString(), entityToUpdate, transaction);
             return connection.RunSQLNone(cmd);
@@ -2764,15 +3016,14 @@ namespace Extensions.Databases
                     }
                 }
 
-                if (Debugger.IsAttached)
-                    Trace.WriteLine(String.Format("Update: {0}", sb));
+
             });
 
             var cmd = connection.CreateCommand(masterSb.ToString().ToFormattableString(), para, transaction);
             return connection.RunSQLNone(cmd);
         }
 
-        public static int UpdateWhere<TEntity>(this DbConnection connection, TEntity fieldsToUpdate, string whereConditions, DbTransaction transaction = null, int? commandTimeout = null) where TEntity : class
+        public static int UpdateWhere<TEntity>(this DbConnection connection, TEntity fieldsToUpdate, string whereConditions, DbTransaction transaction = null) where TEntity : class
         {
             var masterSb = new StringBuilder();
             StringBuilderCache(masterSb, $"{typeof(TEntity).FullName}_UpdateWhere", sb =>
@@ -2849,9 +3100,9 @@ namespace Extensions.Databases
 
         }
 
-        public static int UpdateColumn<TEntity, V>(this DbConnection connection, Expression<Func<TEntity, object>> column, V value, object whereConditions, DbTransaction transaction = null, int? commandTimeout = null) => UpdateColumn(connection, new[] { column }, value, whereConditions, transaction, commandTimeout);
+        public static int UpdateColumn<TEntity, V>(this DbConnection connection, Expression<Func<TEntity, object>> column, V value, object whereConditions, DbTransaction transaction = null) => UpdateColumn(connection, new[] { column }, value, whereConditions, transaction);
 
-        public static int UpdateColumn<TEntity, V>(this DbConnection connection, IEnumerable<Expression<Func<TEntity, object>>> column, V value, object whereConditions, DbTransaction transaction = null, int? commandTimeout = null)
+        public static int UpdateColumn<TEntity, V>(this DbConnection connection, IEnumerable<Expression<Func<TEntity, object>>> column, V value, object whereConditions, DbTransaction transaction = null)
         {
             var sb = new StringBuilder();
             var para = new Dictionary<string, object>();
@@ -2896,7 +3147,6 @@ namespace Extensions.Databases
         /// <param name="connection">The database connection.</param>
         /// <param name="entity">The entity to insert or update.</param>
         /// <param name="transaction">The transaction to use, or null.</param>
-        /// <param name="commandTimeout">The command timeout, or null.</param>
         /// <returns>TRUE if the record was inserted, FALSE if the record was updated.</returns>
         public static bool Upsert<TEntity>(this DbConnection connection, TEntity entity, DbTransaction transaction = null) where TEntity : class
         {
@@ -2947,8 +3197,6 @@ namespace Extensions.Databases
                 if (columnattr != null)
                 {
                     columnName = Encapsulate(columnattr);
-                    if (Debugger.IsAttached)
-                        Trace.WriteLine(string.Format("Column name for type overridden from {0} to {1}", propertyInfo.Name, columnName));
                 }
                 return columnName;
             }
@@ -3148,27 +3396,7 @@ namespace Extensions.Databases
             }
         }
 
-        /// <summary>
-        /// Optional Editable attribute. You can use the System.ComponentModel.DataAnnotations
-        /// version in its place to specify the properties that are editable
-        /// </summary>
-        [AttributeUsage(AttributeTargets.Property)]
-        public class EditableAttribute : Attribute
-        {
-            /// <summary>
-            /// Optional Editable attribute.
-            /// </summary>
-            /// <param name="iseditable"></param>
-            public EditableAttribute(bool iseditable)
-            {
-                AllowEdit = iseditable;
-            }
 
-            /// <summary>
-            /// Does this property persist to the database?
-            /// </summary>
-            public bool AllowEdit { get; private set; }
-        }
 
         /// <summary>
         /// Optional IgnoreInsert attribute. Custom for Dapper.SimpleCRUD to exclude a property from
@@ -3655,7 +3883,7 @@ namespace Extensions.Databases
                     }
                 }
 
-                _tokens.Add($"{Column} {Operator.IfBlank("=")} {Util.ToSQLString(Value)}");
+                _tokens.Add($"{Column} {Operator.IfBlank("=")} {SimpleCRUD.ToSQLString(Value)}");
             }
         }
 
@@ -4820,4 +5048,6 @@ namespace Extensions.Databases
 
         string ToString(bool SubQuery);
     }
+
+
 }

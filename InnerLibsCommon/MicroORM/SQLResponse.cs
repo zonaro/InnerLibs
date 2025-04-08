@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Common;
 
-namespace Extensions.Databases
+namespace Extensions.DataBases
 {
 
 
