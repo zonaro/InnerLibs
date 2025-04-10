@@ -1318,6 +1318,8 @@ namespace Extensions.DataBases
         /// <returns></returns>
         public static DbCommand CreateCommand(this DbConnection Connection, FormattableString SQL, object parameters = null, DbTransaction Transaction = null)
         {
+            //TODO: ao escrever a query, verificar so dialeto SQL para ver se o parametro usa @ ou : como prefixo
+
             if (SQL != null && Connection != null && SQL.IsNotBlank())
             {
                 var cmd = Connection.CreateCommand();
@@ -1326,21 +1328,87 @@ namespace Extensions.DataBases
                     cmd.CommandText = SQL.Format;
                     for (int index = 0, loopTo = SQL.ArgumentCount - 1; index <= loopTo; index++)
                     {
-                        var valores = SQL.GetArgument(index);
-                        var v = Util.ForceArray(valores, typeof(object)).ToList();
-                        var param_names = new List<string>();
-                        for (int v_index = 0, loopTo1 = v.Count - 1; v_index <= loopTo1; v_index++)
+                        var arg = SQL.GetArgument(index);
+                        string placeholderValue = "{" + index + "}";
+                        if (arg is Type t)
                         {
-                            var value = v[v_index] ?? DBNull.Value;
+                            cmd.CommandText = cmd.CommandText.Replace(placeholderValue, SimpleCRUD.GetTableName(t));
+                            continue;
+
+                        }
+                        else if (arg is TableAttribute table)
+                        {
+                            cmd.CommandText = cmd.CommandText.Replace(placeholderValue, SimpleCRUD.Encapsulate(table.Name));
+                            continue;
+                        }
+                        else if (arg is PropertyInfo member)
+                        {
+                            cmd.CommandText = cmd.CommandText.Replace(placeholderValue, SimpleCRUD.GetColumnName(member));
+                            continue;
+                        }
+                        else if (arg is ColumnAttribute c)
+                        {
+                            cmd.CommandText = cmd.CommandText.Replace(placeholderValue, SimpleCRUD.Encapsulate(c.Name));
+                            continue;
+
+                        }
+                        else if (arg is Condition cn)
+                        {
+                            cmd.CommandText = cmd.CommandText.Replace(placeholderValue, cn.ParenthesisToString().Wrap(" "));
+                            continue;
+                        }
+                        else if (arg.GetType().IsEnumerableNotString())
+                        {
+                            var list = arg as IEnumerable<object>;
+
+                            var parametersS = "";
+                            if (list is IEnumerable<BinaryExpression> exps)
+                            {
+                                //TODO: precisa testar
+                                var binExps = exps.Where(x => x is BinaryExpression);
+                                parametersS = string.Join(" AND ", exps.Select((x, j) =>
+                                {
+                                    var exp = SimpleCRUD.ParseExpression(x);
+                                    var column = SimpleCRUD.GetColumnName(exp.Item1);
+                                    var paramName = $"__p{index}_{j}";
+                                    var param = cmd.CreateParameter();
+                                    param.ParameterName = $"__p{index}_{j}";
+                                    param.Value = exp.Item3 ?? DBNull.Value;
+                                    cmd.Parameters.Add(param);
+                                    return $"{column} {exp.Item2.Replace("!=", "<>")} @{paramName}";
+
+                                }));
+                                cmd.CommandText = cmd.CommandText.Replace(placeholderValue, parametersS);
+                                continue;
+                            }
+                        }
+
+
+                        var valores = Util.ForceArray(arg, typeof(object)).ToList();
+                        var param_names = new List<string>();
+
+                        bool ismany = valores.Count > 1;
+                        for (int v_index = 0, loopTo1 = valores.Count - 1; v_index <= loopTo1; v_index++)
+                        {
+
 
                             var param = cmd.CreateParameter();
-                            param.ParameterName = v.Count == 1 ? $"__p{index}" : $"__p{index}_{v_index}";
-                            param.Value = value;
+                            param.ParameterName = valores.Count == 1 ? $"__p{index}" : $"__p{index}_{v_index}";
+                            param.Value = valores[v_index] ?? DBNull.Value;
                             cmd.Parameters.Add(param);
                             param_names.Add(param.ParameterName);
                         }
 
-                        cmd.CommandText = cmd.CommandText.Replace("{" + index + "}", param_names.SelectJoinString(",").IfBlank("NULL").UnQuote('(', true).Quote('('));
+                        var ss = param_names.SelectJoinString(x => "@" + x, ", ").IfBlank("NULL");
+
+                        if (ismany && cmd.CommandText.Contains(placeholderValue))
+                        {
+                            var start = cmd.CommandText.IndexOf(placeholderValue);
+                            var end = start + placeholderValue.Length;
+                            if (cmd.CommandText[start - 1] != '(' || cmd.CommandText[end] != ')') ss = ss.Quote('(');
+                        }
+
+                        cmd.CommandText = cmd.CommandText.Replace(placeholderValue, ss);
                     }
                 }
                 else
@@ -1353,13 +1421,13 @@ namespace Extensions.DataBases
                     if (parameters.IsSimpleType())
                     {
                         var param = cmd.CreateParameter();
-                        param.ParameterName = "value";
+                        //search for the first parameter name thats not included in parameters
+                        param.ParameterName = cmd.CommandText.SplitAny(PredefinedArrays.WordSplitters.ToArray()).FirstOrDefault(x => x.StartsWith("@") && cmd.Parameters[x] == null) ?? "value";
                         param.Value = parameters ?? DBNull.Value;
                         cmd.Parameters.Add(param);
                     }
                     else
                     {
-
                         var dic = parameters.CreateDictionary();
                         foreach (var e in dic)
                         {
@@ -1837,6 +1905,7 @@ namespace Extensions.DataBases
             {
                 var propertyInfos = props as IList<PropertyInfo> ?? props.ToList();
                 var addedAny = false;
+
                 for (var i = 0; i < propertyInfos.Count(); i++)
                 {
                     var property = propertyInfos.ElementAt(i);
@@ -1846,6 +1915,7 @@ namespace Extensions.DataBases
                     if (addedAny)
                         sb.Append(",");
                     sb.Append(GetColumnName(property));
+
                     //if there is a custom column name add an "as customcolumnname" to the item so it maps properly
                     string colname = property.GetAttributeValue<ColumnAttribute, string>(x => x.Name);
                     if (colname.IsBlank())
@@ -2211,6 +2281,12 @@ namespace Extensions.DataBases
             return string.Format(_encapsulation, databaseword);
         }
 
+        public static string AsSQLColumns(this IDictionary<string, object> obj) => obj.Select(x => Encapsulate(x.Key.ToString())).SelectJoinString(",");
+
+        public static string AsSQLColumns<T>(this T obj) where T : class => obj.GetNullableTypeOf().GetProperties().SelectJoinString(x => x.Name.Quote(), ",");
+
+        public static string AsSQLColumns(this NameValueCollection obj, params string[] Keys) => obj.ToDictionary(Keys).AsSQLColumns();
+
         /// <summary>
         /// <para>By default queries the table matching the class name</para>
         /// <para>-Table name can be overridden by adding an attribute on your class [Table("YourTableName")]</para>
@@ -2233,8 +2309,11 @@ namespace Extensions.DataBases
 
             var idProps = GetIdProperties(currenttype).ToList();
 
-            if (!idProps.Any())
-                throw new ArgumentException("Get<TEntity> only supports an entity with a [Key] or Id property");
+            if (idProps.Count == 0)
+                throw new ArgumentException($"Get<{typeof(T).Name}> only supports an entity with a [Key] or Id property");
+
+
+
 
             var name = GetTableName(currenttype);
             var sb = new StringBuilder();
@@ -2250,58 +2329,30 @@ namespace Extensions.DataBases
                 sb.AppendFormat("{0} = @{1}", GetColumnName(idProps[i]), idProps[i].Name);
             }
 
-            var dynParms = new Dictionary<string, object>();
+            Dictionary<string, object> dicID = new Dictionary<string, object>();
 
             if (idProps.Count == 1)
             {
+
                 if (id.GetType().IsSimpleType())
                 {
-                    dynParms.Add(idProps.First().Name, id);
-                }
-                else if (id is Dictionary<string, object> dic)
-                {
-                    var prop = idProps.First();
-
-                    if (dic.ContainsKey(prop.Name))
-                    {
-                        dynParms.Add(prop.Name, dic[prop.Name]);
-                    }
-                }
-                else
-                {
-                    var idProp = id.GetType().GetProperty(idProps.First().Name);
-                    var v = idProp.GetValue(id, null);
-                    dynParms.Add(idProps.First().Name, v);
+                    dicID.Set(idProps.First().Name, id);
+                    id = dicID;
                 }
             }
-            else
+
+            if (!object.ReferenceEquals(id, dicID)) //verifica se o ID ja foi convertido em um dictionary de entrada unica
             {
-                if (id.GetType().IsSimpleType()) throw new ArgumentException($"{typeof(T).Name} needs a object with following properties: ${idProps.Select(x => x.Name).SelectJoinString(", ")}");
 
-                if (id is IDictionary<string, object> dic)
-                {
-                    foreach (var prop in idProps)
-                    {
-                        if (dic.ContainsKey(prop.Name))
-                        {
-                            dynParms.Add(prop.Name, dic[prop.Name]);
-                        }
-                    }
-                }
-                else
-                {
-                    foreach (var prop in idProps)
-                    {
-                        var idProp = id.GetType().GetProperty(prop.Name);
-                        var v = idProp.GetValue(id, null);
-                        dynParms.Add(prop.Name, v);
-                    }
-                }
+                dicID = id.CreateDictionary(idProps.Select(x => x.Name).ToArray());
+
+                if (dicID.Keys.Count < idProps.Count)
+                    throw new ArgumentException($"{typeof(T).Name} needs a object with following properties: ${idProps.Select(x => x.Name).SelectJoinString(", ")}. The object contains only the following properties: {dicID.Keys.SelectJoinString(", ").IfBlank("none")}");
+
             }
 
 
-
-            var cmd = connection.CreateCommand(sb.ToString().ToFormattableString(), dynParms, transaction);
+            var cmd = connection.CreateCommand(sb.ToString().ToFormattableString(), dicID, transaction);
 
             return connection.RunSQLRow<T>(cmd);
         }

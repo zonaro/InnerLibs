@@ -21,32 +21,32 @@ namespace Extensions.Console
 
         public static bool AskYesNo(string Question, string InvalidResponseMessage = null)
         {
-            ConsoleWriteLine(Question.IfBlank("[Y]es, [N]o").Trim() + Util.WhitespaceChar);
-            string response = System.Console.ReadLine();
-            try
+            bool? v = null;
+            do
             {
-                return response.AsBool(null);
-            }
-            catch
-            {
-                if (InvalidResponseMessage.IsValid()) ConsoleWriteLine(InvalidResponseMessage.Trim() + Util.WhitespaceChar);
-                return AskYesNo(Question);
-            }
+                var response = ConsoleWriteLine(Question.IfBlank("[Y]es, [N]o").Trim() + Util.WhitespaceChar);
+                v = response.AsNullableBool();
+                if (v == null && InvalidResponseMessage.IsValid())
+                {
+                    ConsoleWriteLine(InvalidResponseMessage);
+                }
+
+            } while (v == null);
+            return v.Value;
         }
 
-        public static bool? AskYesNoCancel(string Question, string InvalidResponseMessage = null)
+        public static bool? AskYesNoCancel(string Question, bool? defaultIfBlank = true)
         {
-            ConsoleWriteLine(Question.IfBlank("[Y]es, [N]o, [C]ancel").Trim() + Util.WhitespaceChar);
-            string response = System.Console.ReadLine();
-            try
+            bool? v = null;
+            do
             {
-                return response.AsNullableBool(false);
-            }
-            catch
-            {
-                if (InvalidResponseMessage.IsValid()) ConsoleWriteLine(InvalidResponseMessage.Trim() + Util.WhitespaceChar);
-                return AskYesNoCancel(Question);
-            }
+                var response = ConsoleWriteLine(Question.IfBlank($"[Y]es {(defaultIfBlank == true ? "(Default)" : "")}, [N]o {(defaultIfBlank == false ? "(Default)" : "")}, [C]ancel {(defaultIfBlank.HasValue == false ? "(Default)" : "")}").Trim() + Util.WhitespaceChar);
+                v = response.AsNullableBool();
+
+            } while (v == null);
+            return v.Value;
+
+
         }
 
         /// <summary>

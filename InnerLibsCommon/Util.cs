@@ -739,11 +739,8 @@ namespace Extensions
         ///   "ATIVAR", "ATIVADO": Returns true. Any other value: Returns true if EverythingIsTrue
         /// is set to true, otherwise throws an ArgumentException.
         /// </returns>
-        /// <exception cref="ArgumentException">
-        /// Thrown when the object does not represent a valid option and the EverythingIsTrue flag
-        /// is set to false.
-        /// </exception>
-        public static bool? AsNullableBool(this object Value, bool? defaultReturn = true)
+
+        public static bool? AsNullableBool(this object Value, bool? defaultReturn = null)
         {
             if (Value == null) return null;
             else switch ($"{Value}".ToUpperInvariant().RemoveDiacritics())
@@ -787,8 +784,7 @@ namespace Extensions
                         return true;
 
                     default:
-                        if (defaultReturn != null) return defaultReturn;
-                        else throw new ArgumentException("Object does not represent a valid option", nameof(Value));
+                        return defaultReturn;
                 }
         }
 
@@ -796,7 +792,7 @@ namespace Extensions
         /// Converts an object to a boolean.
         /// </summary>
         /// <param name="Value">The object to be converted.</param>
-        /// <param name="EverythingIsTrue">
+
         /// A flag indicating whether to return true for any value not explicitly mapped to false.
         /// Defaults to true.
         /// </param>
@@ -810,7 +806,7 @@ namespace Extensions
         ///   "ATIVAR", "ATIVADO": Returns true. Any other value: Returns true if EverythingIsTrue
         /// is set to true, otherwise returns false.
         /// </returns>
-        public static bool AsBool(this object Value, bool? defaultReturn = true) => AsNullableBool(Value, defaultReturn) ?? defaultReturn ?? false;
+        public static bool AsBool(this object Value, bool defaultReturn = true) => AsNullableBool(Value, defaultReturn) ?? defaultReturn;
 
         /// <summary>
         /// Retorna um valor de um tipo especifico de acordo com um valor boolean
@@ -852,11 +848,7 @@ namespace Extensions
                 return NullValue;
         }
 
-        public static string AsSQLColumns(this IDictionary<string, object> obj, char Quote = '[') => obj.Select(x => x.Key.ToString().Quote(Quote)).SelectJoinString(",");
 
-        public static string AsSQLColumns<T>(this T obj, char Quote = '[') where T : class => obj.GetNullableTypeOf().GetProperties().SelectJoinString(x => x.Name.Quote(Quote), ",");
-
-        public static string AsSQLColumns(this NameValueCollection obj, char Quote = '[', params string[] Keys) => obj.ToDictionary(Keys).AsSQLColumns(Quote);
 
         /// <summary>
         /// Decoda uma string em Base64
@@ -5876,12 +5868,25 @@ namespace Extensions
         /// <returns></returns>
         public static T GetPropertyValue<T, O>(this O MyObject, string Name) where O : class
         {
+            return (T)MyObject.GetPropertyValue(Name, typeof(T));
+        }
+
+        /// <summary>
+        /// Traz o valor de uma propriedade de um objeto
+        /// </summary>
+        /// <param name="MyObject">Objeto</param>
+        /// <returns></returns>
+        public static object GetPropertyValue<O>(this O MyObject, string Name, Type type = null) where O : class
+        {
             if (MyObject != null)
             {
                 var prop = MyObject.GetProperty(Name);
                 if (prop != null && prop.CanRead)
                 {
-                    return (T)prop.GetValue(MyObject);
+                    var v = prop.GetValue(MyObject);
+                    if (type != null)
+                        return v.ChangeType(type);
+                    return v;
                 }
             }
 
@@ -7252,6 +7257,11 @@ namespace Extensions
         }
 
         public static bool IsDate<T>(this T Obj) => GetNullableTypeOf(Obj) == typeof(DateTime) || $"{Obj}".IsDate();
+
+        public static bool IsNameValueCollection(this object obj)
+        {
+            return obj is NameValueCollection;
+        }
 
         /// <summary>
         /// Verifica se o objeto é um iDictionary
