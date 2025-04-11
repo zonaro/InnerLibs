@@ -30,7 +30,7 @@ using static Extensions.Util;
 namespace Extensions.DataBases
 {
 
-    public enum CommandType
+    public enum QueryType
     {
         Select,
         Insert,
@@ -652,7 +652,7 @@ namespace Extensions.DataBases
 
             if (obj != null && Connection != null)
             {
-                dic = CreateParameterDictionary(obj, CommandType.Update);
+                dic = CreateParameterDictionary(obj, QueryType.Update);
 
                 if (whereClausule == null)
                 {
@@ -1466,7 +1466,7 @@ namespace Extensions.DataBases
         /// <param name="type"></param>
         /// <param name="Keys"></param>
         /// <returns></returns>
-        public static Dictionary<string, object> CreateParameterDictionary<T>(T obj, CommandType type = CommandType.Select, params string[] Keys)
+        public static Dictionary<string, object> CreateParameterDictionary<T>(T obj, QueryType type = QueryType.Select, params string[] Keys)
         {
             if (obj == null) return new Dictionary<string, object>();
             if (obj.IsDictionary()) return obj.CreateDictionary(Keys);
@@ -1485,15 +1485,15 @@ namespace Extensions.DataBases
                                 attr.GetType().Name == typeof(NotMappedAttribute).Name ||
                                 attr.GetType().Name == typeof(ReadOnlyAttribute).Name && IsReadOnly(property))) continue;
 
-                        if (type == CommandType.Insert)
+                        if (type == QueryType.Insert)
                         {
                             if (property.GetCustomAttributes(true).Any(attr => attr.GetType().Name == typeof(IgnoreInsertAttribute).Name)) continue;
                         }
-                        else if (type == CommandType.Update)
+                        else if (type == QueryType.Update)
                         {
                             if (property.GetCustomAttributes(true).Any(attr => attr.GetType().Name == typeof(IgnoreUpdateAttribute).Name)) continue;
                         }
-                        else if (type == CommandType.Select)
+                        else if (type == QueryType.Select)
                         {
                             if (property.GetCustomAttributes(true).Any(attr => attr.GetType().Name == typeof(IgnoreSelectAttribute).Name)) continue;
                         }
@@ -1541,7 +1541,7 @@ namespace Extensions.DataBases
 
 
 
-                dic = CreateParameterDictionary(obj, CommandType.Insert);
+                dic = CreateParameterDictionary(obj, QueryType.Insert);
 
 
 
@@ -1645,7 +1645,7 @@ namespace Extensions.DataBases
             return null;
         }
 
-        public static (string SQL, Dictionary<string, object> Parameters) WhereParameters<T>(T obj, CommandType type = CommandType.Select, params string[] Keys)
+        public static (string SQL, Dictionary<string, object> Parameters) WhereParameters<T>(T obj, QueryType type = QueryType.Select, params string[] Keys)
         {
             if (obj.IsSimpleType()) return (WhereClausule<T>(obj), null);
             if (obj is FormattableString fs) return (WhereClausule<T>(fs), null);
