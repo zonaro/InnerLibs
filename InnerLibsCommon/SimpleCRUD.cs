@@ -652,7 +652,7 @@ namespace Extensions.DataBases
 
             if (obj != null && Connection != null)
             {
-                dic = CreateParameterDictionary(obj, QueryType.Update);
+                dic = CreateParameterDictionary<T>(obj, QueryType.Update);
 
                 if (whereClausule == null)
                 {
@@ -1219,35 +1219,45 @@ namespace Extensions.DataBases
         /// <returns></returns>
         public static DbCommand LogCommand(this DbCommand Command, TextWriter LogWriter = null)
         {
-            Util.LogWriter = Util.LogWriter ?? new DebugTextWriter();
-            LogWriter = LogWriter ?? Util.LogWriter;
-            LogWriter.WriteLine(Environment.NewLine);
-            LogWriter.WriteLine("=".Repeat(10));
-            if (Command != null)
+            try
             {
-                foreach (DbParameter item in Command.Parameters)
-                {
-                    string bx = $"Parameter: {item.ParameterName}{Environment.NewLine}Value: {item.Value}{Environment.NewLine}Type: {item.DbType}{Environment.NewLine}Precision/Scale: {item.Precision}/{item.Scale}";
-                    LogWriter.WriteLine(bx);
-                    LogWriter.WriteLine("-".Repeat(10));
-                }
 
-                LogWriter.WriteLine($"Command: {Command.CommandText}");
-                LogWriter.WriteLine("/".Repeat(10));
 
-                if (Command.Transaction != null)
+                Util.LogWriter = Util.LogWriter ?? new DebugTextWriter();
+                LogWriter = LogWriter ?? Util.LogWriter;
+                LogWriter.WriteLine(Environment.NewLine);
+                LogWriter.WriteLine("=".Repeat(10));
+                if (Command != null)
                 {
-                    LogWriter.WriteLine($"Transaction Isolation Level: {Command.Transaction.IsolationLevel}");
+                    foreach (DbParameter item in Command.Parameters)
+                    {
+                        string bx = $"Parameter: {item.ParameterName}{Environment.NewLine}Value: {item.Value}{Environment.NewLine}Type: {item.DbType}{Environment.NewLine}Precision/Scale: {item.Precision}/{item.Scale}";
+                        LogWriter.WriteLine(bx);
+                        LogWriter.WriteLine("-".Repeat(10));
+                    }
 
+                    LogWriter.WriteLine($"Command: {Command.CommandText}");
+                    LogWriter.WriteLine("/".Repeat(10));
+
+                    if (Command.Transaction != null)
+                    {
+                        LogWriter.WriteLine($"Transaction Isolation Level: {Command.Transaction.IsolationLevel}");
+
+                    }
+                    else
+                    {
+                        LogWriter.WriteLine($"No transaction specified");
+                    }
                 }
-                else
-                {
-                    LogWriter.WriteLine($"No transaction specified");
-                }
+                else LogWriter.WriteLine("Command is NULL");
+                LogWriter.WriteLine("=".Repeat(10));
+                LogWriter.WriteLine(Environment.NewLine);
             }
-            else LogWriter.WriteLine("Command is NULL");
-            LogWriter.WriteLine("=".Repeat(10));
-            LogWriter.WriteLine(Environment.NewLine);
+            catch (Exception ee)
+            {
+                LogWriter.WriteLine($"Log Error: {ee.ToFullExceptionString()}");
+
+            }
 
             return Command;
         }
@@ -1309,6 +1319,12 @@ namespace Extensions.DataBases
         public static bool IsExecuting(this DbConnection Connection) => Connection != null && (Connection.State == ConnectionState.Executing);
 
         public static bool IsClosed(this DbConnection Connection) => Connection != null && (Connection.State == ConnectionState.Closed);
+
+
+        public static DbCommand CreateCommand(this DbConnection Connection, FormattableString SQL, object parameters = null, DbTransaction Transaction = null, QueryType queryType = QueryType.Select)
+            => CreateCommand<object>(Connection, SQL, parameters, Transaction, queryType);
+
+
         /// <summary>
         /// Cria um <see cref="DbCommand"/> a partir de uma string interpolada, tratando os
         /// parametros desta string como parametros SQL
@@ -1316,7 +1332,7 @@ namespace Extensions.DataBases
         /// <param name="Connection"></param>
         /// <param name="SQL"></param>
         /// <returns></returns>
-        public static DbCommand CreateCommand(this DbConnection Connection, FormattableString SQL, object parameters = null, DbTransaction Transaction = null)
+        public static DbCommand CreateCommand<T>(this DbConnection Connection, FormattableString SQL, object parameters = null, DbTransaction Transaction = null, QueryType queryType = QueryType.Select)
         {
             //TODO: ao escrever a query, verificar so dialeto SQL para ver se o parametro usa @ ou : como prefixo
 
@@ -1428,7 +1444,7 @@ namespace Extensions.DataBases
                     }
                     else
                     {
-                        var dic = parameters.CreateDictionary();
+                        var dic = SimpleCRUD.CreateParameterDictionary<T>(parameters, queryType);
                         foreach (var e in dic)
                         {
                             var param = cmd.CreateParameter();
@@ -1436,6 +1452,7 @@ namespace Extensions.DataBases
                             param.Value = e.Value ?? DBNull.Value;
                             cmd.Parameters.Add(param);
                         }
+
                     }
                 }
 
@@ -1466,12 +1483,13 @@ namespace Extensions.DataBases
         /// <param name="type"></param>
         /// <param name="Keys"></param>
         /// <returns></returns>
-        public static Dictionary<string, object> CreateParameterDictionary<T>(T obj, QueryType type = QueryType.Select, params string[] Keys)
+        public static Dictionary<string, object> CreateParameterDictionary<T>(object obj, QueryType type = QueryType.Select, params string[] Keys)
         {
             if (obj == null) return new Dictionary<string, object>();
             if (obj.IsDictionary()) return obj.CreateDictionary(Keys);
             if (obj.IsSimpleType()) return new Dictionary<string, object> { { Encapsulate("value"), obj } };
             if (obj is NameValueCollection nvc) return nvc.ToDictionary(Keys);
+            if (obj.IsAnonymousType()) return obj.CreateDictionary(Keys);
             var dic = new Dictionary<string, object>();
             foreach (var property in GetScaffoldableProperties<T>())
             {
@@ -1501,11 +1519,10 @@ namespace Extensions.DataBases
 
                         if (property.Name.FlatEqual("Id") && property.GetCustomAttributes(true).All(attr => attr.GetType().Name != typeof(RequiredAttribute).Name) && property.PropertyType != typeof(Guid)) continue;
 
-                        var value = property.GetValue(obj);
-                        if (value != null)
-                        {
-                            dic.Add(GetColumnName(property), value);
-                        }
+                        var value = property?.GetValue(obj);
+
+                        dic.Add(GetColumnName(property), value);
+
                     }
                 }
             }
@@ -1541,7 +1558,7 @@ namespace Extensions.DataBases
 
 
 
-                dic = CreateParameterDictionary(obj, QueryType.Insert);
+                dic = CreateParameterDictionary<T>(obj, QueryType.Insert);
 
 
 
@@ -1649,7 +1666,7 @@ namespace Extensions.DataBases
         {
             if (obj.IsSimpleType()) return (WhereClausule<T>(obj), null);
             if (obj is FormattableString fs) return (WhereClausule<T>(fs), null);
-            return (WhereClausule<T>(obj), CreateParameterDictionary(obj, type, Keys));
+            return (WhereClausule<T>(obj), CreateParameterDictionary<T>(obj, type, Keys));
         }
 
         /// <summary>
@@ -2794,7 +2811,7 @@ namespace Extensions.DataBases
 
 
 
-            var cmd = connection.CreateCommand(sb.ToString().ToFormattableString(), entityToInsert, transaction);
+            var cmd = connection.CreateCommand(sb.ToString().ToFormattableString(), entityToInsert, transaction, QueryType.Insert);
             var r = connection.RunSQLRow<TKey>(cmd);
 
             if (r != null) return r;
@@ -2863,7 +2880,7 @@ namespace Extensions.DataBases
 
 
 
-            var cmd = connection.CreateCommand(sb.ToString().ToFormattableString(), parameters, transaction);
+            var cmd = connection.CreateCommand<T>(sb.ToString().ToFormattableString(), parameters, transaction, QueryType.Select);
 
             return connection.RunSQLValue<int>(cmd);
         }
@@ -2903,7 +2920,7 @@ namespace Extensions.DataBases
 
 
 
-            var cmd = connection.CreateCommand(sb.ToString().ToFormattableString(), whereConditions, transaction);
+            var cmd = connection.CreateCommand<T>(sb.ToString().ToFormattableString(), whereConditions, transaction, QueryType.Select);
 
             return connection.RunSQLValue<int>(cmd);
         }
@@ -3025,7 +3042,7 @@ namespace Extensions.DataBases
 
 
             });
-            var cmd = connection.CreateCommand(masterSb.ToString().ToFormattableString(), entityToUpdate, transaction);
+            var cmd = connection.CreateCommand<TEntity>(masterSb.ToString().ToFormattableString(), entityToUpdate, transaction, QueryType.Update);
             return connection.RunSQLNone(cmd);
         }
 
@@ -3070,7 +3087,7 @@ namespace Extensions.DataBases
 
             });
 
-            var cmd = connection.CreateCommand(masterSb.ToString().ToFormattableString(), para, transaction);
+            var cmd = connection.CreateCommand<TEntity>(masterSb.ToString().ToFormattableString(), para, transaction, QueryType.Update);
             return connection.RunSQLNone(cmd);
         }
 
@@ -3096,7 +3113,7 @@ namespace Extensions.DataBases
                     sb.Append(whereConditions);
                 }
             });
-            var cmd = connection.CreateCommand(masterSb.ToString().ToFormattableString(), fieldsToUpdate, transaction);
+            var cmd = connection.CreateCommand<TEntity>(masterSb.ToString().ToFormattableString(), fieldsToUpdate, transaction, QueryType.Update);
             return connection.RunSQLNone(cmd);
 
         }
@@ -3146,7 +3163,7 @@ namespace Extensions.DataBases
                     sb.Append(" AND ");
                 }
             }
-            var cmd = connection.CreateCommand(sb.ToString().ToFormattableString(), entityToUpdate, transaction);
+            var cmd = connection.CreateCommand<TEntity>(sb.ToString().ToFormattableString(), entityToUpdate, transaction, QueryType.Update);
             return connection.RunSQLNone(cmd);
 
         }
@@ -3181,7 +3198,7 @@ namespace Extensions.DataBases
                 }
             }
 
-            var cmd = connection.CreateCommand(sb.ToString().ToFormattableString(), para, transaction);
+            var cmd = connection.CreateCommand<TEntity>(sb.ToString().ToFormattableString(), para, transaction, QueryType.Update);
             return connection.RunSQLNone(cmd);
         }
 

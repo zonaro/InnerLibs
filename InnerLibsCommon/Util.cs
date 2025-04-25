@@ -12836,6 +12836,20 @@ namespace Extensions
         /// <returns></returns>
         public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> items, params TKey[] Keys) => items.Where(x => Keys == null || Keys.Any() == false || x.Key.IsIn(Keys)).DistinctBy(x => x.Key).ToDictionary(x => x.Key, x => x.Value);
 
+        public static bool IsAnonymousType<T>(this T obj)
+
+        {
+            var type = obj.GetTypeOf();
+            if (type == null)
+                throw new ArgumentNullException("type");
+
+            // HACK: The only way to detect anonymous types right now.
+            return Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), false)
+                && type.IsGenericType && type.Name.Contains("AnonymousType")
+                && (type.Name.StartsWith("<>") || type.Name.StartsWith("VB$"))
+                && type.Attributes.HasFlag(TypeAttributes.NotPublic);
+        }
+
         /// <summary>
         /// Converte um NameValueCollection para um <see cref="Dictionary{TKey, TValue}"/>
         /// </summary>
