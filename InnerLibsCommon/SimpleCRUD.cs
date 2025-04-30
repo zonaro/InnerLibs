@@ -170,13 +170,13 @@ namespace Extensions.DataBases
 
 
         /// <summary>
-        /// Mapeia o resultado de um <see cref="DbDataReader"/> para um <see cref="object"/>, <see
+        /// Mapeia o resultado de um <see cref="IDataReader"/> para um <see cref="object"/>, <see
         /// cref="Dictionary{TKey, TValue}"/> ou <see cref="NameValueCollection"/>
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="Reader"></param>
         /// <returns></returns>
-        public static IEnumerable<T> Map<T>(this DbDataReader Reader, params object[] args)
+        public static IEnumerable<T> Map<T>(this IDataReader Reader, params object[] args)
         {
             var type = typeof(T);
             var l = new List<T>();
@@ -262,14 +262,14 @@ namespace Extensions.DataBases
         /// <param name="Reader"></param>
         /// <param name="args">argumentos para o construtor da classe</param>
         /// <returns></returns>
-        public static T MapFirst<T>(this DbDataReader Reader, params object[] args) where T : class => Reader.Map<T>(args).FirstOrDefault();
+        public static T MapFirst<T>(this IDataReader Reader, params object[] args) where T : class => Reader.Map<T>(args).FirstOrDefault();
 
         /// <summary>
         /// Mapeia os resultsets de um datareader para um <see cref="IEnumerable{IEnumerable{Dictionary{String, Object}}}"/>
         /// </summary>
         /// <param name="Reader"></param>
         /// <returns></returns>
-        public static IEnumerable<IEnumerable<Dictionary<string, object>>> MapMany(this DbDataReader Reader)
+        public static IEnumerable<IEnumerable<Dictionary<string, object>>> MapMany(this IDataReader Reader)
         {
             var l = new List<IEnumerable<Dictionary<string, object>>>();
             if (Reader != null)
@@ -289,7 +289,7 @@ namespace Extensions.DataBases
         /// </summary>
         /// <param name="Reader"></param>
         /// <returns></returns>
-        public static Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>, IEnumerable<T5>> MapMany<T1, T2, T3, T4, T5>(this DbDataReader Reader)
+        public static Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>, IEnumerable<T5>> MapMany<T1, T2, T3, T4, T5>(this IDataReader Reader)
             where T1 : class
             where T2 : class
             where T3 : class
@@ -333,7 +333,7 @@ namespace Extensions.DataBases
         /// </summary>
         /// <param name="Reader"></param>
         /// <returns></returns>
-        public static Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>> MapMany<T1, T2, T3, T4>(this DbDataReader Reader)
+        public static Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>> MapMany<T1, T2, T3, T4>(this IDataReader Reader)
             where T1 : class
             where T2 : class
             where T3 : class
@@ -370,7 +370,7 @@ namespace Extensions.DataBases
         /// </summary>
         /// <param name="Reader"></param>
         /// <returns></returns>
-        public static Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>> MapMany<T1, T2, T3>(this DbDataReader Reader)
+        public static Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>> MapMany<T1, T2, T3>(this IDataReader Reader)
             where T1 : class
             where T2 : class
             where T3 : class
@@ -400,7 +400,7 @@ namespace Extensions.DataBases
         /// </summary>
         /// <param name="Reader"></param>
         /// <returns></returns>
-        public static Tuple<IEnumerable<T1>, IEnumerable<T2>> MapMany<T1, T2>(this DbDataReader Reader)
+        public static Tuple<IEnumerable<T1>, IEnumerable<T2>> MapMany<T1, T2>(this IDataReader Reader)
             where T1 : class
             where T2 : class
         {
@@ -498,7 +498,7 @@ namespace Extensions.DataBases
 
         internal const string DefaultParameterPrefix = "@__p";
 
-        public static int RunSQLNone(this DbConnection cnn, InterpolatedQuery sql, DbTransaction transaction = null) => cnn.RunSQLNone(sql.CreateCommand(cnn, transaction));
+        public static int RunSQLNone(this IDbConnection cnn, InterpolatedQuery sql, IDbTransaction transaction = null) => cnn.RunSQLNone(sql.CreateCommand(cnn, transaction));
 
         /// <summary>
         /// Converts a FormattableString to a InterpolatedQuery. It contains the Query string and DynamicParameters.
@@ -529,7 +529,7 @@ namespace Extensions.DataBases
 
         private static bool StringBuilderCacheEnabled = true;
 
-        public static SQLResponse<object> CreateSQLQuickResponse(this DbConnection Connection, FormattableString Command, string DataSetType, params string[] SetNames) => CreateSQLQuickResponse(Connection.CreateCommand(Command), DataSetType, SetNames);
+        public static SQLResponse<object> CreateSQLQuickResponse(this IDbConnection Connection, FormattableString Command, string DataSetType, params string[] SetNames) => CreateSQLQuickResponse(Connection.CreateCommand(Command), DataSetType, SetNames);
 
         /// <summary>
         /// Executa um <paramref name="Command"/> e retorna uma <see cref="SQLResponse{object}"/> de
@@ -538,10 +538,10 @@ namespace Extensions.DataBases
         /// <remarks>
         /// Utilize as constantes de <see cref="DataSetType"/> no parametro <paramref name="DataSetType"/>
         /// </remarks>
-        /// <param name="Command">Comando SQL com a <see cref="DbCommand.Connection"/> ja setada</param>
+        /// <param name="Command">Comando SQL com a <see cref="IDbCommand.Connection"/> ja setada</param>
         /// <param name="DataSetType">Tipo da resposta. Ver <see cref="DataSetType"/></param>
         /// <returns></returns>
-        public static SQLResponse<object> CreateSQLQuickResponse(this DbCommand Command, string DataSetType, params string[] SetNames)
+        public static SQLResponse<object> CreateSQLQuickResponse(this IDbCommand Command, string DataSetType, params string[] SetNames)
         {
             var resp = new SQLResponse<object>();
             try
@@ -645,7 +645,7 @@ namespace Extensions.DataBases
         /// <typeparamref name="T"/> pode ser uma classe, <see cref="NameValueCollection"/> ou <see
         /// cref="Dictionary{TKey, TValue}"/>
         /// </remarks>
-        public static DbCommand CreateUPDATECommand<T>(this DbConnection Connection, T obj, object whereClausule, string TableName = null, DbTransaction Transaction = null) where T : class
+        public static IDbCommand CreateUPDATECommand<T>(this IDbConnection Connection, T obj, object whereClausule, string TableName = null, IDbTransaction Transaction = null) where T : class
         {
             var d = typeof(T);
             Dictionary<string, object> dic;
@@ -708,23 +708,23 @@ namespace Extensions.DataBases
         /// Retorna os resultado da primeira coluna de uma consulta SQL como um array do tipo
         /// <typeparamref name="T"/>
         /// </summary>
-        public static IEnumerable<T> RunSQLArray<T>(this DbConnection Connection, DbCommand Command) => Connection.RunSQLArray(Command).Select(x => x == null ? default : x.ChangeType<T>());
+        public static IEnumerable<T> RunSQLArray<T>(this IDbConnection Connection, IDbCommand Command) => Connection.RunSQLArray(Command).Select(x => x == null ? default : x.ChangeType<T>());
 
         /// <summary>
         /// Retorna os resultado da primeira coluna de uma consulta SQL como um array do tipo
         /// <typeparamref name="T"/>
         /// </summary>
-        public static IEnumerable<T> RunSQLArray<T>(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLArray<T>(Connection.CreateCommand(SQL, Transaction));
+        public static IEnumerable<T> RunSQLArray<T>(this IDbConnection Connection, FormattableString SQL, IDbTransaction Transaction = null) => Connection.RunSQLArray<T>(Connection.CreateCommand(SQL, Transaction));
 
         /// <summary>
         /// Retorna os resultado da primeira coluna de uma consulta SQL como um array
         /// </summary>
-        public static IEnumerable<object> RunSQLArray(this DbConnection Connection, DbCommand Command) => Connection.RunSQLSet(Command).Select(x => x.Values.FirstOrDefault());
+        public static IEnumerable<object> RunSQLArray(this IDbConnection Connection, IDbCommand Command) => Connection.RunSQLSet(Command).Select(x => x.Values.FirstOrDefault());
 
         /// <summary>
         /// Retorna os resultado da primeira coluna de uma consulta SQL como um array
         /// </summary>
-        public static IEnumerable<object> RunSQLArray(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLArray(Connection.CreateCommand(SQL, Transaction));
+        public static IEnumerable<object> RunSQLArray(this IDbConnection Connection, FormattableString SQL, IDbTransaction Transaction = null) => Connection.RunSQLArray(Connection.CreateCommand(SQL, Transaction));
 
         /// <summary>
         /// Executa uma query SQL parametrizada e retorna os resultados mapeados em listas de <see
@@ -733,7 +733,7 @@ namespace Extensions.DataBases
         /// <param name="Connection"></param>
         /// <param name="SQL"></param>
         /// <returns></returns>
-        public static IEnumerable<IEnumerable<Dictionary<string, object>>> RunSQLMany(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLMany(Connection.CreateCommand(SQL, Transaction));
+        public static IEnumerable<IEnumerable<Dictionary<string, object>>> RunSQLMany(this IDbConnection Connection, FormattableString SQL, IDbTransaction Transaction = null) => Connection.RunSQLMany(Connection.CreateCommand(SQL, Transaction));
 
         /// <summary>
         /// Executa uma query SQL e retorna todos os seus resultsets mapeados em uma <see
@@ -742,7 +742,7 @@ namespace Extensions.DataBases
         /// <param name="Connection"></param>
         /// <param name="Command"></param>
         /// <returns></returns>
-        public static IEnumerable<IEnumerable<Dictionary<string, object>>> RunSQLMany(this DbConnection Connection, DbCommand Command)
+        public static IEnumerable<IEnumerable<Dictionary<string, object>>> RunSQLMany(this IDbConnection Connection, IDbCommand Command)
         {
             IEnumerable<IEnumerable<Dictionary<string, object>>> resposta;
             using (var reader = Connection.RunSQLReader(Command))
@@ -760,7 +760,7 @@ namespace Extensions.DataBases
         /// <param name="Connection"></param>
         /// <param name="SQL"></param>
         /// <returns></returns>
-        public static Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>, IEnumerable<T5>> RunSQLMany<T1, T2, T3, T4, T5>(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null)
+        public static Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>, IEnumerable<T5>> RunSQLMany<T1, T2, T3, T4, T5>(this IDbConnection Connection, FormattableString SQL, IDbTransaction Transaction = null)
             where T1 : class
             where T2 : class
             where T3 : class
@@ -774,7 +774,7 @@ namespace Extensions.DataBases
         /// <param name="Connection"></param>
         /// <param name="Command"></param>
         /// <returns></returns>
-        public static Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>, IEnumerable<T5>> RunSQLMany<T1, T2, T3, T4, T5>(this DbConnection Connection, DbCommand Command)
+        public static Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>, IEnumerable<T5>> RunSQLMany<T1, T2, T3, T4, T5>(this IDbConnection Connection, IDbCommand Command)
             where T1 : class
             where T2 : class
             where T3 : class
@@ -797,7 +797,7 @@ namespace Extensions.DataBases
         /// <param name="Connection"></param>
         /// <param name="SQL"></param>
         /// <returns></returns>
-        public static Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>> RunSQLMany<T1, T2, T3, T4>(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null)
+        public static Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>> RunSQLMany<T1, T2, T3, T4>(this IDbConnection Connection, FormattableString SQL, IDbTransaction Transaction = null)
             where T1 : class
             where T2 : class
             where T3 : class
@@ -810,7 +810,7 @@ namespace Extensions.DataBases
         /// <param name="Connection"></param>
         /// <param name="Command"></param>
         /// <returns></returns>
-        public static Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>> RunSQLMany<T1, T2, T3, T4>(this DbConnection Connection, DbCommand Command)
+        public static Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>, IEnumerable<T4>> RunSQLMany<T1, T2, T3, T4>(this IDbConnection Connection, IDbCommand Command)
             where T1 : class
             where T2 : class
             where T3 : class
@@ -832,7 +832,7 @@ namespace Extensions.DataBases
         /// <param name="Connection"></param>
         /// <param name="SQL"></param>
         /// <returns></returns>
-        public static Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>> RunSQLMany<T1, T2, T3>(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null)
+        public static Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>> RunSQLMany<T1, T2, T3>(this IDbConnection Connection, FormattableString SQL, IDbTransaction Transaction = null)
             where T1 : class
             where T2 : class
             where T3 : class => Connection.RunSQLMany<T1, T2, T3>(Connection.CreateCommand(SQL, Transaction));
@@ -844,7 +844,7 @@ namespace Extensions.DataBases
         /// <param name="Connection"></param>
         /// <param name="Command"></param>
         /// <returns></returns>
-        public static Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>> RunSQLMany<T1, T2, T3>(this DbConnection Connection, DbCommand Command)
+        public static Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>> RunSQLMany<T1, T2, T3>(this IDbConnection Connection, IDbCommand Command)
             where T1 : class
             where T2 : class
             where T3 : class
@@ -865,7 +865,7 @@ namespace Extensions.DataBases
         /// <param name="Connection"></param>
         /// <param name="SQL"></param>
         /// <returns></returns>
-        public static Tuple<IEnumerable<T1>, IEnumerable<T2>> RunSQLMany<T1, T2>(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null)
+        public static Tuple<IEnumerable<T1>, IEnumerable<T2>> RunSQLMany<T1, T2>(this IDbConnection Connection, FormattableString SQL, IDbTransaction Transaction = null)
             where T1 : class
             where T2 : class => Connection.RunSQLMany<T1, T2>(Connection.CreateCommand(SQL, Transaction));
 
@@ -876,7 +876,7 @@ namespace Extensions.DataBases
         /// <param name="Connection"></param>
         /// <param name="Command"></param>
         /// <returns></returns>
-        public static Tuple<IEnumerable<T1>, IEnumerable<T2>> RunSQLMany<T1, T2>(this DbConnection Connection, DbCommand Command)
+        public static Tuple<IEnumerable<T1>, IEnumerable<T2>> RunSQLMany<T1, T2>(this IDbConnection Connection, IDbCommand Command)
             where T1 : class
             where T2 : class
         {
@@ -895,60 +895,60 @@ namespace Extensions.DataBases
         /// <param name="Connection"></param>
         /// <param name="SQL"></param>
         /// <returns></returns>
-        public static int RunSQLNone(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLNone(Connection.CreateCommand(SQL, Transaction));
+        public static int RunSQLNone(this IDbConnection Connection, FormattableString SQL, IDbTransaction Transaction = null) => Connection.RunSQLNone(Connection.CreateCommand(SQL, Transaction));
 
         /// <summary>
         /// Executa um comando SQL e retorna o numero de linhas afetadas
         /// </summary>
-        public static int RunSQLNone(this DbConnection Connection, DbCommand Command) => BeforeRunCommand(ref Connection, ref Command).ExecuteNonQuery();
+        public static int RunSQLNone(this IDbConnection Connection, IDbCommand Command) => BeforeRunCommand(ref Connection, ref Command).ExecuteNonQuery();
 
         /// <summary>
         /// Retorna os resultado das primeiras e ultimas colunas de uma consulta SQL como pares em
         /// um <see cref="Dictionary{Object, Object}"/>
         /// </summary>
-        public static Dictionary<object, object> RunSQLPairs(this DbConnection Connection, DbCommand SQL) => Connection.RunSQLSet(SQL).DistinctBy(x => x.Values.FirstOrDefault()).ToDictionary(x => x.Values.FirstOrDefault(), x => x.Values.LastOrDefault());
+        public static Dictionary<object, object> RunSQLPairs(this IDbConnection Connection, IDbCommand SQL) => Connection.RunSQLSet(SQL).DistinctBy(x => x.Values.FirstOrDefault()).ToDictionary(x => x.Values.FirstOrDefault(), x => x.Values.LastOrDefault());
 
         /// <summary>
         /// Retorna os resultado das primeiras e ultimas colunas de uma consulta SQL como pares em
         /// um <see cref="Dictionary{object,object}"/>
         /// </summary>
-        public static Dictionary<object, object> RunSQLPairs(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLPairs(Connection.CreateCommand(SQL, Transaction));
+        public static Dictionary<object, object> RunSQLPairs(this IDbConnection Connection, FormattableString SQL, IDbTransaction Transaction = null) => Connection.RunSQLPairs(Connection.CreateCommand(SQL, Transaction));
 
         /// <summary>
         /// Retorna os resultado das primeiras e ultimas colunas de uma consulta SQL como pares em
         /// um <see cref="Dictionary{K, V}"/>
         /// </summary>
-        public static Dictionary<TK, TV> RunSQLPairs<TK, TV>(this DbConnection Connection, DbCommand SQL) => Connection.RunSQLPairs(SQL).ToDictionary(x => x.Key.ChangeType<TK>(), x => x.Value.ChangeType<TV>());
+        public static Dictionary<TK, TV> RunSQLPairs<TK, TV>(this IDbConnection Connection, IDbCommand SQL) => Connection.RunSQLPairs(SQL).ToDictionary(x => x.Key.ChangeType<TK>(), x => x.Value.ChangeType<TV>());
 
         /// <summary>
         /// Retorna os resultado das primeiras e ultimas colunas de uma consulta SQL como pares em
         /// um <see cref="Dictionary{K, V}"/>
         /// </summary>
-        public static Dictionary<TK, TV> RunSQLPairs<TK, TV>(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLPairs<TK, TV>(Connection.CreateCommand(SQL, Transaction));
+        public static Dictionary<TK, TV> RunSQLPairs<TK, TV>(this IDbConnection Connection, FormattableString SQL, IDbTransaction Transaction = null) => Connection.RunSQLPairs<TK, TV>(Connection.CreateCommand(SQL, Transaction));
 
         /// <summary>
-        /// Executa um comando SQL e retorna o <see cref="DbDataReader"/> com os resultados
+        /// Executa um comando SQL e retorna o <see cref="IDataReader"/> com os resultados
         /// </summary>
-        public static DbDataReader RunSQLReader(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLReader(Connection.CreateCommand(SQL, Transaction));
+        public static IDataReader RunSQLReader(this IDbConnection Connection, FormattableString SQL, IDbTransaction Transaction = null) => Connection.RunSQLReader(Connection.CreateCommand(SQL, Transaction));
 
         /// <summary>
-        /// Executa um comando SQL e retorna o <see cref="DbDataReader"/> com os resultados
+        /// Executa um comando SQL e retorna o <see cref="IDataReader"/> com os resultados
         /// </summary>
-        public static DbDataReader RunSQLReader(this DbConnection Connection, DbCommand Command) => BeforeRunCommand(ref Connection, ref Command).ExecuteReader();
-
-        /// <summary>
-        /// Executa uma query SQL parametrizada e retorna o resultado da primeira linha mapeada para
-        /// um <see cref="Dictionary{String, Object}"/>
-        /// </summary>
-        public static Dictionary<string, object> RunSQLRow(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null, bool WithSubQueries = false) => Connection.RunSQLRow(Connection.CreateCommand(SQL, Transaction), WithSubQueries);
-        public static T RunSQLRow<T>(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null, bool WithSubQueries = false) => Connection.RunSQLRow<T>(Connection.CreateCommand(SQL, Transaction), WithSubQueries);
+        public static IDataReader RunSQLReader(this IDbConnection Connection, IDbCommand Command) => BeforeRunCommand(ref Connection, ref Command).ExecuteReader();
 
         /// <summary>
         /// Executa uma query SQL parametrizada e retorna o resultado da primeira linha mapeada para
         /// um <see cref="Dictionary{String, Object}"/>
         /// </summary>
-        public static Dictionary<string, object> RunSQLRow(this DbConnection Connection, DbCommand SQL, bool WithSubQueries = false) => Connection.RunSQLRow<Dictionary<string, object>>(SQL, WithSubQueries);
-        public static T RunSQLRow<T>(this DbConnection Connection, DbCommand SQL, bool WithSubQueries = false) => Connection.RunSQLSet<T>(SQL, WithSubQueries).FirstOrDefault();
+        public static Dictionary<string, object> RunSQLRow(this IDbConnection Connection, FormattableString SQL, IDbTransaction Transaction = null, bool WithSubQueries = false) => Connection.RunSQLRow(Connection.CreateCommand(SQL, Transaction), WithSubQueries);
+        public static T RunSQLRow<T>(this IDbConnection Connection, FormattableString SQL, IDbTransaction Transaction = null, bool WithSubQueries = false) => Connection.RunSQLRow<T>(Connection.CreateCommand(SQL, Transaction), WithSubQueries);
+
+        /// <summary>
+        /// Executa uma query SQL parametrizada e retorna o resultado da primeira linha mapeada para
+        /// um <see cref="Dictionary{String, Object}"/>
+        /// </summary>
+        public static Dictionary<string, object> RunSQLRow(this IDbConnection Connection, IDbCommand SQL, bool WithSubQueries = false) => Connection.RunSQLRow<Dictionary<string, object>>(SQL, WithSubQueries);
+        public static T RunSQLRow<T>(this IDbConnection Connection, IDbCommand SQL, bool WithSubQueries = false) => Connection.RunSQLSet<T>(SQL, WithSubQueries).FirstOrDefault();
 
         /// <summary>
         /// Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset
@@ -957,13 +957,13 @@ namespace Extensions.DataBases
         /// <param name="Connection"></param>
         /// <param name="SQL"></param>
         /// <returns></returns>
-        public static IEnumerable<Dictionary<string, object>> RunSQLSet(this DbConnection Connection, FormattableString SQL, DbTransaction Transaction = null) => Connection.RunSQLSet<Dictionary<string, object>>(SQL, false, Transaction);
+        public static IEnumerable<Dictionary<string, object>> RunSQLSet(this IDbConnection Connection, FormattableString SQL, IDbTransaction Transaction = null) => Connection.RunSQLSet<Dictionary<string, object>>(SQL, false, Transaction);
 
         /// <summary>
         /// Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset
         /// mapeados para uma lista de <see cref="Dictionary{string, object}"/>
         /// </summary>
-        public static IEnumerable<Dictionary<string, object>> RunSQLSet(this DbConnection Connection, DbCommand SQL) => Connection.RunSQLSet<Dictionary<string, object>>(SQL);
+        public static IEnumerable<Dictionary<string, object>> RunSQLSet(this IDbConnection Connection, IDbCommand SQL) => Connection.RunSQLSet<Dictionary<string, object>>(SQL);
 
         /// <summary>
         /// Executa uma query SQL parametrizada e retorna os resultados do primeiro resultset
@@ -973,7 +973,7 @@ namespace Extensions.DataBases
         /// <param name="Connection"></param>
         /// <param name="SQL"></param>
         /// <returns></returns>
-        public static IEnumerable<T> RunSQLSet<T>(this DbConnection Connection, FormattableString SQL, bool WithSubQueries = false, DbTransaction Transaction = null) => Connection.RunSQLSet<T>(Connection.CreateCommand(SQL, Transaction), WithSubQueries);
+        public static IEnumerable<T> RunSQLSet<T>(this IDbConnection Connection, FormattableString SQL, bool WithSubQueries = false, IDbTransaction Transaction = null) => Connection.RunSQLSet<T>(Connection.CreateCommand(SQL, Transaction), WithSubQueries);
 
 
 
@@ -986,15 +986,16 @@ namespace Extensions.DataBases
         /// <param name="Connection"></param>
         /// <param name="SQL"></param>
         /// <returns></returns>
-        public static IEnumerable<T> RunSQLSet<T>(this DbConnection Connection, DbCommand SQL, bool WithSubQueries = false)
+        public static IEnumerable<T> RunSQLSet<T>(this IDbConnection Connection, IDbCommand SQL, bool WithSubQueries = false)
         {
-            var res = Connection.RunSQLReader(SQL);
-
-            if (res != null)
+            using (var res = Connection.RunSQLReader(SQL))
             {
-                var items = res.Map<T>();
-                if (!typeof(T).IsSimpleType() && WithSubQueries) foreach (var i in items) Connection.ProccessSubQuery(i, WithSubQueries);
-                return items;
+                if (res != null)
+                {
+                    var items = res.Map<T>();
+                    if (!typeof(T).IsSimpleType() && WithSubQueries) foreach (var i in items) Connection.ProccessSubQuery(i, WithSubQueries);
+                    return items;
+                }
             }
             return null;
 
@@ -1009,7 +1010,7 @@ namespace Extensions.DataBases
         /// <param name="PropertyName"></param>
         /// <param name="Recursive"></param>
         /// <returns></returns>
-        public static T ProccessSubQuery<T>(this DbConnection Connection, T d, string PropertyName, bool Recursive = false)
+        public static T ProccessSubQuery<T>(this IDbConnection Connection, T d, string PropertyName, bool Recursive = false)
         {
             if (d != null)
             {
@@ -1085,7 +1086,7 @@ namespace Extensions.DataBases
         /// <param name="d"></param>
         /// <param name="Recursive"></param>
         /// <returns></returns>
-        public static T ProccessSubQuery<T>(this DbConnection Connection, T d, bool Recursive = false)
+        public static T ProccessSubQuery<T>(this IDbConnection Connection, T d, bool Recursive = false)
         {
             if (!typeof(T).IsSimpleType())
                 foreach (var prop in Util.GetProperties(d).Where(x => x.HasAttribute<FromSQLAttribute>()))
@@ -1097,59 +1098,59 @@ namespace Extensions.DataBases
         }
 
         /// <summary>
-        /// Cria um <see cref="DbCommand"/> a partir de um arquivo SQL e um objeto,
+        /// Cria um <see cref="IDbCommand"/> a partir de um arquivo SQL e um objeto,
         /// </summary>
         /// <param name="Connection"></param>
         /// <param name="SQL"></param>
         /// <returns></returns>
-        public static DbCommand CreateCommand<T>(this DbConnection Connection, FileInfo SQLFile, T obj, DbTransaction Transaction = null) => CreateCommand(Connection, SQLFile.Exists ? SQLFile.ReadAllText() : string.Empty, obj, Transaction);
+        public static IDbCommand CreateCommand<T>(this IDbConnection Connection, FileInfo SQLFile, T obj, IDbTransaction Transaction = null) => CreateCommand(Connection, SQLFile.Exists ? SQLFile.ReadAllText() : string.Empty, obj, Transaction);
 
         /// <summary>
-        /// Cria um <see cref="DbCommand"/> a partir de uma string SQL e um objeto,
+        /// Cria um <see cref="IDbCommand"/> a partir de uma string SQL e um objeto,
         /// </summary>
         /// <param name="Connection"></param>
         /// <param name="SQL"></param>
         /// <returns></returns>
-        public static DbCommand CreateCommand<T>(DbConnection connection, string SQL, T obj, DbTransaction transaction = null) => CreateCommand(connection, SQL.InjectSQL(obj).ToFormattableString(), transaction);
+        public static IDbCommand CreateCommand<T>(IDbConnection connection, string SQL, T obj, IDbTransaction transaction = null) => CreateCommand(connection, SQL.InjectSQL(obj).ToFormattableString(), transaction);
 
         /// <summary>
-        /// Cria um <see cref="DbCommand"/> a partir de uma string SQL e um <see cref="Dictionary{
+        /// Cria um <see cref="IDbCommand"/> a partir de uma string SQL e um <see cref="Dictionary{
         /// String, Object}"/>, tratando os parametros desta string como parametros SQL
         /// </summary>
         /// <param name="Connection"></param>
         /// <param name="SQL"></param>
         /// <returns></returns>
-        public static DbCommand CreateCommand(this DbConnection Connection, FileInfo SQLFile, Dictionary<string, object> Parameters, DbTransaction Transaction = null) => SQLFile != null && SQLFile.Exists ? CreateCommand(Connection, SQLFile.ReadAllText(), Parameters, Transaction) : null;
+        public static IDbCommand CreateCommand(this IDbConnection Connection, FileInfo SQLFile, Dictionary<string, object> Parameters, IDbTransaction Transaction = null) => SQLFile != null && SQLFile.Exists ? CreateCommand(Connection, SQLFile.ReadAllText(), Parameters, Transaction) : null;
 
         /// <summary>
-        /// Cria um <see cref="DbCommand"/> a partir de uma string SQL e um <see
+        /// Cria um <see cref="IDbCommand"/> a partir de uma string SQL e um <see
         /// cref="NameValueCollection"/>, tratando os parametros desta string como parametros SQL
         /// </summary>
         /// <param name="Connection"></param>
         /// <param name="SQL"></param>
         /// <returns></returns>
-        public static DbCommand CreateCommand(this DbConnection Connection, FileInfo SQLFile, NameValueCollection Parameters, DbTransaction Transaction = null) => Connection.CreateCommand(SQLFile, Parameters.ToDictionary(), Transaction);
+        public static IDbCommand CreateCommand(this IDbConnection Connection, FileInfo SQLFile, NameValueCollection Parameters, IDbTransaction Transaction = null) => Connection.CreateCommand(SQLFile, Parameters.ToDictionary(), Transaction);
 
 
 
 
         /// <summary>
-        /// Cria um <see cref="DbCommand"/> a partir de uma string , tratando os parametros {p}
+        /// Cria um <see cref="IDbCommand"/> a partir de uma string , tratando os parametros {p}
         /// desta string como parametros SQL
         /// </summary>
         /// <param name="Connection"></param>
         /// <param name="SQL"></param>
         /// <returns></returns>
-        public static DbCommand CreateCommand(this DbConnection Connection, string SQL, params string[] Args) => CreateCommand(Connection, SQL, null, null, Args);
+        public static IDbCommand CreateCommand(this IDbConnection Connection, string SQL, params string[] Args) => CreateCommand(Connection, SQL, null, null, Args);
 
         /// <summary>
-        /// Cria um <see cref="DbCommand"/> a partir de uma string , tratando os parametros {p}
+        /// Cria um <see cref="IDbCommand"/> a partir de uma string , tratando os parametros {p}
         /// desta string como parametros SQL
         /// </summary>
         /// <param name="Connection"></param>
         /// <param name="SQL"></param>
         /// <returns></returns>
-        public static DbCommand CreateCommand(this DbConnection Connection, string SQL, DbTransaction Transaction, object parameters = null, params string[] Args)
+        public static IDbCommand CreateCommand(this IDbConnection Connection, string SQL, IDbTransaction Transaction, object parameters = null, params string[] Args)
         {
             if (SQL.IsValid())
             {
@@ -1159,7 +1160,7 @@ namespace Extensions.DataBases
             return null;
         }
 
-        public static TConnection OpenConnection<TConnection>(this ConnectionStringParser connection) where TConnection : DbConnection
+        public static TConnection OpenConnection<TConnection>(this ConnectionStringParser connection) where TConnection : IDbConnection
         {
             if (connection != null)
             {
@@ -1168,21 +1169,21 @@ namespace Extensions.DataBases
                 dbcon.Open();
                 return dbcon;
             }
-            return null;
+            return default;
         }
 
         /// <summary>
-        /// Cria um <see cref="DbCommand"/> a partir de um arquivo SQL
+        /// Cria um <see cref="IDbCommand"/> a partir de um arquivo SQL
         /// </summary>
         /// <param name="Connection"></param>
         /// <param name="SQL"></param>
         /// <returns></returns>
-        public static DbCommand CreateCommand(this DbConnection Connection, FileInfo SQLFile, object parameters = null, params string[] Args) => CreateCommand(Connection, SQLFile.ReadAllText().ToFormattableString(Args), parameters, null);
+        public static IDbCommand CreateCommand(this IDbConnection Connection, FileInfo SQLFile, object parameters = null, params string[] Args) => CreateCommand(Connection, SQLFile.ReadAllText().ToFormattableString(Args), parameters, null);
 
-        public static DbCommand CreateCommand(this DbConnection Connection, FileInfo SQLFile, DbTransaction Transaction, object parameters = null, params string[] Args) => CreateCommand(Connection, SQLFile.ReadAllText().ToFormattableString(Args), parameters, Transaction);
+        public static IDbCommand CreateCommand(this IDbConnection Connection, FileInfo SQLFile, IDbTransaction Transaction, object parameters = null, params string[] Args) => CreateCommand(Connection, SQLFile.ReadAllText().ToFormattableString(Args), parameters, Transaction);
 
 
-        public static bool IsOpen(this DbConnection Connection) => Connection != null && (Connection.State == ConnectionState.Open);
+        public static bool IsOpen(this IDbConnection Connection) => Connection != null && (Connection.State == ConnectionState.Open);
 
 
         /// <summary>
@@ -1194,7 +1195,7 @@ namespace Extensions.DataBases
         /// <param name="Command"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public static DbCommand BeforeRunCommand(ref DbConnection Connection, ref DbCommand Command, TextWriter LogWriter = null)
+        public static IDbCommand BeforeRunCommand(ref IDbConnection Connection, ref IDbCommand Command, TextWriter LogWriter = null)
         {
             Connection = Connection ?? Command?.Connection;
             if (Command == null || Command.CommandText.IsNotValid())
@@ -1217,7 +1218,7 @@ namespace Extensions.DataBases
         /// </summary>
         /// <param name="Command"></param>
         /// <returns></returns>
-        public static DbCommand LogCommand(this DbCommand Command, TextWriter LogWriter = null)
+        public static IDbCommand LogCommand(this IDbCommand Command, TextWriter LogWriter = null)
         {
             try
             {
@@ -1269,8 +1270,8 @@ namespace Extensions.DataBases
         /// <param name="Items">Lista de itens que darao origem aos parametros da procedure</param>
         /// <param name="ProcedureName">Nome da Procedure</param>
         /// <param name="Keys">CHaves de Dicionário que devem ser utilizadas</param>
-        /// <returns>Um DbCommand parametrizado</returns>
-        public static IEnumerable<DbCommand> ToBatchProcedure<T>(this DbConnection Connection, string ProcedureName, IEnumerable<T> Items, DbTransaction Transaction = null, params string[] Keys)
+        /// <returns>Um IDbCommand parametrizado</returns>
+        public static IEnumerable<IDbCommand> ToBatchProcedure<T>(this IDbConnection Connection, string ProcedureName, IEnumerable<T> Items, IDbTransaction Transaction = null, params string[] Keys)
         {
             foreach (var item in Items ?? new List<T>())
             {
@@ -1285,8 +1286,8 @@ namespace Extensions.DataBases
         /// <param name="NVC">Objeto</param>
         /// <param name="ProcedureName">Nome da Procedure</param>
         /// <param name="Keys">Valores do nameValueCollection o que devem ser utilizados</param>
-        /// <returns>Um DbCommand parametrizado</returns>
-        public static DbCommand ToProcedure(this DbConnection Connection, string ProcedureName, NameValueCollection NVC, DbTransaction Transaction = null, params string[] Keys) => Connection.ToProcedure(ProcedureName, NVC.ToDictionary(Keys), Transaction, Keys);
+        /// <returns>Um IDbCommand parametrizado</returns>
+        public static IDbCommand ToProcedure(this IDbConnection Connection, string ProcedureName, NameValueCollection NVC, IDbTransaction Transaction = null, params string[] Keys) => Connection.ToProcedure(ProcedureName, NVC.ToDictionary(Keys), Transaction, Keys);
 
         /// <summary>
         /// Monta um Comando SQL para executar uma procedure especifica e trata propriedades
@@ -1295,8 +1296,8 @@ namespace Extensions.DataBases
         /// <param name="Obj">Objeto</param>
         /// <param name="ProcedureName">Nome da Procedure</param>
         /// <param name="Keys">propriedades do objeto que devem ser utilizados</param>
-        /// <returns>Um DbCommand parametrizado</returns>
-        public static DbCommand ToProcedure<T>(this DbConnection Connection, string ProcedureName, T Obj, DbTransaction Transaction = null, params string[] Keys) => Connection.ToProcedure(ProcedureName, Obj?.CreateDictionary() ?? new Dictionary<string, object>(), Transaction, Keys);
+        /// <returns>Um IDbCommand parametrizado</returns>
+        public static IDbCommand ToProcedure<T>(this IDbConnection Connection, string ProcedureName, T Obj, IDbTransaction Transaction = null, params string[] Keys) => Connection.ToProcedure(ProcedureName, Obj?.CreateDictionary() ?? new Dictionary<string, object>(), Transaction, Keys);
 
         /// <summary>
         /// Monta um Comando SQL para executar uma procedure especifica e trata os valores
@@ -1305,40 +1306,52 @@ namespace Extensions.DataBases
         /// <param name="Dic">Objeto</param>
         /// <param name="ProcedureName">Nome da Procedure</param>
         /// <param name="Keys">propriedades do objeto que devem ser utilizados</param>
-        /// <returns>Um DbCommand parametrizado</returns>
-        public static DbCommand ToProcedure(this DbConnection Connection, string ProcedureName, Dictionary<string, object> Dic, DbTransaction Transaction = null, params string[] Keys)
+        /// <returns>Um IDbCommand parametrizado</returns>
+        public static IDbCommand ToProcedure(this IDbConnection Connection, string ProcedureName, Dictionary<string, object> Dic, IDbTransaction Transaction = null, params string[] Keys)
         {
             var sql = ProcedureName.ToProcedure(Dic, Keys);
 
             return Connection.CreateCommand(sql.ToFormattableString(), Dic.ToDictionary(x => x.Key, x => x.Value), Transaction);
         }
 
-        public static bool IsConnecting(this DbConnection Connection) => Connection != null && (Connection.State == ConnectionState.Connecting);
+        public static bool IsConnecting(this IDbConnection Connection) => Connection != null && (Connection.State == ConnectionState.Connecting);
 
-        public static bool IsBroken(this DbConnection Connection) => Connection != null && (Connection.State == ConnectionState.Broken);
-        public static bool IsExecuting(this DbConnection Connection) => Connection != null && (Connection.State == ConnectionState.Executing);
+        public static bool IsBroken(this IDbConnection Connection) => Connection != null && (Connection.State == ConnectionState.Broken);
+        public static bool IsExecuting(this IDbConnection Connection) => Connection != null && (Connection.State == ConnectionState.Executing);
 
-        public static bool IsClosed(this DbConnection Connection) => Connection != null && (Connection.State == ConnectionState.Closed);
+        public static bool IsClosed(this IDbConnection Connection) => Connection != null && (Connection.State == ConnectionState.Closed);
 
 
-        public static DbCommand CreateCommand(this DbConnection Connection, FormattableString SQL, object parameters = null, DbTransaction Transaction = null, QueryType queryType = QueryType.Select)
+        public static IDbCommand CreateCommand(this IDbConnection Connection, FormattableString SQL, object parameters = null, IDbTransaction Transaction = null, QueryType queryType = QueryType.Select)
             => CreateCommand<object>(Connection, SQL, parameters, Transaction, queryType);
 
 
         /// <summary>
-        /// Cria um <see cref="DbCommand"/> a partir de uma string interpolada, tratando os
+        /// Cria um <see cref="IDbCommand"/> a partir de uma string interpolada, tratando os
         /// parametros desta string como parametros SQL
         /// </summary>
         /// <param name="Connection"></param>
         /// <param name="SQL"></param>
         /// <returns></returns>
-        public static DbCommand CreateCommand<T>(this DbConnection Connection, FormattableString SQL, object parameters = null, DbTransaction Transaction = null, QueryType queryType = QueryType.Select)
+        public static IDbCommand CreateCommand<T>(this IDbConnection Connection, FormattableString SQL, object parameters = null, IDbTransaction Transaction = null, QueryType queryType = QueryType.Select)
         {
+            if (Transaction == null)
+            {
+                //check if parameters is a transaction
+                if (parameters is IDbTransaction t)
+                {
+                    Transaction = t;
+                    parameters = null;
+                }
+            }
+
             //TODO: ao escrever a query, verificar so dialeto SQL para ver se o parametro usa @ ou : como prefixo
 
             if (SQL != null && Connection != null && SQL.IsNotBlank())
             {
                 var cmd = Connection.CreateCommand();
+                cmd.Transaction = Transaction;
+
                 if (SQL.ArgumentCount > 0)
                 {
                     cmd.CommandText = SQL.Format;
@@ -1456,22 +1469,19 @@ namespace Extensions.DataBases
                     }
                 }
 
-                if (Transaction != null)
-                {
-                    cmd.Transaction = Transaction;
-                }
+
 
                 return cmd;
             }
 
             return null;
         }
-        public static T RunSQLValue<T>(this DbConnection Connection, FormattableString sql, DbTransaction transaction = null) => Connection.RunSQLValue<T>(Connection.CreateCommand(sql, transaction));
+        public static T RunSQLValue<T>(this IDbConnection Connection, FormattableString sql, IDbTransaction transaction = null) => Connection.RunSQLValue<T>(Connection.CreateCommand(sql, transaction));
 
-        public static T RunSQLValue<T>(this DbConnection Connection, DbCommand command) => RunSQLValue(Connection, command).ChangeType<T>();
-        public static object RunSQLValue(this DbConnection Connection, DbCommand command) => command.ExecuteScalar();
+        public static T RunSQLValue<T>(this IDbConnection Connection, IDbCommand command) => RunSQLValue(Connection, command).ChangeType<T>();
+        public static object RunSQLValue(this IDbConnection Connection, IDbCommand command) => command.ExecuteScalar();
 
-        public static object RunSQLValue(this DbConnection Connection, FormattableString sql, DbTransaction transaction = null, bool WithSubQueries = false, Type type = null) => Connection.RunSQLValue(Connection.CreateCommand(sql, transaction));
+        public static object RunSQLValue(this IDbConnection Connection, FormattableString sql, IDbTransaction transaction = null, bool WithSubQueries = false, Type type = null) => Connection.RunSQLValue(Connection.CreateCommand(sql, transaction));
 
 
         /// <summary>
@@ -1521,7 +1531,7 @@ namespace Extensions.DataBases
 
                         var value = property?.GetValue(obj);
 
-                        dic.Add(GetColumnName(property), value);
+                        dic.Add(property.Name, value); //usar property.Name e não ColumnName porque é parametro e não coluna
 
                     }
                 }
@@ -1539,7 +1549,7 @@ namespace Extensions.DataBases
         /// <param name="obj"></param>
         /// <param name="TableName"></param>
         /// <returns></returns>
-        public static IEnumerable<DbCommand> CreateINSERTCommand<T>(this DbConnection Connection, IEnumerable<T> obj, string TableName = null, DbTransaction Transaction = null) where T : class => (obj ?? Array.Empty<T>()).Select(x => Connection.CreateINSERTCommand(x, TableName, Transaction));
+        public static IEnumerable<IDbCommand> CreateINSERTCommand<T>(this IDbConnection Connection, IEnumerable<T> obj, string TableName = null, IDbTransaction Transaction = null) where T : class => (obj ?? Array.Empty<T>()).Select(x => Connection.CreateINSERTCommand(x, TableName, Transaction));
 
 
         /// <summary>
@@ -1549,7 +1559,7 @@ namespace Extensions.DataBases
         /// <typeparamref name="T"/> pode ser uma classe, <see cref="NameValueCollection"/> ou <see
         /// cref="Dictionary{TKey, TValue}"/>
         /// </remarks>
-        public static DbCommand CreateINSERTCommand<T>(this DbConnection Connection, T obj, string TableName = null, DbTransaction Transaction = null) where T : class
+        public static IDbCommand CreateINSERTCommand<T>(this IDbConnection Connection, T obj, string TableName = null, IDbTransaction Transaction = null) where T : class
         {
             var d = typeof(T);
             var dic = new Dictionary<string, object>();
@@ -1720,7 +1730,7 @@ namespace Extensions.DataBases
         }
 
 
-        public static V GeneratePrimaryKey<T, V>(this DbConnection connection, Expression<Func<T, V>> column, object whereConditions = null, DbTransaction transaction = null) where T : class => GeneratePrimaryKey<T, V>(connection, GetColumnName(column), whereConditions, transaction);
+        public static V GeneratePrimaryKey<T, V>(this IDbConnection connection, Expression<Func<T, V>> column, object whereConditions = null, IDbTransaction transaction = null) where T : class => GeneratePrimaryKey<T, V>(connection, GetColumnName(column), whereConditions, transaction);
 
         /// <summary>
         /// Generate a new ID for the entity
@@ -1732,7 +1742,7 @@ namespace Extensions.DataBases
         /// <param name="whereConditions"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public static V GeneratePrimaryKey<T, V>(this DbConnection connection, string keyName = null, object whereConditions = null, DbTransaction transaction = null) where T : class
+        public static V GeneratePrimaryKey<T, V>(this IDbConnection connection, string keyName = null, object whereConditions = null, IDbTransaction transaction = null) where T : class
         {
             var t = typeof(T);
             var sb = new StringBuilder();
@@ -2124,7 +2134,7 @@ namespace Extensions.DataBases
         /// <param name="transaction"></param>
 
         /// <returns>The number of records affected</returns>
-        public static int Delete<T>(this DbConnection connection, T entityToDelete, DbTransaction transaction = null) where T : class
+        public static int Delete<T>(this IDbConnection connection, T entityToDelete, IDbTransaction transaction = null) where T : class
         {
             var masterSb = new StringBuilder();
             StringBuilderCache(masterSb, $"{typeof(T).FullName}_Delete", sb =>
@@ -2149,7 +2159,7 @@ namespace Extensions.DataBases
             return connection.RunSQLNone(cmd);
         }
 
-        public static int Delete<T>(this DbConnection connection, IEnumerable<T> entities, DbTransaction transaction = null)
+        public static int Delete<T>(this IDbConnection connection, IEnumerable<T> entities, IDbTransaction transaction = null)
         {
             return entities.Sum(entity => Delete<T>(connection, entity, transaction));
         }
@@ -2171,7 +2181,7 @@ namespace Extensions.DataBases
         /// <param name="transaction"></param>
 
         /// <returns>The number of records affected</returns>
-        public static int Delete<T>(this DbConnection connection, object id, DbTransaction transaction = null)
+        public static int Delete<T>(this IDbConnection connection, object id, IDbTransaction transaction = null)
         {
             var currenttype = typeof(T);
             var idProps = GetIdProperties(currenttype).ToList();
@@ -2224,7 +2234,7 @@ namespace Extensions.DataBases
         /// <param name="transaction"></param>
 
         /// <returns>The number of records affected</returns>
-        public static int DeleteList<T>(this DbConnection connection, object whereConditions, DbTransaction transaction = null)
+        public static int DeleteList<T>(this IDbConnection connection, object whereConditions, IDbTransaction transaction = null)
         {
             var masterSb = new StringBuilder();
             StringBuilderCache(masterSb, $"{typeof(T).FullName}_DeleteWhere{whereConditions?.GetType()?.FullName}", sb =>
@@ -2265,7 +2275,7 @@ namespace Extensions.DataBases
         /// <param name="transaction"></param>
 
         /// <returns>The number of records affected</returns>
-        public static int DeleteList<T>(this DbConnection connection, string conditions, object parameters = null, DbTransaction transaction = null)
+        public static int DeleteList<T>(this IDbConnection connection, string conditions, object parameters = null, IDbTransaction transaction = null)
         {
             var masterSb = new StringBuilder();
             StringBuilderCache(masterSb, $"{typeof(T).FullName}_DeleteWhere{conditions}", sb =>
@@ -2320,7 +2330,7 @@ namespace Extensions.DataBases
         /// <param name="transaction"></param>
 
         /// <returns>Returns a single entity by a single id from table TEntity.</returns>
-        public static T Get<T>(this DbConnection connection, object id, DbTransaction transaction = null)
+        public static T Get<T>(this IDbConnection connection, object id, IDbTransaction transaction = null)
         {
             var currenttype = typeof(T);
 
@@ -2454,7 +2464,7 @@ namespace Extensions.DataBases
         /// <param name="transaction"></param>
         /// <param name="parameters"></param>
         /// <returns>Gets a list of entities with optional exact match where conditions</returns>
-        public static IEnumerable<T> GetList<T>(this DbConnection connection, object whereConditions = null, object parameters = null, DbTransaction transaction = null, bool WithSubQueries = false)
+        public static IEnumerable<T> GetList<T>(this IDbConnection connection, object whereConditions = null, object parameters = null, IDbTransaction transaction = null, bool WithSubQueries = false)
         {
             var currenttype = typeof(T);
             var name = GetTableName(currenttype);
@@ -2546,7 +2556,7 @@ namespace Extensions.DataBases
 
         /// <returns>Gets a paged list of entities with optional exact match where conditions</returns>
         /// <returns></returns>
-        public static PageResult<T> GetPage<T>(this DbConnection connection, int pageNumber, int rowsPerPage, string conditions, string orderby, object parameters = null, DbTransaction transaction = null, bool IncludeInsertPlaceholder = false) where T : class
+        public static PageResult<T> GetPage<T>(this IDbConnection connection, int pageNumber, int rowsPerPage, string conditions, string orderby, object parameters = null, IDbTransaction transaction = null, bool IncludeInsertPlaceholder = false) where T : class
         {
             var result = new PageResult<T>();
 
@@ -2602,12 +2612,12 @@ namespace Extensions.DataBases
             return result;
         }
 
-        /// <inheritdoc cref="GetPage{T}(DbConnection, int, int, string, string, object, DbTransaction, int?, bool)"/>
-        public static PageResult<T> GetPage<T, V>(this DbConnection connection, int pageNumber, int rowsPerPage, string conditions, Expression<Func<T, V>> orderby, object parameters = null, DbTransaction transaction = null, bool IncludeInsertPlaceholder = false) where T : class
+        /// <inheritdoc cref="GetPage{T}(IDbConnection, int, int, string, string, object, IDbTransaction, int?, bool)"/>
+        public static PageResult<T> GetPage<T, V>(this IDbConnection connection, int pageNumber, int rowsPerPage, string conditions, Expression<Func<T, V>> orderby, object parameters = null, IDbTransaction transaction = null, bool IncludeInsertPlaceholder = false) where T : class
             => GetPage<T>(connection, pageNumber, rowsPerPage, conditions, GetColumnName(orderby), parameters, transaction, IncludeInsertPlaceholder);
 
-        /// <inheritdoc cref="GetListPaged{T}(DbConnection, int, int, string, string, object, DbTransaction, int?)"/>
-        public static IEnumerable<T> GetListPaged<T, V>(this DbConnection connection, int pageNumber, int rowsPerPage, string conditions, Expression<Func<T, V>> orderby, object parameters = null, DbTransaction transaction = null) where T : class => GetListPaged<T>(connection, pageNumber, rowsPerPage, conditions, GetColumnName(orderby), parameters, transaction);
+        /// <inheritdoc cref="GetListPaged{T}(IDbConnection, int, int, string, string, object, IDbTransaction, int?)"/>
+        public static IEnumerable<T> GetListPaged<T, V>(this IDbConnection connection, int pageNumber, int rowsPerPage, string conditions, Expression<Func<T, V>> orderby, object parameters = null, IDbTransaction transaction = null) where T : class => GetListPaged<T>(connection, pageNumber, rowsPerPage, conditions, GetColumnName(orderby), parameters, transaction);
 
         /// <summary>
         /// <para>By default queries the table matching the class name</para>
@@ -2635,7 +2645,7 @@ namespace Extensions.DataBases
         /// <param name="transaction"></param>
 
         /// <returns>Gets a paged list of entities with optional exact match where conditions</returns>
-        public static IEnumerable<T> GetListPaged<T>(this DbConnection connection, int pageNumber, int rowsPerPage, string conditions, string orderby, object parameters = null, DbTransaction transaction = null) where T : class
+        public static IEnumerable<T> GetListPaged<T>(this IDbConnection connection, int pageNumber, int rowsPerPage, string conditions, string orderby, object parameters = null, IDbTransaction transaction = null) where T : class
         {
             if (string.IsNullOrEmpty(_getPagedListSql))
                 throw new Exception("GetListPage is not supported with the current SQL Dialect");
@@ -2722,7 +2732,7 @@ namespace Extensions.DataBases
         /// The ID (primary key) of the newly inserted record if it is identity using the int? type,
         /// otherwise null
         /// </returns>
-        public static TEntity Insert<TEntity>(this DbConnection connection, TEntity entityToInsert, DbTransaction transaction = null) where TEntity : class => Insert<TEntity, TEntity>(connection, entityToInsert, transaction);
+        public static TEntity Insert<TEntity>(this IDbConnection connection, TEntity entityToInsert, IDbTransaction transaction = null) where TEntity : class => Insert<TEntity, TEntity>(connection, entityToInsert, transaction);
 
         /// <summary>
         /// <para>Inserts a row into the database, using ONLY the properties defined by TEntity</para>
@@ -2743,7 +2753,7 @@ namespace Extensions.DataBases
         /// The ID (primary key) of the newly inserted record if it is identity using the defined
         /// type, otherwise null
         /// </returns>
-        public static TKey Insert<TKey, TEntity>(this DbConnection connection, TEntity entityToInsert, DbTransaction transaction = null) where TEntity : class
+        public static TKey Insert<TKey, TEntity>(this IDbConnection connection, TEntity entityToInsert, IDbTransaction transaction = null) where TEntity : class
         {
             if (typeof(TEntity).IsInterface) //FallBack to BaseType Generic Method : https://stackoverflow.com/questions/4101784/calling-a-generic-method-with-a-dynamic-type
             {
@@ -2860,7 +2870,7 @@ namespace Extensions.DataBases
         /// <param name="transaction"></param>
 
         /// <returns>Returns a count of records.</returns>
-        public static int RecordCount<T>(this DbConnection connection, string conditions = "", object parameters = null, DbTransaction transaction = null)
+        public static int RecordCount<T>(this IDbConnection connection, string conditions = "", object parameters = null, IDbTransaction transaction = null)
         {
             var currenttype = typeof(T);
             var name = GetTableName(currenttype);
@@ -2885,7 +2895,7 @@ namespace Extensions.DataBases
             return connection.RunSQLValue<int>(cmd);
         }
 
-        public static bool Exists<T>(this DbConnection connection, object whereConditions, DbTransaction transaction = null)
+        public static bool Exists<T>(this IDbConnection connection, object whereConditions, IDbTransaction transaction = null)
             => RecordCount<T>(connection, whereConditions, transaction) > 0;
 
         /// <summary>
@@ -2903,7 +2913,7 @@ namespace Extensions.DataBases
         /// <param name="transaction"></param>
 
         /// <returns>Returns a count of records.</returns>
-        public static int RecordCount<T>(this DbConnection connection, object whereConditions, DbTransaction transaction = null)
+        public static int RecordCount<T>(this IDbConnection connection, object whereConditions, IDbTransaction transaction = null)
         {
             var currenttype = typeof(T);
             var name = GetTableName(currenttype);
@@ -3014,7 +3024,7 @@ namespace Extensions.DataBases
         /// <param name="transaction"></param>
 
         /// <returns>The number of affected records</returns>
-        public static int Update<TEntity>(this DbConnection connection, TEntity entityToUpdate, DbTransaction transaction = null) where TEntity : class
+        public static int Update<TEntity>(this IDbConnection connection, TEntity entityToUpdate, IDbTransaction transaction = null) where TEntity : class
         {
             if (typeof(TEntity).IsInterface) //FallBack to BaseType Generic Method: https://stackoverflow.com/questions/4101784/calling-a-generic-method-with-a-dynamic-type
             {
@@ -3046,7 +3056,7 @@ namespace Extensions.DataBases
             return connection.RunSQLNone(cmd);
         }
 
-        public static int UpdateWhere<TEntity, Tup>(this DbConnection connection, TEntity entityToUpdate, Tup whereConditions, DbTransaction transaction = null) where TEntity : class where Tup : class
+        public static int UpdateWhere<TEntity, Tup>(this IDbConnection connection, TEntity entityToUpdate, Tup whereConditions, IDbTransaction transaction = null) where TEntity : class where Tup : class
 
         {
             if (typeof(TEntity).IsInterface) //FallBack to BaseType Generic Method: https://stackoverflow.com/questions/4101784/calling-a-generic-method-with-a-dynamic-type
@@ -3091,7 +3101,7 @@ namespace Extensions.DataBases
             return connection.RunSQLNone(cmd);
         }
 
-        public static int UpdateWhere<TEntity>(this DbConnection connection, TEntity fieldsToUpdate, string whereConditions, DbTransaction transaction = null) where TEntity : class
+        public static int UpdateWhere<TEntity>(this IDbConnection connection, TEntity fieldsToUpdate, string whereConditions, IDbTransaction transaction = null) where TEntity : class
         {
             var masterSb = new StringBuilder();
             StringBuilderCache(masterSb, $"{typeof(TEntity).FullName}_UpdateWhere", sb =>
@@ -3118,11 +3128,11 @@ namespace Extensions.DataBases
 
         }
 
-        public static int UpdateWhere<TEntity>(this DbConnection connection, TEntity entityToUpdate, Expression<Func<TEntity, bool>> whereConditions, DbTransaction transaction = null)
+        public static int UpdateWhere<TEntity>(this IDbConnection connection, TEntity entityToUpdate, Expression<Func<TEntity, bool>> whereConditions, IDbTransaction transaction = null)
         {
             return UpdateWhere(connection, entityToUpdate, new[] { whereConditions }, transaction);
         }
-        public static int UpdateWhere<TEntity>(this DbConnection connection, TEntity entityToUpdate, Expression<Func<TEntity, bool>>[] whereConditions, DbTransaction transaction = null)
+        public static int UpdateWhere<TEntity>(this IDbConnection connection, TEntity entityToUpdate, Expression<Func<TEntity, bool>>[] whereConditions, IDbTransaction transaction = null)
         {
             var sb = new StringBuilder();
             sb.Append("update ");
@@ -3168,9 +3178,9 @@ namespace Extensions.DataBases
 
         }
 
-        public static int UpdateColumn<TEntity, V>(this DbConnection connection, Expression<Func<TEntity, object>> column, V value, object whereConditions, DbTransaction transaction = null) => UpdateColumn(connection, new[] { column }, value, whereConditions, transaction);
+        public static int UpdateColumn<TEntity, V>(this IDbConnection connection, Expression<Func<TEntity, object>> column, V value, object whereConditions, IDbTransaction transaction = null) => UpdateColumn(connection, new[] { column }, value, whereConditions, transaction);
 
-        public static int UpdateColumn<TEntity, V>(this DbConnection connection, IEnumerable<Expression<Func<TEntity, object>>> column, V value, object whereConditions, DbTransaction transaction = null)
+        public static int UpdateColumn<TEntity, V>(this IDbConnection connection, IEnumerable<Expression<Func<TEntity, object>>> column, V value, object whereConditions, IDbTransaction transaction = null)
         {
             var sb = new StringBuilder();
             var para = new Dictionary<string, object>();
@@ -3216,7 +3226,7 @@ namespace Extensions.DataBases
         /// <param name="entity">The entity to insert or update.</param>
         /// <param name="transaction">The transaction to use, or null.</param>
         /// <returns>TRUE if the record was inserted, FALSE if the record was updated.</returns>
-        public static bool Upsert<TEntity>(this DbConnection connection, TEntity entity, DbTransaction transaction = null) where TEntity : class
+        public static bool Upsert<TEntity>(this IDbConnection connection, TEntity entity, IDbTransaction transaction = null) where TEntity : class
         {
             var exists = Get<TEntity>(connection, entity, transaction);
             if (exists == null)
@@ -3649,7 +3659,7 @@ namespace Extensions.DataBases
             defaults();
         }
 
-        public DbCommand CreateCommand(DbConnection connection, DbTransaction transaction = null)
+        public IDbCommand CreateCommand(IDbConnection connection, IDbTransaction transaction = null)
         {
             return connection.CreateCommand(this.ToString().ToFormattableString(), this.Parameters, transaction);
         }
@@ -4351,9 +4361,9 @@ namespace Extensions.DataBases
             return this;
         }
 
-        public DbCommand CreateDbCommand(DbConnection Connection, Dictionary<string, object> dic, DbTransaction Transaction = null) => Connection.CreateCommand(ToString().ToFormattableString(), dic, Transaction);
+        public IDbCommand CreateIDbCommand(IDbConnection Connection, Dictionary<string, object> dic, IDbTransaction Transaction = null) => Connection.CreateCommand(ToString().ToFormattableString(), dic, Transaction);
 
-        public DbCommand CreateDbCommand(DbConnection Connection, DbTransaction Transaction = null) => CreateDbCommand(Connection, null, Transaction);
+        public IDbCommand CreateIDbCommand(IDbConnection Connection, IDbTransaction Transaction = null) => CreateIDbCommand(Connection, null, Transaction);
 
         /// <summary>
         /// Sets a CROSS APPLY clause in the SELECT being built.
