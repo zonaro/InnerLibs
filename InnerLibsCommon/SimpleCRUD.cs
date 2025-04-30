@@ -2821,7 +2821,7 @@ namespace Extensions.DataBases
 
 
 
-            var cmd = connection.CreateCommand(sb.ToString().ToFormattableString(), entityToInsert, transaction, QueryType.Insert);
+            var cmd = connection.CreateCommand<TEntity>(sb.ToString().ToFormattableString(), entityToInsert, transaction, QueryType.Insert);
             var r = connection.RunSQLRow<TKey>(cmd);
 
             if (r != null) return r;
@@ -3661,7 +3661,12 @@ namespace Extensions.DataBases
 
         public IDbCommand CreateCommand(IDbConnection connection, IDbTransaction transaction = null)
         {
-            return connection.CreateCommand(this.ToString().ToFormattableString(), this.Parameters, transaction);
+            return connection.CreateCommand(this.Query.ToFormattableString(), this.Parameters, transaction);
+        }
+
+        public override string ToString()
+        {
+            return Query;
         }
 
         internal void processQuery(FormattableString sql, object aditionalParameters = null)
