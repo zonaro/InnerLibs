@@ -2314,6 +2314,9 @@ namespace Extensions.DataBases
 
         public static string AsSQLColumns(this NameValueCollection obj, params string[] Keys) => obj.ToDictionary(Keys).AsSQLColumns();
 
+        public static T GetSingle<T>(this IDbConnection connection, IDbTransaction transaction = null) => GetList<T>(connection, null, transaction: transaction).SingleOrDefault();
+
+
         /// <summary>
         /// <para>By default queries the table matching the class name</para>
         /// <para>-Table name can be overridden by adding an attribute on your class [Table("YourTableName")]</para>
@@ -2466,6 +2469,15 @@ namespace Extensions.DataBases
         /// <returns>Gets a list of entities with optional exact match where conditions</returns>
         public static IEnumerable<T> GetList<T>(this IDbConnection connection, object whereConditions = null, object parameters = null, IDbTransaction transaction = null, bool WithSubQueries = false)
         {
+            if (transaction == null)
+            {
+                //check if parameters is a transaction
+                if (parameters is IDbTransaction t)
+                {
+                    transaction = t;
+                    parameters = null;
+                }
+            }
             var currenttype = typeof(T);
             var name = GetTableName(currenttype);
 
@@ -2479,19 +2491,17 @@ namespace Extensions.DataBases
             BuildSelect(sb, GetScaffoldableProperties<T>().ToArray());
             sb.AppendFormat(" from {0}", name);
 
-            if (whereConditions is string conditions)
+            if (whereConditions is string conditions && conditions.IsNotBlank())
             {
-                if (string.IsNullOrWhiteSpace(conditions) == false)
+                conditions = conditions.Trim();
+
+                if (!conditions.StartsWith("where", StringComparison.OrdinalIgnoreCase))
                 {
-                    conditions = conditions.Trim();
-
-                    if (!conditions.Trim().StartsWith("where", StringComparison.OrdinalIgnoreCase))
-                    {
-                        sb.Append(" where ");
-                    }
-
-                    sb.Append(conditions);
+                    sb.Append(" where ");
                 }
+
+                sb.Append(conditions);
+
             }
             else
             {
@@ -2647,6 +2657,17 @@ namespace Extensions.DataBases
         /// <returns>Gets a paged list of entities with optional exact match where conditions</returns>
         public static IEnumerable<T> GetListPaged<T>(this IDbConnection connection, int pageNumber, int rowsPerPage, string conditions, string orderby, object parameters = null, IDbTransaction transaction = null) where T : class
         {
+
+            if (transaction == null)
+            {
+                //check if parameters is a transaction
+                if (parameters is IDbTransaction t)
+                {
+                    transaction = t;
+                    parameters = null;
+                }
+            }
+
             if (string.IsNullOrEmpty(_getPagedListSql))
                 throw new Exception("GetListPage is not supported with the current SQL Dialect");
 
@@ -2755,6 +2776,9 @@ namespace Extensions.DataBases
         /// </returns>
         public static TKey Insert<TKey, TEntity>(this IDbConnection connection, TEntity entityToInsert, IDbTransaction transaction = null) where TEntity : class
         {
+
+
+
             if (typeof(TEntity).IsInterface) //FallBack to BaseType Generic Method : https://stackoverflow.com/questions/4101784/calling-a-generic-method-with-a-dynamic-type
             {
                 return (TKey)typeof(SimpleCRUD)
@@ -3112,7 +3136,7 @@ namespace Extensions.DataBases
                 BuildUpdateSet(fieldsToUpdate, sb);
                 sb.Append(" ");
 
-                if (string.IsNullOrWhiteSpace(whereConditions) == false)
+                if (whereConditions.IsNotBlank())
                 {
                     whereConditions = whereConditions.Trim();
                     if (whereConditions.StartsWith("where", StringComparison.OrdinalIgnoreCase) == false)

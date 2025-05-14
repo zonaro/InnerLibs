@@ -11063,21 +11063,29 @@ namespace Extensions
         public static Image ResizePercent(this Image Original, decimal Percent, bool OnlyResizeIfWider = true) => Original.ResizePercent(Percent.ToPercentString(), OnlyResizeIfWider);
 
         /// <summary>
-        /// Arredonda um numero para o valor inteiro mais próximo
+        /// Arredonda um numero para um numero especifico de digitos fracionários
         /// </summary>
         /// <param name="Number">Numero</param>
         /// <returns></returns>
         public static decimal RoundDecimal(this decimal Number, int? Decimals = default) => Decimals.HasValue ? Math.Round(Number, Decimals.Value.ForcePositive()) : Math.Round(Number);
-
+        /// <summary>
+        /// Arredonda um numero para um numero especifico de digitos fracionários
+        /// </summary>
+        /// <param name="Number">Numero</param>
+        /// <returns></returns>
         public static decimal RoundDecimal(this double Number, int? Decimals = default) => Decimals.HasValue ? Math.Round(Number.ToDecimal(), Decimals.Value.ForcePositive()) : Math.Round(Number.ToDecimal());
 
         /// <summary>
-        /// Arredonda um numero para o valor inteiro mais próximo
+        /// Arredonda um numero para um numero especifico de digitos fracionários
         /// </summary>
         /// <param name="Number">Numero</param>
         /// <returns></returns>
         public static double RoundDouble(this double Number, int? Decimals = default) => Decimals.HasValue ? Math.Round(Number, Decimals.Value.ForcePositive()) : Math.Round(Number);
-
+        /// <summary>
+        /// Arredonda um numero para um numero especifico de digitos fracionários
+        /// </summary>
+        /// <param name="Number">Numero</param>
+        /// <returns></returns>
         public static double RoundDouble(this decimal Number, int? Decimals = default) => Decimals.HasValue ? Math.Round(Number.ToDouble(), Decimals.Value.ForcePositive()) : Math.Round(Number.ToDouble());
 
         /// <summary>
@@ -11086,6 +11094,12 @@ namespace Extensions
         /// <param name="Number">Numero</param>
         /// <returns></returns>
         public static int RoundInt(this decimal Number) => Math.Round(Number).ToInt();
+        /// <summary>
+        /// Arredonda um numero para o valor inteiro mais próximo
+        /// </summary>
+        /// <param name="Number"></param>
+        /// <returns></returns>
+        public static short RoundShort(this decimal Number) => Math.Round(Number).ToShort();
 
         /// <summary>
         /// Arredonda um numero para o valor inteiro mais próximo
