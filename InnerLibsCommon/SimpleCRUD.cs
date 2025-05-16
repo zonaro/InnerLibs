@@ -1481,6 +1481,7 @@ namespace Extensions.DataBases
         public static T RunSQLValue<T>(this IDbConnection Connection, IDbCommand command) => RunSQLValue(Connection, command).ChangeType<T>();
         public static object RunSQLValue(this IDbConnection Connection, IDbCommand command) => command.ExecuteScalar();
 
+
         public static object RunSQLValue(this IDbConnection Connection, FormattableString sql, IDbTransaction transaction = null, bool WithSubQueries = false, Type type = null) => Connection.RunSQLValue(Connection.CreateCommand(sql, transaction));
 
 
@@ -2314,7 +2315,8 @@ namespace Extensions.DataBases
 
         public static string AsSQLColumns(this NameValueCollection obj, params string[] Keys) => obj.ToDictionary(Keys).AsSQLColumns();
 
-        public static T GetSingle<T>(this IDbConnection connection, IDbTransaction transaction = null) => GetList<T>(connection, null, transaction: transaction).SingleOrDefault();
+        public static T GetSingle<T>(this IDbConnection connection, object whereConditions = null, IDbTransaction transaction = null) => GetList<T>(connection, whereConditions, transaction: transaction).SingleOrDefault();
+        public static T GetFirst<T>(this IDbConnection connection, object whereConditions = null, IDbTransaction transaction = null) => GetList<T>(connection, whereConditions, transaction: transaction).FirstOrDefault();
 
 
         /// <summary>
@@ -2476,6 +2478,12 @@ namespace Extensions.DataBases
                 {
                     transaction = t;
                     parameters = null;
+                }
+                else
+                if (whereConditions is IDbTransaction t2)
+                {
+                    transaction = t2;
+                    whereConditions = null;
                 }
             }
             var currenttype = typeof(T);
@@ -2666,9 +2674,10 @@ namespace Extensions.DataBases
                     transaction = t;
                     parameters = null;
                 }
+                 
             }
 
-            if (string.IsNullOrEmpty(_getPagedListSql))
+            if ( _getPagedListSql.IsBlank())
                 throw new Exception("GetListPage is not supported with the current SQL Dialect");
 
             if (pageNumber < 0)
@@ -2682,7 +2691,7 @@ namespace Extensions.DataBases
             var name = GetTableName(currenttype);
             var sb = new StringBuilder();
             var query = _getPagedListSql;
-            if (string.IsNullOrEmpty(orderby))
+            if (orderby.IsBlank())
             {
                 var props = idProps.FirstOrDefault() ?? GetAllProperties<T>().FirstOrDefault();
                 if (props == null) throw new ArgumentException("Entity must have at least one [Key] or [Column] property");

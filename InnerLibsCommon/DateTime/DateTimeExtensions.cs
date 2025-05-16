@@ -287,6 +287,13 @@ namespace Extensions
         public static DateTime ClearMilliseconds(this DateTime Date) => Date.AddTicks(-(Date.Ticks % TimeSpan.TicksPerSecond));
 
         /// <summary>
+        /// Clear Seconds and Milliseconds from <see cref="DateTime"/>
+        /// </summary>
+        /// <param name="Date"></param>
+        /// <returns></returns>
+        public static DateTime ClearSeconds(this DateTime Date) => Date.AddTicks(-(Date.Ticks % TimeSpan.TicksPerMinute)).ClearMilliseconds();  
+
+        /// <summary>
         /// Remove o tempo de todas as datas de uma lista e retorna uma nova lista
         /// </summary>
         /// <param name="List">Lista que será alterada</param>
