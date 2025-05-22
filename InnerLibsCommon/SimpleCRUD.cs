@@ -42,6 +42,23 @@ namespace Extensions.DataBases
     public static partial class SimpleCRUD
     {
 
+
+        public static DataSet ToDataSet(this IDataReader reader) => ToDataSet(reader, null);
+
+        public static DataSet ToDataSet(this IDataReader reader, string DataSetName, params string[] TableNames)
+        {
+            DataSet ds = new DataSet(DataSetName.IfBlank("DataSet"));
+            TableNames = TableNames ?? Array.Empty<string>();
+            var i = 0;
+            while (reader != null && !reader.IsClosed)
+            {
+                ds.Tables.Add(TableNames.IfBlankOrNoIndex(i, $"Table{i}")).Load(reader);
+                i++;
+            }
+            return ds;
+        }
+
+
         /// <summary>
         /// Retorna um <see cref="Type"/> de um <see cref="DbType"/>
         /// </summary>
@@ -226,7 +243,7 @@ namespace Extensions.DataBases
                                 return colname == name;
                             });
 
-                            var names = name.PropertyNamesFor();
+                            var names = name.PropertyNamesFor().ToArray();
                             info = info ?? propinfos.FirstOrDefault(x => x.Name.FlatEqual(names));
 
                             if (info != null && info.CanWrite)
@@ -2674,10 +2691,10 @@ namespace Extensions.DataBases
                     transaction = t;
                     parameters = null;
                 }
-                 
+
             }
 
-            if ( _getPagedListSql.IsBlank())
+            if (_getPagedListSql.IsBlank())
                 throw new Exception("GetListPage is not supported with the current SQL Dialect");
 
             if (pageNumber < 0)

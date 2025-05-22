@@ -12730,21 +12730,6 @@ namespace Extensions
 
         public static string ToCSV<T>(this IEnumerable<T> Items, string Separator = ",", bool IncludeHeader = false) where T : class => (Items ?? Array.Empty<T>()).Select(x => x.CreateDictionary()).ToCSV(Separator, IncludeHeader);
 
-        public static DataSet ToDataSet(this DbDataReader reader) => ToDataSet(reader, null);
-
-        public static DataSet ToDataSet(this DbDataReader reader, string DataSetName, params string[] TableNames)
-        {
-            DataSet ds = new DataSet(DataSetName.IfBlank("DataSet"));
-            TableNames = TableNames ?? Array.Empty<string>();
-            var i = 0;
-            while (reader != null && !reader.IsClosed)
-            {
-                ds.Tables.Add(TableNames.IfBlankOrNoIndex(i, $"Table{i}")).Load(reader);
-                i++;
-            }
-            return ds;
-        }
-
         /// <summary>
         /// Converte um Array de Bytes em uma DATA URL Completa
         /// </summary>
@@ -13247,16 +13232,11 @@ namespace Extensions
                         switch (c)
                         {
                             case 'e':
-                                {
-                                    sb.Append('3');
-                                    break;
-                                }
-
                             case 'E':
                                 {
                                     sb.Append('3');
                                     break;
-                                }
+                                }                            
 
                             default:
                                 {
