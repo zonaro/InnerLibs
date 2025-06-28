@@ -326,10 +326,17 @@ namespace Extensions.Colors
         /// <summary>
         /// Valor hexadecimal desta cor
         /// </summary>
+        /// <param name="hash"></param>
+        /// <returns></returns>
+        public string ToHexadecimal(bool hash = true) => _scolor.ToHexadecimal(hash);
+
+        /// <summary>
+        /// Valor hexadecimal desta cor
+        /// </summary>
         /// <returns></returns>
         public string Hexadecimal
         {
-            get => _scolor.ToHexadecimal();
+            get => ToHexadecimal();
 
             set
             {

@@ -1711,24 +1711,37 @@ namespace Extensions
         /// Remove todos os subdiretorios vazios
         /// </summary>
         /// <param name="TopDirectory">Diretorio da operação</param>
-        public static DirectoryInfo CleanDirectory(this DirectoryInfo TopDirectory, bool DeleteTopDirectoryIfEmpty = true)
+        public static IEnumerable<DirectoryInfo> CleanDirectory(this DirectoryInfo TopDirectory, bool DeleteTopDirectoryIfEmpty = true)
         {
+            var l = new List<DirectoryInfo>();
             if (TopDirectory != null && TopDirectory.Exists)
             {
-                foreach (var subdir in TopDirectory.GetDirectories("*", SearchOption.TopDirectoryOnly))
+                foreach (var subdir in TopDirectory.GetDirectories())
                 {
-                    if (subdir.Exists && subdir.HasDirectories())
+                    if (subdir.Exists)
                     {
-                        subdir.CleanDirectory(true);
+                        if (subdir.HasDirectories())
+                        {
+                            l.AddRange(subdir.CleanDirectory(true));
+                        }
+                        else
+                        {
+                            if (subdir.IsEmpty())
+                            {
+                                subdir.Delete();
+                                l.Add(subdir);
+                            }
+                        }
                     }
                 }
 
                 if (DeleteTopDirectoryIfEmpty && TopDirectory.Exists && TopDirectory.IsEmpty())
                 {
                     TopDirectory.Delete();
+                    l.Add(TopDirectory);
                 }
             }
-            return TopDirectory;
+            return l;
         }
 
         /// <summary>
@@ -2280,6 +2293,33 @@ namespace Extensions
         public static DirectoryInfo CreateDirectoryIfNotExists(this DirectoryInfo DirectoryName, DateTime? DateAndTime = null) => DirectoryName?.FullName.CreateDirectoryIfNotExists(DateAndTime);
 
         public static DirectoryInfo CreateDirectoryIfNotExists(this FileInfo FileName, DateTime? DateAndTime = null) => FileName?.FullName.CreateDirectoryIfNotExists(DateAndTime);
+
+        public static DirectoryInfo CreateDirectoryIfNotExists(params object[] PathParts)
+        {
+            var pt = PathParts.SelectMany((object x, int i) =>
+              {
+                  if (x is DateTime dt)
+                  {
+                      return new string[] { dt.ToString("yyyy"), dt.ToString("MM"), dt.ToString("dd") };
+
+                  }
+                  else if (x is FileInfo fi)
+                  {
+                      return  fi.Directory.FullName.SplitAny($"{Path.DirectorySeparatorChar}", $"{Path.AltDirectorySeparatorChar}").Skip(i);
+                  }
+                  else if (x is DirectoryInfo di)
+                  {
+                      return di.FullName.SplitAny($"{Path.DirectorySeparatorChar}", $"{Path.AltDirectorySeparatorChar}").Skip(i);
+
+                  }
+                  else
+                  {
+                      return x.ChangeType<string>().SplitAny($"{Path.DirectorySeparatorChar}", $"{Path.AltDirectorySeparatorChar}");
+                  }
+              }).SelectJoinString($"{Path.DirectorySeparatorChar}");
+
+            return pt.CreateDirectoryIfNotExists();
+        }
 
         /// <summary>
         /// Cria um arquivo em branco se o mesmo nao existir e retorna um Fileinfo deste arquivo
@@ -3122,6 +3162,15 @@ namespace Extensions
 
         public static string DownloadString(this Uri URL, NameValueCollection Headers = null, Encoding Encoding = null) => DownloadString($"{URL}", Headers, Encoding);
 
+        public static Image DrawImage(this string text, int Width, int Height, Font Font = null, Color? Color = default, int X = -1, int Y = -1)
+        {
+            return text.DrawImage(new Size(Width, Height), Font, Color, X, Y);
+        }
+        public static Image DrawImage(this string text, Size imageSize, Font Font = null, Color? Color = default, int X = -1, int Y = -1)
+        {
+            var b = new Bitmap(imageSize.Width, imageSize.Height);
+            return b.DrawString(text, Font, Color, X, Y);
+        }
         public static Image DrawString(this Image img, string Text, Font Font = null, Color? Color = default, int X = -1, int Y = -1)
         {
             var bitmap = new Bitmap(img);
@@ -13236,7 +13285,7 @@ namespace Extensions
                                 {
                                     sb.Append('3');
                                     break;
-                                }                            
+                                }
 
                             default:
                                 {
