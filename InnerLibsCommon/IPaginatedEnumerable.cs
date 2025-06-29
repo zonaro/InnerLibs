@@ -21,6 +21,8 @@ namespace Extensions.Pagination
 
         private int? _total;
 
+ 
+
         private int pgnumber = 1;
 
         private string pnp, psp, pop;
@@ -35,6 +37,7 @@ namespace Extensions.Pagination
         {
             FilteredData = FilteredData ?? Data;
             _total = default;
+        
             if (FilteredData != null)
             {
                 if (LambdaExpression != null)
@@ -42,30 +45,33 @@ namespace Extensions.Pagination
                     if (FilteredData is IOrderedQueryable<TClass> orderedQuery)
                     {
                         FilteredData = orderedQuery.Where(LambdaExpression);
-                        var dq = orderedQuery.Select(x => 0);
+                        var dq = FilteredData.Select(x => 0);                         
                         _total = dq.Count();
                     }
 
                     if (FilteredData is IQueryable<TClass> query)
                     {
                         FilteredData = query.Where(LambdaExpression);
-                        var dq = query.Select(x => 0);
+                        var dq = FilteredData.Select(x => 0);
                         _total = dq.Count();
+
                     }
                     else
                     {
                         FilteredData = FilteredData.Where(LambdaExpression.Compile());
                         _total = FilteredData.Count();
+                        
                     }
                 }
                 else
                 {
-                    _total = FilteredData.Count();
+                    _total = FilteredData.Count();                  
+
                 }
 
                 return FilteredData;
             }
-
+            
             return Data;
         }
 
@@ -101,7 +107,7 @@ namespace Extensions.Pagination
 
         #region Internal Fields
 
-        internal List<PropertyFilter<TClass, TRemap>> _filters = new List<PropertyFilter<TClass, TRemap>>();
+        private List<PropertyFilter<TClass, TRemap>> _filters = new List<PropertyFilter<TClass, TRemap>>();
 
         internal ParameterExpression param = Util.GenerateParameterExpression<TClass>();
 
@@ -443,6 +449,8 @@ namespace Extensions.Pagination
         /// <returns></returns>
         public int Total => _total ?? -1;
 
+  
+
         /// <summary>
         /// Expressões adicionadas a clausula where junto com os filtros
         /// </summary>
@@ -513,7 +521,7 @@ namespace Extensions.Pagination
             {
                 throw new ArgumentException($"Trailling cannot be a number! => {Trailling}");
             }
-
+     
             var l = new List<string>();
             if (IsPaginationNecessary)
             {
@@ -575,6 +583,8 @@ namespace Extensions.Pagination
 
             return this;
         }
+
+ 
 
         /// <summary> Seta uma busca usando <see cref="Contains(<paramref name="PropertyValues"/>)"
         /// /> para cada propriedade em <paramref name="PropertyNames"/> </summary> <param
