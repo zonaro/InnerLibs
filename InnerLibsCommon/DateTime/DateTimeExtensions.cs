@@ -291,7 +291,7 @@ namespace Extensions
         /// </summary>
         /// <param name="Date"></param>
         /// <returns></returns>
-        public static DateTime ClearSeconds(this DateTime Date) => Date.AddTicks(-(Date.Ticks % TimeSpan.TicksPerMinute)).ClearMilliseconds();  
+        public static DateTime ClearSeconds(this DateTime Date) => Date.AddTicks(-(Date.Ticks % TimeSpan.TicksPerMinute)).ClearMilliseconds();
 
         /// <summary>
         /// Remove o tempo de todas as datas de uma lista e retorna uma nova lista

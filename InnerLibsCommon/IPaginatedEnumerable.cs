@@ -21,7 +21,7 @@ namespace Extensions.Pagination
 
         private int? _total;
 
- 
+
 
         private int pgnumber = 1;
 
@@ -37,7 +37,7 @@ namespace Extensions.Pagination
         {
             FilteredData = FilteredData ?? Data;
             _total = default;
-        
+
             if (FilteredData != null)
             {
                 if (LambdaExpression != null)
@@ -45,7 +45,7 @@ namespace Extensions.Pagination
                     if (FilteredData is IOrderedQueryable<TClass> orderedQuery)
                     {
                         FilteredData = orderedQuery.Where(LambdaExpression);
-                        var dq = FilteredData.Select(x => 0);                         
+                        var dq = FilteredData.Select(x => 0);
                         _total = dq.Count();
                     }
 
@@ -60,18 +60,18 @@ namespace Extensions.Pagination
                     {
                         FilteredData = FilteredData.Where(LambdaExpression.Compile());
                         _total = FilteredData.Count();
-                        
+
                     }
                 }
                 else
                 {
-                    _total = FilteredData.Count();                  
+                    _total = FilteredData.Count();
 
                 }
 
                 return FilteredData;
             }
-            
+
             return Data;
         }
 
@@ -449,7 +449,7 @@ namespace Extensions.Pagination
         /// <returns></returns>
         public int Total => _total ?? -1;
 
-  
+
 
         /// <summary>
         /// Expressões adicionadas a clausula where junto com os filtros
@@ -521,7 +521,7 @@ namespace Extensions.Pagination
             {
                 throw new ArgumentException($"Trailling cannot be a number! => {Trailling}");
             }
-     
+
             var l = new List<string>();
             if (IsPaginationNecessary)
             {
@@ -584,7 +584,7 @@ namespace Extensions.Pagination
             return this;
         }
 
- 
+
 
         /// <summary> Seta uma busca usando <see cref="Contains(<paramref name="PropertyValues"/>)"
         /// /> para cada propriedade em <paramref name="PropertyNames"/> </summary> <param
@@ -873,15 +873,15 @@ namespace Extensions.Pagination
                     return this;
                 }
 
-                if (Data is IEnumerable<TClass>)
+                if (Data is IEnumerable<TClass> ee)
                 {
                     if (Ascending)
                     {
-                        Data = Data.OrderBy(Selector.Compile());
+                        Data = ee.OrderBy(Selector.Compile());
                     }
                     else
                     {
-                        Data = Data.OrderByDescending(Selector.Compile());
+                        Data = ee.OrderByDescending(Selector.Compile());
                     }
 
                     return this;

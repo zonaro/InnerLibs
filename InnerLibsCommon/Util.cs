@@ -2305,7 +2305,7 @@ namespace Extensions
                   }
                   else if (x is FileInfo fi)
                   {
-                      return  fi.Directory.FullName.SplitAny($"{Path.DirectorySeparatorChar}", $"{Path.AltDirectorySeparatorChar}").Skip(i);
+                      return fi.Directory.FullName.SplitAny($"{Path.DirectorySeparatorChar}", $"{Path.AltDirectorySeparatorChar}").Skip(i);
                   }
                   else if (x is DirectoryInfo di)
                   {
@@ -3705,19 +3705,55 @@ namespace Extensions
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static char PathChar(this string Text)
+        public static char MostCommonPathChar(this string Text)
         {
             if (Text == null) return Path.DirectorySeparatorChar;
             return (Text.Count(x => x == Path.AltDirectorySeparatorChar) > Text.Count(x => x == Path.DirectorySeparatorChar))
            .AsIf(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
         }
 
+        public static IEnumerable<string> SplitPath(this string Text)
+        {
+            return Text?.Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }).Where(x => x.IsNotBlank()) ?? Array.Empty<string>();
+        }
+
+        /// <summary>
+        /// Extracts the portion of a file path that is relative to a specified base path.
+        /// </summary>
+        /// <remarks>This method ensures that the returned path is normalized using the specified or
+        /// default directory separator.</remarks>
+        /// <param name="fullPath">The full file path to process. Must not be null or empty.</param>
+        /// <param name="basePath">The base path to which the <paramref name="fullPath"/> is compared. Must not be null or empty.</param>
+        /// <param name="AlternativeChar">An optional character to use as the directory separator in the returned path. If <see langword="null"/>, the
+        /// default directory separator character is used.</param>
+        /// <returns>A string representing the portion of <paramref name="fullPath"/> that is relative to <paramref
+        /// name="basePath"/>. If <paramref name="fullPath"/> does not start with <paramref name="basePath"/>, the
+        /// original <paramref name="fullPath"/> is returned.</returns>
+        public static string GetLeftPathPart(this string fullPath, string basePath, bool? AlternativeChar = null)
+        {
+            var pt1 = fullPath.FixPath(false);
+            var pt2 = basePath.IfBlank(Path.GetPathRoot(fullPath) ?? fullPath ?? "").FixPath(false) + Path.AltDirectorySeparatorChar;
+
+            if (pt1.IsNotBlank() && pt2.IsNotBlank() && pt1.StartsWith(pt2, StringComparison.OrdinalIgnoreCase))
+            {
+                var relativePath = pt1.Substring(pt2.Length).TrimStartAny(Path.DirectorySeparatorChar.ToString(), Path.AltDirectorySeparatorChar.ToString());
+                relativePath = relativePath.FixPath(AlternativeChar);
+                return $"{MostCommonPathChar(relativePath)}{relativePath}";
+            }
+
+            return fullPath.FixPath(AlternativeChar);
+        }
+
+        /// <inheritdoc cref="GetLeftPathPart(string, string, bool?)"/>
+        public static string GetLeftPathPart(this FileSystemInfo fullPath, string basePath, bool? AlternativeChar = null) => fullPath?.FullName.GetLeftPathPart(basePath, AlternativeChar) ?? string.Empty;
+
+
         /// <summary>
         /// Ajusta um caminho colocando as barras corretamente e substituindo caracteres inválidos
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static string FixPath(this string Text, bool? AlternativeChar = null) => Text?.Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }).Where(x => x.IsNotBlank()).Select((x, i) =>
+        public static string FixPath(this string Text, bool? AlternativeChar = null) => Text?.SplitPath().Select((x, i) =>
                                                                                                                                                                                           {
                                                                                                                                                                                               if (i == 0 && x.Length == 2 && x.EndsWith(":"))
                                                                                                                                                                                               {
@@ -3725,7 +3761,7 @@ namespace Extensions
                                                                                                                                                                                               }
 
                                                                                                                                                                                               return x.ToFriendlyPathName();
-                                                                                                                                                                                          }).SelectJoinString(AlternativeChar == null ? Text.PathChar().ToString() : AlternativeChar.AsIf(Path.AltDirectorySeparatorChar.ToString(), Path.DirectorySeparatorChar.ToString())).TrimEndAny(Path.DirectorySeparatorChar.ToString(), Path.AltDirectorySeparatorChar.ToString());
+                                                                                                                                                                                          }).SelectJoinString(AlternativeChar == null ? Text.MostCommonPathChar().ToString() : AlternativeChar.AsIf(Path.AltDirectorySeparatorChar.ToString(), Path.DirectorySeparatorChar.ToString())).TrimEndAny(Path.DirectorySeparatorChar.ToString(), Path.AltDirectorySeparatorChar.ToString());
         /// <summary>
         /// Ajusta um caminho unidos partes, colocando as barras corretamente e substituindo
         /// caracteres inválidos
@@ -4610,7 +4646,7 @@ namespace Extensions
             {
                 if (Extension.IsValid())
                 {
-                    switch (Extension.RemoveAny(".").ToLowerInvariant())
+                    switch (Path.GetExtension(Extension).IfBlank(Extension).RemoveAny(".").ToLowerInvariant())
                     {
                         case "vcf":
                         case "vcard":
@@ -4763,8 +4799,9 @@ namespace Extensions
                         case "gb":
                         case "gba":
                         case "n64":
-                        case "rom":
+                        case "v64":
                         case "z64":
+                        case "rom":
                         case "gbc":
                         case "smc":
                         case "sfc":
@@ -4777,6 +4814,8 @@ namespace Extensions
                         case "snes":
                         case "cia":
                         case "gcz":
+                        case "xci":
+                        case "nsp":
                             {
                                 return "fa-gamepad";
                             }
@@ -4832,22 +4871,7 @@ namespace Extensions
             return "fa-file";
         }
 
-        /// <summary>
-        /// Retorna um icone de acordo com o arquivo
-        /// </summary>
-        /// <param name="File">Arquivo</param>
-        /// <returns></returns>
-        public static Icon GetIcon(this FileSystemInfo File)
-        {
-            try
-            {
-                return Icon.ExtractAssociatedIcon(File.FullName);
-            }
-            catch
-            {
-                return SystemIcons.WinLogo;
-            }
-        }
+      
 
         /// <summary>
         /// Retorna a classe do icone do FontAwesome que representa melhor o arquivo ou diretório
@@ -6717,6 +6741,12 @@ namespace Extensions
             }
             return dir;
         }
+
+        public static bool IsHidden<T>(this T dir) where T : FileSystemInfo
+        {
+            return dir != null && dir.Exists && dir.Attributes.HasFlag(FileAttributes.Hidden);
+        }
+
 
         /// <summary>
         /// Retorna um texto com entidades HTML convertidas para caracteres e tags BR em breaklines
@@ -11215,7 +11245,15 @@ namespace Extensions
             foreach (string pattern in (Searches ?? Array.Empty<string>()).SelectMany(z => z.SplitAny(":", "|")).Where(x => x.IsValid()).DefaultIfEmpty("*"))
             {
                 if (Directory != null)
-                    FilteredList.AddRange(Directory.GetFileSystemInfos(pattern.Trim(), SearchOption));
+                    try
+                    {
+                        FilteredList.AddRange(Directory.EnumerateFileSystemInfos(pattern.Trim(), SearchOption));
+
+                    }
+                    catch
+                    {
+
+                    }
             }
 
             return FilteredList;

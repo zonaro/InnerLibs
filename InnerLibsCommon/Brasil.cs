@@ -1108,6 +1108,87 @@ namespace Extensions.BR
             if (inscricao.FlatEqual("ISENTO")) return true;
             return Brasil.PegarCidade(estado)?.Estado?.ValidarInscricaoEstadual(inscricao) ?? false;
         }
+
+        public static string GerarCPFouCNPJFake() => Util.RandomBool() ? GerarCPFFake() : GerarCNPJFake();
+
+        /// <summary>
+        /// Gera um CNPJ falso, válido para testes, mas não existe na Receita Federal
+        /// </summary>
+        /// <returns>Um CNPJ falso formatado</returns>
+        public static string GerarCNPJFake()
+        {
+            // Gerar os primeiros 8 dígitos aleatórios para a base do CNPJ
+            Random random = new Random();
+            string baseCNPJ = random.Next(10000000, 99999999).ToString();
+
+            // Adicionar os 4 dígitos fixos para a filial e tipo de registro
+            string filialETipo = "0001";
+
+            // Calcular os dígitos verificadores
+            string cnpjSemDigitos = baseCNPJ + filialETipo;
+
+
+            int CalcularDigitoVerificadorCNPJ(string cnpjBase, int[] multiplicador)
+            {
+                int soma = 0;
+                for (int i = 0; i < multiplicador.Length; i++)
+                {
+                    soma += int.Parse(cnpjBase[i].ToString()) * multiplicador[i];
+                }
+
+                int resto = soma % 11;
+                return resto < 2 ? 0 : 11 - resto;
+            }
+
+            int primeiroDigito = CalcularDigitoVerificadorCNPJ(cnpjSemDigitos, multiplicador: new int[] { 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 });
+            int segundoDigito = CalcularDigitoVerificadorCNPJ(cnpjSemDigitos + primeiroDigito, multiplicador: new int[] { 6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 });
+
+            // Retornar o CNPJ formatado
+            return $"{baseCNPJ}{filialETipo}{primeiroDigito}{segundoDigito}".FormatarCNPJ();
+        }
+
+
+
+
+        /// <summary>
+        /// Gera um CPF falso, válido para testes, mas não existe na Receita Federal
+        /// </summary>
+        /// <returns>Um CPF falso formatado</returns>
+        public static string GerarCPFFake()
+        {
+            // Gera os 9 primeiros dígitos aleatórios
+            Random random = new Random();
+            int[] cpf = new int[11];
+            for (int i = 0; i < 9; i++)
+            {
+                cpf[i] = random.Next(0, 10);
+            }
+
+            // Calcula o primeiro dígito verificador
+            int soma = 0;
+            for (int i = 0; i < 9; i++)
+            {
+                soma += cpf[i] * (10 - i);
+            }
+            int resto = soma % 11;
+            cpf[9] = (resto < 2) ? 0 : 11 - resto;
+
+            // Calcula o segundo dígito verificador
+            soma = 0;
+            for (int i = 0; i < 10; i++)
+            {
+                soma += cpf[i] * (11 - i);
+            }
+            resto = soma % 11;
+            cpf[10] = (resto < 2) ? 0 : 11 - resto;
+
+            // Monta o número do CPF
+            string cpfStr = string.Concat(cpf);
+            return cpfStr.FormatarCPF();
+        }
+
+
+
     }
 
     public class ChaveNFe

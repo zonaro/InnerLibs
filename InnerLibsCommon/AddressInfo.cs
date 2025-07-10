@@ -353,7 +353,8 @@ namespace Extensions.Locations
                 else
                 {
                     _globalformat = AddressPart.FullAddress;
-                };
+                }
+                ;
             }
         }
 

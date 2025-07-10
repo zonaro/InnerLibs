@@ -27,7 +27,7 @@ namespace Extensions.Mail
 
         public static FluentMailMessage<T> FromData<T>(IEnumerable<T> Recipients, Expression<Func<T, string>> EmailSelector) where T : class => new FluentMailMessage<T>().AddRecipient(EmailSelector, Recipients?.ToArray() ?? Array.Empty<T>());
 
- 
+
         /// <summary>
         /// Creates a <see cref="FluentMailMessage{T}"/> instance from the specified data.
         /// </summary>
@@ -58,7 +58,7 @@ namespace Extensions.Mail
         /// </remarks>
         public static FluentMailMessage<T> FromData<T>(Expression<Func<T, string>> EmailSelector, params T[] Recipients) where T : class => FromData(Recipients?.AsEnumerable(), EmailSelector);
 
-  
+
         /// <summary>
         /// Creates a new instance of the <see cref="FluentMailMessage{T}"/> class using the specified recipient, email selector, and name selector.
         /// </summary>
@@ -84,32 +84,32 @@ namespace Extensions.Mail
         /// </remarks>
         public static FluentMailMessage<T> FromData<T>(T Recipient, Expression<Func<T, string>> EmailSelector) where T : class => FromData(EmailSelector, new[] { Recipient });
 
-        
+
         /// <summary>
         /// Represents a Simple Mail Transfer Protocol (SMTP) client that can be used to send email with Gmail Provider.
         /// </summary>
         public static SmtpClient GmailSmtp() => new SmtpClient("smtp.gmail.com", 587) { EnableSsl = true };
 
-     
+
         /// <summary>
         /// Represents a Simple Mail Transfer Protocol (SMTP) client that sends email using Locaweb Provider.
         /// </summary>
         public static SmtpClient LocawebSmtp() => new SmtpClient("email-ssl.com.br", 587) { EnableSsl = true };
- 
+
         /// <summary>
         /// Represents a Simple Mail Transfer Protocol (SMTP) client that can be used to send email using Office365 Provider.
         /// </summary>
         public static SmtpClient Office365Smtp() => new SmtpClient("smtp.office365.com", 587) { EnableSsl = true };
 
-   /// <summary>
+        /// <summary>
         /// Represents a Simple Mail Transfer Protocol (SMTP) client that can be used to send email using Outlook Provider.
         /// </summary>
         public static SmtpClient OutlookSmtp() => new SmtpClient("smtp-mail.outlook.com", 587) { EnableSsl = true };
 
-       
+
         public static SentStatus QuickSend(string Email, string Password, string Recipient, string Subject, string Message, Dictionary<string, object> TemplateData = null) => QuickSend<Dictionary<string, object>>(Email, Password, Recipient, Subject, Message, TemplateData);
 
-     
+
         public static SentStatus QuickSend<T>(string Email, string Password, string Recipient, string Subject, string Message, T TemplateData) where T : class => new FluentMailMessage<T>().WithQuickConfig(Email, Password).AddRecipient(Recipient, TemplateData).WithSubject(Subject).WithMessage(Message).OnError((m, a, ex) => Util.WriteDebug(ex.ToFullExceptionString())).SendAndDispose();
 
         /// <summary>
@@ -1028,14 +1028,14 @@ namespace Extensions.Mail
             }
         }
 
-    
+
         public virtual T TemplateData { get; set; }
 
         #endregion Public Properties
 
         #region Public Methods
 
- 
+
         public static IEnumerable<TemplateMailAddress<T>> FromData(Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector, params T[] Data) => FromData(Data?.AsEnumerable(), EmailSelector, NameSelector);
         public static IEnumerable<TemplateMailAddress<T>> FromData(IEnumerable<T> Data, Expression<Func<T, string>> EmailSelector, Expression<Func<T, string>> NameSelector) => (Data ?? Array.Empty<T>()).Select(x => new TemplateMailAddress<T>(x, EmailSelector, NameSelector)).Where(x => x != null);
 

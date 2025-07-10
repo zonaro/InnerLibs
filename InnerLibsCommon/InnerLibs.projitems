@@ -46,6 +46,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)HtmlParser\Selector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HtmlParser\SelectorCollection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HtmlParser\TextParser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IconUtils.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)JSONParser\dynamic.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)JSONParser\Formatter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)JSONParser\DataSetSchema.cs" />

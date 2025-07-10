@@ -893,7 +893,8 @@ namespace Extensions.Dates
                 case DateRangeInterval.Milliseconds:
                 case DateRangeInterval.LessAccurate:
                 default: return TotalMilliseconds;
-            };
+            }
+            ;
         }
 
         /// <summary>
