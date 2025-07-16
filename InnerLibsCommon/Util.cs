@@ -279,69 +279,30 @@ namespace Extensions
         /// <param name="file1"></param>
         /// <param name="file2"></param>
         /// <returns></returns>
-        public static bool IsCopyOf(this FileInfo file1, FileInfo file2)
+        public static bool IsCopyOf(FileInfo file1, FileInfo file2)
         {
-            int file1byte;
-            int file2byte;
-            FileStream fs1;
-            FileStream fs2;
-
-            if (file1 == null || file2 == null)
-            {
+            // verifica se os arquivos existem, se possuem o mesmo tamanho e se não são o mesmo arquivo (o mesmo arquivo não pode ser copia dele mesmo)
+            if (!file1.Exists || !file2.Exists || file1.Length != file2.Length || file1.FullName == file2.FullName)
                 return false;
-            }
 
-
-            if (!file1.Exists || !file2.Exists)
+            using (var sha256 = SHA256.Create())
             {
-                return false;
-            }
-
-
-            // Determine if the same file was referenced two times.
-            if (file1.FullName == file2.FullName)
-            {
-                // Return true to indicate that the files are the same.
-                return true;
-            }
-
-            if (file1.Exists && file2.Exists)
-            {
-                // Open the two files.
-                fs1 = new FileStream(file1.FullName, FileMode.Open);
-                fs2 = new FileStream(file2.FullName, FileMode.Open);
-
-                // Check the file sizes. If they are not the same, the files are not the same.
-                if (fs1.Length != fs2.Length)
+                using (var stream1 = file1.OpenRead())
+                using (var stream2 = file2.OpenRead())
                 {
-                    // Close the files
-                    fs1.Close();
-                    fs2.Close();
+                    byte[] hash1 = sha256.ComputeHash(stream1);
+                    byte[] hash2 = sha256.ComputeHash(stream2);
 
-                    // Return false to indicate files are different
-                    return false;
+                    for (int i = 0; i < hash1.Length; i++)
+                    {
+                        if (hash1[i] != hash2[i])
+                            return false;
+                    }
+
+                    return true;
                 }
-
-                // Read and compare a byte from each file until either a non-matching set of bytes
-                // is found or until the end of file1 is reached.
-                do
-                {
-                    // Read one byte from each file.
-                    file1byte = fs1.ReadByte();
-                    file2byte = fs2.ReadByte();
-                } while ((file1byte == file2byte) && (file1byte != -1));
-
-                // Close the files.
-                fs1.Close();
-                fs2.Close();
-
-                // Return the success of the comparison. "file1byte" is equal to "file2byte" at this
-                // point only if the files are the same.
-                return (file1byte - file2byte) == 0;
             }
-            return false;
         }
-
 
         /// <summary>
         /// Orders the elements of a sequence according to the specified indexes.
@@ -371,8 +332,7 @@ namespace Extensions
         /// Inject a <see cref="Hashtable"/> into <see cref="String"/>
         /// </summary>
         /// <param name="formatString"></param>
-        /// <param name="attributes"></param>
-        /// <param name="IsSQL"></param>
+        /// <param name="attributes"></param>  
         /// <returns></returns>
         private static string InjectBase(string formatString, Hashtable attributes)
         {
@@ -441,9 +401,13 @@ namespace Extensions
 
 
         /// <summary>
-        /// Set this flag to true to show InnerLibs Debug messages
+        /// Set this flag to true to show InnerLibs Debug messages (<see cref="WriteDebug"/>)
         /// </summary>
         public static bool EnableDebugMessages { get; set; }
+
+#if DEBUG
+        = true;
+#endif
 
         /// <summary>
         /// Lista com todos os formatos de imagem
@@ -456,6 +420,11 @@ namespace Extensions
         /// </summary>
         public static IEnumerable<Color> KnowColors => GetEnumValues<KnownColor>().Select(x => Color.FromKnownColor(x));
 
+        /// <summary>
+        /// Gets a collection of predefined HSV (Hue, Saturation, Value) colors.
+        /// </summary>
+        /// <remarks>The collection is derived from the known colors defined in the <see
+        /// cref="KnownColor"/> enumeration. Each color is converted to its HSV representation.</remarks>
         public static IEnumerable<HSVColor> KnownHSVColors => GetEnumValues<KnownColor>().Select(x => HSVColor.FromKnownColor(x));
 
         /// <summary>
@@ -469,7 +438,9 @@ namespace Extensions
         /// Retorna o ano atual
         /// </summary>
         public static int ThisYear => DateTime.Now.Year;
-
+        /// <summary>
+        /// Gets the current month as an integer, where January is 1 and December is 12.
+        /// </summary>
         public static int ThisMonth => DateTime.Now.Month;
 
         /// <summary>
@@ -540,6 +511,74 @@ namespace Extensions
         /// <param name="Values">Valor do Parâmetro</param>
         /// <returns></returns>
         public static Uri AddParameter(this Uri Url, string Key, params string[] Values) => Url.AddParameter(Key, true, Values);
+
+        /// <summary>
+        /// Extends the <see cref="Uri"/> class to support scroll-to-text fragments,
+        /// enabling the highlighting of specific text on supported browsers like Chrome.
+        /// </summary>
+        /// <param name="uri">The base <see cref="Uri"/> where the text will be highlighted.</param>
+        /// <param name="startText">
+        /// The beginning of the text fragment to be highlighted.
+        /// This must match text exactly as it appears on the target web page.
+        /// </param>
+        /// <param name="endText">
+        /// The end of the text fragment to be highlighted.
+        /// The browser will highlight text between <paramref name="startText"/> and <paramref name="endText"/>.
+        /// </param>
+        /// <returns>
+        /// A new <see cref="Uri"/> instance including the scroll-to-text fragment appended to the original URL.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when <paramref name="uri"/> is <c>null</c>.
+        /// </exception>
+        /// <exception cref="ArgumentException">
+        /// Thrown when <paramref name="startText"/> or <paramref name="endText"/> is <c>null</c>, empty, or whitespace.
+        /// </exception>
+        /// <remarks>
+        /// This method constructs a URL with the format: 
+        /// <c>#~:text=startText,endText</c>
+        /// which is supported in Chrome and Chromium-based browsers.
+        /// </remarks>
+        /// <example>
+        /// <code>
+        /// Uri article = new Uri("https://example.com/page");
+        /// Uri highlight = article.WithHighlightedText("Introduction", "Conclusion");
+        /// Console.WriteLine(highlight);
+        /// // Output: https://example.com/page#:~:text=Introduction,Conclusion
+        /// </code>
+        /// </example>
+        public static Uri AddHighlightedText(this Uri uri, string text, string finalText = null)
+        {
+            if (uri == null) return null;
+
+            finalText = finalText ?? string.Empty;
+            text = text ?? string.Empty;
+
+            var b = new UriBuilder(uri);
+
+            if (finalText.IsNotBlank() && text.IsBlank())
+            {
+                text = finalText;
+                finalText = string.Empty;
+            }
+
+
+            if (text.IsNotBlank())
+            {
+                // Codifica o texto para uso seguro em URL
+                text = Uri.EscapeDataString(text);
+                finalText = Uri.EscapeDataString(finalText);
+
+                if (finalText.IsNotBlank())
+                    b.Fragment = $"#:~:text={Uri.EscapeDataString(text)},{Uri.EscapeDataString(finalText)}";
+                else
+                    b.Fragment = $"#:~:text={Uri.EscapeDataString(text)}";
+            }
+
+
+            return b.Uri;
+        }
+
 
         /// <summary>
         /// Retorna TRUE se a todos os testes em uma lista retornarem FALSE
@@ -3714,7 +3753,13 @@ namespace Extensions
 
         public static IEnumerable<string> SplitPath(this string Text)
         {
-            return Text?.Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }).Where(x => x.IsNotBlank()) ?? Array.Empty<string>();
+            var PathParts = Text?.Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }).Where(x => x.IsNotBlank())?.ToArray() ?? Array.Empty<string>();
+            if (PathParts.Count() == 1 && PathParts.First().EndsWith(":"))
+            {
+                PathParts[0] = PathParts[0] + Path.DirectorySeparatorChar.ToString();
+            }
+
+            return PathParts;
         }
 
         /// <summary>
@@ -3753,15 +3798,20 @@ namespace Extensions
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static string FixPath(this string Text, bool? AlternativeChar = null) => Text?.SplitPath().Select((x, i) =>
-                                                                                                                                                                                          {
-                                                                                                                                                                                              if (i == 0 && x.Length == 2 && x.EndsWith(":"))
-                                                                                                                                                                                              {
-                                                                                                                                                                                                  return x;
-                                                                                                                                                                                              }
+        public static string FixPath(this string Text, bool? AlternativeChar = null)
+        {
+            Text = Text ?? "";
+            var c = AlternativeChar == null ? Text.MostCommonPathChar().ToString() : AlternativeChar.AsIf(Path.AltDirectorySeparatorChar.ToString(), Path.DirectorySeparatorChar.ToString());
+            var PathParts = Text?.UrlDecode()?.SplitPath()?.ToArray() ?? Array.Empty<string>();
+            var NewPath = PathParts.SelectJoinString(c)
+            .Replace($"{c}{c}", c); // Remove duplicadas
+            if (NewPath.IsBlank())
+            {
+                return c;
+            }
+            return NewPath;
+        }
 
-                                                                                                                                                                                              return x.ToFriendlyPathName();
-                                                                                                                                                                                          }).SelectJoinString(AlternativeChar == null ? Text.MostCommonPathChar().ToString() : AlternativeChar.AsIf(Path.AltDirectorySeparatorChar.ToString(), Path.DirectorySeparatorChar.ToString())).TrimEndAny(Path.DirectorySeparatorChar.ToString(), Path.AltDirectorySeparatorChar.ToString());
         /// <summary>
         /// Ajusta um caminho unidos partes, colocando as barras corretamente e substituindo
         /// caracteres inválidos
@@ -4871,7 +4921,7 @@ namespace Extensions
             return "fa-file";
         }
 
-      
+
 
         /// <summary>
         /// Retorna a classe do icone do FontAwesome que representa melhor o arquivo ou diretório
@@ -7183,6 +7233,8 @@ namespace Extensions
             return Value.IsGreaterThanOrEqual(MinValue) && Value.IsLessThanOrEqual(MaxValue);
         }
 
+
+        public static bool IsBlankOrZero(this string text) => text.IsBlank() || (text.IsNumber() && text.ToInt() == 0);
         public static bool IsBlank(this string text) => text.IsNotValid();
         public static bool IsNotBlank(this string text) => text.IsValid();
 
@@ -9759,6 +9811,9 @@ namespace Extensions
             return $"{PluralText}";
         }
 
+
+
+
         /// <summary>
         /// Retorna o texto a na sua forma singular ou plural de acordo com uma quantidade
         /// determinada em uma lista ou um valor numérico.
@@ -9789,7 +9844,7 @@ namespace Extensions
             }
             else if (QuantityOrListOrBoolean is bool b)
             {
-                //em portugues, quando a quantidade maixa de itens é 1, zero também é singular
+                //em portugues, quando a quantidade maxima de itens é 1, zero também é singular
                 OutQuantity = b ? 1 : 0;
                 forceSingular = true;
             }
@@ -10689,46 +10744,45 @@ namespace Extensions
             return list;
         }
 
-        /// <summary>
-        /// Renomeia um arquivo e retorna um <see cref="FileInfo"/> do arquivo renomeado
-        /// </summary>
-        /// <param name="Directory"></param>
-        /// <param name="Name"></param>
-        /// <param name="KeepOriginalExtension"></param>
-        /// <returns></returns>
-        public static DirectoryInfo Rename(this DirectoryInfo Directory, string Name)
+
+        public static DirectoryInfo GetParent(this FileSystemInfo info)
         {
-            if (Directory != null && Name.IsValid() && Directory.Exists)
-            {
-                var pt = Path.Combine(Directory.Parent.FullName, Name);
-                Directory.MoveTo(pt);
-                Directory = new DirectoryInfo(pt);
-            }
-            return Directory;
+            if (info == null)
+                throw new ArgumentNullException(nameof(info), "info cannot be null");
+            return Path.GetDirectoryName(info.FullName).ToFileSystemInfo() as DirectoryInfo ?? throw new ArgumentException("info must be a FileInfo or DirectoryInfo", nameof(info));
+
         }
 
         /// <summary>
-        /// Renomeia um arquivo e retorna um <see cref="FileInfo"/> do arquivo renomeado
+        /// Renomeia um arquivo ou diretório e retorna um <see cref="FileSystemInfo"/> dele
         /// </summary>
-        /// <param name="File"></param>
-        /// <param name="Name"></param>
-        /// <param name="KeepOriginalExtension"></param>
+        /// <param name="info">Arquivo ou Diretório</param>
+        /// <param name="Name">Novo nome</param>
+        /// <param name="KeepOriginalExtension">Se TRUE, mantém a extensão original do arquivo
         /// <returns></returns>
-        public static FileInfo Rename(this FileInfo File, string Name, bool KeepOriginalExtension = false)
+        public static T Rename<T>(this T info, string Name, bool KeepOriginalExtension = false) where T : FileSystemInfo
         {
-            if (File != null && Name.IsValid() && File.Exists)
+            if (info != null && info is FileInfo File && Name.IsValid() && File.Exists)
             {
-                if (KeepOriginalExtension)
+                if (KeepOriginalExtension || Path.GetExtension(Name).IsBlank())
                 {
-                    Name = $"{Path.GetFileNameWithoutExtension(Name)}.{File.Extension.Trim('.')}";
+                    Name = $"{Path.GetFileNameWithoutExtension(Name)}{File.Extension}";
                 }
 
                 var pt = Path.Combine(File.DirectoryName, Name);
                 File.MoveTo(pt);
-                File = new FileInfo(pt);
+                info = new FileInfo(pt) as T;
             }
-            return File;
+            else if (info != null && info is DirectoryInfo Directory && Name.IsValid() && Directory.Exists)
+            {
+                var pt = Path.Combine(Directory.Parent.FullName, Name);
+                Directory.MoveTo(pt);
+                info = new DirectoryInfo(pt) as T;
+            }
+
+            return info as T ?? throw new ArgumentException("info must be a FileInfo or DirectoryInfo", nameof(info));
         }
+
 
         /// <summary>
         /// Repete uma string um numero determinado de vezes
@@ -13144,7 +13198,20 @@ namespace Extensions
         public static FileSystemInfo ToFileSystemInfo(this string PathPart) => ToFileSystemInfo(new[] { PathPart });
 
         public static FileTree ToFileTree(this string PathPart) => ToFileTree(new[] { PathPart });
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="PathParts"></param>
+        /// <returns></returns>
         public static FileTree ToFileTree(this string[] PathParts) => new FileTree(PathParts.FixPath());
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="PathParts"></param>
+        /// <param name="AlternativeChar"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         public static FileSystemInfo ToFileSystemInfo(this string[] PathParts, bool AlternativeChar = false)
         {
             var path = PathParts.FixPath();
@@ -13152,6 +13219,129 @@ namespace Extensions
             else if (path.IsDirectoryPath()) return new DirectoryInfo(path);
             else throw new ArgumentException("Can't create path from array", nameof(PathParts));
         }
+
+
+        /// <summary>
+        /// Computes the MD5 checksum of the specified file.
+        /// </summary>
+        /// <remarks>This method extends the <see cref="FileInfo"/> class to provide a convenient way to
+        /// compute the MD5 checksum of a file.</remarks>
+        /// <param name="file">The <see cref="FileInfo"/> object representing the file for which to compute the MD5 checksum. Must not be
+        /// <see langword="null"/>.</param>
+        /// <returns>A <see cref="string"/> containing the MD5 checksum of the file in hexadecimal format.  Returns an empty
+        /// string if <paramref name="file"/> is <see langword="null"/>.</returns>
+        public static string GetMD5Checksum(this FileInfo file) => file?.ToBytes().GetMD5Checksum() ?? string.Empty;
+
+
+
+        /// <summary>
+        /// Computes the SHA-256 checksum of the specified byte array.
+        /// </summary>
+        /// <remarks>This method uses the SHA-256 cryptographic hash function to compute a fixed-length checksum for the
+        /// input data. The result is returned as a hexadecimal string, which can be used for data integrity verification or
+        /// other cryptographic purposes.</remarks>
+        /// <param name="data">The byte array for which to compute the SHA-256 checksum. Cannot be null.</param>
+        /// <returns>A string representing the SHA-256 checksum of the input data, encoded as a hexadecimal string.</returns>
+        public static string GetSHA256Checksum(this byte[] data)
+        {
+            using (var sha256 = SHA256.Create())
+            {
+                byte[] hash = sha256.ComputeHash(data);
+                return ToHexString(hash);
+            }
+        }
+
+        /// <summary>
+        /// Computes the SHA-256 checksum of the specified text using the provided encoding.
+        /// </summary>
+        /// <remarks>This method provides a convenient way to compute the SHA-256 checksum of a string. 
+        /// If no encoding is specified, UTF-8 is used as the default encoding.</remarks>
+        /// <param name="text">The input text for which the SHA-256 checksum will be calculated. Cannot be <see langword="null"/> or empty.</param>
+        /// <param name="encoding">The character encoding to use when converting the text to bytes. If <see langword="null"/>, UTF-8 encoding
+        /// is used by default.</param>
+        /// <returns>A string representing the SHA-256 checksum of the input text, encoded as a hexadecimal string.</returns>
+        public static string GetSHA256Checksum(this string text, Encoding encoding = null)
+        {
+            if (text.IsBlank()) return string.Empty;
+            encoding = encoding ?? Encoding.UTF8;
+            byte[] bytes = encoding.GetBytes(text);
+            return GetSHA256Checksum(bytes);
+        }
+
+        /// <summary>
+        /// Computes the SHA-256 checksum of all files within the specified directory and its subdirectories.
+        /// </summary>
+        /// <remarks>The method processes all files in the directory and its subdirectories recursively. 
+        /// Files are read in a sorted order based on their full path (case-insensitive) to ensure  consistent results
+        /// regardless of file system ordering. The SHA-256 checksum is computed  by combining the hashes of all
+        /// files.</remarks>
+        /// <param name="dir">The directory for which the SHA-256 checksum is calculated. Must exist.</param>
+        /// <returns>A hexadecimal string representing the SHA-256 checksum of the directory's contents.  The checksum is
+        /// computed by processing all files in the directory and its subdirectories,  sorted by their full path in a
+        /// case-insensitive manner.</returns>
+        /// <exception cref="DirectoryNotFoundException">Thrown if the specified <paramref name="dir"/> does not exist.</exception>
+        public static string GetSHA256Checksum(this FileSystemInfo info)
+        {
+
+            if (info is FileTree tree)
+            {
+                if (tree.IsDirectory)
+                    return GetSHA256Checksum(new DirectoryInfo(tree.FullName));
+                if (tree.IsFile)
+                    return GetSHA256Checksum(new FileInfo(tree.FullName));
+            }
+            else if (info is FileInfo file)
+            {
+                if (!file.Exists)
+                    throw new FileNotFoundException("Arquivo não encontrado.", file.FullName);
+
+                using (var sha256 = SHA256.Create())
+                {
+                    using (var stream = file.OpenRead())
+                    {
+                        byte[] hash = sha256.ComputeHash(stream);
+                        return ToHexString(hash);
+                    }
+                }
+            }
+            else if (info is DirectoryInfo dir)
+            {
+                if (!dir.Exists)
+                    throw new DirectoryNotFoundException("Diretório não encontrado.");
+
+                using (var sha256 = SHA256.Create())
+                {
+                    var allFiles = dir.GetFiles("*", SearchOption.AllDirectories);
+                    Array.Sort(allFiles, (f1, f2) => string.Compare(f1.FullName, f2.FullName, StringComparison.OrdinalIgnoreCase));
+
+                    foreach (var f in allFiles)
+                    {
+                        using (var stream = f.OpenRead())
+                        {
+                            byte[] fileHash = sha256.ComputeHash(stream);
+                            sha256.TransformBlock(fileHash, 0, fileHash.Length, null, 0);
+                        }
+                    }
+
+                    // Finaliza o hash depois de todos os blocos
+                    sha256.TransformFinalBlock(new byte[0], 0, 0);
+                    return ToHexString(sha256.Hash);
+                }
+            }
+
+            throw new ArgumentException("O objeto FileSystemInfo deve ser um arquivo ou diretório válido.", nameof(info));
+
+        }
+
+        // 🔧 Conversão para string hexadecimal
+        public static string ToHexString(this byte[] hash)
+        {
+            var sb = new StringBuilder();
+            foreach (byte b in hash)
+                sb.Append(b.ToString("x2"));
+            return sb.ToString();
+        }
+
 
         public static string GetMD5Checksum(this byte[] inputData)
         {

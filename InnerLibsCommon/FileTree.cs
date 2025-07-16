@@ -13,14 +13,13 @@ namespace Extensions.Files
     {
         private List<FileTree> _children = new List<FileTree>();
 
-        public FileTree(string Path, FileTree Parent) : this(Path, Parent, null) { }
-        public FileTree(string Path) : this(Path, null, null) { }
-        public FileTree(string Path, IEnumerable<string> FileSearchPatterns) : this(Path, null, FileSearchPatterns) { }
+        public FileTree(string Path, FileTree Parent, bool DirectoryOnly = false) : this(Path, Parent, null, DirectoryOnly) { }
+        public FileTree(string Path, bool DirectoryOnly = false) : this(Path, null, null, DirectoryOnly) { }
+        public FileTree(string Path, IEnumerable<string> FileSearchPatterns, bool DirectoryOnly = false) : this(Path, null, FileSearchPatterns, DirectoryOnly) { }
 
 
-        internal FileTree(string Path, FileTree Parent, IEnumerable<string> FileSearchPatterns)
+        public FileTree(string Path, FileTree Parent, IEnumerable<string> FileSearchPatterns, bool DirectoryOnly = false)
         {
-
 
             this.OriginalPath = Path;
             this.FullPath = System.IO.Path.GetFullPath(Path);
@@ -43,19 +42,22 @@ namespace Extensions.Files
                     foreach (var item in System.IO.Directory.EnumerateFileSystemEntries(Path))
                     {
                         if (!Children.Any(x => x.Children.Any(y => y.FullName == item)))
-                            _children.Add(new FileTree(item, this, FileSearchPatterns));
+                        {
+                            if (item.IsDirectoryPath() || (item.IsFilePath() && System.IO.Path.GetFileName(item).IsLikeAny(FileSearchPatterns)))
+                            {
+                                if (item.IsFilePath() && DirectoryOnly)
+                                    continue;
+
+                                _children.Add(new FileTree(item, this, FileSearchPatterns));
+                            }
+                        }
                     }
                 }
             }
 
-
         }
 
-
-
-
-
-
+        public   IEnumerable<string> FileSearchPatterns { get; private set; }
         public Dictionary<string, object> ToDictionary(Func<FileTree, Dictionary<string, object>> aditionalInfo = null)
         {
 
@@ -72,7 +74,7 @@ namespace Extensions.Files
                 TypeDescription,
                 Mime,
                 Count,
-                MD5CheckSum,
+                CheckSum,
                 Children = IsDirectory ? _children.Select(x => x.ToDictionary(aditionalInfo)).ToList() : null
             }.CreateDictionary();
 
@@ -100,7 +102,8 @@ namespace Extensions.Files
 
         public bool IsFile => Path.IsFilePath();
 
-        public string MD5CheckSum => IsFile ? GetBytes().GetMD5Checksum() : null;
+
+        public string CheckSum => this.GetSHA256Checksum();
 
 
         public byte[] GetBytes() => IsFile ? File.ReadAllBytes(this.Path) : null;

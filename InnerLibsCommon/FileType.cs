@@ -91,6 +91,11 @@ namespace Extensions.Files
             return new List<string>();
         }
 
+        public static string GetMimeType(string MimeTypeOrExtensionOrPathOrDataURI, FileTypeList FileTypeList = null)
+        {
+            return GetFileType(MimeTypeOrExtensionOrPathOrDataURI, FileTypeList).ToString();
+        }
+
         public static FileTypeList GetFileType(IEnumerable<string> MimeTypeOrExtensionOrPathOrDataURI, FileTypeList FileTypeList = null) => new FileTypeList(MimeTypeOrExtensionOrPathOrDataURI.Select(x => GetFileType(x)).ToArray());
 
         /// <summary>

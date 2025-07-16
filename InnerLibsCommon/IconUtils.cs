@@ -42,13 +42,7 @@ namespace Extensions
         /// <param name="fileSystemInfo">O arquivo ou pasta</param>
         /// <param name="largeIcon">True para ícone grande, false para pequeno</param>
         /// <returns>Icon do arquivo/pasta ou null se não conseguir obter</returns>
-        public static Icon? GetIcon(this FileSystemInfo? fileSystemInfo, bool largeIcon = true)
-        {
-            if (fileSystemInfo == null || fileSystemInfo.Exists == false)
-                return SystemIcons.Question;
-
-            return fileSystemInfo.FullName.GetIcon(fileSystemInfo is DirectoryInfo, largeIcon);
-        }
+        public static Icon? GetIcon(this FileSystemInfo? fileSystemInfo, bool largeIcon = true) => GetIcon(fileSystemInfo?.FullName, fileSystemInfo is DirectoryInfo, largeIcon);
 
         /// <summary>
         /// Obtém o ícone de um arquivo ou pasta pelo caminho
@@ -71,6 +65,7 @@ namespace Extensions
                 if (isDirectory || !File.Exists(path))
                 {
                     flags |= SHGFI_USEFILEATTRIBUTES;
+
                     if (isDirectory)
                         flags |= FILE_ATTRIBUTE_DIRECTORY;
                 }

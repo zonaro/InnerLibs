@@ -211,7 +211,25 @@ namespace Extensions.Locations
             this.Number = Number;
             this.City = City;
             this.PostalCode = PostalCode;
+
+
             var st = Brasil.PegarEstado(State);
+
+
+            if (Brasil.IBGEValido(City))
+            {
+                var ct = Brasil.PegarCidade(City);
+                if (ct != null)
+                {
+                    this.City = ct.Nome;
+                    if (st == null)
+                    {
+                        st = ct.Estado;
+                    }
+                }
+            }
+
+
             if (st != null)
             {
                 this.State = st.Nome;
@@ -222,6 +240,7 @@ namespace Extensions.Locations
             }
             else
             {
+
                 if ((State?.Length) == 2)
                 {
                     this.StateCode = State;
@@ -240,6 +259,11 @@ namespace Extensions.Locations
                     this.Country = Country;
                 }
             }
+
+
+
+
+
         }
 
         #endregion Public Constructors

@@ -2628,9 +2628,9 @@ namespace Extensions.BR
             return retorno;
         }
 
-        public static bool operator ==(Estado x, Estado y) => x.Equals(y);
+        public static bool operator ==(Estado x, Estado y) => x?.Equals(y)??false;
 
-        public static bool operator !=(Estado x, Estado y) => !x.Equals(y);
+        public static bool operator !=(Estado x, Estado y) => !x?.Equals(y) ?? false;
 
         public bool Equals(Estado x, Estado y) => x != null && y != null && x.IBGE == y.IBGE && x.IBGE > 0;
 
