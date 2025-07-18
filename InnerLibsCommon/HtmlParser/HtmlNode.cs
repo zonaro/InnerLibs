@@ -144,14 +144,14 @@ namespace Extensions.Web
         [IgnoreDataMember]
         public string Class
         {
-            get => Attributes.GetValueOr("class") ?? Util.EmptyString;
+            get => Attributes.GetValueOr("class") ?? string.Empty;
             set => Attributes["class"] = value;
         }
 
         [IgnoreDataMember]
         public IEnumerable<string> ClassList
         {
-            get => Class.Split(" ");
+            get => Class?.Split(" ") ?? Array.Empty<string>();
 
             set => Class = (value ?? Array.Empty<string>().AsEnumerable()).SelectJoinString(" ");
         }
@@ -313,7 +313,7 @@ namespace Extensions.Web
                 var item = arr[i];
                 if (item != null)
                 {
-                    var li = new HtmlElementNode("option");
+                    var li = new HtmlElementNode("li");
                     if (ItemHtml != null)
                     {
                         li.InnerHtml = ItemHtml.Compile().Invoke(item);

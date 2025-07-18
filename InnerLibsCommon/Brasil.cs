@@ -171,6 +171,8 @@ namespace Extensions.BR
             }
         }
         private static bool cached = false;
+
+
         static private void LoadXML()
         {
 
@@ -429,6 +431,10 @@ namespace Extensions.BR
 
         /// <inheritdoc cref="FormatarCEP(string)"/>
         public static string FormatarCEP(this int CEP) => FormatarCEP(CEP.ToString(CultureInfo.InvariantCulture));
+
+        /// <inheritdoc cref="FormatarCEP(string)"/>
+        public static string FormatarCEP(this int? CEP) => FormatarCEP(CEP ?? 0);
+
 
         /// <summary>
         /// Formata um numero para CEP
@@ -854,22 +860,26 @@ namespace Extensions.BR
 
         public static bool FormatoCodigoIBGEValido(this string IBGE) => IBGE.IsNumber() && IBGE.ToInt() > 0 && (IBGE.Length == 7 || IBGE.Length == 2);
 
-        public static bool IBGEValido(this string IBGE)
+        public static bool CidadeIBGEValido(this int IBGE) => CidadeIBGEValido(IBGE.ToString(CultureInfo.InvariantCulture));
+        public static bool CidadeIBGEValido(this string IBGE)
         {
-            if (IBGE.FormatoCodigoIBGEValido())
+            if (IBGE.IsNumber() && IBGE.Length == 7 && IBGE.ToInt() > 0)          
             {
-                if (IBGE.Length == 2)
-                {
-                    return Estados.Any(x => x.IBGE == IBGE.ToInt());
-                }
-
-                if (IBGE.Length == 7)
-                {
-                    return Cidades.Any(x => x.IBGE == IBGE.ToInt());
-                }
+                return Cidades.Any(x => x.IBGE == IBGE.ToInt());
             }
             return false;
         }
+
+        public static bool EstadoIBGEValido(this int IBGE) => EstadoIBGEValido(IBGE.ToString(CultureInfo.InvariantCulture));
+        public static bool EstadoIBGEValido(this string IBGE)
+        {
+            if (IBGE.IsNumber() && IBGE.Length == 2 && IBGE.ToInt() > 0)
+            {
+                return Estados.Any(x => x.IBGE == IBGE.ToInt());
+            }
+            return false;
+        }
+        public static bool IBGEValido(this string IBGE) => EstadoIBGEValido(IBGE) || CidadeIBGEValido(IBGE);
 
         /// <summary>
         /// Retorna a Sigla (UF) a partir de um nome de estado
@@ -2628,7 +2638,7 @@ namespace Extensions.BR
             return retorno;
         }
 
-        public static bool operator ==(Estado x, Estado y) => x?.Equals(y)??false;
+        public static bool operator ==(Estado x, Estado y) => x?.Equals(y) ?? false;
 
         public static bool operator !=(Estado x, Estado y) => !x?.Equals(y) ?? false;
 

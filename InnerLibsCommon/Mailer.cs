@@ -958,7 +958,8 @@ namespace Extensions.Mail
 
                             if (p.Value is Attachment att1)
                             {
-                                l.Add(att1.WriteDebug($"{att1.Name} from Attachment property {p.Key}"));
+                                att1.WriteDebug($"{att1.Name} from Attachment property {p.Key}");
+                                l.Add(att1);
                                 continue;
                             }
 
@@ -967,7 +968,8 @@ namespace Extensions.Mail
                                 var af = f.ToAttachment();
                                 if (af != null)
                                 {
-                                    l.Add(af.WriteDebug($"{f.Name} from FileInfo property {p.Key}"));
+                                    af.WriteDebug($"{f.Name} from FileInfo property {p.Key}");
+                                    l.Add(af);
                                     continue;
                                 }
                             }
@@ -980,7 +982,10 @@ namespace Extensions.Mail
                                 {
                                     var af = ff.ToAttachment();
                                     if (af != null)
-                                        l.Add(af.WriteDebug($"{ff.Name} from FileInfo in {ff.Directory.FullName} from property {p.Key}"));
+                                    {
+                                        af.WriteDebug($"{ff.Name} from FileInfo in {ff.Directory.FullName} from property {p.Key}");
+                                        l.Add(af);
+                                    }
                                 }
                                 continue;
 
@@ -994,7 +999,8 @@ namespace Extensions.Mail
                                 {
                                     if (oo is Attachment att3)
                                     {
-                                        l.Add(att3.WriteDebug($"{att3.Name} from Attachment from {p.Key} in {tipo.Name} type property"));
+                                        att3.WriteDebug($"{att3.Name} from Attachment from {p.Key} in {tipo.Name} type property");
+                                        l.Add(att3);
                                         continue;
                                     }
 
@@ -1002,7 +1008,10 @@ namespace Extensions.Mail
                                     {
                                         var af = f2.ToAttachment();
                                         if (af != null)
-                                            l.Add(af.WriteDebug($"{f2.Name} from FileInfo from {p.Key} in {tipo.Name} type property"));
+                                        {
+                                            af.WriteDebug($"{f2.Name} from FileInfo from {p.Key} in {tipo.Name} type property");
+                                            l.Add(af);
+                                        }
                                         continue;
                                     }
 
@@ -1013,7 +1022,10 @@ namespace Extensions.Mail
                                         {
                                             var af = ff.ToAttachment();
                                             if (af != null)
-                                                l.Add(af.WriteDebug($"{ff.Name} from FileInfo in {ff.Directory.FullName} from {p.Key} in {tipo.Name} type property"));
+                                            {
+                                                af.WriteDebug($"{ff.Name} from FileInfo in {ff.Directory.FullName} from {p.Key} in {tipo.Name} type property");
+                                                l.Add(af);
+                                            }
                                         }
 
                                     }

@@ -405,9 +405,6 @@ namespace Extensions
         /// </summary>
         public static bool EnableDebugMessages { get; set; }
 
-#if DEBUG
-        = true;
-#endif
 
         /// <summary>
         /// Lista com todos os formatos de imagem
@@ -9361,42 +9358,73 @@ namespace Extensions
         public static NameValueCollection ParseQueryString(this Uri URL, params string[] Keys) => URL?.Query.ParseQueryString(Keys);
 
         /// <summary>
-        /// Transforma uma <see cref="string"/> em um <see cref="NameValueCollection"/>
+        /// Transforma uma string em um NameValueCollection de forma segura, tratando falhas e casos de querystring inválida.
         /// </summary>
-        /// <param name="QueryString">string contendo uma querystring valida</param>
-        /// <param name="Keys">Quando especificado, inclui apenas estas entradas no <see cref="NameValueCollection"/></param>
+        /// <param name="QueryString">string contendo uma querystring válida ou URL</param>
+        /// <param name="Keys">Quando especificado, inclui apenas estas entradas no NameValueCollection</param>
         /// <returns></returns>
         public static NameValueCollection ParseQueryString(this string QueryString, params string[] Keys)
         {
-            if (QueryString.IsURL())
-            {
-                return ParseQueryString(new Uri(QueryString).Query, Keys);
-            }
-            else
-            {
-                Keys = Keys ?? Array.Empty<string>();
-                var queryParameters = new NameValueCollection();
-                var querySegments = QueryString?.Split('&') ?? Array.Empty<string>();
-                foreach (string segment in querySegments)
-                {
-                    var parts = segment.Split('=');
-                    if (parts.Any())
-                    {
-                        string key = parts.First().TrimStartAny(WhitespaceChar, "?");
-                        string val = EmptyString;
-                        if (parts.Skip(1).Any())
-                        {
-                            val = parts[1].Trim().UrlDecode();
-                        }
-                        if (Keys.Contains(key) || Keys.Any() == false)
-                        {
-                            queryParameters.Add(key, val);
-                        }
-                    }
-                }
+            var result = new NameValueCollection();
+            if (string.IsNullOrWhiteSpace(QueryString))
+                return result;
 
-                return queryParameters;
+            Keys = Keys ?? Array.Empty<string>();
+            string query = QueryString;
+
+            // Tenta extrair a query de uma URL, se for o caso
+            if (Uri.IsWellFormedUriString(QueryString, UriKind.Absolute))
+            {
+                try
+                {
+                    var uri = new Uri(QueryString);
+                    query = uri.Query;
+                    if (query.StartsWith("?"))
+                        query = query.Substring(1);
+                }
+                catch
+                {
+                    // Se não for uma URL válida, mantém a string original
+                    query = QueryString;
+                }
             }
+            else if (query.StartsWith("?"))
+            {
+                query = query.Substring(1);
+            }
+
+            var querySegments = query.Split('&');
+            foreach (string segment in querySegments)
+            {
+                if (string.IsNullOrWhiteSpace(segment))
+                    continue;
+                var idx = segment.IndexOf('=');
+                string key, val;
+                if (idx > 0)
+                {
+                    key = segment.Substring(0, idx).TrimStart(' ', '?');
+                    val = segment.Substring(idx + 1);
+                }
+                else
+                {
+                    key = segment.TrimStart(' ', '?');
+                    val = string.Empty;
+                }
+                try
+                {
+                    key = Uri.UnescapeDataString(key);
+                    val = Uri.UnescapeDataString(val);
+                }
+                catch
+                {
+                    // ignora erros de decode
+                }
+                if ((Keys.Length == 0 || Keys.Contains(key)) && !string.IsNullOrEmpty(key))
+                {
+                    result.Add(key, val);
+                }
+            }
+            return result;
         }
 
         /// <summary>
@@ -9560,8 +9588,20 @@ namespace Extensions
         /// <param name="Text"></param>
         /// <returns></returns>
         public static IEnumerable<string> PascalCaseSplit(this string Text) => Text.PascalCaseAdjust().Split(WhitespaceChar);
+
+        /// <summary>
+        /// Transforma um texto em CamelCase em um array de palavras a partir de suas letras maíusculas
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <returns></returns>
         public static IEnumerable<string> CamelCaseSplit(this string Text) => PascalCaseSplit(Text);
 
+        /// <summary>
+        /// Retorna os primeiros caracteres de uma fila de caracteres
+        /// </summary>
+        /// <param name="queue"></param>
+        /// <param name="take"></param>
+        /// <returns></returns>
         public static string Peek(this Queue<char> queue, int take) => new String(queue.Take(take).ToArray());
 
         /// <summary>
@@ -9763,7 +9803,11 @@ namespace Extensions
         /// <returns></returns>
         public static string PrintIf(this string Text, bool BooleanValue) => BooleanValue ? Text : EmptyString;
 
-
+        /// <summary>
+        /// Gera uma lista de nomes de propriedades a partir de um nome base.
+        /// </summary>
+        /// <param name="Name"></param>
+        /// <returns></returns>
         public static IEnumerable<string> PropertyNamesFor(this string Name)
         {
             var propnames = new List<string>();
@@ -10262,8 +10306,19 @@ namespace Extensions
             return Array.Empty<int>();
         }
 
+        /// <summary>
+        /// Gera um nome de usuário aleatório com 5 caracteres e um número entre 1111 e 9999
+        /// </summary>
+        /// <returns></returns>
         public static string RandomUserName() => RandomUserName(5, 1111);
-        public static string RandomUserName(int WordLength, int MinNumber) => Util.RandomWord(WordLength) + Util.RandomInt(MinNumber);
+        /// <summary>
+        /// Gera um nome de usuário aleatório com o tamanho de palavra definido por <paramref name="WordLength"/>
+        /// e um número entre <paramref name="MinNumber"/> e 9999
+        /// </summary>
+        /// <param name="WordLength"></param>
+        /// <param name="MinNumber"></param>
+        /// <returns></returns>
+        public static string RandomUserName(int WordLength, int MinNumber) => $"{Util.RandomWord(WordLength)}{Util.RandomInt(MinNumber, 9999)}";
 
         /// <summary>
         /// Gera uma palavra aleatória com o numero de caracteres entre <paramref name="MinLength"/>
@@ -10642,6 +10697,12 @@ namespace Extensions
             return Text;
         }
 
+        /// <summary>
+        /// Remove a máscara de um texto, mantendo apenas números e os caracteres permitidos
+        /// </summary>
+        /// <param name="MaskedText"></param>
+        /// <param name="AllowCharacters"></param>
+        /// <returns></returns>
         public static string RemoveMask(this string MaskedText, params char[] AllowCharacters)
         {
             if (MaskedText.IsValid())
@@ -10659,8 +10720,22 @@ namespace Extensions
             return MaskedText;
         }
 
+        /// <summary>
+        /// Remove a máscara de um texto, mantendo apenas números e os caracteres permitidos
+        /// Retorna um inteiro
+        /// </summary>
+        /// <param name="MaskedText"></param>
+        /// <param name="AllowCharacters"></param>
+        /// <returns></returns>
         public static int RemoveMaskInt(this string MaskedText, params char[] AllowCharacters) => RemoveMask(MaskedText, AllowCharacters).ToInt();
 
+        /// <summary>
+        /// Remove a máscara de um texto, mantendo apenas números e os caracteres permitidos
+        /// Retorna um long
+        /// </summary>
+        /// <param name="MaskedText"></param>
+        /// <param name="AllowCharacters"></param>
+        /// <returns></returns>
         public static long RemoveMaskLong(this string MaskedText, params char[] AllowCharacters) => RemoveMask(MaskedText, AllowCharacters).ToLong();
 
         /// <summary>
@@ -10708,6 +10783,11 @@ namespace Extensions
             return UriBuilder.Uri;
         }
 
+        /// <summary>
+        /// Remove os parâmetros de uma URL, deixando apenas o caminho
+        /// </summary>
+        /// <param name="URL"></param>
+        /// <returns></returns>
         public static string RemoveUrlParameters(this string URL)
         {
             if ((URL.IsURL()))
@@ -10720,6 +10800,13 @@ namespace Extensions
 
         public static string RemoveUrlParameters(Uri URL) => RemoveUrlParameters(URL?.ToString());
 
+        /// <summary>
+        /// Remove itens de uma lista com base em uma condição
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list"></param>
+        /// <param name="predicate"></param>
+        /// <returns></returns>
         public static List<T> RemoveWhere<T>(this List<T> list, Expression<Func<T, bool>> predicate)
         {
             if (list != null)
@@ -10744,7 +10831,13 @@ namespace Extensions
             return list;
         }
 
-
+        /// <summary>
+        /// Retorna o diretório pai de um <see cref="FileSystemInfo"/>
+        /// </summary>
+        /// <param name="info"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ArgumentException"></exception>
         public static DirectoryInfo GetParent(this FileSystemInfo info)
         {
             if (info == null)
@@ -10754,7 +10847,7 @@ namespace Extensions
         }
 
         /// <summary>
-        /// Renomeia um arquivo ou diretório e retorna um <see cref="FileSystemInfo"/> dele
+        /// Renomeia um <typeparamref name="T"/> e retorna um novo <typeparamref name="T"/>
         /// </summary>
         /// <param name="info">Arquivo ou Diretório</param>
         /// <param name="Name">Novo nome</param>
@@ -16191,14 +16284,15 @@ namespace Extensions
         /// <typeparam name="T"></typeparam>
         /// <param name="value"></param>
         /// <param name="category"></param>
-        public static T WriteDebug<T>(this T value, string category = null)
+        public static async void WriteDebug<T>(this T value, string category = null)
         {
+#if DEBUG
             if (EnableDebugMessages)
             {
-                category = $"{new StackFrame(1, true).GetMethod()?.Name.AppendIf(" => ", category.IsValid())} {category}".Trim();
+                category = $"{new StackFrame(3, true).GetMethod()?.Name.AppendIf(" => ", category.IsValid())} {category}".Trim();
                 Debug.WriteLine(value, category);
             }
-            return value;
+#endif
         }
 
         /// <summary>

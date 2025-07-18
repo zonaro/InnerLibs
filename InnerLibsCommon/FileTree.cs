@@ -34,6 +34,8 @@ namespace Extensions.Files
                 FileSearchPatterns = new[] { "*" };
             }
 
+            this.FileSearchPatterns = FileSearchPatterns;
+
             _children = new List<FileTree>();
             if (Path.IsDirectoryPath())
             {
@@ -58,6 +60,7 @@ namespace Extensions.Files
         }
 
         public   IEnumerable<string> FileSearchPatterns { get; private set; }
+
         public Dictionary<string, object> ToDictionary(Func<FileTree, Dictionary<string, object>> aditionalInfo = null)
         {
 
@@ -74,7 +77,7 @@ namespace Extensions.Files
                 TypeDescription,
                 Mime,
                 Count,
-                CheckSum,
+                CheckSum = GetCheckSum(),
                 Children = IsDirectory ? _children.Select(x => x.ToDictionary(aditionalInfo)).ToList() : null
             }.CreateDictionary();
 
@@ -103,7 +106,7 @@ namespace Extensions.Files
         public bool IsFile => Path.IsFilePath();
 
 
-        public string CheckSum => this.GetSHA256Checksum();
+        public string GetCheckSum() => this.GetSHA256Checksum();
 
 
         public byte[] GetBytes() => IsFile ? File.ReadAllBytes(this.Path) : null;
