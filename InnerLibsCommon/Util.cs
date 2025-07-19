@@ -9301,7 +9301,7 @@ namespace Extensions
         }
 
         /// <summary>
-        /// limpa um texto deixando apenas os caracteres alfanumericos.
+        /// limpa um texto deixando apenas os caracteres alfanumericos e espaços
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>

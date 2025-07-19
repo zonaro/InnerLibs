@@ -227,12 +227,38 @@ namespace Extensions.Files
         /// </summary>
         /// <returns></returns>
         public bool IsType(string Type) => Types.Contains(Type);
+        public bool IsSubType(string Type) => SubTypes.Contains(Type);
 
         /// <summary>
         /// Verifica se Tipo de arquivo é de audio
         /// </summary>
         /// <returns></returns>
         public bool IsVideo() => IsType("video");
+
+
+        public bool IsMarkdown()
+        {
+            return IsType("text") && IsSubType("markdown")
+             || IsType("application") && IsSubType("markdown")
+                || IsType("text") && IsSubType("x-markdown")
+                || IsType("application") && IsSubType("x-markdown")
+                || IsType("text") && IsSubType("x-gfm")
+                || IsType("application") && IsSubType("x-gfm")
+                || IsType("text") && IsSubType("x-markdown+html")
+                || IsType("application") && IsSubType("x-markdown+html")
+                || IsType("text") && IsSubType("x-markdown+plain")
+                || IsType("application") && IsSubType("x-markdown+plain")
+             ;
+
+        }
+
+        public bool IsHtml()
+        {
+            return IsType("text") && IsSubType("html")
+                || IsType("application") && IsSubType("html")
+                || IsType("text") && IsSubType("x-html")
+                || IsType("application") && IsSubType("x-html");
+        }
 
         public IEnumerable<FileInfo> SearchFiles(DirectoryInfo Directory, SearchOption SearchOption = SearchOption.AllDirectories) => Directory.SearchFiles(SearchOption, Extensions.Select(ext => "*" + ext.PrependIf(".", !ext.StartsWith("."))).ToArray());
 
@@ -247,6 +273,8 @@ namespace Extensions.Files
         /// </summary>
         /// <returns></returns>
         public override string ToString() => GetMimeTypesOrDefault().First();
+
+
     }
 
     /// <summary>
