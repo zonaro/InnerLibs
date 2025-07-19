@@ -91,12 +91,44 @@ namespace Extensions.Files
             return new List<string>();
         }
 
+        /// <summary>
+        /// Retorna o MIME Type a partir de uma string que pode ser um MIME Type, extensão, caminho ou Data URI
+        /// </summary>
+        /// <param name="MimeTypeOrExtensionOrPathOrDataURI"></param>
+        /// <param name="FileTypeList"></param>
+        /// <returns></returns>
         public static string GetMimeType(string MimeTypeOrExtensionOrPathOrDataURI, FileTypeList FileTypeList = null)
         {
             return GetFileType(MimeTypeOrExtensionOrPathOrDataURI, FileTypeList).ToString();
         }
 
-        public static FileTypeList GetFileType(IEnumerable<string> MimeTypeOrExtensionOrPathOrDataURI, FileTypeList FileTypeList = null) => new FileTypeList(MimeTypeOrExtensionOrPathOrDataURI.Select(x => GetFileType(x)).ToArray());
+        /// <summary>
+        /// Retorna a descrição do tipo de arquivo a partir de uma string que pode ser um MIME Type, extensão, caminho ou Data URI
+        /// </summary>
+        /// <param name="MimeTypeOrExtensionOrPathOrDataURI"></param>
+        /// <param name="FileTypeList"></param>
+        /// <returns></returns>
+        public static string GetFileDescription(string MimeTypeOrExtensionOrPathOrDataURI, FileTypeList FileTypeList = null)
+        {
+            return GetFileType(MimeTypeOrExtensionOrPathOrDataURI, FileTypeList).Description;
+        }
+
+        /// <summary>
+        /// Retorna um objeto FileType a partir de uma lista de MIME Types, extensões, caminhos ou Data URIs
+        /// </summary>
+        /// <param name="MimeTypeOrExtensionOrPathOrDataURI"></param>
+        /// <param name="FileTypeList"></param>
+        /// <returns></returns>
+        public static FileTypeList GetFileType(IEnumerable<string> MimeTypeOrExtensionOrPathOrDataURI) => new FileTypeList(MimeTypeOrExtensionOrPathOrDataURI.Select(x => GetFileType(x)).ToArray());
+
+        /// <summary>
+        /// Retorna um objeto FileType a partir de um arquivo (FileInfo)
+        /// </summary>
+        /// <param name="info"></param>
+        /// <param name="FileTypeList"></param>
+        /// <returns></returns>
+        public static FileType GetFileType(FileInfo info, FileTypeList FileTypeList = null) => info == null ? new FileType() : GetFileType(info.Extension, FileTypeList);
+
 
         /// <summary>
         /// Retorna um objeto FileType a partir de uma extensão de Arquivo ou FileType string
