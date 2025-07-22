@@ -2418,7 +2418,7 @@ namespace Extensions
         /// <returns></returns>
         public static Guid CreateGuidOrDefault(this string Source)
         {
-            if (Source.IsValid() || !Guid.TryParse(Source, out Guid g))
+            if (Source.IsBlank() || !Guid.TryParse(Source, out Guid g))
             {
                 g = Guid.NewGuid();
             }
@@ -4548,6 +4548,19 @@ namespace Extensions
             if (!typeof(T).IsEnum) throw new ArgumentException("T must be an Enumeration type.", nameof(T));
             return Enum.GetName(typeof(T), Value);
         }
+        /// <summary>
+        /// Traz todos os Valores de uma enumeração como string
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Value"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        public static IEnumerable<string> GetEnumValuesAsString<T>()
+        {
+            if (!typeof(T).IsEnum) throw new ArgumentException("T must be an Enumeration type.", nameof(T));
+            return Enum.GetValues(typeof(T)).Cast<T>().Select(x => x.GetEnumValueAsString());
+        }
+
 
         /// <summary>
         /// Traz a string correspondente ao <paramref name="Value"/> de uma <see cref="Enum"/> do
@@ -9366,7 +9379,7 @@ namespace Extensions
         public static NameValueCollection ParseQueryString(this string QueryString, params string[] Keys)
         {
             var result = new NameValueCollection();
-            if (string.IsNullOrWhiteSpace(QueryString))
+            if (QueryString.IsBlank())
                 return result;
 
             Keys = Keys ?? Array.Empty<string>();
@@ -9379,7 +9392,7 @@ namespace Extensions
                 {
                     var uri = new Uri(QueryString);
                     query = uri.Query;
-                    if (query.StartsWith("?"))
+                    if (query.StartsWith('?'))
                         query = query.Substring(1);
                 }
                 catch
@@ -9388,16 +9401,17 @@ namespace Extensions
                     query = QueryString;
                 }
             }
-            else if (query.StartsWith("?"))
+            else if (query.StartsWith('?'))
             {
                 query = query.Substring(1);
             }
 
             var querySegments = query.Split('&');
-            foreach (string segment in querySegments)
+            foreach (string qs in querySegments)
             {
-                if (string.IsNullOrWhiteSpace(segment))
+                if (qs.IsBlank())
                     continue;
+               var segment = qs.UrlDecode();
                 var idx = segment.IndexOf('=');
                 string key, val;
                 if (idx > 0)
@@ -9410,16 +9424,8 @@ namespace Extensions
                     key = segment.TrimStart(' ', '?');
                     val = string.Empty;
                 }
-                try
-                {
-                    key = Uri.UnescapeDataString(key);
-                    val = Uri.UnescapeDataString(val);
-                }
-                catch
-                {
-                    // ignora erros de decode
-                }
-                if ((Keys.Length == 0 || Keys.Contains(key)) && !string.IsNullOrEmpty(key))
+              
+                if ((key.IsNotBlank() || Keys.Contains(key)) )
                 {
                     result.Add(key, val);
                 }
@@ -15871,14 +15877,14 @@ namespace Extensions
         /// </summary>
         /// <param name="Text">Texto</param>
         /// <returns></returns>
-        public static string UrlDecode(this string Text) => Text.IsValid() ? WebUtility.UrlDecode(Text) : EmptyString;
+        public static string UrlDecode(this string Text) => Text.IsNotBlank() ? WebUtility.UrlDecode(Text) : EmptyString;
 
         /// <summary>
         /// Encoda uma string para transmissão por URL
         /// </summary>
         /// <param name="Text">Texto</param>
         /// <returns></returns>
-        public static string UrlEncode(this string Text) => Text.IsValid() ? WebUtility.UrlEncode(Text) : EmptyString;
+        public static string UrlEncode(this string Text) => Text.IsNotBlank() ? WebUtility.UrlEncode(Text) : EmptyString;
 
         /// <summary>
         /// Returns true if all logical operations return true

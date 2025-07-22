@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Xml;
 using Extensions;
+using Extensions.Colors;
 
 namespace Extensions.Files
 
@@ -22,6 +23,7 @@ namespace Extensions.Files
             Extensions = item.Extensions;
             MimeTypes = item.MimeTypes;
             Description = item.Description.ToProperCase();
+            Color = item.Color;
         }
 
         /// <summary>
@@ -47,19 +49,30 @@ namespace Extensions.Files
         /// Descrição do tipo de arquivo
         /// </summary>
         /// <returns></returns>
-        public string Description { get; set; } = "Unknown File";
+        public string Description { get; private set; } = "Unknown File";
 
         /// <summary>
         /// Extensão do arquivo
         /// </summary>
         /// <returns></returns>
-        public List<string> Extensions { get; set; } = new List<string>();
+        public List<string> Extensions { get; private set; } = new List<string>();
 
         /// <summary>
         /// Tipo do arquivo (MIME TEntity String)
         /// </summary>
         /// <returns></returns>
-        public List<string> MimeTypes { get; set; } = new List<string>();
+        public List<string> MimeTypes { get; private set; } = new List<string>();
+
+        /// <summary>
+        /// Retorna uma cor relacionada a este tipo de arquivo
+        /// </summary>
+        public HSVColor Color
+        {
+            get => _c;
+            private set => _c = value ?? new HSVColor("cccccc");
+        }
+
+        private HSVColor _c = new HSVColor("cccccc");
 
         /// <summary>
         /// Retorna o subtipo do MIME TEntity (depois da barra)
@@ -100,6 +113,28 @@ namespace Extensions.Files
         public static string GetMimeType(string MimeTypeOrExtensionOrPathOrDataURI, FileTypeList FileTypeList = null)
         {
             return GetFileType(MimeTypeOrExtensionOrPathOrDataURI, FileTypeList).ToString();
+        }
+
+        /// <summary>
+        /// Retorna a cor do tipo de arquivo a partir de um arquivo (FileInfo)
+        /// </summary>
+        /// <param name="info"></param>
+        /// <param name="FileTypeList"></param>
+        /// <returns></returns>
+        public static HSVColor GetFileTypeColor(FileInfo info, FileTypeList FileTypeList = null)
+        {
+            return GetFileType(info, FileTypeList).Color;
+        }
+
+        /// <summary>
+        /// Retorna a cor do tipo de arquivo a partir de uma string que pode ser um MIME Type, extensão, caminho ou Data URI
+        /// </summary>
+        /// <param name="MimeTypeOrExtensionOrPathOrDataURI"></param>
+        /// <param name="FileTypeList"></param>
+        /// <returns></returns>
+        public static HSVColor GetFileTypeColor(string MimeTypeOrExtensionOrPathOrDataURI, FileTypeList FileTypeList = null)
+        {
+            return GetFileType(MimeTypeOrExtensionOrPathOrDataURI, FileTypeList).Color;
         }
 
         /// <summary>
@@ -195,6 +230,8 @@ namespace Extensions.Files
                         {
                             ft.Extensions.Add(item.InnerText.TrimBetween());
                         }
+
+                        ft.Color = new HSVColor(Util.BlankCoalesce(node["Color"]?.InnerText ?? Util.EmptyString, ft.Description, "#808080"));
 
                         ft.MimeTypes = ft.MimeTypes.Distinct().ToList();
                         ft.Extensions = ft.Extensions.Distinct().ToList();

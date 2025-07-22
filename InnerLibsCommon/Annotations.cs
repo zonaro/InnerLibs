@@ -41,6 +41,13 @@ namespace Extensions
         public override string FormatErrorMessage(string name) => $"{name} não é um telefone válido";
     }
 
+    public class CEPAttribute : ValidationAttribute
+    {
+        public override bool IsValid(object? value) => value == null || (value.ToString().IsBlank() || Brasil.CEPValido(value.ToString()));
+
+        public override string FormatErrorMessage(string name) => $"{name} não é um CEP válido";
+    }
+
 
     public class IbgeAttribute : ValidationAttribute
     {

@@ -10,25 +10,25 @@ namespace Extensions.Select2
     {
         #region Public Methods
 
-        public static Select2Data CreateSelect2Data<T>(this IEnumerable<T> List) where T : ISelect2Option => CreateSelect2Data<T, T>(List, x => x.Text, x => x.ID);
+        public static Select2Data<T> CreateSelect2Data<T>(this IEnumerable<T> List) where T : ISelect2Option => CreateSelect2Data<T, T>(List, x => x.Text, x => x.ID);
 
-        public static Select2Data CreateSelect2Data(this IEnumerable<Select2Option> List) => CreateSelect2Data<Select2Option, Select2Option>(List, x => x.Text, x => x.ID);
+        public static Select2Data<Select2Option> CreateSelect2Data(this IEnumerable<Select2Option> List) => CreateSelect2Data<Select2Option, Select2Option>(List, x => x.Text, x => x.ID);
 
-        public static Select2Data CreateSelect2Data<OptionType, T>(this IEnumerable<T> List, Func<T, string> TextSelector, Func<T, string> IdSelector, Action<T, OptionType> OtherSelectors = null, Func<T, string> GroupSelector = null) where OptionType : ISelect2Option
+        public static Select2Data<OptionType> CreateSelect2Data<OptionType, T>(this IEnumerable<T> List, Func<T, string> TextSelector, Func<T, string> IdSelector, Action<T, OptionType> OtherSelectors = null, Func<T, string> GroupSelector = null) where OptionType : ISelect2Option
         {
             if (GroupSelector != null)
             {
-                var itens = List.GroupBy(GroupSelector).Select(x => new Select2Group(x.Key, (IEnumerable<ISelect2Option>)x.Select(c => c.CreateSelect2Option(TextSelector, IdSelector, OtherSelectors))));
-                return new Select2Data(itens);
+                var itens = List.GroupBy(GroupSelector).Select(x => new Select2Group<OptionType>(x.Key, x.Select(c => c.CreateSelect2Option<OptionType, T>(TextSelector, IdSelector, OtherSelectors))));
+                return new Select2Data<OptionType>(itens);
             }
             else
             {
                 var itens = List.Select(c => c.CreateSelect2Option(TextSelector, IdSelector, OtherSelectors));
-                return new Select2Data((IEnumerable<ISelect2Option>)itens);
+                return new Select2Data<OptionType>(itens.Cast<ISelect2Option>());
             }
         }
 
-        public static Select2Data CreateSelect2Data<OptionsType, T1, T2>(this PaginationFilter<T1, T2> Filter, Func<T2, string> TextSelector, Func<T2, string> IdSelector, Func<T2, string> GroupSelector = null, Action<T2, OptionsType> OtherSelectors = null)
+        public static Select2Data<OptionsType> CreateSelect2Data<OptionsType, T1, T2>(this PaginationFilter<T1, T2> Filter, Func<T2, string> TextSelector, Func<T2, string> IdSelector, Func<T2, string> GroupSelector = null, Action<T2, OptionsType> OtherSelectors = null)
             where OptionsType : ISelect2Option
             where T1 : class
         {
@@ -37,15 +37,15 @@ namespace Extensions.Select2
             return d;
         }
 
-        public static Select2Data CreateSelect2Data<OptionsType, T1, T2>(this PaginationFilter<T1, T2> Filter, Func<T2, string> TextSelector, Func<T2, string> IdSelector, Action<T2, OptionsType> OtherSelectors)
+        public static Select2Data<OptionsType> CreateSelect2Data<OptionsType, T1, T2>(this PaginationFilter<T1, T2> Filter, Func<T2, string> TextSelector, Func<T2, string> IdSelector, Action<T2, OptionsType> OtherSelectors)
             where OptionsType : ISelect2Option
             where T1 : class => Filter.CreateSelect2Data(TextSelector, IdSelector, null, OtherSelectors);
 
-        public static Select2Data CreateSelect2Data<OptionsType, T1>(this PaginationFilter<T1, OptionsType> Filter)
+        public static Select2Data<OptionsType> CreateSelect2Data<OptionsType, T1>(this PaginationFilter<T1, OptionsType> Filter)
             where OptionsType : ISelect2Option
             where T1 : class => Filter.CreateSelect2Data<OptionsType, T1, OptionsType>((x) => x.Text, (x) => x.ID);
 
-        public static Select2Data CreateSelect2Data<OptionsType, T1>(this PaginationFilter<T1, OptionsType> Filter, Func<OptionsType, string> GroupBySelector)
+        public static Select2Data<OptionsType> CreateSelect2Data<OptionsType, T1>(this PaginationFilter<T1, OptionsType> Filter, Func<OptionsType, string> GroupBySelector)
             where OptionsType : ISelect2Option
             where T1 : class => Filter.CreateSelect2Data<OptionsType, T1, OptionsType>((x) => x.Text, (x) => x.ID, GroupBySelector);
 
@@ -82,7 +82,7 @@ namespace Extensions.Select2
     /// <summary>
     /// Classe utilizada para auxiliar nas respostas de requisições feitas por aAJAX através do select2.js
     /// </summary>
-    public class Select2Data
+    public class Select2Data<OptionType> where OptionType : ISelect2Option
     {
         #region Public Constructors
 
@@ -92,23 +92,23 @@ namespace Extensions.Select2
 
         public Select2Data(IEnumerable<ISelect2Option> Options)
         {
-            Results = (Options ?? Array.Empty<ISelect2Option>()).WhereNotNull();
+            Results = Options ?? Array.Empty<ISelect2Option>();
         }
 
         public Select2Data(IEnumerable<ISelect2Option> Options, bool PaginationMore)
         {
-            Results = (Options ?? Array.Empty<ISelect2Option>()).WhereNotNull();
+            Results = Options ?? Array.Empty<ISelect2Option>();
             Pagination.More = PaginationMore;
         }
 
-        public Select2Data(IEnumerable<Select2Group> Groups)
+        public Select2Data(IEnumerable<Select2Group<OptionType>> Groups)
         {
-            Results = (Groups ?? Array.Empty<Select2Group>()).WhereNotNull();
+            Results = Groups ?? Array.Empty<Select2Group<OptionType>>();
         }
 
-        public Select2Data(IEnumerable<Select2Group> Groups, bool PaginationMore)
+        public Select2Data(IEnumerable<Select2Group<OptionType>> Groups, bool PaginationMore)
         {
-            Results = (Groups ?? Array.Empty<Select2Group>()).WhereNotNull();
+            Results = Groups ?? Array.Empty<Select2Group<OptionType>>();
             Pagination.More = PaginationMore;
         }
 
@@ -122,13 +122,13 @@ namespace Extensions.Select2
         #endregion Public Properties
     }
 
-    public class Select2Group : ISelect2Result
+    public class Select2Group<OptionType> : ISelect2Result where OptionType : ISelect2Option
     {
         #region Public Constructors
 
         public Select2Group(string Text) => this.Text = Text;
 
-        public Select2Group(string Text, IEnumerable<ISelect2Option> Children) : this(Text) => this.Children = (Children ?? Array.Empty<ISelect2Option>()).WhereNotNull();
+        public Select2Group(string Text, IEnumerable<OptionType> Children) : this(Text) => this.Children = (Children ?? Array.Empty<OptionType>());
 
         public Select2Group()
         {
@@ -138,13 +138,13 @@ namespace Extensions.Select2
 
         #region Public Properties
 
-        public IEnumerable<ISelect2Option> Children { get; set; } = Array.Empty<ISelect2Option>();
+        public IEnumerable<OptionType> Children { get; set; } = Array.Empty<OptionType>();
         public string Text { get; set; }
 
         #endregion Public Properties
     }
 
-    public sealed class Select2Option : ISelect2Option, IComparable<Select2Option>, IComparable
+    public sealed class Select2Option : ISelect2Option, IComparable<ISelect2Option>, IComparable
     {
         #region Public Constructors
 
@@ -173,7 +173,9 @@ namespace Extensions.Select2
 
         public int CompareTo(object obj) => ID.CompareTo(obj?.ToString());
 
-        public int CompareTo(Select2Option other) => ID.CompareTo(other.ID);
+        public int CompareTo(ISelect2Option other) => ID.CompareTo(other.ID);
+
+
 
         public override string ToString() => $"<option value='{ID}'{Disabled.AsIf(" disabled")}{Selected.AsIf(" selected")}>{Text}</option>";
 

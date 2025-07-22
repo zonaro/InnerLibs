@@ -1,3083 +1,3372 @@
-﻿<mimes>
-	<item>
-		<Description>Internet Telephony</Description>
-		<Extensions>
-			<item>.323</item>
-		</Extensions>
-		<MimeTypes>
-			<item>Text/h323</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Adaptive Multi-Rate ACELP Codec</Description>
-		<Extensions>
-			<item>.amr</item>
-		</Extensions>
-		<MimeTypes>
-			<item>audio/amr</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Aac Audio File</Description>
-		<Extensions>
-			<item>.aac</item>
-		</Extensions>
-		<MimeTypes>
-			<item>audio/aac</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Abiword Document</Description>
-		<Extensions>
-			<item>.abw</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/abiword</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Atari St Executable</Description>
-		<Extensions>
-			<item>.acx</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/internet-property-stream</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Adobe Illustrator File</Description>
-		<Extensions>
-			<item>.ai</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/illustrator</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Aiff Audio File</Description>
-		<Extensions>
-			<item>.aif</item>
-		</Extensions>
-		<MimeTypes>
-			<item>audio/aiff</item>
-			<item>audio/aifc</item>
-			<item> audio/x-aiff</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Aiff Audio File</Description>
-		<Extensions>
-			<item>.aifc</item>
-		</Extensions>
-		<MimeTypes>
-			<item>audio/aiff</item>
-			<item>audio/aifc</item>
-			<item> audio/x-aiff</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Aiff Audio File</Description>
-		<Extensions>
-			<item>.aiff</item>
-		</Extensions>
-		<MimeTypes>
-			<item>audio/aiff</item>
-			<item>audio/aifc</item>
-			<item> audio/x-aiff</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Windows Media File</Description>
-		<Extensions>
-			<item>.asf</item>
-		</Extensions>
-		<MimeTypes>
-			<item>video/x-ms-asf</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Asp Source File</Description>
-		<Extensions>
-			<item>.asp</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-asp</item>
-			<item>Text/asp</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Windows Media File</Description>
-		<Extensions>
-			<item>.asr</item>
-		</Extensions>
-		<MimeTypes>
-			<item>video/x-ms-asf</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Windows Media File</Description>
-		<Extensions>
-			<item>.asx</item>
-		</Extensions>
-		<MimeTypes>
-			<item>video/x-ms-asf</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Audio File</Description>
-		<Extensions>
-			<item>.au</item>
-		</Extensions>
-		<MimeTypes>
-			<item>audio/basic</item>
-			<item>audio/au</item>
-			<item> audio/x-au</item>
-			<item> audio/x-basic</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Avi Video File</Description>
-		<Extensions>
-			<item>.avi</item>
-		</Extensions>
-		<MimeTypes>
-			<item>video/avi</item>
-			<item>application/x-troff-msvideo</item>
-			<item> image/avi</item>
-			<item> video/msvideo</item>
-			<item> video/x-msvideo</item>
-			<item> video/xmpg2</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Activex Script</Description>
-		<Extensions>
-			<item>.axs</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/olescript</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Basic Source Code</Description>
-		<Extensions>
-			<item>.bas</item>
-		</Extensions>
-		<MimeTypes>
-			<item>Text/plain</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Binary File</Description>
-		<Extensions>
-			<item>.bin</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/octet-stream</item>
-			<item>application/bin</item>
-			<item> application/binary</item>
-			<item> application/x-msdownload</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Bitmap Image</Description>
-		<Extensions>
-			<item>.bmp</item>
-			<item>.dib</item>
-			<item>.xbm</item>
-		</Extensions>
-		<MimeTypes>
-			<item>image/bmp</item>
-			<item>application/bmp</item>
-			<item> application/x-bmp</item>
-			<item> image/ms-bmp</item>
-			<item> image/x-bitmap</item>
-			<item> image/x-bmp</item>
-			<item> image/x-ms-bmp</item>
-			<item> image/x-win-bitmap</item>
-			<item> image/x-windows-bmp</item>
-			<item> image/x-xbitmap</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Compressed Bzip2 File</Description>
-		<Extensions>
-			<item>.bz2</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-bzip2</item>
-			<item>application/bzip2</item>
-			<item> application/x-bz2</item>
-			<item> application/x-bzip</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>C Source File</Description>
-		<Extensions>
-			<item>.c</item>
-		</Extensions>
-		<MimeTypes>
-			<item>Text/x-csrc</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>C++ Source File</Description>
-		<Extensions>
-			<item>.c++</item>
-		</Extensions>
-		<MimeTypes>
-			<item>Text/x-c++src</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Microsoft Cabinet Archive</Description>
-		<Extensions>
-			<item>.cab</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.ms-cab-compressed</item>
-			<item>application/cab</item>
-			<item> application/x-cabinet</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Security Catalog</Description>
-		<Extensions>
-			<item>.cat</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.ms-pkiseccat</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Adobe Director File</Description>
-		<Extensions>
-			<item>.cct</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-director</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Channel Definition Format</Description>
-		<Extensions>
-			<item>.cdf</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/cdf</item>
-			<item>application/x-cdf</item>
-			<item> application/netcdf</item>
-			<item> application/x-netcdf</item>
-			<item> Text/cdf</item>
-			<item> Text/x-cdf</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Internet Security Certificate File</Description>
-		<Extensions>
-			<item>.cer</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-x509-ca-cert</item>
-			<item>application/pkix-cert</item>
-			<item> application/x-pkcs12</item>
-			<item> application/keychain_access</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Coldfusion Source File</Description>
-		<Extensions>
-			<item>.cfc</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-cfm</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Coldfusion Source File</Description>
-		<Extensions>
-			<item>.cfm</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-cfm</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Java Bytecode File</Description>
-		<Extensions>
-			<item>.class</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-java</item>
-			<item>application/java</item>
-			<item> application/java-byte-code</item>
-			<item> application/java-vm</item>
-			<item> application/x-java-applet</item>
-			<item> application/x-java-bean</item>
-			<item> application/x-java-class</item>
-			<item> application/x-java-vm</item>
-			<item> application/x-jinit-bean</item>
-			<item> application/x-jinit-applet</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Windows Clipboard/Picture</Description>
-		<Extensions>
-			<item>.clp</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-msclip</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Presentation Exchange Image</Description>
-		<Extensions>
-			<item>.cmx</item>
-		</Extensions>
-		<MimeTypes>
-			<item>image/x-cmx</item>
-			<item>application/cmx</item>
-			<item> application/x-cmx</item>
-			<item> drawing/cmx</item>
-			<item> image/x-cmx</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Cis-Cod File</Description>
-		<Extensions>
-			<item>.cod</item>
-		</Extensions>
-		<MimeTypes>
-			<item>image/cis-cod</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>C++ Source File</Description>
-		<Extensions>
-			<item>.cp</item>
-		</Extensions>
-		<MimeTypes>
-			<item>Text/x-c++src</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Unix Cpio Archive</Description>
-		<Extensions>
-			<item>.cpio</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-cpio</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>C++ Source File</Description>
-		<Extensions>
-			<item>.cpp</item>
-		</Extensions>
-		<MimeTypes>
-			<item>Text/x-c++src</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Windows Cardfile</Description>
-		<Extensions>
-			<item>.crd</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-mscardFile</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Internet Security Certificate File</Description>
-		<Extensions>
-			<item>.crt</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-x509-ca-cert</item>
-			<item>application/pkix-cert</item>
-			<item> application/x-pkcs12</item>
-			<item> application/keychain_access</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Certificate Revocation List</Description>
-		<Extensions>
-			<item>.crl</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/pkix-crl</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Certificate File</Description>
-		<Extensions>
-			<item>.crt</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-x509-ca-cert</item>
-			<item>application/pkix-cert</item>
-			<item> application/keychain_access</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>C Shell File</Description>
-		<Extensions>
-			<item>.csh</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-csh</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Cascading Stylesheet File</Description>
-		<Extensions>
-			<item>.css</item>
-		</Extensions>
-		<MimeTypes>
-			<item>Text/css</item>
-			<item>application/css-stylesheet</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Adobe Director File</Description>
-		<Extensions>
-			<item>.cst</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-director</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Comma-Delimited File</Description>
-		<Extensions>
-			<item>.csv</item>
-		</Extensions>
-		<MimeTypes>
-			<item>Text/csv</item>
-			<item>application/csv</item>
-			<item> Text/comma-separated-values</item>
-			<item> Text/x-comma-separated-values</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Adobe Director File</Description>
-		<Extensions>
-			<item>.cxt</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-director</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Adobe Director File</Description>
-		<Extensions>
-			<item>.dcr</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-director</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Internet Security Certificate File</Description>
-		<Extensions>
-			<item>.der</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-x509-ca-cert</item>
-			<item>application/pkix-cert</item>
-			<item> application/x-pkcs12</item>
-			<item> application/keychain_access</item>
-		</MimeTypes>
-	</item>
-
-	<item>
-		<Description>Patch Source File</Description>
-		<Extensions>
-			<item>.diff</item>
-		</Extensions>
-		<MimeTypes>
-			<item>Text/x-patch</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Adobe Director File</Description>
-		<Extensions>
-			<item>.dir</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-director</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Dynamic Link Library</Description>
-		<Extensions>
-			<item>.dll</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-msdownload</item>
-			<item>application/octet-stream</item>
-			<item> application/x-msdos-program</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Diskmasher Compressed Archive</Description>
-		<Extensions>
-			<item>.dms</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/octet-stream</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Microsoft Word Document</Description>
-		<Extensions>
-			<item>.doc</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.ms-word</item>
-			<item>application/doc</item>
-			<item> application/msword</item>
-			<item> application/msword-doc</item>
-			<item> application/vnd.msword</item>
-			<item> application/winword</item>
-			<item> application/word</item>
-			<item> application/x-msw6</item>
-			<item> application/x-msword</item>
-			<item> application/x-msword-doc</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Microsoft Word Document</Description>
-		<Extensions>
-			<item>.docm</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.ms-word.document.macroEnabled.12</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Microsoft Word File</Description>
-		<Extensions>
-			<item>.docx</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.openxmlformats-officedocument.wordprocessingml.document</item>
-			<item>application/vnd.ms-word.document.12</item>
-			<item> application/vnd.openxmlformats-officedocument.word</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Word Document Template</Description>
-		<Extensions>
-			<item>.dot</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/msword</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Microsoft Word Template File</Description>
-		<Extensions>
-			<item>.dotm</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.ms-word.template.macroEnabled.12</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Microsoft Word Template File</Description>
-		<Extensions>
-			<item>.dotx</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.openxmlformats-officedocument.wordprocessingml.template</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Stata Data File</Description>
-		<Extensions>
-			<item>.dta</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-stata</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Digital Video File</Description>
-		<Extensions>
-			<item>.dv</item>
-		</Extensions>
-		<MimeTypes>
-			<item>video/x-dv</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Dvi File</Description>
-		<Extensions>
-			<item>.dvi</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-dvi</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Autocad Drawing</Description>
-		<Extensions>
-			<item>.dwg</item>
-		</Extensions>
-		<MimeTypes>
-			<item>image/x-dwg</item>
-			<item>application/acad</item>
-			<item> application/autocad_dwg</item>
-			<item> application/dwg</item>
-			<item> application/x-acad</item>
-			<item> application/x-autocad</item>
-			<item> application/x-dwg</item>
-			<item> image/vnd.dwg</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Autocad Drawing</Description>
-		<Extensions>
-			<item>.dxf</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-autocad</item>
-			<item>application/dxf</item>
-			<item> application/x-dxf</item>
-			<item> drawing/x-dxf</item>
-			<item> image/vnd.dxf</item>
-			<item> image/x-autocad</item>
-			<item> image/x-dxf</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Adobe Director File</Description>
-		<Extensions>
-			<item>.dxr</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-director</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Emacs Source File</Description>
-		<Extensions>
-			<item>.elc</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-elc</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Web Archive File</Description>
-		<Extensions>
-			<item>.eml</item>
-		</Extensions>
-		<MimeTypes>
-			<item>message/rfc822</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Endnote Library File</Description>
-		<Extensions>
-			<item>.enl</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-endnote-library</item>
-			<item>application/x-endnote-refer</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Endnote Library File</Description>
-		<Extensions>
-			<item>.enz</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-endnote-library</item>
-			<item>application/x-endnote-refer</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Postscript File</Description>
-		<Extensions>
-			<item>.eps</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/postscript</item>
-			<item>application/eps</item>
-			<item> application/x-eps</item>
-			<item> image/eps</item>
-			<item> image/x-eps</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>SeText (Structure Enhanced Text)</Description>
-		<Extensions>
-			<item>.etx</item>
-		</Extensions>
-		<MimeTypes>
-			<item>Text/x-seText</item>
-			<item>Text/anyText</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Envoy Document</Description>
-		<Extensions>
-			<item>.evy</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/envoy</item>
-			<item>application/x-envoy</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Windows Executable File</Description>
-		<Extensions>
-			<item>.exe</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-msdos-program</item>
-			<item>application/dos-exe</item>
-			<item> application/exe</item>
-			<item> application/msdos-windows</item>
-			<item> application/x-sdlc</item>
-			<item> application/x-exe</item>
-			<item> application/x-winexe</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Fractal Image Format</Description>
-		<Extensions>
-			<item>.fif</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/fractals</item>
-			<item>image/fif</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Virtual Reality Modeling Language File</Description>
-		<Extensions>
-			<item>.flr</item>
-		</Extensions>
-		<MimeTypes>
-			<item>x-world/x-vrml</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Framemaker File</Description>
-		<Extensions>
-			<item>.fm</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.framemaker</item>
-			<item>application/framemaker</item>
-			<item> application/maker</item>
-			<item> application/vnd.mif</item>
-			<item> application/x-framemaker</item>
-			<item> application/x-maker</item>
-			<item> application/x-mif</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Adobe Director File</Description>
-		<Extensions>
-			<item>.fqd</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-director</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Gif Image</Description>
-		<Extensions>
-			<item>.gif</item>
-		</Extensions>
-		<MimeTypes>
-			<item>image/gif</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Compressed Tar File</Description>
-		<Extensions>
-			<item>.gtar</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/tar</item>
-			<item>application/x-gtar</item>
-			<item> application/x-tar</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Compressed Gzip Archive</Description>
-		<Extensions>
-			<item>.gz</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/gzip</item>
-			<item>application/gzip-compressed</item>
-			<item> application/gzipped</item>
-			<item> application/x-gunzip</item>
-			<item> application/x-gzip</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>C Header File</Description>
-		<Extensions>
-			<item>.h</item>
-		</Extensions>
-		<MimeTypes>
-			<item>Text/x-chdr</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Hierarchical Data Format File</Description>
-		<Extensions>
-			<item>.hdf</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-hdf</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Windows Help File</Description>
-		<Extensions>
-			<item>.hlp</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/winhlp</item>
-			<item>application/x-helpFile</item>
-			<item> application/x-winhelp</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Binhex Archive</Description>
-		<Extensions>
-			<item>.hqx</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/binhex</item>
-			<item>application/mac-binhex</item>
-			<item> application/mac-binhex40</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Html Application File</Description>
-		<Extensions>
-			<item>.hta</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/hta</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Html Component File</Description>
-		<Extensions>
-			<item>.htc</item>
-		</Extensions>
-		<MimeTypes>
-			<item>Text/x-component</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Html File</Description>
-		<Extensions>
-			<item>.htm</item>
-			<item>.html</item>
-		</Extensions>
-		<MimeTypes>
-			<item>Text/html</item>
-			<item>application/xhtml+xml</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>HyperText Template File</Description>
-		<Extensions>
-			<item>.htt</item>
-		</Extensions>
-		<MimeTypes>
-			<item>Text/webviewhtml</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Favicon, Icon File</Description>
-		<Extensions>
-			<item>.ico</item>
-		</Extensions>
-		<MimeTypes>
-			<item>image/x-ico</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Calendar File</Description>
-		<Extensions>
-			<item>.ics</item>
-		</Extensions>
-		<MimeTypes>
-			<item>Text/calendar</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Ief Image File</Description>
-		<Extensions>
-			<item>.ief</item>
-		</Extensions>
-		<MimeTypes>
-			<item>image/ief</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Intel Iphone Compatible File</Description>
-		<Extensions>
-			<item>.iii</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-iphone</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Adobe Indesign File</Description>
-		<Extensions>
-			<item>.indd</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-indesign</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Iis Internet Communications Settings File</Description>
-		<Extensions>
-			<item>.ins</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-internet-signup</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Iis Internet Service Provider Settings File</Description>
-		<Extensions>
-			<item>.isp</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-internet-signup</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Java Application Descriptor</Description>
-		<Extensions>
-			<item>.jad</item>
-		</Extensions>
-		<MimeTypes>
-			<item>Text/vnd.sun.j2me.app-descriptor</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Java Archive File</Description>
-		<Extensions>
-			<item>.jar</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/java-archive</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Java Source File</Description>
-		<Extensions>
-			<item>.java</item>
-		</Extensions>
-		<MimeTypes>
-			<item>Text/x-java</item>
-			<item>java/*</item>
-			<item> Text/java</item>
-			<item> Text/x-java-source</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Jpeg Image</Description>
-		<Extensions>
-			<item>.jpeg</item>
-			<item>.jpg</item>
-			<item>.jfif</item>
-			<item>.jpe</item>
-		</Extensions>
-		<MimeTypes>
-			<item>image/jpeg</item>
-			<item>image/pjpeg</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Javascript Source File</Description>
-		<Extensions>
-			<item>.js</item>
-		</Extensions>
-		<MimeTypes>
-			<item>Text/javascript</item>
-			<item>application/javascript</item>
-			<item> application/x-javascript</item>
-			<item> application/x-js</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Kml File</Description>
-		<Extensions>
-			<item>.kml</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.google-earth.kml+xml</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Compressed Kml File</Description>
-		<Extensions>
-			<item>.kmz</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.google-earth.kmz</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Latex File</Description>
-		<Extensions>
-			<item>.latex</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-latex</item>
-			<item>Text/x-latex</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Compressed Archive File</Description>
-		<Extensions>
-			<item>.lha</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-lha</item>
-			<item>application/lha</item>
-			<item> application/lzh</item>
-			<item> application/x-lzh</item>
-			<item> application/x-lzh-archive</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Endnote Library File</Description>
-		<Extensions>
-			<item>.lib</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-endnote-library</item>
-			<item>application/x-endnote-refer</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Labview Application File</Description>
-		<Extensions>
-			<item>.llb</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-labview</item>
-			<item>application/x-labview-vi</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Log Text File</Description>
-		<Extensions>
-			<item>.log</item>
-		</Extensions>
-		<MimeTypes>
-			<item>Text/x-log</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Streaming Audio/Video File</Description>
-		<Extensions>
-			<item>.lsf</item>
-		</Extensions>
-		<MimeTypes>
-			<item>video/x-la-asf</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Streaming Audio/Video File</Description>
-		<Extensions>
-			<item>.lsx</item>
-		</Extensions>
-		<MimeTypes>
-			<item>video/x-la-asf</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Labview Cal Simulation File</Description>
-		<Extensions>
-			<item>.lvx</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-labview-exec</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Compressed Archive File</Description>
-		<Extensions>
-			<item>.lzh</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-lha</item>
-			<item>application/lha</item>
-			<item> application/lzh</item>
-			<item> application/x-lzh</item>
-			<item> application/x-lzh-archive</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Objective C Source File</Description>
-		<Extensions>
-			<item>.m</item>
-		</Extensions>
-		<MimeTypes>
-			<item>Text/x-objcsrc</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Mpeg Video File</Description>
-		<Extensions>
-			<item>.m1v</item>
-		</Extensions>
-		<MimeTypes>
-			<item>video/mpeg</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Mpeg Video File</Description>
-		<Extensions>
-			<item>.m2v</item>
-		</Extensions>
-		<MimeTypes>
-			<item>video/mpeg</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Mp3 Playlist File</Description>
-		<Extensions>
-			<item>.m3u</item>
-		</Extensions>
-		<MimeTypes>
-			<item>audio/x-mpegurl</item>
-			<item>application/x-winamp-playlist</item>
-			<item> audio/mpegurl</item>
-			<item> audio/mpeg-url</item>
-			<item> audio/playlist</item>
-			<item> audio/scpls</item>
-			<item> audio/x-scpls</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Mpeg-4 Audio File</Description>
-		<Extensions>
-			<item>.m4a</item>
-		</Extensions>
-		<MimeTypes>
-			<item>audio/m4a</item>
-			<item>audio/x-m4a</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Mpeg-4 Video File</Description>
-		<Extensions>
-			<item>.m4v</item>
-		</Extensions>
-		<MimeTypes>
-			<item>video/mp4</item>
-			<item>video/mpeg4</item>
-			<item> video/x-m4v</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Mathematica File</Description>
-		<Extensions>
-			<item>.ma</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/mathematica</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Web Archive File</Description>
-		<Extensions>
-			<item>.mail</item>
-		</Extensions>
-		<MimeTypes>
-			<item>message/rfc822</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Troff With Man Macros File</Description>
-		<Extensions>
-			<item>.man</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-troff-man</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Mathcad File</Description>
-		<Extensions>
-			<item>.mcd</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-mathcad</item>
-			<item>application/mcad</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Microsoft Access File</Description>
-		<Extensions>
-			<item>.mdb</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.ms-access</item>
-			<item>application/mdb</item>
-			<item> application/msaccess</item>
-			<item> application/vnd.msaccess</item>
-			<item> application/x-mdb</item>
-			<item> application/x-msaccess</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Troff With Me Macros File</Description>
-		<Extensions>
-			<item>.me</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-troff-me</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Adobe Flash File</Description>
-		<Extensions>
-			<item>.mfp</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-shockwave-flash</item>
-			<item>application/futuresplash</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Web Archive File</Description>
-		<Extensions>
-			<item>.mht</item>
-		</Extensions>
-		<MimeTypes>
-			<item>message/rfc822</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Web Archive File</Description>
-		<Extensions>
-			<item>.mhtml</item>
-		</Extensions>
-		<MimeTypes>
-			<item>message/rfc822</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Midi Audio File</Description>
-		<Extensions>
-			<item>.mid</item>
-		</Extensions>
-		<MimeTypes>
-			<item>audio/x-midi</item>
-			<item>application/x-midi</item>
-			<item> audio/mid</item>
-			<item> audio/midi</item>
-			<item> audio/soundtrack</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Midi Audio File</Description>
-		<Extensions>
-			<item>.midi</item>
-		</Extensions>
-		<MimeTypes>
-			<item>audio/x-midi</item>
-			<item>application/x-midi</item>
-			<item> audio/mid</item>
-			<item> audio/midi</item>
-			<item> audio/soundtrack</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Framemaker File</Description>
-		<Extensions>
-			<item>.mif</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.framemaker</item>
-			<item>application/framemaker</item>
-			<item> application/maker</item>
-			<item> application/vnd.mif</item>
-			<item> application/x-framemaker</item>
-			<item> application/x-maker</item>
-			<item> application/x-mif</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Money Data File</Description>
-		<Extensions>
-			<item>.mny</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-msmoney</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Quicktime Video File</Description>
-		<Extensions>
-			<item>.mov</item>
-		</Extensions>
-		<MimeTypes>
-			<item>video/quicktime</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Mpeg Layer 2 Audio File</Description>
-		<Extensions>
-			<item>.mp2</item>
-		</Extensions>
-		<MimeTypes>
-			<item>video/mpeg</item>
-			<item> audio/x-mpeg</item>
-			<item> audio/x-mpeg-2</item>
-			<item> video/x-mpeg</item>
-			<item> video/x-mpeq2a</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Mp3 Audio File</Description>
-		<Extensions>
-			<item>.mp3</item>
-		</Extensions>
-		<MimeTypes>
-			<item>audio/mpeg</item>
-			<item>audio/mp3</item>
-			<item> audio/mpeg3</item>
-			<item> audio/mpg</item>
-			<item> audio/x-mp3</item>
-			<item> audio/x-mpeg</item>
-			<item> audio/x-mpeg3</item>
-			<item> audio/x-mpg</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Mpeg Audio Stream</Description>
-		<Extensions>
-			<item>.mpa</item>
-		</Extensions>
-		<MimeTypes>
-			<item>video/mpeg</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Mpeg Video File</Description>
-		<Extensions>
-			<item>.mpe</item>
-		</Extensions>
-		<MimeTypes>
-			<item>video/mpeg</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Mpeg Video File</Description>
-		<Extensions>
-			<item>.mpeg</item>
-		</Extensions>
-		<MimeTypes>
-			<item>video/mpeg</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Mpeg Video File</Description>
-		<Extensions>
-			<item>.mpg</item>
-		</Extensions>
-		<MimeTypes>
-			<item>video/mpeg</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Microsoft Project File</Description>
-		<Extensions>
-			<item>.mpp</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.ms-project</item>
-			<item>application/mpp</item>
-			<item> application/msproj</item>
-			<item> application/msproject</item>
-			<item> application/x-dos_ms_project</item>
-			<item> application/x-ms-project</item>
-			<item> application/x-msproject</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Mpeg Audio Stream</Description>
-		<Extensions>
-			<item>.mpv2</item>
-		</Extensions>
-		<MimeTypes>
-			<item>video/mpeg</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Quicktime Video File</Description>
-		<Extensions>
-			<item>.mqv</item>
-		</Extensions>
-		<MimeTypes>
-			<item>video/quicktime</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Troff With Ms Macros File</Description>
-		<Extensions>
-			<item>.ms</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-troff-ms</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Multimedia Viewer</Description>
-		<Extensions>
-			<item>.mvb</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-msmediaview</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Maple Worksheet File</Description>
-		<Extensions>
-			<item>.mws</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-maple</item>
-			<item>application/maple-v-r4</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Mathematica File</Description>
-		<Extensions>
-			<item>.nb</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/mathematica</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Web Archive File</Description>
-		<Extensions>
-			<item>.nws</item>
-		</Extensions>
-		<MimeTypes>
-			<item>message/rfc822</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Oda Document</Description>
-		<Extensions>
-			<item>.oda</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/oda</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Openoffice Formula File</Description>
-		<Extensions>
-			<item>.odf</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.oasis.opendocument.formula</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Openoffice Graphics File</Description>
-		<Extensions>
-			<item>.odg</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.oasis.opendocument.graphics</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Openoffice Presentation File</Description>
-		<Extensions>
-			<item>.odp</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.oasis.opendocument.presentation</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Openoffice Spreadsheet File</Description>
-		<Extensions>
-			<item>.ods</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.oasis.opendocument.spreadsheet</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Openoffice Document</Description>
-		<Extensions>
-			<item>.odt</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.oasis.opendocument.Text</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Ogg Audio File</Description>
-		<Extensions>
-			<item>.ogg</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/ogg</item>
-			<item>application/x-ogg</item>
-			<item> audio/x-ogg</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Microsoft Onenote File</Description>
-		<Extensions>
-			<item>.one</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/msonenote</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Internet Security Certificate File</Description>
-		<Extensions>
-			<item>.p12</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-x509-ca-cert</item>
-			<item>application/pkix-cert</item>
-			<item> application/x-pkcs12</item>
-			<item> application/keychain_access</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Patch Source File</Description>
-		<Extensions>
-			<item>.patch</item>
-		</Extensions>
-		<MimeTypes>
-			<item>Text/x-patch</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Portable Bitmap Image</Description>
-		<Extensions>
-			<item>.pbm</item>
-		</Extensions>
-		<MimeTypes>
-			<item>image/x-portable-bitmap</item>
-			<item>image/pbm</item>
-			<item> image/portable-bitmap</item>
-			<item> image/x-pbm</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Kodak Photo Cd File</Description>
-		<Extensions>
-			<item>.pcd</item>
-		</Extensions>
-		<MimeTypes>
-			<item>image/x-photo-cd</item>
-			<item>image/pcd</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Macintosh Quickdraw Image</Description>
-		<Extensions>
-			<item>.pct</item>
-		</Extensions>
-		<MimeTypes>
-			<item>image/x-pict</item>
-			<item>image/pict</item>
-			<item> image/x-macpict</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Adobe Acrobat Document</Description>
-		<Extensions>
-			<item>.pdf</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/pdf</item>
-			<item>application/acrobat</item>
-			<item> application/nappdf</item>
-			<item> application/x-pdf</item>
-			<item> application/vnd.pdf</item>
-			<item> Text/pdf</item>
-			<item> Text/x-pdf</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Personal Information Exchange File</Description>
-		<Extensions>
-			<item>.pfx</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-pkcs12</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Portable Graymap Image</Description>
-		<Extensions>
-			<item>.pgm</item>
-		</Extensions>
-		<MimeTypes>
-			<item>image/x-portable-graymap</item>
-			<item>image/x-pgm</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Php Source File</Description>
-		<Extensions>
-			<item>.php</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-php</item>
-			<item>application/php</item>
-			<item> Text/php</item>
-			<item> Text/x-php</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Macintosh Quickdraw Image</Description>
-		<Extensions>
-			<item>.pic</item>
-		</Extensions>
-		<MimeTypes>
-			<item>image/x-pict</item>
-			<item>image/pict</item>
-			<item> image/x-macpict</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Macintosh Quickdraw Image</Description>
-		<Extensions>
-			<item>.pict</item>
-		</Extensions>
-		<MimeTypes>
-			<item>image/x-pict</item>
-			<item>image/pict</item>
-			<item> image/x-macpict</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Perl Source File</Description>
-		<Extensions>
-			<item>.pl</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-perl</item>
-			<item>Text/x-perl</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Mp3 Playlist File</Description>
-		<Extensions>
-			<item>.pls</item>
-		</Extensions>
-		<MimeTypes>
-			<item>audio/x-mpegurl</item>
-			<item>application/x-winamp-playlist</item>
-			<item> audio/mpegurl</item>
-			<item> audio/mpeg-url</item>
-			<item> audio/playlist</item>
-			<item> audio/scpls</item>
-			<item> audio/x-scpls</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Publickey Security Object</Description>
-		<Extensions>
-			<item>.pko</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/ynd.ms-pkipko</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Perl Source File</Description>
-		<Extensions>
-			<item>.pm</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-perl</item>
-			<item>Text/x-perl</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Windows Performance Monitor File</Description>
-		<Extensions>
-			<item>.pmc</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-perfmon</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Portable Network Graphics Image</Description>
-		<Extensions>
-			<item>.png</item>
-		</Extensions>
-		<MimeTypes>
-			<item>image/png</item>
-			<item>image/x-png</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Portable Any Map Graphic Bitmap</Description>
-		<Extensions>
-			<item>.pnm</item>
-		</Extensions>
-		<MimeTypes>
-			<item>image/x-portable-anymap</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Perl Documentation File</Description>
-		<Extensions>
-			<item>.pod</item>
-		</Extensions>
-		<MimeTypes>
-			<item>Text/x-pod</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Microsoft Powerpoint Template File</Description>
-		<Extensions>
-			<item>.potm</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.ms-powerpoint.template.macroEnabled.12</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Microsoft Powerpoint Template File</Description>
-		<Extensions>
-			<item>.potx</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.openxmlformats-officedocument.presentationml.template</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Microsoft Powerpoint File</Description>
-		<Extensions>
-			<item>.ppam</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.ms-powerpoint.addin.macroEnabled.12</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Portable Pixmap Image</Description>
-		<Extensions>
-			<item>.ppm</item>
-		</Extensions>
-		<MimeTypes>
-			<item>image/x-portable-pixmap</item>
-			<item>application/ppm</item>
-			<item> application/x-ppm</item>
-			<item> image/x-ppm</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Microsoft Powerpoint File</Description>
-		<Extensions>
-			<item>.pps</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.ms-powerpoint</item>
-			<item>application/ms-powerpoint</item>
-			<item> application/mspowerpoint</item>
-			<item> application/powerpoint</item>
-			<item> application/ppt</item>
-			<item> application/vnd-mspowerpoint</item>
-			<item> application/vnd_ms-powerpoint</item>
-			<item> application/x-mspowerpoint</item>
-			<item> application/x-powerpoint</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Microsoft Powerpoint File</Description>
-		<Extensions>
-			<item>.ppsm</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.ms-powerpoint.slideshow.macroEnabled.12</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Microsoft Powerpoint File</Description>
-		<Extensions>
-			<item>.ppsx</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.openxmlformats-officedocument.presentationml.slideshow</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Microsoft Powerpoint File</Description>
-		<Extensions>
-			<item>.ppt</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.ms-powerpoint</item>
-			<item>application/ms-powerpoint</item>
-			<item> application/mspowerpoint</item>
-			<item> application/powerpoint</item>
-			<item> application/ppt</item>
-			<item> application/vnd-mspowerpoint</item>
-			<item> application/vnd_ms-powerpoint</item>
-			<item> application/x-mspowerpoint</item>
-			<item> application/x-powerpoint</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Microsoft Powerpoint File</Description>
-		<Extensions>
-			<item>.pptm</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.ms-powerpoint.presentation.macroEnabled.12</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Microsoft Powerpoint File</Description>
-		<Extensions>
-			<item>.pptx</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.openxmlformats-officedocument.presentationml.presentation</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Pics Rules File</Description>
-		<Extensions>
-			<item>.prf</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/pics-rules</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Postscript File</Description>
-		<Extensions>
-			<item>.ps</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/postscript</item>
-			<item>application/eps</item>
-			<item> application/x-eps</item>
-			<item> image/eps</item>
-			<item> image/x-eps</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Adobe Photoshop File</Description>
-		<Extensions>
-			<item>.psd</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/photoshop</item>
-			<item>application/psd</item>
-			<item> application/x-photoshop</item>
-			<item> image/photoshop</item>
-			<item> image/psd</item>
-			<item> image/x-photoshop</item>
-			<item> image/x-psd</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Microsoft Publisher File</Description>
-		<Extensions>
-			<item>.pub</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.ms-publisher</item>
-			<item>application/x-mspublisher</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Python Source File</Description>
-		<Extensions>
-			<item>.py</item>
-		</Extensions>
-		<MimeTypes>
-			<item>Text/x-python</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Quicktime Video File</Description>
-		<Extensions>
-			<item>.qt</item>
-		</Extensions>
-		<MimeTypes>
-			<item>video/quicktime</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Realaudio File</Description>
-		<Extensions>
-			<item>.ra</item>
-		</Extensions>
-		<MimeTypes>
-			<item>audio/vnd.rn-realaudio</item>
-			<item>audio/vnd.pn-realaudio</item>
-			<item> audio/x-pn-realaudio</item>
-			<item> audio/x-pn-realaudio-plugin</item>
-			<item> audio/x-pn-realvideo</item>
-			<item> audio/x-realaudio</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Realaudio File</Description>
-		<Extensions>
-			<item>.ram</item>
-		</Extensions>
-		<MimeTypes>
-			<item>audio/vnd.rn-realaudio</item>
-			<item>audio/vnd.pn-realaudio</item>
-			<item> audio/x-pn-realaudio</item>
-			<item> audio/x-pn-realaudio-plugin</item>
-			<item> audio/x-pn-realvideo</item>
-			<item> audio/x-realaudio</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Compressed Archive</Description>
-		<Extensions>
-			<item>.rar</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/rar</item>
-			<item>application/x-rar-compressed</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Raster Image</Description>
-		<Extensions>
-			<item>.ras</item>
-		</Extensions>
-		<MimeTypes>
-			<item>image/x-cmu-raster</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Iris Image</Description>
-		<Extensions>
-			<item>.rgb</item>
-		</Extensions>
-		<MimeTypes>
-			<item>image/x-rgb</item>
-			<item>image/rgb</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Realmedia File</Description>
-		<Extensions>
-			<item>.rm</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.rn-realmedia</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Radio Midi File</Description>
-		<Extensions>
-			<item>.rmi</item>
-		</Extensions>
-		<MimeTypes>
-			<item>audio/mid</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Troff File</Description>
-		<Extensions>
-			<item>.roff</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-troff</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Realaudio File</Description>
-		<Extensions>
-			<item>.rpm</item>
-		</Extensions>
-		<MimeTypes>
-			<item>audio/vnd.rn-realaudio</item>
-			<item>audio/vnd.pn-realaudio</item>
-			<item> audio/x-pn-realaudio</item>
-			<item> audio/x-pn-realaudio-plugin</item>
-			<item> audio/x-pn-realvideo</item>
-			<item> audio/x-realaudio</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Rich Text Format File</Description>
-		<Extensions>
-			<item>.rtf</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/rtf</item>
-			<item>application/richText</item>
-			<item> application/x-rtf</item>
-			<item> Text/richText</item>
-			<item> Text/rtf</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Rich Text Format File</Description>
-		<Extensions>
-			<item>.rtx</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/rtf</item>
-			<item>application/richText</item>
-			<item> application/x-rtf</item>
-			<item> Text/richText</item>
-			<item> Text/rtf</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Realvideo File</Description>
-		<Extensions>
-			<item>.rv</item>
-		</Extensions>
-		<MimeTypes>
-			<item>video/vnd.rn-realvideo</item>
-			<item>video/x-pn-realvideo</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Sas File</Description>
-		<Extensions>
-			<item>.sas</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/sas</item>
-			<item>application/x-sas</item>
-			<item> application/x-sas-data</item>
-			<item> application/x-sas-log</item>
-			<item> application/x-sas-output</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Spss File</Description>
-		<Extensions>
-			<item>.sav</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/spss</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Schedule Data</Description>
-		<Extensions>
-			<item>.scd</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-msschedule</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Scheme File</Description>
-		<Extensions>
-			<item>.scm</item>
-		</Extensions>
-		<MimeTypes>
-			<item>Text/x-script.scheme</item>
-			<item>Text/x-scheme</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Windows Script Component</Description>
-		<Extensions>
-			<item>.sct</item>
-		</Extensions>
-		<MimeTypes>
-			<item>Text/scriptlet</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Spss File</Description>
-		<Extensions>
-			<item>.sd2</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/spss</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Self-Extracting Archive</Description>
-		<Extensions>
-			<item>.sea</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-sea</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Shell Script File</Description>
-		<Extensions>
-			<item>.sh</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-sh</item>
-			<item>application/x-shellscript</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Unix Shar Archive File</Description>
-		<Extensions>
-			<item>.shar</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-shar</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Html File</Description>
-		<Extensions>
-			<item>.shtml</item>
-		</Extensions>
-		<MimeTypes>
-			<item>Text/html</item>
-			<item>application/xhtml+xml</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Stuffit Archive</Description>
-		<Extensions>
-			<item>.sit</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/stuffit</item>
-			<item>application/x-sit</item>
-			<item> application/x-stuffit</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Smil File</Description>
-		<Extensions>
-			<item>.smil</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/smil</item>
-			<item>application/smil+xml</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Audio File</Description>
-		<Extensions>
-			<item>.snd</item>
-		</Extensions>
-		<MimeTypes>
-			<item>audio/basic</item>
-			<item>audio/au</item>
-			<item> audio/x-au</item>
-			<item> audio/x-basic</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Adobe Flash File</Description>
-		<Extensions>
-			<item>.spl</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-shockwave-flash</item>
-			<item>application/futuresplash</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Spss File</Description>
-		<Extensions>
-			<item>.spo</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/spss</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Sql File</Description>
-		<Extensions>
-			<item>.sql</item>
-		</Extensions>
-		<MimeTypes>
-			<item>Text/x-sql</item>
-			<item>Text/sql</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Wais Source File</Description>
-		<Extensions>
-			<item>.src</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-wais-source</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Certificate Store Crypto Shell Extension</Description>
-		<Extensions>
-			<item>.sst</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.ms-pkicertstore</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Certificate Trust List</Description>
-		<Extensions>
-			<item>.stl</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.ms-pkistl</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Shtml File</Description>
-		<Extensions>
-			<item>.stm</item>
-		</Extensions>
-		<MimeTypes>
-			<item>Text/html</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Adobe Director File</Description>
-		<Extensions>
-			<item>.swa</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-director</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Adobe Flash File</Description>
-		<Extensions>
-			<item>.swf</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-shockwave-flash</item>
-			<item>application/futuresplash</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Openoffice.Org Document</Description>
-		<Extensions>
-			<item>.sxw</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.sun.xml.writer</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Troff File</Description>
-		<Extensions>
-			<item>.t</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-troff</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Compressed Tar File</Description>
-		<Extensions>
-			<item>.tar</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/tar</item>
-			<item>application/x-gtar</item>
-			<item> application/x-tar</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Tcl Source File</Description>
-		<Extensions>
-			<item>.tcl</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-tcl</item>
-			<item>Text/x-script.tcl</item>
-			<item> Text/x-tcl</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Tex File</Description>
-		<Extensions>
-			<item>.tex</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-tex</item>
-			<item>Text/x-tex</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Truevision Targa Image</Description>
-		<Extensions>
-			<item>.tga</item>
-		</Extensions>
-		<MimeTypes>
-			<item>image/x-targa</item>
-			<item>application/tga</item>
-			<item> application/x-targa</item>
-			<item> application/x-tga</item>
-			<item> image/targa</item>
-			<item> image/tga</item>
-			<item> image/x-tga</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Compressed Gzip Archive</Description>
-		<Extensions>
-			<item>.tgz</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/gzip</item>
-			<item>application/gzip-compressed</item>
-			<item> application/gzipped</item>
-			<item> application/x-gunzip</item>
-			<item> application/x-gzip</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Tagged Image File</Description>
-		<Extensions>
-			<item>.tif</item>
-		</Extensions>
-		<MimeTypes>
-			<item>image/tiff</item>
-			<item>application/tif</item>
-			<item> application/tiff</item>
-			<item> application/x-tif</item>
-			<item> application/x-tiff</item>
-			<item> image/tif</item>
-			<item> image/x-tif</item>
-			<item> image/x-tiff</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Tagged Image File</Description>
-		<Extensions>
-			<item>.tiff</item>
-		</Extensions>
-		<MimeTypes>
-			<item>image/tiff</item>
-			<item>application/tif</item>
-			<item> application/tiff</item>
-			<item> application/x-tif</item>
-			<item> application/x-tiff</item>
-			<item> image/tif</item>
-			<item> image/x-tif</item>
-			<item> image/x-tiff</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Microsoft Exchange Tnef File</Description>
-		<Extensions>
-			<item>.tnef</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/ms-tnef</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Troff File</Description>
-		<Extensions>
-			<item>.tr</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-troff</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Terminal Settings</Description>
-		<Extensions>
-			<item>.trm</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-msterminal</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Tab-Delimited File</Description>
-		<Extensions>
-			<item>.tsv</item>
-		</Extensions>
-		<MimeTypes>
-			<item>Text/tsv</item>
-			<item>Text/tab-separated-values</item>
-			<item> Text/x-tab-separated-values</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Tableau Workbook File</Description>
-		<Extensions>
-			<item>.twb</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/twb</item>
-			<item>application/twbx</item>
-			<item> application/x-twb</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Tableau Workbook File</Description>
-		<Extensions>
-			<item>.twbx</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/twb</item>
-			<item>application/twbx</item>
-			<item> application/x-twb</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Plain Text File</Description>
-		<Extensions>
-			<item>.txt</item>
-		</Extensions>
-		<MimeTypes>
-			<item>Text/plain</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Internet Location Service</Description>
-		<Extensions>
-			<item>.uls</item>
-		</Extensions>
-		<MimeTypes>
-			<item>Text/iuls</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Posix Tar Compressed Archive</Description>
-		<Extensions>
-			<item>.ustar</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-ustar</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Vcard File</Description>
-		<Extensions>
-			<item>.vcf</item>
-		</Extensions>
-		<MimeTypes>
-			<item>Text/x-vcard</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Virtual Reality Modeling Language File</Description>
-		<Extensions>
-			<item>.vrml</item>
-		</Extensions>
-		<MimeTypes>
-			<item>x-world/x-vrml</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Microsoft Visio Document</Description>
-		<Extensions>
-			<item>.vsd</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.visio</item>
-			<item>application/visio</item>
-			<item> application/visio.drawing</item>
-			<item> application/vsd</item>
-			<item> application/x-visio</item>
-			<item> application/x-vsd</item>
-			<item> image/x-vsd</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Adobe Director File</Description>
-		<Extensions>
-			<item>.w3d</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-director</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Kde Web Archive</Description>
-		<Extensions>
-			<item>.war</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-webarchive</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Waveform Audio File</Description>
-		<Extensions>
-			<item>.wav</item>
-		</Extensions>
-		<MimeTypes>
-			<item>audio/wav</item>
-			<item>audio/s-wav</item>
-			<item> audio/wave</item>
-			<item> audio/x-wav</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Works File Transmission</Description>
-		<Extensions>
-			<item>.wcm</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.ms-works</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Microsoft Works File</Description>
-		<Extensions>
-			<item>.wdb</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.ms-works</item>
-			<item>application/x-msworks-wp</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Microsoft Works File</Description>
-		<Extensions>
-			<item>.wks</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.ms-works</item>
-			<item>application/x-msworks-wp</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Windows Media Audio File</Description>
-		<Extensions>
-			<item>.wma</item>
-		</Extensions>
-		<MimeTypes>
-			<item>audio/x-ms-wma</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Windows Media File</Description>
-		<Extensions>
-			<item>.wmf</item>
-		</Extensions>
-		<MimeTypes>
-			<item>image/x-wmf</item>
-			<item>application/wmf</item>
-			<item> application/x-msmetaFile</item>
-			<item> application/x-wmf</item>
-			<item> image/wmf</item>
-			<item> image/x-win-metaFile</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Windows Media Video File</Description>
-		<Extensions>
-			<item>.wmv</item>
-		</Extensions>
-		<MimeTypes>
-			<item>video/x-ms-wmv</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Windows Media Compressed File</Description>
-		<Extensions>
-			<item>.wmz</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-ms-wmz</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Wordperfect Document</Description>
-		<Extensions>
-			<item>.wpd</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/wordperfect</item>
-			<item>application/wordperf</item>
-			<item> application/wpd</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Microsoft Works File</Description>
-		<Extensions>
-			<item>.wps</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.ms-works</item>
-			<item>application/x-msworks-wp</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Write Document</Description>
-		<Extensions>
-			<item>.wri</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-mswrite</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Vrml 3D File</Description>
-		<Extensions>
-			<item>.wrl</item>
-		</Extensions>
-		<MimeTypes>
-			<item>x-world/x-vrml</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Vrml 3D File</Description>
-		<Extensions>
-			<item>.wrz</item>
-		</Extensions>
-		<MimeTypes>
-			<item>x-world/x-vrml</item>
-		</MimeTypes>
-	</item>
-
-	<item>
-		<Description>Html File</Description>
-		<Extensions>
-			<item>.xhtml</item>
-		</Extensions>
-		<MimeTypes>
-			<item>Text/html</item>
-			<item>application/xhtml+xml</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Excel Add-In</Description>
-		<Extensions>
-			<item>.xla</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.ms-excel</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Microsoft Excel Document</Description>
-		<Extensions>
-			<item>.xlam</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.ms-excel.addin.macroEnabled.12</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Excel Chart</Description>
-		<Extensions>
-			<item>.xlc</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.ms-excel</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Microsoft Excel Document</Description>
-		<Extensions>
-			<item>.xll</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.ms-excel</item>
-			<item>application/excel</item>
-			<item> application/msexcel</item>
-			<item> application/msexcell</item>
-			<item> application/x-dos_ms_excel</item>
-			<item> application/x-excel</item>
-			<item> application/x-ms-excel</item>
-			<item> application/x-msexcel</item>
-			<item> application/x-xls</item>
-			<item> application/xls</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Excel Macro File</Description>
-		<Extensions>
-			<item>.xlm</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.ms-excel</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Microsoft Excel Document</Description>
-		<Extensions>
-			<item>.xls</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.ms-excel</item>
-			<item>application/excel</item>
-			<item> application/msexcel</item>
-			<item> application/msexcell</item>
-			<item> application/x-dos_ms_excel</item>
-			<item> application/x-excel</item>
-			<item> application/x-ms-excel</item>
-			<item> application/x-msexcel</item>
-			<item> application/x-xls</item>
-			<item> application/xls</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Microsoft Excel Document</Description>
-		<Extensions>
-			<item>.xlsb</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.ms-excel.sheet.binary.macroEnabled.12</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Microsoft Excel Document</Description>
-		<Extensions>
-			<item>.xlsm</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.ms-excel.sheet.macroEnabled.12</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Microsoft Excel Document</Description>
-		<Extensions>
-			<item>.xlsx</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.openxmlformats-officedocument.spreadsheetml.sheet</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Excel Template File</Description>
-		<Extensions>
-			<item>.xlt</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.ms-excel</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Microsoft Excel Document</Description>
-		<Extensions>
-			<item>.xltm</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.ms-excel.template.macroEnabled.12</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Microsoft Excel Template File</Description>
-		<Extensions>
-			<item>.xltx</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.openxmlformats-officedocument.spreadsheetml.template</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Excel Workspace File</Description>
-		<Extensions>
-			<item>.xlw</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.ms-excel</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Xml File</Description>
-		<Extensions>
-			<item>.xml</item>
-		</Extensions>
-		<MimeTypes>
-			<item>Text/xml</item>
-			<item>application/x-xml</item>
-			<item> application/xml</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Pixmap Image</Description>
-		<Extensions>
-			<item>.xpm</item>
-		</Extensions>
-		<MimeTypes>
-			<item>image/x-xpixmap</item>
-			<item>image/x-xpm</item>
-			<item> image/xpm</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Microsoft Xps File</Description>
-		<Extensions>
-			<item>.xps</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.ms-xpsdocument</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Xslt Stylesheet File</Description>
-		<Extensions>
-			<item>.xsl</item>
-		</Extensions>
-		<MimeTypes>
-			<item>Text/xsl</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>X Windows Dump</Description>
-		<Extensions>
-			<item>.xwd</item>
-		</Extensions>
-		<MimeTypes>
-			<item>image/x-xwindowdump</item>
-			<item>image/xwd</item>
-			<item> image/x-xwd</item>
-			<item> application/xwd</item>
-			<item> application/x-xwd</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Unix Compressed Archive File</Description>
-		<Extensions>
-			<item>.z</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-compress</item>
-			<item>application/z</item>
-			<item> application/x-z</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Compressed Zip Archive</Description>
-		<Extensions>
-			<item>.zip</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/zip</item>
-			<item>application/x-compress</item>
-			<item> application/x-compressed</item>
-			<item> application/x-zip</item>
-			<item> application/x-zip-compressed</item>
-			<item> application/zip-compressed</item>
-			<item> application/x-7zip-compressed</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>3Gp Mobile Video</Description>
-		<Extensions>
-			<item>.3gp</item>
-		</Extensions>
-		<MimeTypes>
-			<item>video/3gpp</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Mpeg-4 Video File</Description>
-		<Extensions>
-			<item>.mp4</item>
-		</Extensions>
-		<MimeTypes>
-			<item>video/mp4</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Iphone Index</Description>
-		<Extensions>
-			<item>.m3u8</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-mpegURL</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Iphone Segment</Description>
-		<Extensions>
-			<item>.ts</item>
-		</Extensions>
-		<MimeTypes>
-			<item>video/MP2T</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Android Application Package</Description>
-		<Extensions>
-			<item>.apk</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/vnd.android.package-archive</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Web Open Font Format</Description>
-		<Extensions>
-			<item>.ttf</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/font-woff</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Scalable Vector Graphics</Description>
-		<Extensions>
-			<item>.svg</item>
-		</Extensions>
-		<MimeTypes>
-			<item>image/svg+xml</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Compressed Scalable Vector Graphics</Description>
-		<Extensions>
-			<item>.svgz</item>
-		</Extensions>
-		<MimeTypes>
-			<item>image/svg+xml</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Windows Phone Application</Description>
-		<Extensions>
-			<item>.xap</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-silverlight-app</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Markdown Text File</Description>
-		<Extensions>
-			<item>.md</item>
-		</Extensions>
-		<MimeTypes>
-			<item>Text/markdown</item>
-			<item>Text/vnd.daringfireball.markdown</item>
-			<item>Text/x-markdown</item>
-			<item>Text/x-web-markdown</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>JavaScript Object Notation</Description>
-		<Extensions>
-			<item>.json</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/json</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Textile Text File</Description>
-		<Extensions>
-			<item>.Textile</item>
-		</Extensions>
-		<MimeTypes>
-			<item>Text/x-web-Textile</item>
-			<item>Text/x-wiki.creole</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Batch File</Description>
-		<Extensions>
-			<item>.bat</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/bat</item>
-			<item>application/x-bat</item>
-		</MimeTypes>
-	</item>
-
-	<item>
-		<Description>Nintendo 64 ROM File</Description>
-		<Extensions>
-			<item>.n64</item>
-			<item>.v64</item>
-			<item>.z64</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-nintendo64-rom</item>
-			<item>application/octet-stream</item>
-		</MimeTypes>
-	</item>
-
-	<item>
-		<Description>Super Nintendo ROM File</Description>
-		<Extensions>
-			<item>.smc</item>
-			<item>.sfc</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-snes-rom</item>
-			<item>application/octet-stream</item>
-		</MimeTypes>
-	</item>
-
-	<item>
-		<Description>SEGA Genesis ROM File</Description>
-		<Extensions>
-			<item>.gen</item>
-			<item>.smd</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-sega-genesis-rom</item>
-			<item>application/octet-stream</item>
-		</MimeTypes>
-	</item>
-
-	<item>
-		<Description>Nintendo GameCube ROM File</Description>
-		<Extensions>
-			<item>.gcm</item>
-			<item>.gcz</item>
-			<item>.ciso</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-gamecube-rom</item>
-			<item>application/octet-stream</item>
-		</MimeTypes>
-	</item>
-
-	<item>
-		<Description>Nintendo 3DS ROM File</Description>
-		<Extensions>
-			<item>.3ds</item>
-			<item>.cci</item>
-			<item>.cxi</item>
-			<item>.cia</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-nintendo-3ds-rom</item>
-			<item>application/octet-stream</item>
-		</MimeTypes>
-	</item>
-	<item>
-		<Description>Nintendo DS ROM File</Description>
-		<Extensions>
-			<item>.nds</item>
-		</Extensions>
-		<MimeTypes>
-			<item>application/x-nintendo-ds-rom</item>
-			<item>application/octet-stream</item>
-		</MimeTypes>
-	</item>
+<mimes>
+  <item>
+    <Description>Internet Telephony</Description>
+    <Extensions>
+      <item>.323</item>
+    </Extensions>
+    <MimeTypes>
+      <item>Text/h323</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Adaptive Multi-Rate ACELP Codec</Description>
+    <Extensions>
+      <item>.amr</item>
+    </Extensions>
+    <MimeTypes>
+      <item>audio/amr</item>
+    </MimeTypes>
+    <Color>#FF8C00</Color>
+  </item>
+  <item>
+    <Description>Aac Audio File</Description>
+    <Extensions>
+      <item>.aac</item>
+    </Extensions>
+    <MimeTypes>
+      <item>audio/aac</item>
+    </MimeTypes>
+    <Color>#FF8C00</Color>
+  </item>
+  <item>
+    <Description>Abiword Document</Description>
+    <Extensions>
+      <item>.abw</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/abiword</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Atari St Executable</Description>
+    <Extensions>
+      <item>.acx</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/internet-property-stream</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Adobe Illustrator File</Description>
+    <Extensions>
+      <item>.ai</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/illustrator</item>
+    </MimeTypes>
+    <Color>#1E90FF</Color>
+  </item>
+  <item>
+    <Description>Aiff Audio File</Description>
+    <Extensions>
+      <item>.aif</item>
+    </Extensions>
+    <MimeTypes>
+      <item>audio/aiff</item>
+      <item>audio/aifc</item>
+      <item> audio/x-aiff</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Aiff Audio File</Description>
+    <Extensions>
+      <item>.aifc</item>
+    </Extensions>
+    <MimeTypes>
+      <item>audio/aiff</item>
+      <item>audio/aifc</item>
+      <item> audio/x-aiff</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Aiff Audio File</Description>
+    <Extensions>
+      <item>.aiff</item>
+    </Extensions>
+    <MimeTypes>
+      <item>audio/aiff</item>
+      <item>audio/aifc</item>
+      <item> audio/x-aiff</item>
+    </MimeTypes>
+    <Color>#FF8C00</Color>
+  </item>
+  <item>
+    <Description>Windows Media File</Description>
+    <Extensions>
+      <item>.asf</item>
+    </Extensions>
+    <MimeTypes>
+      <item>video/x-ms-asf</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Asp Source File</Description>
+    <Extensions>
+      <item>.asp</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-asp</item>
+      <item>Text/asp</item>
+    </MimeTypes>
+    <Color>#228B22</Color>
+  </item>
+  <item>
+    <Description>Windows Media File</Description>
+    <Extensions>
+      <item>.asr</item>
+    </Extensions>
+    <MimeTypes>
+      <item>video/x-ms-asf</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Windows Media File</Description>
+    <Extensions>
+      <item>.asx</item>
+    </Extensions>
+    <MimeTypes>
+      <item>video/x-ms-asf</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Audio File</Description>
+    <Extensions>
+      <item>.au</item>
+    </Extensions>
+    <MimeTypes>
+      <item>audio/basic</item>
+      <item>audio/au</item>
+      <item> audio/x-au</item>
+      <item> audio/x-basic</item>
+    </MimeTypes>
+    <Color>#FF8C00</Color>
+  </item>
+  <item>
+    <Description>Avi Video File</Description>
+    <Extensions>
+      <item>.avi</item>
+    </Extensions>
+    <MimeTypes>
+      <item>video/avi</item>
+      <item>application/x-troff-msvideo</item>
+      <item> image/avi</item>
+      <item> video/msvideo</item>
+      <item> video/x-msvideo</item>
+      <item> video/xmpg2</item>
+    </MimeTypes>
+    <Color>#4B0082</Color>
+  </item>
+  <item>
+    <Description>Activex Script</Description>
+    <Extensions>
+      <item>.axs</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/olescript</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Basic Source Code</Description>
+    <Extensions>
+      <item>.bas</item>
+    </Extensions>
+    <MimeTypes>
+      <item>Text/plain</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Binary File</Description>
+    <Extensions>
+      <item>.bin</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/octet-stream</item>
+      <item>application/bin</item>
+      <item> application/binary</item>
+      <item> application/x-msdownload</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Bitmap Image</Description>
+    <Extensions>
+      <item>.bmp</item>
+      <item>.dib</item>
+      <item>.xbm</item>
+    </Extensions>
+    <MimeTypes>
+      <item>image/bmp</item>
+      <item>application/bmp</item>
+      <item> application/x-bmp</item>
+      <item> image/ms-bmp</item>
+      <item> image/x-bitmap</item>
+      <item> image/x-bmp</item>
+      <item> image/x-ms-bmp</item>
+      <item> image/x-win-bitmap</item>
+      <item> image/x-windows-bmp</item>
+      <item> image/x-xbitmap</item>
+    </MimeTypes>
+    <Color>#1E90FF</Color>
+  </item>
+  <item>
+    <Description>Compressed Bzip2 File</Description>
+    <Extensions>
+      <item>.bz2</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-bzip2</item>
+      <item>application/bzip2</item>
+      <item> application/x-bz2</item>
+      <item> application/x-bzip</item>
+    </MimeTypes>
+    <Color>#8B4513</Color>
+  </item>
+  <item>
+    <Description>C Source File</Description>
+    <Extensions>
+      <item>.c</item>
+    </Extensions>
+    <MimeTypes>
+      <item>Text/x-csrc</item>
+    </MimeTypes>
+    <Color>#228B22</Color>
+  </item>
+  <item>
+    <Description>C++ Source File</Description>
+    <Extensions>
+      <item>.c++</item>
+    </Extensions>
+    <MimeTypes>
+      <item>Text/x-c++src</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Microsoft Cabinet Archive</Description>
+    <Extensions>
+      <item>.cab</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.ms-cab-compressed</item>
+      <item>application/cab</item>
+      <item> application/x-cabinet</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Security Catalog</Description>
+    <Extensions>
+      <item>.cat</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.ms-pkiseccat</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Adobe Director File</Description>
+    <Extensions>
+      <item>.cct</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-director</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Channel Definition Format</Description>
+    <Extensions>
+      <item>.cdf</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/cdf</item>
+      <item>application/x-cdf</item>
+      <item> application/netcdf</item>
+      <item> application/x-netcdf</item>
+      <item> Text/cdf</item>
+      <item> Text/x-cdf</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Internet Security Certificate File</Description>
+    <Extensions>
+      <item>.cer</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-x509-ca-cert</item>
+      <item>application/pkix-cert</item>
+      <item> application/x-pkcs12</item>
+      <item> application/keychain_access</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Coldfusion Source File</Description>
+    <Extensions>
+      <item>.cfc</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-cfm</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Coldfusion Source File</Description>
+    <Extensions>
+      <item>.cfm</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-cfm</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Java Bytecode File</Description>
+    <Extensions>
+      <item>.class</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-java</item>
+      <item>application/java</item>
+      <item> application/java-byte-code</item>
+      <item> application/java-vm</item>
+      <item> application/x-java-applet</item>
+      <item> application/x-java-bean</item>
+      <item> application/x-java-class</item>
+      <item> application/x-java-vm</item>
+      <item> application/x-jinit-bean</item>
+      <item> application/x-jinit-applet</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Windows Clipboard/Picture</Description>
+    <Extensions>
+      <item>.clp</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-msclip</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Presentation Exchange Image</Description>
+    <Extensions>
+      <item>.cmx</item>
+    </Extensions>
+    <MimeTypes>
+      <item>image/x-cmx</item>
+      <item>application/cmx</item>
+      <item> application/x-cmx</item>
+      <item> drawing/cmx</item>
+      <item> image/x-cmx</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Cis-Cod File</Description>
+    <Extensions>
+      <item>.cod</item>
+    </Extensions>
+    <MimeTypes>
+      <item>image/cis-cod</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>C++ Source File</Description>
+    <Extensions>
+      <item>.cp</item>
+    </Extensions>
+    <MimeTypes>
+      <item>Text/x-c++src</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Unix Cpio Archive</Description>
+    <Extensions>
+      <item>.cpio</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-cpio</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>C++ Source File</Description>
+    <Extensions>
+      <item>.cpp</item>
+    </Extensions>
+    <MimeTypes>
+      <item>Text/x-c++src</item>
+    </MimeTypes>
+    <Color>#228B22</Color>
+  </item>
+  <item>
+    <Description>Windows Cardfile</Description>
+    <Extensions>
+      <item>.crd</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-mscardFile</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Internet Security Certificate File</Description>
+    <Extensions>
+      <item>.crt</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-x509-ca-cert</item>
+      <item>application/pkix-cert</item>
+      <item> application/x-pkcs12</item>
+      <item> application/keychain_access</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Certificate Revocation List</Description>
+    <Extensions>
+      <item>.crl</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/pkix-crl</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Certificate File</Description>
+    <Extensions>
+      <item>.crt</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-x509-ca-cert</item>
+      <item>application/pkix-cert</item>
+      <item> application/keychain_access</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>C Shell File</Description>
+    <Extensions>
+      <item>.csh</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-csh</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Cascading Stylesheet File</Description>
+    <Extensions>
+      <item>.css</item>
+    </Extensions>
+    <MimeTypes>
+      <item>Text/css</item>
+      <item>application/css-stylesheet</item>
+    </MimeTypes>
+    <Color>#228B22</Color>
+  </item>
+  <item>
+    <Description>Adobe Director File</Description>
+    <Extensions>
+      <item>.cst</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-director</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Comma-Delimited File</Description>
+    <Extensions>
+      <item>.csv</item>
+    </Extensions>
+    <MimeTypes>
+      <item>Text/csv</item>
+      <item>application/csv</item>
+      <item> Text/comma-separated-values</item>
+      <item> Text/x-comma-separated-values</item>
+    </MimeTypes>
+    <Color>#696969</Color>
+  </item>
+  <item>
+    <Description>Adobe Director File</Description>
+    <Extensions>
+      <item>.cxt</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-director</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Adobe Director File</Description>
+    <Extensions>
+      <item>.dcr</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-director</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Internet Security Certificate File</Description>
+    <Extensions>
+      <item>.der</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-x509-ca-cert</item>
+      <item>application/pkix-cert</item>
+      <item> application/x-pkcs12</item>
+      <item> application/keychain_access</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Patch Source File</Description>
+    <Extensions>
+      <item>.diff</item>
+    </Extensions>
+    <MimeTypes>
+      <item>Text/x-patch</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Adobe Director File</Description>
+    <Extensions>
+      <item>.dir</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-director</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Dynamic Link Library</Description>
+    <Extensions>
+      <item>.dll</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-msdownload</item>
+      <item>application/octet-stream</item>
+      <item> application/x-msdos-program</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Diskmasher Compressed Archive</Description>
+    <Extensions>
+      <item>.dms</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/octet-stream</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Microsoft Word Document</Description>
+    <Extensions>
+      <item>.doc</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.ms-word</item>
+      <item>application/doc</item>
+      <item> application/msword</item>
+      <item> application/msword-doc</item>
+      <item> application/vnd.msword</item>
+      <item> application/winword</item>
+      <item> application/word</item>
+      <item> application/x-msw6</item>
+      <item> application/x-msword</item>
+      <item> application/x-msword-doc</item>
+    </MimeTypes>
+    <Color>#2B579A</Color>
+  </item>
+  <item>
+    <Description>Microsoft Word Document</Description>
+    <Extensions>
+      <item>.docm</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.ms-word.document.macroEnabled.12</item>
+    </MimeTypes>
+    <Color>#2B579A</Color>
+  </item>
+  <item>
+    <Description>Microsoft Word File</Description>
+    <Extensions>
+      <item>.docx</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.openxmlformats-officedocument.wordprocessingml.document</item>
+      <item>application/vnd.ms-word.document.12</item>
+      <item> application/vnd.openxmlformats-officedocument.word</item>
+    </MimeTypes>
+    <Color>#2B579A</Color>
+  </item>
+  <item>
+    <Description>Word Document Template</Description>
+    <Extensions>
+      <item>.dot</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/msword</item>
+    </MimeTypes>
+    <Color>#2B579A</Color>
+  </item>
+  <item>
+    <Description>Microsoft Word Template File</Description>
+    <Extensions>
+      <item>.dotm</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.ms-word.template.macroEnabled.12</item>
+    </MimeTypes>
+    <Color>#2B579A</Color>
+  </item>
+  <item>
+    <Description>Microsoft Word Template File</Description>
+    <Extensions>
+      <item>.dotx</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.openxmlformats-officedocument.wordprocessingml.template</item>
+    </MimeTypes>
+    <Color>#2B579A</Color>
+  </item>
+  <item>
+    <Description>Stata Data File</Description>
+    <Extensions>
+      <item>.dta</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-stata</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Digital Video File</Description>
+    <Extensions>
+      <item>.dv</item>
+    </Extensions>
+    <MimeTypes>
+      <item>video/x-dv</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Dvi File</Description>
+    <Extensions>
+      <item>.dvi</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-dvi</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Autocad Drawing</Description>
+    <Extensions>
+      <item>.dwg</item>
+    </Extensions>
+    <MimeTypes>
+      <item>image/x-dwg</item>
+      <item>application/acad</item>
+      <item> application/autocad_dwg</item>
+      <item> application/dwg</item>
+      <item> application/x-acad</item>
+      <item> application/x-autocad</item>
+      <item> application/x-dwg</item>
+      <item> image/vnd.dwg</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Autocad Drawing</Description>
+    <Extensions>
+      <item>.dxf</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-autocad</item>
+      <item>application/dxf</item>
+      <item> application/x-dxf</item>
+      <item> drawing/x-dxf</item>
+      <item> image/vnd.dxf</item>
+      <item> image/x-autocad</item>
+      <item> image/x-dxf</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Adobe Director File</Description>
+    <Extensions>
+      <item>.dxr</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-director</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Emacs Source File</Description>
+    <Extensions>
+      <item>.elc</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-elc</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Web Archive File</Description>
+    <Extensions>
+      <item>.eml</item>
+    </Extensions>
+    <MimeTypes>
+      <item>message/rfc822</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Endnote Library File</Description>
+    <Extensions>
+      <item>.enl</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-endnote-library</item>
+      <item>application/x-endnote-refer</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Endnote Library File</Description>
+    <Extensions>
+      <item>.enz</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-endnote-library</item>
+      <item>application/x-endnote-refer</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Postscript File</Description>
+    <Extensions>
+      <item>.eps</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/postscript</item>
+      <item>application/eps</item>
+      <item> application/x-eps</item>
+      <item> image/eps</item>
+      <item> image/x-eps</item>
+    </MimeTypes>
+    <Color>#1E90FF</Color>
+  </item>
+  <item>
+    <Description>SeText (Structure Enhanced Text)</Description>
+    <Extensions>
+      <item>.etx</item>
+    </Extensions>
+    <MimeTypes>
+      <item>Text/x-seText</item>
+      <item>Text/anyText</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Envoy Document</Description>
+    <Extensions>
+      <item>.evy</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/envoy</item>
+      <item>application/x-envoy</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Windows Executable File</Description>
+    <Extensions>
+      <item>.exe</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-msdos-program</item>
+      <item>application/dos-exe</item>
+      <item> application/exe</item>
+      <item> application/msdos-windows</item>
+      <item> application/x-sdlc</item>
+      <item> application/x-exe</item>
+      <item> application/x-winexe</item>
+    </MimeTypes>
+    <Color>#000000</Color>
+  </item>
+  <item>
+    <Description>Fractal Image Format</Description>
+    <Extensions>
+      <item>.fif</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/fractals</item>
+      <item>image/fif</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Virtual Reality Modeling Language File</Description>
+    <Extensions>
+      <item>.flr</item>
+    </Extensions>
+    <MimeTypes>
+      <item>x-world/x-vrml</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Framemaker File</Description>
+    <Extensions>
+      <item>.fm</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.framemaker</item>
+      <item>application/framemaker</item>
+      <item> application/maker</item>
+      <item> application/vnd.mif</item>
+      <item> application/x-framemaker</item>
+      <item> application/x-maker</item>
+      <item> application/x-mif</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Adobe Director File</Description>
+    <Extensions>
+      <item>.fqd</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-director</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Gif Image</Description>
+    <Extensions>
+      <item>.gif</item>
+    </Extensions>
+    <MimeTypes>
+      <item>image/gif</item>
+    </MimeTypes>
+    <Color>#1E90FF</Color>
+  </item>
+  <item>
+    <Description>Compressed Tar File</Description>
+    <Extensions>
+      <item>.gtar</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/tar</item>
+      <item>application/x-gtar</item>
+      <item> application/x-tar</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Compressed Gzip Archive</Description>
+    <Extensions>
+      <item>.gz</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/gzip</item>
+      <item>application/gzip-compressed</item>
+      <item> application/gzipped</item>
+      <item> application/x-gunzip</item>
+      <item> application/x-gzip</item>
+    </MimeTypes>
+    <Color>#8B4513</Color>
+  </item>
+  <item>
+    <Description>C Header File</Description>
+    <Extensions>
+      <item>.h</item>
+    </Extensions>
+    <MimeTypes>
+      <item>Text/x-chdr</item>
+    </MimeTypes>
+    <Color>#228B22</Color>
+  </item>
+  <item>
+    <Description>Hierarchical Data Format File</Description>
+    <Extensions>
+      <item>.hdf</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-hdf</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Windows Help File</Description>
+    <Extensions>
+      <item>.hlp</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/winhlp</item>
+      <item>application/x-helpFile</item>
+      <item> application/x-winhelp</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Binhex Archive</Description>
+    <Extensions>
+      <item>.hqx</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/binhex</item>
+      <item>application/mac-binhex</item>
+      <item> application/mac-binhex40</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Html Application File</Description>
+    <Extensions>
+      <item>.hta</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/hta</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Html Component File</Description>
+    <Extensions>
+      <item>.htc</item>
+    </Extensions>
+    <MimeTypes>
+      <item>Text/x-component</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Html File</Description>
+    <Extensions>
+      <item>.htm</item>
+      <item>.html</item>
+    </Extensions>
+    <MimeTypes>
+      <item>Text/html</item>
+      <item>application/xhtml+xml</item>
+    </MimeTypes>
+    <Color>#228B22</Color>
+  </item>
+  <item>
+    <Description>HyperText Template File</Description>
+    <Extensions>
+      <item>.htt</item>
+    </Extensions>
+    <MimeTypes>
+      <item>Text/webviewhtml</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Favicon, Icon File</Description>
+    <Extensions>
+      <item>.ico</item>
+    </Extensions>
+    <MimeTypes>
+      <item>image/x-ico</item>
+    </MimeTypes>
+    <Color>#1E90FF</Color>
+  </item>
+  <item>
+    <Description>Calendar File</Description>
+    <Extensions>
+      <item>.ics</item>
+    </Extensions>
+    <MimeTypes>
+      <item>Text/calendar</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Ief Image File</Description>
+    <Extensions>
+      <item>.ief</item>
+    </Extensions>
+    <MimeTypes>
+      <item>image/ief</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Intel Iphone Compatible File</Description>
+    <Extensions>
+      <item>.iii</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-iphone</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Adobe Indesign File</Description>
+    <Extensions>
+      <item>.indd</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-indesign</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Iis Internet Communications Settings File</Description>
+    <Extensions>
+      <item>.ins</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-internet-signup</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Iis Internet Service Provider Settings File</Description>
+    <Extensions>
+      <item>.isp</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-internet-signup</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Java Application Descriptor</Description>
+    <Extensions>
+      <item>.jad</item>
+    </Extensions>
+    <MimeTypes>
+      <item>Text/vnd.sun.j2me.app-descriptor</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Java Archive File</Description>
+    <Extensions>
+      <item>.jar</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/java-archive</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Java Source File</Description>
+    <Extensions>
+      <item>.java</item>
+    </Extensions>
+    <MimeTypes>
+      <item>Text/x-java</item>
+      <item>java/*</item>
+      <item> Text/java</item>
+      <item> Text/x-java-source</item>
+    </MimeTypes>
+    <Color>#228B22</Color>
+  </item>
+  <item>
+    <Description>Jpeg Image</Description>
+    <Extensions>
+      <item>.jpeg</item>
+      <item>.jpg</item>
+      <item>.jfif</item>
+      <item>.jpe</item>
+    </Extensions>
+    <MimeTypes>
+      <item>image/jpeg</item>
+      <item>image/pjpeg</item>
+    </MimeTypes>
+    <Color>#1E90FF</Color>
+  </item>
+  <item>
+    <Description>Javascript Source File</Description>
+    <Extensions>
+      <item>.js</item>
+    </Extensions>
+    <MimeTypes>
+      <item>Text/javascript</item>
+      <item>application/javascript</item>
+      <item> application/x-javascript</item>
+      <item> application/x-js</item>
+    </MimeTypes>
+    <Color>#228B22</Color>
+  </item>
+  <item>
+    <Description>Kml File</Description>
+    <Extensions>
+      <item>.kml</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.google-earth.kml+xml</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Compressed Kml File</Description>
+    <Extensions>
+      <item>.kmz</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.google-earth.kmz</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Latex File</Description>
+    <Extensions>
+      <item>.latex</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-latex</item>
+      <item>Text/x-latex</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Compressed Archive File</Description>
+    <Extensions>
+      <item>.lha</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-lha</item>
+      <item>application/lha</item>
+      <item> application/lzh</item>
+      <item> application/x-lzh</item>
+      <item> application/x-lzh-archive</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Endnote Library File</Description>
+    <Extensions>
+      <item>.lib</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-endnote-library</item>
+      <item>application/x-endnote-refer</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Labview Application File</Description>
+    <Extensions>
+      <item>.llb</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-labview</item>
+      <item>application/x-labview-vi</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Log Text File</Description>
+    <Extensions>
+      <item>.log</item>
+    </Extensions>
+    <MimeTypes>
+      <item>Text/x-log</item>
+    </MimeTypes>
+    <Color>#696969</Color>
+  </item>
+  <item>
+    <Description>Streaming Audio/Video File</Description>
+    <Extensions>
+      <item>.lsf</item>
+    </Extensions>
+    <MimeTypes>
+      <item>video/x-la-asf</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Streaming Audio/Video File</Description>
+    <Extensions>
+      <item>.lsx</item>
+    </Extensions>
+    <MimeTypes>
+      <item>video/x-la-asf</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Labview Cal Simulation File</Description>
+    <Extensions>
+      <item>.lvx</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-labview-exec</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Compressed Archive File</Description>
+    <Extensions>
+      <item>.lzh</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-lha</item>
+      <item>application/lha</item>
+      <item> application/lzh</item>
+      <item> application/x-lzh</item>
+      <item> application/x-lzh-archive</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Objective C Source File</Description>
+    <Extensions>
+      <item>.m</item>
+    </Extensions>
+    <MimeTypes>
+      <item>Text/x-objcsrc</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Mpeg Video File</Description>
+    <Extensions>
+      <item>.m1v</item>
+    </Extensions>
+    <MimeTypes>
+      <item>video/mpeg</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Mpeg Video File</Description>
+    <Extensions>
+      <item>.m2v</item>
+    </Extensions>
+    <MimeTypes>
+      <item>video/mpeg</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Mp3 Playlist File</Description>
+    <Extensions>
+      <item>.m3u</item>
+    </Extensions>
+    <MimeTypes>
+      <item>audio/x-mpegurl</item>
+      <item>application/x-winamp-playlist</item>
+      <item> audio/mpegurl</item>
+      <item> audio/mpeg-url</item>
+      <item> audio/playlist</item>
+      <item> audio/scpls</item>
+      <item> audio/x-scpls</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Mpeg-4 Audio File</Description>
+    <Extensions>
+      <item>.m4a</item>
+    </Extensions>
+    <MimeTypes>
+      <item>audio/m4a</item>
+      <item>audio/x-m4a</item>
+    </MimeTypes>
+    <Color>#FF8C00</Color>
+  </item>
+  <item>
+    <Description>Mpeg-4 Video File</Description>
+    <Extensions>
+      <item>.m4v</item>
+    </Extensions>
+    <MimeTypes>
+      <item>video/mp4</item>
+      <item>video/mpeg4</item>
+      <item> video/x-m4v</item>
+    </MimeTypes>
+    <Color>#4B0082</Color>
+  </item>
+  <item>
+    <Description>Mathematica File</Description>
+    <Extensions>
+      <item>.ma</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/mathematica</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Web Archive File</Description>
+    <Extensions>
+      <item>.mail</item>
+    </Extensions>
+    <MimeTypes>
+      <item>message/rfc822</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Troff With Man Macros File</Description>
+    <Extensions>
+      <item>.man</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-troff-man</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Mathcad File</Description>
+    <Extensions>
+      <item>.mcd</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-mathcad</item>
+      <item>application/mcad</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Microsoft Access File</Description>
+    <Extensions>
+      <item>.mdb</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.ms-access</item>
+      <item>application/mdb</item>
+      <item> application/msaccess</item>
+      <item> application/vnd.msaccess</item>
+      <item> application/x-mdb</item>
+      <item> application/x-msaccess</item>
+    </MimeTypes>
+    <Color>#A4373A</Color>
+  </item>
+  <item>
+    <Description>Troff With Me Macros File</Description>
+    <Extensions>
+      <item>.me</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-troff-me</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Adobe Flash File</Description>
+    <Extensions>
+      <item>.mfp</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-shockwave-flash</item>
+      <item>application/futuresplash</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Web Archive File</Description>
+    <Extensions>
+      <item>.mht</item>
+    </Extensions>
+    <MimeTypes>
+      <item>message/rfc822</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Web Archive File</Description>
+    <Extensions>
+      <item>.mhtml</item>
+    </Extensions>
+    <MimeTypes>
+      <item>message/rfc822</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Midi Audio File</Description>
+    <Extensions>
+      <item>.mid</item>
+    </Extensions>
+    <MimeTypes>
+      <item>audio/x-midi</item>
+      <item>application/x-midi</item>
+      <item> audio/mid</item>
+      <item> audio/midi</item>
+      <item> audio/soundtrack</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Midi Audio File</Description>
+    <Extensions>
+      <item>.midi</item>
+    </Extensions>
+    <MimeTypes>
+      <item>audio/x-midi</item>
+      <item>application/x-midi</item>
+      <item> audio/mid</item>
+      <item> audio/midi</item>
+      <item> audio/soundtrack</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Framemaker File</Description>
+    <Extensions>
+      <item>.mif</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.framemaker</item>
+      <item>application/framemaker</item>
+      <item> application/maker</item>
+      <item> application/vnd.mif</item>
+      <item> application/x-framemaker</item>
+      <item> application/x-maker</item>
+      <item> application/x-mif</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Money Data File</Description>
+    <Extensions>
+      <item>.mny</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-msmoney</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Quicktime Video File</Description>
+    <Extensions>
+      <item>.mov</item>
+    </Extensions>
+    <MimeTypes>
+      <item>video/quicktime</item>
+    </MimeTypes>
+    <Color>#4B0082</Color>
+  </item>
+  <item>
+    <Description>Mpeg Layer 2 Audio File</Description>
+    <Extensions>
+      <item>.mp2</item>
+    </Extensions>
+    <MimeTypes>
+      <item>video/mpeg</item>
+      <item> audio/x-mpeg</item>
+      <item> audio/x-mpeg-2</item>
+      <item> video/x-mpeg</item>
+      <item> video/x-mpeq2a</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Mp3 Audio File</Description>
+    <Extensions>
+      <item>.mp3</item>
+    </Extensions>
+    <MimeTypes>
+      <item>audio/mpeg</item>
+      <item>audio/mp3</item>
+      <item> audio/mpeg3</item>
+      <item> audio/mpg</item>
+      <item> audio/x-mp3</item>
+      <item> audio/x-mpeg</item>
+      <item> audio/x-mpeg3</item>
+      <item> audio/x-mpg</item>
+    </MimeTypes>
+    <Color>#FF8C00</Color>
+  </item>
+  <item>
+    <Description>Mpeg Audio Stream</Description>
+    <Extensions>
+      <item>.mpa</item>
+    </Extensions>
+    <MimeTypes>
+      <item>video/mpeg</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Mpeg Video File</Description>
+    <Extensions>
+      <item>.mpe</item>
+    </Extensions>
+    <MimeTypes>
+      <item>video/mpeg</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Mpeg Video File</Description>
+    <Extensions>
+      <item>.mpeg</item>
+    </Extensions>
+    <MimeTypes>
+      <item>video/mpeg</item>
+    </MimeTypes>
+    <Color>#4B0082</Color>
+  </item>
+  <item>
+    <Description>Mpeg Video File</Description>
+    <Extensions>
+      <item>.mpg</item>
+    </Extensions>
+    <MimeTypes>
+      <item>video/mpeg</item>
+    </MimeTypes>
+    <Color>#4B0082</Color>
+  </item>
+  <item>
+    <Description>Microsoft Project File</Description>
+    <Extensions>
+      <item>.mpp</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.ms-project</item>
+      <item>application/mpp</item>
+      <item> application/msproj</item>
+      <item> application/msproject</item>
+      <item> application/x-dos_ms_project</item>
+      <item> application/x-ms-project</item>
+      <item> application/x-msproject</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Mpeg Audio Stream</Description>
+    <Extensions>
+      <item>.mpv2</item>
+    </Extensions>
+    <MimeTypes>
+      <item>video/mpeg</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Quicktime Video File</Description>
+    <Extensions>
+      <item>.mqv</item>
+    </Extensions>
+    <MimeTypes>
+      <item>video/quicktime</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Troff With Ms Macros File</Description>
+    <Extensions>
+      <item>.ms</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-troff-ms</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Multimedia Viewer</Description>
+    <Extensions>
+      <item>.mvb</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-msmediaview</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Maple Worksheet File</Description>
+    <Extensions>
+      <item>.mws</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-maple</item>
+      <item>application/maple-v-r4</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Mathematica File</Description>
+    <Extensions>
+      <item>.nb</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/mathematica</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Web Archive File</Description>
+    <Extensions>
+      <item>.nws</item>
+    </Extensions>
+    <MimeTypes>
+      <item>message/rfc822</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Oda Document</Description>
+    <Extensions>
+      <item>.oda</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/oda</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Openoffice Formula File</Description>
+    <Extensions>
+      <item>.odf</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.oasis.opendocument.formula</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Openoffice Graphics File</Description>
+    <Extensions>
+      <item>.odg</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.oasis.opendocument.graphics</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Openoffice Presentation File</Description>
+    <Extensions>
+      <item>.odp</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.oasis.opendocument.presentation</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Openoffice Spreadsheet File</Description>
+    <Extensions>
+      <item>.ods</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.oasis.opendocument.spreadsheet</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Openoffice Document</Description>
+    <Extensions>
+      <item>.odt</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.oasis.opendocument.Text</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Ogg Audio File</Description>
+    <Extensions>
+      <item>.ogg</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/ogg</item>
+      <item>application/x-ogg</item>
+      <item> audio/x-ogg</item>
+    </MimeTypes>
+    <Color>#FF8C00</Color>
+  </item>
+  <item>
+    <Description>Microsoft Onenote File</Description>
+    <Extensions>
+      <item>.one</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/msonenote</item>
+    </MimeTypes>
+    <Color>#7719AA</Color>
+  </item>
+  <item>
+    <Description>Internet Security Certificate File</Description>
+    <Extensions>
+      <item>.p12</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-x509-ca-cert</item>
+      <item>application/pkix-cert</item>
+      <item> application/x-pkcs12</item>
+      <item> application/keychain_access</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Patch Source File</Description>
+    <Extensions>
+      <item>.patch</item>
+    </Extensions>
+    <MimeTypes>
+      <item>Text/x-patch</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Portable Bitmap Image</Description>
+    <Extensions>
+      <item>.pbm</item>
+    </Extensions>
+    <MimeTypes>
+      <item>image/x-portable-bitmap</item>
+      <item>image/pbm</item>
+      <item> image/portable-bitmap</item>
+      <item> image/x-pbm</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Kodak Photo Cd File</Description>
+    <Extensions>
+      <item>.pcd</item>
+    </Extensions>
+    <MimeTypes>
+      <item>image/x-photo-cd</item>
+      <item>image/pcd</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Macintosh Quickdraw Image</Description>
+    <Extensions>
+      <item>.pct</item>
+    </Extensions>
+    <MimeTypes>
+      <item>image/x-pict</item>
+      <item>image/pict</item>
+      <item> image/x-macpict</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Adobe Acrobat Document</Description>
+    <Extensions>
+      <item>.pdf</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/pdf</item>
+      <item>application/acrobat</item>
+      <item> application/nappdf</item>
+      <item> application/x-pdf</item>
+      <item> application/vnd.pdf</item>
+      <item> Text/pdf</item>
+      <item> Text/x-pdf</item>
+    </MimeTypes>
+    <Color>#DC143C</Color>
+  </item>
+  <item>
+    <Description>Personal Information Exchange File</Description>
+    <Extensions>
+      <item>.pfx</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-pkcs12</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Portable Graymap Image</Description>
+    <Extensions>
+      <item>.pgm</item>
+    </Extensions>
+    <MimeTypes>
+      <item>image/x-portable-graymap</item>
+      <item>image/x-pgm</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Php Source File</Description>
+    <Extensions>
+      <item>.php</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-php</item>
+      <item>application/php</item>
+      <item> Text/php</item>
+      <item> Text/x-php</item>
+    </MimeTypes>
+    <Color>#228B22</Color>
+  </item>
+  <item>
+    <Description>Macintosh Quickdraw Image</Description>
+    <Extensions>
+      <item>.pic</item>
+    </Extensions>
+    <MimeTypes>
+      <item>image/x-pict</item>
+      <item>image/pict</item>
+      <item> image/x-macpict</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Macintosh Quickdraw Image</Description>
+    <Extensions>
+      <item>.pict</item>
+    </Extensions>
+    <MimeTypes>
+      <item>image/x-pict</item>
+      <item>image/pict</item>
+      <item> image/x-macpict</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Perl Source File</Description>
+    <Extensions>
+      <item>.pl</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-perl</item>
+      <item>Text/x-perl</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Mp3 Playlist File</Description>
+    <Extensions>
+      <item>.pls</item>
+    </Extensions>
+    <MimeTypes>
+      <item>audio/x-mpegurl</item>
+      <item>application/x-winamp-playlist</item>
+      <item> audio/mpegurl</item>
+      <item> audio/mpeg-url</item>
+      <item> audio/playlist</item>
+      <item> audio/scpls</item>
+      <item> audio/x-scpls</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Publickey Security Object</Description>
+    <Extensions>
+      <item>.pko</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/ynd.ms-pkipko</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Perl Source File</Description>
+    <Extensions>
+      <item>.pm</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-perl</item>
+      <item>Text/x-perl</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Windows Performance Monitor File</Description>
+    <Extensions>
+      <item>.pmc</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-perfmon</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Portable Network Graphics Image</Description>
+    <Extensions>
+      <item>.png</item>
+    </Extensions>
+    <MimeTypes>
+      <item>image/png</item>
+      <item>image/x-png</item>
+    </MimeTypes>
+    <Color>#1E90FF</Color>
+  </item>
+  <item>
+    <Description>Portable Any Map Graphic Bitmap</Description>
+    <Extensions>
+      <item>.pnm</item>
+    </Extensions>
+    <MimeTypes>
+      <item>image/x-portable-anymap</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Perl Documentation File</Description>
+    <Extensions>
+      <item>.pod</item>
+    </Extensions>
+    <MimeTypes>
+      <item>Text/x-pod</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Microsoft Powerpoint Template File</Description>
+    <Extensions>
+      <item>.potm</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.ms-powerpoint.template.macroEnabled.12</item>
+    </MimeTypes>
+    <Color>#D83B01</Color>
+  </item>
+  <item>
+    <Description>Microsoft Powerpoint Template File</Description>
+    <Extensions>
+      <item>.potx</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.openxmlformats-officedocument.presentationml.template</item>
+    </MimeTypes>
+    <Color>#D83B01</Color>
+  </item>
+  <item>
+    <Description>Microsoft Powerpoint File</Description>
+    <Extensions>
+      <item>.ppam</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.ms-powerpoint.addin.macroEnabled.12</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Portable Pixmap Image</Description>
+    <Extensions>
+      <item>.ppm</item>
+    </Extensions>
+    <MimeTypes>
+      <item>image/x-portable-pixmap</item>
+      <item>application/ppm</item>
+      <item> application/x-ppm</item>
+      <item> image/x-ppm</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Microsoft Powerpoint File</Description>
+    <Extensions>
+      <item>.pps</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.ms-powerpoint</item>
+      <item>application/ms-powerpoint</item>
+      <item> application/mspowerpoint</item>
+      <item> application/powerpoint</item>
+      <item> application/ppt</item>
+      <item> application/vnd-mspowerpoint</item>
+      <item> application/vnd_ms-powerpoint</item>
+      <item> application/x-mspowerpoint</item>
+      <item> application/x-powerpoint</item>
+    </MimeTypes>
+    <Color>#D83B01</Color>
+  </item>
+  <item>
+    <Description>Microsoft Powerpoint File</Description>
+    <Extensions>
+      <item>.ppsm</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.ms-powerpoint.slideshow.macroEnabled.12</item>
+    </MimeTypes>
+    <Color>#D83B01</Color>
+  </item>
+  <item>
+    <Description>Microsoft Powerpoint File</Description>
+    <Extensions>
+      <item>.ppsx</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.openxmlformats-officedocument.presentationml.slideshow</item>
+    </MimeTypes>
+    <Color>#D83B01</Color>
+  </item>
+  <item>
+    <Description>Microsoft Powerpoint File</Description>
+    <Extensions>
+      <item>.ppt</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.ms-powerpoint</item>
+      <item>application/ms-powerpoint</item>
+      <item> application/mspowerpoint</item>
+      <item> application/powerpoint</item>
+      <item> application/ppt</item>
+      <item> application/vnd-mspowerpoint</item>
+      <item> application/vnd_ms-powerpoint</item>
+      <item> application/x-mspowerpoint</item>
+      <item> application/x-powerpoint</item>
+    </MimeTypes>
+    <Color>#D83B01</Color>
+  </item>
+  <item>
+    <Description>Microsoft Powerpoint File</Description>
+    <Extensions>
+      <item>.pptm</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.ms-powerpoint.presentation.macroEnabled.12</item>
+    </MimeTypes>
+    <Color>#D83B01</Color>
+  </item>
+  <item>
+    <Description>Microsoft Powerpoint File</Description>
+    <Extensions>
+      <item>.pptx</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.openxmlformats-officedocument.presentationml.presentation</item>
+    </MimeTypes>
+    <Color>#D83B01</Color>
+  </item>
+  <item>
+    <Description>Pics Rules File</Description>
+    <Extensions>
+      <item>.prf</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/pics-rules</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Postscript File</Description>
+    <Extensions>
+      <item>.ps</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/postscript</item>
+      <item>application/eps</item>
+      <item> application/x-eps</item>
+      <item> image/eps</item>
+      <item> image/x-eps</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Adobe Photoshop File</Description>
+    <Extensions>
+      <item>.psd</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/photoshop</item>
+      <item>application/psd</item>
+      <item> application/x-photoshop</item>
+      <item> image/photoshop</item>
+      <item> image/psd</item>
+      <item> image/x-photoshop</item>
+      <item> image/x-psd</item>
+    </MimeTypes>
+    <Color>#1E90FF</Color>
+  </item>
+  <item>
+    <Description>Microsoft Publisher File</Description>
+    <Extensions>
+      <item>.pub</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.ms-publisher</item>
+      <item>application/x-mspublisher</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Python Source File</Description>
+    <Extensions>
+      <item>.py</item>
+    </Extensions>
+    <MimeTypes>
+      <item>Text/x-python</item>
+    </MimeTypes>
+    <Color>#228B22</Color>
+  </item>
+  <item>
+    <Description>Quicktime Video File</Description>
+    <Extensions>
+      <item>.qt</item>
+    </Extensions>
+    <MimeTypes>
+      <item>video/quicktime</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Realaudio File</Description>
+    <Extensions>
+      <item>.ra</item>
+    </Extensions>
+    <MimeTypes>
+      <item>audio/vnd.rn-realaudio</item>
+      <item>audio/vnd.pn-realaudio</item>
+      <item> audio/x-pn-realaudio</item>
+      <item> audio/x-pn-realaudio-plugin</item>
+      <item> audio/x-pn-realvideo</item>
+      <item> audio/x-realaudio</item>
+    </MimeTypes>
+    <Color>#FF8C00</Color>
+  </item>
+  <item>
+    <Description>Realaudio File</Description>
+    <Extensions>
+      <item>.ram</item>
+    </Extensions>
+    <MimeTypes>
+      <item>audio/vnd.rn-realaudio</item>
+      <item>audio/vnd.pn-realaudio</item>
+      <item> audio/x-pn-realaudio</item>
+      <item> audio/x-pn-realaudio-plugin</item>
+      <item> audio/x-pn-realvideo</item>
+      <item> audio/x-realaudio</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Compressed Archive</Description>
+    <Extensions>
+      <item>.rar</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/rar</item>
+      <item>application/x-rar-compressed</item>
+    </MimeTypes>
+    <Color>#8B4513</Color>
+  </item>
+  <item>
+    <Description>Raster Image</Description>
+    <Extensions>
+      <item>.ras</item>
+    </Extensions>
+    <MimeTypes>
+      <item>image/x-cmu-raster</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Iris Image</Description>
+    <Extensions>
+      <item>.rgb</item>
+    </Extensions>
+    <MimeTypes>
+      <item>image/x-rgb</item>
+      <item>image/rgb</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Realmedia File</Description>
+    <Extensions>
+      <item>.rm</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.rn-realmedia</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Radio Midi File</Description>
+    <Extensions>
+      <item>.rmi</item>
+    </Extensions>
+    <MimeTypes>
+      <item>audio/mid</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Troff File</Description>
+    <Extensions>
+      <item>.roff</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-troff</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Realaudio File</Description>
+    <Extensions>
+      <item>.rpm</item>
+    </Extensions>
+    <MimeTypes>
+      <item>audio/vnd.rn-realaudio</item>
+      <item>audio/vnd.pn-realaudio</item>
+      <item> audio/x-pn-realaudio</item>
+      <item> audio/x-pn-realaudio-plugin</item>
+      <item> audio/x-pn-realvideo</item>
+      <item> audio/x-realaudio</item>
+    </MimeTypes>
+    <Color>#000000</Color>
+  </item>
+  <item>
+    <Description>Rich Text Format File</Description>
+    <Extensions>
+      <item>.rtf</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/rtf</item>
+      <item>application/richText</item>
+      <item> application/x-rtf</item>
+      <item> Text/richText</item>
+      <item> Text/rtf</item>
+    </MimeTypes>
+    <Color>#696969</Color>
+  </item>
+  <item>
+    <Description>Rich Text Format File</Description>
+    <Extensions>
+      <item>.rtx</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/rtf</item>
+      <item>application/richText</item>
+      <item> application/x-rtf</item>
+      <item> Text/richText</item>
+      <item> Text/rtf</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Realvideo File</Description>
+    <Extensions>
+      <item>.rv</item>
+    </Extensions>
+    <MimeTypes>
+      <item>video/vnd.rn-realvideo</item>
+      <item>video/x-pn-realvideo</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Sas File</Description>
+    <Extensions>
+      <item>.sas</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/sas</item>
+      <item>application/x-sas</item>
+      <item> application/x-sas-data</item>
+      <item> application/x-sas-log</item>
+      <item> application/x-sas-output</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Spss File</Description>
+    <Extensions>
+      <item>.sav</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/spss</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Schedule Data</Description>
+    <Extensions>
+      <item>.scd</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-msschedule</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Scheme File</Description>
+    <Extensions>
+      <item>.scm</item>
+    </Extensions>
+    <MimeTypes>
+      <item>Text/x-script.scheme</item>
+      <item>Text/x-scheme</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Windows Script Component</Description>
+    <Extensions>
+      <item>.sct</item>
+    </Extensions>
+    <MimeTypes>
+      <item>Text/scriptlet</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Spss File</Description>
+    <Extensions>
+      <item>.sd2</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/spss</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Self-Extracting Archive</Description>
+    <Extensions>
+      <item>.sea</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-sea</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Shell Script File</Description>
+    <Extensions>
+      <item>.sh</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-sh</item>
+      <item>application/x-shellscript</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Unix Shar Archive File</Description>
+    <Extensions>
+      <item>.shar</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-shar</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Html File</Description>
+    <Extensions>
+      <item>.shtml</item>
+    </Extensions>
+    <MimeTypes>
+      <item>Text/html</item>
+      <item>application/xhtml+xml</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Stuffit Archive</Description>
+    <Extensions>
+      <item>.sit</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/stuffit</item>
+      <item>application/x-sit</item>
+      <item> application/x-stuffit</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Smil File</Description>
+    <Extensions>
+      <item>.smil</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/smil</item>
+      <item>application/smil+xml</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Audio File</Description>
+    <Extensions>
+      <item>.snd</item>
+    </Extensions>
+    <MimeTypes>
+      <item>audio/basic</item>
+      <item>audio/au</item>
+      <item> audio/x-au</item>
+      <item> audio/x-basic</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Adobe Flash File</Description>
+    <Extensions>
+      <item>.spl</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-shockwave-flash</item>
+      <item>application/futuresplash</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Spss File</Description>
+    <Extensions>
+      <item>.spo</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/spss</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Sql File</Description>
+    <Extensions>
+      <item>.sql</item>
+    </Extensions>
+    <MimeTypes>
+      <item>Text/x-sql</item>
+      <item>Text/sql</item>
+    </MimeTypes>
+    <Color>#228B22</Color>
+  </item>
+  <item>
+    <Description>Wais Source File</Description>
+    <Extensions>
+      <item>.src</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-wais-source</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Certificate Store Crypto Shell Extension</Description>
+    <Extensions>
+      <item>.sst</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.ms-pkicertstore</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Certificate Trust List</Description>
+    <Extensions>
+      <item>.stl</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.ms-pkistl</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Shtml File</Description>
+    <Extensions>
+      <item>.stm</item>
+    </Extensions>
+    <MimeTypes>
+      <item>Text/html</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Adobe Director File</Description>
+    <Extensions>
+      <item>.swa</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-director</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Adobe Flash File</Description>
+    <Extensions>
+      <item>.swf</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-shockwave-flash</item>
+      <item>application/futuresplash</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Openoffice.Org Document</Description>
+    <Extensions>
+      <item>.sxw</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.sun.xml.writer</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Troff File</Description>
+    <Extensions>
+      <item>.t</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-troff</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Compressed Tar File</Description>
+    <Extensions>
+      <item>.tar</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/tar</item>
+      <item>application/x-gtar</item>
+      <item> application/x-tar</item>
+    </MimeTypes>
+    <Color>#8B4513</Color>
+  </item>
+  <item>
+    <Description>Tcl Source File</Description>
+    <Extensions>
+      <item>.tcl</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-tcl</item>
+      <item>Text/x-script.tcl</item>
+      <item> Text/x-tcl</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Tex File</Description>
+    <Extensions>
+      <item>.tex</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-tex</item>
+      <item>Text/x-tex</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Truevision Targa Image</Description>
+    <Extensions>
+      <item>.tga</item>
+    </Extensions>
+    <MimeTypes>
+      <item>image/x-targa</item>
+      <item>application/tga</item>
+      <item> application/x-targa</item>
+      <item> application/x-tga</item>
+      <item> image/targa</item>
+      <item> image/tga</item>
+      <item> image/x-tga</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Compressed Gzip Archive</Description>
+    <Extensions>
+      <item>.tgz</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/gzip</item>
+      <item>application/gzip-compressed</item>
+      <item> application/gzipped</item>
+      <item> application/x-gunzip</item>
+      <item> application/x-gzip</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Tagged Image File</Description>
+    <Extensions>
+      <item>.tif</item>
+    </Extensions>
+    <MimeTypes>
+      <item>image/tiff</item>
+      <item>application/tif</item>
+      <item> application/tiff</item>
+      <item> application/x-tif</item>
+      <item> application/x-tiff</item>
+      <item> image/tif</item>
+      <item> image/x-tif</item>
+      <item> image/x-tiff</item>
+    </MimeTypes>
+    <Color>#1E90FF</Color>
+  </item>
+  <item>
+    <Description>Tagged Image File</Description>
+    <Extensions>
+      <item>.tiff</item>
+    </Extensions>
+    <MimeTypes>
+      <item>image/tiff</item>
+      <item>application/tif</item>
+      <item> application/tiff</item>
+      <item> application/x-tif</item>
+      <item> application/x-tiff</item>
+      <item> image/tif</item>
+      <item> image/x-tif</item>
+      <item> image/x-tiff</item>
+    </MimeTypes>
+    <Color>#1E90FF</Color>
+  </item>
+  <item>
+    <Description>Microsoft Exchange Tnef File</Description>
+    <Extensions>
+      <item>.tnef</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/ms-tnef</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Troff File</Description>
+    <Extensions>
+      <item>.tr</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-troff</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Terminal Settings</Description>
+    <Extensions>
+      <item>.trm</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-msterminal</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Tab-Delimited File</Description>
+    <Extensions>
+      <item>.tsv</item>
+    </Extensions>
+    <MimeTypes>
+      <item>Text/tsv</item>
+      <item>Text/tab-separated-values</item>
+      <item> Text/x-tab-separated-values</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Tableau Workbook File</Description>
+    <Extensions>
+      <item>.twb</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/twb</item>
+      <item>application/twbx</item>
+      <item> application/x-twb</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Tableau Workbook File</Description>
+    <Extensions>
+      <item>.twbx</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/twb</item>
+      <item>application/twbx</item>
+      <item> application/x-twb</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Plain Text File</Description>
+    <Extensions>
+      <item>.txt</item>
+    </Extensions>
+    <MimeTypes>
+      <item>Text/plain</item>
+    </MimeTypes>
+    <Color>#696969</Color>
+  </item>
+  <item>
+    <Description>Internet Location Service</Description>
+    <Extensions>
+      <item>.uls</item>
+    </Extensions>
+    <MimeTypes>
+      <item>Text/iuls</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Posix Tar Compressed Archive</Description>
+    <Extensions>
+      <item>.ustar</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-ustar</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Vcard File</Description>
+    <Extensions>
+      <item>.vcf</item>
+    </Extensions>
+    <MimeTypes>
+      <item>Text/x-vcard</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Virtual Reality Modeling Language File</Description>
+    <Extensions>
+      <item>.vrml</item>
+    </Extensions>
+    <MimeTypes>
+      <item>x-world/x-vrml</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Microsoft Visio Document</Description>
+    <Extensions>
+      <item>.vsd</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.visio</item>
+      <item>application/visio</item>
+      <item> application/visio.drawing</item>
+      <item> application/vsd</item>
+      <item> application/x-visio</item>
+      <item> application/x-vsd</item>
+      <item> image/x-vsd</item>
+    </MimeTypes>
+    <Color>#3955A3</Color>
+  </item>
+  <item>
+    <Description>Adobe Director File</Description>
+    <Extensions>
+      <item>.w3d</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-director</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Kde Web Archive</Description>
+    <Extensions>
+      <item>.war</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-webarchive</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Waveform Audio File</Description>
+    <Extensions>
+      <item>.wav</item>
+    </Extensions>
+    <MimeTypes>
+      <item>audio/wav</item>
+      <item>audio/s-wav</item>
+      <item> audio/wave</item>
+      <item> audio/x-wav</item>
+    </MimeTypes>
+    <Color>#FF8C00</Color>
+  </item>
+  <item>
+    <Description>Works File Transmission</Description>
+    <Extensions>
+      <item>.wcm</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.ms-works</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Microsoft Works File</Description>
+    <Extensions>
+      <item>.wdb</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.ms-works</item>
+      <item>application/x-msworks-wp</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Microsoft Works File</Description>
+    <Extensions>
+      <item>.wks</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.ms-works</item>
+      <item>application/x-msworks-wp</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Windows Media Audio File</Description>
+    <Extensions>
+      <item>.wma</item>
+    </Extensions>
+    <MimeTypes>
+      <item>audio/x-ms-wma</item>
+    </MimeTypes>
+    <Color>#FF8C00</Color>
+  </item>
+  <item>
+    <Description>Windows Media File</Description>
+    <Extensions>
+      <item>.wmf</item>
+    </Extensions>
+    <MimeTypes>
+      <item>image/x-wmf</item>
+      <item>application/wmf</item>
+      <item> application/x-msmetaFile</item>
+      <item> application/x-wmf</item>
+      <item> image/wmf</item>
+      <item> image/x-win-metaFile</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Windows Media Video File</Description>
+    <Extensions>
+      <item>.wmv</item>
+    </Extensions>
+    <MimeTypes>
+      <item>video/x-ms-wmv</item>
+    </MimeTypes>
+    <Color>#4B0082</Color>
+  </item>
+  <item>
+    <Description>Windows Media Compressed File</Description>
+    <Extensions>
+      <item>.wmz</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-ms-wmz</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Wordperfect Document</Description>
+    <Extensions>
+      <item>.wpd</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/wordperfect</item>
+      <item>application/wordperf</item>
+      <item> application/wpd</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Microsoft Works File</Description>
+    <Extensions>
+      <item>.wps</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.ms-works</item>
+      <item>application/x-msworks-wp</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Write Document</Description>
+    <Extensions>
+      <item>.wri</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-mswrite</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Vrml 3D File</Description>
+    <Extensions>
+      <item>.wrl</item>
+    </Extensions>
+    <MimeTypes>
+      <item>x-world/x-vrml</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Vrml 3D File</Description>
+    <Extensions>
+      <item>.wrz</item>
+    </Extensions>
+    <MimeTypes>
+      <item>x-world/x-vrml</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Html File</Description>
+    <Extensions>
+      <item>.xhtml</item>
+    </Extensions>
+    <MimeTypes>
+      <item>Text/html</item>
+      <item>application/xhtml+xml</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Excel Add-In</Description>
+    <Extensions>
+      <item>.xla</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.ms-excel</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Microsoft Excel Document</Description>
+    <Extensions>
+      <item>.xlam</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.ms-excel.addin.macroEnabled.12</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Excel Chart</Description>
+    <Extensions>
+      <item>.xlc</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.ms-excel</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Microsoft Excel Document</Description>
+    <Extensions>
+      <item>.xll</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.ms-excel</item>
+      <item>application/excel</item>
+      <item> application/msexcel</item>
+      <item> application/msexcell</item>
+      <item> application/x-dos_ms_excel</item>
+      <item> application/x-excel</item>
+      <item> application/x-ms-excel</item>
+      <item> application/x-msexcel</item>
+      <item> application/x-xls</item>
+      <item> application/xls</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Excel Macro File</Description>
+    <Extensions>
+      <item>.xlm</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.ms-excel</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Microsoft Excel Document</Description>
+    <Extensions>
+      <item>.xls</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.ms-excel</item>
+      <item>application/excel</item>
+      <item> application/msexcel</item>
+      <item> application/msexcell</item>
+      <item> application/x-dos_ms_excel</item>
+      <item> application/x-excel</item>
+      <item> application/x-ms-excel</item>
+      <item> application/x-msexcel</item>
+      <item> application/x-xls</item>
+      <item> application/xls</item>
+    </MimeTypes>
+    <Color>#107C10</Color>
+  </item>
+  <item>
+    <Description>Microsoft Excel Document</Description>
+    <Extensions>
+      <item>.xlsb</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.ms-excel.sheet.binary.macroEnabled.12</item>
+    </MimeTypes>
+    <Color>#107C10</Color>
+  </item>
+  <item>
+    <Description>Microsoft Excel Document</Description>
+    <Extensions>
+      <item>.xlsm</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.ms-excel.sheet.macroEnabled.12</item>
+    </MimeTypes>
+    <Color>#107C10</Color>
+  </item>
+  <item>
+    <Description>Microsoft Excel Document</Description>
+    <Extensions>
+      <item>.xlsx</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.openxmlformats-officedocument.spreadsheetml.sheet</item>
+    </MimeTypes>
+    <Color>#107C10</Color>
+  </item>
+  <item>
+    <Description>Excel Template File</Description>
+    <Extensions>
+      <item>.xlt</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.ms-excel</item>
+    </MimeTypes>
+    <Color>#107C10</Color>
+  </item>
+  <item>
+    <Description>Microsoft Excel Document</Description>
+    <Extensions>
+      <item>.xltm</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.ms-excel.template.macroEnabled.12</item>
+    </MimeTypes>
+    <Color>#107C10</Color>
+  </item>
+  <item>
+    <Description>Microsoft Excel Template File</Description>
+    <Extensions>
+      <item>.xltx</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.openxmlformats-officedocument.spreadsheetml.template</item>
+    </MimeTypes>
+    <Color>#107C10</Color>
+  </item>
+  <item>
+    <Description>Excel Workspace File</Description>
+    <Extensions>
+      <item>.xlw</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.ms-excel</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Xml File</Description>
+    <Extensions>
+      <item>.xml</item>
+    </Extensions>
+    <MimeTypes>
+      <item>Text/xml</item>
+      <item>application/x-xml</item>
+      <item> application/xml</item>
+    </MimeTypes>
+    <Color>#228B22</Color>
+  </item>
+  <item>
+    <Description>Pixmap Image</Description>
+    <Extensions>
+      <item>.xpm</item>
+    </Extensions>
+    <MimeTypes>
+      <item>image/x-xpixmap</item>
+      <item>image/x-xpm</item>
+      <item> image/xpm</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Microsoft Xps File</Description>
+    <Extensions>
+      <item>.xps</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.ms-xpsdocument</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Xslt Stylesheet File</Description>
+    <Extensions>
+      <item>.xsl</item>
+    </Extensions>
+    <MimeTypes>
+      <item>Text/xsl</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>X Windows Dump</Description>
+    <Extensions>
+      <item>.xwd</item>
+    </Extensions>
+    <MimeTypes>
+      <item>image/x-xwindowdump</item>
+      <item>image/xwd</item>
+      <item> image/x-xwd</item>
+      <item> application/xwd</item>
+      <item> application/x-xwd</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Unix Compressed Archive File</Description>
+    <Extensions>
+      <item>.z</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-compress</item>
+      <item>application/z</item>
+      <item> application/x-z</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Compressed Zip Archive</Description>
+    <Extensions>
+      <item>.zip</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/zip</item>
+      <item>application/x-compress</item>
+      <item> application/x-compressed</item>
+      <item> application/x-zip</item>
+      <item> application/x-zip-compressed</item>
+      <item> application/zip-compressed</item>
+      <item> application/x-7zip-compressed</item>
+    </MimeTypes>
+    <Color>#8B4513</Color>
+  </item>
+  <item>
+    <Description>3Gp Mobile Video</Description>
+    <Extensions>
+      <item>.3gp</item>
+    </Extensions>
+    <MimeTypes>
+      <item>video/3gpp</item>
+    </MimeTypes>
+    <Color>#4B0082</Color>
+  </item>
+  <item>
+    <Description>Mpeg-4 Video File</Description>
+    <Extensions>
+      <item>.mp4</item>
+    </Extensions>
+    <MimeTypes>
+      <item>video/mp4</item>
+    </MimeTypes>
+    <Color>#4B0082</Color>
+  </item>
+  <item>
+    <Description>Iphone Index</Description>
+    <Extensions>
+      <item>.m3u8</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-mpegURL</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Iphone Segment</Description>
+    <Extensions>
+      <item>.ts</item>
+    </Extensions>
+    <MimeTypes>
+      <item>video/MP2T</item>
+    </MimeTypes>
+    <Color>#228B22</Color>
+  </item>
+  <item>
+    <Description>Android Application Package</Description>
+    <Extensions>
+      <item>.apk</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/vnd.android.package-archive</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Web Open Font Format</Description>
+    <Extensions>
+      <item>.ttf</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/font-woff</item>
+    </MimeTypes>
+    <Color>#FF1493</Color>
+  </item>
+  <item>
+    <Description>Scalable Vector Graphics</Description>
+    <Extensions>
+      <item>.svg</item>
+    </Extensions>
+    <MimeTypes>
+      <item>image/svg+xml</item>
+    </MimeTypes>
+    <Color>#1E90FF</Color>
+  </item>
+  <item>
+    <Description>Compressed Scalable Vector Graphics</Description>
+    <Extensions>
+      <item>.svgz</item>
+    </Extensions>
+    <MimeTypes>
+      <item>image/svg+xml</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Windows Phone Application</Description>
+    <Extensions>
+      <item>.xap</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-silverlight-app</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Markdown Text File</Description>
+    <Extensions>
+      <item>.md</item>
+    </Extensions>
+    <MimeTypes>
+      <item>Text/markdown</item>
+      <item>Text/vnd.daringfireball.markdown</item>
+      <item>Text/x-markdown</item>
+      <item>Text/x-web-markdown</item>
+    </MimeTypes>
+    <Color>#696969</Color>
+  </item>
+  <item>
+    <Description>JavaScript Object Notation</Description>
+    <Extensions>
+      <item>.json</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/json</item>
+    </MimeTypes>
+    <Color>#228B22</Color>
+  </item>
+  <item>
+    <Description>Textile Text File</Description>
+    <Extensions>
+      <item>.Textile</item>
+    </Extensions>
+    <MimeTypes>
+      <item>Text/x-web-Textile</item>
+      <item>Text/x-wiki.creole</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Batch File</Description>
+    <Extensions>
+      <item>.bat</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/bat</item>
+      <item>application/x-bat</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Nintendo 64 ROM File</Description>
+    <Extensions>
+      <item>.n64</item>
+      <item>.v64</item>
+      <item>.z64</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-nintendo64-rom</item>
+      <item>application/octet-stream</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Super Nintendo ROM File</Description>
+    <Extensions>
+      <item>.smc</item>
+      <item>.sfc</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-snes-rom</item>
+      <item>application/octet-stream</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>SEGA Genesis ROM File</Description>
+    <Extensions>
+      <item>.gen</item>
+      <item>.smd</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-sega-genesis-rom</item>
+      <item>application/octet-stream</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Nintendo GameCube ROM File</Description>
+    <Extensions>
+      <item>.gcm</item>
+      <item>.gcz</item>
+      <item>.ciso</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-gamecube-rom</item>
+      <item>application/octet-stream</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Nintendo 3DS ROM File</Description>
+    <Extensions>
+      <item>.3ds</item>
+      <item>.cci</item>
+      <item>.cxi</item>
+      <item>.cia</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-nintendo-3ds-rom</item>
+      <item>application/octet-stream</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
+  <item>
+    <Description>Nintendo DS ROM File</Description>
+    <Extensions>
+      <item>.nds</item>
+    </Extensions>
+    <MimeTypes>
+      <item>application/x-nintendo-ds-rom</item>
+      <item>application/octet-stream</item>
+    </MimeTypes>
+    <Color>#808080</Color>
+  </item>
 </mimes>
