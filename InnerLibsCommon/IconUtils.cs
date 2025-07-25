@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using Extensions.Files;
@@ -42,7 +43,7 @@ namespace Extensions
         /// <param name="fileSystemInfo">O arquivo ou pasta</param>
         /// <param name="largeIcon">True para ícone grande, false para pequeno</param>
         /// <returns>Icon do arquivo/pasta ou null se não conseguir obter</returns>
-        public static Icon? GetIcon(this FileSystemInfo? fileSystemInfo, bool largeIcon = true) => GetIcon(fileSystemInfo?.FullName, fileSystemInfo is DirectoryInfo, largeIcon);
+        public static Icon GetIcon(this FileSystemInfo fileSystemInfo, bool largeIcon = true) => GetIcon(fileSystemInfo?.FullName, fileSystemInfo is DirectoryInfo, largeIcon);
 
         /// <summary>
         /// Obtém o ícone de um arquivo ou pasta pelo caminho
@@ -51,7 +52,7 @@ namespace Extensions
         /// <param name="isDirectory">True se for uma pasta</param>
         /// <param name="largeIcon">True para ícone grande, false para pequeno</param>
         /// <returns>Icon do arquivo/pasta ou null se não conseguir obter</returns>
-        public static Icon? GetIcon(this string? path, bool isDirectory = false, bool largeIcon = true)
+        public static Icon GetIcon(this string path, bool isDirectory = false, bool largeIcon = true)
         {
             if (string.IsNullOrEmpty(path))
                 return SystemIcons.Question;
@@ -96,15 +97,15 @@ namespace Extensions
         /// <param name="fileSystemInfo">O arquivo ou pasta</param>
         /// <param name="largeIcon">True para ícone grande, false para pequeno</param>
         /// <returns>Bitmap do ícone ou null se não conseguir obter</returns>
-        public static Bitmap? GetIconAsBitmap(this FileSystemInfo? fileSystemInfo, bool largeIcon = true)
+        public static Bitmap GetIconAsBitmap(this FileSystemInfo fileSystemInfo, bool largeIcon = true)
         {
-            using (Icon? icon = fileSystemInfo.GetIcon(largeIcon))
+            using (Icon icon = fileSystemInfo.GetIcon(largeIcon))
             {
                 return icon?.ToBitmap();
             }
         }
 
-        public static Bitmap? GetThumbnail(this FileSystemInfo? fileSystemInfo)
+        public static Bitmap GetThumbnail(this FileSystemInfo fileSystemInfo)
         {
             if (fileSystemInfo != null && fileSystemInfo.Exists)
             {
@@ -137,9 +138,9 @@ namespace Extensions
         /// <param name="isDirectory">True se for uma pasta</param>
         /// <param name="largeIcon">True para ícone grande, false para pequeno</param>
         /// <returns>Bitmap do ícone ou null se não conseguir obter</returns>
-        public static Bitmap? GetIconAsBitmap(this string? path, bool isDirectory = false, bool largeIcon = true)
+        public static Bitmap GetIconAsBitmap(this string path, bool isDirectory = false, bool largeIcon = true)
         {
-            using (Icon? icon = path.GetIcon(isDirectory, largeIcon))
+            using (Icon icon = path.GetIcon(isDirectory, largeIcon))
             {
                 return icon?.ToBitmap();
             }

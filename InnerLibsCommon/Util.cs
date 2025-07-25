@@ -51,6 +51,8 @@ namespace Extensions
 
         private const int ERROR_SHARING_VIOLATION = 32;
 
+
+
         private static readonly MethodInfo containsMethod = typeof(string).GetMethod("Contains", new[] { typeof(string) });
 
         private static readonly MethodInfo endsWithMethod = typeof(string).GetMethod("EndsWith", new[] { typeof(string) });
@@ -73,6 +75,32 @@ namespace Extensions
 
         private static readonly MethodInfo startsWithMethod = typeof(string).GetMethod("StartsWith", new[] { typeof(string) });
 
+        /// <summary>
+        /// Gets all constants defined in the specified type.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static IEnumerable<FieldInfo> GetConstants(this Type type)
+        {
+            FieldInfo[] fieldInfos = type.GetFields(BindingFlags.Public |
+                 BindingFlags.Static | BindingFlags.FlattenHierarchy);
+
+            return fieldInfos.Where(fi => fi.IsLiteral && !fi.IsInitOnly);
+        }
+
+               /// <summary>
+        /// Gets all constants defined in the specified type.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static IEnumerable<string> GetStringConstants(this Type type)
+        {
+            FieldInfo[] fieldInfos = type.GetFields(BindingFlags.Public |
+                 BindingFlags.Static | BindingFlags.FlattenHierarchy);
+
+            return fieldInfos.Where(fi => fi.IsLiteral && !fi.IsInitOnly && fi.FieldType == typeof(string))
+                             .Select(fi => (string)fi.GetValue(null));
+        }
 
         /// <summary>
         /// Splits the given text into parts based on a character limit specified by an array. Ensures sentences are not split,
@@ -243,6 +271,23 @@ namespace Extensions
                 }
                 else
                 {
+                    if (Name.Length > 3)
+                    {
+                        // manter somente a primeira letra e as consoantes que definem a pronuncia,
+                        // por exemplo Evento vira Evnt (maxChar 4) ou Evt se maxChar for 3
+
+                        var firstChar = Name.GetFirstChars(1).ToUpperInvariant();
+                        var otherConsonants = Name.GetLastChars(Name.Length - 1).Where(c => c.ToString().IsAny(PredefinedArrays.Consonants.ToArray()));
+
+                        Name = firstChar + otherConsonants.SelectJoinString().ToUpperInvariant();
+                        while (Name.Length > maxLenght)
+                        {
+                            Name = Name.GetFirstChars(-1).Remove(Name.Length - 1);
+                        }
+
+
+
+                    }
                     Name = Name.GetFirstChars(maxLenght).ToTitle();
                 }
 
@@ -2292,14 +2337,16 @@ namespace Extensions
         /// <returns></returns>
         public static IEnumerable<Dictionary<string, object>> CreateDictionaryEnumerable<T>(this IEnumerable<T> Obj, params string[] Keys) => (Obj ?? Array.Empty<T>()).Select(x => x.CreateDictionary(Keys));
 
+
         /// <summary>
-        /// Cria um diretório se o mesmo nao existir e retorna um <see cref="DirectoryInfo"/> deste diretório
+        /// Cria um diretório se ele não existir e retorna um <see cref="DirectoryInfo"/> correspondente.
         /// </summary>
-        /// <param name="DirectoryName">o nome(s) do(s) diretorio(s) Ex.: "dir1/dir2/dir3"</param>
-        /// <returns>Um DirectoryInfo contendo as informacoes do diretório criado</returns>
+        /// <param name="DirectoryName">O nome ou caminho do diretório a ser criado. Pode ser um caminho de arquivo, caso em que o diretório do arquivo será utilizado.</param>
+        /// <param name="DateAndTime">(Opcional) Data e hora para criar subdiretórios no formato yyyy/MM/dd, se fornecido.</param>
+        /// <returns>Um objeto <see cref="DirectoryInfo"/> representando o diretório criado ou existente.</returns>
         /// <remarks>
-        /// Caso o <paramref name="DirectoryName"/> for um caminho de arquivo, é utilizado o
-        /// diretório deste arquivo.
+        /// Caso o <paramref name="DirectoryName"/> seja um caminho de arquivo, o diretório do arquivo será utilizado.
+        /// Se o diretório já existir, apenas retorna o <see cref="DirectoryInfo"/> correspondente.
         /// </remarks>
         public static DirectoryInfo CreateDirectoryIfNotExists(this string DirectoryName, DateTime? DateAndTime = null)
         {
@@ -2326,10 +2373,28 @@ namespace Extensions
             return new DirectoryInfo(DirectoryName);
         }
 
+        /// <summary>
+        /// Cria um diretório a partir de um <see cref="DirectoryInfo"/> se ele não existir e retorna o <see cref="DirectoryInfo"/> correspondente.
+        /// </summary>
+        /// <param name="DirectoryName">O objeto <see cref="DirectoryInfo"/> representando o diretório a ser criado.</param>
+        /// <param name="DateAndTime">(Opcional) Data e hora para criar subdiretórios no formato yyyy/MM/dd, se fornecido.</param>
+        /// <returns>Um objeto <see cref="DirectoryInfo"/> representando o diretório criado ou existente.</returns>
         public static DirectoryInfo CreateDirectoryIfNotExists(this DirectoryInfo DirectoryName, DateTime? DateAndTime = null) => DirectoryName?.FullName.CreateDirectoryIfNotExists(DateAndTime);
 
+        /// <summary>
+        /// Cria um diretório a partir de um <see cref="FileInfo"/> se ele não existir e retorna o <see cref="DirectoryInfo"/> correspondente ao diretório do arquivo.
+        /// </summary>
+        /// <param name="FileName">O objeto <see cref="FileInfo"/> representando o arquivo cujo diretório será criado.</param>
+        /// <param name="DateAndTime">(Opcional) Data e hora para criar subdiretórios no formato yyyy/MM/dd, se fornecido.</param>
+        /// <returns>Um objeto <see cref="DirectoryInfo"/> representando o diretório criado ou existente.</returns>
         public static DirectoryInfo CreateDirectoryIfNotExists(this FileInfo FileName, DateTime? DateAndTime = null) => FileName?.FullName.CreateDirectoryIfNotExists(DateAndTime);
 
+
+        /// <summary>
+        /// Cria um diretório a partir de múltiplas partes de caminho (string, DateTime, FileInfo ou DirectoryInfo) e retorna o <see cref="DirectoryInfo"/> correspondente.
+        /// </summary>
+        /// <param name="PathParts">Partes do caminho que podem ser string, DateTime, FileInfo ou DirectoryInfo.</param>
+        /// <returns>Um objeto <see cref="DirectoryInfo"/> representando o diretório criado ou existente.</returns>
         public static DirectoryInfo CreateDirectoryIfNotExists(params object[] PathParts)
         {
             var pt = PathParts.SelectMany((object x, int i) =>
@@ -4685,7 +4750,15 @@ namespace Extensions
         public static IEnumerable<string> GetMimeTypes(this Image Image) => Image?.RawFormat.GetMimeTypes() ?? Array.Empty<string>();
         public static string GetMimeType(this Image Image) => Image?.RawFormat.GetMimeType() ?? "image/png";
 
-        public static string GetFirstChars(this string Text, int Number = 1) => Text.IsValid() ? Text.Length < Number || Number < 0 ? Text : Text.Substring(0, Number) : EmptyString;
+        public static string GetFirstChars(this string Text, int Number = 1)
+        {
+            while (Number < 0)
+            {
+                Number = Text.Length + Number;
+            }
+
+            return Text.IsValid() ? Text.Length < Number || Number < 0 ? Text : Text.Substring(0, Number) : EmptyString;
+        }
 
         public static DataRow GetFirstRow(this DataSet Data) => Data?.GetFirstTable()?.GetFirstRow();
 
@@ -5025,7 +5098,15 @@ namespace Extensions
 
         public static IEnumerable<string> GetIPs() => GetLocalIP().Union(new[] { GetPublicIP() });
 
-        public static string GetLastChars(this string Text, int Number = 1) => Text.IsValid() ? Text.Length < Number || Number < 0 ? Text : Text.Substring(Text.Length - Number) : EmptyString;
+        public static string GetLastChars(this string Text, int Number = 1)
+        {
+            while (Number < 0)
+            {
+                Number = Text.Length + Number;
+            }
+
+            return Text.IsValid() ? Text.Length < Number || Number < 0 ? Text : Text.Substring(Text.Length - Number) : EmptyString;
+        }
 
         /// <summary>
         /// Retorna o nome do diretorio onde o arquivo se encontra
@@ -9392,7 +9473,7 @@ namespace Extensions
                 {
                     var uri = new Uri(QueryString);
                     query = uri.Query;
-                    if (query.StartsWith('?'))
+                    if (query.StartsWithAny("?"))
                         query = query.Substring(1);
                 }
                 catch
@@ -9401,7 +9482,7 @@ namespace Extensions
                     query = QueryString;
                 }
             }
-            else if (query.StartsWith('?'))
+            else if (query.StartsWithAny("?"))
             {
                 query = query.Substring(1);
             }
@@ -9411,7 +9492,7 @@ namespace Extensions
             {
                 if (qs.IsBlank())
                     continue;
-               var segment = qs.UrlDecode();
+                var segment = qs.UrlDecode();
                 var idx = segment.IndexOf('=');
                 string key, val;
                 if (idx > 0)
@@ -9424,13 +9505,41 @@ namespace Extensions
                     key = segment.TrimStart(' ', '?');
                     val = string.Empty;
                 }
-              
-                if ((key.IsNotBlank() || Keys.Contains(key)) )
+
+                if ((key.IsNotBlank() || Keys.Contains(key)))
                 {
                     result.Add(key, val);
                 }
             }
             return result;
+        }
+
+        /// <summary>
+        /// Retorna um novo size mantendo o Aspect ratio, a partir da troca do valor de uma propiedade Width ou Height
+        /// </summary>
+        /// <param name="size"></param>
+        /// <param name="value"></param>
+        /// <param name="property"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        public static Size ResizeMaintainingAspect(this Size size, int value, Expression<Func<Size, int>> property)
+        {
+            var info = property.GetPropertyInfo();
+
+            if (info.Name.FlatEqual(nameof(Size.Height)))
+            {
+                var aspect = size.Height / (double)size.Width;
+                return new Size((int)(value * aspect), value);
+            }
+            else if (info.Name.FlatEqual(nameof(Size.Width)))
+            {
+                var aspect = size.Width / (double)size.Height;
+                return new Size(value, (int)(value / aspect));
+            }
+            else
+            {
+                throw new ArgumentException("Property must be Width or Height");
+            }
         }
 
         /// <summary>
@@ -9522,6 +9631,11 @@ namespace Extensions
                 {
                     s.Width = ToInt(Text.Split(new[] { "_" }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault());
                     s.Height = ToInt(Text.Split(new[] { "_" }, StringSplitOptions.RemoveEmptyEntries).LastOrDefault());
+                }
+                else if (Text.Like("*:*"))
+                {
+                    s.Width = ToInt(Text.Split(new[] { ":" }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault());
+                    s.Height = ToInt(Text.Split(new[] { ":" }, StringSplitOptions.RemoveEmptyEntries).LastOrDefault());
                 }
                 else
                 {
@@ -16282,6 +16396,10 @@ namespace Extensions
         public static HtmlElementNode WrapInTag(this HtmlElementNode Tag, string TagName) => new HtmlElementNode(TagName).Add(Tag);
 
         public static HtmlElementNode WrapInTag(this string Text, string TagName) => new HtmlElementNode(TagName, InnerHtml: Text);
+
+
+
+
 
         /// <summary>
         /// Write a message using <see cref="Debug.WriteLine(value,category)"/> when <see

@@ -17,6 +17,8 @@ namespace Extensions.Files
     {
         private static FileTypeList BaseList = new FileTypeList();
 
+
+
         internal void Build(string Extension, FileTypeList FileTypeList = null)
         {
             var item = GetFileType(Extension, FileTypeList);
@@ -254,6 +256,26 @@ namespace Extensions.Files
         public static IEnumerable<string> GetFileTypeStringList(FileTypeList FileTypeList = null) => (FileTypeList ?? GetFileTypeList()).SelectMany(x => x.GetMimeTypesOrDefault()).Distinct();
 
         public IEnumerable<string> GetMimeTypesOrDefault() => (MimeTypes ?? new List<string>()).DefaultIfEmpty("application/octet-stream");
+
+
+        public static IEnumerable<FileType> GetImageTypes() => GetFileTypeList().Where(x => x.IsImage());
+        public static IEnumerable<FileType> GetTextTypes() => GetFileTypeList().Where(x => x.IsText());
+
+        public static IEnumerable<FileType> GetVideoTypes() => GetFileTypeList().Where(x => x.IsVideo());
+
+        public static IEnumerable<FileType> GetAudioTypes() => GetFileTypeList().Where(x => x.IsAudio());
+
+        public static IEnumerable<FileType> GetApplicationTypes() => GetFileTypeList().Where(x => x.IsApplication());
+
+        public static IEnumerable<FileType> GetFontTypes() => GetFileTypeList().Where(x => x.IsFont());
+
+        public static IEnumerable<FileType> GetMessageTypes() => GetFileTypeList().Where(x => x.IsMessage());
+
+        public static IEnumerable<FileType> GetMarkdownTypes() => GetFileTypeList().Where(x => x.IsMarkdown());
+
+        public static IEnumerable<FileType> GetHtmlTypes() => GetFileTypeList().Where(x => x.IsHtml());
+
+
 
         /// <summary>
         /// Verifica se Tipo de arquivo é de audio

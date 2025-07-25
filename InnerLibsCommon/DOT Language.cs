@@ -156,7 +156,7 @@ namespace Extensions.DOTLanguage
     /// <summary>
     /// Represents a collection of attributes for DOT objects with proper value formatting according to DOT specification
     /// </summary>
-    public class DotAttributeCollection : Dictionary<string, object?>
+    public class DotAttributeCollection : Dictionary<string, object>
     {
         #region Public Methods
 
@@ -298,12 +298,12 @@ namespace Extensions.DOTLanguage
         /// <summary>
         /// Gets the target node of this edge
         /// </summary>
-        public DotNode? ChildNode { get; set; }
+        public DotNode ChildNode { get; set; }
 
         /// <summary>
         /// Gets the target subgraph of this edge
         /// </summary>
-        public Subgraph? ChildSubgraph { get; set; }
+        public Subgraph ChildSubgraph { get; set; }
 
         /// <summary>
         /// Gets the unique identifier for this edge based on its endpoints
@@ -328,12 +328,12 @@ namespace Extensions.DOTLanguage
         /// <summary>
         /// Gets the source node of this edge
         /// </summary>
-        public DotNode? ParentNode { get; set; }
+        public DotNode ParentNode { get; set; }
 
         /// <summary>
         /// Gets the source subgraph of this edge
         /// </summary>
-        public Subgraph? ParentSubgraph { get; set; }
+        public Subgraph ParentSubgraph { get; set; }
 
         #endregion Public Properties
 
@@ -367,7 +367,7 @@ namespace Extensions.DOTLanguage
         /// <param name="node">Node to get identifier for</param>
         /// <param name="subgraph">Subgraph to get identifier for</param>
         /// <returns>Properly formatted identifier</returns>
-        private static string GetNodeIdentifier(DotNode? node, Subgraph? subgraph)
+        private static string GetNodeIdentifier(DotNode node, Subgraph subgraph)
         {
             if (node != null)
             {
@@ -442,7 +442,7 @@ namespace Extensions.DOTLanguage
         /// <summary>
         /// Gets or sets the port identifier for this node
         /// </summary>
-        public string? Port { get; set; }
+        public string Port { get; set; }
 
         #endregion Public Properties
 
@@ -502,7 +502,8 @@ namespace Extensions.DOTLanguage
         /// <returns>Formatted ID suitable for DOT output</returns>
         private static string FormatNodeId(string id)
         {
-            if (id.IsBlank()) return "node_" + Guid.NewGuid().ToString("N")[..8];
+            // Substitua o operador de intervalo (C# 8.0+) por Substring para compatibilidade com C# 7.3
+            if (id.IsBlank()) return "node_" + Guid.NewGuid().ToString("N").Substring(0, 8);
 
             // Convert to friendly URL format
             string friendlyId = id.ToFriendlyURL(true);
@@ -694,7 +695,7 @@ namespace Extensions.DOTLanguage
         /// </summary>
         /// <param name="value">Value to format</param>
         /// <returns>Formatted value</returns>
-        private static string FormatAttributeValue(object? value)
+        private static string FormatAttributeValue(object value)
         {
             if (value == null) return "\"\"";
 
