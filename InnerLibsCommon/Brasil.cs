@@ -1199,8 +1199,12 @@ namespace Extensions.BR
             return cpfStr.FormatarCPF();
         }
 
-
-
+        public static string GerarTelefoneFake()
+        {             
+            string ddd = Util.RandomInt(11, 100).ToString();
+            string numero = Util.RandomInt(90000, 99999).ToString() + Util.RandomInt(1000, 9999).ToString();
+            return $"({ddd}) {numero}";
+        }
     }
 
     public class ChaveNFe

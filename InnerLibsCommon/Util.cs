@@ -20,6 +20,7 @@ using System.Net.Sockets;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Runtime.Remoting.Channels;
 using System.Runtime.Serialization;
 using System.Security.Cryptography;
 using System.Text;
@@ -88,7 +89,7 @@ namespace Extensions
             return fieldInfos.Where(fi => fi.IsLiteral && !fi.IsInitOnly);
         }
 
-               /// <summary>
+        /// <summary>
         /// Gets all constants defined in the specified type.
         /// </summary>
         /// <param name="type"></param>
@@ -226,6 +227,17 @@ namespace Extensions
 
         }
 
+
+        public static Image GenerateAvatarByName(this string Name, Size Size, int maxLenght = 3, bool circle = true)
+        {
+            if (Size == default)
+            {
+                Size = new Size(100, 100);
+            }
+
+            return Name.GenerateAvatarByName(Size: $"{Size.Width}X{Size.Height}", maxLenght: maxLenght, circle: circle);
+        }
+
         /// <summary>
         /// Generates an avatar image based on the provided name.
         /// </summary>
@@ -291,8 +303,8 @@ namespace Extensions
                     Name = Name.GetFirstChars(maxLenght).ToTitle();
                 }
 
-                float size = (float)(img.Width * .18);
-                img = img.DrawString(Name, new Font("Arial", size, FontStyle.Bold), fontColor);
+                float size = (float)((img?.Width ?? 1) * .18);
+                img = img?.DrawString(Name, new Font("Arial", size, FontStyle.Bold), fontColor);
             }
 
             if (circle)
@@ -3466,6 +3478,26 @@ namespace Extensions
         /// <param name="Text"></param>
         /// <returns></returns>
         public static IEnumerable<string> ExtractEmails(this string Text) => Text.IfBlank(string.Empty).SplitAny(PredefinedArrays.InvisibleChars.Union(PredefinedArrays.BreakLineChars).Union(new[] { ":", ";" }).ToArray()).Where(x => x.IsEmail()).Select(x => x.ToLowerInvariant()).Distinct().ToArray();
+
+
+        public static double[] ExtractNumbers(this string input)
+        {
+            // Pattern matches integers and floating-point numbers
+            var pattern = @"\d+(\.\d+)?";
+            var matches = Regex.Matches(input, pattern);
+
+            var numbers = new List<double>();
+            foreach (Match match in matches)
+            {
+                if (double.TryParse(match.Value, out double number))
+                {
+                    numbers.Add(number);
+                }
+            }
+
+            return numbers.ToArray();
+        }
+
 
         /// <summary>
         /// Calcula o fatorial de um numero
@@ -9641,6 +9673,13 @@ namespace Extensions
                 {
                     s.Width = ToInt(Text.Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault());
                     s.Height = ToInt(Text.Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries).LastOrDefault());
+
+                    if (s.Width <= 0 && s.Height <= 0)
+                    {
+                        var t = Text.ExtractNumbers();
+                        s.Width = t.FirstOrDefault().RoundInt();
+                        s.Height = t.LastOrDefault().RoundInt();
+                    }
                 }
             }
             catch
