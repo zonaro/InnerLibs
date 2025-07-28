@@ -75,6 +75,9 @@ namespace Extensions
 
         private static readonly MethodInfo startsWithMethod = typeof(string).GetMethod("StartsWith", new[] { typeof(string) });
 
+        public static bool IsEmpty<T>(this IEnumerable<T> Enumerable) => Enumerable.Any() == false;
+
+
         /// <summary>
         /// Gets all constants defined in the specified type.
         /// </summary>
@@ -7404,6 +7407,10 @@ namespace Extensions
                     else if (Value is DateTimeOffset off)
                     {
                         return off.Equals(DateTimeOffset.MinValue);
+                    }
+                    else if (Value is Guid guid)
+                    {
+                        return guid == Guid.Empty;
                     }
                     else if (Value is IDictionary dic)
                     {
