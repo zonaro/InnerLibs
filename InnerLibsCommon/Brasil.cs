@@ -70,7 +70,7 @@ namespace Extensions.BR
 
                 if (apenasNumeros.IsBlank()) return false;
 
-                if (apenasNumeros.Length == 13 && apenasNumeros.StartsWith("55"))
+                if ((apenasNumeros.Length == 13 || apenasNumeros.Length == 12) && apenasNumeros.StartsWith("55") && telefone.StartsWith("+"))
                 {
                     apenasNumeros = apenasNumeros.Substring(2);
                 }

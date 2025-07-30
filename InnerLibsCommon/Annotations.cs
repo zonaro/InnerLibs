@@ -36,7 +36,7 @@ namespace Extensions
 
     public class TelefoneAttribute : ValidationAttribute
     {
-        public override bool IsValid(object value) => value == null || (value.ToString().IsBlank() || Brasil.TelefoneValido(value.ToString()));
+        public override bool IsValid(object value) => value == null || value.ToString().IsBlank() || Brasil.TelefoneValido(value.ToString());
 
         public override string FormatErrorMessage(string name) => $"{name} não é um telefone válido";
     }
