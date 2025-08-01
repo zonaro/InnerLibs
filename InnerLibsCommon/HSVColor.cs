@@ -896,15 +896,21 @@ namespace Extensions.Colors
         {
             try
             {
-                return (HSVColor)obj == this;
+                if (obj is HSVColor hSVColor)
+                    return hSVColor == this;
             }
             catch
             {
-                return false;
             }
+            return false;
         }
 
-        public HSVColor GetDominantColor()
+        /// <summary>
+        /// Retorna a parte dominante desta cor, ou seja, a parte que mais se destaca
+        /// (Vermelho, Verde ou Azul)
+        /// </summary>
+        /// <returns></returns>
+        public HSVColor GetDominantPart()
         {
             if (Mood.HasFlag(ColorMood.MostRed))
             {
@@ -926,6 +932,11 @@ namespace Extensions.Colors
             }
         }
 
+        /// <summary>
+        /// Retorna a distância euclidiana entre duas cores
+        /// </summary>
+        /// <param name="Color"></param>
+        /// <returns></returns>
         public double GetEuclideanDistance(HSVColor Color)
         {
             double r_dist_sqrd = Math.Pow(Color.Red - (double)Red, 2d);
@@ -934,12 +945,20 @@ namespace Extensions.Colors
             return Math.Sqrt(r_dist_sqrd + g_dist_sqrd + b_dist_sqrd);
         }
 
+        /// <summary>
+        /// Retorna o hashcode desta cor
+        /// </summary>
+        /// <returns></returns>
         public override int GetHashCode() => ARGB;
 
+        /// <summary>
+        /// Extrai a parte verde desta cor
+        /// </summary>
+        /// <returns></returns>
         public HSVColor GreenPart() => new HSVColor(Color.FromArgb(0, Green, 0));
 
         /// <summary>
-        /// Extrai o cinza desta cor
+        /// Extrai o tom de cinza desta cor
         /// </summary>
         /// <returns></returns>
         public HSVColor Grey()
@@ -996,7 +1015,7 @@ namespace Extensions.Colors
 
         public bool IsSad() => Saturation.IsLessThan(0.5d) || Brightness.IsLessThan(0.75d);
 
-        public bool IssHappy() => !IsSad();
+        public bool IsHappy() => !IsSad();
 
         public bool IsHot() => Temperature.HasFlag(ColorMood.Hot);
 
@@ -1069,7 +1088,7 @@ namespace Extensions.Colors
         /// Retorna novas <see cref="HSVColor"/> a partir da cor atual, movendo ela N graus na roda
         /// de cores
         /// </summary>
-        /// <param name="excludeMe">Inclui esta cor no array</param>
+        /// <param name="ExcludeMe">Inclui esta cor no array</param>
         /// <param name="Degrees">Lista contendo os graus que serão movidos na roda de cores.</param>
         /// <returns></returns>
         public HSVColor[] ModColor(bool ExcludeMe, params int[] Degrees)
@@ -1176,7 +1195,7 @@ namespace Extensions.Colors
         }
 
         /// <summary>
-        /// Retorna as cores Quadraadas (tetradicas) desta cor
+        /// Retorna as cores Quadradas (tetradicas) desta cor
         /// </summary>
         /// <param name="ExcludeMe"></param>
         /// <returns></returns>
@@ -1195,6 +1214,10 @@ namespace Extensions.Colors
         /// <returns></returns>
         public Color ToDrawingColor() => Color.FromArgb(Alpha, Red, Green, Blue);
 
+        /// <summary>
+        /// Retorna o nome desta cor
+        /// </summary>
+        /// <returns></returns>
         public override string ToString() => Name;
 
         /// <summary>

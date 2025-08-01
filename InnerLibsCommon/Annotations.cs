@@ -6,9 +6,10 @@ using Extensions.BR;
 namespace Extensions
 {
 
+ 
     public class CPFAttribute : ValidationAttribute
     {
-        public override bool IsValid(object value) => value == null || (value.ToString().IsBlank() || Brasil.CPFValido(value.ToString()));
+        public override bool IsValid(object value) => value == null || value.ToString().IsBlank() || Brasil.CPFValido(value.ToString());
 
         public override string FormatErrorMessage(string name) => $"{name} não é um CPF válido";
     }

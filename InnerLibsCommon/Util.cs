@@ -1823,7 +1823,7 @@ namespace Extensions
                         {
                             if (subdir.IsEmpty())
                             {
-                                subdir.Delete();
+                                subdir.DeleteIfExist();
                                 l.Add(subdir);
                             }
                         }
@@ -1832,7 +1832,7 @@ namespace Extensions
 
                 if (DeleteTopDirectoryIfEmpty && TopDirectory.Exists && TopDirectory.IsEmpty())
                 {
-                    TopDirectory.Delete();
+                    TopDirectory.DeleteIfExist();
                     l.Add(TopDirectory);
                 }
             }
