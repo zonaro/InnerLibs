@@ -23,8 +23,8 @@ namespace Extensions.vCards
 
         #region Public Properties
 
-        public vAddressTypes AddressType { get => this[nameof(AddressType)].GetEnumValue<vAddressTypes>(); set => this[nameof(AddressType)] = value.GetEnumValueAsString(); }
-        public vLocations Location { get => this[nameof(Location)].GetEnumValue<vLocations>(); set => this[nameof(Location)] = value.GetEnumValueAsString(); }
+        public vAddressTypes AddressType { get => this[nameof(AddressType)].GetEnumValue<vAddressTypes>(); set => this[nameof(AddressType)] = value.ToString(); }
+        public vLocations Location { get => this[nameof(Location)].GetEnumValue<vLocations>(); set => this[nameof(Location)] = value.ToString(); }
         public bool Preferred { get => this[nameof(Preferred)].AsBool(); set => this[nameof(Preferred)] = $"{value}"; }
 
         #endregion Public Properties
@@ -33,10 +33,10 @@ namespace Extensions.vCards
 
         public override string ToString()
         {
-            string result = $"ADR{Preferred.AsIf(";PREF")};CHARSET=UTF-8;TYPE={AddressType.GetEnumValueAsString().ToUpperInvariant()}:;;{ToString(AddressPart.FullBuildingInfo | AddressPart.Neighborhood)};{City};{StateCode.IfBlank(State)};{ZipCode};{Country}".Replace(Environment.NewLine, "=0D=0A");
+            string result = $"ADR{Preferred.AsIf(";PREF")};CHARSET=UTF-8;TYPE={AddressType.ToString().ToUpperInvariant()}:;;{ToString(AddressPart.FullBuildingInfo | AddressPart.Neighborhood)};{City};{StateCode.IfBlank(State)};{ZipCode};{Country}".Replace(Environment.NewLine, "=0D=0A");
             if (Label.IsValid())
             {
-                result = result.Append($"{Environment.NewLine}LABEL;CHARSET=UTF-8;{Location.ToString().ToUpperInvariant()};{AddressType.GetEnumValueAsString().ToUpperInvariant()}:{Label.Replace(Environment.NewLine, "=0D=0A")}");
+                result = result.Append($"{Environment.NewLine}LABEL;CHARSET=UTF-8;{Location.ToString().ToUpperInvariant()};{AddressType.ToString().ToUpperInvariant()}:{Label.Replace(Environment.NewLine, "=0D=0A")}");
             }
 
             if (GeoLocation().IsValid())

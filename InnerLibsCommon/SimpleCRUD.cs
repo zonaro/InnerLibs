@@ -5141,7 +5141,7 @@ namespace Extensions.DataBases
 
         public Select<T> WhereObject<TO>(TO Obj) where TO : class => AndObject(Obj);
 
-        public Select<T> WhereObject<TO>(TO Obj, Util.LogicConcatenationOperator LogicOperator) where TO : class => WhereObject(Obj, LogicOperator.GetEnumValueAsString());
+        public Select<T> WhereObject<TO>(TO Obj, Util.LogicConcatenationOperator LogicOperator) where TO : class => WhereObject(Obj, LogicOperator.ToString());
 
         public Select<T> WhereObject<TO>(TO Obj, string LogicOperator) where TO : class
         {

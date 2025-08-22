@@ -116,7 +116,7 @@ namespace Extensions.Files
         /// <summary>
         /// Retorna o tamano em bytes deste arquivo ou diretório
         /// </summary>
-        public long Size => this.GetSize();
+        public long Size =>  this.GetSize();
 
         /// <summary>
         /// Retorna o tamano em bytes deste arquivo ou diretório usando a maior unidade de medida possivel

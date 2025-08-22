@@ -199,7 +199,7 @@ namespace Extensions.Colors
         /// <param name="Name">Nome da cor</param>
         public HSVColor(Color Color, string Name) : this(Color) => _name = Name;
 
-        public static HSVColor FromKnownColor(KnownColor color) => new HSVColor(Color.FromKnownColor(color), Util.GetEnumValueAsString(color));
+        public static HSVColor FromKnownColor(KnownColor color) => new HSVColor(Color.FromKnownColor(color), color.GetDisplayString());
 
 
         #endregion Public Constructors
@@ -1233,6 +1233,12 @@ namespace Extensions.Colors
         /// <param name="Amount"></param>
         /// <returns></returns>
         public HSVColor[] TriadicPallete(int Amount = 3) => Monochromatic(Amount).SelectMany(item => item.Triadic()).ToArray();
+
+        /// <summary>
+        /// Verifica se a cor é um tom de cinza
+        /// </summary>
+        /// <returns></returns>
+        public bool IsGray() => Red == Green && Green == Blue;
 
         #endregion Public Methods
     }

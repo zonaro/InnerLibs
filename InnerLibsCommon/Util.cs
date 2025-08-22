@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.Data.Common;
@@ -41,6 +42,7 @@ using Extensions.Files;
 using Extensions.Locations;
 using Extensions.Pagination;
 using Extensions.Web;
+
 using Expression = System.Linq.Expressions.Expression;
 
 namespace Extensions
@@ -1047,7 +1049,7 @@ namespace Extensions
         /// <param name="First">Primeiro Item</param>
         /// <param name="N">Outros itens</param>
         /// <returns></returns>
-        public static string BlankCoalesce(this string First, params string[] N) => BlankCoalesce(new[] { First }.Union(N ?? Array.Empty<string>()).ToArray());
+        public static string BlankCoalesce(this string First, params string[] N) => ValidCoalesce<string>(new string[] { First }.Union(N ?? Array.Empty<string>()).ToArray());
 
         /// <summary>
         /// Verifica se dois ou mais string estão nulas ou em branco e retorna o primeiro elemento
@@ -1055,7 +1057,8 @@ namespace Extensions
         /// </summary>
         /// <param name="N">Itens</param>
         /// <returns></returns>
-        public static string BlankCoalesce(params string[] N) => (N ?? Array.Empty<string>()).FirstOr(x => x.IsValid(), EmptyString);
+        public static string ValidCoalesce<T>(params T[] N) => (N ?? Array.Empty<T>()).FirstOrDefault(x => Util.IsValid(x))?.ChangeType<string>() ?? EmptyString;
+
 
         /// <summary>
         /// Aplica um borrão a imagem
@@ -1727,24 +1730,61 @@ namespace Extensions
 
                 if (ToType.IsEnum)
                 {
-                    if (Value is string Name && Name.IsValid())
+                    if (Value is string Name && Name.IsNotBlank() && Name.IsNotNumber())
                     {
-                        Name = Name.RemoveAccents().ToUpperInvariant();
+
                         foreach (var x in Enum.GetValues(ToType))
                         {
-                            var entryName = Enum.GetName(ToType, x)?.RemoveAccents().ToUpperInvariant();
-                            var entryValue = $"{(int)x}";
+                            var entryName1 = Util.GetDisplayString(x, ToType, false);
+                            var entryName2 = Util.GetDisplayString(x, ToType, true);
+                            var entryValue = (int)x;
 
-                            if (Name == entryName || Name == entryValue)
+                            if (Name == entryName1 || Name == entryName2)
                             {
-                                WriteDebug($"{ToType.Name} value ({Name}) found ({entryName})");
-                                return Convert.ChangeType(x, ToType);
+                                WriteDebug($"{ToType.Name} value ({Name}) found ({entryName1})");
+                                return Enum.ToObject(ToType, x);
                             }
+
+
+                        }
+                        WriteDebug($"{ToType.Name} value ({Name}) not found");
+                    }
+                    else
+
+                    if (Value.IsNumber())
+                    {
+                        int newv = 0;
+                        if (Value is decimal dec)
+                        {
+                            newv = dec.RoundInt();
                         }
 
-                        WriteDebug($"{ToType.Name} value ({Name}) not found");
-                        return Activator.CreateInstance(ToType);
+                        else if (Value is long l)
+                        {
+                            newv = l.ToInt();
+                        }
+                        else if (Value is double d)
+                        {
+                            newv = d.RoundInt();
+                        }
+                        else if (Value is float f)
+                        {
+                            newv = f.ToDouble().RoundInt();
+                        }
+                        else if (Value is short s)
+                        {
+                            newv = s.ToInt();
+                        }
+                        else
+                        {
+                            newv = Convert.ToInt32(Value);
+                        }
+
+                        WriteDebug($"Parsing Enum from number {newv}");
+                        return Enum.ToObject(ToType, newv);
+
                     }
+                    return default;
                 }
 
                 if (ToType.IsSimpleType())
@@ -1775,8 +1815,8 @@ namespace Extensions
             catch (Exception ex)
             {
                 WriteDebug(ex.ToFullExceptionString(), "Error on change type");
-                WriteDebug("Returning null");
-                return null;
+                WriteDebug("Returning default");
+                return default;
             }
         }
 
@@ -3637,7 +3677,10 @@ namespace Extensions
             if (type != null && Names != null)
             {
                 var propnames = Names.SelectMany(x => x.PropertyNamesFor()).ToList();
-                return type.GetProperties().Where(x => x.GetCustomAttributes<ColumnAttribute>().Select(n => n.Name).Contains(x.Name) || x.Name.IsIn(propnames, StringComparer.InvariantCultureIgnoreCase));
+                var lst = type.GetProperties().Where(x => x.GetCustomAttributes<ColumnAttribute>().Select(n => n.Name).Contains(x.Name) || x.Name.IsIn(propnames, StringComparer.InvariantCultureIgnoreCase));
+                // order lst to match the order of Names
+                return lst.OrderBy(x => propnames.IndexOf(x.Name)).ToList();
+
             }
             return Array.Empty<PropertyInfo>();
         }
@@ -3847,12 +3890,19 @@ namespace Extensions
            .AsIf(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
         }
 
+        public static char MostCommonPathChar(this string[] Texts)
+        {
+            if (Texts == null || Texts.Length == 0) return Path.DirectorySeparatorChar;
+            return Texts.Select(x => x.MostCommonPathChar()).DistinctCount().OrderByDescending(x => x.Value).First().Key;
+        }
+
+
         public static IEnumerable<string> SplitPath(this string Text)
         {
             var PathParts = Text?.Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }).Where(x => x.IsNotBlank())?.ToArray() ?? Array.Empty<string>();
             if (PathParts.Count() == 1 && PathParts.First().EndsWith(":"))
             {
-                PathParts[0] = PathParts[0] + Path.DirectorySeparatorChar.ToString();
+                PathParts[0] = PathParts[0] + MostCommonPathChar(Text);
             }
 
             return PathParts;
@@ -3873,11 +3923,11 @@ namespace Extensions
         public static string GetLeftPathPart(this string fullPath, string basePath, bool? AlternativeChar = null)
         {
             var pt1 = fullPath.FixPath(false);
-            var pt2 = basePath.IfBlank(Path.GetPathRoot(fullPath) ?? fullPath ?? "").FixPath(false) + Path.AltDirectorySeparatorChar;
+            var pt2 = basePath.IfBlank(Path.GetPathRoot(fullPath) ?? fullPath ?? "").FixPath(false) + Path.DirectorySeparatorChar;
 
             if (pt1.IsNotBlank() && pt2.IsNotBlank() && pt1.StartsWith(pt2, StringComparison.OrdinalIgnoreCase))
             {
-                var relativePath = pt1.Substring(pt2.Length).TrimStartAny(Path.DirectorySeparatorChar.ToString(), Path.AltDirectorySeparatorChar.ToString());
+                var relativePath = pt1.Substring(pt2.Length).TrimStartAny(Path.DirectorySeparatorChar.ToString(), Path.DirectorySeparatorChar.ToString());
                 relativePath = relativePath.FixPath(AlternativeChar);
                 return $"{MostCommonPathChar(relativePath)}{relativePath}";
             }
@@ -3907,6 +3957,7 @@ namespace Extensions
             }
             return NewPath;
         }
+        public static string FixPath(params string[] PathParts) => FixPath(PathParts, AlternativeChar: null);
 
         /// <summary>
         /// Ajusta um caminho unidos partes, colocando as barras corretamente e substituindo
@@ -3914,7 +3965,7 @@ namespace Extensions
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static string FixPath(this string[] PathParts, bool AlternativeChar = false) => PathParts.SelectJoinString(new string(AlternativeChar ? Path.AltDirectorySeparatorChar : Path.DirectorySeparatorChar, 1)).FixPath(AlternativeChar);
+        public static string FixPath(this string[] PathParts, bool? AlternativeChar = null) => PathParts.SelectJoinString(new string(AlternativeChar == null ? MostCommonPathChar(PathParts) : (AlternativeChar == true ? Path.AltDirectorySeparatorChar : Path.DirectorySeparatorChar), 1)).FixPath(AlternativeChar);
 
         /// <summary>
         /// Adciona pontuação ao final de uma string se a mesma não terminar com alguma pontuacao.
@@ -4617,7 +4668,7 @@ namespace Extensions
 
         /// <summary> Traz o valor de uma <see cref="Enum"> do tipo <typeparamref name="T"/> a
         /// partir de uma string </summary> <typeparam name="T"></typeparam> <returns></returns>
-        public static T GetEnumValue<T>(this string Name) => (T)GetEnumValue(Name, typeof(T));
+        public static T GetEnumValue<T>(this string Name) where T : Enum => (T)GetEnumValue(Name, typeof(T));
 
         public static object GetEnumValue(this string Name, Type EnumType)
         {
@@ -4629,24 +4680,54 @@ namespace Extensions
         /// <summary> Traz o valor de uma <see cref="Enum"> do tipo <typeparamref name="T"/> a
         /// partir de um <paramref name="Value"/> inteiro </summary> <typeparam
         /// name="T"></typeparam> <returns></returns>
-        public static T GetEnumValue<T>(this int? Value) => Value.HasValue ? GetEnumValue<T>($"{Value.Value}") : default;
+        public static T GetEnumValue<T>(this int? Value) where T : Enum => Value.HasValue ? GetEnumValue<T>($"{Value.Value}") : default;
 
         /// <summary> Traz o valor de uma <see cref="Enum"> do tipo <typeparamref name="T"/> a
         /// partir de um <paramref name="Value"/> inteiro </summary> <typeparam
         /// name="T"></typeparam> <returns></returns>
-        public static T GetEnumValue<T>(this int Value) => GetEnumValue<T>($"{Value}");
+        public static T GetEnumValue<T>(this int Value) where T : Enum => GetEnumValue<T>($"{Value}");
 
         /// <summary>
         /// Traz a string correspondente ao <paramref name="Value"/> de uma <see cref="Enum"/> do
         /// tipo <typeparamref name="T"/>
+        /// 
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static string GetEnumValueAsString<T>(this T Value)
+        public static string GetDisplayString<T>(this T Value, bool friendlyName = true) where T : Enum
         {
-            if (!typeof(T).IsEnum) throw new ArgumentException("T must be an Enumeration type.", nameof(T));
-            return Enum.GetName(typeof(T), Value);
+            return GetDisplayString(Value, typeof(T), friendlyName);
         }
+
+        public static string GetDisplayString(this object Value, Type enumType, bool friendlyName = true)
+        {
+            if (enumType == null) throw new ArgumentNullException(nameof(enumType));
+
+            if (!enumType.IsEnum) throw new ArgumentException($"{enumType.Name} must be an Enumeration type.", enumType.Name);
+
+
+            var name = Enum.GetName(enumType, Value);
+
+            if (name == null)
+            {
+                var newName = Enum.GetValues(enumType).Cast<string>().FirstOrDefault() ?? EmptyString;
+                if (newName.IsBlank()) return string.Empty;
+                return GetDisplayString(newName, enumType, friendlyName);
+            }
+
+            if (friendlyName)
+            {
+                name = enumType
+                   .GetMember(name)
+                   .FirstOrDefault()?.GetCustomAttribute<DisplayAttribute>()?.Name ?? name.ToNormalCase();
+            }
+
+            return name;
+
+        }
+
+
+
         /// <summary>
         /// Traz todos os Valores de uma enumeração como string
         /// </summary>
@@ -4654,10 +4735,10 @@ namespace Extensions
         /// <param name="Value"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public static IEnumerable<string> GetEnumValuesAsString<T>()
+        public static IEnumerable<string> GetDisplayStringList<T>(bool friendlyName = true) where T : Enum
         {
             if (!typeof(T).IsEnum) throw new ArgumentException("T must be an Enumeration type.", nameof(T));
-            return Enum.GetValues(typeof(T)).Cast<T>().Select(x => x.GetEnumValueAsString());
+            return Enum.GetValues(typeof(T)).Cast<T>().Select(x => x.GetDisplayString(friendlyName));
         }
 
 
@@ -4667,7 +4748,7 @@ namespace Extensions
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static string GetEnumValueAsString<T>(this string Value) => Value.GetEnumValue<T>().GetEnumValueAsString();
+        public static string GetDisplayString<T>(this string Value, bool friendlyName = true) where T : Enum => Value.GetEnumValue<T>().GetDisplayString(friendlyName);
 
         /// <summary>
         /// Traz a string correspondente ao <paramref name="Value"/> de uma <see cref="Enum"/> do
@@ -4675,23 +4756,33 @@ namespace Extensions
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static string GetEnumValueAsString<T>(this int Value) => Value.GetEnumValue<T>().GetEnumValueAsString();
+        public static string GetDisplayString<T>(this int Value) where T : Enum => Value.GetEnumValue<T>().GetDisplayString();
 
         /// <summary>
         /// Traz todos os Valores de uma enumeração
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static IEnumerable<T> GetEnumValues<T>()
+        public static IEnumerable<T> GetEnumValues<T>() where T : Enum
         {
             if (!typeof(T).IsEnum) throw new ArgumentException("type must be an Enumeration type.", nameof(T));
             return Enum.GetValues(typeof(T)).Cast<T>().AsEnumerable();
         }
 
-        public static Dictionary<string, int> GetEnumValuesDictionary<T>() => GetEnumValues<T>().ToDictionary(x => x.GetEnumValueAsString(), x => x.ToInt());
+        /// <summary>
+        /// Creates a dictionary mapping the string representations of an enumeration's values to their corresponding
+        /// converted values.
+        /// </summary>
+        /// <typeparam name="T">The enumeration type to process. Must be a type derived from <see cref="System.Enum"/>.</typeparam>
+        /// <typeparam name="V">The type to which the enumeration values will be converted.</typeparam>
+        /// <param name="friendlyName">A value indicating whether to use the friendly display name of the enumeration values.  If <see
+        /// langword="true"/>, the display name is used; otherwise, the enumeration value's name is used.</param>
+        /// <returns>A dictionary where the keys are the string representations of the enumeration values and the values are the
+        /// enumeration values converted to type <typeparamref name="V"/>.</returns>
+        public static Dictionary<string, V> GetEnumValuesDictionary<T, V>(bool friendlyName = true) where T : Enum => GetEnumValues<T>().ToDictionary(x => x.GetDisplayString<T>(friendlyName), x => x.ChangeType<V>());
 
         /// <summary>
-        /// Traz uma propriedade de um objeto
+        /// Traz um campo de um objeto
         /// </summary>
         /// <param name="MyObject">Objeto</param>
         /// <returns></returns>
@@ -4799,6 +4890,45 @@ namespace Extensions
         public static DataRow GetFirstRow(this DataTable Table) => Table != null && Table.Rows.Count > 0 ? Table.Rows[0] : null;
 
         public static DataTable GetFirstTable(this DataSet Data) => Data != null && Data.Tables.Count > 0 ? Data.Tables[0] : null;
+
+        public static string GetFontAwesomeIconByGender(this string gender)
+        {
+            gender = (gender ?? "").RemoveAny(" ", "-", "_");
+
+            if (gender.FlatContains("transgender", "transgenero", "trs", "trans"))
+            {
+                return "fa-transgender"; // Ícone alternativo
+            }
+            else if (gender.FlatContains("masculino", "homem", "male", "masculine") || gender.FlatEqual("m"))
+            {
+                return "fa-mars"; // Ícone masculino
+            }
+            else if (gender.FlatContains("feminino", "mulher", "female", "feminine") || gender.FlatEqual("f"))
+            {
+                return "fa-venus"; // Ícone feminino
+            }
+            else if (gender.FlatContains("naobinario", "nobinary", "nonbinary"))
+            {
+                return "fa-non-binary"; // Ícone neutro
+            }
+            else if (gender.FlatContains("neutro", "neuter"))
+            {
+                return "fa-neuter"; // Ícone neutro
+            }
+            else if (gender.FlatContains("mercurio", "mercury", "fluid"))
+            {
+                return "fa-mercury"; // Ícone fluido
+            }
+            else if (gender.FlatContains("free", "livre"))
+            {
+                return "fa-venus-mars"; // Ícone livre
+            }
+            else
+            {
+                return "fa-genderless"; // Ícone sem genero
+            }
+
+        }
 
         /// <summary>
         /// Retorna a classe do icone do FontAwesome que representa melhor o arquivo
@@ -6487,7 +6617,7 @@ namespace Extensions
                     v = valueParser.Compile().Invoke(v);
                 }
 
-                return typeof(T).IsEnum ? v.ToString().GetEnumValue<T>() : v.ChangeType<T>();
+                return v.ChangeType<T>();
             }
             catch (Exception ex)
             {
@@ -7495,14 +7625,7 @@ namespace Extensions
         /// <returns></returns>
         public static bool IsDataURL(this string Text)
         {
-            try
-            {
-                return new Web.DataURI(Text).ToString().IsValid();
-            }
-            catch
-            {
-                return false;
-            }
+            return new Regex(@"^data:(.+?);base64,(.+)$").IsMatch(Text);
         }
 
         public static bool IsDate(this string Obj)
@@ -11506,6 +11629,7 @@ namespace Extensions
         /// <returns></returns>
         public static long RoundLong(this decimal Number) => Math.Round(Number).ToLong();
 
+
         /// <summary>
         /// Arredonda um numero para o valor inteiro mais próximo
         /// </summary>
@@ -12897,6 +13021,10 @@ namespace Extensions
             return null;
         }
 
+
+        public static string ToBase64(this FileInfo file) => file?.ToBytes().ToBase64() ?? EmptyString;
+
+
         /// <summary>
         /// Converte um Array de Bytes em uma string Util
         /// </summary>
@@ -13358,11 +13486,11 @@ namespace Extensions
             return result;
         }
 
-        public static DirectoryInfo ToDirectoryInfo(this string PathPart) => ToDirectoryInfo(new[] { PathPart });
+        public static DirectoryInfo ToDirectoryInfo(this string PathPart, bool? AlternativeChar = null) => ToDirectoryInfo(new[] { PathPart }, AlternativeChar);
 
-        public static DirectoryInfo ToDirectoryInfo(this string[] PathParts)
+        public static DirectoryInfo ToDirectoryInfo(this string[] PathParts, bool? AlternativeChar = null)
         {
-            var x = ToFileSystemInfo(PathParts);
+            var x = ToFileSystemInfo(PathParts, AlternativeChar);
 
             return x is FileInfo info ? info.Directory : x as DirectoryInfo;
         }
@@ -13398,11 +13526,14 @@ namespace Extensions
             else if (info is FileTree ft)
             {
                 if (ft.IsDirectory)
-                    return (new DirectoryInfo(ft.Path)).GetSize();
+                    return new DirectoryInfo(ft.Path).GetSize();
                 if (ft.IsFile)
-                    return (new FileInfo(ft.Path)).GetSize();
+                    return new FileInfo(ft.Path).GetSize();
             }
-            return 0;
+            // check if info has a property called size of type int or long
+            var sizeProperties = info.GetType().FindProperties("Size", "FileSize", "DirectorySize", "Length");
+            return sizeProperties.FirstOrDefault()?.GetValue(info).ChangeType<long>() ?? 0;
+
         }
         /// <summary>
         /// Retorna uma string contendo a descrição do tipo arquivo ou diretório
@@ -13453,7 +13584,7 @@ namespace Extensions
         /// <returns>String com o tamanho + unidade de medida</returns>
         public static string ToFileSizeString(this decimal Size, int DecimalPlaces = -1) => UnitConverter.CreateFileSizeConverter().Abreviate(Size, DecimalPlaces);
 
-        public static FileSystemInfo ToFileSystemInfo(this string PathPart) => ToFileSystemInfo(new[] { PathPart });
+        public static FileSystemInfo ToFileSystemInfo(this string PathPart, bool? AlternativeChar = null) => ToFileSystemInfo(new[] { PathPart }, AlternativeChar);
 
         public static FileTree ToFileTree(this string PathPart) => ToFileTree(new[] { PathPart });
         /// <summary>
@@ -13470,9 +13601,9 @@ namespace Extensions
         /// <param name="AlternativeChar"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public static FileSystemInfo ToFileSystemInfo(this string[] PathParts, bool AlternativeChar = false)
+        public static FileSystemInfo ToFileSystemInfo(this string[] PathParts, bool? AlternativeChar = null)
         {
-            var path = PathParts.FixPath();
+            var path = PathParts.FixPath(AlternativeChar);
             if (path.IsFilePath()) return new FileInfo(path);
             else if (path.IsDirectoryPath()) return new DirectoryInfo(path);
             else throw new ArgumentException("Can't create path from array", nameof(PathParts));
