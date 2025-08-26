@@ -11903,7 +11903,7 @@ namespace Extensions
         {
             Selector = Selector ?? (x => $"{x}");
             Source = Source ?? Array.Empty<TSource>();
-            return Source.Any() ? String.Join(Separator, Source.Select(Selector).ToArray()) : EmptyString;
+            return Source.Any() ? String.Join(Separator, Source.Select(Selector).WhereNotBlank().ToArray()) : EmptyString;
         }
 
         public static IEnumerable<String> SelectLike(this IEnumerable<String> source, String Pattern) => source.Where(x => x.Like(Pattern));
