@@ -10283,13 +10283,22 @@ namespace Extensions
         /// <returns></returns>
         public static string Quote(this string Text, char OpenQuoteChar = '"')
         {
-            if (Convert.ToBoolean(OpenQuoteChar.ToString().IsCloseWrapChar()))
+            if (OpenQuoteChar.ToString().IsCloseWrapChar())
             {
                 OpenQuoteChar = OpenQuoteChar.GetOppositeWrapChar();
             }
 
             return $"{OpenQuoteChar}{Text}{OpenQuoteChar.GetOppositeWrapChar()}";
         }
+
+        /// <summary>
+        /// Encapsula um texto entre aspas simples ou duplas
+        /// </summary>
+        /// <param name="Text">Texto</param>
+        /// <param name="SingleQuoteChar">Quando TRUE, utiliza aspas simples</param>
+        /// <returns></returns>
+        public static string Quote(this string Text, bool SingleQuoteChar ) => Text.Quote(SingleQuoteChar ? Util.SingleQuoteChar.First()  : Util.DoubleQuoteChar.First());
+
 
         /// <summary>
         /// Encapsula um tento entre 2 textos (normalmente parentesis, chaves, aspas ou colchetes)

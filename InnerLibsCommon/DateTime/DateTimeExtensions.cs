@@ -124,7 +124,18 @@ namespace Extensions
         /// <param name="hour">The hour to set time to.</param>
         /// <param name="minute">The minute to set time to.</param>
         /// <returns><see cref="DateTime"/> with hour and minute set to given values.</returns>
-        public static DateTime At(this DateTime current, int hour, int minute) => current.SetTime(hour, minute);
+        public static DateTime At(this DateTime current, int hour, int minute) => current.SetTime(hour, minute,00,00);
+
+        public static DateTime At(this DateTime current, int hour) => current.SetTime(hour, 00, 00, 00);
+
+        /// <summary>
+        /// Returns the given <see cref="DateTime"/> with hour and minutes set At Noon.
+        /// </summary>
+        /// <param name="current"></param>
+        /// <param name="hour"></param>
+        /// <param name="minute"></param>
+        /// <returns></returns>
+        public static DateTime AtNoon(this DateTime current) => current.At(12, 00, 00, 00);
 
         /// <summary>
         /// Returns the given <see cref="DateTime"/> with hour and minutes and seconds set At given values.
@@ -134,7 +145,7 @@ namespace Extensions
         /// <param name="minute">The minute to set time to.</param>
         /// <param name="second">The second to set time to.</param>
         /// <returns><see cref="DateTime"/> with hour and minutes and seconds set to given values.</returns>
-        public static DateTime At(this DateTime current, int hour, int minute, int second) => current.SetTime(hour, minute, second);
+        public static DateTime At(this DateTime current, int hour, int minute, int second) => current.SetTime(hour, minute, second,00);
 
         /// <summary>
         /// Returns the given <see cref="DateTime"/> with hour and minutes and seconds and
