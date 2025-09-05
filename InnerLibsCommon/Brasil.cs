@@ -301,7 +301,7 @@ namespace Extensions.BR
             return null;
         }
 
- 
+
 
 
 
@@ -865,7 +865,7 @@ namespace Extensions.BR
         public static bool CidadeIBGEValido(this int IBGE) => CidadeIBGEValido(IBGE.ToString(CultureInfo.InvariantCulture));
         public static bool CidadeIBGEValido(this string IBGE)
         {
-            if (IBGE.IsNumber() && IBGE.Length == 7 && IBGE.ToInt() > 0)          
+            if (IBGE.IsNumber() && IBGE.Length == 7 && IBGE.ToInt() > 0)
             {
                 return Cidades.Any(x => x.IBGE == IBGE.ToInt());
             }
@@ -882,6 +882,8 @@ namespace Extensions.BR
             return false;
         }
         public static bool IBGEValido(this string IBGE) => EstadoIBGEValido(IBGE) || CidadeIBGEValido(IBGE);
+
+        public static bool IBGEValido(this int IBGE) => EstadoIBGEValido(IBGE) || CidadeIBGEValido(IBGE);
 
         /// <summary>
         /// Retorna a Sigla (UF) a partir de um nome de estado
@@ -1053,6 +1055,55 @@ namespace Extensions.BR
             return false;
         }
 
+
+        public static bool ChavePIXValida(this string chave)
+        {
+            return chave.IsEmail() ||
+                chave.CPFouCNPJValido() ||
+                chave.TelefoneValido() ||
+                (chave.IsGuid());
+        }
+
+        public static string FormatarChavePIX(this string Chave)
+        {
+            if (Chave.ChavePIXValida())
+            {
+                if (Chave.CPFValido()) return Chave.FormatarCPF();
+                else if (Chave.CNPJValido()) return Chave.FormatarCNPJ();
+                else if (Chave.TelefoneValido()) return Chave.FormatarTelefone();
+                else return Chave.ToLower();
+
+            }
+            return "";
+        }
+
+        public static string FormatarChavePIXComNome(this string Chave, string Nome, string Label = "Chave PIX")
+        {
+            if (Chave.ChavePIXValida())
+            {
+
+                if (Chave.IsEmail())
+
+                    Label += " (Email)";
+
+                else if (Chave.CPFValido()) Label += " (CPF)";
+                else if (Chave.CNPJValido()) Label += " (CNPJ)";
+                else if (Chave.TelefoneValido()) Label += " (Telefone)";
+                else if (Chave.IsGuid()) Label += " (Chave Aleatória)";
+                else
+                {
+                    Label += " (Inválida)";
+                    return $"{Util.SelectJoinString("-", Nome, Label)} :{"-".Repeat(Chave.Length)}";
+                }
+
+            }
+            if (Nome.IsNotBlank())
+                return $"{Nome} - {Label} :{Chave.FormatarChavePIX()}";
+            else
+                return $"{Label} :{Chave.FormatarChavePIX()}";
+        }
+
+
         /// <summary>
         /// Verifica se a string é um CPF ou CNPJ válido
         /// </summary>
@@ -1200,7 +1251,7 @@ namespace Extensions.BR
         }
 
         public static string GerarTelefoneFake()
-        {             
+        {
             string ddd = Util.RandomInt(11, 100).ToString();
             string numero = Util.RandomInt(90000, 99999).ToString() + Util.RandomInt(1000, 9999).ToString();
             return $"({ddd}) {numero}";

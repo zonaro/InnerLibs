@@ -6,6 +6,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Xml;
+using Extensions.Equations;
 
 namespace Extensions.Colors
 {
@@ -834,6 +835,33 @@ namespace Extensions.Colors
 
         public HSVColor ContrastColor() => new HSVColor(_scolor.GetContrastColor());
 
+
+        public static IEnumerable<HSVColor> GrayscalePallette(int Amount) => MonochromaticPallette(Color.White, Amount);
+
+
+        /// <summary>
+        /// Gera uma paleta de cores monocromatica com <paramref name="Amount"/> amostras a partir
+        /// de uma <paramref name="Color"/> base.
+        /// </summary>
+        /// <param name="Color"></param>
+        /// <param name="Amount"></param>
+        /// <returns></returns>
+        /// <remarks>A distancia entre as cores será maior se a quantidade de amostras for pequena</remarks>
+        public static IEnumerable<HSVColor> MonochromaticPallette(Color Color, int Amount)
+        {
+            var t = new RuleOfThree(Amount, 100, 1, default);
+            var Percent = t.UnknownValue?.ToFloat();
+            Color = Color.White.MergeWith(Color);
+            var l = new List<Color>();
+            for (int index = 1, loopTo = Amount; index <= loopTo; index++)
+            {
+                Color = Color.MakeDarker((float)Percent);
+                l.Add(Color);
+            }
+
+            return l.ToHSVColorList();
+        }
+
         /// <summary>
         /// Retorna uma cópia desta cor
         /// </summary>
@@ -1112,7 +1140,7 @@ namespace Extensions.Colors
         /// </summary>
         /// <param name="Amount"></param>
         /// <returns></returns>
-        public HSVColor[] Monochromatic(decimal Amount = 4m) => Util.MonochromaticPallette(_scolor, (int)Math.Round(Amount)).ToArray();
+        public HSVColor[] Monochromatic(decimal Amount = 4m) => MonochromaticPallette(_scolor, (int)Math.Round(Amount)).ToArray();
 
         /// <summary>
         /// Retorna uma nova cor a partir da mistura multiplicativa de 2 cores

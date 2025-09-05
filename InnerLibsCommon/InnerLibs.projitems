@@ -29,6 +29,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)DateTime\RoundTo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DateTime\TimeDemand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DebugTextWriter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DevUtil.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dice.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DictionarySelector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DOT Language.cs" />
@@ -48,6 +49,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)HtmlParser\SelectorCollection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HtmlParser\TextParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IconUtils.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ImageExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)JSONParser\dynamic.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)JSONParser\Formatter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)JSONParser\DataSetSchema.cs" />

@@ -49,6 +49,9 @@ namespace Extensions
 {
     public static partial class Util
     {
+
+
+
         private const int ERROR_LOCK_VIOLATION = 33;
 
         private const int ERROR_SHARING_VIOLATION = 32;
@@ -1061,173 +1064,6 @@ namespace Extensions
 
 
         /// <summary>
-        /// Aplica um borrão a imagem
-        /// </summary>
-        /// <param name="Img"></param>
-        /// <param name="BlurSize"></param>
-        /// <returns></returns>
-        public static Image Blur(this Image Img, int BlurSize = 5) => Blur(Img, BlurSize, new System.Drawing.Rectangle(0, 0, Img.Width, Img.Height));
-
-        /// <summary>
-        /// Aplica um borrão a uma determinada parte da imagem
-        /// </summary>
-        /// <param name="Img"></param>
-        /// <param name="BlurSize"></param>
-        /// <param name="rectangle"></param>
-        /// <returns></returns>
-        public static unsafe Image Blur(this Image Img, int BlurSize, System.Drawing.Rectangle rectangle)
-        {
-            Bitmap blurred = new Bitmap(Img.Width, Img.Height);
-
-            // make an exact copy of the bitmap provided
-            using (Graphics graphics = Graphics.FromImage(blurred))
-                graphics.DrawImage(Img, new System.Drawing.Rectangle(0, 0, Img.Width, Img.Height),
-                    new System.Drawing.Rectangle(0, 0, Img.Width, Img.Height), GraphicsUnit.Pixel);
-
-            // Lock the bitmap's bits
-            BitmapData blurredData = blurred.LockBits(new System.Drawing.Rectangle(0, 0, Img.Width, Img.Height), ImageLockMode.ReadWrite, blurred.PixelFormat);
-
-            // GetCliente bits per pixel for current PixelFormat
-            int bitsPerPixel = Image.GetPixelFormatSize(blurred.PixelFormat);
-
-            // GetCliente pointer to first line
-            byte* scan0 = (byte*)blurredData.Scan0.ToPointer();
-
-            // look at every pixel in the blur rectangle
-            for (int xx = rectangle.X; xx < rectangle.X + rectangle.Width; xx++)
-            {
-                for (int yy = rectangle.Y; yy < rectangle.Y + rectangle.Height; yy++)
-                {
-                    int avgR = 0, avgG = 0, avgB = 0;
-                    int blurPixelCount = 0;
-
-                    // average the color of the red, green and blue for each pixel in the blur size
-                    // while making sure you don't go outside the image bounds
-                    for (int x = xx; (x < xx + BlurSize && x < Img.Width); x++)
-                    {
-                        for (int y = yy; (y < yy + BlurSize && y < Img.Height); y++)
-                        {
-                            // GetCliente pointer to RGB
-                            byte* data = scan0 + y * blurredData.Stride + x * bitsPerPixel / 8;
-
-                            avgB += data[0]; // Blue
-                            avgG += data[1]; // Green
-                            avgR += data[2]; // Red
-
-                            blurPixelCount++;
-                        }
-                    }
-
-                    avgR /= blurPixelCount;
-                    avgG /= blurPixelCount;
-                    avgB /= blurPixelCount;
-
-                    // now that we know the average for the blur size, set each pixel to that color
-                    for (int x = xx; x < xx + BlurSize && x < Img.Width && x < rectangle.Width; x++)
-                    {
-                        for (int y = yy; y < yy + BlurSize && y < Img.Height && y < rectangle.Height; y++)
-                        {
-                            // GetCliente pointer to RGB
-                            byte* data = scan0 + y * blurredData.Stride + x * bitsPerPixel / 8;
-
-                            // Change values
-                            data[0] = (byte)avgB;
-                            data[1] = (byte)avgG;
-                            data[2] = (byte)avgR;
-                        }
-                    }
-                }
-            }
-
-            // Unlock the bits
-            blurred.UnlockBits(blurredData);
-
-            return blurred;
-        }
-
-        /// <summary>
-        /// Remove the background of an image.
-        /// </summary>
-        /// <param name="original">The original image.</param>
-        /// <param name="background">The background color.</param>
-        /// <returns>The image with the background removed.</returns>
-        public static Image RemoveBackground(this Image original, Color? background = null)
-        {
-            if (original != null)
-            {
-                Bitmap bmp = new Bitmap(original.Width, original.Height);
-
-                if (background == null || background.Value == Color.Transparent)
-                {
-                    // Detect the background color automatically.
-                    background = DetectBackgroundColor(original);
-                }
-
-                for (int i = 0; i < bmp.Height; i++)
-                {
-                    for (int j = 0; j < bmp.Width; j++)
-                    {
-                        Color pixelColor = ((Bitmap)original).GetPixel(j, i);
-
-                        if (pixelColor != background)
-                        {
-                            bmp.SetPixel(j, i, pixelColor);
-                        }
-                    }
-                }
-
-                return bmp;
-            }
-            return null;
-        }
-
-        /// <summary>
-        /// Detects the background color of an image.
-        /// </summary>
-        /// <param name="original">The original image.</param>
-        /// <returns>The detected background color.</returns>
-        private static Color DetectBackgroundColor(this Image original)
-        {
-            using (Bitmap bmp = new Bitmap(original.Width, original.Height))
-            {
-                using (Graphics g = Graphics.FromImage(bmp))
-                {
-                    g.DrawImage(original, 0, 0);
-                }
-
-                return bmp.GetPixel(0, 0);
-            }
-        }
-
-        /// <summary>
-        /// Inverte as cores de uma imagem.
-        /// </summary>
-        /// <param name="original">A imagem original.</param>
-        /// <returns>A imagem com as cores invertidas.</returns>
-        public static Image InvertColors(this Image original)
-        {
-            if (original != null)
-            {
-                Bitmap bmp = new Bitmap(original.Width, original.Height);
-
-                for (int i = 0; i < bmp.Height; i++)
-                {
-                    for (int j = 0; j < bmp.Width; j++)
-                    {
-                        Color pixelColor = ((Bitmap)original).GetPixel(j, i);
-                        Color newColor = Color.FromArgb(pixelColor.A,
-                                                         255 - pixelColor.R,
-                                                         255 - pixelColor.G,
-                                                         255 - pixelColor.B);
-                        bmp.SetPixel(j, i, newColor);
-                    }
-                }
-                return bmp;
-            }
-            return null;
-        }
-
-        /// <summary>
         /// Encapsula um texto em uma caixa. Funciona somente com fonte monoespaçadas
         /// </summary>
         /// <param name="Text"></param>
@@ -1280,22 +1116,6 @@ namespace Extensions
         /// <param name="BracketChar">Caractere de encapsulamento</param>
         /// <returns></returns>
         public static string Brackfy(this string Text, char BracketChar = '{') => Text.Quote(BracketChar);
-
-        public static Image BrightnessContrastAndGamma(this Image originalimage, float Brightness, float Contrast, float Gamma)
-        {
-            var adjustedImage = new Bitmap(originalimage);
-            Gamma = Gamma.SetMinValue(1.0f);
-            Contrast = Contrast.SetMinValue(1.0f);
-            float adjustedBrightness = Brightness.SetMinValue(1.0f) - 1.0f;
-            var ptsArray = new[] { new float[] { Contrast, 0f, 0f, 0f, 0f }, new float[] { 0f, Contrast, 0f, 0f, 0f }, new float[] { 0f, 0f, Contrast, 0f, 0f }, new float[] { 0f, 0f, 0f, 1.0f, 0f }, new float[] { adjustedBrightness, adjustedBrightness, adjustedBrightness, 0f, 1f } };
-            var imageAttributes = new ImageAttributes();
-            imageAttributes.ClearColorMatrix();
-            imageAttributes.SetColorMatrix(new ColorMatrix(ptsArray), ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
-            imageAttributes.SetGamma(Gamma, ColorAdjustType.Bitmap);
-            var g = Graphics.FromImage(adjustedImage);
-            g.DrawImage(originalimage, new System.Drawing.Rectangle(0, 0, adjustedImage.Width, adjustedImage.Height), 0, 0, originalimage.Width, originalimage.Height, GraphicsUnit.Pixel, imageAttributes);
-            return adjustedImage;
-        }
 
         /// <summary>
         /// Encoda uma string em Base64
@@ -1913,131 +1733,12 @@ namespace Extensions
             }
         }
 
-        /// <summary>
-        /// Retorna uma lista com as cores utilizadas na imagem
-        /// </summary>
-        /// <param name="Img">Imagem</param>
-        /// <returns>uma lista de Color</returns>
-        public static Dictionary<HSVColor, int> ColorPallette(this Image Img, int PixelateSize = 0)
-        {
-            Bitmap image;
-            if (PixelateSize > 0)
-            {
-                image = (Bitmap)Img.Pixelate(PixelateSize);
-            }
-            else
-            {
-                image = new Bitmap(Img);
-            }
-
-            var dctColorIncidence = new Dictionary<int, int>();
-            using (image)
-                if (image != null && image.Width > 0 && image.Height > 0)
-                {
-                    int coluna = 0;
-                    while (coluna < image.Size.Width)
-                    {
-                        int linha = 0;
-                        while (linha < image.Size.Height)
-                        {
-                            int pixelColor = image.GetPixel(coluna, linha).ToArgb();
-                            if (dctColorIncidence.ContainsKey(pixelColor))
-                            {
-                                dctColorIncidence[pixelColor] = dctColorIncidence[pixelColor] + 1;
-                            }
-                            else
-                            {
-                                dctColorIncidence.Add(pixelColor, 1);
-                            }
-
-                            linha++;
-                        }
-
-                        coluna++;
-                    }
-                }
-
-            return dctColorIncidence.OrderByDescending(x => x.Value).ToDictionary(x => new HSVColor(Color.FromArgb(x.Key)), x => x.Value);
-        }
-
         public static IEnumerable<string> ColumnsFromClass<T>()
         {
             var PropInfos = typeof(T).GetProperties().Select(y => y.GetAttributeValue<ColumnAttribute, string>(x => x.Name).IfBlank(y.Name));
             var FieldInfos = typeof(T).GetProperties().Select(y => y.GetAttributeValue<ColumnAttribute, string>(x => x.Name).IfBlank(y.Name)).Where(x => x.IsNotIn(PropInfos));
 
             return PropInfos.Union(FieldInfos);
-        }
-
-        /// <summary>
-        /// Combina 2 ou mais imagens em uma única imagem
-        /// </summary>
-        /// <param name="Images">Lista de Imagens para combinar</param>
-        /// <param name="VerticalFlow">
-        /// Se TRUE, combina as Imagens verticalmente (Uma em baixo da outra), caso contrario as
-        /// imagens serão combinadas horizontalmente (Uma do lado da outra da esquerda para a direita)
-        /// </param>
-        /// <returns>Um Bitmap com a combinaçao de todas as imagens da Lista</returns>
-        public static Bitmap CombineImages(bool VerticalFlow, params Image[] Images) => Images.CombineImages(VerticalFlow);
-
-        /// <summary>
-        /// Combina 2 ou mais imagens em uma única imagem
-        /// </summary>
-        /// <param name="Images">Array de Imagens para combinar</param>
-        /// <param name="VerticalFlow">
-        /// Se TRUE, combina as Imagens verticalmente (Uma em baixo da outra), caso contrario as
-        /// imagens serão combinadas horizontalmente (Uma do lado da outra da esquerda para a direita)
-        /// </param>
-        /// <returns>Um Bitmap com a combinaçao de todas as imagens do Array</returns>
-        public static Bitmap CombineImages(this IEnumerable<Image> Images, bool VerticalFlow = false)
-        {
-            int width = 0;
-            int height = 0;
-            foreach (var image in Images ?? Array.Empty<Image>())
-            {
-                // cria um bitmap a partir do arquivo e o inclui na lista
-                var bitmap = new Bitmap(image);
-
-                // atualiza o tamanho da imagem bitmap final
-                if (VerticalFlow)
-                {
-                    height += bitmap.Height;
-                    width = bitmap.Width > width ? bitmap.Width : width;
-                }
-                else
-                {
-                    width += bitmap.Width;
-                    height = bitmap.Height > height ? bitmap.Height : height;
-                }
-                bitmap.Dispose();
-            }
-
-            // cria um bitmap para tratar a imagem combinada
-            Bitmap imagemFinal = new Bitmap(width, height);
-
-            // Obtem o objeto gráfico da imagem
-            using (var g = Graphics.FromImage(imagemFinal))
-            {
-                // define a cor de fundo
-                g.Clear(Color.White);
-
-                // percorre imagem por imagem e gera uma unica imagem final
-                int offset = 0;
-                foreach (Bitmap image in Images.Cast<Bitmap>())
-                {
-                    if (VerticalFlow)
-                    {
-                        g.DrawImage(image, new System.Drawing.Rectangle(0, offset, image.Width, image.Height));
-                        offset += image.Height;
-                    }
-                    else
-                    {
-                        g.DrawImage(image, new System.Drawing.Rectangle(offset, 0, image.Width, image.Height));
-                        offset += image.Width;
-                    }
-                }
-            }
-
-            return imagemFinal;
         }
 
         public static bool CompareARGB(this Color Color1, Color Color2, bool IgnoreAlpha = true) => Color1.CompareARGB(IgnoreAlpha, Color2);
@@ -2759,137 +2460,6 @@ namespace Extensions
         public static FileInfo CreateXmlFile<T>(this T obj, DirectoryInfo DirectoryPath, string SubDirectory, string FileName, DateTime? DateAndTime = null) where T : class => obj.CreateXML<T>().ToXMLString().WriteToFile(DirectoryPath, SubDirectory, FileName, DateAndTime: DateAndTime);
 
         /// <summary>
-        /// Cropa uma imagem a patir do centro
-        /// </summary>
-        /// <param name="Image">Imagem</param>
-        /// <param name="SizeExpression">Tamanho</param>
-        /// <returns></returns>
-        public static Image Crop(this Image Image, string SizeExpression) => Image?.Crop(SizeExpression.ParseSize());
-
-        /// <summary>
-        /// Cropa uma imagem a patir do centro
-        /// </summary>
-        /// <param name="Image">Imagem</param>
-        /// <param name="Size">Tamanho</param>
-        /// <returns></returns>
-        public static Image Crop(this Image Image, Size Size) => Image?.Crop(Size.Width, Size.Height);
-
-        /// <summary>
-        /// Cropa uma imagem a patir do centro
-        /// </summary>
-        /// <param name="Image">Imagem</param>
-        /// <param name="MaxWidth">Largura maxima</param>
-        /// <param name="MaxHeight">Altura maxima</param>
-        /// <returns></returns>
-        public static Image Crop(this Image Image, int MaxWidth, int MaxHeight)
-        {
-            var jpgInfo = ImageCodecInfo.GetImageEncoders().Where(codecInfo => codecInfo.MimeType == "image/png").First();
-            Image finalImage = new Bitmap(Image);
-            Bitmap bitmap = null;
-            int left = 0;
-            int top = 0;
-            int srcWidth = MaxWidth;
-            int srcHeight = MaxHeight;
-            bitmap = new Bitmap(MaxWidth, MaxHeight);
-            double croppedHeightToWidth = MaxHeight / (double)MaxWidth;
-            double croppedWidthToHeight = MaxWidth / (double)MaxHeight;
-            if (Image.Width > Image.Height)
-            {
-                srcWidth = (int)Math.Round(Math.Round(Image.Height * croppedWidthToHeight));
-                if (srcWidth < Image.Width)
-                {
-                    srcHeight = Image.Height;
-                    left = (int)Math.Round((Image.Width - srcWidth) / 2d);
-                }
-                else
-                {
-                    srcHeight = (int)Math.Round(Math.Round(Image.Height * (Image.Width / (double)srcWidth)));
-                    srcWidth = Image.Width;
-                    top = (int)Math.Round((Image.Height - srcHeight) / 2d);
-                }
-            }
-            else
-            {
-                srcHeight = (int)Math.Round(Math.Round(Image.Width * croppedHeightToWidth));
-                if (srcHeight < Image.Height)
-                {
-                    srcWidth = Image.Width;
-                    top = (int)Math.Round((Image.Height - srcHeight) / 2d);
-                }
-                else
-                {
-                    srcWidth = (int)Math.Round(Math.Round(Image.Width * (Image.Height / (double)srcHeight)));
-                    srcHeight = Image.Height;
-                    left = (int)Math.Round((Image.Width - srcWidth) / 2d);
-                }
-            }
-
-            using (var g = Graphics.FromImage(bitmap))
-            {
-                g.SmoothingMode = SmoothingMode.HighQuality;
-                g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                g.CompositingQuality = CompositingQuality.HighQuality;
-                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                g.DrawImage(Image, new System.Drawing.Rectangle(0, 0, bitmap.Width, bitmap.Height), new System.Drawing.Rectangle(left, top, srcWidth, srcHeight), GraphicsUnit.Pixel);
-                finalImage = bitmap;
-            }
-
-            using (var encParams = new EncoderParameters(1))
-            {
-                encParams.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 100);
-                finalImage.RotateFlip(Image.GetRotateFlip());
-                return finalImage;
-            }
-        }
-
-        /// <summary>
-        /// Corta a imagem em um circulo
-        /// </summary>
-        /// <param name="Img">Imagem</param>
-        /// <param name="Background">Cor do fundo</param>
-        /// <returns></returns>
-        public static Image CropToCircle(this Image Img, Color? Background = default) => Img.CropToSquare()?.CropToEllipsis(Background);
-
-        /// <summary>
-        /// Corta a imagem em uma elipse
-        /// </summary>
-        /// <param name="Img">Imagem</param>
-        /// <param name="Background">Cor do fundo</param>
-        /// <returns></returns>
-        public static Image CropToEllipsis(this Image Img, Color? Background = default)
-        {
-            var dstImage = new Bitmap(Img.Width, Img.Height);
-            var g = Graphics.FromImage(dstImage);
-            Background = Background ?? Color.Transparent;
-            using (Brush br = new SolidBrush((Color)Background))
-            {
-                g.FillRectangle(br, 0, 0, dstImage.Width, dstImage.Height);
-            }
-
-            var path = new GraphicsPath();
-            path.AddEllipse(0, 0, dstImage.Width, dstImage.Height);
-            g.SetClip(path);
-            g.DrawImage(Img, 0, 0);
-            return dstImage;
-        }
-
-        /// <summary>
-        /// Corta uma imagem para um quadrado perfeito a partir do centro
-        /// </summary>
-        /// <param name="img">Imagem</param>
-        /// <param name="WidthHeight">Tamanho do quadrado em pixels</param>
-        /// <returns></returns>
-        public static Image CropToSquare(this Image Img, int WidthHeight = 0)
-        {
-            if (WidthHeight < 1)
-            {
-                WidthHeight = Img.Height > Img.Width ? Img.Width : Img.Height;
-            }
-
-            return Img.Crop(WidthHeight, WidthHeight);
-        }
-
-        /// <summary>
         /// Verifica se um texto contém outro ou vice versa
         /// </summary>
         /// <param name="Text"></param>
@@ -3316,42 +2886,6 @@ namespace Extensions
         }
 
         public static string DownloadString(this Uri URL, NameValueCollection Headers = null, Encoding Encoding = null) => DownloadString($"{URL}", Headers, Encoding);
-
-        public static Image DrawImage(this string text, int Width, int Height, Font Font = null, Color? Color = default, int X = -1, int Y = -1)
-        {
-            return text.DrawImage(new Size(Width, Height), Font, Color, X, Y);
-        }
-        public static Image DrawImage(this string text, Size imageSize, Font Font = null, Color? Color = default, int X = -1, int Y = -1)
-        {
-            var b = new Bitmap(imageSize.Width, imageSize.Height);
-            return b.DrawString(text, Font, Color, X, Y);
-        }
-        public static Image DrawString(this Image img, string Text, Font Font = null, Color? Color = default, int X = -1, int Y = -1)
-        {
-            var bitmap = new Bitmap(img);
-            using (var graphics = Graphics.FromImage(bitmap))
-            {
-                Font = Font ?? new Font("Arial", (float)(bitmap.Width / 10d));
-                var tamanho = graphics.MeasureString(Text, Font, new Size(bitmap.Width, bitmap.Height));
-                X = X.LimitRange(-1, img.Width);
-                Y = Y.LimitRange(-1, img.Height);
-                if (X == -1)
-                {
-                    X = RoundInt(bitmap.Width / 2d - tamanho.Width / 2f);
-                }
-
-                if (Y == -1)
-                {
-                    Y = RoundInt(bitmap.Height / 2d - tamanho.Height / 2f);
-                }
-
-                Color = Color ?? bitmap.GetPixel(X, Y).GetContrastColor(50f);
-                var B = new System.Drawing.SolidBrush((Color)Color);
-                graphics.DrawString(Text, Font, B, X, Y);
-            }
-
-            return bitmap;
-        }
 
         public static IEnumerable<T> Each<T>(this IEnumerable<T> items, Action<T> Action)
         {
@@ -4659,12 +4193,6 @@ namespace Extensions
         /// <returns>nome do dominio</returns>
         public static string GetDomainAndProtocol(this string URL) => $"{new Uri(URL.PrependIf("http://", x => x.IsURL() == false)).GetLeftPart(UriPartial.Authority)}";
 
-        /// <summary>
-        /// Pega o encoder a partir de um formato de imagem
-        /// </summary>
-        /// <param name="RawFormat">Image format</param>
-        /// <returns>image codec info.</returns>
-        public static ImageCodecInfo GetEncoderInfo(this ImageFormat RawFormat) => ImageCodecInfo.GetImageDecoders().Where(c => c.FormatID == RawFormat.Guid).FirstOr(ImageCodecInfo.GetImageDecoders().Where(c => c.FormatID == ImageFormat.Png.Guid).First());
 
         /// <summary> Traz o valor de uma <see cref="Enum"> do tipo <typeparamref name="T"/> a
         /// partir de uma string </summary> <typeparam name="T"></typeparam> <returns></returns>
@@ -4821,59 +4349,6 @@ namespace Extensions
         /// <returns>string mime type</returns>
         public static IEnumerable<string> GetMimeType(this FileInfo File) => File.Extension.GetFileType().MimeTypes;
 
-        /// <summary>
-        /// Retorna o Mime TEntity a partir de de um formato de Imagem
-        /// </summary>
-        /// <param name="RawFormat">Formato de Imagem</param>
-        /// <returns>string mime type</returns>
-        public static IEnumerable<string> GetMimeTypes(this ImageFormat RawFormat)
-        {
-            try
-            {
-                RawFormat = RawFormat ?? ImageFormat.Png;
-                foreach (var img in ImageCodecInfo.GetImageEncoders())
-                {
-                    if (img.FormatID == RawFormat.Guid)
-                    {
-                        return img.FilenameExtension.GetFileType().MimeTypes;
-                    }
-                }
-            }
-            catch
-            {
-            }
-
-            return GetFileType(".png").MimeTypes;
-        }
-
-        public static string GetMimeType(this ImageFormat RawFormat)
-        {
-            try
-            {
-                RawFormat = RawFormat ?? ImageFormat.Png;
-                foreach (var img in ImageCodecInfo.GetImageEncoders())
-                {
-                    if (img.FormatID == RawFormat.Guid)
-                    {
-                        ImageCodecInfo[] codecs = ImageCodecInfo.GetImageEncoders();
-                        return codecs.First(codec => codec.FormatID == RawFormat.Guid).MimeType;
-                    }
-                }
-            }
-            catch
-            {
-            }
-
-            return "image/png";
-        }
-
-        /// <summary>
-        /// Retorna o Mime TEntity a partir de de uma Imagem
-        /// </summary>
-        /// <param name="Image">Imagem</param>
-        /// <returns>string mime type</returns>
-        public static IEnumerable<string> GetMimeTypes(this Image Image) => Image?.RawFormat.GetMimeTypes() ?? Array.Empty<string>();
-        public static string GetMimeType(this Image Image) => Image?.RawFormat.GetMimeType() ?? "image/png";
 
         public static string GetFirstChars(this string Text, int Number = 1)
         {
@@ -5199,13 +4674,6 @@ namespace Extensions
         public static string GetIconByFileType(this FileType MIME) => GetFontAwesomeIconByFileExtension(MIME?.Extensions.ToArray() ?? Array.Empty<string>());
 
         /// <summary>
-        /// Retorna o formato da imagem correspondente a aquela imagem
-        /// </summary>
-        /// <param name="OriginalImage"></param>
-        /// <returns></returns>
-        public static ImageFormat GetImageFormat(this Image OriginalImage) => ImageTypes.Where(p => p.Guid == OriginalImage.RawFormat.Guid).FirstOr(ImageFormat.Png);
-
-        /// <summary>
         /// Tenta retornar um index de um IEnumerable a partir de um valor especifico. retorna -1 se
         /// o index nao existir
         /// </summary>
@@ -5363,19 +4831,6 @@ namespace Extensions
             return Text;
         }
 
-        /// <summary>
-        /// Retorna uma lista com as N cores mais utilizadas na imagem
-        /// </summary>
-        /// <param name="Image">Imagem</param>
-        /// <returns>uma lista de Color</returns>
-        public static IEnumerable<HSVColor> GetMostUsedColors(this Image Image, int Count) => new Bitmap(Image).GetMostUsedColors().Take(Count);
-
-        /// <summary>
-        /// Retorna uma lista com as cores utilizadas na imagem
-        /// </summary>
-        /// <param name="Image">Imagem</param>
-        /// <returns>uma lista de Color</returns>
-        public static IEnumerable<HSVColor> GetMostUsedColors(this Image Image) => Image.ColorPallette().Keys;
 
         /// <summary>
         /// Retorna a cor negativa de uma cor
@@ -6390,46 +5845,6 @@ namespace Extensions
             return txt;
         }
 
-        public static RotateFlipType GetRotateFlip(this Image Img)
-        {
-            var rft = RotateFlipType.RotateNoneFlipNone;
-            foreach (PropertyItem p in Img.PropertyItems)
-            {
-                if (p.Id == 274)
-                {
-                    short orientation = BitConverter.ToInt16(p.Value, 0);
-                    switch (orientation)
-                    {
-                        case 1:
-                            {
-                                rft = RotateFlipType.RotateNoneFlipNone;
-                                break;
-                            }
-
-                        case 3:
-                            {
-                                rft = RotateFlipType.Rotate180FlipNone;
-                                break;
-                            }
-
-                        case 6:
-                            {
-                                rft = RotateFlipType.Rotate90FlipNone;
-                                break;
-                            }
-
-                        case 8:
-                            {
-                                rft = RotateFlipType.Rotate270FlipNone;
-                                break;
-                            }
-                    }
-                }
-            }
-
-            return rft;
-        }
-
         public static T GetSingleValue<T>(this DataRow data, int ColumnIndex = 0) => data != null ? data.GetValue<T>(ColumnIndex) : default;
 
         public static T GetSingleValue<T>(this DataTable table, int ColumnIndex = 0) => GetSingleValue<T>(table?.GetFirstRow(), ColumnIndex);
@@ -6744,19 +6159,8 @@ namespace Extensions
         /// <returns></returns>
         public static Image GetYoutubeThumbnail(this Uri URL) => GetYoutubeThumbnail(URL?.AbsoluteUri);
 
-        /// <summary>
-        /// Converte uma Imagem para Escala de cinza
-        /// </summary>
-        /// <param name="img">imagem original</param>
-        /// <returns></returns>
-        public static Image Grayscale(this Image img)
-        {
-            var copia = new Bitmap(img);
-            var cm = new ColorMatrix(new float[][] { new float[] { 0.299f, 0.299f, 0.299f, 0f, 0f }, new float[] { 0.587f, 0.587f, 0.587f, 0f, 0f }, new float[] { 0.114f, 0.114f, 0.114f, 0f, 0f }, new float[] { 0f, 0f, 0f, 1f, 0f }, new float[] { 0f, 0f, 0f, 0f, 1f } });
-            return ApplyColorMatrix(copia, cm);
-        }
 
-        public static IEnumerable<HSVColor> GrayscalePallette(int Amount) => MonochromaticPallette(Color.White, Amount);
+
 
         /// <summary>
         /// Constroi uma expressão Maior que
@@ -7212,26 +6616,7 @@ namespace Extensions
 
 
 
-        /// <summary>
-        /// Insere uma imagem em outra imagem
-        /// </summary>
-        /// <param name="Image">Imagem</param>
-        /// <param name="InsertedImage">Imagem de Marca Dagua</param>
-        /// <param name="X">Posição X</param>
-        /// <param name="Y">Posição Y</param>
-        /// <returns></returns>
-        public static Image Insert(this Image Image, Image InsertedImage, int X = -1, int Y = -1)
-        {
-            var bm_Resultado = new Bitmap(Image);
-            var bm_marcaDagua = new Bitmap(InsertedImage.Resize(bm_Resultado.Width - 5, bm_Resultado.Height - 5));
-            if (X < 0)
-                X = (bm_Resultado.Width - bm_marcaDagua.Width) / 2;
-            if (Y < 0)
-                Y = (bm_Resultado.Height - bm_marcaDagua.Height) / 2;
-            var gr = Graphics.FromImage(bm_Resultado);
-            gr.DrawImage(bm_marcaDagua, X, Y);
-            return bm_Resultado;
-        }
+      
 
         public static string Interpolate(this string Text, params string[] Texts)
         {
@@ -8648,25 +8033,6 @@ namespace Extensions
         /// <returns></returns>
         public static Color MakeDarker(this Color TheColor, float Percent = 50f) => TheColor.MergeWith(Color.Black, Percent);
 
-        public static Image MakeDarker(this Image img, float percent = 50f)
-        {
-            var lockedBitmap = new Bitmap(img);
-            for (int y = 0, loopTo = lockedBitmap.Height - 1; y <= loopTo; y++)
-            {
-                for (int x = 0, loopTo1 = lockedBitmap.Width - 1; x <= loopTo1; x++)
-                {
-                    var oldColor = lockedBitmap.GetPixel(x, y);
-                    if (!oldColor.CompareARGB(true, Color.Transparent, Color.Black, Color.White))
-                    {
-                        var newColor = oldColor.MakeDarker(percent);
-                        lockedBitmap.SetPixel(x, y, newColor);
-                    }
-                }
-            }
-
-            return lockedBitmap;
-        }
-
         /// <summary>
         /// Clareia a cor misturando ela com branco
         /// </summary>
@@ -8675,25 +8041,7 @@ namespace Extensions
         /// <returns></returns>
         public static Color MakeLighter(this Color TheColor, float Percent = 50f) => TheColor.MergeWith(Color.White, Percent);
 
-        public static Image MakeLighter(this Image img, float percent = 50f)
-        {
-            var lockedBitmap = new Bitmap(img);
-            for (int y = 0, loopTo = lockedBitmap.Height - 1; y <= loopTo; y++)
-            {
-                for (int x = 0, loopTo1 = lockedBitmap.Width - 1; x <= loopTo1; x++)
-                {
-                    var oldColor = lockedBitmap.GetPixel(x, y);
-                    if (!oldColor.CompareARGB(true, Color.Transparent, Color.Black, Color.White))
-                    {
-                        var newColor = oldColor.MakeLighter(percent);
-                        lockedBitmap.SetPixel(x, y, newColor);
-                    }
-                }
-            }
-
-            return lockedBitmap;
-        }
-
+       
         /// <summary>
         /// Mescla varios dicionarios em um unico dicionario. Quando uma key existir em mais de um
         /// dicionario ela será substituida
@@ -8900,31 +8248,6 @@ namespace Extensions
         }
 
         /// <summary>
-        /// Gera uma paleta de cores monocromatica com <paramref name="Amount"/> amostras a partir
-        /// de uma <paramref name="Color"/> base.
-        /// </summary>
-        /// <param name="Color"></param>
-        /// <param name="Amount"></param>
-        /// <returns></returns>
-        /// <remarks>A distancia entre as cores será maior se a quantidade de amostras for pequena</remarks>
-        public static IEnumerable<HSVColor> MonochromaticPallette(Color Color, int Amount)
-        {
-            var t = new RuleOfThree(Amount, 100, 1, default);
-            var Percent = t.UnknownValue?.ToFloat();
-            Color = Color.White.MergeWith(Color);
-            var l = new List<Color>();
-            for (int index = 1, loopTo = Amount; index <= loopTo; index++)
-            {
-                Color = Color.MakeDarker((float)Percent);
-                l.Add(Color);
-            }
-
-            return l.ToHSVColorList();
-        }
-
-        public static Image Monochrome(this Image Image, Color Color, float Alpha = 0f) => Image.Grayscale().Translate(Color.R, Color.G, Color.B, Alpha);
-
-        /// <summary>
         /// Retorna TRUE se a maioria dos testes em uma lista retornarem o valor correspondente
         /// </summary>
         /// <param name="List"></param>
@@ -8982,6 +8305,7 @@ namespace Extensions
         /// <returns></returns>
         public static bool MostTrue(params bool[] Tests) => (Tests ?? Array.Empty<bool>()).Most(true);
 
+
         public static DirectoryInfo MoveDirectory(DirectoryInfo sourcePath, DirectoryInfo targetPath)
         {
             if (sourcePath.Exists)
@@ -9035,18 +8359,7 @@ namespace Extensions
             return ToList;
         }
 
-        /// <summary>
-        /// Inverte as cores de uma imagem
-        /// </summary>
-        /// <param name="Img"></param>
-        /// <returns></returns>
-        public static Image Negative(this Image img)
-        {
-            var copia = new Bitmap(img);
-            var cm = new ColorMatrix(new float[][] { new float[] { -1, 0f, 0f, 0f, 0f }, new float[] { 0f, -1, 0f, 0f, 0f }, new float[] { 0f, 0f, -1, 0f, 0f }, new float[] { 0f, 0f, 0f, 1f, 0f }, new float[] { 0f, 0f, 0f, 0f, 1f } });
-            return ApplyColorMatrix(copia, cm);
-        }
-
+       
         /// <summary>
         /// Constroi uma expressão diferente de
         /// </summary>
@@ -9892,57 +9205,7 @@ namespace Extensions
         /// <returns></returns>
         public static string Peek(this Queue<char> queue, int take) => new String(queue.Take(take).ToArray());
 
-        /// <summary>
-        /// Pixeliza uma imagem
-        /// </summary>
-        /// <param name="Image"></param>
-        /// <param name="PixelateSize"></param>
-        /// <returns></returns>
-        public static Image Pixelate(this Image Image, int PixelateSize = 1)
-        {
-            if (Image == null) return null;
-            var rectangle = new System.Drawing.Rectangle(0, 0, Image.Width, Image.Height);
-            PixelateSize++;
-            var pixelated = new Bitmap(Image.Width, Image.Height);
-            using (var graphics = Graphics.FromImage(pixelated))
-            {
-                graphics.DrawImage(Image, new System.Drawing.Rectangle(0, 0, Image.Width, Image.Height), new System.Drawing.Rectangle(0, 0, Image.Width, Image.Height), GraphicsUnit.Pixel);
-            }
-
-            int xx = rectangle.X;
-            while (xx < rectangle.X + rectangle.Width && xx < Image.Width)
-            {
-                int yy = rectangle.Y;
-                while (yy < rectangle.Y + rectangle.Height && yy < Image.Height)
-                {
-                    int offsetX = (int)Math.Round(PixelateSize / 2d);
-                    int offsetY = (int)Math.Round(PixelateSize / 2d);
-                    while (xx + offsetX >= Image.Width)
-                        offsetX -= 1;
-                    while (yy + offsetY >= Image.Height)
-                        offsetY -= 1;
-                    var pixel = pixelated.GetPixel(xx + offsetX, yy + offsetY);
-                    int x = xx;
-                    while (x < xx + PixelateSize && x < Image.Width)
-                    {
-                        int y = yy;
-                        while (y < yy + PixelateSize && y < Image.Height)
-                        {
-                            pixelated.SetPixel(x, y, pixel);
-                            y += 1;
-                        }
-
-                        x += 1;
-                    }
-
-                    yy += PixelateSize;
-                }
-
-                xx += PixelateSize;
-            }
-
-            return pixelated;
-        }
+      
 
         /// <summary>
         /// Retorna uma string em sua forma poop
@@ -10297,7 +9560,7 @@ namespace Extensions
         /// <param name="Text">Texto</param>
         /// <param name="SingleQuoteChar">Quando TRUE, utiliza aspas simples</param>
         /// <returns></returns>
-        public static string Quote(this string Text, bool SingleQuoteChar ) => Text.Quote(SingleQuoteChar ? Util.SingleQuoteChar.First()  : Util.DoubleQuoteChar.First());
+        public static string Quote(this string Text, bool SingleQuoteChar) => Text.Quote(SingleQuoteChar ? Util.SingleQuoteChar.First() : Util.DoubleQuoteChar.First());
 
 
         /// <summary>
@@ -11451,140 +10714,9 @@ namespace Extensions
 
         public static string ReplaceUrlParameters<T>(Uri URL, T obj) => ReplaceUrlParameters(URL?.ToString(), obj);
 
-        /// <summary>
-        /// Redimensiona e converte uma Imagem
-        /// </summary>
-        /// <param name="Original">Imagem Original</param>
-        /// <param name="ResizeExpression">uma string contendo uma expressão de tamanho</param>
-        /// <param name="OnlyResizeIfWider">
-        /// Indica se a imagem deve ser redimensionada apenas se sua largura for maior que a especificada
-        /// </param>
-        /// <returns></returns>
-        public static Image Resize(this Image Original, string ResizeExpression, bool OnlyResizeIfWider = true)
-        {
-            if (ResizeExpression.Contains("%"))
-            {
-                return Original.ResizePercent(ResizeExpression, OnlyResizeIfWider);
-            }
-            else
-            {
-                var s = ResizeExpression.ParseSize();
-                return Original.Resize(s, OnlyResizeIfWider);
-            }
-        }
-
-        /// <summary>
-        /// Redimensiona e converte uma Imagem
-        /// </summary>
-        /// <param name="Original">Imagem Original</param>
-        /// <param name="Size">Tamanho</param>
-        /// <param name="OnlyResizeIfWider">
-        /// Indica se a imagem deve ser redimensionada apenas se sua largura for maior que a especificada
-        /// </param>
-        /// <returns></returns>
-        public static Image Resize(this Image Original, Size Size, bool OnlyResizeIfWider = true) => Original.Resize(Size.Width, Size.Height, OnlyResizeIfWider);
-
-        /// <summary>
-        /// Redimensiona e converte uma Imagem
-        /// </summary>
-        /// <param name="Original">Imagem Original</param>
-        /// <param name="NewWidth">Nova Largura</param>
-        /// <param name="MaxHeight">Altura máxima</param>
-        /// <param name="OnlyResizeIfWider">
-        /// Indica se a imagem deve ser redimensionada apenas se sua largura for maior que a especificada
-        /// </param>
-        /// <returns></returns>
-        public static Image Resize(this Image Original, int NewWidth, int MaxHeight, bool OnlyResizeIfWider = true)
-        {
-            if (Original == null)
-            {
-                return null;
-            }
-
-            Image fullsizeImage = new Bitmap(Original);
-            if (OnlyResizeIfWider)
-            {
-                if (fullsizeImage.Width <= NewWidth)
-                {
-                    NewWidth = fullsizeImage.Width;
-                }
-            }
-
-            int newHeight = (int)Math.Round(fullsizeImage.Height * NewWidth / (double)fullsizeImage.Width);
-            if (newHeight > MaxHeight)
-            {
-                // Resize with height instead
-                NewWidth = (int)Math.Round(fullsizeImage.Width * MaxHeight / (double)fullsizeImage.Height);
-                newHeight = MaxHeight;
-            }
-
-            fullsizeImage = fullsizeImage.GetThumbnailImage(NewWidth, newHeight, null, IntPtr.Zero);
-            fullsizeImage.RotateFlip(Original.GetRotateFlip());
-            return fullsizeImage;
-        }
-
-        /// <summary>
-        /// redimensiona e Cropa uma imagem, aproveitando a maior parte dela
-        /// </summary>
-        /// <param name="Image"></param>
-        /// <param name="Width"></param>
-        /// <param name="Height"></param>
-        /// <returns></returns>
-        public static Image ResizeCrop(this Image Image, int Width, int Height) => Image.Resize(Width, Height, false).Crop(Width, Height);
-
-        /// <summary>
-        /// redimensiona e Cropa uma imagem, aproveitando a maior parte dela
-        /// </summary>
-        /// <param name="Image"></param>
-        /// <param name="Width"></param>
-        /// <param name="Height"></param>
-        /// <returns></returns>
-        public static Image ResizeCrop(this Image Image, int Width, int Height, bool OnlyResizeIfWider) => Image.Resize(Width, Height, OnlyResizeIfWider).Crop(Width, Height);
-
-        /// <summary>
-        /// Redimensiona uma imagem para o tamanho definido por uma porcentagem
-        /// </summary>
-        /// <param name="Original"></param>
-        /// <param name="Percent">Porcentagem ( no formato '30% 'ou '20% x 10%')</param>
-        /// <param name="OnlyResizeIfWider"></param>
-        /// <returns></returns>
-        public static Image ResizePercent(this Image Original, string Percent, bool OnlyResizeIfWider = true)
-        {
-            var size = new Size();
-            if (Percent.Contains("x"))
-            {
-                var parts = Percent.Split("x");
-                if (parts[0].TrimBetween().EndsWith("%"))
-                {
-                    parts[0] = parts[0].TrimBetween().CalculateValueFromPercent(Original.Width).RoundDecimal().ToString();
-                }
-
-                if (parts[1].TrimBetween().EndsWith("%"))
-                {
-                    parts[1] = parts[1].TrimBetween().CalculateValueFromPercent(Original.Height).RoundDecimal().ToString();
-                }
-
-                size = new Size(parts[0].ToInt(), parts[1].ToInt());
-            }
-            else
-            {
-                if (Percent.TrimBetween().EndsWith("%"))
-                {
-                    Percent = Percent.Trim('%').TrimBetween();
-                }
-
-                if (Percent.IsNumber())
-                {
-                    size.Width = Convert.ToInt32(Percent.ToInt().CalculateValueFromPercent(Original.Width).RoundDecimal().ToString());
-                    size.Height = Convert.ToInt32(Percent.ToInt().CalculateValueFromPercent(Original.Height).RoundDecimal().ToString());
-                }
-            }
-
-            return Original.Resize(size, OnlyResizeIfWider);
-        }
-
-        public static Image ResizePercent(this Image Original, decimal Percent, bool OnlyResizeIfWider = true) => Original.ResizePercent(Percent.ToPercentString(), OnlyResizeIfWider);
-
+       
+     
+      
         /// <summary>
         /// Arredonda um numero para um numero especifico de digitos fracionários
         /// </summary>
@@ -12537,25 +11669,10 @@ namespace Extensions
             return newlist.AsEnumerable();
         }
 
-        /// <summary>
-        /// Rotaciona uma imagem para sua posição original caso ela já tenha sido rotacionada (EXIF)
-        /// </summary>
-        /// <param name="Img">Imagem</param>
-        /// <returns>TRUE caso a imagem ja tenha sido rotacionada</returns>
-        public static bool TestAndRotate(this Image Img)
-        {
-            var rft = Img.GetRotateFlip();
-            if (rft != RotateFlipType.RotateNoneFlipNone)
-            {
-                Img.RotateFlip(rft);
-                return true;
-            }
-
-            return false;
-        }
+        
 
         /// <summary>
-        /// Ordena um <see cref="IEnumerable{T}"/> a partir da aproximação de uma ou mais <see
+        /// Ordena um <see cref="IQueryable{T}"/> a partir da aproximação de uma ou mais <see
         /// cref="String"/> com o valor de um determinado campo
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -13041,17 +12158,7 @@ namespace Extensions
         /// <returns></returns>
         public static string ToBase64(this byte[] Bytes) => Convert.ToBase64String(Bytes);
 
-        public static string ToBase64(this Image OriginalImage, ImageFormat OriginalImageFormat = null)
-        {
-            if (OriginalImage != null)
-                using (var ms = new MemoryStream())
-                {
-                    OriginalImage.Save(ms, OriginalImageFormat ?? OriginalImage.GetImageFormat() ?? ImageFormat.Png);
-                    var imageBytes = ms.ToArray();
-                    return Convert.ToBase64String(imageBytes);
-                }
-            return null;
-        }
+     
 
         /// <summary>
         /// Converte uma Imagem da WEB para Base64
@@ -13062,12 +12169,7 @@ namespace Extensions
 
 
 
-        /// <summary>
-        /// Retorna uma <see cref="Bitmap"/> a partir de um Image
-        /// </summary>
-        /// <param name="Image"></param>
-        /// <returns></returns>
-        public static Bitmap ToBitmap(this Image Image) => new Bitmap(Image);
+       
 
         /// <summary>
         /// Converte um ToType para Boolean. Retorna Nothing (NULL) se a conversão falhar
@@ -13077,18 +12179,7 @@ namespace Extensions
         /// <returns>Valor convertido em novo ToType</returns>
         public static bool ToBool<T>(this T Value) => Value.ChangeType<bool>();
 
-        /// <summary>
-        /// Transforma uma imagem em array de bytes
-        /// </summary>
-        /// <param name="Image">Imagem</param>
-        /// <returns></returns>
-        public static byte[] ToBytes(this Image Image, ImageFormat Format = null)
-        {
-            using (var ms = Image.ToStream(Format))
-            {
-                return ms.ToBytes();
-            }
-        }
+       
 
         /// <summary>
         /// Salva um anexo para Byte()
@@ -13289,21 +12380,7 @@ namespace Extensions
         /// <returns></returns>
         public static string ToDataURL(this FileInfo File) => File.ToBytes().ToDataURL(new FileType(File.Extension));
 
-        /// <summary>
-        /// Transforma uma imagem em uma URL Util
-        /// </summary>
-        /// <param name="Image">Imagem</param>
-        /// <returns>Uma DataURI em string</returns>
-        public static string ToDataURL(this Image Image) => $"data:{Image.GetMimeTypes().First().ToLowerInvariant().Replace("application/octet-stream", GetFileType(".png").GetMimeTypesOrDefault().First())};base64,{Image.ToBase64()}";
-
-        /// <summary>
-        /// Converte uma imagem para DataURI trocando o MIME TEntity
-        /// </summary>
-        /// <param name="OriginalImage">Imagem</param>
-        /// <param name="OriginalImageFormat">Formato da Imagem</param>
-        /// <returns>Uma data URI com a imagem convertida</returns>
-        public static string ToDataURL(this Image OriginalImage, ImageFormat OriginalImageFormat) => OriginalImage.ToBase64(OriginalImageFormat).Base64ToImage().ToDataURL();
-
+        
         /// <summary>
         /// Converte um ToType para DateTime. Retorna Nothing (NULL) se a conversão falhar
         /// </summary>
@@ -15598,19 +14675,7 @@ namespace Extensions
             return stream;
         }
 
-        /// <summary>
-        /// Transforma uma imagem em um stream
-        /// </summary>
-        /// <param name="Image">Imagem</param>
-        /// <returns></returns>
-        public static Stream ToStream(this Image Image, ImageFormat Format = null)
-        {
-            Format = Format ?? ImageFormat.Png;
-            Stream s = new MemoryStream();
-            Image.Save(s, Format);
-            s.Position = 0L;
-            return s;
-        }
+      
 
         /// <summary>
         /// Projeta um unico array os valores sub-agrupados e unifica todos num unico array de arrays
@@ -15705,24 +14770,6 @@ namespace Extensions
             }
         }
 
-        public static Image Translate(this Image img, Color Color, float Alpha = 0f) => img.Translate(Color.R, Color.G, Color.B, Alpha);
-
-        public static Image Translate(this Image img, float Red, float Green, float Blue, float Alpha = 0f)
-        {
-            float sr, sg, sb, sa;
-            var copia = new Bitmap(img);
-            // normalize the color components to 1
-            sr = Red / 255f;
-            sg = Green / 255f;
-            sb = Blue / 255f;
-            sa = Alpha / 255f;
-
-            // create the color matrix
-            var cm = new ColorMatrix(new float[][] { new float[] { 1f, 0f, 0f, 0f, 0f }, new float[] { 0f, 1f, 0f, 0f, 0f }, new float[] { 0f, 0f, 1f, 0f, 0f }, new float[] { 0f, 0f, 0f, 1f, 0f }, new float[] { sr, sg, sb, sa, 1f } });
-
-            // apply the matrix to the image
-            return ApplyColorMatrix(copia, cm);
-        }
 
         /// <summary>
         /// Percorre uma Lista de objetos que possuem como propriedade objetos do mesmo tipo e as
@@ -15829,116 +14876,7 @@ namespace Extensions
 
         public static IEnumerable<T> TraverseAll<T>(this IEnumerable<T> items, Func<T, IEnumerable<T>> ChildSelector, Expression<Func<T, bool>> Filter = null) => items.SelectMany(x => Traverse(x, ChildSelector, true)).Where(Filter?.Compile() ?? (x => true));
 
-        /// <summary>
-        /// Remove os excessos de uma cor de fundo de uma imagem deixando apenas seu conteudo
-        /// </summary>
-        /// <param name="Img"></param>
-        /// <param name="Color"></param>
-        /// <returns></returns>
-        public static Image Trim(this Image Img, Color? Color = default)
-        {
-            var bitmap = new Bitmap(Img);
-            Color = Color ?? bitmap.GetPixel(0, 0);
-            int w = bitmap.Width;
-            int h = bitmap.Height;
-            bool IsAllWhiteRow(int row)
-            {
-                for (int i = 0, loopTo = w - 1; i <= loopTo; i++)
-                {
-                    if (bitmap.GetPixel(i, row).ToArgb() != Color.Value.ToArgb())
-                    {
-                        return false;
-                    }
-                }
-
-                return true;
-            }
-            bool IsAllWhiteColumn(int col)
-            {
-                for (int i = 0, loopTo = h - 1; i <= loopTo; i++)
-                {
-                    if (bitmap.GetPixel(col, i).ToArgb() != Color.Value.ToArgb())
-                    {
-                        return false;
-                    }
-                }
-
-                return true;
-            }
-            int leftMost = 0;
-            for (int col = 0, loopTo = w - 1; col <= loopTo; col++)
-            {
-                if (IsAllWhiteColumn(col))
-                {
-                    leftMost = col + 1;
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-            int rightMost = w - 1;
-            for (int col = rightMost; col >= 1; col -= 1)
-            {
-                if (IsAllWhiteColumn(col))
-                {
-                    rightMost = col - 1;
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-            int topMost = 0;
-            for (int row = 0, loopTo1 = h - 1; row <= loopTo1; row++)
-            {
-                if (IsAllWhiteRow(row))
-                {
-                    topMost = row + 1;
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-            int bottomMost = h - 1;
-            for (int row = bottomMost; row >= 1; row -= 1)
-            {
-                if (IsAllWhiteRow(row))
-                {
-                    bottomMost = row - 1;
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-            if (rightMost == 0 && bottomMost == 0 && leftMost == w && topMost == h)
-            {
-                return bitmap;
-            }
-
-            int croppedWidth = rightMost - leftMost + 1;
-            int croppedHeight = bottomMost - topMost + 1;
-            try
-            {
-                var target = new Bitmap(croppedWidth, croppedHeight);
-                using (var g = Graphics.FromImage(target))
-                {
-                    g.DrawImage(bitmap, new RectangleF(0f, 0f, croppedWidth, croppedHeight), new RectangleF(leftMost, topMost, croppedWidth, croppedHeight), GraphicsUnit.Pixel);
-                }
-
-                return target;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(string.Format("Values are top={0} bottom={1} left={2} right={3}", topMost, bottomMost, leftMost, rightMost), ex);
-            }
-        }
+       
 
         /// <summary>
         /// Remove do começo e do final de uma string qualquer valor que estiver no conjunto
@@ -16318,43 +15256,7 @@ namespace Extensions
             return true;
         }
 
-        /// <summary>
-        /// Insere uma imagem de marca d'água na imagem
-        /// </summary>
-        /// <param name="Image">Imagem</param>
-        /// <param name="WaterMarkImage">Imagem de Marca d'água</param>
-        /// <param name="X">Posição X</param>
-        /// <param name="Y">Posição Y</param>
-        /// <returns></returns>
-        public static Image Watermark(this Image Image, Image WaterMarkImage, int X = -1, int Y = -1, Color? transparentColor = null)
-        {
-            // a imagem onde iremos aplicar a marca d'água
-            var bm_Resultado = new Bitmap(Image);
-
-            // a imagem que será usada como marca d'agua
-            var bm_marcaDagua = new Bitmap(WaterMarkImage.Resize(bm_Resultado.Width - 5, bm_Resultado.Height - 5));
-            if (X < 0)
-                X = (bm_Resultado.Width - bm_marcaDagua.Width) / 2;   // centraliza a marca d'agua
-            if (Y < 0)
-                Y = (bm_Resultado.Height - bm_marcaDagua.Height) / 2;   // centraliza a marca d'agua
-            const byte ALPHA = 128;
-            // Define o componente Alpha do pixel
-            Color clr;
-            for (int py = 0, loopTo = bm_marcaDagua.Height - 1; py <= loopTo; py++)
-            {
-                for (int px = 0, loopTo1 = bm_marcaDagua.Width - 1; px <= loopTo1; px++)
-                {
-                    clr = bm_marcaDagua.GetPixel(px, py);
-                    bm_marcaDagua.SetPixel(px, py, Color.FromArgb(ALPHA, clr.R, clr.G, clr.B));
-                }
-            }
-            // Define a marca d'agua como transparente
-            bm_marcaDagua.MakeTransparent(transparentColor ?? bm_marcaDagua.GetPixel(0, 0));
-            // Copia o resultado na imagem
-            var gr = Graphics.FromImage(bm_Resultado);
-            gr.DrawImage(bm_marcaDagua, X, Y);
-            return bm_Resultado;
-        }
+      
 
         /// <summary>
         /// Retorna uma lista de arquivos ou diretórios baseado em uma busca usando predicate
