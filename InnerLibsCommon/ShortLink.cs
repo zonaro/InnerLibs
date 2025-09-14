@@ -40,7 +40,7 @@ namespace Exttensions.Web
             {
                 for (int index = 1, loopTo = Seed.Length; index <= loopTo; index++)
                 {
-                    Token = PredefinedArrays.AlphaNumericChars.OrderBy(x => Encoding.ASCII.GetBytes(x.ToString()).FirstOrDefault() ^ Encoding.ASCII.GetBytes(Seed[index - 1].ToString()).FirstOrDefault()).SelectJoinString();
+                    Token = PredefinedArrays.AlphaNumericChars.OrderBy(x => Encoding.ASCII.GetBytes(x.ToString()).FirstOrDefault() ^ Encoding.ASCII.GetBytes(Seed[index - 1].ToString()).FirstOrDefault()).JoinString();
                 }
 
                 this.Seed = Seed;
@@ -48,7 +48,7 @@ namespace Exttensions.Web
             else
             {
                 this.Seed = null;
-                Token = PredefinedArrays.AlphaNumericChars.SelectJoinString();
+                Token = PredefinedArrays.AlphaNumericChars.JoinString();
             }
 
             if (Seed.IsURL() && UrlPattern.IsNotValid())

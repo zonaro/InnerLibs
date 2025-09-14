@@ -50,7 +50,7 @@ namespace Extensions.ComplexText
 
         public override string ToString() => ToString(0);
 
-        public string ToString(int Ident) => this.SelectJoinString(Util.WhitespaceChar).Prepend(Util.WhitespaceChar.Repeat(Ident));
+        public string ToString(int Ident) => this.JoinString(Util.WhitespaceChar).Prepend(Util.WhitespaceChar.Repeat(Ident));
 
         #endregion Public Methods
     }
@@ -83,10 +83,10 @@ namespace Extensions.ComplexText
                     switch (true)
                     {
                         // caso for algum tipo de pontuacao, wrapper ou virgula
-                        case object _ when PredefinedArrays.OpenWrappers.Contains(Convert.ToString(p)):
-                        case object _ when PredefinedArrays.CloseWrappers.Contains(Convert.ToString(p)):
-                        case object _ when PredefinedArrays.EndOfSentencePunctuation.Contains(Convert.ToString(p)):
-                        case object _ when PredefinedArrays.MidSentencePunctuation.Contains(Convert.ToString(p)):
+                        case object _ when PredefinedArrays.OpenWrappers.Contains(p):
+                        case object _ when PredefinedArrays.CloseWrappers.Contains(p):
+                        case object _ when PredefinedArrays.EndOfSentencePunctuation.Contains(p):
+                        case object _ when PredefinedArrays.MidSentencePunctuation.Contains(p):
                             {
                                 if (palavra.IsValid())
                                 {
@@ -132,7 +132,7 @@ namespace Extensions.ComplexText
                     }
 
                     // se a ultima senteca nao for nenhum tipo de pontuacao, adicionamos um ponto a ela
-                    if (!listabase.Last().IsInAny(new[] { PredefinedArrays.EndOfSentencePunctuation, PredefinedArrays.MidSentencePunctuation }))
+                    if (!listabase.Last().IsInAny(new[] { PredefinedArrays.EndOfSentencePunctuation.ToStringArray(), PredefinedArrays.MidSentencePunctuation.ToStringArray() }))
                     {
                         listabase.Add(".");
                     }
@@ -216,7 +216,7 @@ namespace Extensions.ComplexText
         /// Retorna TRUE se esta parte de senteça for um caractere de fechamento de encapsulamento
         /// </summary>
         /// <returns></returns>
-        public bool IsCloseWrapChar => PredefinedArrays.CloseWrappers.Contains(Text) && !IsOpeningQuote;
+        public bool IsCloseWrapChar => Text.Length == 1 &&  Text.IsIn(PredefinedArrays.CloseWrappers.ToStringArray()) && !IsOpeningQuote;
 
         public bool IsClosingQuote => IsQuote && Sentence.Where(x => x.IsQuote).GetIndexOf(this).IsOdd();
 
@@ -232,14 +232,14 @@ namespace Extensions.ComplexText
         /// Retorna TRUE se esta parte de senteça for um caractere de encerramento de frase (pontuaçao)
         /// </summary>
         /// <returns></returns>
-        public bool IsEndOfSentencePunctuation => PredefinedArrays.EndOfSentencePunctuation.Contains(Text);
+        public bool IsEndOfSentencePunctuation => Text.FlatEqual(PredefinedArrays.EndOfSentencePunctuation.ToStringArray());
 
         /// <summary>
         /// Retorna TRUE se esta parte de senteça for um caractere de de meio de sentença (dois
         /// pontos ou ponto e vírgula)
         /// </summary>
         /// <returns></returns>
-        public bool IsMidSentencePunctuation => PredefinedArrays.MidSentencePunctuation.Contains(Text);
+        public bool IsMidSentencePunctuation => Text.FlatEqual(PredefinedArrays.MidSentencePunctuation.ToStringArray());
 
         /// <summary>
         /// Retorna TRUE se esta parte de senteça não for uma palavra
@@ -253,7 +253,7 @@ namespace Extensions.ComplexText
         /// Retorna TRUE se esta parte de senteça for um caractere de abertura de encapsulamento
         /// </summary>
         /// <returns></returns>
-        public bool IsOpenWrapChar => PredefinedArrays.OpenWrappers.Contains(Text) && !IsClosingQuote;
+        public bool IsOpenWrapChar => Text.FlatEqual(PredefinedArrays.OpenWrappers.ToStringArray()) && !IsClosingQuote;
 
         /// <summary>
         /// Retorna TRUE se esta parte de senteça for qualquer tipo de pontuaçao
@@ -327,7 +327,7 @@ namespace Extensions.ComplexText
                 return Util.EmptyString;
             }
 
-            if (indexo == 0 || indexo == 1 && PredefinedArrays.OpenWrappers.Contains(Sentence[0].Text))
+            if (indexo == 0 || indexo == 1 && Sentence[0].Text.FlatEqual(PredefinedArrays.OpenWrappers.ToStringArray()))
             {
                 return Text.ToProperCase();
             }

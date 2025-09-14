@@ -3,20 +3,210 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.Serialization;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
 using Extensions;
 using Extensions.Locations;
+using Extensions.NumberWriters;
+using Extensions.vCards;
+
+using System;
+using System.Text;
+using System.Security.Cryptography;
 
 namespace Extensions.BR
 {
     /// <summary>
     /// Objeto para manipular operações relacionadas ao Brasil
     /// </summary>
-    public static class Brasil
+    public static partial class Brasil
     {
+        public static string FonemaCodigo(string palavra)
+        {
+            if (palavra.IsBlank()) return palavra ?? string.Empty;
+
+            if (palavra.Contains(" "))
+            {
+                return palavra.Split(" ").Select(x => FonemaCodigo(x)).JoinString(" ");
+            }
+            else
+            {
+                palavra = Fonema(palavra);
+
+                var mapa = new Dictionary<char, string>
+                {
+                    ['a'] = "1",
+                    ['e'] = "1",
+                    ['i'] = "1",
+                    ['o'] = "1",
+                    ['u'] = "1",
+                    ['b'] = "2",
+                    ['p'] = "2",
+                    ['c'] = "3",
+                    ['k'] = "3",
+                    ['q'] = "3",
+                    ['g'] = "3",
+                    ['d'] = "4",
+                    ['t'] = "4",
+                    ['f'] = "5",
+                    ['v'] = "5",
+                    ['s'] = "6",
+                    ['z'] = "6",
+                    ['x'] = "6",
+                    ['l'] = "7",
+                    ['L'] = "7",
+                    ['m'] = "8",
+                    ['n'] = "8",
+                    ['r'] = "9",
+                };
+
+                var sb = new StringBuilder();
+                palavra.OnlyAlpha();
+                foreach (char c in palavra)
+                {
+                    if (mapa.ContainsKey(c))
+                        sb.Append(mapa[c]);
+                }
+
+                return sb.ToString();
+            }
+        }
+
+        public static string Fonema(string palavra)
+        {
+            if (palavra.IsBlank()) return palavra ?? string.Empty;
+
+            /// simbolos para nomes
+            palavra = palavra.Replace("@", " arroba ");
+
+
+            // replace "#words" to "raxitagui words" but alone # with " cerquilha "      
+
+            palavra = Regex.Replace(palavra, @"#(\w+)?", m =>
+            {
+                if (m.Groups[1].Success) // Tem palavra depois do #
+                {
+                    return "rashtag " + m.Groups[1].Value;
+                }
+                else // # sozinho
+                {
+                    return " cerquilha ";
+                }
+            });
+
+
+            if (palavra.Contains(" "))
+            {
+                return palavra.Split(" ").Select(x => Fonema(x)).JoinString(" ");
+            }
+            else if (palavra.IsNumber())
+            {
+                palavra = palavra.OnlyNumbers();
+                var w = FullNumberWriter.pt_BR();
+                return Fonema(w.InExtensive(palavra.ToLong()));
+            }
+            else
+            {
+                // 1. Normalizar (minúsculas e sem acentos)
+                palavra = palavra.ToLower().RemoveAccents();
+
+                // 2. Regras fonéticas básicas
+                var substituicoes = new (string, string)[]
+                {
+                   ("eat","iti"),
+                   ("ph", "f"),
+                   ("ca", "ka"), ("co", "ko"), ("cu", "ku"),
+                   ("qu", "ku"), ("que", "ke"), ("qui", "ki"),
+                   ("c(?=[ei])", "ss"), // c + e/i vira som de ss
+                   ("ç", "ss"),
+                   ("sh", "x"),
+                   ("ch", "x"),
+                   ("lh", "li"),
+                   ("nh", "ni"),
+                   ("rr", "r"),
+                   ("zz","ts"),
+                   ("v","w"),
+                   ("h",""), // por ultimo remove os H sem som               
+                };
+
+                foreach (var (padrao, repl) in substituicoes)
+                {
+                    palavra = Regex.Replace(palavra, padrao, repl);
+                }
+
+                // 3. Casos especiais solicitados
+                // S no início ou seguido de outro S → mantém S
+                // S no meio/fim → vira Z
+                // W no início → V
+                // consoantes mudas (no meio ou no fim) vira consoante + "i"
+                if (palavra.Length > 0)
+                {
+                    palavra = palavra.RemoveFirstEqual("h");
+                    char[] chars = palavra.ToCharArray();
+                    for (int i = 0; i < chars.Length; i++)
+                    {
+                        if (char.IsLetter(chars[i]))
+                        {
+                            if (chars[i] == 's')
+                            {
+                                if (i == 0) // primeiro caractere
+                                {
+                                    chars[i] = 's'; // mantém
+                                }
+                                else if (i == chars.Length - 1) //ultimo caractere
+                                {
+                                    chars[i] = 'z'; //  fim → Z
+                                }
+                                else
+                                {
+                                    //se antecede s opu sucede s, mantem s
+                                    if (chars[i - 1] == 's' || chars[i + 1] == 's')
+                                    {
+                                        chars[i] = 's';
+                                    }
+                                    else
+                                    {
+                                        chars[i] = 'z';
+
+                                    }
+                                }
+                            }
+                            else if ("bcdgpt".Contains(chars[i]))
+                            {
+                                if (i == chars.Length - 1 || "bcdgpt".Contains(chars[i + 1]))
+                                {
+                                    // consoante muda no fim ou seguida de outra consoante
+                                    chars[i] = chars[i]; // mantém a consoante
+                                                         // insere 'i' após a consoante
+                                    palavra = new string(chars);
+                                    palavra = palavra.Insert(i + 1, "i");
+                                    chars = palavra.ToCharArray();
+                                    i++; // pula o 'i' que acabou de inserir
+                                }
+                            }
+                        }
+
+                    }
+                    palavra = new string(chars);
+                }
+
+                return palavra;
+            }
+        }
+
+        public static IEnumerable<string> Fonema(IEnumerable<string> palavras)
+        {
+            return palavras.Select(x => Fonema(x));
+        }
+
+        public static IEnumerable<string> FonemaCodigo(IEnumerable<string> palavras)
+        {
+            return palavras.Select(x => FonemaCodigo(x));
+        }
 
         /// <summary>
         /// Formata uma data para o padrão brasileiro, encurtando a data para o padrão dd/MM/yyyy quando não houver horas, minutos ou segundos
@@ -29,10 +219,8 @@ namespace Extensions.BR
 
             if (dateTime.Millisecond > 0)
                 return dateTime.ToString("dd/MM/yyyy HH:mm:ss:FFFFFFF");
-
             else if (dateTime.Second > 0)
                 return dateTime.ToString("dd/MM/yyyy HH:mm:ss");
-
             else if (dateTime.Minute > 0 || dateTime.Hour > 0)
                 return dateTime.ToString("dd/MM/yyyy HH:mm");
             else
@@ -42,9 +230,7 @@ namespace Extensions.BR
 
         public static string FormatarDataBrasileira(this DateTime? dateTime) => (dateTime ?? DateTime.MinValue).FormatarDataBrasileira();
 
-
         public static string FormatarDataBrasileira(this string dateTime) => dateTime.ToDateTime().FormatarDataBrasileira();
-
 
         /// <inheritdoc cref = "TelefoneValido(string)" />
         public static bool TelefoneValido(int telefone)
@@ -83,7 +269,7 @@ namespace Extensions.BR
                 if (apenasNumeros.Length > 9)
                 {
                     int ddd = int.Parse(apenasNumeros.Substring(0, 2));
-                    if (ddd < 11 || ddd > 99)
+                    if (Brasil.DDDValido(ddd) == false)
                     {
                         return false;
                     }
@@ -97,48 +283,140 @@ namespace Extensions.BR
             }
         }
 
-
         internal static List<Estado> states = new List<Estado>();
         internal static List<Cidade> cities = new List<Cidade>();
 
         /// <summary>
         /// Array contendo os nomes mais comuns no Brasil
         /// </summary>
-        public static IEnumerable<string> NomesComuns => new[] { "Miguel", "Arthur", "Davi", "Gabriel", "Pedro", "Alice", "Sophia", "Sofia", "Manuela", "Isabella", "Laura", "Heitor", "Enzo", "Lorenzo", "Valentina", "Giovanna", "Giovana", "Maria Eduarda", "Beatriz", "Maria Clara", "Vinícius", "Rafael", "Lara", "Mariana", "Helena", "Mariana", "Isadora", "Lívia", "Luana", "Maria Luíza", "Luiza", "Ana Luiza", "Eduarda", "Letícia", "Lara", "Melissa", "Maria Fernanda", "Cecília", "Lorena", "Clara", "Gustavo", "Matheus", "João Pedro", "Breno", "Felipe", "Júlia", "Carolina", "Caroline", "Joaquim", "Enzo Gabriel", "Thiago", "Lucas", "Giovanni", "Bianca", "Sophie", "Antônio", "Benjamin", "Vitória", "Isabelly", "Amanda", "Emilly", "Maria Cecília", "Marina", "Analu", "Nina", "Júlia", "Gustavo Henrique", "Miguel", "Catarina", "Stella", "Miguel Henrique", "Guilherme", "Caio", "Maria Vitória", "Isis", "Heloísa", "Gabriela", "Eloá", "Agatha", "Arthur Miguel", "Luiza", "Pedro Henrique", "Ana Beatriz", "Ruan", "Sophia", "Lara", "Luana", "Bárbara", "Kaique", "Raissa", "Rafaela", "Maria Valentina", "Bernardo", "Mirella", "Leonardo", "Davi Lucas", "Luiz Felipe", "Emanuel", "Maria Alice", "Luana", "Luna", "Enrico" };
+        public static IEnumerable<string> NomesComuns => NomesMasculinosComuns.Union(NomesFemininosComuns).Distinct();
+
+        public static IEnumerable<string> NomesMasculinosComuns => new[] { "Miguel", "Arthur", "Davi", "Gabriel", "Pedro", "Heitor", "Enzo", "Lorenzo", "Vinícius", "Rafael", "Gustavo", "Matheus", "João Pedro", "Breno", "Felipe", "Joaquim", "Enzo Gabriel", "Thiago", "Lucas", "Giovanni", "Antônio", "Benjamin", "Gustavo Henrique", "Miguel Henrique", "Guilherme", "Caio", "Arthur Miguel", "Pedro Henrique", "Bernardo", "Leonardo", "Davi Lucas", "Luiz Felipe", "Emanuel", "Enrico", "Ruan", "Kaique" };
+        public static IEnumerable<string> NomesFemininosComuns => new[] { "Alice", "Sophia", "Sofia", "Manuela", "Isabella", "Laura", "Valentina", "Giovanna", "Giovana", "Maria Eduarda", "Beatriz", "Maria Clara", "Lara", "Mariana", "Helena", "Isadora", "Lívia", "Luana", "Maria Luíza", "Luiza", "Ana Luiza", "Eduarda", "Letícia", "Melissa", "Maria Fernanda", "Cecília", "Lorena", "Clara", "Júlia", "Carolina", "Caroline", "Bianca", "Sophie", "Vitória", "Isabelly", "Amanda", "Emilly", "Maria Cecília", "Marina", "Analu", "Nina", "Catarina", "Stella", "Maria Vitória", "Isis", "Heloísa", "Gabriela", "Eloá", "Agatha", "Ana Beatriz", "Bárbara", "Raissa", "Rafaela", "Maria Valentina", "Mirella", "Maria Alice", "Luna" };
 
         /// <summary>
         /// Array contendo os sobrenomes mais comuns no Brasil
         /// </summary>
         public static IEnumerable<string> SobrenomesComuns => new[] { "Silva", "Santos", "Souza", "Oliveira", "Pereira", "Ferreira", "Alves", "Pinto", "Ribeiro", "Rodrigues", "Costa", "Carvalho", "Gomes", "Martins", "Araújo", "Melo", "Barbosa", "Cardoso", "Nascimento", "Lima", "Moura", "Cavalcanti", "Monteiro", "Moreira", "Nunes", "Sales", "Ramos", "Montenegro", "Siqueira", "Borges", "Teixeira", "Amaral", "Sampaio", "Correa", "Fernandes", "Batista", "Miranda", "Leal", "Xavier", "Marques", "Andrade", "Freitas", "Paiva", "Vieira", "Aguiar", "Macedo", "Garcia", "Lacerda", "Lopes" };
 
-        public static string GerarNomeAleatorio(bool SobrenomeUnico = false)
+        public static vCard GerarPessoa(bool? NomeMasculino = null, bool SobrenomeUnico = false, int IdadeMinima = 18, int IdadeMaxima = 80)
+
         {
-            var s1 = SobrenomesComuns.RandomItem();
-            var s2 = SobrenomesComuns.RandomItem().NullIf(x => Util.RandomBool() || x == s1 || SobrenomeUnico);
-            return $"{NomesComuns.RandomItem()} {s1} {s2}".Trim();
+            NomeMasculino = NomeMasculino ?? Util.RandomBool();
+
+            var nome = GerarPrimeiroNomeAleatorio(NomeMasculino);
+            var sobrenome = GerarSobrenomeAleatorio(true);
+            var sobrenomeMeio = GerarSobrenomeAleatorio(true);
+            if (SobrenomeUnico)
+            {
+                sobrenomeMeio = null;
+            }
+            else
+            {
+                while (sobrenomeMeio.FlatEqual(sobrenome))
+                {
+                    sobrenomeMeio = GerarSobrenomeAleatorio(true);
+                }
+            }
+
+            var dataNascimento = Util.RandomDateTime(DateTime.Now.AddYears(IdadeMaxima.ForceNegative()), DateTime.Now.AddYears(IdadeMinima.ForceNegative()));
+            var cpf = GerarCPFFake();
+            var cnpj = dataNascimento.GetAge() >= 18 ? GerarCPFFake() : null;
+            var cnh = dataNascimento.GetAge() >= 18 ? GerarCNHFake() : null;
+            var endereco = GerarEnderecoFake();
+            var telefone = GerarTelefoneFake(endereco.City);
+
+            // gerar username pegando o nome até a primeira vogal + sobrenome até primeria vogal + ano de nascimento
+            var usernames = Util.UsernamesFor(nome, sobrenome, dataNascimento);
+            var email = $"{usernames.RandomItem()}@{PredefinedArrays.EmailDomains.RandomItem()}";
+
+            var pessoa = new vCard
+            {
+                FirstName = nome,
+                MiddleName = sobrenomeMeio,
+                LastName = sobrenome,
+                Birthday = dataNascimento
+            };
+
+            pessoa.Gender = (NomeMasculino.Value ? vGender.M : vGender.F, NomeMasculino.Value ? "Masculino" : "Feminino");
+            pessoa.AddTelephone(telefone);
+
+            pessoa.AddEmail(email);
+
+            pessoa.Extra("CNH", cnh);
+            pessoa.Extra("CPF", cpf);
+            pessoa.Extra("CNPJ", cnpj);
+            pessoa.Extra("UserName", usernames.RandomItem());
+            pessoa.Extra("FAKE", true);
+            pessoa.AddAddress(endereco);
+
+            return pessoa;
         }
 
-        public static Image GerarAvatarAleatorio(bool SobrenomeUnico = false) => GerarNomeAleatorio(SobrenomeUnico).GenerateAvatarByName();
-
-        public static AddressInfo GerarEnderecoFake() => GerarEnderecoFake<AddressInfo>();
-        public static T GerarEnderecoFake<T>(string Label = "Casa") where T : AddressInfo
+        public static string GerarPrimeiroNomeAleatorio(bool? NomeMasculino = null)
         {
-            var e = Estados.RandomItem();
-            var ad = CriarAddressInfo<T>(e.Nome, e.Cidades.RandomItem().Nome);
-            ad.Street = $"{AddressTypes.Avenida.Union(AddressTypes.Rua).Union(AddressTypes.Travessa).Union(AddressTypes.Alameda).RandomItem().AppendIf(".", x => x.Length < 3)} {GerarNomeAleatorio()}";
-            ad.Neighborhood = GerarNomeAleatorio(true).PrependIf(new[] { "Jardim ", "Campos " }.RandomItem(), Util.RandomBool(75));
-            ad.Number = Util.RandomInt(10, 2000).ToString();
-            ad.ZipCode = Util.RandomInt(11111111, 99999999).FormatarCEP();
-            ad.Label = Label;
-            ad.Complement = new[]
+            NomeMasculino = NomeMasculino ?? Util.RandomBool();
+            var primeiroNome = NomeMasculino.Value ? NomesMasculinosComuns.RandomItem() : NomesFemininosComuns.RandomItem();
+            return primeiroNome;
+        }
+
+        public static string GerarSobrenomeAleatorio(bool? SobrenomeUnico = null)
+        {
+            SobrenomeUnico = SobrenomeUnico ?? Util.RandomBool(30);
+            var sobrenome1 = SobrenomesComuns.RandomItem();
+            var sobrenome2 = SobrenomesComuns.RandomItem().NullIf(x => SobrenomeUnico.Value || x == sobrenome1);
+            return $"{sobrenome1} {sobrenome2}".Trim();
+        }
+
+        public static string GerarNomeCompletoAleatorio(bool? NomeMasculino = null, bool SobrenomeUnico = false)
+        {
+            NomeMasculino ??= Util.RandomBool();
+
+            return $"{GerarPrimeiroNomeAleatorio(NomeMasculino)} {GerarSobrenomeAleatorio(SobrenomeUnico)}";
+        }
+
+        public static Image GerarAvatarAleatorio(bool SobrenomeUnico = false) => GerarNomeCompletoAleatorio(SobrenomeUnico).GenerateAvatarByName();
+
+        /// <inheritdoc cref= "GerarEnderecoFake{T}" />
+        public static BrasilAddressInfo GerarEnderecoFake(string Label = "Residêncial", bool BuscarEnderecoReal = true) => GerarEnderecoFake<BrasilAddressInfo>(BuscarEnderecoReal: BuscarEnderecoReal);
+
+        /// <summary>
+        /// Retorna um endereço falso, mas com dados reais de cidade e estado. Tenta buscar um endereço real a partir do CEP gerado, mas caso não consiga, gera um endereço fictício
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Label"></param>
+        /// <param name="BuscarEnderecoReal"></param>
+        /// <returns></returns>
+        public static T GerarEnderecoFake<T>(string Label = "Residêncial", bool BuscarEnderecoReal = true) where T : AddressInfo
+        {
+            var cid = Cidades.RandomItem();
+            T ad = CriarAddressInfo<T>(cid.UF, cid.Nome);
+            ad["endereco_fake"] = "true";
+            try
             {
-                "",
+                if (!BuscarEnderecoReal) throw new Exception("Endereço FAKE");
+                ad = PegarEndereco<T>(Util.RandomLong(cid.CepInicial, cid.CepFinal));
+                ad["Origem"] = "ViaCep";
+            }
+            catch
+            {
+                ad["Origem"] = "Endereço Gerado";
+                ad.ZipCode = Util.RandomLong(cid.CepInicial, cid.CepFinal).FormatarCEP();
+                ad.Street = $"{AddressTypes.Avenida.Union(AddressTypes.Rua).Union(AddressTypes.Travessa).Union(AddressTypes.Alameda).RandomItem().AppendIf(".", x => x.Length < 3)} {GerarNomeCompletoAleatorio()}";
+                ad.Neighborhood = GerarNomeCompletoAleatorio(true).PrependIf(new[] { "Jardim ", "Campos ", "Vila", "COHAB", "CDHU" }.RandomItem(), Util.RandomBool(75));
+            }
+            ad.Label = Label;
+            ad.Number = Util.RandomInt(10, 2000).ToString();
+            ad.Complement = Util.RandomBool() ? "" : new string[]
+            {
+                $"Casa {Util.RandomInt(1,250)}",
                 $"Casa {PredefinedArrays.AlphaUpperChars.Take(4).RandomItem()}",
                 $"Apto. {Util.RandomInt(11,209)}",
                 $"Bloco {PredefinedArrays.AlphaUpperChars.Take(20).RandomItem()} Apto. {Util.RandomInt(11,200)}",
                 $"Bloco {PredefinedArrays.AlphaUpperChars.Take(20).RandomItem()} Casa {Util.RandomInt(1,12)}",
                 $"Bloco {PredefinedArrays.AlphaUpperChars.Take(20).RandomItem()} Casa {PredefinedArrays.AlphaUpperChars.Take(6).RandomItem()}",
             }.RandomItem();
+
             return ad;
         }
 
@@ -166,16 +444,14 @@ namespace Extensions.BR
             get
             {
                 LoadXML();
-
                 return states;
             }
         }
+
         private static bool cached = false;
 
-
-        static private void LoadXML()
+        private static void LoadXML()
         {
-
             states = states ?? new List<Estado>();
             cities = cities ?? new List<Cidade>();
             if (!cached)
@@ -201,7 +477,6 @@ namespace Extensions.BR
 
                     states.Add(e);
                 }
-
 
                 foreach (XmlNode node in doc.SelectNodes($"brasil/Cidades"))
                 {
@@ -234,10 +509,9 @@ namespace Extensions.BR
                         cid.Estado?.UF,
                         cid.Estado?.Nome,
                         cid.Estado?.Regiao,
-
                     }.WhereNotBlank().SelectMany(x => new List<string> {
-                       x.ToUpperInvariant().Split(Util.WhitespaceChar).SelectJoinString(),
-                       x.ToUpperInvariant().Split(Util.WhitespaceChar).RemoveAny("DO", "DOS", "DE", "DA","D","D'","DAS").SelectJoinString(),
+                       x.ToUpperInvariant().Split(Util.WhitespaceChar).JoinString(),
+                       x.ToUpperInvariant().Split(Util.WhitespaceChar).RemoveAny("DO", "DOS", "DE", "DA","D","D'","DAS").JoinString(),
                        x.ToUpperInvariant().Split(Util.WhitespaceChar).SelectJoinString(c => c.GetFirstChars()),
                        x.ToUpperInvariant().Split(Util.WhitespaceChar).RemoveAny("DO", "DOS", "DE", "DA","D","D'","DAS").SelectJoinString(c => c.GetFirstChars()),
                     });
@@ -256,6 +530,7 @@ namespace Extensions.BR
         /// <param name="Cidade"></param>
         /// <returns></returns>
         public static BrasilAddressInfo CriarAddressInfo(string NomeOuUFouIBGE, string Cidade) => CriarAddressInfo<BrasilAddressInfo>(NomeOuUFouIBGE, Cidade);
+
         public static BrasilAddressInfo CriarAddressInfo(string CidadeOuIBGE) => CriarAddressInfo<BrasilAddressInfo>(CidadeOuIBGE);
 
         /// <summary>
@@ -269,6 +544,7 @@ namespace Extensions.BR
             var cid = PegarCidade(EstadoOuIBGE, EstadoOuIBGE);
             return CriarAddressInfo<T>(cid.Estado.UF, cid.Nome);
         }
+
         public static T CriarAddressInfo<T>(string NomeOuUFouIBGE, string Cidade) where T : AddressInfo
         {
             if (NomeOuUFouIBGE.IsNotValid() && Cidade.IsValid())
@@ -301,18 +577,20 @@ namespace Extensions.BR
             return null;
         }
 
+        public static T PegarEndereco<T>(long CEP, string Numero = null, string Complemento = null) where T : AddressInfo => AddressInfo.FromViaCEP<T>(CEP.ToString(), Numero, Complemento);
 
-
-
+        public static BrasilAddressInfo PegarEndereco(long CEP, string Numero = null, string Complemento = null) => PegarEndereco<BrasilAddressInfo>(CEP, Numero, Complemento);
 
         /// <summary>
         /// Retorna uma cidade a partir de seu nome ou codigo IBGEouCEP. Caso a cidade não seja encontrada mas o estado seja identificado, a capital desse estado é retornada no lugar
         /// </summary>
         public static Cidade PegarCidade(string NomeDaCidadeOuIBGE) => PegarCidade(NomeDaCidadeOuIBGE, 100);
+
         /// <summary>
         /// Retorna uma cidade a partir de seu nome ou codigo IBGEouCEP. A busca por nome da cidade é feita a partir da similaridade entre o nome fornecido e o nome cadastrado no banco de dados. Caso a cidade não seja encontrada mas o estado seja identificado, a capital desse estado é retornada no lugar
         /// </summary>
         public static Cidade PegarCidade(string NomeDaCidadeOuIBGE, int Similaridade) => PegarCidade(NomeDaCidadeOuIBGE, null, Similaridade);
+
         /// <summary>
         /// Retorna uma cidade a partir de seu nome ou codigo IBGEouCEP. Caso a cidade não seja encontrada mas o estado seja identificado, a capital desse estado é retornada no lugar
         /// </summary>
@@ -339,7 +617,6 @@ namespace Extensions.BR
                 NomeDaCidadeOuIBGE = NomeDaCidadeOuIBGE.GetBefore(" -").TrimBetween();
             }
 
-
             var est = PegarEstado(NomeOuUFOuIBGE) ?? PegarEstado(NomeDaCidadeOuIBGE);
             var cids = PesquisarCidade(NomeDaCidadeOuIBGE, NomeOuUFOuIBGE, Similaridade);
             return cids.FirstOrDefault(x => x.IBGE == NomeDaCidadeOuIBGE.RemoveMaskInt()) ?? cids.OrderByDescending(x => x.Nome.SimilarityCaseInsensitive(NomeDaCidadeOuIBGE)).ThenByDescending(x => x.Capital).FirstOrDefault() ?? est?.Capital;
@@ -358,8 +635,6 @@ namespace Extensions.BR
             {
                 NomeDaCidadeOuIBGE = NomeDaCidadeOuIBGE.GetBefore(" -").TrimBetween();
             }
-
-
 
             List<Cidade> cids = Cidades.ToList();
 
@@ -412,8 +687,8 @@ namespace Extensions.BR
             return cids.OrderByDescending(x => x.Nome.SimilarityFlat(NomeDaCidadeOuIBGE)).ThenByDescending(x => x.Capital);
         }
 
-
         public static Cidade PegarCidade(int IBGEouCEP) => PegarCidade(IBGEouCEP.ToString());
+
         public static Cidade PegarCidade(long IBGEouCEP) => PegarCidade(IBGEouCEP.ToString());
 
         /// <summary>
@@ -434,9 +709,12 @@ namespace Extensions.BR
         /// <inheritdoc cref="FormatarCEP(string)"/>
         public static string FormatarCEP(this int CEP) => FormatarCEP(CEP.ToString(CultureInfo.InvariantCulture));
 
+        public static string FormatarCEP(this long CEP) => FormatarCEP(CEP.ToString(CultureInfo.InvariantCulture));
+
         /// <inheritdoc cref="FormatarCEP(string)"/>
         public static string FormatarCEP(this int? CEP) => FormatarCEP(CEP ?? 0);
 
+        public static string FormatarCEP(this long? CEP) => FormatarCEP(CEP ?? 0);
 
         /// <summary>
         /// Formata um numero para CEP
@@ -552,6 +830,7 @@ namespace Extensions.BR
                 return Document;
             }
         }
+
         /// <summary>
         /// Retorna um documento formatado com seu rótulo
         /// </summary>
@@ -604,8 +883,6 @@ namespace Extensions.BR
                     Text = Text.ToLowerInvariant();
                     break;
 
-
-
                 case "Telefone":
                 case "Celular":
                     Text = Text.FormatarTelefone();
@@ -617,7 +894,6 @@ namespace Extensions.BR
             }
             return Text;
         }
-
 
         /// <summary>
         /// Formata o PIS no padrão ###.#####.##-#
@@ -649,7 +925,7 @@ namespace Extensions.BR
         {
             if (CNH.CNHValido())
             {
-                CNH = CNH.OnlyNumbersLong().FixedLenght(8);
+                CNH = CNH.OnlyNumbersLong().FixedLength(8);
                 return CNH;
             }
             else
@@ -682,7 +958,7 @@ namespace Extensions.BR
         {
             if (RENAVAM.RENAVAMValido())
             {
-                RENAVAM = RENAVAM.OnlyNumbersLong().FixedLenght(11);
+                RENAVAM = RENAVAM.OnlyNumbersLong().FixedLength(11);
                 return RENAVAM;
             }
             else
@@ -700,7 +976,6 @@ namespace Extensions.BR
         /// <returns></returns>
         public static bool RENAVAMValido(this string renavam)
         {
-
             // Remover quaisquer caracteres não numéricos
             renavam = renavam.OnlyNumbers();
 
@@ -722,7 +997,6 @@ namespace Extensions.BR
             int digitoVerificador = resto < 2 ? 0 : 11 - resto;
 
             return digitoVerificador == int.Parse(renavam[10].ToString());
-
         }
 
         /// <summary>
@@ -754,9 +1028,6 @@ namespace Extensions.BR
             return string.Format(mask, long.Parse(Number.IfBlank("0")));
         }
 
-
-
-
         /// <inheritdoc cref="FormatarTelefone(int)"/>
         public static string FormatarTelefone(this long Number) => FormatarTelefone($"{Number}");
 
@@ -777,8 +1048,6 @@ namespace Extensions.BR
         /// <param name="NomeOuUFOuIBGE">Nome ou sigla do estado</param>
         /// <returns></returns>
         public static IEnumerable<Cidade> PegarCidades(string NomeOuUFOuIBGE) => (PegarEstado(NomeOuUFOuIBGE)?.Cidades ?? new List<Cidade>()).AsEnumerable();
-
-
 
         /// <summary>
         /// Retorna o rótulo do documento (CPF, CNPJ, CEP,EAN,PIS, CNH, Email, IP, Telefone ou Celular)
@@ -859,10 +1128,10 @@ namespace Extensions.BR
             return Estados.FirstOrDefault(x => (x.Nome.ToSlugCase() ?? Util.EmptyString) == (NomeOuUFOuIBGE ?? Util.EmptyString) || (x.UF.ToSlugCase() ?? Util.EmptyString) == (NomeOuUFOuIBGE ?? Util.EmptyString));
         }
 
-
         public static bool FormatoCodigoIBGEValido(this string IBGE) => IBGE.IsNumber() && IBGE.ToInt() > 0 && (IBGE.Length == 7 || IBGE.Length == 2);
 
         public static bool CidadeIBGEValido(this int IBGE) => CidadeIBGEValido(IBGE.ToString(CultureInfo.InvariantCulture));
+
         public static bool CidadeIBGEValido(this string IBGE)
         {
             if (IBGE.IsNumber() && IBGE.Length == 7 && IBGE.ToInt() > 0)
@@ -873,6 +1142,7 @@ namespace Extensions.BR
         }
 
         public static bool EstadoIBGEValido(this int IBGE) => EstadoIBGEValido(IBGE.ToString(CultureInfo.InvariantCulture));
+
         public static bool EstadoIBGEValido(this string IBGE)
         {
             if (IBGE.IsNumber() && IBGE.Length == 2 && IBGE.ToInt() > 0)
@@ -881,6 +1151,7 @@ namespace Extensions.BR
             }
             return false;
         }
+
         public static bool IBGEValido(this string IBGE) => EstadoIBGEValido(IBGE) || CidadeIBGEValido(IBGE);
 
         public static bool IBGEValido(this int IBGE) => EstadoIBGEValido(IBGE) || CidadeIBGEValido(IBGE);
@@ -898,9 +1169,6 @@ namespace Extensions.BR
         /// <param name="Regiao"></param>
         /// <returns></returns>
         public static IEnumerable<Estado> PegarEstadosDaRegiao(string Regiao) => Estados.Where(x => (Util.ToSlugCase(x.Regiao) ?? Util.EmptyString) == (Util.TrimBetween(Util.ToSlugCase(Regiao)) ?? Util.EmptyString) || Regiao.IsNotValid());
-
-
-
 
         /// <summary>
         /// Verifica se uma string é um cep válido
@@ -970,7 +1238,6 @@ namespace Extensions.BR
                     CNPJ = CNPJ.Trim();
                     CNPJ = CNPJ.Replace(".", Util.EmptyString).Replace("-", Util.EmptyString).Replace("/", Util.EmptyString);
                     if (CNPJ.Length != 14) return false;
-
 
                     tempCnpj = CNPJ.Substring(0, 12);
                     soma = 0;
@@ -1054,55 +1321,6 @@ namespace Extensions.BR
             }
             return false;
         }
-
-
-        public static bool ChavePIXValida(this string chave)
-        {
-            return chave.IsEmail() ||
-                chave.CPFouCNPJValido() ||
-                chave.TelefoneValido() ||
-                (chave.IsGuid());
-        }
-
-        public static string FormatarChavePIX(this string Chave)
-        {
-            if (Chave.ChavePIXValida())
-            {
-                if (Chave.CPFValido()) return Chave.FormatarCPF();
-                else if (Chave.CNPJValido()) return Chave.FormatarCNPJ();
-                else if (Chave.TelefoneValido()) return Chave.FormatarTelefone();
-                else return Chave.ToLower();
-
-            }
-            return "";
-        }
-
-        public static string FormatarChavePIXComNome(this string Chave, string Nome, string Label = "Chave PIX")
-        {
-            if (Chave.ChavePIXValida())
-            {
-
-                if (Chave.IsEmail())
-
-                    Label += " (Email)";
-
-                else if (Chave.CPFValido()) Label += " (CPF)";
-                else if (Chave.CNPJValido()) Label += " (CNPJ)";
-                else if (Chave.TelefoneValido()) Label += " (Telefone)";
-                else if (Chave.IsGuid()) Label += " (Chave Aleatória)";
-                else
-                {
-                    Label += " (Inválida)";
-                    return $"{Util.SelectJoinString("-", Nome, Label)} :{"-".Repeat(Chave.Length)}";
-                }
-
-            }
-            if (Nome.IsNotBlank())
-                return $"{Nome} - {Label} :{Chave.FormatarChavePIX()}";
-            else
-                return $"{Label} :{Chave.FormatarChavePIX()}";
-        }
-
 
         /// <summary>
         /// Verifica se a string é um CPF ou CNPJ válido
@@ -1190,7 +1408,6 @@ namespace Extensions.BR
             // Calcular os dígitos verificadores
             string cnpjSemDigitos = baseCNPJ + filialETipo;
 
-
             int CalcularDigitoVerificadorCNPJ(string cnpjBase, int[] multiplicador)
             {
                 int soma = 0;
@@ -1209,9 +1426,6 @@ namespace Extensions.BR
             // Retornar o CNPJ formatado
             return $"{baseCNPJ}{filialETipo}{primeiroDigito}{segundoDigito}".FormatarCNPJ();
         }
-
-
-
 
         /// <summary>
         /// Gera um CPF falso, válido para testes, mas não existe na Receita Federal
@@ -1250,17 +1464,71 @@ namespace Extensions.BR
             return cpfStr.FormatarCPF();
         }
 
-        public static string GerarTelefoneFake()
+        public static string GerarTelefoneFake() => Util.RandomInt(90000, 99999).ToString() + Util.RandomInt(1000, 9999).ToString();
+
+        public static string GerarTelefoneFake(string CidadeOuDDDouIBGE)
         {
-            string ddd = Util.RandomInt(11, 100).ToString();
-            string numero = Util.RandomInt(90000, 99999).ToString() + Util.RandomInt(1000, 9999).ToString();
-            return $"({ddd}) {numero}";
+            var cid = PegarCidade(CidadeOuDDDouIBGE);
+            return GerarTelefoneFake(cid);
+        }
+
+        public static IEnumerable<int> DDDs => Telefone.DDDs;
+
+        public static bool DDDValido(this int DDD) => Brasil.Cidades.Any(x => x.DDD == DDD);
+
+        public static bool DDDValido(this string DDD) => DDD.IsNumber() && Telefone.DDDs.Contains(DDD.ToInt());
+
+        public static string GerarTelefoneFake(Cidade cidade)
+        {
+            cidade = cidade ?? Brasil.Cidades.RandomItem();
+            return GerarTelefoneFake(cidade.DDD);
+        }
+
+        public static string GerarTelefoneFake(int? ddd)
+        {
+            ddd ??= Brasil.Cidades.RandomItem().DDD;
+            return $"({ddd}) {GerarTelefoneFake()}";
+        }
+
+        /// <summary>
+        /// Gera uma CNH falsa, válida para testes, mas não existe no DETRAN
+        /// </summary>
+        /// <returns>Uma CNH falsa formatada</returns>
+        public static string GerarCNHFake()
+        {
+            // Gera os 9 primeiros dígitos aleatórios
+            Random random = new Random();
+            int[] cnh = new int[11];
+            for (int i = 0; i < 9; i++)
+            {
+                cnh[i] = random.Next(0, 10);
+            }
+
+            // Calcula o primeiro dígito verificador
+            int digitoVerificador1 = GerarDigitoVerificadorCNH(string.Concat(cnh.Take(9)), false);
+            int diferencial = 0;
+            if (digitoVerificador1 == 10)
+            {
+                digitoVerificador1 = 0;
+                diferencial = 2;
+            }
+            // Calcula o segundo dígito verificador
+            int digitoVerificador2 = GerarDigitoVerificadorCNH(string.Concat(cnh.Take(9)), true);
+            digitoVerificador2 = digitoVerificador2 == 10 ? 0 : digitoVerificador2 - diferencial;
+
+            cnh[9] = digitoVerificador1;
+            cnh[10] = digitoVerificador2;
+
+            // Monta o número da CNH
+            string cnhStr = string.Concat(cnh);
+            return cnhStr;
         }
     }
 
     public class ChaveNFe
     {
         public static implicit operator string(ChaveNFe c) => c?.ToString();
+
         public static implicit operator ChaveNFe(string c) => new ChaveNFe(c);
 
         public const int TamanhoCNPJ = 14;
@@ -1321,6 +1589,7 @@ namespace Extensions.BR
             this.Codigo = Codigo;
             CalcularDigito();
         }
+
         public ChaveNFe(string UF, DateTime Emissao, string CNPJ, int Modelo, int Serie, int Nota, int FormaEmissao, int Codigo)
         {
             UFFixo = UF;
@@ -1372,14 +1641,14 @@ namespace Extensions.BR
         public int FormaEmissao { get; set; }
 
         [IgnoreDataMember]
-        public string FormaEmissaoFixo { get => FormaEmissao.FixedLenght(TamanhoFormaEmissao); set => FormaEmissao = value.RemoveMaskInt(); }
+        public string FormaEmissaoFixo { get => FormaEmissao.FixedLength(TamanhoFormaEmissao); set => FormaEmissao = value.RemoveMaskInt(); }
 
         public long CNPJ { get; set; }
 
         [IgnoreDataMember]
         public string CNPJFixo
         {
-            get => CNPJ.FixedLenght(TamanhoCNPJ);
+            get => CNPJ.FixedLength(TamanhoCNPJ);
             set => CNPJ = value.RemoveMask().ToLong();
         }
 
@@ -1391,15 +1660,16 @@ namespace Extensions.BR
         [IgnoreDataMember]
         public string CodigoFixo
         {
-            get => Codigo.FixedLenght(TamanhoCodigo);
+            get => Codigo.FixedLength(TamanhoCodigo);
             set => Codigo = value.RemoveMaskInt();
         }
 
         public int? Digito { get; set; }
+
         [IgnoreDataMember]
         public string DigitoFixo
         {
-            get => Digito?.FixedLenght(TamanhoDigito);
+            get => Digito?.FixedLength(TamanhoDigito);
             set => Digito = value?.RemoveMaskInt();
         }
 
@@ -1414,15 +1684,13 @@ namespace Extensions.BR
         [IgnoreDataMember]
         public string MesAno
         {
-            get => $"{Ano.FixedLenght(TamanhoMesAno - 2)}{Mes.FixedLenght(TamanhoMesAno - 2)}";
+            get => $"{Ano.FixedLength(TamanhoMesAno - 2)}{Mes.FixedLength(TamanhoMesAno - 2)}";
             set
             {
-
                 if (value.IsValid() && value.RemoveMask().Length == 4)
                 {
                     Mes = value.RemoveMask().GetFirstChars(2).ToInt();
                     Ano = value.RemoveMask().GetLastChars(2).ToInt();
-
                 }
             }
         }
@@ -1432,7 +1700,7 @@ namespace Extensions.BR
         [IgnoreDataMember]
         public string ModeloFixo
         {
-            get => Modelo.IfBlank(55).FixedLenght(TamanhoModelo);
+            get => Modelo.IfBlank(55).FixedLength(TamanhoModelo);
             set => Modelo = value.RemoveMaskInt();
         }
 
@@ -1448,10 +1716,11 @@ namespace Extensions.BR
         }
 
         public int Nota { get; set; }
+
         [IgnoreDataMember]
         public string NotaFixo
         {
-            get => Nota.FixedLenght(TamanhoNota);
+            get => Nota.FixedLength(TamanhoNota);
             set => Nota = value.RemoveMaskInt();
         }
 
@@ -1460,7 +1729,7 @@ namespace Extensions.BR
         [IgnoreDataMember]
         public string SerieFixo
         {
-            get => Serie.FixedLenght(TamanhoSerie);
+            get => Serie.FixedLength(TamanhoSerie);
             set => Serie = value.RemoveMaskInt();
         }
 
@@ -1472,7 +1741,7 @@ namespace Extensions.BR
         [IgnoreDataMember]
         public string UFFixo
         {
-            get => UF.FixedLenght(TamanhoUF);
+            get => UF.FixedLength(TamanhoUF);
             set => UF = Brasil.PegarEstado(value)?.IBGE ?? value.RemoveMaskInt();
         }
 
@@ -1517,7 +1786,6 @@ namespace Extensions.BR
 
     public class Cidade : IEqualityComparer<Cidade>
     {
-
         public static bool operator ==(Cidade x, Cidade y) => x?.Equals(y) ?? false;
 
         public static bool operator !=(Cidade x, Cidade y) => !x?.Equals(y) ?? false;
@@ -1560,17 +1828,11 @@ namespace Extensions.BR
 
         public int IBGEEstado => Estado?.IBGE ?? 0;
 
-
-
-
-
         [IgnoreDataMember]
         public TimeZoneInfo TimeZoneInfo => TimeZoneInfo.FindSystemTimeZoneById(TimeZone);
 
-
         [DataMember(Name = "ibge_id")]
         public int IBGE { get; internal set; }
-
 
         [DataMember(Name = "siafi_id")]
         public string SIAFI { get; internal set; }
@@ -1590,8 +1852,6 @@ namespace Extensions.BR
     /// </summary>
     public class Estado : IEqualityComparer<Estado>
     {
-
-
         /// <summary>
         /// Lista de cidades do estado
         /// </summary>
@@ -1625,7 +1885,6 @@ namespace Extensions.BR
         /// <returns></returns>
         public override string ToString() => UF;
 
-
         public static Estado AC => Brasil.PegarEstado("AC");
         public static Estado AL => Brasil.PegarEstado("AL");
         public static Estado AP => Brasil.PegarEstado("AP");
@@ -1653,8 +1912,6 @@ namespace Extensions.BR
         public static Estado SP => Brasil.PegarEstado("SP");
         public static Estado SE => Brasil.PegarEstado("SE");
         public static Estado TO => Brasil.PegarEstado("TO");
-
-
 
         /// <summary>
         /// Verifica se uma string é uma Inscricao Estadual Válida
@@ -1757,7 +2014,6 @@ namespace Extensions.BR
                         strBase2 = (strBase.Substring(0, 8) + strDigito1);
                         if ((strBase2 == strOrigem))
                             retorno = true;
-
                     }
                     #endregion
                     break;
@@ -1901,7 +2157,6 @@ namespace Extensions.BR
                     }
                     else if ((("0123458".IndexOf(strBase.Substring(1, 1), 0, System.StringComparison.OrdinalIgnoreCase) + 1) > 0) && strBase.Length == 9)
                     {
-
                         #region
                         /* Segundo digito */
                         //1000003
@@ -2162,7 +2417,6 @@ namespace Extensions.BR
 
                         for (intPos = 0; intPos < 12; intPos++)
                         {
-
                             if (int.Parse(strBase2.Substring(intPos, 1)) * intNumero >= 10)
                                 intSoma += (int.Parse(strBase2.Substring(intPos, 1)) * intNumero) - 9;
                             else
@@ -2172,7 +2426,6 @@ namespace Extensions.BR
 
                             if (intNumero == 3)
                                 intNumero = 1;
-
                         }
 
                         intNumero = (int)((Math.Floor((Convert.ToDecimal(intSoma) + 10) / 10) * 10) - intSoma);
@@ -2182,19 +2435,16 @@ namespace Extensions.BR
                         if (intNumero != Convert.ToInt32(strOrigem.Substring(11, 1)))
                             return false;
 
-
                         intNumero = 3;
                         intSoma = 0;
 
                         for (intPos = 0; intPos < 12; intPos++)
                         {
-
                             intSoma += int.Parse(strOrigem.Substring(intPos, 1)) * intNumero;
 
                             intNumero = intNumero - 1;
                             if (intNumero == 1)
                                 intNumero = 11;
-
                         }
 
                         intNumero = 11 - (intSoma % 11);
@@ -2688,6 +2938,7 @@ namespace Extensions.BR
                     #endregion
 
                     break;
+
                 default:
                     return Brasil.Estados.Any(x => x.ValidarInscricaoEstadual(inscricao));
             }
@@ -2703,4 +2954,10 @@ namespace Extensions.BR
 
         public int GetHashCode(Estado obj) => obj.IBGE.GetHashCode();
     }
+
+
+
+ 
+
+
 }

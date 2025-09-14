@@ -1591,7 +1591,7 @@ namespace Extensions.DataBases
 
 
                 var cmd = Connection.CreateCommand();
-                cmd.CommandText = string.Format($"INSERT INTO {TableName.IfBlank(GetTableName<T>())} ({{0}}) values ({{1}})", dic.Keys.SelectJoinString(","), dic.Keys.SelectJoinString(x => $"@__{x}", ","));
+                cmd.CommandText = string.Format($"INSERT INTO {TableName.IfBlank(GetTableName<T>())} ({{0}}) values ({{1}})", dic.Keys.JoinString(","), dic.Keys.SelectJoinString(x => $"@__{x}", ","));
                 foreach (var k in dic.Keys)
                 {
                     var param = cmd.CreateParameter();
@@ -1675,7 +1675,7 @@ namespace Extensions.DataBases
                                 }
                             }
 
-                            CommandText = CommandText.Replace("{" + index + "}", pv.SelectJoinString(",").IfBlank("NULL").UnQuote('(', true).QuoteIf(Parenthesis, '('));
+                            CommandText = CommandText.Replace("{" + index + "}", pv.JoinString(",").IfBlank("NULL").UnQuote('(', true).QuoteIf(Parenthesis, '('));
                         }
                     }
 
@@ -2326,7 +2326,7 @@ namespace Extensions.DataBases
             return string.Format(_encapsulation, databaseword);
         }
 
-        public static string AsSQLColumns(this IDictionary<string, object> obj) => obj.Select(x => Encapsulate(x.Key.ToString())).SelectJoinString(",");
+        public static string AsSQLColumns(this IDictionary<string, object> obj) => obj.Select(x => Encapsulate(x.Key.ToString())).JoinString(",");
 
         public static string AsSQLColumns<T>(this T obj) where T : class => obj.GetNullableTypeOf().GetProperties().SelectJoinString(x => x.Name.Quote(), ",");
 
@@ -2396,7 +2396,7 @@ namespace Extensions.DataBases
                 dicID = id.CreateDictionary(idProps.Select(x => x.Name).ToArray());
 
                 if (dicID.Keys.Count < idProps.Count)
-                    throw new ArgumentException($"{typeof(T).Name} needs a object with following properties: ${idProps.Select(x => x.Name).SelectJoinString(", ")}. The object contains only the following properties: {dicID.Keys.SelectJoinString(", ").IfBlank("none")}");
+                    throw new ArgumentException($"{typeof(T).Name} needs a object with following properties: ${idProps.Select(x => x.Name).JoinString(", ")}. The object contains only the following properties: {dicID.Keys.JoinString(", ").IfBlank("none")}");
 
             }
 
@@ -4253,7 +4253,7 @@ namespace Extensions.DataBases
             Values = (Values ?? Array.Empty<string>()).WhereNotBlank().ToArray();
             Columns = (Columns ?? Array.Empty<string>()).WhereNotBlank().ToArray();
             return Columns.SelectMany(col => Values.Select(valor => $"{col} LIKE {valor.Wrap("%").ToSQLString(false)}"))
-                .SelectJoinString(" OR ").ToFormattableString();
+                .JoinString(" OR ").ToFormattableString();
         }
 
         /// <summary>
@@ -4854,7 +4854,7 @@ namespace Extensions.DataBases
             {
                 sql.Append($"{_top}");
             }
-            var cols = (_columns?.Distinct().SelectJoinString(",") ?? Util.EmptyString).IfBlank(" * ");
+            var cols = (_columns?.Distinct().JoinString(",") ?? Util.EmptyString).IfBlank(" * ");
             sql.Append(cols);
             if (_fromsub != null && _fromsub.ToString().IsValid())
             {

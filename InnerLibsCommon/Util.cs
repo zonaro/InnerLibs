@@ -7,6 +7,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.Data.Common;
+using System.Data.SqlTypes;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -30,6 +31,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 using Extensions;
+using Extensions.BR;
 using Extensions.Colors;
 using Extensions.ComplexText;
 using Extensions.Console;
@@ -41,6 +43,7 @@ using Extensions.Equations;
 using Extensions.Files;
 using Extensions.Locations;
 using Extensions.Pagination;
+using Extensions.Select2;
 using Extensions.Web;
 
 using Expression = System.Linq.Expressions.Expression;
@@ -131,11 +134,11 @@ namespace Extensions
             delimiters = delimiters ?? Array.Empty<char>();
             if (delimiters.IsNullOrEmpty())
             {
-                delimiters = PredefinedArrays.EndOfSentencePunctuation.Union(new[] { ";" }).SelectJoinString().ToArray();
+                delimiters = PredefinedArrays.EndOfSentencePunctuation.Union(new[] { ';' }).ToArray();
             }
 
             List<string> partes = new List<string>();
-            string[] linhas = text.SplitAny(PredefinedArrays.BreakLineChars);
+            string[] linhas = text.Split(PredefinedArrays.BreakLineChars.ToArray());
 
 
             int limitIndex = 0;
@@ -285,7 +288,7 @@ namespace Extensions
                     else
                     {
 
-                        Name = $"{parts.Detach(0)}{parts.TakeLast(maxLenght - 1).SelectJoinString()}";
+                        Name = $"{parts.Detach(0)}{parts.TakeLast(maxLenght - 1).JoinString()}";
                     }
                 }
                 else
@@ -296,9 +299,9 @@ namespace Extensions
                         // por exemplo Evento vira Evnt (maxChar 4) ou Evt se maxChar for 3
 
                         var firstChar = Name.GetFirstChars(1).ToUpperInvariant();
-                        var otherConsonants = Name.GetLastChars(Name.Length - 1).Where(c => c.ToString().IsAny(PredefinedArrays.Consonants.ToArray()));
+                        var otherConsonants = Name.GetLastChars(Name.Length - 1).Where(c => c.IsAny(PredefinedArrays.Consonants.ToArray()));
 
-                        Name = firstChar + otherConsonants.SelectJoinString().ToUpperInvariant();
+                        Name = firstChar + otherConsonants.JoinString().ToUpperInvariant();
                         while (Name.Length > maxLenght)
                         {
                             Name = Name.GetFirstChars(-1).Remove(Name.Length - 1);
@@ -328,14 +331,26 @@ namespace Extensions
         /// </summary>
         /// <param name="Text">The text to get initials from.</param>
         /// <returns>An enumerable of initials from the text.</returns>
-        public static IEnumerable<string> GetInitials(this string Text) => Text?.SplitAny(PredefinedArrays.WordSplitters).Select(x => x.GetFirstChars().ToUpper()) ?? Array.Empty<string>();
+        public static IEnumerable<string> GetInitials(this string Text) => Text?.Split(PredefinedArrays.WordSplitters.ToArray()).Select(x => x.GetFirstChars().ToUpper()) ?? Array.Empty<string>();
 
         /// <summary>
         /// Gets the initials of each word in the given text.
         /// </summary>
         /// <param name="Text">The text to get initials from.</param>
         /// <returns>An string of initials from the text.</returns>
-        public static string GetInitialsString(this string Text) => Text.GetInitials().SelectJoinString();
+        public static string GetInitialsString(this string Text) => Text.GetInitials().JoinString();
+
+
+        public static string GetFileHash(this FileInfo file, HashAlgorithm hashAlgorithm = null)
+        {
+            if (!file.Exists) return null;
+            hashAlgorithm = hashAlgorithm ?? SHA256.Create();
+            using (var stream = file.OpenRead())
+            {
+                byte[] hash = hashAlgorithm.ComputeHash(stream);
+                return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+            }
+        }
 
         /// <summary>
         /// Check if one File is a copy of another file
@@ -343,29 +358,14 @@ namespace Extensions
         /// <param name="file1"></param>
         /// <param name="file2"></param>
         /// <returns></returns>
-        public static bool IsCopyOf(FileInfo file1, FileInfo file2)
+        public static bool IsCopyOf(FileInfo file1, FileInfo file2, HashAlgorithm hashAlgorithm = null)
         {
             // verifica se os arquivos existem, se possuem o mesmo tamanho e se não são o mesmo arquivo (o mesmo arquivo não pode ser copia dele mesmo)
             if (!file1.Exists || !file2.Exists || file1.Length != file2.Length || file1.FullName == file2.FullName)
                 return false;
 
-            using (var sha256 = SHA256.Create())
-            {
-                using (var stream1 = file1.OpenRead())
-                using (var stream2 = file2.OpenRead())
-                {
-                    byte[] hash1 = sha256.ComputeHash(stream1);
-                    byte[] hash2 = sha256.ComputeHash(stream2);
+            return GetFileHash(file1, hashAlgorithm) == GetFileHash(file2, hashAlgorithm);
 
-                    for (int i = 0; i < hash1.Length; i++)
-                    {
-                        if (hash1[i] != hash2[i])
-                            return false;
-                    }
-
-                    return true;
-                }
-            }
         }
 
         /// <summary>
@@ -519,7 +519,7 @@ namespace Extensions
         {
             var startDecimal = start.ToDecimal();
             var endDecimal = end.ToDecimal();
-            FixOrder(ref startDecimal, ref endDecimal);
+            (startDecimal, endDecimal) = Util.FixOrder(startDecimal, endDecimal);
             var rangeSize = (endDecimal - startDecimal) / ranges;
             var rangeStart = startDecimal;
             for (int i = 0; i < ranges; i++)
@@ -664,7 +664,7 @@ namespace Extensions
         {
             var a = Text.IfBlank(EmptyString).ToCharArray();
             Array.Sort(a);
-            return a.SelectJoinString(EmptyString);
+            return a.JoinString(EmptyString);
         }
 
         /// <summary> Concatena uma expressão com outra usando o operador And (&&) </summary>
@@ -796,7 +796,7 @@ namespace Extensions
             Text = Text ?? EmptyString;
             foreach (var c in PredefinedArrays.WordWrappers)
             {
-                Text = Text.Replace(c, WhitespaceChar + c + WhitespaceChar);
+                Text = Text.Replace(c.ToString(), $"{WhitespaceChar}{c}{WhitespaceChar}");
             }
 
             return Text;
@@ -1070,7 +1070,7 @@ namespace Extensions
         /// <returns></returns>
         public static string BoxText(this string Text, char BoxChar = '*')
         {
-            var Lines = Text.SplitAny(PredefinedArrays.BreakLineChars.ToArray()).ToList();
+            var Lines = Text.Split(PredefinedArrays.BreakLineChars.ToArray()).ToList();
             string linha_longa = string.Empty;
             int charcount = Lines.Max(x => x.Length);
             if (charcount.IsEven())
@@ -1097,7 +1097,7 @@ namespace Extensions
             linha_longa = linha_longa.Trim();
             Lines.Insert(0, linha_longa);
             Lines.Add(linha_longa);
-            string box = Lines.SelectJoinString(Environment.NewLine);
+            string box = Lines.JoinString(Environment.NewLine);
             return box;
         }
 
@@ -1289,11 +1289,13 @@ namespace Extensions
 
         public static decimal CalculateValueFromPercent(this decimal Percent, decimal Total) => Percent / 100m * Total;
 
-        public static string OnlyNumbers(this string Text) => Text?.ToArray().Where(x => char.IsDigit(x)).SelectJoinString() ?? "";
+        public static string OnlyNumbers(this string Text) => Text?.ToArray().Where(x => char.IsDigit(x)).JoinString() ?? "";
 
         public static int OnlyNumbersInt(this string Text) => Text?.OnlyNumbers().ToInt() ?? 0;
 
         public static long OnlyNumbersLong(this string Text) => Text?.OnlyNumbers().ToLong() ?? 0;
+
+        public static string OnlyAlpha(this string Text) => Text?.ToArray().Where(x => PredefinedArrays.AlphaChars.Contains(x)).JoinString() ?? "";
 
         /// <summary>
         /// Verifica se o valor é um numero ou pode ser convertido em numero
@@ -1416,7 +1418,7 @@ namespace Extensions
                     }
                 }
 
-                Text = words.SelectJoinString(WhitespaceChar);
+                Text = words.JoinString(WhitespaceChar);
             }
             return (Text, IsCensored);
         }
@@ -1459,6 +1461,43 @@ namespace Extensions
         /// <param name="Value">Array com elementos</param>
         /// <returns>Array convertido em novo ToType</returns>
         public static IEnumerable<object> ChangeIEnumerableType<TFrom>(this IEnumerable<TFrom> Value, Type ToType) => (Value ?? Array.Empty<TFrom>()).Select(el => el.ChangeType(ToType)).ToList().AsEnumerable();
+
+
+
+        public static T ChangeTypeStringFallback<T>(this object Value)
+        {
+            try
+            {
+                var v = Util.ChangeTypeStringFallback(Value, typeof(T));
+                if (v == null) return default;
+                return (T)v;
+            }
+            catch (Exception ex)
+            {
+                return default;
+            }
+
+        }
+
+        public static object ChangeTypeStringFallback<TFrom>(this TFrom Value, Type ToType)
+        {
+            if (ToType == null)
+            {
+                WriteDebug($"ToType is null, no conversion performed");
+                return Value;
+            }
+
+            if (typeof(TFrom) == ToType)
+            {
+                return Value;
+            }
+
+            var newv = ChangeType(Value, ToType);
+            if (newv != null) return newv;
+            newv = ChangeType(Value.ChangeType<string>(), ToType);
+            return newv ?? default;
+        }
+
 
         /// <summary>
         /// Converte um ToType para outro. Retorna Nothing (NULL) se a conversão falhar
@@ -1821,7 +1860,7 @@ namespace Extensions
 
         public static bool ContainsAllWords(this string Text, params string[] Words) => Text.ContainsAllWords(null, Words);
 
-        public static bool ContainsAllWords(this string Text, IEqualityComparer<string> Comparer, params string[] Words) => Text.GetWords().ContainsAll(Words, Comparer);
+        public static bool ContainsAllWords(this string Text, IEqualityComparer<string> Comparer, params string[] Words) => Text.GetWordsAlphabetically().ContainsAll(Words, Comparer);
 
         /// <summary>
         /// Verifica se uma String contém qualquer um dos valores especificados
@@ -1830,6 +1869,8 @@ namespace Extensions
         /// <param name="Values">Lista de valores</param>
         /// <returns>True se conter algum valor, false se não</returns>
         public static bool ContainsAny(this string Text, params string[] Values) => Text.ContainsAny(StringComparison.InvariantCultureIgnoreCase, Values);
+        public static bool ContainsAny(this string Text, params char[] Values) => Text.ContainsAny(StringComparison.InvariantCultureIgnoreCase, Values.Select(x => x.ToString()).ToArray());
+        public static bool ContainsAny(this string Text, StringComparison comparison, params char[] Values) => Text.ContainsAny(comparison, Values.Select(x => x.ToString()).ToArray());
 
         /// <summary>
         /// Verifica se uma String contém qualquer um dos valores especificados
@@ -1896,7 +1937,7 @@ namespace Extensions
 
         public static bool ContainsAnyWords(this string Text, params string[] Words) => Text.ContainsAnyWords(null, Words);
 
-        public static bool ContainsAnyWords(this string Text, IEqualityComparer<string> Comparer, params string[] Words) => Text.GetWords().ContainsAny(Words, Comparer);
+        public static bool ContainsAnyWords(this string Text, IEqualityComparer<string> Comparer, params string[] Words) => Text.GetWordsAlphabetically().ContainsAny(Words, Comparer);
 
         /// <summary>
         /// Verifica se uma string contém caracteres de digito
@@ -2172,7 +2213,7 @@ namespace Extensions
                   {
                       return x.ChangeType<string>().SplitAny($"{Path.DirectorySeparatorChar}", $"{Path.AltDirectorySeparatorChar}");
                   }
-              }).SelectJoinString($"{Path.DirectorySeparatorChar}");
+              }).JoinString($"{Path.DirectorySeparatorChar}");
 
             return pt.CreateDirectoryIfNotExists();
         }
@@ -2665,7 +2706,7 @@ namespace Extensions
                 parts.RemoveAt(LineIndex);
             }
 
-            return parts.SelectJoinString(Environment.NewLine);
+            return parts.JoinString(Environment.NewLine);
         }
 
         /// <summary>
@@ -3053,7 +3094,7 @@ namespace Extensions
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static IEnumerable<string> ExtractEmails(this string Text) => Text.IfBlank(string.Empty).SplitAny(PredefinedArrays.InvisibleChars.Union(PredefinedArrays.BreakLineChars).Union(new[] { ":", ";" }).ToArray()).Where(x => x.IsEmail()).Select(x => x.ToLowerInvariant()).Distinct().ToArray();
+        public static IEnumerable<string> ExtractEmails(this string Text) => Text.IfBlank(string.Empty).SplitAny(PredefinedArrays.InvisibleChars, PredefinedArrays.BreakLineChars, new[] { ':', ';' }).Where(x => x.IsEmail()).Select(x => x.ToLowerInvariant()).Distinct().ToArray();
 
 
         public static double[] ExtractNumbers(this string input)
@@ -3172,7 +3213,7 @@ namespace Extensions
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static HSVColor FindColor(this string Text) => HSVColor.NamedColors.FirstOrDefault(x => x.Name.ToLowerInvariant().Replace("grey", "gray").RemoveAny(PredefinedArrays.PasswordSpecialChars.Union(new[] { " " }).ToArray()) == Text.ToLowerInvariant().Replace("grey", "gray").RemoveAny(PredefinedArrays.PasswordSpecialChars.Union(new[] { " " }).ToArray()));
+        public static HSVColor FindColor(this string Text) => HSVColor.NamedColors.FirstOrDefault(x => x.Name.ToLowerInvariant().Replace("grey", "gray").RemoveAny(PredefinedArrays.PasswordSpecialChars.Union(new[] { ' ' }).ToArray()) == Text.ToLowerInvariant().Replace("grey", "gray").RemoveAny(PredefinedArrays.PasswordSpecialChars.Union(new[] { ' ' }).ToArray()));
 
         public static FieldInfo FindField(this Type type, string Name) => FindFields(type, Name).FirstOrDefault();
 
@@ -3301,13 +3342,13 @@ namespace Extensions
             return dummyData;
         }
 
-        public static string FixedLenght(this int Number, int Lenght) => Number.ToLong().FixedLenght(Lenght);
+        public static string FixedLength(this int Number, int Length) => Number.ToLong().FixedLength(Length);
 
-        public static string FixedLenght(this long Number, int Lenght) => Number.PadZero(Lenght).GetLastChars(Lenght);
+        public static string FixedLength(this long Number, int Length) => Number.PadZero(Length).GetLastChars(Length);
 
-        public static string FixedLenghtByLeft(this string Text, int Lenght, char PaddingChar = '0') => Text.PadLeft(Lenght, PaddingChar).GetLastChars(Lenght);
+        public static string FixedLengthByLeft(this string Text, int Length, char PaddingChar = '0') => Text.PadLeft(Length, PaddingChar).GetLastChars(Length);
 
-        public static string FixedLenghtByRight(this string Text, int Lenght, char PaddingChar = '0') => Text.PadRight(Lenght, PaddingChar).GetFirstChars(Lenght);
+        public static string FixedLengthByRight(this string Text, int Length, char PaddingChar = '0') => Text.PadRight(Length, PaddingChar).GetFirstChars(Length);
 
         /// <summary>
         /// Transforma quebras de linha HTML em quebras de linha comuns ao .net
@@ -3372,7 +3413,9 @@ namespace Extensions
         /// Caso <paramref name="FirstValue"/> e/ou <paramref name="SecondValue"/> forem
         /// <b>null</b>, nada acontece
         /// </remarks>
-        public static (T, T) FixOrder<T>(ref T FirstValue, ref T SecondValue) where T : IComparable
+
+
+        public static (T FirstValue, T SecondValue) FixOrder<T>(T FirstValue, T SecondValue) where T : IComparable
         {
             if (FirstValue != null && SecondValue != null)
             {
@@ -3385,6 +3428,14 @@ namespace Extensions
             return (FirstValue, SecondValue);
         }
 
+        public static (T? FirstValue, T? SecondValue) FixOrder<T>(this (T?, T?) value) where T : IComparable
+        {
+            return FixOrder(value.Item1, value.Item2);
+        }
+
+
+
+
         /// <summary>
         /// Troca valor de <paramref name="FirstValue"/> pelo de <paramref name="SecondValue"/> se
         /// <paramref name="FirstValue"/> for maior que <paramref name="SecondValue"/> fazendo com
@@ -3392,7 +3443,7 @@ namespace Extensions
         /// Util para tratar ranges. Se qualquer um dos 2 valores for null, copia o valor da outra
         /// variavel não <b>null</b>. Se ambas forem <b>null</b> nada acontece.
         /// </summary>
-        public static (T, T) FixOrderNotNull<T>(ref T FirstValue, ref T SecondValue) where T : IComparable
+        public static (T FirstValue, T SecondValue) FixOrderNotNull<T>(T FirstValue, T SecondValue) where T : IComparable
         {
             if (FirstValue == null && SecondValue != null)
             {
@@ -3408,7 +3459,7 @@ namespace Extensions
                 SecondValue = default;
             }
 
-            return FixOrder(ref FirstValue, ref SecondValue);
+            return FixOrder(FirstValue, SecondValue);
         }
 
         /// <summary>
@@ -3483,7 +3534,7 @@ namespace Extensions
             Text = Text ?? "";
             var c = AlternativeChar == null ? Text.MostCommonPathChar().ToString() : AlternativeChar.AsIf(Path.AltDirectorySeparatorChar.ToString(), Path.DirectorySeparatorChar.ToString());
             var PathParts = Text?.UrlDecode()?.SplitPath()?.ToArray() ?? Array.Empty<string>();
-            var NewPath = PathParts.SelectJoinString(c)
+            var NewPath = PathParts.JoinString(c)
             .Replace($"{c}{c}", c); // Remove duplicadas
             if (NewPath.IsBlank())
             {
@@ -3499,7 +3550,7 @@ namespace Extensions
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static string FixPath(this string[] PathParts, bool? AlternativeChar = null) => PathParts.SelectJoinString(new string(AlternativeChar == null ? MostCommonPathChar(PathParts) : (AlternativeChar == true ? Path.AltDirectorySeparatorChar : Path.DirectorySeparatorChar), 1)).FixPath(AlternativeChar);
+        public static string FixPath(this string[] PathParts, bool? AlternativeChar = null) => PathParts.JoinString(new string(AlternativeChar == null ? MostCommonPathChar(PathParts) : (AlternativeChar == true ? Path.AltDirectorySeparatorChar : Path.DirectorySeparatorChar), 1)).FixPath(AlternativeChar);
 
         /// <summary>
         /// Adciona pontuação ao final de uma string se a mesma não terminar com alguma pontuacao.
@@ -3664,11 +3715,11 @@ namespace Extensions
             {
                 if (Action == null)
                 {
-                    Text = Text.SplitAny(PredefinedArrays.BreakLineChars.ToArray()).Where(x => !RemoveBlankLines || x.IsValid()).SelectJoinString(Environment.NewLine);
+                    Text = Text.SplitAny(PredefinedArrays.BreakLineChars.ToArray()).Where(x => !RemoveBlankLines || x.IsValid()).JoinString(Environment.NewLine);
                 }
                 else
                 {
-                    Text = Text.SplitAny(PredefinedArrays.BreakLineChars.ToArray()).Select(x => Action.Invoke(x)).Where(x => !RemoveBlankLines || x.IsValid()).SelectJoinString(Environment.NewLine);
+                    Text = Text.SplitAny(PredefinedArrays.BreakLineChars.ToArray()).Select(x => Action.Invoke(x)).Where(x => !RemoveBlankLines || x.IsValid()).JoinString(Environment.NewLine);
                 }
             }
 
@@ -3787,7 +3838,7 @@ namespace Extensions
         /// </summary>
         /// <param name="Numbers"></param>
         /// <returns></returns>
-        public static string GenerateEAN(params string[] Numbers) => Numbers.Where(x => x.IsNumber()).SelectJoinString(EmptyString).AppendBarcodeCheckSum();
+        public static string GenerateEAN(params string[] Numbers) => Numbers.Where(x => x.IsNumber()).JoinString(EmptyString).AppendBarcodeCheckSum();
 
         /// <inheritdoc cref="GenerateEAN(string[])"/>
         public static string GenerateEAN(params int[] Numbers) => GenerateEAN(Numbers.Select(x => x.ToString()).ToArray());
@@ -3882,7 +3933,7 @@ namespace Extensions
                 string ss = EmptyString;
                 while (ss.Length < AlphaLowerLenght)
                 {
-                    ss = ss.Append(PredefinedArrays.AlphaLowerChars.RandomItem());
+                    ss = ss.Append(PredefinedArrays.AlphaLowerChars.RandomItem().ToString());
                 }
 
                 pass = pass.Append(ss);
@@ -3893,7 +3944,7 @@ namespace Extensions
                 string ss = EmptyString;
                 while (ss.Length < AlphaUpperLenght)
                 {
-                    ss = ss.Append(PredefinedArrays.AlphaUpperChars.RandomItem());
+                    ss = ss.Append(PredefinedArrays.AlphaUpperChars.RandomItem().ToString());
                 }
 
                 pass = pass.Append(ss);
@@ -3904,7 +3955,7 @@ namespace Extensions
                 string ss = EmptyString;
                 while (ss.Length < NumberLenght)
                 {
-                    ss = ss.Append(PredefinedArrays.NumberChars.RandomItem());
+                    ss = ss.Append(PredefinedArrays.NumberChars.RandomItem().ToString());
                 }
 
                 pass = pass.Append(ss);
@@ -3915,7 +3966,7 @@ namespace Extensions
                 string ss = EmptyString;
                 while (ss.Length < SpecialLenght)
                 {
-                    ss = ss.Append(PredefinedArrays.PasswordSpecialChars.RandomItem());
+                    ss = ss.Append(PredefinedArrays.PasswordSpecialChars.RandomItem().ToString());
                 }
 
                 pass = pass.Append(ss);
@@ -3962,7 +4013,7 @@ namespace Extensions
         /// <returns>Uma string com o valor posterior ao valor especificado.</returns>
         public static string GetAfter(this string Text, string Value, bool WhiteIfNotFound = false)
         {
-            Value = Value.IfBlank(EmptyString);
+            Value = Value ?? EmptyString;
 
             return Text.IsNotValid() || Text.IndexOf(Value) == -1
                 ? WhiteIfNotFound ? EmptyString : $"{Text}"
@@ -4034,7 +4085,7 @@ namespace Extensions
         /// <returns>Uma string com o valor anterior ao valor especificado.</returns>
         public static string GetBefore(this string Text, string Value, bool WhiteIfNotFound = false)
         {
-            Value = Value.IfBlank(EmptyString);
+            Value ??= string.Empty;
             return Text.IsNotValid() || Text.IndexOf(Value) == -1 ? WhiteIfNotFound ? EmptyString : $"{Text}" : Text.Substring(0, Text.IndexOf(Value));
         }
 
@@ -4160,7 +4211,7 @@ namespace Extensions
             string d = URL.Authority;
             if (RemoveFirstSubdomain)
             {
-                d = d.Split(".").Skip(1).SelectJoinString(".");
+                d = d.Split(".").Skip(1).JoinString(".");
             }
 
             return d;
@@ -4229,16 +4280,29 @@ namespace Extensions
 
         public static string GetDisplayString(this object Value, Type enumType, bool friendlyName = true)
         {
-            if (enumType == null) throw new ArgumentNullException(nameof(enumType));
+            ArgumentNullException.ThrowIfNull(enumType);
 
             if (!enumType.IsEnum) throw new ArgumentException($"{enumType.Name} must be an Enumeration type.", enumType.Name);
 
+            string? name = null;
+            if (Value is string s)
+            {
+                name = Enum.GetNames(enumType).Cast<object>().FirstOrDefault(x => s.FlatEqual(x))?.ToString();
 
-            var name = Enum.GetName(enumType, Value);
+            }
+            else if (Value.IsNumber())
+            {
+                int i = Value.ChangeType<int>();
+                name = Enum.GetName(enumType, i);
+            }
+            else
+            {
+                name = Enum.GetName(enumType, Value);
+            }
 
             if (name == null)
             {
-                var newName = Enum.GetValues(enumType).Cast<string>().FirstOrDefault() ?? EmptyString;
+                var newName = Enum.GetValues(enumType).Cast<object>().Select(x => x.ToString()).FirstOrDefault() ?? EmptyString;
                 if (newName.IsBlank()) return string.Empty;
                 return GetDisplayString(newName, enumType, friendlyName);
             }
@@ -5630,7 +5694,7 @@ namespace Extensions
         /// </summary>
         /// <param name="MyObject">Objeto</param>
         /// <returns></returns>
-        public static PropertyInfo GetProperty<T>(this T MyObject, string Name) => MyObject.GetTypeOf().GetProperties().SingleOrDefault(x => (x.Name ?? EmptyString) == (Name ?? EmptyString));
+        public static PropertyInfo GetProperty<T>(this T MyObject, string Name, StringComparison comparison = StringComparison.InvariantCultureIgnoreCase) => MyObject.GetTypeOf().GetProperties().SingleOrDefault(x => (x.Name ?? EmptyString).Equals(Name ?? EmptyString, comparison));
 
         /// <summary>
         /// Retorna uma <see cref="Hashtable"/> das propriedades de um objeto
@@ -5894,6 +5958,14 @@ namespace Extensions
                     username = segments[2];
                 }
             }
+            else
+            {
+                if (segments.Length > 2 && segments[1].FlatEqual("u/", "user/", "c/"))
+                {
+                    username = segments[2];
+                }
+
+            }
 
             return username.TrimStart('@').TrimEnd('/');
         }
@@ -6107,7 +6179,9 @@ namespace Extensions
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static IOrderedEnumerable<string> GetWords(this string Text)
+        public static IOrderedEnumerable<string> GetWordsAlphabetically(this string Text) => Text.GetWords().OrderBy(x => x);
+
+        public static IEnumerable<string> GetWords(this string Text)
         {
             var txt = new List<string>();
             var palavras = Text.TrimBetween().FixHTMLBreakLines().ToLowerInvariant().RemoveHTML().Split(PredefinedArrays.WordSplitters.ToArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
@@ -6116,7 +6190,7 @@ namespace Extensions
                 txt.Add(w);
             }
 
-            return txt.Distinct().OrderBy(x => x);
+            return txt.Distinct();
         }
 
         /// <summary>
@@ -6469,7 +6543,7 @@ namespace Extensions
         /// </summary>
         /// <param name="Text">string HTML</param>
         /// <returns>String HTML corrigido</returns>
-        public static string HtmlEncode(this string Text) => WebUtility.HtmlEncode(Text?.ReplaceMany("<br>", PredefinedArrays.BreakLineChars.ToArray()) ?? EmptyString);
+        public static string HtmlEncode(this string Text) => WebUtility.HtmlEncode(Text?.ReplaceMany("<br>", PredefinedArrays.BreakLineChars.ToStringArray()) ?? EmptyString);
 
         /// <summary>
         /// Verifica se uma variavel está vazia, em branco ou nula e retorna um outro valor caso TRUE
@@ -6616,7 +6690,7 @@ namespace Extensions
 
 
 
-      
+
 
         public static string Interpolate(this string Text, params string[] Texts)
         {
@@ -6803,7 +6877,7 @@ namespace Extensions
         /// <returns></returns>
         public static bool IsBetween<T>(this T Value, T MinValue, T MaxValue) where T : IComparable
         {
-            FixOrder(ref MinValue, ref MaxValue);
+            (MinValue, MaxValue) = FixOrder(MinValue, MaxValue);
             return MinValue.IsEqual(MaxValue) ? Value.IsEqual(MinValue) : Value.IsGreaterThanOrEqual(MinValue) && Value.IsLessThan(MaxValue);
         }
 
@@ -6823,7 +6897,7 @@ namespace Extensions
         /// <returns></returns>
         public static bool IsBetweenExclusive<T>(this T Value, T MinValue, T MaxValue) where T : IComparable
         {
-            FixOrder(ref MinValue, ref MaxValue);
+            (MinValue, MaxValue) = Util.FixOrder(MinValue, MaxValue);
             return !MinValue.IsEqual(MaxValue) && Value.IsGreaterThan(MinValue) && Value.IsLessThan(MaxValue);
         }
 
@@ -6869,7 +6943,7 @@ namespace Extensions
         /// <returns></returns>
         public static bool IsBetweenOrEqual<T>(this T Value, T MinValue, T MaxValue) where T : IComparable
         {
-            FixOrder(ref MinValue, ref MaxValue);
+            (MinValue, MaxValue) = FixOrder(MinValue, MaxValue);
             return Value.IsGreaterThanOrEqual(MinValue) && Value.IsLessThanOrEqual(MaxValue);
         }
 
@@ -6946,6 +7020,13 @@ namespace Extensions
                                 return false;
                             }
                         }
+                    }
+                    else if (tipo.IsClass && !tipo.IsSimpleType())
+                    {
+                        var context = new ValidationContext(Value);
+                        var results = new List<ValidationResult>();
+                        bool isValid = Validator.TryValidateObject(Value, context, results, validateAllProperties: true);
+                        return !isValid;
                     }
                 }
             }
@@ -7588,7 +7669,7 @@ namespace Extensions
                 Text = Text.RemoveAny(WhitespaceChar);
             }
 
-            return Text == Text.Reverse().SelectJoinString();
+            return Text == Text.Reverse().JoinString();
         }
 
         /// <summary>
@@ -7716,7 +7797,7 @@ namespace Extensions
         /// <returns></returns>
         public static bool IsWholeNumber(this double Number) => !Number.HasDecimalPart();
 
-        public static bool IsWrapped(this string Text) => PredefinedArrays.OpenWrappers.Any(x => IsWrapped(Text, x.FirstOrDefault()));
+        public static bool IsWrapped(this string Text) => PredefinedArrays.OpenWrappers.Any(x => IsWrapped(Text, x));
 
         public static bool IsWrapped(this string Text, string OpenWrapText, string CloseWrapText = null) => IsWrapped(Text, StringComparison.CurrentCultureIgnoreCase, OpenWrapText, CloseWrapText);
 
@@ -7896,6 +7977,9 @@ namespace Extensions
         /// <returns></returns>
         public static bool Like(this string source, string Pattern) => new Like(Pattern).Matches(source);
 
+        public static int LimitIndex<T>(this int ii, List<T> Collection) => ii.LimitRange<int>(0, Collection.Count - 1);
+ 
+
         public static int LimitIndex<T>(this int ii, IEnumerable<T> Collection) => ii.LimitRange<int>(0, Collection.Count() - 1);
 
         public static long LimitIndex<T>(this long Lng, IEnumerable<T> Collection) => Lng.LimitRange<long>(0, Collection.LongCount() - 1L);
@@ -8041,7 +8125,7 @@ namespace Extensions
         /// <returns></returns>
         public static Color MakeLighter(this Color TheColor, float Percent = 50f) => TheColor.MergeWith(Color.White, Percent);
 
-       
+
         /// <summary>
         /// Mescla varios dicionarios em um unico dicionario. Quando uma key existir em mais de um
         /// dicionario ela será substituida
@@ -8359,7 +8443,7 @@ namespace Extensions
             return ToList;
         }
 
-       
+
         /// <summary>
         /// Constroi uma expressão diferente de
         /// </summary>
@@ -8873,7 +8957,7 @@ namespace Extensions
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static string ParseAlphaNumeric(this string Text)
+        public static string OnlyAlphaNumeric(this string Text)
         {
             var l = new List<string>();
             foreach (var item in Text.Split(WhitespaceChar, StringSplitOptions.RemoveEmptyEntries))
@@ -8881,7 +8965,7 @@ namespace Extensions
                 l.Add(Regex.Replace(item, "[^A-Za-z0-9]", EmptyString));
             }
 
-            return l.SelectJoinString(WhitespaceChar);
+            return l.JoinString(WhitespaceChar);
         }
 
         /// <summary>
@@ -9205,7 +9289,7 @@ namespace Extensions
         /// <returns></returns>
         public static string Peek(this Queue<char> queue, int take) => new String(queue.Take(take).ToArray());
 
-      
+
 
         /// <summary>
         /// Retorna uma string em sua forma poop
@@ -9224,7 +9308,7 @@ namespace Extensions
                     l = l.ToInt() - 1;
                 }
 
-                p.Add(Text.GetFirstChars((int)Math.Round(l)).Trim() + Text.GetFirstChars((int)Math.Round(l)).Reverse().ToList().SelectJoinString().ToLowerInvariant().Trim() + Text.RemoveFirstChars((int)Math.Round(l)).TrimStartAny(PredefinedArrays.LowerConsonants.ToArray()));
+                p.Add(Text.GetFirstChars((int)Math.Round(l)).Trim() + Text.GetFirstChars((int)Math.Round(l)).Reverse().ToList().JoinString().ToLowerInvariant().Trim() + Text.RemoveFirstChars((int)Math.Round(l)).TrimStartAny(PredefinedArrays.LowerConsonants.ToArray()));
             }
 
             return p.ToArray();
@@ -9235,7 +9319,7 @@ namespace Extensions
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static string Poopfy(this string Text) => Poopfy(Text.SplitAny(PredefinedArrays.WordSplitters)).SelectJoinString(WhitespaceChar);
+        public static string Poopfy(this string Text) => Poopfy(Text.SplitAny(PredefinedArrays.WordSplitters)).JoinString(WhitespaceChar);
 
         /// <summary>
         /// Return a Idented XML string
@@ -9572,6 +9656,8 @@ namespace Extensions
         /// <returns></returns>
         public static string QuoteIf(this string Text, bool Condition, char QuoteChar = '"') => Condition ? Text.Quote(QuoteChar) : Text;
 
+
+
         /// <summary>
         /// Gera um valor boolean aleatorio considerando uma porcentagem de chance
         /// </summary>
@@ -9658,10 +9744,10 @@ namespace Extensions
         }
 
         /// <summary>
-        /// Gera uma data aleatória a partir de componentes nulos de data
+        /// Gera uma data aleatória a partir de componentes nulos de data.
         /// </summary>
         /// <returns>Um numero Inteiro</returns>
-        public static DateTime RandomDateTime(int? Year = null, int? Month = null, int? Day = null, int? Hour = null, int? Minute = null, int? Second = null)
+        public static DateTime RandomDateTime(int? Year = null, int? Month = null, int? Day = null, int? Hour = null, int? Minute = null, int? Second = null, int? Milliseconds = null)
         {
             Year = (Year ?? RandomInt(DateTime.MinValue.Year, DateTime.MaxValue.Year)).ForcePositive().LimitRange(DateTime.MinValue.Year, DateTime.MaxValue.Year);
             Month = (Month ?? RandomInt(DateTime.MinValue.Month, DateTime.MaxValue.Month)).ForcePositive().LimitRange(1, 12);
@@ -9669,14 +9755,8 @@ namespace Extensions
             Hour = (Hour ?? RandomInt(DateTime.MinValue.Hour, DateTime.MaxValue.Hour)).ForcePositive().LimitRange(1, 31);
             Minute = (Minute ?? RandomInt(DateTime.MinValue.Minute, DateTime.MaxValue.Minute)).ForcePositive().LimitRange(0, 59);
             Second = (Second ?? RandomInt(DateTime.MinValue.Second, DateTime.MaxValue.Second)).ForcePositive().LimitRange(0, 59);
-
-            DateTime randomCreated = DateTime.Now;
-            while (TryExecute(() => randomCreated = new DateTime(Year.Value, Month.Value, Day.Value, Hour.Value, Minute.Value, Second.Value)) != null)
-            {
-                Day--;
-            }
-
-            return randomCreated;
+            Milliseconds = (Milliseconds ?? RandomInt(0, 999)).ForcePositive().LimitRange(0, 999);
+            return new DateTime(Year.Value, Month.Value, Day.Value, Hour.Value, Minute.Value, Second.Value, Milliseconds.Value);
         }
 
         /// <summary>
@@ -9685,27 +9765,32 @@ namespace Extensions
         /// <param name="Min">Data Minima</param>
         /// <param name="Max">Data Maxima</param>
         /// <returns>Um numero Inteiro</returns>
-        public static DateTime RandomDateTime(DateTime? MinDate, DateTime? MaxDate = null)
+        public static DateTime RandomDateTime(DateTime? MinValue, DateTime? MaxValue = null)
         {
-            var Min = (MinDate ?? RandomDateTime()).Ticks;
-            var Max = (MaxDate ?? RandomDateTime()).Ticks;
-            FixOrder(ref Min, ref Max);
-            return new DateTime(RandomLong(Min, Max));
+            MinValue = MinValue ?? DateTime.MinValue;
+            MaxValue = MaxValue ?? DateTime.MaxValue;
+
+            (MinValue, MaxValue) = Util.FixOrder(MinValue.Value, MaxValue.Value);
+
+            var l = RandomLong(MinValue.Value.Ticks, MaxValue.Value.Ticks);
+
+            return new DateTime(l);
         }
+
 
         /// <summary>
         /// Gera um EAN aleatório com digito verificador válido
         /// </summary>
         /// <param name="Len"></param>
         /// <returns></returns>
-        public static string RandomEAN(int Len) => RandomFixLenghtNumber(Len.SetMinValue(2) - 1).ToString().AppendBarcodeCheckSum();
+        public static string RandomEAN(int Len) => RandomFixedLenghtNumber(Len.SetMinValue(2) - 1).ToString().AppendBarcodeCheckSum();
 
         /// <summary>
         /// Gera um numero aleatório de comprimento fixo
         /// </summary>
         /// <param name="Len"></param>
         /// <returns></returns>
-        public static string RandomFixLenghtNumber(int Len = 8)
+        public static string RandomFixedLenghtNumber(int Len = 8)
         {
             var n = EmptyString;
             for (int i = 0; i < Len; i++)
@@ -9747,9 +9832,9 @@ namespace Extensions
         /// <param name="Min">Numero minimo</param>
         /// <param name="Max">Numero Maximo</param>
         /// <returns>Um numero Inteiro</returns>
-        public static T Random<T>(this T Min, T Max) where T : IComparable
+        public static T Random<T>(this T Min, T Max) where T : IComparable, IFormattable
         {
-            FixOrder(ref Min, ref Max);
+            (Min, Max) = FixOrder(Min, Max);
 
             if (Min.Equals(Max)) return Min;
 
@@ -9853,7 +9938,7 @@ namespace Extensions
                 if (UniqueNumbers)
                 {
                     if (Max < int.MaxValue) Max++;
-                    FixOrder(ref Min, ref Max);
+                    (Min, Max) = FixOrder(Min, Max);
                     var l = Enumerable.Range(Min, Max - Min).OrderByRandom().ToList();
                     while (l.Count > Count) l.RemoveAt(0);
                     return l;
@@ -9880,6 +9965,115 @@ namespace Extensions
         /// <returns></returns>
         public static string RandomUserName(int WordLength, int MinNumber) => $"{Util.RandomWord(WordLength)}{Util.RandomInt(MinNumber, 9999)}";
 
+
+        /// <summary>
+        /// Gera uma lista de nomes de usuário a partir de um nome completo, data de nascimento e sufixos adicionais
+        /// </summary>
+        /// <param name="Name"></param>
+        /// <param name="BirthDate"></param>
+        /// <param name="Addons"></param>
+        /// <returns></returns>
+        public static IEnumerable<string> UsernamesFor(string Name, string LastName, DateTime? BirthDate = null, params string[] Addons)
+        {
+            return UsernamesFor($"{Name} {LastName}", BirthDate, Addons);
+        }
+
+        /// <summary>
+        /// Gera uma lista de nomes de usuário a partir de um nome completo, data de nascimento e sufixos adicionais
+        /// </summary>
+        /// <param name="Name"></param>
+        /// <param name="BirthDate"></param>
+        /// <param name="Addons"></param>
+        /// <returns></returns>
+        public static IEnumerable<string> UsernamesFor(string Name, DateTime? BirthDate = null, params string[] Addons)
+        {
+            var final = new List<string>();
+            if (Name.IsBlank())
+            {
+                Name = RandomWord();
+            }
+
+            Name = Name.TrimBetween();
+
+            var nome = Name.GetBefore(" ");
+            nome = Brasil.NomesComuns.FirstOrDefault(x => x.StartsWith(Name)) ?? nome;
+
+            var sobrenomes = Name.RemoveFirstEqual(nome).Trim().GetWords().Where(x => !x.FlatEqual("do", "da", "dos", "das", "e"));
+            sobrenomes = new[] { sobrenomes.FirstOrDefault(), sobrenomes.LastOrDefault() }.Distinct();
+
+            Addons = (Addons ?? Array.Empty<string>()).Where(x => x.IsNotBlank()).Union(new[] { (BirthDate ?? DateTime.Now).Year.ToString() }).ToArray();
+
+
+            foreach (var s in sobrenomes)
+            {
+                foreach (var c in new[] { "", ".", "_" })
+                {
+                    foreach (var addon in Addons)
+                    {
+                        nome = nome ?? " ";
+                        var sobrenome = s ?? " ";
+
+                        var list = new List<string>
+                        {
+                            $"{nome}{c}{sobrenome}".TrimAny(c),
+                            $"{sobrenome}{c}{nome}".TrimAny(c),
+                            $"{nome.FirstOrDefault()}{c}{sobrenome}".TrimAny(c),
+                            $"{nome}{c}{sobrenome?.FirstOrDefault()}".TrimAny(c),
+                            $"{sobrenome}{c}{nome?.FirstOrDefault()}".TrimAny(c)
+                        };
+
+                        // pegar os primeiros caracteres do nome anterior a primeira vogal (incluindo a vogal)
+                        var firstpart = nome.GetBeforeAny(true, PredefinedArrays.Vowels.ToArray());
+                        var lastPart = sobrenome.GetBeforeAny(true, PredefinedArrays.Vowels.ToArray());
+
+                        list.Add($"{firstpart}{c}{lastPart}".TrimAny(c));
+
+                        list = list.Distinct()
+                            .SelectMany(x =>
+                            {
+                                return new[]
+                                {
+                                    x,
+                                    $"{x}{addon}",
+                                    $"{x}{c}{addon}"
+                                };
+                            })
+                            .Where(x => x.StartsWithAny(PredefinedArrays.NumberChars.ToStringArray()) == false)
+                            .Select(x => x.ToLower().TrimAny(c, " "))
+                            .Distinct()
+                            .ToList();
+                        final.AddRange(list);
+
+                    }
+                }
+            }
+
+            return final.Distinct();
+
+        }
+
+
+        public static string GetBeforeAny(this string Text, params char[] Chars) => GetBeforeAny(Text, false, Chars);
+        public static string GetAfterAny(this string Text, params char[] Chars) => GetAfterAny(Text, false, Chars);
+        public static string GetBeforeAny(this string Text, bool IncludeChar, params char[] Chars)
+        {
+
+            if (Text.IsBlank()) return EmptyString;
+
+            var pos = Chars.Select(c => Text.IndexOf(c)).Where(p => p != -1).Min();
+            if (pos == -1) return Text;
+
+            return Text.Substring(0, (pos + (IncludeChar ? 1 : 0)).SetMaxValue(Text.Length - 1));
+        }
+
+        public static string GetAfterAny(this string Text, bool IncludeChar, params char[] Chars)
+        {
+            if (Text.IsBlank()) return EmptyString;
+            var pos = Chars.Select(c => Text.IndexOf(c)).Where(p => p != -1).Min();
+            if (pos == -1) return Text;
+            return Text.Substring((pos + (IncludeChar ? 0 : 1)).SetMinValue(0));
+        }
+
         /// <summary>
         /// Gera uma palavra aleatória com o numero de caracteres entre <paramref name="MinLength"/>
         /// e <paramref name="MaxLenght"/>
@@ -9898,14 +10092,14 @@ namespace Extensions
             string word = EmptyString;
             if (Length == 1)
             {
-                return RandomItem(PredefinedArrays.Vowels.ToArray());
+                return RandomItem(PredefinedArrays.Vowels).ToString();
             }
 
             // Util the word in consonant / vowel pairs
             while (word.Length < Length)
             {
                 // Add the consonant
-                string consonant = PredefinedArrays.LowerConsonants.RandomItem();
+                string consonant = PredefinedArrays.LowerConsonants.RandomItem().ToString();
                 if (consonant == "q" && word.Length + 3 <= Length)
                 {
                     // check +3 because we'd add 3 characters in this case, the "qu" and the vowel.
@@ -9917,7 +10111,7 @@ namespace Extensions
                     while (consonant == "q")
                     {
                         // ReplaceFrom an orphaned "q"
-                        consonant = PredefinedArrays.LowerConsonants.RandomItem();
+                        consonant = PredefinedArrays.LowerConsonants.RandomItem().ToString();
                     }
 
                     if (word.Length + 1 <= Length)
@@ -10714,9 +10908,9 @@ namespace Extensions
 
         public static string ReplaceUrlParameters<T>(Uri URL, T obj) => ReplaceUrlParameters(URL?.ToString(), obj);
 
-       
-     
-      
+
+
+
         /// <summary>
         /// Arredonda um numero para um numero especifico de digitos fracionários
         /// </summary>
@@ -10798,7 +10992,7 @@ namespace Extensions
             {
                 if (FilePath.IsDirectoryPath())
                 {
-                    FilePath = FilePath + @"\" + attachment.Name.IfBlank(attachment.ContentId);
+                    FilePath = $@"{FilePath}\{attachment.Name.IfBlank(attachment.ContentId)}";
                 }
 
                 return attachment.ToBytes().WriteToFile(FilePath, DateAndTime);
@@ -10836,6 +11030,30 @@ namespace Extensions
             return FilteredList;
         }
 
+
+
+
+        /// <summary>
+        /// Retorna um <see cref="IEnumerable{T}"/> procurando em varios campos diferentes de uma entidade
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Table"></param>
+        /// <param name="SearchTerms"></param>
+        /// <param name="Properties"></param>
+        /// <returns></returns>
+        public static IEnumerable<T> Search<T>(this IEnumerable<T> Table, IEnumerable<string> SearchTerms, params Expression<Func<T, string>>[] Properties) where T : class
+        {
+            Properties = Properties ?? Array.Empty<Expression<Func<T, string>>>();
+            SearchTerms = SearchTerms ?? Array.Empty<string>().AsEnumerable();
+
+            if (Table is IQueryable<T> e)
+            {
+                return e.SearchQueryable(SearchTerms, Properties);
+            }
+
+            return Table.Where(SearchTerms.SearchExpression(Properties).Compile());
+        }
+
         /// <summary>
         /// Retorna um <see cref="IQueryable{T}"/> procurando em varios campos diferentes de uma entidade
         /// </summary>
@@ -10844,14 +11062,17 @@ namespace Extensions
         /// <param name="SearchTerms">Termos da pesquisa</param>
         /// <param name="Properties">Propriedades onde <paramref name="SearchTerms"/> serão procurados</param>
         /// <returns></returns>
-        public static IQueryable<T> Search<T>(this IQueryable<T> Table, IEnumerable<string> SearchTerms, params Expression<Func<T, string>>[] Properties) where T : class
+        public static IQueryable<T> SearchQueryable<T>(this IQueryable<T> Table, IEnumerable<string> SearchTerms, params Expression<Func<T, string>>[] Properties) where T : class
         {
             Properties = Properties ?? Array.Empty<Expression<Func<T, string>>>();
             SearchTerms = SearchTerms ?? Array.Empty<string>().AsEnumerable();
-            return Table.Where(SearchTerms.SearchExpression(Properties));
+            var expression = SearchExpression(SearchTerms, Properties);
+            return Table.Where(expression);
         }
 
-        public static IQueryable<T> Search<T>(this IQueryable<T> Table, string SearchTerm, params Expression<Func<T, string>>[] Properties) where T : class => Search(Table, new[] { SearchTerm }, Properties);
+
+        public static IEnumerable<T> Search<T>(this IEnumerable<T> List, string SearchTerm, params Expression<Func<T, string>>[] Properties) where T : class => Search(List, new[] { SearchTerm }, Properties);
+        public static IQueryable<T> SearchQueryable<T>(this IQueryable<T> Table, string SearchTerm, params Expression<Func<T, string>>[] Properties) where T : class => SearchQueryable(Table, new[] { SearchTerm }, Properties);
 
         /// <summary>
         /// Retorna uma lista de arquivos ou diretórios baseado em um ou mais padrões de pesquisas
@@ -10867,7 +11088,7 @@ namespace Extensions
         /// <returns></returns>
         public static IEnumerable<FileSystemInfo> SearchBetween(this DirectoryInfo Directory, DateTime FirstDate, DateTime SecondDate, SearchOption SearchOption, params string[] Searches)
         {
-            FixOrder(ref FirstDate, ref SecondDate);
+            (FirstDate, SecondDate) = FixOrder(FirstDate, SecondDate);
             return Directory.Search(SearchOption, Searches).Where(file => file.LastWriteTime >= FirstDate && file.LastWriteTime <= SecondDate).OrderByDescending(f => f.LastWriteTime.Year <= 1601 ? f.CreationTime : f.LastWriteTime).ToList();
         }
 
@@ -10906,7 +11127,7 @@ namespace Extensions
         /// <returns></returns>
         public static IEnumerable<DirectoryInfo> SearchDirectoriesBetween(this DirectoryInfo Directory, DateTime FirstDate, DateTime SecondDate, SearchOption SearchOption, params string[] Searches)
         {
-            FixOrder(ref FirstDate, ref SecondDate);
+            (FirstDate, SecondDate) = FixOrder(FirstDate, SecondDate);
             return Directory.SearchDirectories(SearchOption, Searches).Where(file => file.LastWriteTime >= FirstDate && file.LastWriteTime <= SecondDate).OrderByDescending(f => f.LastWriteTime.Year <= 1601 ? f.CreationTime : f.LastWriteTime).ToList();
         }
 
@@ -10963,7 +11184,7 @@ namespace Extensions
         /// <returns></returns>
         public static IEnumerable<FileInfo> SearchFilesBetween(this DirectoryInfo Directory, DateTime FirstDate, DateTime SecondDate, SearchOption SearchOption, params string[] Searches)
         {
-            FixOrder(ref FirstDate, ref SecondDate);
+            (FirstDate, SecondDate) = FixOrder(FirstDate, SecondDate);
             return Directory.SearchFiles(SearchOption, Searches).Where(file => file.LastWriteTime.IsBetween(FirstDate, SecondDate)).OrderByDescending(f => f.LastWriteTime.Year <= 1601 ? f.CreationTime : f.LastWriteTime).ToList();
         }
 
@@ -10996,9 +11217,9 @@ namespace Extensions
 
         public static IOrderedEnumerable<TClass> SearchInOrder<TClass>(this IEnumerable<TClass> Table, IEnumerable<string> SearchTerms, params Expression<Func<TClass, string>>[] Properties) where TClass : class => SearchInOrder(Table, SearchTerms, true, Properties);
 
-        public static IOrderedQueryable<TClass> SearchInOrder<TClass>(this IQueryable<TClass> Table, IEnumerable<string> SearchTerms, params Expression<Func<TClass, string>>[] Properties) where TClass : class
+        public static IOrderedQueryable<TClass> SearchQueryableInOrder<TClass>(this IQueryable<TClass> Table, IEnumerable<string> SearchTerms, params Expression<Func<TClass, string>>[] Properties) where TClass : class
         {
-            var SearchRet = Table.Search(SearchTerms, Properties).OrderBy(x => true);
+            var SearchRet = Table.SearchQueryable(SearchTerms, Properties).OrderBy(x => true);
             foreach (var prop in Properties)
             {
                 SearchRet = SearchRet.ThenByLike(SearchTerms, prop);
@@ -11013,7 +11234,7 @@ namespace Extensions
         /// <param name="Array">Objeto com os valores</param>
         /// <param name="Separator">Separador entre as strings</param>
         /// <returns>string</returns>
-        public static string SelectJoinString<Type>(string Separator, params Type[] Array) => Array.SelectJoinString(Separator);
+        public static string SelectJoinString<Type>(string Separator, params Type[] Array) => Array.JoinString(Separator);
 
         /// <summary>
         /// Une todos os valores de um objeto em uma unica string
@@ -11021,7 +11242,7 @@ namespace Extensions
         /// <param name="List">Objeto com os valores</param>
         /// <param name="Separator">Separador entre as strings</param>
         /// <returns>string</returns>
-        public static string SelectJoinString<Type>(this List<Type> List, string Separator = EmptyString) => List.ToArray().SelectJoinString(Separator);
+        public static string JoinString<Type>(this List<Type> List, string Separator = EmptyString) => List.ToArray().JoinString(Separator);
 
         /// <summary>
         /// Seleciona e une em uma unica string varios elementos
@@ -11030,7 +11251,8 @@ namespace Extensions
         /// <param name="Source"></param>
         /// <param name="Separator"></param>
         /// <returns></returns>
-        public static string SelectJoinString<TSource>(this IEnumerable<TSource> Source, string Separator = EmptyString) => Source.SelectJoinString(null, Separator);
+        public static string JoinString<TSource>(this IEnumerable<TSource> Source, string Separator = EmptyString) => Source.SelectJoinString((x, i) => $"{x.ChangeType<string>()}", Separator);
+        public static string JoinString<TSource>(this IEnumerable<TSource> Source, char Separator) => Source.SelectJoinString((x, i) => $"{x.ChangeType<string>()}", $"{Separator}");
 
         /// <summary>
         /// Seleciona e une em uma unica string varios elementos
@@ -11040,12 +11262,27 @@ namespace Extensions
         /// <param name="Selector"></param>
         /// <param name="Separator"></param>
         /// <returns></returns>
-        public static string SelectJoinString<TSource>(this IEnumerable<TSource> Source, Func<TSource, string> Selector, string Separator = EmptyString)
+        public static string SelectJoinString<TSource>(this IEnumerable<TSource> Source, Func<TSource, int, string> Selector, string Separator = EmptyString)
         {
-            Selector = Selector ?? (x => $"{x}");
+            Selector = Selector ?? ((x, i) => $"{x.ChangeType<string>()}");
             Source = Source ?? Array.Empty<TSource>();
             return Source.Any() ? String.Join(Separator, Source.Select(Selector).WhereNotBlank().ToArray()) : EmptyString;
         }
+
+        public static string SelectJoinString<TSource>(this IEnumerable<TSource> Source, Func<TSource, int, string> Selector, char Separator)
+        {
+            return SelectJoinString(Source, Selector, $"{Separator}");
+        }
+
+
+        public static string SelectJoinString<TSource>(this IEnumerable<TSource> Source, Func<TSource, string> Selector, string Separator = EmptyString)
+        {
+            return SelectJoinString(Source, (x, i) => Selector(x), Separator);
+        }
+
+
+
+        public static string SelectJoinString<TSource>(this IEnumerable<TSource> Source, Func<TSource, string> Selector, char Separator) => SelectJoinString(Source, Selector, $"{Separator}");
 
         public static IEnumerable<String> SelectLike(this IEnumerable<String> source, String Pattern) => source.Where(x => x.Like(Pattern));
 
@@ -11057,7 +11294,7 @@ namespace Extensions
         /// <param name="Selector"></param>
         /// <param name="Separator"></param>
         /// <returns></returns>
-        public static string SelectManyJoinString<TSource>(this IEnumerable<TSource> Source, Func<TSource, IEnumerable<string>> Selector = null, string Separator = EmptyString) => SelectJoinString(Source.SelectMany(Selector ?? (x => (new[] { x.ToString() }))), Separator);
+        public static string SelectManyJoinString<TSource>(this IEnumerable<TSource> Source, Func<TSource, IEnumerable<string>> Selector = null, string Separator = EmptyString) => JoinString(Source.SelectMany(Selector ?? (x => (new[] { x.ToString() }))), Separator);
 
         /// <summary>
         /// Seleciona e une em uma unica string varios elementos enumeraveis
@@ -11270,7 +11507,7 @@ namespace Extensions
         /// </summary>
         /// <param name="Text">Texto</param>
         /// <returns></returns>
-        public static string Shuffle(this string Text) => Text.OrderByRandom().SelectJoinString();
+        public static string Shuffle(this string Text) => Text.OrderByRandom().JoinString();
 
         /// <summary>
         /// Busca em um <see cref="IQueryable{T}"/> usando uma expressao lambda a partir do nome de
@@ -11301,7 +11538,7 @@ namespace Extensions
             for (int index = 0, loopTo = phrase.Length - 1; index <= loopTo; index++)
             {
                 string endchar = phrase[index].GetLastChars();
-                if (endchar.IsAny(StringComparison.CurrentCultureIgnoreCase, PredefinedArrays.WordSplitters.ToArray()))
+                if (endchar.IsAny(StringComparison.CurrentCultureIgnoreCase, PredefinedArrays.WordSplitters.ToStringArray()))
                 {
                     phrase[index] = phrase[index].RemoveLastEqual(endchar);
                 }
@@ -11396,13 +11633,13 @@ namespace Extensions
                         // ja esta no singular
                 }
 
-                if (endchar.IsAny(StringComparison.CurrentCultureIgnoreCase, PredefinedArrays.WordSplitters.ToArray()))
+                if (endchar.IsAny(StringComparison.CurrentCultureIgnoreCase, PredefinedArrays.WordSplitters.ToStringArray()))
                 {
                     phrase[index] = phrase[index] + endchar;
                 }
             }
 
-            return phrase.SelectJoinString(WhitespaceChar).TrimBetween();
+            return phrase.JoinString(WhitespaceChar).TrimBetween();
         }
 
         public static IEnumerable<T> SkipLast<T>(this IEnumerable<T> l, int Count = 1)
@@ -11444,6 +11681,21 @@ namespace Extensions
         /// <param name="SplitText"></param>
         /// <returns></returns>
         public static string[] SplitAny(this string Text, params string[] SplitText) => Text?.SplitAny(StringSplitOptions.RemoveEmptyEntries, SplitText);
+        public static string[] SplitAny(this string Text, params char[] SplitChars)
+        {
+            return Text?.Split(SplitChars);
+        }
+
+        public static string[] SplitAny(this string Text, params IEnumerable<char>[] SplitChars)
+        {
+            SplitChars ??= Array.Empty<IEnumerable<char>>();
+            if (SplitChars.Any(x => x is string))
+            {
+                return SplitAny(Text, SplitChars.Select(x => string.Join("", x)).ToArray());
+            }
+
+            return Text?.Split(SplitChars?.SelectMany(c => c).ToArray());
+        }
 
         /// <summary>
         /// Separa uma string em varias partes a partir de varias strings removendo as entradas em branco
@@ -11669,7 +11921,7 @@ namespace Extensions
             return newlist.AsEnumerable();
         }
 
-        
+
 
         /// <summary>
         /// Ordena um <see cref="IQueryable{T}"/> a partir da aproximação de uma ou mais <see
@@ -12158,7 +12410,7 @@ namespace Extensions
         /// <returns></returns>
         public static string ToBase64(this byte[] Bytes) => Convert.ToBase64String(Bytes);
 
-     
+
 
         /// <summary>
         /// Converte uma Imagem da WEB para Base64
@@ -12169,7 +12421,7 @@ namespace Extensions
 
 
 
-       
+
 
         /// <summary>
         /// Converte um ToType para Boolean. Retorna Nothing (NULL) se a conversão falhar
@@ -12179,7 +12431,7 @@ namespace Extensions
         /// <returns>Valor convertido em novo ToType</returns>
         public static bool ToBool<T>(this T Value) => Value.ChangeType<bool>();
 
-       
+
 
         /// <summary>
         /// Salva um anexo para Byte()
@@ -12239,8 +12491,8 @@ namespace Extensions
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static string ToCamelCase(this string Text) => Text.PascalCaseSplit().Select((x, i) => i == 0 ? x.ToLowerInvariant() : x.ToTitle(true)).SelectJoinString("");
-        public static string ToPascalCase(this string Text) => Text.PascalCaseSplit().Select(x => x.ToTitle(true)).SelectJoinString("");
+        public static string ToCamelCase(this string Text) => Text.PascalCaseSplit().Select((x, i) => i == 0 ? x.ToLowerInvariant() : x.ToTitle(true)).JoinString("");
+        public static string ToPascalCase(this string Text) => Text.PascalCaseSplit().Select(x => x.ToTitle(true)).JoinString("");
 
         /// <summary>
         /// Retorna a <see cref="Color"/> a partir de uma <see cref="ConsoleColor"/>
@@ -12303,7 +12555,7 @@ namespace Extensions
                 }
             }
 
-            var coresInt = Text.GetWords().Select(p => p.ToCharArray().Sum(a => Math.Pow(a.ToAsc(), 2d) * p.Length)).Sum().RoundInt();
+            var coresInt = Text.GetWordsAlphabetically().Select(p => p.ToCharArray().Sum(a => Math.Pow(a.ToAsc(), 2d) * p.Length)).Sum().RoundInt();
             return Color.FromArgb(255, Color.FromArgb(coresInt));
         }
 
@@ -12347,9 +12599,9 @@ namespace Extensions
 
                 if (IncludeHeader && Items.All(x => x.Keys.Any()))
                 {
-                    str += $"{Items.FirstOrDefault()?.Keys.SelectJoinString(Separator)}{Environment.NewLine}";
+                    str += $"{Items.FirstOrDefault()?.Keys.JoinString(Separator)}{Environment.NewLine}";
                 }
-                str += $"{Items.SelectJoinString(x => x.Values.SelectJoinString(Separator), Environment.NewLine)}";
+                str += $"{Items.SelectJoinString(x => x.Values.JoinString(Separator), Environment.NewLine)}";
             }
 
             return str;
@@ -12380,7 +12632,7 @@ namespace Extensions
         /// <returns></returns>
         public static string ToDataURL(this FileInfo File) => File.ToBytes().ToDataURL(new FileType(File.Extension));
 
-        
+
         /// <summary>
         /// Converte um ToType para DateTime. Retorna Nothing (NULL) se a conversão falhar
         /// </summary>
@@ -12456,7 +12708,6 @@ namespace Extensions
             if (type == null)
                 throw new ArgumentNullException("type");
 
-            // HACK: The only way to detect anonymous types right now.
             return Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), false)
                 && type.IsGenericType && type.Name.Contains("AnonymousType")
                 && (type.Name.StartsWith("<>") || type.Name.StartsWith("VB$"))
@@ -14387,7 +14638,7 @@ namespace Extensions
 
             Texts = (Texts ?? Array.Empty<T>()).WhereNotBlank();
 
-            if (PhraseStart.IsValid() && !PhraseStart.EndsWithAny(StringComparison.InvariantCultureIgnoreCase, PredefinedArrays.BreakLineChars.ToArray()) && !PhraseStart.EndsWith(WhitespaceChar, StringComparison.InvariantCultureIgnoreCase))
+            if (PhraseStart.IsValid() && !PhraseStart.EndsWithAny(StringComparison.InvariantCultureIgnoreCase, PredefinedArrays.BreakLineChars.ToStringArray()) && !PhraseStart.EndsWith(WhitespaceChar, StringComparison.InvariantCultureIgnoreCase))
             {
                 PhraseStart += WhitespaceChar;
             }
@@ -14407,7 +14658,7 @@ namespace Extensions
                     break;
 
                 default:
-                    PhraseStart += Texts.SkipLast().SelectJoinString($"{Separator} ");
+                    PhraseStart += Texts.SkipLast().JoinString($"{Separator} ");
                     PhraseStart += $" {And.IfBlank($"{Separator}")}";
                     PhraseStart += $" {Texts.Last()}";
                     break;
@@ -14488,7 +14739,7 @@ namespace Extensions
                 }
             }
 
-            return l.SelectJoinString(WhitespaceChar);
+            return l.JoinString(WhitespaceChar);
         }
 
         public static QuantityTextPair ToQuantityTextPair(this string Text) => (QuantityTextPair)Text;
@@ -14500,7 +14751,7 @@ namespace Extensions
         /// </summary>
         /// <param name="Dic"></param>
         /// <returns></returns>
-        public static string ToQueryString(this Dictionary<string, string> Dic) => Dic?.Where(x => x.Key.IsValid()).SelectJoinString(x => new[] { x.Key, (x.Value ?? EmptyString).UrlEncode() }.SelectJoinString("="), "&") ?? EmptyString;
+        public static string ToQueryString(this Dictionary<string, string> Dic) => Dic?.Where(x => x.Key.IsValid()).SelectJoinString(x => new[] { x.Key, (x.Value ?? EmptyString).UrlEncode() }.JoinString("="), "&") ?? EmptyString;
 
         /// <summary>
         /// Retorna um <see cref="NameValueCollection"/> em QueryString
@@ -14586,7 +14837,7 @@ namespace Extensions
                     sentences[index] = $"{sentences[index].Trim().GetFirstChars(1)?.ToUpperInvariant()}{sentences[index]?.RemoveFirstChars(1)}";
                 }
 
-                Text = sentences.SelectJoinString(dot);
+                Text = sentences.JoinString(dot);
             }
 
             sentences = Text.Split(WhitespaceChar).ToList();
@@ -14675,7 +14926,7 @@ namespace Extensions
             return stream;
         }
 
-      
+
 
         /// <summary>
         /// Projeta um unico array os valores sub-agrupados e unifica todos num unico array de arrays
@@ -14876,7 +15127,7 @@ namespace Extensions
 
         public static IEnumerable<T> TraverseAll<T>(this IEnumerable<T> items, Func<T, IEnumerable<T>> ChildSelector, Expression<Func<T, bool>> Filter = null) => items.SelectMany(x => Traverse(x, ChildSelector, true)).Where(Filter?.Compile() ?? (x => true));
 
-       
+
 
         /// <summary>
         /// Remove do começo e do final de uma string qualquer valor que estiver no conjunto
@@ -14888,12 +15139,12 @@ namespace Extensions
         /// </param>
         /// <param name="StringTest">Conjunto de textos que serão comparados</param>
         /// <returns></returns>
-        public static string TrimAny(this string Text, bool ContinuouslyRemove, params string[] StringTest)
+        public static string TrimAny(this string Text, bool ContinuouslyRemove, params object[] StringTest)
         {
             if (Text.IsValid())
             {
-                Text = Text.TrimStartAny(ContinuouslyRemove, StringTest);
-                Text = Text.TrimEndAny(ContinuouslyRemove, StringTest);
+                Text = Text.TrimStartAny(ContinuouslyRemove, StringComparison.InvariantCultureIgnoreCase, StringTest);
+                Text = Text.TrimEndAny(ContinuouslyRemove, StringComparison.InvariantCultureIgnoreCase, StringTest);
             }
 
             return Text;
@@ -14941,7 +15192,7 @@ namespace Extensions
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static string TrimCarriage(this string Text) => Text.TrimAny(PredefinedArrays.InvisibleChars.ToArray());
+        public static string TrimCarriage(this string Text) => Text.TrimAny(PredefinedArrays.InvisibleChars.ToStringArray());
 
         /// <summary>
         /// Remove o final de uma string se ela for igual a qualquer um dos valores correspondentes
@@ -14953,10 +15204,11 @@ namespace Extensions
         /// </param>
         /// <param name="EndStringTest">Conjunto de textos que serão comparados</param>
         /// <returns></returns>
-        public static string TrimEndAny(this string Text, bool ContinuouslyRemove, StringComparison comparison, params string[] EndStringTest)
+        public static string TrimEndAny(this string Text, bool ContinuouslyRemove, StringComparison comparison, params object[] EndTest)
         {
             Text = Text ?? "";
-            EndStringTest = EndStringTest ?? Array.Empty<string>();
+            EndTest = EndTest ?? Array.Empty<object>();
+            var EndStringTest = EndTest.Select(x => x.ChangeType<string>()).Where(x => x.IsValid()).ToArray();
             while (Text.EndsWithAny(comparison, EndStringTest))
             {
                 foreach (var item in EndStringTest)
@@ -15000,6 +15252,7 @@ namespace Extensions
         /// <returns></returns>
         public static string TrimEndAny(this string Text, StringComparison comparison, params string[] EndStringTest) => Text.TrimEndAny(true, comparison, EndStringTest);
 
+
         /// <summary>
         /// Remove o final de uma string se ela for igual a qualquer um dos valores correspondentes
         /// </summary>
@@ -15010,10 +15263,11 @@ namespace Extensions
         /// </param>
         /// <param name="StartStringTest">Conjunto de textos que serão comparados</param>
         /// <returns></returns>
-        public static string TrimStartAny(this string Text, bool ContinuouslyRemove, StringComparison comparison, params string[] StartStringTest)
+        public static string TrimStartAny(this string Text, bool ContinuouslyRemove, StringComparison comparison, params object[] StartTest)
         {
             Text = Text ?? "";
-            StartStringTest = StartStringTest ?? Array.Empty<string>();
+            StartTest = StartTest ?? Array.Empty<object>();
+            var StartStringTest = StartTest.Select(x => x.ChangeType<string>()).Where(x => x.IsValid()).ToArray();
             while (Text.StartsWithAny(comparison, StartStringTest))
             {
                 foreach (var item in StartStringTest)
@@ -15039,7 +15293,7 @@ namespace Extensions
         /// <param name="StartStringTest">Conjunto de textos que serão comparados</param>
         /// <param name="comparison"></param>
         /// <returns></returns>
-        public static string TrimStartAny(this string Text, StringComparison comparison, params string[] StartStringTest) => Text.TrimStartAny(true, comparison, StartStringTest);
+        public static string TrimStartAny(this string Text, StringComparison comparison, params object[] StartStringTest) => Text.TrimStartAny(true, comparison, StartStringTest);
 
         /// <summary>
         /// Remove continuamente o começo de uma string se ela for igual a qualquer um dos valores correspondentes
@@ -15047,7 +15301,7 @@ namespace Extensions
         /// <param name="Text">Texto</param>
         /// <param name="StartStringTest">Conjunto de textos que serão comparados</param>
         /// <returns></returns>
-        public static string TrimStartAny(this string Text, params string[] StartStringTest) => Text.TrimStartAny(true, default, StartStringTest);
+        public static string TrimStartAny(this string Text, params object[] StartStringTest) => Text.TrimStartAny(true, default, StartStringTest);
 
         /// <summary>
         /// Remove continuamente o começo de uma string se ela for igual a qualquer um dos valores correspondentes
@@ -15089,7 +15343,7 @@ namespace Extensions
         {
             if ($"{OpenQuoteChar}".RemoveNonPrintable().IsNotValid())
             {
-                while (Text.EndsWithAny(PredefinedArrays.CloseWrappers.ToArray()) || Text.StartsWithAny(PredefinedArrays.OpenWrappers.ToArray()))
+                while (Text.EndsWithAny(PredefinedArrays.CloseWrappers.ToStringArray()) || Text.StartsWithAny(PredefinedArrays.OpenWrappers.ToStringArray()))
                 {
                     Text = Text.TrimAny(ContinuouslyRemove, PredefinedArrays.WordWrappers.ToArray());
                 }
@@ -15256,7 +15510,7 @@ namespace Extensions
             return true;
         }
 
-      
+
 
         /// <summary>
         /// Retorna uma lista de arquivos ou diretórios baseado em uma busca usando predicate
@@ -15419,49 +15673,6 @@ namespace Extensions
             return false;
         }
 
-        /// <summary>
-        /// Return a code for a word based on pronuciation
-        /// </summary>
-        /// <param name="word"></param>
-        /// <returns></returns>
-        public static int GetSoundCode(this string word)
-        {
-            // Converter a palavra para maiúsculas e remover caracteres não-alfabéticos
-            word = word.ToUpper();
-
-            // Mapear as letras para seus códigos correspondentes
-            string[] letterMappings = {
-            "A",
-            "EI",
-            "OUL",
-            "BP",
-            "F",
-            "VW",
-            "CGKQ",
-            "SJXZ",
-            "DT",
-            "MN",
-            "RH"
-        };
-
-            string code = "";
-
-            foreach (char v in word)
-                for (int j = 0; j < letterMappings.Length; j++)
-                    if (letterMappings[j].Contains(v))
-                    {
-                        code += j.ToString();
-                        break;
-                    }
-
-            // Remover os dígitos repetidos consecutivos
-            for (int i = code.Length - 1; i > 0; i--)
-            {
-                if (code[i] == code[i - 1])
-                    code.Remove(i, 1);
-            }
-            return code.FixedLenghtByRight(4).ToInt();
-        }
 
         /// <summary>
         /// Encapsula um tento entre 2 textos

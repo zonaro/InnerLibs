@@ -59,6 +59,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)JSONParser\JsonSerializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)JSONParser\Reflection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)JSONParser\SafeDictionary.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Numbers.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Pix.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SimpleCRUD.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Telefone.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Util.cs" />
@@ -86,10 +88,14 @@
     <Compile Include="$(MSBuildThisFileDirectory)RuleOfThree.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Select2Data.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ShortLink.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Soundex.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TextCleaner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)UnitConverter.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)vCard.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)vCard\vCard.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)vCard\vGender.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)vCard\vKind.cs" />
+    <Compile Include="..\..\InnerLibs\InnerLibsCommon\vCard\vLocationType.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)vCard\vPhoneTypes.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)vCard\vPhotoType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)WeekInfo.cs" />
   </ItemGroup>
   <ItemGroup>

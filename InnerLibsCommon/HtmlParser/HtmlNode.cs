@@ -153,7 +153,7 @@ namespace Extensions.Web
         {
             get => Class?.Split(" ") ?? Array.Empty<string>();
 
-            set => Class = (value ?? Array.Empty<string>().AsEnumerable()).SelectJoinString(" ");
+            set => Class = (value ?? Array.Empty<string>().AsEnumerable()).JoinString(" ");
         }
 
         public int Count => _children.Count;

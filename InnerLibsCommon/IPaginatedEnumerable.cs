@@ -485,7 +485,10 @@ namespace Extensions.Pagination
         /// <returns></returns>
         public PaginationFilter<TClass, TRemap> Compute()
         {
-            Data = Data.ToList().AsEnumerable();
+            if (Data is IQueryable<TClass>)
+            {
+                Data = Data.ToList();
+            }
             return this;
         }
 
@@ -562,7 +565,7 @@ namespace Extensions.Pagination
                 GetFilterQueryString(ForceEnabled),
                 GetPaginationQueryString(PageNumber ?? this.PageNumber, IncludePageSize, IncludePaginationOffset)
             };
-            return Util.SelectJoinString(l.Where(x => x.IsValid()), "&");
+            return Util.JoinString(l.Where(x => x.IsValid()), "&");
         }
 
         /// <summary>
@@ -617,7 +620,7 @@ namespace Extensions.Pagination
             {
                 var u = new Uri(Url);
                 Url = u.GetLeftPart(UriPartial.Path);
-                qs = Util.SelectJoinString(new[] { u.Query, qs }, "&");
+                qs = Util.JoinString(new[] { u.Query, qs }, "&");
             }
 
             return Url + "?" + qs;
@@ -648,7 +651,7 @@ namespace Extensions.Pagination
 
                     if (v.Any())
                     {
-                        querystring = new[] { querystring, v.SelectJoinString(x => q.Key + "=" + x.IfBlank(Util.EmptyString).ToString().UrlDecode(), "&") }.Where(x => x.IsValid()).SelectJoinString("&");
+                        querystring = new[] { querystring, v.SelectJoinString(x => q.Key + "=" + x.IfBlank(Util.EmptyString).ToString().UrlDecode(), "&") }.Where(x => x.IsValid()).JoinString("&");
                     }
                 }
             }
@@ -666,7 +669,7 @@ namespace Extensions.Pagination
         /// Retorna <see cref="Data"/> com os filtros aplicados
         /// </summary>
         /// <returns></returns>
-        public IQueryable<TClass> GetEnumerablePage() => (IQueryable<TClass>)GetEnumerablePage(PageNumber);
+        public IQueryable<TClass> GetEnumerablePage() => GetQueryablePage(PageNumber);
 
         /// <summary>
         /// Retorna <see cref="Data"/> com os filtros aplicados
@@ -679,7 +682,7 @@ namespace Extensions.Pagination
         /// Cria uma querystring com os filtros ativos
         /// </summary>
         /// <returns></returns>
-        public string GetFilterQueryString(bool ForceEnabled = false) => Util.SelectJoinString(Filters.Select(x => x.CreateQueryParameter(ForceEnabled)).Where(x => x.IsValid()), "&");
+        public string GetFilterQueryString(bool ForceEnabled = false) => Util.JoinString(Filters.Select(x => x.CreateQueryParameter(ForceEnabled)).Where(x => x.IsValid()), "&");
 
         /// <summary>
         /// Executa o Filtro e retorna os dados paginados
@@ -739,7 +742,7 @@ namespace Extensions.Pagination
                     l.Add($"{PaginationOffsetQueryParameter}={PaginationOffset}");
                 }
 
-                return Util.SelectJoinString(l, "&");
+                return Util.JoinString(l, "&");
             }
 
             return Util.EmptyString;
@@ -941,7 +944,7 @@ namespace Extensions.Pagination
         /// <param name="TraillingTemplate">emplate de botoes de reticencias</param>
         /// <param name="Trailling">botao de reticencias</param>
         /// <returns></returns>
-        public string PageButtonsFromTemplate(string Template, string TraillingTemplate, string SeparatorTemplate = Util.EmptyString, string Trailling = "...") => Template.IsValid() ? TraillingTemplate.IsNotValid() || Trailling.IsNotValid() ? PageButtonsFromTemplate(Template, SeparatorTemplate) : Util.SelectJoinString(CreatePaginationButtons(Trailling).Select(x =>
+        public string PageButtonsFromTemplate(string Template, string TraillingTemplate, string SeparatorTemplate = Util.EmptyString, string Trailling = "...") => Template.IsValid() ? TraillingTemplate.IsNotValid() || Trailling.IsNotValid() ? PageButtonsFromTemplate(Template, SeparatorTemplate) : Util.JoinString(CreatePaginationButtons(Trailling).Select(x =>
         {
             if (x.IsNumber())
             {
@@ -962,7 +965,7 @@ namespace Extensions.Pagination
         /// </summary>
         /// <param name="Template">Template de pagina</param>
         /// <returns></returns>
-        public string PageButtonsFromTemplate(string Template, string SeparatorTemplate = Util.EmptyString) => Template.IsValid() ? Util.SelectJoinString(CreatePaginationButtons(Util.EmptyString).Select(x => Template.Inject(new { Page = x })), SeparatorTemplate.IfBlank(Util.EmptyString)) : Util.EmptyString;
+        public string PageButtonsFromTemplate(string Template, string SeparatorTemplate = Util.EmptyString) => Template.IsValid() ? Util.JoinString(CreatePaginationButtons(Util.EmptyString).Select(x => Template.Inject(new { Page = x })), SeparatorTemplate.IfBlank(Util.EmptyString)) : Util.EmptyString;
 
         /// <summary>
         /// Seta a lista com os dados a serem filtrados nesse filtro
@@ -1658,7 +1661,7 @@ namespace Extensions.Pagination
         /// </summary>
         /// <param name="PropertySelector"></param>
         /// <returns></returns>
-        public PropertyFilter<TClassFrom, TClassTo> SetMember<T>(Expression<Func<TClassFrom, T>> PropertySelector, FilterConditional Conditional = FilterConditional.Or) => SetMember(Util.SelectJoinString(PropertySelector.Body.ToString().Split(".").Skip(1), "."), Conditional);
+        public PropertyFilter<TClassFrom, TClassTo> SetMember<T>(Expression<Func<TClassFrom, T>> PropertySelector, FilterConditional Conditional = FilterConditional.Or) => SetMember(Util.JoinString(PropertySelector.Body.ToString().Split(".").Skip(1), "."), Conditional);
 
         /// <summary>
         /// Sete um membro para ser utilizado neste filtro. É ignorado quando seus Values estão

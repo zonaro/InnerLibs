@@ -327,7 +327,7 @@ namespace Extensions.RolePlayingGame
                         }
                         else
                         {
-                            _name = new FullNumberWriter().ToString(Number, 0).ToTitle();
+                            _name = new FullNumberWriter().InExtensive(Number, 0,Dice.Faces.Count).ToTitle();
                         }
                     }
 

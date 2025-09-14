@@ -139,9 +139,17 @@ namespace Extensions.Locations
 
         #region Public Methods
 
+        public static bool IsAddressType(string Address) => GetAddressTypeProperty(Address) != null;
+
+        public static IEnumerable<string> GetAddressTypes()
+        {
+            var df = typeof(AddressTypes);
+            return df.GetProperties(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy).SelectMany(x => new[] { x.Name }.Union(x.GetValue(null) as string[])).Distinct();
+        }
+
         public static string GetAddressType(string Address) => GetAddressTypeProperty(Address)?.Name.IfBlank(Util.EmptyString);
 
-        public static string[] GetAddressTypeList(string Address) => (string[])(GetAddressTypeProperty(Address)?.GetValue(null) ?? Array.Empty<string>());
+        public static string[] GetAddressTypeOf(string Address) => (string[])(GetAddressTypeProperty(Address)?.GetValue(null) ?? Array.Empty<string>());
 
         public static PropertyInfo GetAddressTypeProperty(string Address)
         {
@@ -177,7 +185,7 @@ namespace Extensions.Locations
 
         private AddressPart _format = AddressPart.Default;
 
-        private Dictionary<string, string> details = new Dictionary<string, string>();
+        private Dictionary<string, string> _details = new Dictionary<string, string>();
 
         #endregion Private Fields
 
@@ -270,13 +278,15 @@ namespace Extensions.Locations
 
         #region Public Indexers
 
+        public IEnumerable<string> AllDetailsKeys => _details?.Keys?.ToArray() ?? Array.Empty<string>();
+
         public string this[string key]
         {
             get
             {
-                if (details is null)
+                if (_details is null)
                 {
-                    details = new Dictionary<string, string>();
+                    _details = new Dictionary<string, string>();
                 }
 
                 if (key.IsNotValid())
@@ -285,7 +295,7 @@ namespace Extensions.Locations
                 }
 
                 key = key.ToLowerInvariant();
-                if (!details.ContainsKey(key))
+                if (!_details.ContainsKey(key))
                 {
                     switch (key)
                     {
@@ -296,7 +306,7 @@ namespace Extensions.Locations
 
                         case "geolocation":
                             {
-                                return GeoLocation();
+                                return GeoLocationString();
                             }
 
                         case "fulladdress":
@@ -325,14 +335,14 @@ namespace Extensions.Locations
                     }
                 }
 
-                return details.GetValueOr(key, null);
+                return _details.GetValueOr(key, null);
             }
 
             set
             {
                 if (key.IsValid())
                 {
-                    details.SetOrRemove(key.ToLowerInvariant(), value?.Trim().NullIf(x => x.IsNotValid()));
+                    _details.SetOrRemove(key.ToLowerInvariant(), value?.Trim().NullIf(x => x.IsNotValid()));
                 }
             }
         }
@@ -517,7 +527,7 @@ namespace Extensions.Locations
         /// </summary>
         /// <value></value>
         /// <returns></returns>
-        public virtual string Name => Street.TrimAny(AddressTypes.GetAddressTypeList(Street)).TrimStartAny(PredefinedArrays.Punctuation.ToArray()).Trim();
+        public virtual string Name => Street.TrimAny(AddressTypes.GetAddressTypeOf(Street)).TrimStartAny(PredefinedArrays.Punctuation.ToArray()).Trim();
 
         public string Neighborhood
         {
@@ -586,6 +596,11 @@ namespace Extensions.Locations
         #endregion Public Properties
 
         #region Public Methods
+
+        public Dictionary<string, string> ToDictionary()
+        {
+            return _details.ToDictionary(x => x.Key, x => x.Value);
+        }
 
         /// <summary>
         /// Cria uma localização a partir de partes de endereço
@@ -823,23 +838,34 @@ namespace Extensions.Locations
             try
             {
                 var url = new Uri($"http://viacep.com.br/ws/{d.PostalCode.RemoveAny("-")}/json/");
-                d["search_url"] = url.ToString();
                 var x = url.DownloadJson() as Dictionary<string, object>;
+                d["search_url"] = url.ToString();
                 d.Country = "Brasil";
                 d.CountryCode = "BR";
-                d.Neighborhood = x.GetValueOr("bairro") as string;
-                d.City = x.GetValueOr("localidade") as string;
-                d.Street = x.GetValueOr("logradouro") as string;
-                d.Complement = Complement.IfBlank(x.GetValueOr("complemento", d.Complement)) as string;
-                d.StateCode = x.GetValueOr("uf") as string;
-
-                foreach (var item in new[] { "ddd", "ibge", "gia", "siafi" })
+                if (x.ContainsKey("erro") && (x["erro"]?.ToString() == "true" || x["erro"]?.ToString() == "1"))
                 {
-                    Util.TryExecute(() => d[item.ToUpperInvariant()] = x.GetValueOr(item) as string);
+                    throw new Exception("CEP não encontrado");
+                }
+                else
+                {
+
+                    d.Neighborhood = x.GetValueOr("bairro") as string;
+                    d.City = x.GetValueOr("localidade") as string;
+                    d.Street = x.GetValueOr("logradouro") as string;
+                    d.Complement = Complement.IfBlank(x.GetValueOr("complemento", d.Complement)) as string;
+                    d.StateCode = x.GetValueOr("uf") as string;
+
+                    foreach (var item in new[] { "ddd", "ibge", "gia", "siafi" })
+                    {
+                        Util.TryExecute(() => d[item.ToUpperInvariant()] = x.GetValueOr(item) as string);
+                    }
                 }
 
             }
-            catch { }
+            catch (Exception ex)
+            {
+                d["viacep_error"] = ex.ToFullExceptionString();
+            }
 
             try
             {
@@ -1024,7 +1050,7 @@ namespace Extensions.Locations
                 var parts = Address.GetAfter(",").SplitAny(" ", ".", ",").ToList();
                 Number = parts.FirstOrDefault(x => x == "s/n" || x == "sn" || x == "s" || x == "sem" || x.IsNumber());
                 parts.Remove(Number);
-                Complement = parts.SelectJoinString(" ");
+                Complement = parts.JoinString(" ");
                 Address = Address.GetBefore(",");
             }
             else
@@ -1033,9 +1059,9 @@ namespace Extensions.Locations
                 if (adparts.Any())
                 {
                     string maybe_number = adparts.FirstOrDefault(x => x == "s/n" || x == "sn" || x.IsNumber()).IfBlank(Util.EmptyString).TrimAny(" ", ",");
-                    Complement = adparts.SelectJoinString(" ").GetAfter(maybe_number).TrimAny(" ", ",");
+                    Complement = adparts.JoinString(" ").GetAfter(maybe_number).TrimAny(" ", ",");
                     Number = maybe_number;
-                    Address = adparts.SelectJoinString(" ").GetBefore(maybe_number).TrimAny(" ", ",");
+                    Address = adparts.JoinString(" ").GetBefore(maybe_number).TrimAny(" ", ",");
                 }
             }
 
@@ -1054,26 +1080,36 @@ namespace Extensions.Locations
 
         public AddressInfo Clear()
         {
-            details.Clear();
+            _details.Clear();
             return this;
         }
 
-        public bool ContainsKey(string key) => details.ContainsKey(key.ToLowerInvariant());
+        public bool ContainsKey(string key) => _details.ContainsKey(key.ToLowerInvariant());
 
-        public string GeoLocation() => Latitude.CanBeNumber() && Longitude.CanBeNumber() ? $"{Latitude}, {Longitude}" : null;
+        public string GeoLocationString() => Latitude.CanBeNumber() && Longitude.CanBeNumber() ? $"{Latitude}, {Longitude}" : null;
+
+        public (decimal Latitude, decimal Longitude)? GeoLocation()
+        {
+            if (Latitude.CanBeNumber() && Longitude.CanBeNumber())
+            {
+                return (Latitude.ToDecimal(), Longitude.ToDecimal());
+            }
+            return null;
+        }
+
 
         /// <summary>
         /// Retona uma informação deste endereço
         /// </summary>
         /// <param name="Key"></param>
         /// <returns></returns>
-        public Dictionary<string, string> GetDetails() => details.ToDictionary();
+        public Dictionary<string, string> GetDetails() => _details.ToDictionary();
 
         public AddressInfo Remove(string key)
         {
             if (ContainsKey(key))
             {
-                details.Remove(key);
+                _details.Remove(key);
             }
 
             return this;
@@ -1166,7 +1202,7 @@ namespace Extensions.Locations
 
             if (p.HasFlag(AddressPart.GeoLocation))
             {
-                retorno = retorno.AppendIf($" / {this.GeoLocation().Quote('(')}", GeoLocation().IsValid());
+                retorno = retorno.AppendIf($" / {this.GeoLocationString().Quote('(')}", GeoLocationString().IsValid());
             }
             else
             {

@@ -944,7 +944,7 @@ namespace Extensions.QuestionTests
         {
             var q = new NumericQuestion(this);
             q.Statement.Text = Statement;
-            Util.FixOrder(ref MinValue, ref MaxValue);
+            (MinValue, MaxValue) = Util.FixOrder(MinValue, MaxValue);
             q.MinValue = MinValue;
             q.MaxValue = MaxValue;
             this.Add(q);

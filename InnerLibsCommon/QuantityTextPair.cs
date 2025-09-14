@@ -64,7 +64,9 @@ namespace Extensions.ComplexText
 
         public string Singular { get; set; }
 
-        public static implicit operator QuantityTextPair(string[] b) => (QuantityTextPair)b?.SelectJoinString("/");
+        public static implicit operator QuantityTextPair((string plural,string singular) pair) => new QuantityTextPair(pair.plural, pair.singular);
+
+        public static implicit operator QuantityTextPair(string[] b) => (QuantityTextPair)b?.JoinString("/");
 
         public static implicit operator QuantityTextPair(string b)
         {

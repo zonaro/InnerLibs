@@ -821,7 +821,7 @@ namespace Extensions.Printers
                 {
                     try
                     {
-                        string v = Command.Encoding.GetString(value).ReplaceMany("<br/>", PredefinedArrays.BreakLineChars.ToArray());
+                        string v = Command.Encoding.GetString(value).ReplaceMany("<br/>", PredefinedArrays.BreakLineChars.ToStringArray());
                         if (v == "<br/>")
                         {
                             HTMLDocument.Root.Add("<br/>");
@@ -1081,7 +1081,7 @@ namespace Extensions.Printers
             values = (values ?? Array.Empty<string>()).Where(x => x.IsValid()).ToArray();
             if (values.Any())
             {
-                WriteLine(values.SelectJoinString(Environment.NewLine));
+                WriteLine(values.JoinString(Environment.NewLine));
             }
 
             return this;

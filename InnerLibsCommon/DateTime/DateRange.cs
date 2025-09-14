@@ -42,7 +42,7 @@ namespace Extensions.Dates
 
         private void CalcRange()
         {
-            Util.FixOrder(ref _startDate, ref _endDate);
+            (_startDate, _endDate) = Util.FixOrder(_startDate, _endDate);
 
             int days = 0;
             int years = 0;

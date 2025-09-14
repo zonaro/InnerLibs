@@ -5,23 +5,36 @@ namespace Extensions.BR
     /// <summary>
     /// Classe que representa um número de telefone.
     /// </summary>
-    public class Telefone
+    public struct Telefone
     {
+
+        public static IEnumerable<int> DDDs => [
+           11, 12, 13, 14, 15, 16, 17, 18, 19,
+           21, 22, 24, 27, 28,
+           31, 32, 33, 34, 35, 37, 38,
+           41, 42, 43, 44, 45, 46, 47, 48, 49,
+           51, 53, 54, 55,
+           61, 62, 63, 64, 65, 66, 67, 68, 69,
+           71, 73, 74, 75, 77, 79,
+           81, 82, 83, 84, 85, 86, 87, 88, 89,
+           91, 92, 93, 94, 95, 96, 97, 98, 99
+        ];
+
+
         /// <summary>
         /// Código de Discagem Direta à Distância (DDD).
         /// </summary>
-        public string DDD { get; set; }
+        public int? DDD { get; set; }
 
         /// <summary>
         /// Prefixo do número de telefone.
         /// </summary>
-        public string Prefixo { get; set; }
+        public int Prefixo { get; private set; }
 
         /// <summary>
         /// Sufixo do número de telefone.
         /// </summary>
-        public string Sufixo { get; set; }
-
+        public int Sufixo { get; private set; }
 
 
         /// <summary>
@@ -35,7 +48,8 @@ namespace Extensions.BR
         /// </summary>
         /// <param name="ddd">Código de Discagem Direta à Distância (DDD).</param>
         /// <param name="numero">Número de telefone.</param>
-        public Telefone(int numero, int? ddd = null) => new Telefone(numero.ToString(), ddd?.ToString());
+        public Telefone(int numero, int? ddd = null) : this(numero.ToString(), ddd?.ToString())
+        {}
 
 
 
@@ -82,9 +96,9 @@ namespace Extensions.BR
 
                 }
 
-                DDD = c[0];
-                Prefixo = c[1];
-                Sufixo = c[2];
+                DDD = c[0].ToInt();
+                Prefixo = c[1].ToInt();
+                Sufixo = c[2].ToInt();
             }
             else
             {
@@ -95,26 +109,29 @@ namespace Extensions.BR
         /// <summary>
         /// Verifica se este telefone possui nono digito
         /// </summary>
-        public bool NonoDigito { get => Prefixo.Length == 5; set => Prefixo = (value ? "9" : "") + Prefixo.GetLastChars(4); }
+        public bool NonoDigito { get => Prefixo.Length(5); set => Prefixo = ((value ? "9" : "") + Prefixo.ToStringInvariant().GetLastChars(4)).ToInt(); }
 
-        public bool IsValid => Brasil.TelefoneValido(Completo);
+        /// <summary>
+        /// Verifica se o número de telefone é válido.
+        /// </summary>
+        public bool Valido => Brasil.TelefoneValido(Completo);
 
-        public bool HasValidDDD => DDD.IsNotBlank() && DDD.ToInt().IsBetween(11, 99);
+        public bool DDDValido => DDD.HasValue && DDDs.Contains(DDD.Value);
 
         /// <summary>
         /// Retorna o número de telefone completo, incluindo o DDD.
         /// </summary>
-        public string Completo => $"{DDD}{Numero}";
+        public string Completo => DDDValido ? $"{DDD}{Numero}" : Numero;
 
         /// <summary>
         /// Retorna o número de telefone completo, incluindo o DDD, formatado com máscara.
         /// </summary>
-        public string CompletoMascara => HasValidDDD ? $"({DDD}) {NumeroMascara}" : NumeroMascara;
+        public string CompletoMascara => DDDValido ? $"({DDD}) {NumeroMascara}" : NumeroMascara;
 
         /// <summary>
         /// Retorna o número de telefone.
         /// </summary>
-        public string Numero => $"{Prefixo}{Sufixo}";
+        public string Numero => $"{Prefixo}{Sufixo.FixedLength(4)}";
 
         /// <summary>
         /// Retorna o número de telefone formatado com máscara.

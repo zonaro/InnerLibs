@@ -443,7 +443,7 @@ namespace Extensions.Files
         /// <returns></returns>
         public override string ToString() => GetMimeTypesOrDefault().First();
 
-        public override int GetHashCode() => Extensions.OrderBy(ext => ext).Union(MimeTypes.OrderBy(x => x)).SelectJoinString().GetHashCode();
+        public override int GetHashCode() => Extensions.OrderBy(ext => ext).Union(MimeTypes.OrderBy(x => x)).JoinString().GetHashCode();
 
         public static bool operator ==(FileType left, FileType right)
         {

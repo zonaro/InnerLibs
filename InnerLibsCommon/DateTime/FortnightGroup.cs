@@ -144,7 +144,8 @@ namespace Extensions.Dates
         /// <returns></returns>
         public new static FortnightGroup<T> CreateFromDateRange(DateTime StartDate, DateTime EndDate)
         {
-            Util.FixOrder(ref StartDate, ref EndDate);
+            (StartDate, EndDate) = Util.FixOrder(StartDate, EndDate);
+
             int fortcount = 0;
             FortnightGroup<T> fort;
             do
@@ -285,7 +286,8 @@ namespace Extensions.Dates
         /// <returns></returns>
         public static FortnightGroup CreateFromDateRange(DateTime StartDate, DateTime EndDate)
         {
-            Util.FixOrder(ref StartDate, ref EndDate);
+            (StartDate, EndDate) = Util.FixOrder(StartDate, EndDate);
+
             int fortcount = 0;
             FortnightGroup fort;
             do

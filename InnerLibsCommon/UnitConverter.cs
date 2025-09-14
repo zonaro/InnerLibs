@@ -17,7 +17,7 @@ namespace Extensions.Converters
         #region Private Fields
 
         private readonly Dictionary<decimal, string> Units = new Dictionary<decimal, string>();
-        private CultureInfo culture = CultureInfo.InvariantCulture;
+        private CultureInfo _culture = CultureInfo.InvariantCulture;
 
         #endregion Private Fields
 
@@ -125,7 +125,7 @@ namespace Extensions.Converters
 
         #region Public Properties
 
-        public CultureInfo Culture { get => culture ?? CultureInfo.CurrentCulture; set => culture = value; }
+        public CultureInfo Culture { get => _culture ?? CultureInfo.CurrentCulture; set => _culture = value; }
         public StringComparison UnitComparisonType { get; set; } = StringComparison.Ordinal;
 
         #endregion Public Properties
@@ -165,7 +165,7 @@ namespace Extensions.Converters
         {
             if (DecimalPlaces < 0)
             {
-                DecimalPlaces = culture.NumberFormat.NumberDecimalDigits;
+                DecimalPlaces = _culture.NumberFormat.NumberDecimalDigits;
             }
 
             switch (Units.Count)
@@ -268,7 +268,7 @@ namespace Extensions.Converters
         {
             if (DecimalPlaces < 0)
             {
-                DecimalPlaces = culture.NumberFormat.NumberDecimalDigits;
+                DecimalPlaces = _culture.NumberFormat.NumberDecimalDigits;
             }
             if (Number.IsNotValid())
             {
@@ -278,9 +278,9 @@ namespace Extensions.Converters
             if (!Number.IsNumber())
             {
                 string i = Number;
-                var l = PredefinedArrays.NumberChars.Union(new[] { Culture.NumberFormat.NumberDecimalSeparator, Culture.NumberFormat.NumberGroupSeparator });
+                var l = PredefinedArrays.MaskedNumberChars(Culture);
 
-                while (i.StartsWithAny(UnitComparisonType, l.ToArray()))
+                while (i.StartsWithAny(UnitComparisonType, l.ToStringArray()))
                     i = i.RemoveFirstChars();
                 var p = GetUnit(i);
                 if (p.Key > 0m)
@@ -304,8 +304,8 @@ namespace Extensions.Converters
         public string ParseUnit(string Number)
         {
             string i = Number;
-            var l = PredefinedArrays.NumberChars.Union(new[] { Culture.NumberFormat.NumberDecimalSeparator, Culture.NumberFormat.NumberGroupSeparator });
-            while (i.StartsWithAny(UnitComparisonType, l.ToArray()))
+            var l = PredefinedArrays.MaskedNumberChars(Culture) .ToStringArray();
+            while (i.StartsWithAny(UnitComparisonType, l))
                 i = i.RemoveFirstChars();
             var p = GetUnit(i);
             string u = p.Value.IfBlank(Util.EmptyString);

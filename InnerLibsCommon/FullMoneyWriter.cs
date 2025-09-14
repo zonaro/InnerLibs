@@ -6,56 +6,66 @@ using Extensions.ComplexText;
 
 namespace Extensions.NumberWriters
 {
-
-    /// <summary>
-    /// Classe para escrever moedas por extenso com suporte até 999 quintilhoes de $$
-    /// </summary>
-    public class FullMoneyWriter : FullNumberWriter
-    {
-        #region Public Properties
-
-        /// <summary>
-        /// Par de strings que representam os centavos desta moeda em sua forma singular ou plural
-        /// </summary>
-        /// <returns></returns>
-        public QuantityTextPair CurrencyCentsName { get; set; } = new QuantityTextPair("cents", "cent");
-
-        /// <summary>
-        /// Par de strings que representam os nomes da moeda em sua forma singular ou plural
-        /// </summary>
-        /// <returns></returns>
-        public QuantityTextPair CurrencyName { get; set; } = new QuantityTextPair("dollars", "dollar");
-
-        #endregion Public Properties
-
-        #region Public Methods
-
-        /// <summary>
-        /// Escreve um numero por extenso
-        /// </summary>
-        /// <param name="Number"></param>
-        /// <returns></returns>
-        public override string ToString(decimal Number, int DecimalPlaces = 2)
-        {
-            long dec = Number.GetDecimalPart(DecimalPlaces.LimitRange(0, 3));
-            long num = (long)Math.Round(Number.Floor());
-            return $"{InExtensive(num)}{CurrencyCentsName.ToString(num).Wrap(" ")}{(dec == 0L | DecimalPlaces == 0 ? Util.EmptyString : $"{And.Wrap(" ")}{InExtensive(dec)}{CurrencyCentsName.ToString(dec).Wrap(" ")}")}".ToLowerInvariant().TrimBetween();
-        }
-
-        public override string ToString() => ToString(0m);
-
-        #endregion Public Methods
-    }
-
     /// <summary>
     /// Classe para escrever numeros por extenso com suporte até 999 quintilhoes
     /// </summary>
     public class FullNumberWriter
     {
-        #region Internal Methods
 
-        internal string InExtensive(decimal Number)
+        public string InExtensiveCurrency(decimal Number, int DecimalPlaces = 2, decimal? ceilNumber = null, decimal? floorNumber = null)
         {
+            if (ceilNumber.HasValue && floorNumber.HasValue)
+            {
+                (floorNumber, ceilNumber) = Util.FixOrder(floorNumber.Value, ceilNumber.Value);
+            }
+
+            if (ceilNumber.HasValue && Number > ceilNumber.Value)
+            {
+                return MoreThan + " " + InExtensiveCurrency(ceilNumber.Value, DecimalPlaces);
+            }
+
+            if (floorNumber.HasValue && Number > floorNumber.Value)
+            {
+                return LessThan + " " + InExtensiveCurrency(floorNumber.Value, DecimalPlaces);
+            }
+
+            long dec = 0L;
+            if (DecimalPlaces > 0 && Number.HasDecimalPart())
+            {
+                dec = Number.GetDecimalPart(DecimalPlaces.LimitRange(0, 3));
+            }
+
+            Number = Number.Floor();
+            return $"{InExtensive(Number)}{CurrencyCentsName.ToString(Number).Wrap(" ")}{(dec == 0L | DecimalPlaces == 0 ? Util.EmptyString : $"{And.Wrap(" ")}{InExtensive(dec)}{CurrencyCentsName.ToString(dec).Wrap(" ")}")}".ToLowerInvariant().TrimBetween();
+
+        }
+
+
+        public string InExtensive(decimal Number, int DecimalPlaces = 3, decimal? ceilNumber = null, decimal? floorNumber = null)
+        {
+            if (ceilNumber.HasValue && floorNumber.HasValue)
+            {
+                (floorNumber, ceilNumber) = Util.FixOrder(floorNumber.Value, ceilNumber.Value);
+            }
+
+            if (ceilNumber.HasValue && Number > ceilNumber.Value)
+            {
+                return MoreThan + " " + InExtensive(ceilNumber.Value, DecimalPlaces);
+            }
+
+            if (floorNumber.HasValue && Number > floorNumber.Value)
+            {
+                return LessThan + " " + InExtensive(floorNumber.Value, DecimalPlaces);
+            }
+
+            if (DecimalPlaces > 0 && Number.HasDecimalPart())
+            {
+                long dec = Number.GetDecimalPart(DecimalPlaces.LimitRange(0, 3));
+                return $"{InExtensive(Number, 0)} {DecimalSeparator} {InExtensive(dec, 0)}";
+            }
+
+            Number = Number.Floor();
+
             switch (Number)
             {
                 case var @case when @case < 0m:
@@ -76,7 +86,7 @@ namespace Extensions.NumberWriters
 
                 case var case2 when 20m <= case2 && case2 <= 99m:
                     {
-                        var strArray = new string[] { Twenty, Thirty, Fourty, Fifty, Sixty, Seventy, Eighty, Ninety };
+                        var strArray = new string[] { Twenty, Thirty, Forty, Fifty, Sixty, Seventy, Eighty, Ninety };
                         if (Number % 10m == 0m)
                         {
                             return strArray[(int)((long)Math.Round(Number) / 10L - 2L)];
@@ -472,9 +482,24 @@ namespace Extensions.NumberWriters
             }
         }
 
-        #endregion Internal Methods
 
-        #region Public Constructors
+
+
+
+
+        /// <summary>
+        /// Par de strings que representam os centavos desta moeda em sua forma singular ou plural
+        /// </summary>
+        /// <returns></returns>
+        public QuantityTextPair CurrencyCentsName { get; set; } = new QuantityTextPair("cents", "cent");
+
+        /// <summary>
+        /// Par de strings que representam os nomes da moeda em sua forma singular ou plural
+        /// </summary>
+        /// <returns></returns>
+        public QuantityTextPair CurrencyName { get; set; } = new QuantityTextPair("dollars", "dollar");
+
+
 
         /// <summary>
         /// Instancia um novo <see cref="FullNumberWriter"/> com as configurações default (inglês)
@@ -487,59 +512,48 @@ namespace Extensions.NumberWriters
                 {
                     case nameof(ExactlyOneHundred):
                     case nameof(DecimalSeparator):
-                    case nameof(And):
+                    case nameof(CurrencyCentsName):
+                    case nameof(CurrencyName):
                         {
+
+                            ExactlyOneHundred ??= "";
+                            DecimalSeparator ??= "dot";
+                            CurrencyName ??= (CurrencyName ?? new QuantityTextPair("dollars", "dollar"));
+                            CurrencyCentsName ??= (CurrencyCentsName ?? new QuantityTextPair("cents", "cent"));
+
                             continue;
                         }
 
                     default:
                         {
-                            switch (prop.PropertyType)
+                            if (prop.PropertyType == typeof(string) && prop.GetValue(this).IsNotValid())
                             {
-                                case var @case when @case == typeof(string):
-                                    {
-                                        prop.SetValue(this, prop.Name.ToNormalCase());
-                                        break;
-                                    }
-
-                                case var case1 when case1 == typeof(QuantityTextPair):
-                                    {
-                                        if (((QuantityTextPair)prop.GetValue(this)).Plural.IsNotValid())
-                                        {
-                                            prop.SetValue(this, new QuantityTextPair(prop.Name + "s", prop.Name));
-                                        }
-
-                                        break;
-                                    }
-
-                                default:
-                                    {
-                                        break;
-                                    }
+                                prop.SetValue(this, prop.Name.ToNormalCase());
+                            }
+                            else if (prop.PropertyType == typeof(QuantityTextPair) && prop.GetValue(this) == null)
+                            {
+                                var plural = prop.Name.ToNormalCase() + "s";
+                                var singular = prop.Name.ToNormalCase();
+                                prop.SetValue(this, new QuantityTextPair(plural, singular));
                             }
 
                             break;
                         }
                 }
             }
-
-            DecimalSeparator = CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator;
         }
 
-        #endregion Public Constructors
 
-        #region Public Indexers
+
+
 
         /// <summary>
         /// Escreve um numero por extenso
         /// </summary>
         /// <param name="Number"></param>
         /// <returns></returns>
-        public virtual string this[decimal Number, int DecimalPlaces = 2] => ToString(Number, DecimalPlaces);
+        public virtual string this[decimal Number, int DecimalPlaces = 2] => InExtensive(Number, DecimalPlaces);
 
-        #endregion Public Indexers
-
-        #region Public Properties
 
         /// <summary>
         /// String que representa a palavra "e". Utilizada na concatenação de expressões
@@ -641,7 +655,7 @@ namespace Extensions.NumberWriters
         /// String que representa os numeros 40 a 49.
         /// </summary>
         /// <returns></returns>
-        public string Fourty { get; set; }
+        public string Forty { get; set; }
 
         /// <summary>
         /// Par de strings que representam os numeros 1 milhão a 999 milhões
@@ -661,6 +675,8 @@ namespace Extensions.NumberWriters
         /// </summary>
         /// <returns></returns>
         public string MoreThan { get; set; }
+
+        public string LessThan { get; set; }
 
         /// <summary>
         /// String que representa o numero 9.
@@ -830,20 +846,71 @@ namespace Extensions.NumberWriters
         /// <returns></returns>
         public string Zero { get; set; }
 
-        #endregion Public Properties
 
-        #region Public Methods
 
-        public override string ToString() => ToString(0m);
+        public override string ToString() => InExtensive(0m);
 
-        public virtual string ToString(decimal Number, int DecimalPlaces = 2)
+       
+
+        public static FullNumberWriter pt_BR()
         {
-            long dec = Number.GetDecimalPart(DecimalPlaces.LimitRange(0, 3));
-            long num = (long)Math.Round(Number.Floor());
-            return (InExtensive(num) + (dec == 0L | DecimalPlaces == 0 ? Util.EmptyString : DecimalSeparator.Wrap(" ") + InExtensive(dec))).ToLowerInvariant().TrimBetween();
+            return new FullNumberWriter()
+            {
+                One = "um",
+                Two = "dois",
+                Three = "três",
+                Four = "quatro",
+                Five = "cinco",
+                Six = "seis",
+                Seven = "sete",
+                Eight = "oito",
+                Nine = "nove",
+                Ten = "dez",
+                Eleven = "onze",
+                Twelve = "doze",
+                Thirteen = "treze",
+                Fourteen = "quatorze",
+                Fifteen = "quinze",
+                Sixteen = "dezesseis",
+                Seventeen = "dezessete",
+                Eighteen = "dezoito",
+                Nineteen = "dezenove",
+                Twenty = "vinte",
+                Thirty = "trinta",
+                Forty = "quarenta",
+                Fifty = "cinquenta",
+                Sixty = "sessenta",
+                Seventy = "setenta",
+                Eighty = "oitenta",
+                Ninety = "noventa",
+                ExactlyOneHundred = "cem",
+                OneHundred = "cento",
+                TwoHundred = "duzentos",
+                ThreeHundred = "trezentos",
+                FourHundred = "quatrocentos",
+                FiveHundred = "quinhentos",
+                SixHundred = "seiscentos",
+                SevenHundred = "setecentos",
+                EightHundred = "oitocentos",
+                NineHundred = "novecentos",
+                Thousand = "mil",
+                Million = ("milhão", "milhões"),
+                Billion = ("bilhão", "bilhões"),
+                Trillion = ("trilhão", "trilhões"),
+                Quadrillion = ("quatrilhão", "quatrilhões"),
+                Quintillion = ("quintilhão", "quintilhões"),
+                And = "e",
+                DecimalSeparator = "vírgula",
+                CurrencyName = ("reais", "real"),
+                CurrencyCentsName = ("centavos", "centavo"),
+                Minus = "menos",
+                MoreThan = "mais de",
+                LessThan = "menos de"
+
+
+            };
         }
 
-        #endregion Public Methods
     }
 
 }

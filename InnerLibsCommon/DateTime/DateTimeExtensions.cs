@@ -16,6 +16,10 @@ namespace Extensions
     /// </summary>
     public static partial class Util
     {
+
+
+
+
         #region Public Properties
 
 
@@ -27,6 +31,28 @@ namespace Extensions
         #endregion Public Properties
 
         #region Public Methods
+
+
+        public static TimeSpan ParseDuration(this string input, string mask = "HH:mm:ss")
+        {
+            if (input.IsBlank()) return TimeSpan.Zero;
+            if (mask.IsBlank()) mask = "HH:mm:ss"; 
+            // Faz o parse como DateTime
+            DateTime dt = DateTime.ParseExact(
+                input,
+                mask,
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.None
+            );
+
+            // Se o formato tiver "dd", somamos os dias ao TimeSpan
+            int days = mask.Contains("dd") ? dt.Day : 0;
+
+            // Retorna o TimeSpan com dias + parte de tempo
+            return new TimeSpan(days, dt.Hour, dt.Minute, dt.Second, dt.Millisecond);
+        }
+
+
 
         /// <summary>
         /// Adds the given number of business days to the <see cref="DateTime"/>.
@@ -124,7 +150,7 @@ namespace Extensions
         /// <param name="hour">The hour to set time to.</param>
         /// <param name="minute">The minute to set time to.</param>
         /// <returns><see cref="DateTime"/> with hour and minute set to given values.</returns>
-        public static DateTime At(this DateTime current, int hour, int minute) => current.SetTime(hour, minute,00,00);
+        public static DateTime At(this DateTime current, int hour, int minute) => current.SetTime(hour, minute, 00, 00);
 
         public static DateTime At(this DateTime current, int hour) => current.SetTime(hour, 00, 00, 00);
 
@@ -145,7 +171,7 @@ namespace Extensions
         /// <param name="minute">The minute to set time to.</param>
         /// <param name="second">The second to set time to.</param>
         /// <returns><see cref="DateTime"/> with hour and minutes and seconds set to given values.</returns>
-        public static DateTime At(this DateTime current, int hour, int minute, int second) => current.SetTime(hour, minute, second,00);
+        public static DateTime At(this DateTime current, int hour, int minute, int second) => current.SetTime(hour, minute, second, 00);
 
         /// <summary>
         /// Returns the given <see cref="DateTime"/> with hour and minutes and seconds and
@@ -275,7 +301,7 @@ namespace Extensions
         /// <returns></returns>
         public static decimal CalculateTimelinePercent(this DateTime MidDate, DateTime StartDate, DateTime EndDate)
         {
-            Util.FixOrder(ref StartDate, ref EndDate);
+            (StartDate, EndDate) = Util.FixOrder(StartDate, EndDate);
             if (MidDate < StartDate)
             {
                 return 0m;
@@ -1063,10 +1089,16 @@ namespace Extensions
         {
             TimeBegin = TimeBegin.TimePart();
             TimeEnd = TimeEnd.TimePart();
-            Util.FixOrder(ref TimeBegin, ref TimeEnd);
+
+            (TimeBegin, TimeEnd) = Util.FixOrder(TimeBegin, TimeEnd);
             return Date.TimeOfDay.IsBetween(TimeBegin, TimeEnd);
         }
 
+        /// <summary>
+        /// Checks if the date is a weekend (Saturday or Sunday)
+        /// </summary>
+        /// <param name="YourDate"></param>
+        /// <returns></returns>
         public static bool IsWeekend(this DateTime YourDate) => YourDate.DayOfWeek == DayOfWeek.Sunday | YourDate.DayOfWeek == DayOfWeek.Saturday;
 
         /// <summary>
@@ -1354,8 +1386,8 @@ namespace Extensions
         /// <returns></returns>
         public static DateRange PeriodRange(this DateTime StartDate, DateTime? EndDate, string Group, DayOfWeek FirstDayOfWeek)
         {
-            var end = EndDate ?? StartDate;
-            (StartDate, EndDate) = Util.FixOrder(ref StartDate, ref end);
+            (StartDate, EndDate) = Util.FixOrder(StartDate, EndDate ?? StartDate);
+
             switch (Group.ToLowerInvariant().RemoveAccents())
             {
                 case "month":
@@ -1926,7 +1958,7 @@ namespace Extensions
 
         public string Format(DateTime StartDate, DateTime EndDate, string Group, string format, bool simplify = false)
         {
-            Util.FixOrder(ref StartDate, ref EndDate);
+            (StartDate, EndDate) = Util.FixOrder(StartDate, EndDate);
             var labels = new string[] { Format(StartDate, Group), Format(EndDate, Group) };
             if (simplify) { labels = labels.ReduceToDifference().DefaultIfEmpty(Group).ToArray(); }
             var oo = new { start = labels.FirstOrDefault(), end = labels.LastOrDefault() };
@@ -1949,6 +1981,7 @@ namespace Extensions
 
                 case "quinzenal":
                 case "fortnight":
+                case "halfmonth":
                 case "quinzena":
                     return Date.FortnightString(FortnightFormat);
 
