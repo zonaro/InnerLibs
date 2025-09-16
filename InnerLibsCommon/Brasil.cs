@@ -370,7 +370,7 @@ namespace Extensions.BR
 
         public static string GerarNomeCompletoAleatorio(bool? NomeMasculino = null, bool SobrenomeUnico = false)
         {
-            NomeMasculino ??= Util.RandomBool();
+            NomeMasculino = NomeMasculino ?? Util.RandomBool();
 
             return $"{GerarPrimeiroNomeAleatorio(NomeMasculino)} {GerarSobrenomeAleatorio(SobrenomeUnico)}";
         }
@@ -1486,7 +1486,7 @@ namespace Extensions.BR
 
         public static string GerarTelefoneFake(int? ddd)
         {
-            ddd ??= Brasil.Cidades.RandomItem().DDD;
+            ddd = ddd ?? Brasil.Cidades.RandomItem().DDD;
             return $"({ddd}) {GerarTelefoneFake()}";
         }
 
@@ -2957,7 +2957,7 @@ namespace Extensions.BR
 
 
 
- 
+
 
 
 }

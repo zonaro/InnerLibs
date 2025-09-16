@@ -107,7 +107,7 @@ namespace Extensions
 
         public static IEnumerable<char> NumberMaskChars(CultureInfo Culture=null)
         {
-            Culture ??= CultureInfo.CurrentCulture;
+            Culture = Culture ?? CultureInfo.CurrentCulture;
             return (Culture.NumberFormat.NumberDecimalSeparator + Culture.NumberFormat.NumberGroupSeparator).ToArray();
         }
 

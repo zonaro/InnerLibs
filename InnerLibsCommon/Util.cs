@@ -3428,11 +3428,12 @@ namespace Extensions
             return (FirstValue, SecondValue);
         }
 
+#if NET8
         public static (T? FirstValue, T? SecondValue) FixOrder<T>(this (T?, T?) value) where T : IComparable
         {
             return FixOrder(value.Item1, value.Item2);
         }
-
+#endif
 
 
 
@@ -4085,7 +4086,7 @@ namespace Extensions
         /// <returns>Uma string com o valor anterior ao valor especificado.</returns>
         public static string GetBefore(this string Text, string Value, bool WhiteIfNotFound = false)
         {
-            Value ??= string.Empty;
+            Value = Value ?? string.Empty;
             return Text.IsNotValid() || Text.IndexOf(Value) == -1 ? WhiteIfNotFound ? EmptyString : $"{Text}" : Text.Substring(0, Text.IndexOf(Value));
         }
 
@@ -4280,11 +4281,15 @@ namespace Extensions
 
         public static string GetDisplayString(this object Value, Type enumType, bool friendlyName = true)
         {
-            ArgumentNullException.ThrowIfNull(enumType);
+            if(enumType == null)
+            {
+                throw new ArgumentNullException(nameof(enumType));
+            }
+         
 
             if (!enumType.IsEnum) throw new ArgumentException($"{enumType.Name} must be an Enumeration type.", enumType.Name);
 
-            string? name = null;
+            string name = null;
             if (Value is string s)
             {
                 name = Enum.GetNames(enumType).Cast<object>().FirstOrDefault(x => s.FlatEqual(x))?.ToString();
@@ -11688,7 +11693,7 @@ namespace Extensions
 
         public static string[] SplitAny(this string Text, params IEnumerable<char>[] SplitChars)
         {
-            SplitChars ??= Array.Empty<IEnumerable<char>>();
+            SplitChars = SplitChars ?? Array.Empty<IEnumerable<char>>();
             if (SplitChars.Any(x => x is string))
             {
                 return SplitAny(Text, SplitChars.Select(x => string.Join("", x)).ToArray());

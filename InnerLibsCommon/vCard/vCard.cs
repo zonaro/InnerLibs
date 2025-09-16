@@ -9,9 +9,7 @@ using System.Reflection.Emit;
 using System.Text;
 using Extensions.Files;
 using Extensions.Locations;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Newtonsoft.Json.Linq;
-using static QRCoder.SvgQRCode.SvgLogo;
+ 
 
 namespace Extensions.vCards
 {
@@ -30,7 +28,7 @@ namespace Extensions.vCards
         /// <summary>
         /// List of addresses
         /// </summary>
-        public List<(AddressInfo Address, vLocationType Location)> Addresses { get; set; } = new();
+        public List<(AddressInfo Address, vLocationType Location)> Addresses { get; set; } = new List<(AddressInfo Address, vLocationType Location)>();
 
         /// <summary>
         /// Anniversary date (ANNIVERSARY) - new in vCard 4.0
@@ -83,7 +81,7 @@ namespace Extensions.vCards
         /// <summary>
         /// List of email addresses
         /// </summary>
-        public List<(string Email, string Type)?> Emails { get; set; } = new();
+        public List<(string Email, string Type)?> Emails { get; set; } = new List<(string Email, string Type)?>();
 
         /// <summary>
         /// Free/Busy calendar URLs (FBURL) - new in vCard 4.0
@@ -160,7 +158,7 @@ namespace Extensions.vCards
         {
             if (Key.IsNotBlank())
             {
-                return _extraFields.GetValueOrDefault($"{Key.ToUpper()}");
+                return _extraFields.GetValueOr($"{Key.ToUpper()}");
             }
 
             return null;
@@ -185,7 +183,7 @@ namespace Extensions.vCards
         /// <summary>
         /// Instant messaging (IMPP) - new in vCard 4.0
         /// </summary>
-        public List<(string protocol, string handle)> InstantMessaging { get; set; } = new();
+        public List<(string protocol, string handle)> InstantMessaging { get; set; } = new List<(string protocol, string handle)>();
 
         /// <summary>
         /// Job title
@@ -200,7 +198,7 @@ namespace Extensions.vCards
         /// <summary>
         /// Languages (LANG) - new in vCard 4.0
         /// </summary>
-        public List<string> Languages { get; set; } = new();
+        public List<string> Languages { get; set; } = new List<string>();
 
         /// <summary>
         /// Last modified date
@@ -226,7 +224,7 @@ namespace Extensions.vCards
         /// <summary>
         /// Photos of the person (PHOTO) - enhanced in vCard 4.0
         /// </summary>
-        public List<(string Uri, string MediaType, vPhotoType Type)> Photos { get; set; } = new();
+        public List<(string Uri, string MediaType, vPhotoType Type)> Photos { get; set; } = new List<(string Uri, string MediaType, vPhotoType Type)>();
 
         /// <summary>
         /// Profession (ROLE) - enhanced in vCard 4.0
@@ -256,13 +254,13 @@ namespace Extensions.vCards
 
         public string Suffix { get; set; }
 
-        public List<(string Number, vPhoneTypes Type, vLocationType Location)?> Telephones { get; set; } = new();
+        public List<(string Number, vPhoneTypes Type, vLocationType Location)?> Telephones { get; set; } = new List<(string Number, vPhoneTypes Type, vLocationType Location)?>();
 
         public string Title { get; set; }   // Mr., Mrs., Ms., Dr.
 
         public Guid? UID { get; set; } = Guid.NewGuid();
 
-        public List<(Uri URL, vLocationType Location)?> URLs { get; set; } = new();
+        public List<(Uri URL, vLocationType Location)?> URLs { get; set; } = new List<(Uri URL, vLocationType Location)?>();
 
         /// <summary>
         /// XML data (XML) - new in vCard 4.0
@@ -274,7 +272,7 @@ namespace Extensions.vCards
         /// </summary>
         public void AddEmail(string Email, string Type = null)
         {
-            Emails = Emails ?? new();
+            Emails = Emails ?? new List<(string Email, string Type)?>();
             if (Email.IsEmail())
             {
                 Emails.Add((Email, Type.IfBlank("INTERNET")));
@@ -296,7 +294,7 @@ namespace Extensions.vCards
         /// </summary>
         public void AddAddress(AddressInfo Address, vLocationType Location = vLocationType.HOME)
         {
-            Addresses = Addresses ?? new();
+            Addresses = Addresses ?? new List<(AddressInfo Address, vLocationType Location)>();
             if (Address != null)
             {
                 Addresses.Add((Address, Location));
@@ -308,10 +306,10 @@ namespace Extensions.vCards
         /// </summary>
         public void AddTelephone(string Number, vLocationType PhoneLocation = vLocationType.HOME, vPhoneTypes PhoneType = vPhoneTypes.VOICE)
         {
-            Telephones = Telephones ?? new();
+            Telephones = Telephones ?? new List<(string Number, vPhoneTypes Type, vLocationType Location)?>();
             if (Number.IsValid())
             {
-                var v = Telephones!.FirstOrDefault(x => x != null && x.Value.Number.FlatEqual(Number) && x.Value.Type == PhoneType && x.Value.Location == PhoneLocation);
+                var v = Telephones.FirstOrDefault(x => x != null && x.Value.Number.FlatEqual(Number) && x.Value.Type == PhoneType && x.Value.Location == PhoneLocation);
                 if (v != null)
                 {
                     Telephones.Remove(v);
@@ -335,7 +333,7 @@ namespace Extensions.vCards
         /// </summary>
         public void AddURL(Uri URL, vLocationType Location = vLocationType.HOME)
         {
-            URLs = URLs ?? new();
+            URLs = URLs ?? new List<(Uri URL, vLocationType Location)?>();
             URLs.Add((URL, Location));
         }
 
@@ -544,7 +542,7 @@ namespace Extensions.vCards
             {
                 result += InstantMessaging.SelectJoinString((x, i) =>
                 {
-                    return TupleToString("IMPP", null, Util.JoinString([x.protocol, x.handle], ':'), InstantMessaging.Count, i);
+                    return TupleToString("IMPP", null, Util.JoinString(new[] { x.protocol, x.handle }, ':'), InstantMessaging.Count, i);
                 }, Environment.NewLine) + Environment.NewLine;
             }
 

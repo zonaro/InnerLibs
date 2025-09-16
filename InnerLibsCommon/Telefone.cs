@@ -1,14 +1,15 @@
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Extensions.BR
 {
     /// <summary>
-    /// Classe que representa um número de telefone.
+    /// Classe que representa um nï¿½mero de telefone.
     /// </summary>
     public struct Telefone
     {
 
-        public static IEnumerable<int> DDDs => [
+        public static IEnumerable<int> DDDs => new[]{
            11, 12, 13, 14, 15, 16, 17, 18, 19,
            21, 22, 24, 27, 28,
            31, 32, 33, 34, 35, 37, 38,
@@ -18,49 +19,50 @@ namespace Extensions.BR
            71, 73, 74, 75, 77, 79,
            81, 82, 83, 84, 85, 86, 87, 88, 89,
            91, 92, 93, 94, 95, 96, 97, 98, 99
-        ];
+        };
 
 
         /// <summary>
-        /// Código de Discagem Direta à Distância (DDD).
+        /// Cï¿½digo de Discagem Direta ï¿½ Distï¿½ncia (DDD).
         /// </summary>
         public int? DDD { get; set; }
 
         /// <summary>
-        /// Prefixo do número de telefone.
+        /// Prefixo do nï¿½mero de telefone.
         /// </summary>
         public int Prefixo { get; private set; }
 
         /// <summary>
-        /// Sufixo do número de telefone.
+        /// Sufixo do nï¿½mero de telefone.
         /// </summary>
         public int Sufixo { get; private set; }
 
 
         /// <summary>
-        /// Inicializa uma nova instância da classe <see cref="Telefone"/> com um número longo.
+        /// Inicializa uma nova instï¿½ncia da classe <see cref="Telefone"/> com um nï¿½mero longo.
         /// </summary>
-        /// <param name="numero">Número de telefone.</param>
-        public Telefone(long numero) => new Telefone(numero.ToString());
+        /// <param name="numero">Nï¿½mero de telefone.</param>
+        public Telefone(long numero) : this(numero.ToString())
+        { }
 
         /// <summary>
-        /// Inicializa uma nova instância da classe <see cref="Telefone"/> com DDD e número.
+        /// Inicializa uma nova instï¿½ncia da classe <see cref="Telefone"/> com DDD e nï¿½mero.
         /// </summary>
-        /// <param name="ddd">Código de Discagem Direta à Distância (DDD).</param>
-        /// <param name="numero">Número de telefone.</param>
+        /// <param name="ddd">Cï¿½digo de Discagem Direta ï¿½ Distï¿½ncia (DDD).</param>
+        /// <param name="numero">Nï¿½mero de telefone.</param>
         public Telefone(int numero, int? ddd = null) : this(numero.ToString(), ddd?.ToString())
-        {}
+        { }
 
 
 
         /// <summary>
-        /// Inicializa uma nova instância da classe <see cref="Telefone"/> com um número de telefone.
+        /// Inicializa uma nova instï¿½ncia da classe <see cref="Telefone"/> com um nï¿½mero de telefone.
         /// </summary>
-        /// <param name="ddd">Código de Discagem Direta à Distância (DDD).</param>
-        /// <param name="numero">Número de telefone.</param>
-        /// <remarks>O numero de telefone pode possuir um DDD. neste caso, o parâmetro <paramref name="ddd"/> será ignorado.</remarks>
+        /// <param name="ddd">Cï¿½digo de Discagem Direta ï¿½ Distï¿½ncia (DDD).</param>
+        /// <param name="numero">Nï¿½mero de telefone.</param>
+        /// <remarks>O numero de telefone pode possuir um DDD. neste caso, o parï¿½metro <paramref name="ddd"/> serï¿½ ignorado.</remarks>
         /// </remarks>
-        /// <exception cref="System.ArgumentException">Lançada quando o número de telefone é inválido.</exception>
+        /// <exception cref="System.ArgumentException">Lanï¿½ada quando o nï¿½mero de telefone ï¿½ invï¿½lido.</exception>
         public Telefone(string numero, string ddd = null)
         {
             if (Brasil.TelefoneValido(numero))
@@ -102,7 +104,7 @@ namespace Extensions.BR
             }
             else
             {
-                throw new System.ArgumentException("Número de telefone inválido.", nameof(numero));
+                throw new System.ArgumentException("Nï¿½mero de telefone invï¿½lido.", nameof(numero));
             }
         }
 
@@ -112,37 +114,37 @@ namespace Extensions.BR
         public bool NonoDigito { get => Prefixo.Length(5); set => Prefixo = ((value ? "9" : "") + Prefixo.ToStringInvariant().GetLastChars(4)).ToInt(); }
 
         /// <summary>
-        /// Verifica se o número de telefone é válido.
+        /// Verifica se o nï¿½mero de telefone ï¿½ vï¿½lido.
         /// </summary>
         public bool Valido => Brasil.TelefoneValido(Completo);
 
         public bool DDDValido => DDD.HasValue && DDDs.Contains(DDD.Value);
 
         /// <summary>
-        /// Retorna o número de telefone completo, incluindo o DDD.
+        /// Retorna o nï¿½mero de telefone completo, incluindo o DDD.
         /// </summary>
         public string Completo => DDDValido ? $"{DDD}{Numero}" : Numero;
 
         /// <summary>
-        /// Retorna o número de telefone completo, incluindo o DDD, formatado com máscara.
+        /// Retorna o nï¿½mero de telefone completo, incluindo o DDD, formatado com mï¿½scara.
         /// </summary>
         public string CompletoMascara => DDDValido ? $"({DDD}) {NumeroMascara}" : NumeroMascara;
 
         /// <summary>
-        /// Retorna o número de telefone.
+        /// Retorna o nï¿½mero de telefone.
         /// </summary>
         public string Numero => $"{Prefixo}{Sufixo.FixedLength(4)}";
 
         /// <summary>
-        /// Retorna o número de telefone formatado com máscara.
+        /// Retorna o nï¿½mero de telefone formatado com mï¿½scara.
         /// </summary>
         public string NumeroMascara => $"{Prefixo}-{Sufixo}";
 
         /// <summary>
-        /// Compara se dois números de telefone são iguais.
+        /// Compara se dois nï¿½meros de telefone sï¿½o iguais.
         /// </summary>
         /// <param name="obj">Objeto a ser comparado.</param>
-        /// <returns>Retorna <c>true</c> se os números de telefone forem iguais; caso contrário, <c>false</c>.</returns>
+        /// <returns>Retorna <c>true</c> se os nï¿½meros de telefone forem iguais; caso contrï¿½rio, <c>false</c>.</returns>
         public override bool Equals(object obj)
         {
             if (obj is Telefone telefone)
@@ -162,45 +164,45 @@ namespace Extensions.BR
         }
 
         /// <summary>
-        /// Retorna uma representação em string do número de telefone.
+        /// Retorna uma representaï¿½ï¿½o em string do nï¿½mero de telefone.
         /// </summary>
-        /// <returns>Representação em string do número de telefone.</returns>
+        /// <returns>Representaï¿½ï¿½o em string do nï¿½mero de telefone.</returns>
         public override string ToString() => CompletoMascara;
 
         /// <summary>
-        /// Conversão implícita de <see cref="Telefone"/> para <see cref="string"/>.
+        /// Conversï¿½o implï¿½cita de <see cref="Telefone"/> para <see cref="string"/>.
         /// </summary>
-        /// <param name="telefone">Instância de <see cref="Telefone"/>.</param>
+        /// <param name="telefone">Instï¿½ncia de <see cref="Telefone"/>.</param>
         public static implicit operator string(Telefone telefone) => telefone.ToString();
 
         /// <summary>
-        /// Conversão implícita de <see cref="Telefone"/> para <see cref="long"/>.
+        /// Conversï¿½o implï¿½cita de <see cref="Telefone"/> para <see cref="long"/>.
         /// </summary>
-        /// <param name="telefone">Instância de <see cref="Telefone"/>.</param>
+        /// <param name="telefone">Instï¿½ncia de <see cref="Telefone"/>.</param>
         public static implicit operator long(Telefone telefone) => telefone.Completo.OnlyNumbersLong();
 
         /// <summary>
-        /// Conversão implícita de <see cref="Telefone"/> para <see cref="int"/>.
+        /// Conversï¿½o implï¿½cita de <see cref="Telefone"/> para <see cref="int"/>.
         /// </summary>
-        /// <param name="telefone">Instância de <see cref="Telefone"/>.</param>
+        /// <param name="telefone">Instï¿½ncia de <see cref="Telefone"/>.</param>
         public static implicit operator int(Telefone telefone) => telefone.Completo.OnlyNumbersInt();
 
         /// <summary>
-        /// Conversão implícita de <see cref="string"/> para <see cref="Telefone"/>.
+        /// Conversï¿½o implï¿½cita de <see cref="string"/> para <see cref="Telefone"/>.
         /// </summary>
-        /// <param name="telefone">Número de telefone em formato de string.</param>
+        /// <param name="telefone">Nï¿½mero de telefone em formato de string.</param>
         public static implicit operator Telefone(string telefone) => new Telefone(telefone);
 
         /// <summary>
-        /// Conversão implícita de <see cref="int"/> para <see cref="Telefone"/>.
+        /// Conversï¿½o implï¿½cita de <see cref="int"/> para <see cref="Telefone"/>.
         /// </summary>
-        /// <param name="telefone">Número de telefone em formato de inteiro.</param>
+        /// <param name="telefone">Nï¿½mero de telefone em formato de inteiro.</param>
         public static implicit operator Telefone(int telefone) => new Telefone(telefone);
 
         /// <summary>
-        /// Conversão implícita de <see cref="long"/> para <see cref="Telefone"/>.
+        /// Conversï¿½o implï¿½cita de <see cref="long"/> para <see cref="Telefone"/>.
         /// </summary>
-        /// <param name="telefone">Número de telefone em formato de longo.</param>
+        /// <param name="telefone">Nï¿½mero de telefone em formato de longo.</param>
         public static implicit operator Telefone(long telefone) => new Telefone(telefone);
     }
 }

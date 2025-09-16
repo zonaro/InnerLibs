@@ -516,10 +516,10 @@ namespace Extensions.NumberWriters
                     case nameof(CurrencyName):
                         {
 
-                            ExactlyOneHundred ??= "";
-                            DecimalSeparator ??= "dot";
-                            CurrencyName ??= (CurrencyName ?? new QuantityTextPair("dollars", "dollar"));
-                            CurrencyCentsName ??= (CurrencyCentsName ?? new QuantityTextPair("cents", "cent"));
+                            ExactlyOneHundred = ExactlyOneHundred ?? "";
+                            DecimalSeparator = DecimalSeparator ?? "dot";
+                            CurrencyName = CurrencyName ?? new QuantityTextPair("dollars", "dollar");
+                            CurrencyCentsName = CurrencyCentsName ?? new QuantityTextPair("cents", "cent");
 
                             continue;
                         }

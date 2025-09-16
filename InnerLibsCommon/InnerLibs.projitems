@@ -59,6 +59,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)JSONParser\JsonSerializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)JSONParser\Reflection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)JSONParser\SafeDictionary.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MxLookup.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Numbers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Pix.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SimpleCRUD.cs" />
