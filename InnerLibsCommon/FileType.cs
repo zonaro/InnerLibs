@@ -240,7 +240,8 @@ namespace Extensions.Files
             }
             catch
             {
-            }
+            }         
+
 
             try
             {
@@ -260,7 +261,10 @@ namespace Extensions.Files
                 MimeTypeOrExtensionOrPathOrDataURI = "." + MimeTypeOrExtensionOrPathOrDataURI.TrimAny(true, " ", ".");
             }
 
-            return (FileTypeList ?? GetFileTypeList()).FirstOr(x => x.Extensions.ToArray().Union(x.GetMimeTypesOrDefault().ToArray()).Contains(MimeTypeOrExtensionOrPathOrDataURI, StringComparer.InvariantCultureIgnoreCase), new FileType());
+            FileTypeList = FileTypeList ?? GetFileTypeList();
+
+            return FileTypeList.FirstOrDefault(x => x.Extensions.Contains(MimeTypeOrExtensionOrPathOrDataURI, StringComparer.InvariantCultureIgnoreCase) || x.GetMimeTypesOrDefault().Contains(MimeTypeOrExtensionOrPathOrDataURI, StringComparer.InvariantCultureIgnoreCase)) ?? new FileType();
+
         }
 
         /// <summary>
@@ -421,12 +425,90 @@ namespace Extensions.Files
 
         }
 
+        public bool IsPdf()
+        {
+            return IsType("application") && IsSubType("pdf");
+        }
+
+
+        public bool IsJson()
+        {
+            return IsType("application") && IsSubType("json")
+                || IsType("text") && IsSubType("json")
+                || IsType("application") && IsSubType("x-json")
+                || IsType("text") && IsSubType("x-json");
+        }
+
+        public bool IsCsv()
+        {
+            return IsType("text") && IsSubType("csv")
+                || IsType("application") && IsSubType("csv")
+                || IsType("text") && IsSubType("x-csv")
+                || IsType("application") && IsSubType("x-csv");
+        }
+
+        public bool IsTsv()
+        {
+            return IsType("text") && IsSubType("tsv")
+                || IsType("application") && IsSubType("tsv")
+                || IsType("text") && IsSubType("x-tsv")
+                || IsType("application") && IsSubType("x-tsv");
+        }
+
+        public bool IsData()
+        {
+            return IsTsv() || IsCsv() || IsJson() || IsXml();
+        }
+
+        public bool IsCompressed()
+        {
+            // zip, rar, 7z, tar, gz, bz2, xz
+            return IsType("application") && (IsSubType("zip") || IsSubType("x-rar-compressed") || IsSubType("x-7z-compressed") || IsSubType("x-tar") || IsSubType("gzip") || IsSubType("x-bzip2") || IsSubType("x-xz"));
+        }
+
+        public bool IsExecutable()
+        {
+            // exe, msi, deb, rpm, apk
+            return IsType("application") && (IsSubType("x-msdownload") || IsSubType("x-msi") || IsSubType("x-deb") || IsSubType("x-rpm") || IsSubType("vnd.android.package-archive"));
+        }
+
+        public bool IsOffice()
+        {
+            return IsDocument() || IsSpreadsheet() || IsPresentation();
+        }
+
+        public bool IsDocument()
+        {
+            // word, pdf, rtf, odt, 
+            return IsType("application") && (IsSubType("msword") || IsSubType("vnd.openxmlformats-officedocument.wordprocessingml.document") || IsSubType("pdf") || IsSubType("rtf") || IsSubType("vnd.oasis.opendocument.text"));
+        }
+
+        public bool IsSpreadsheet()
+        {
+            // excel, ods, csv
+            return IsType("application") && (IsSubType("vnd.ms-excel") || IsSubType("vnd.openxmlformats-officedocument.spreadsheetml.sheet") || IsSubType("vnd.oasis.opendocument.spreadsheet") || IsSubType("csv"));
+        }
+        public bool IsPresentation()
+        {
+            // ppt, odp
+            return IsType("application") && (IsSubType("vnd.ms-powerpoint") || IsSubType("vnd.openxmlformats-officedocument.presentationml.presentation") || IsSubType("vnd.oasis.opendocument.presentation"));
+        }
+
+
         public bool IsHtml()
         {
             return IsType("text") && IsSubType("html")
                 || IsType("application") && IsSubType("html")
                 || IsType("text") && IsSubType("x-html")
                 || IsType("application") && IsSubType("x-html");
+        }
+
+        public bool IsXml()
+        {
+            return IsType("application") && IsSubType("xml")
+                || IsType("text") && IsSubType("xml")
+                || IsType("application") && IsSubType("x-xml")
+                || IsType("text") && IsSubType("x-xml");
         }
 
         public IEnumerable<FileInfo> SearchFiles(DirectoryInfo Directory, SearchOption SearchOption = SearchOption.AllDirectories) => Directory.SearchFiles(SearchOption, Extensions.Select(ext => "*" + ext.PrependIf(".", !ext.StartsWith("."))).ToArray());

@@ -2,16 +2,16 @@ using System;
 using System.Security.Cryptography;
 using System.Text;
 using Extensions;
-
+using System;
+using System.Globalization;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Web;
 
 namespace Extensions.BR
 {
-
-
     public static partial class Brasil
     {
-
-
         public static bool ChavePIXValida(this string chave)
         {
             return chave.IsEmail() ||
@@ -55,104 +55,129 @@ namespace Extensions.BR
                 return $"{Label} :{Chave.FormatarChavePIX()}";
         }
 
-
         /// <summary>
-        /// Gera um payload para um QR Code de pagamento via Pix, conforme o padrão EMV.
+        /// Gera um payload para um QR Code de pagamento via Pix, conforme o padrão EMV e regulamentação do Banco Central.
         /// </summary>
-        /// <param name="chavePix"></param>
-        /// <param name="nomeRecebedor"></param>
-        /// <param name="cidadeRecebedor"></param>
-        /// <param name="valor"></param>
-        /// <param name="txId"></param>
-        /// <param name="descricao"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentException"></exception>
+        /// <param name="chavePix">Chave PIX do recebedor (CPF, CNPJ, email, telefone ou chave aleatória)</param>
+        /// <param name="nomeRecebedor">Nome do recebedor (máximo 25 caracteres)</param>
+        /// <param name="cidadeRecebedor">Cidade do recebedor (máximo 15 caracteres)</param>
+        /// <param name="valor">Valor da transação (opcional)</param>
+        /// <param name="txId">Identificador da transação (máximo 25 caracteres, opcional)</param>
+        /// <param name="descricao">Descrição adicional (máximo 72 caracteres, opcional)</param>
+        /// <returns>String do payload PIX para QR Code</returns>
+        /// <exception cref="ArgumentException">Quando os parâmetros são inválidos</exception>
         public static string GerarPayloadPIX(
                string chavePix,
                string nomeRecebedor,
                string cidadeRecebedor,
                decimal? valor = null,       // opcional
                string txId = null,           // opcional
-               string descricao = null       // opcional (não é usado no QR estático oficial, mas pode ser incluído no TXID)
+               string descricao = null       // opcional
            )
         {
-
             // ======== Validações e formatações ========
 
-            if (!Brasil.ChavePIXValida(chavePix)) throw new ArgumentException("A chave Pix inválida");
+            if (!Brasil.ChavePIXValida(chavePix)) 
+                throw new ArgumentException("A chave PIX é inválida");
 
-            /// somente CPF ou CNPJ devem ser sem mascara
-            if (Brasil.CPFouCNPJValido(chavePix)) chavePix = chavePix.RemoveMask();
+            // Somente CPF ou CNPJ devem ser sem máscara
+            if (Brasil.CPFouCNPJValido(chavePix)) 
+                chavePix = chavePix.RemoveMask();
 
-            if (chavePix.Length > 77) throw new ArgumentException("A chave Pix não pode ter mais que 77 caracteres.");
+            if (chavePix.Length > 77) 
+                throw new ArgumentException("A chave PIX não pode ter mais que 77 caracteres.");
 
-            if (nomeRecebedor.IsBlank()) throw new ArgumentException("O nome do recebedor é obrigatório");
+            if (nomeRecebedor.IsBlank()) 
+                throw new ArgumentException("O nome do recebedor é obrigatório");
 
+            // Nome do recebedor: máximo 25 caracteres, sem acentos, maiúsculo
             nomeRecebedor = nomeRecebedor.TrimBetween().RemoveAccents().GetFirstChars(25).ToUpperInvariant();
 
-            if (cidadeRecebedor.IsBlank()) throw new ArgumentException("A cidade do recebedor é obrigatória");
+            if (cidadeRecebedor.IsBlank()) 
+                throw new ArgumentException("A cidade do recebedor é obrigatória");
 
-            cidadeRecebedor = cidadeRecebedor?.Trim().RemoveAccents().GetFirstChars(25).ToUpperInvariant();
+            // Cidade: máximo 15 caracteres conforme padrão do BC
+            cidadeRecebedor = cidadeRecebedor?.Trim().RemoveAccents().GetFirstChars(15).ToUpperInvariant();
 
             if (Brasil.CidadeIBGEValido(cidadeRecebedor))
             {
-                cidadeRecebedor = Brasil.PegarCidade(cidadeRecebedor).Nome;
+                cidadeRecebedor = Brasil.PegarCidade(cidadeRecebedor).Nome.GetFirstChars(15).ToUpperInvariant();
             }
 
             if (txId.IsNotBlank() && txId?.Length > 25)
                 throw new ArgumentException("O TXID não pode ter mais que 25 caracteres.");
 
-            descricao = descricao?.TrimBetween().GetFirstChars(99);
+            // Descrição: máximo 72 caracteres conforme padrão
+            if (descricao.IsNotBlank() && descricao?.Length > 72)
+                throw new ArgumentException("A descrição não pode ter mais que 72 caracteres.");
 
+            descricao = descricao?.TrimBetween().GetFirstChars(72);
+
+            // Função auxiliar para montar campos EMV
             string MontarCampo(string id, string valorCampo)
             {
+                if (valorCampo.IsBlank()) return string.Empty;
                 return id + valorCampo.Length.ToString("00") + valorCampo;
             }
 
-            // 00 - Payload Format Indicator
-            string payload = MontarCampo("00", "01");
+            // ======== Construção do Payload EMV ========
 
-            // 26 - Merchant Account Information
+            string payload = string.Empty;
+
+            // 00 - Payload Format Indicator (obrigatório)
+            payload += MontarCampo("00", "01");
+
+            // 01 - Point of Initiation Method (opcional - para QR reutilizável)
+            if (!valor.HasValue || valor.Value <= 0)
+            {
+                payload += MontarCampo("01", "12"); // QR Code reutilizável
+            }
+
+            // 26 - Merchant Account Information (obrigatório)
             string gui = MontarCampo("00", "br.gov.bcb.pix");
             string chave = MontarCampo("01", chavePix);
-
-            // Se quiser incluir descrição no campo 26 (não obrigatório)
-            string descricaoCampo = string.Empty;
+            
+            // Campo 02 para descrição dentro do MAI (opcional)
+            string descricaoMAI = string.Empty;
             if (descricao.IsNotBlank())
-                descricaoCampo = MontarCampo("02", descricao);
+                descricaoMAI = MontarCampo("02", descricao);
 
-            string merchantAccountInfo = MontarCampo("26", gui + chave + descricaoCampo);
+            string merchantAccountInfo = MontarCampo("26", gui + chave + descricaoMAI);
             payload += merchantAccountInfo;
 
-            // 52 - Merchant Category Code
+            // 52 - Merchant Category Code (obrigatório)
             payload += MontarCampo("52", "0000");
 
-            // 53 - Transaction Currency (986 = BRL)
+            // 53 - Transaction Currency (obrigatório - 986 = BRL)
             payload += MontarCampo("53", "986");
 
             // 54 - Transaction Amount (opcional)
             if (valor.HasValue && valor.Value > 0)
-                payload += MontarCampo("54", valor.Value.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture));
+            {
+                string valorFormatado = valor.Value.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture);
+                payload += MontarCampo("54", valorFormatado);
+            }
 
-            // 58 - Country Code
+            // 58 - Country Code (obrigatório)
             payload += MontarCampo("58", "BR");
 
-            // 59 - Nome do recebedor
+            // 59 - Merchant Name (obrigatório)
             payload += MontarCampo("59", nomeRecebedor);
 
-            // 60 - Cidade do recebedor
+            // 60 - Merchant City (obrigatório)
             payload += MontarCampo("60", cidadeRecebedor);
 
-            // 62 - Additional Data Field Template (TXID opcional)
+            // 62 - Additional Data Field Template (opcional)
             if (txId.IsNotBlank())
             {
                 string txidField = MontarCampo("05", txId);
                 payload += MontarCampo("62", txidField);
             }
 
-            // 63 - CRC16
+            // 63 - CRC16 (obrigatório)
             payload += "6304";
-            payload += CalcularCRC16(payload);
+            string crc = CalcularCRC16(payload);
+            payload += crc;
 
             return payload;
         }

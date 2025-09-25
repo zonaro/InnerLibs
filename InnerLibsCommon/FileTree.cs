@@ -11,7 +11,7 @@ namespace Extensions.Files
     [Serializable]
     public class FileTree : FileSystemInfo, IList<FileTree>
     {
-        private List<FileTree> _children = new List<FileTree>();
+
 
         public FileTree(string Path, FileTree Parent, bool DirectoryOnly = false) : this(Path, Parent, null, DirectoryOnly) { }
         public FileTree(string Path, bool DirectoryOnly = false) : this(Path, null, null, DirectoryOnly) { }
@@ -23,6 +23,7 @@ namespace Extensions.Files
 
             this.OriginalPath = Path;
             this.FullPath = System.IO.Path.GetFullPath(Path);
+            this.DirectoryOnly = DirectoryOnly;
 
             if (this.FullPath.IsPath() == false) throw new ArgumentException("Path is not a valid path", nameof(Path));
 
@@ -36,30 +37,12 @@ namespace Extensions.Files
 
             this.FileSearchPatterns = FileSearchPatterns;
 
-            _children = new List<FileTree>();
-            if (Path.IsDirectoryPath())
-            {
-                if (System.IO.Directory.Exists(Path))
-                {
-                    foreach (var item in System.IO.Directory.EnumerateFileSystemEntries(Path))
-                    {
-                        if (!Children.Any(x => x.Children.Any(y => y.FullName == item)))
-                        {
-                            if (item.IsDirectoryPath() || (item.IsFilePath() && System.IO.Path.GetFileName(item).IsLikeAny(FileSearchPatterns)))
-                            {
-                                if (item.IsFilePath() && DirectoryOnly)
-                                    continue;
-
-                                _children.Add(new FileTree(item, this, FileSearchPatterns));
-                            }
-                        }
-                    }
-                }
-            }
 
         }
 
-        public   IEnumerable<string> FileSearchPatterns { get; private set; }
+        public IEnumerable<string> FileSearchPatterns { get; private set; }
+
+        bool DirectoryOnly { get; set; } = false;
 
         public Dictionary<string, object> ToDictionary(Func<FileTree, Dictionary<string, object>> aditionalInfo = null)
         {
@@ -78,7 +61,7 @@ namespace Extensions.Files
                 Mime,
                 Count,
                 CheckSum = GetCheckSum(),
-                Children = IsDirectory ? _children.Select(x => x.ToDictionary(aditionalInfo)).ToList() : null
+                Children = IsDirectory ? this.Children.Select(x => x.ToDictionary(aditionalInfo)).ToList() : null
             }.CreateDictionary();
 
             if (aditionalInfo != null)
@@ -89,18 +72,35 @@ namespace Extensions.Files
             return dic;
         }
 
-        public string ToJson(Func<FileTree, Dictionary<string, object>> aditionalInfo = null) => ToDictionary(aditionalInfo).ToNiceJson(new JSONParameters()
-        {
-            SerializeBlankStringsAsNull = true,
-            SerializeNullValues = false,
-        });
-        public string ToJson(JSONParameters parameters, Func<FileTree, Dictionary<string, object>> aditionalInfo = null) => ToDictionary(aditionalInfo).ToNiceJson(parameters);
 
-        public IEnumerable<FileTree> Children => _children.AsEnumerable();
+        public IEnumerable<FileTree> Children
+        {
+            get
+            {
+                if (Path.IsDirectoryPath())
+                {
+                    if (System.IO.Directory.Exists(Path))
+                    {
+                        foreach (var item in System.IO.Directory.EnumerateFileSystemEntries(Path))
+                        {
+                            if (!Children.Any(x => x.Children.Any(y => y.FullName == item)))
+                            {
+                                if (item.IsDirectoryPath() || (item.IsFilePath() && System.IO.Path.GetFileName(item).IsLikeAny(FileSearchPatterns)))
+                                {
+                                    if (item.IsFilePath() && DirectoryOnly)
+                                        continue;
+
+                                    yield return new FileTree(item, this, FileSearchPatterns);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
 
         public bool IsDirectory => Path.IsDirectoryPath();
-
 
 
         public bool IsFile => Path.IsFilePath();
@@ -111,12 +111,13 @@ namespace Extensions.Files
 
         public byte[] GetBytes() => IsFile ? File.ReadAllBytes(this.Path) : null;
 
+
         public string GetTextContent() => IsFile ? File.ReadAllText(this.Path) : null;
 
         /// <summary>
         /// Retorna o tamano em bytes deste arquivo ou diretório
         /// </summary>
-        public long Size =>  this.GetSize();
+        public long Size => this.GetSize();
 
         /// <summary>
         /// Retorna o tamano em bytes deste arquivo ou diretório usando a maior unidade de medida possivel
@@ -172,7 +173,7 @@ namespace Extensions.Files
         /// <summary>
         /// Retorno a quantidade de arquivos deste diretório
         /// </summary>
-        public int Count => IsDirectory ? _children.Count : this.Parent?.Count ?? this.Directory.EnumerateFileSystemInfos().Count();
+        public int Count => IsDirectory ? Children.Count() : this.Parent?.Count ?? this.Directory.EnumerateFileSystemInfos().Count();
 
         public bool IsReadOnly => false;
 
@@ -230,7 +231,6 @@ namespace Extensions.Files
                     new FileInfo(item.FullName).MoveTo(System.IO.Path.Combine(this.Directory.FullName, item.Name));
                 }
                 item.Parent = this;
-                _children.Insert(index, item);
             }
 
         }
@@ -246,19 +246,18 @@ namespace Extensions.Files
                 var item = Children.FirstOrDefault(x => x.Index == index);
                 if (item != null)
                 {
-                    if (item.Exists) item.Delete();
-                    _children.Remove(item);
+                    if (item.Exists) item.Delete();                  
                 }
 
             }
 
         }
 
-        public void Add(FileTree item) => Insert(_children.LastOrDefault()?.Index ?? 0, item);
+        public void Add(FileTree item) => Insert(Children.LastOrDefault()?.Index ?? 0, item);
 
         public void Clear()
         {
-            while (_children.Count > 0)
+            while (Children.Count() > 0)
             {
                 RemoveAt(0);
             }
@@ -266,10 +265,10 @@ namespace Extensions.Files
 
         public bool Contains(FileTree item) => Children.Contains(item);
 
-        public void CopyTo(FileTree[] array, int arrayIndex) => _children.CopyTo(array, arrayIndex);
+        public void CopyTo(FileTree[] array, int arrayIndex) => Children.ToList().CopyTo(array, arrayIndex);
 
         /// <summary>
-        /// DeleteCliente and remove a file or directory from tree
+        /// Delete and remove a file or directory from tree
         /// </summary>
         /// <param name="item"></param>
         /// <returns></returns>

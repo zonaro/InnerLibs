@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
@@ -23,7 +24,7 @@ namespace Extensions.Mail
         #region Public Methods
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="Recipients"></param>
@@ -108,7 +109,7 @@ namespace Extensions.Mail
         /// Represents a Simple Mail Transfer Protocol (SMTP) client that can be used to send email using Outlook Provider.
         /// </summary>
         public static SmtpClient OutlookSmtp() => new SmtpClient("smtp-mail.outlook.com", 587) { EnableSsl = true };
-        
+
         /// <summary>
         /// Represents a Simple Mail Transfer Protocol (SMTP) client that can be used to send email using Hostinger Provider.
         /// </summary>
@@ -146,11 +147,32 @@ namespace Extensions.Mail
     {
         #region Private Fields
 
-        private List<(TemplateMailAddress<T>, SentStatus, Exception)> _status = new List<(TemplateMailAddress<T>, SentStatus, Exception)>();
+        private List<(TemplateMailAddress<T> Template, SentStatus Status, Exception Error)> _status = new List<(TemplateMailAddress<T> Template, SentStatus Status, Exception Error)>();
 
         #endregion Private Fields
 
         #region Private Methods
+
+        public bool CaseSensitive { get; set; } = false;
+
+        public CultureInfo Culture { get; set; } = CultureInfo.InvariantCulture;
+
+        public FluentMailMessage<T> WithCulture(string culture)
+        {
+            Culture = new CultureInfo(culture);
+            return this;
+        }
+        public FluentMailMessage<T> WithCulture(CultureInfo culture)
+        {
+            this.Culture = culture ?? CultureInfo.InvariantCulture;
+            return this;
+        }
+
+        public FluentMailMessage<T> WithCaseSensitive(bool CaseSensitive)
+        {
+            this.CaseSensitive = CaseSensitive;
+            return this;
+        }
 
         /// <summary>
         /// Envia os emails
@@ -231,7 +253,7 @@ namespace Extensions.Mail
         /// <summary>
         /// Lista contendo os endereços de email que encontraram algum erro ao serem enviados
         /// </summary>
-        public IEnumerable<(TemplateMailAddress<T>, Exception)> ErrorList => SentStatusList.Where(x => x.Status.HasFlag(SentStatus.Error)).Select(x => (x.Destination, x.Error));
+        public IEnumerable<(TemplateMailAddress<T> Template, Exception Error)> ErrorList => SentStatusList.Where(x => x.Status.HasFlag(SentStatus.Error)).Select(x => (x.Destination, x.Error));
 
         /// <summary>
         /// Status geral do disparo
@@ -466,8 +488,8 @@ namespace Extensions.Mail
                         {
                             if (templateMail.TemplateData != null)
                             {
-                                msg = msg.Inject(templateMail.TemplateData);
-                                subj = subj.Inject(templateMail.TemplateData);
+                                msg = msg.Inject(templateMail.TemplateData, Culture, CaseSensitive);
+                                subj = subj.Inject(templateMail.TemplateData, Culture, CaseSensitive);
                             }
                             foreach (var att in templateMail.Attachments) msgIndiv.Attachments.Add(att);
                         }
@@ -549,7 +571,7 @@ namespace Extensions.Mail
         /// <returns></returns>
         public FluentMailMessage<T> ResetStatus()
         {
-            _status = _status ?? new List<(TemplateMailAddress<T>, SentStatus, Exception)>();
+            _status = _status ?? new List<(TemplateMailAddress<T> Template, SentStatus Status, Exception Error)>();
             _status.Clear();
             return this;
         }
@@ -622,7 +644,7 @@ namespace Extensions.Mail
             return this;
         }
 
-      /// <summary>
+        /// <summary>
         /// Configura o SMTP do Outlook para este disparo
         /// </summary>
         /// <returns></returns>
@@ -638,15 +660,7 @@ namespace Extensions.Mail
         /// <returns></returns>
         public FluentMailMessage<T> WithMessage(string Message) => WithMessage("{Message}", new { Message });
 
-        /// <summary>
-        /// Configura a mensagem a ser enviada
-        /// </summary>
-        /// <returns></returns>
-        public FluentMailMessage<T> WithMessage(HtmlNode Text)
-        {
-            IsBodyHtml = true;
-            return WithMessage(Text?.ToString() ?? "");
-        }
+        
 
         /// <summary>
         /// Utiliza um template para o corpo da mensagem
@@ -655,16 +669,7 @@ namespace Extensions.Mail
         /// <returns></returns>
         public FluentMailMessage<T> WithMessage(string TemplateOrFilePathOrUrl, string Message) => WithMessage(TemplateOrFilePathOrUrl, new { Message, PreviewMessage = Message.GetTextPreview(100) });
 
-        /// <summary>
-        /// Utiliza um template para o corpo da mensagem
-        /// </summary>
-        public FluentMailMessage<T> WithMessage(HtmlNode Template, string Message) => WithMessage(Template?.OuterHtml ?? Util.EmptyString, new { Message, PreviewMessage = Message.GetTextPreview(100) }).With(x => x.IsBodyHtml = true);
-
-        /// <summary>
-        /// Utiliza um template para o corpo da mensagem
-        /// </summary>
-        public FluentMailMessage<T> WithMessage<TMessage>(HtmlNode Template, TMessage MessageTemplate) where TMessage : class => WithMessage(Template?.OuterHtml ?? Util.EmptyString, MessageTemplate).With(x => x.IsBodyHtml = true);
-
+       
         /// <summary>
         /// Utiliza um template para o corpo da mensagem
         /// </summary>
@@ -673,7 +678,7 @@ namespace Extensions.Mail
         /// <summary>
         /// Utiliza um template para o corpo da mensagem
         /// </summary>
-        public FluentMailMessage<T> WithMessage(FileInfo Template, string Message) => WithMessage(Template?.FullName,  Message);
+        public FluentMailMessage<T> WithMessage(FileInfo Template, string Message) => WithMessage(Template?.FullName, Message);
 
         /// <summary>
         /// Utiliza um template para o corpo da mensagem
@@ -688,12 +693,12 @@ namespace Extensions.Mail
         /// <summary>
         /// Utiliza um template para o corpo da mensagem
         /// </summary>
-        public FluentMailMessage<T> WithMessage(DirectoryInfo TemplateDirectory, string TemplateFileName, string Message)  => WithMessage(Path.Combine(TemplateDirectory?.FullName ?? Util.EmptyString, TemplateFileName ?? Util.EmptyString), Message);
+        public FluentMailMessage<T> WithMessage(DirectoryInfo TemplateDirectory, string TemplateFileName, string Message) => WithMessage(Path.Combine(TemplateDirectory?.FullName ?? Util.EmptyString, TemplateFileName ?? Util.EmptyString), Message);
 
         /// <summary>
         /// Utiliza um template para o corpo da mensagem
         /// </summary>
-        public FluentMailMessage<T> WithMessage<TMessage>(DirectoryInfo TemplateDirectory, string TemplateFileName, TMessage DataToInject) where TMessage:class=> WithMessage(Path.Combine(TemplateDirectory?.FullName ?? Util.EmptyString, TemplateFileName ?? Util.EmptyString), DataToInject);
+        public FluentMailMessage<T> WithMessage<TMessage>(DirectoryInfo TemplateDirectory, string TemplateFileName, TMessage DataToInject) where TMessage : class => WithMessage(Path.Combine(TemplateDirectory?.FullName ?? Util.EmptyString, TemplateFileName ?? Util.EmptyString), DataToInject);
 
         /// <summary>
         /// Utiliza um template para o corpo da mensagem.
@@ -715,7 +720,7 @@ namespace Extensions.Mail
 
             if (DataToInject != null)
             {
-                TemplateOrFilePathOrUrl = TemplateOrFilePathOrUrl.Inject(DataToInject);
+                TemplateOrFilePathOrUrl = TemplateOrFilePathOrUrl.Inject(DataToInject, Culture, CaseSensitive);
             }
 
             Body = TemplateOrFilePathOrUrl;
@@ -781,12 +786,11 @@ namespace Extensions.Mail
             return this;
         }
 
-        /// <summary>
-        /// Configura o SMTP para este disparo a partir de um email e senha
-        /// </summary>
-        /// <returns></returns>
-        public FluentMailMessage<T> WithQuickConfig(string Email, string Password)
+        public static SmtpClient FindSmtp(string Email)
         {
+            if (Email.IsEmail() == false)
+                throw new ArgumentException("Email is not valid", nameof(Email));
+
             var domain = Email.GetDomain();
 
             switch (domain)
@@ -794,23 +798,34 @@ namespace Extensions.Mail
                 case "outlook.com":
                 case "outlook.com.br":
                 case "hotmail.com":
-                    WithOutlookSmtp();
-                    break;
+                case "live.com":
+                    return FluentMailMessage.OutlookSmtp();
 
                 case "office365.com":
-                    WithOffice365Smtp();
-                    break;
+                    return FluentMailMessage.Office365Smtp();
 
                 case "gmail.com":
-                    WithGmailSmtp();
-                    break;
+                    return FluentMailMessage.GmailSmtp();
 
                 default:
-                    WithSmtp($"smtp.{domain}", 587, false);
-                    break;
+                    return new SmtpClient($"smtp.{domain}", 587) { EnableSsl = true };
             }
+        }
 
-            Util.WriteDebug($"Using {Smtp.Host}");
+        /// <summary>
+        /// Configura o SMTP para este disparo a partir de um email e senha
+        /// </summary>
+        /// <returns></returns>
+        public FluentMailMessage<T> WithQuickConfig(string Email, string Password)
+        {
+            if (Email.IsEmail() == false)
+                throw new ArgumentException("Email is not valid", nameof(Email));
+
+            var domain = Email.GetDomain();
+
+            var smtp = FindSmtp(Email);
+
+            WithSmtp(smtp);
 
             WithCredentials(Email, Password);
 
@@ -911,9 +926,8 @@ namespace Extensions.Mail
             this.TemplateData = TemplateData;
         }
 
-        public TemplateMailAddress(string address ) : base(address)
+        public TemplateMailAddress(string address) : base(address)
         {
-            
         }
 
         public TemplateMailAddress(string address, string displayName, T TemplateData) : base(address, displayName)

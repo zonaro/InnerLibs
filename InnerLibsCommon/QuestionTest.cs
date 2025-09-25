@@ -5,15 +5,13 @@ using System.Collections.Specialized;
 using System.Drawing;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Text;
 using Extensions;
 using Extensions.Web;
 
 namespace Extensions.QuestionTests
 {
-
-
-
-    public static class QuestionTesTextensions
+    public static class QuestionTestExtensions
     {
         #region Public Methods
 
@@ -48,8 +46,6 @@ namespace Extensions.QuestionTests
 
         #endregion Internal Fields
 
-
-
         #region Internal Constructors
 
         internal Alternative(AlternativeQuestion question)
@@ -58,8 +54,6 @@ namespace Extensions.QuestionTests
         }
 
         #endregion Internal Constructors
-
-
 
         #region Public Properties
 
@@ -105,7 +99,6 @@ namespace Extensions.QuestionTests
                         Question.Alternatives.Move(oldindex, value);
                     else
                         Question.Alternatives.Insert(value, this);
-
                 }
             }
         }
@@ -120,8 +113,6 @@ namespace Extensions.QuestionTests
         public string Text { get; set; }
 
         #endregion Public Properties
-
-
 
         #region Public Methods
 
@@ -144,17 +135,12 @@ namespace Extensions.QuestionTests
 
         #endregion Internal Constructors
 
-
-
         #region Public Properties
 
         [IgnoreDataMember]
-
         public AlternativeQuestion Question { get; private set; }
 
         #endregion Public Properties
-
-
 
         #region Protected Methods
 
@@ -215,8 +201,6 @@ namespace Extensions.QuestionTests
 
         #endregion Internal Constructors
 
-
-
         #region Public Properties
 
         /// <summary>
@@ -238,8 +222,6 @@ namespace Extensions.QuestionTests
         public IEnumerable<Alternative> Answer => Alternatives.Where(p => p.Checked ?? false);
 
         #endregion Public Properties
-
-
 
         #region Public Methods
 
@@ -278,18 +260,13 @@ namespace Extensions.QuestionTests
 
         #endregion Private Fields
 
-
-
         #region Internal Constructors
 
         internal DissertativeQuestion(QuestionTest Test) : base(Test)
         {
-
         }
 
         #endregion Internal Constructors
-
-
 
         #region Public Properties
 
@@ -356,12 +333,9 @@ namespace Extensions.QuestionTests
 
         internal MultipleAlternativeQuestion(QuestionTest Test) : base(Test)
         {
-
         }
 
         #endregion Internal Constructors
-
-
 
         #region Public Properties
 
@@ -396,18 +370,13 @@ namespace Extensions.QuestionTests
 
         #endregion Private Fields
 
-
-
         #region Internal Constructors
 
         internal NumericQuestion(QuestionTest Test) : base(Test)
         {
-
         }
 
         #endregion Internal Constructors
-
-
 
         #region Public Properties
 
@@ -469,8 +438,6 @@ namespace Extensions.QuestionTests
 
         #endregion Internal Fields
 
-
-
         #region Internal Constructors
 
         internal Question(QuestionTest Test)
@@ -480,8 +447,6 @@ namespace Extensions.QuestionTests
         }
 
         #endregion Internal Constructors
-
-
 
         #region Public Properties
 
@@ -514,7 +479,6 @@ namespace Extensions.QuestionTests
             get
             {
                 return Test.IndexOf(this) + 1;
-
             }
 
             set
@@ -527,7 +491,6 @@ namespace Extensions.QuestionTests
                         Test.Move(oldindex, value);
                     else
                         Test.Insert(value, this);
-
                 }
             }
         }
@@ -562,7 +525,6 @@ namespace Extensions.QuestionTests
             }
         }
 
-
         public QuestionTest Test => _test;
 
         /// <summary>
@@ -577,8 +539,6 @@ namespace Extensions.QuestionTests
         }
 
         #endregion Public Properties
-
-
 
         #region Public Methods
 
@@ -604,15 +564,11 @@ namespace Extensions.QuestionTests
 
         #endregion Internal Fields
 
-
-
         #region Internal Constructors
 
         internal QuestionStatement() => this.Images = new StatementImages(this);
 
         #endregion Internal Constructors
-
-
 
         #region Public Properties
 
@@ -637,8 +593,6 @@ namespace Extensions.QuestionTests
         }
 
         #endregion Public Properties
-
-
 
         #region Public Methods
 
@@ -689,8 +643,6 @@ namespace Extensions.QuestionTests
 
         #endregion Public Constructors
 
-
-
         #region Public Properties
 
         /// <summary>
@@ -728,7 +680,6 @@ namespace Extensions.QuestionTests
         /// </summary>
         /// <remarks>Coloque todas as avaliações em uma <see cref="IEnumerable{QuestionTest}"/> e utilize o metodo <see cref="QuestionTesTextensions.Rank(IEnumerable{QuestionTest})"/></remarks>
         public int Rank { get; set; }
-
 
         public string Footer { get; set; }
 
@@ -789,8 +740,6 @@ namespace Extensions.QuestionTests
         public decimal Weight { get; set; } = 10m;
 
         #endregion Public Properties
-
-
 
         #region Protected Methods
 
@@ -952,9 +901,6 @@ namespace Extensions.QuestionTests
             return q;
         }
 
-
-
-
         public SingleAlternativeQuestion CreateSingleAlternativeQuestion(string Statement, params string[] Alternatives)
         {
             var q = new SingleAlternativeQuestion(this);
@@ -980,26 +926,7 @@ namespace Extensions.QuestionTests
 
         public override bool Equals(object obj) => CompareTo(obj) == 0;
 
-        /// <summary>
-        /// Rodapé da prova. Texto adicional que ficará após as questões
-        /// </summary>
-        /// <returns></returns>
-        /// <summary>
-        /// Cabeçalho da prova. Texto adicional que ficará antes das questões e apoós o título
-        /// </summary>
-        /// <returns></returns>
-        /// <summary>
-        /// Porcentagem de Acertos do Usuário
-        /// </summary>
-        /// <returns></returns>
-        /// <summary>
-        /// Numero de questões que o usuário acertou
-        /// </summary>
-        /// <returns></returns>
-        /// <summary>
-        ///Id da prova, para identifica-la como unica
-        /// </summary>
-        /// <returns></returns>
+     
         public QuestionTest GenerateID()
         {
             ID = Guid.NewGuid().ToString();
@@ -1074,92 +1001,125 @@ namespace Extensions.QuestionTests
         }
 
         /// <summary>
-        /// Retorna uma <see cref="HtmlNode" /> contendo um formulário com esta <see cref="QuestionTest" />
+        /// Retorna uma <see cref="string" /> contendo um formulário com esta <see cref="QuestionTest" />
         /// </summary>
         /// <returns></returns>
-        public HtmlNode ToHTML()
+        public string ToHTML()
         {
-            var form = new HtmlElementNode("form");
-            var header = new HtmlElementNode("header").InsertInto(form) as HtmlElementNode;
+            var html = new StringBuilder();
+
+            // Form
+            html.Append("<form>");
+
+            // Header
+            html.Append("<header>");
 
             if (Title.IsValid())
             {
-                header.Add("h1", Title).AddClass("main-title");
+                html.Append("<h1 class=\"main-title\">");
+                html.Append(Title);
+                html.Append("</h1>");
             }
+
             if (PersonalInfo != null && PersonalInfo.Any())
             {
-                var section = new HtmlElementNode("section")
-                .AddClass("personal-info")
-                .InsertInto(header) as HtmlElementNode;
+                html.Append("<section class=\"personal-info\">");
 
                 foreach (var inf in PersonalInfo)
                 {
-                    new HtmlElementNode("div")
-                    .AddClass("personal-info-item")
-                   .Add("label", inf.Key)
-                   .Add(HtmlElementNode.CreateInput($"{inf.Key}_personalinfo_input", $"{inf.Value}"))
-                   .AddBreakLine()
-                   .InsertInto(section);
+                    html.Append("<div class=\"personal-info-item\">");
+                    html.Append("<label>");
+                    html.Append(inf.Key);
+                    html.Append("</label>");
+                    html.Append($"<input name=\"{inf.Key}_personalinfo_input\" value=\"{inf.Value}\" />");
+                    html.Append("<br />");
+                    html.Append("</div>");
                 }
+
+                html.Append("</section>");
             }
 
-            header.AddHorizontalRule();
+            html.Append("<hr />");
+            html.Append("</header>");
 
-            var list = new HtmlElementNode("section").AddClass("question-list").InsertInto(form) as HtmlElementNode;
+            // Question list
+            html.Append("<section class=\"question-list\">");
 
             foreach (var quest in this.Questions)
             {
-                var sq = new HtmlElementNode("article").AddClass($"question-{quest.Number}").SetID(quest.ID)
-                .Add(quest.Statement.ToString().WrapInTag("h3").AddClass($"question-Text-{quest.Number}")).InsertInto(list) as HtmlElementNode;
+                html.Append($"<article class=\"question-{quest.Number}\" id=\"{quest.ID}\">");
+                html.Append($"<h3 class=\"question-Text-{quest.Number}\">");
+                html.Append(quest.Statement.ToString());
+                html.Append("</h3>");
 
                 if (quest.Statement.Images.Any())
                 {
-                    var imgpart = new HtmlElementNode("div").AddClass($"images-{quest.Number}").InsertInto(sq) as HtmlElementNode;
+                    html.Append($"<div class=\"images-{quest.Number}\">");
                     foreach (var i in quest.Statement.Images)
                     {
-                        new HtmlElementNode("figure")
-                        .Add(HtmlElementNode.CreateImage(i.Image).SetAttribute("alt", i.Subtitle).SetID(i.ID).AddClass($"img-{i.Number}"))
-                        .Add("figcaption", $"{i.Number} - {i.Subtitle}").AddClass($"cap-{i.Number}")
-                        .InsertInto(imgpart);
+                        html.Append("<figure>");
+                        html.Append($"<img src=\"{i.Image?.ToDataURL()}\" alt=\"{i.Subtitle}\" id=\"{i.ID}\" class=\"img-{i.Number}\" />");
+                        html.Append($"<figcaption class=\"cap-{i.Number}\">");
+                        html.Append($"{i.Number} - {i.Subtitle}");
+                        html.Append("</figcaption>");
+                        html.Append("</figure>");
                     }
-
+                    html.Append("</div>");
                 }
 
                 if (quest is DissertativeQuestion diss)
                 {
-                    new HtmlElementNode("Textarea", diss.Answer).SetID(diss.ID).SetAttribute("name", diss.ID).SetAttribute("rows", $"{diss.Lines}").InsertInto(sq);
+                    html.Append($"<textarea id=\"{diss.ID}\" name=\"{diss.ID}\" rows=\"{diss.Lines}\">");
+                    html.Append(diss.Answer);
+                    html.Append("</textarea>");
                 }
                 else if (quest is AlternativeQuestion altquest)
                 {
-                    var alts = new HtmlElementNode("div").AddClass("alt-" + altquest.ID).InsertInto(sq) as HtmlElementNode;
+                    html.Append($"<div class=\"alt-{altquest.ID}\">");
                     foreach (var alt in altquest.Alternatives)
                     {
-                        var lab = new HtmlElementNode("label").SetAttribute("for", alt.ID).InsertInto(alts) as HtmlElementNode;
+                        html.Append($"<label for=\"{alt.ID}\">");
 
                         if (altquest is MultipleAlternativeQuestion)
                         {
-                            HtmlElementNode.CreateInput(alt.Question.ID, alt.ID, "checkbox").SetProp("checked", alt.Checked ?? false).InsertInto(lab);
+                            html.Append($"<input type=\"checkbox\" name=\"{alt.Question.ID}\" value=\"{alt.ID}\"");
+                            if (alt.Checked ?? false)
+                                html.Append(" checked");
+                            html.Append(" />");
                         }
                         else
                         {
-                            HtmlElementNode.CreateInput(alt.Question.ID, alt.ID, "radio").SetProp("checked", alt.Checked ?? false).InsertInto(lab);
+                            html.Append($"<input type=\"radio\" name=\"{alt.Question.ID}\" value=\"{alt.ID}\"");
+                            if (alt.Checked ?? false)
+                                html.Append(" checked");
+                            html.Append(" />");
                         }
 
-                        lab.Add("span", alt.Text).AddBreakLine();
-
+                        html.Append("<span>");
+                        html.Append(alt.Text);
+                        html.Append("</span>");
+                        html.Append("<br />");
+                        html.Append("</label>");
                     }
-
+                    html.Append("</div>");
                 }
                 else if (quest is NumericQuestion num)
                 {
-                    HtmlElementNode.CreateInput(num.ID, $"{num.Answer}", "number").SetID(num.ID).SetAttribute("min", $"{num.MinValue}").SetAttribute("max", $"{num.MaxValue}").InsertInto(sq);
+                    html.Append($"<input type=\"number\" id=\"{num.ID}\" value=\"{num.Answer}\" min=\"{num.MinValue}\" max=\"{num.MaxValue}\" />");
                 }
+
+                html.Append("</article>");
             }
 
-            return form;
+            html.Append("</section>");
+            html.Append("</form>");
+
+            return html.ToString();
         }
 
-        public override string ToString() => ToHTML()?.OuterHtml ?? Util.EmptyString;
+        public override string ToString()
+       => ToHTML();
+
     }
 
     /// <summary>
@@ -1175,8 +1135,6 @@ namespace Extensions.QuestionTests
         }
 
         #endregion Internal Constructors
-
-
 
         #region Public Properties
 
@@ -1226,8 +1184,6 @@ namespace Extensions.QuestionTests
 
         #endregion Internal Constructors
 
-
-
         #region Public Properties
 
         /// <summary>
@@ -1247,7 +1203,6 @@ namespace Extensions.QuestionTests
         public int Number => Statement.Question.Test.SelectMany(x => x.Statement.Images).GetIndexOf(this);
 
         [IgnoreDataMember]
-
         public Question Question => Statement.Question;
 
         [IgnoreDataMember]
@@ -1261,7 +1216,6 @@ namespace Extensions.QuestionTests
         public string Subtitle { get; set; } = Util.EmptyString;
 
         [IgnoreDataMember]
-
         public QuestionTest Test => Question.Test;
 
         #endregion Public Properties
@@ -1281,15 +1235,11 @@ namespace Extensions.QuestionTests
 
         #endregion Internal Constructors
 
-
-
         #region Public Properties
 
         public QuestionStatement Statement { get; private set; }
 
         #endregion Public Properties
-
-
 
         #region Public Methods
 

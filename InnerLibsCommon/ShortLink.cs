@@ -61,7 +61,7 @@ namespace Exttensions.Web
 
         #region Public Properties
 
-        public string UrlPattern { get => urlPattern; set => urlPattern = value.ValidateOr(x => x.IsURL(), UrlPattern); }
+        public string UrlPattern { get => urlPattern; set => urlPattern = value.ValidateOr( UrlPattern, x => x.IsURL().ToString()); }
 
         #endregion Public Properties
 

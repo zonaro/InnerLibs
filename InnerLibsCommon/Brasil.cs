@@ -617,6 +617,11 @@ namespace Extensions.BR
                 NomeDaCidadeOuIBGE = NomeDaCidadeOuIBGE.GetBefore(" -").TrimBetween();
             }
 
+            if (NomeDaCidadeOuIBGE.IsBlank() && NomeOuUFOuIBGE.IsBlank())
+            {
+                return null;
+            }
+
             var est = PegarEstado(NomeOuUFOuIBGE) ?? PegarEstado(NomeDaCidadeOuIBGE);
             var cids = PesquisarCidade(NomeDaCidadeOuIBGE, NomeOuUFOuIBGE, Similaridade);
             return cids.FirstOrDefault(x => x.IBGE == NomeDaCidadeOuIBGE.RemoveMaskInt()) ?? cids.OrderByDescending(x => x.Nome.SimilarityCaseInsensitive(NomeDaCidadeOuIBGE)).ThenByDescending(x => x.Capital).FirstOrDefault() ?? est?.Capital;

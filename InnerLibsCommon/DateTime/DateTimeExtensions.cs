@@ -4,25 +4,160 @@ using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using Extensions;
 using Extensions.Dates;
 
 namespace Extensions
 {
-
-
     /// <summary>
     /// Static class containing <see cref="DateTime"/> extension methods.
     /// </summary>
     public static partial class Util
     {
+        /// <summary>
+        /// Extracts all date values from the specified text based on the provided culture and optional settings.
+        /// </summary>
+        /// <remarks>This method uses regular expressions to identify potential date patterns in the input
+        /// text. It attempts to parse each match into a <see cref="DateTime"/> object using the specified
+        /// culture.</remarks>
+        /// <param name="Text">The input text to search for date values.</param>
+        /// <param name="culture">The culture used to interpret date formats. If <see langword="null"/>, the current culture is used.</param>
+        /// <param name="includeNames">A value indicating whether to include date patterns that use month names in
+        /// addition to standard date formats.</param>
+        /// <returns>An enumerable collection of <see cref="DateTime"/> objects representing the dates found in the text. If no
+        /// dates are found, the collection will be empty.</returns>
+        public static IEnumerable<DateTime> ExtractDates(this string Text, CultureInfo culture = null, bool includeNames = false)
+        {
+            culture = culture ?? CultureInfo.CurrentCulture;
 
+            foreach (var regex in culture.GetDateRegexPatterns(includeNames))
+            {
+                var matches = Regex.Matches(Text, regex);
+                foreach (Match match in matches)
+                {
+                    if (DateTime.TryParse(match.Value, culture, DateTimeStyles.None, out DateTime parsedDate))
+                    {
+                        yield return parsedDate;
+                    }
+                }
+            }
+        }
 
+        public static decimal CalculateTimelinePercent(this string TimeLine, CultureInfo culture = null)
+        {
+            var dateParts = TimeLine.ExtractDates(culture).ToList();
+            dateParts.Sort();
 
+            if (dateParts.Count == 2)
+            {
+                WriteDebug($"Parsing timeline percent of {DateTime.Now} between {dateParts.First()} and {dateParts.Last()}");
+                return DateTime.Now.CalculateTimelinePercent(dateParts.First(), dateParts.Last());
+            }
+
+            if (dateParts.Count == 3)
+            {
+                var first = dateParts.First();
+                var mid = dateParts[1];
+                var last = dateParts.Last();
+
+                WriteDebug($"Parsing timeline percent of {mid} between {first} and {last}");
+                return mid.CalculateTimelinePercent(first, last);
+            }
+            else
+            {
+                throw new FormatException($"TimeLine percent needs to be 2 or 3 dates in a string");
+            }
+        }
+
+        /// <summary>
+        /// Calculates the percentage of a date within a timeline defined by a start and end date.
+        /// </summary>
+        /// <param name="MidDate">The date to check (usually Now)</param>
+        /// <param name="StartDate">The start date of the timeline</param>
+        /// <param name="EndDate">The end date of the timeline</param>
+        /// <returns>A decimal representing the percentage of the MidDate within the timeline</returns>
+        public static decimal CalculateTimelinePercent(this DateTime MidDate, DateTime StartDate, DateTime EndDate)
+        {
+            (StartDate, EndDate) = Util.FixOrder(StartDate, EndDate);
+            if (MidDate < StartDate) return 0m;
+
+            if (MidDate > EndDate) return 100m;
+
+            decimal part = (MidDate - StartDate).Ticks;
+            decimal total = (EndDate - StartDate).Ticks;
+
+            return CalculatePercent(part, total);
+        }
+
+        /// <summary>
+        /// Returns a list of regex patterns for matching date strings based on the specified culture.
+        /// </summary>
+        /// <param name="culture">The culture to use for date formatting.</param>
+        /// <param name="includeNames">Whether to include month and day names in date patterns.</param>
+        /// <returns>A list of regex patterns for matching date strings.</returns>
+        public static IEnumerable<string> GetDateRegexPatterns(this CultureInfo culture, bool includeNames = false)
+        {
+            culture = culture ?? CultureInfo.InvariantCulture;
+
+            var patterns = new List<string>();
+            var dtfi = culture.DateTimeFormat;
+
+            // Get all date patterns for the culture
+            var datePatterns = dtfi.GetAllDateTimePatterns();
+
+            // Prepare localized month/day names if requested
+            string monthNamesPattern = null;
+            string dayNamesPattern = null;
+
+            if (includeNames)
+            {
+                var monthNames = dtfi.MonthNames
+                    .Where(m => !string.IsNullOrEmpty(m))
+                    .Select(Regex.Escape);
+                var abbrevMonths = dtfi.AbbreviatedMonthNames
+                    .Where(m => !string.IsNullOrEmpty(m))
+                    .Select(Regex.Escape);
+
+                monthNamesPattern = "(" + string.Join("|", monthNames.Concat(abbrevMonths)) + ")";
+
+                var dayNames = dtfi.DayNames
+                    .Where(d => !string.IsNullOrEmpty(d))
+                    .Select(Regex.Escape);
+                var abbrevDays = dtfi.AbbreviatedDayNames
+                    .Where(d => !string.IsNullOrEmpty(d))
+                    .Select(Regex.Escape);
+
+                dayNamesPattern = "(" + string.Join("|", dayNames.Concat(abbrevDays)) + ")";
+            }
+
+            foreach (var pattern in datePatterns)
+            {
+                string regexPattern = Regex.Escape(pattern);
+
+                // Replace tokens with regex equivalents
+                regexPattern = regexPattern
+                    .Replace("dddd", includeNames ? dayNamesPattern : @"\w+")
+                    .Replace("ddd", includeNames ? dayNamesPattern : @"\w+")
+                    .Replace("MMMM", includeNames ? monthNamesPattern : @"\w+")
+                    .Replace("MMM", includeNames ? monthNamesPattern : @"\w+")
+                    .Replace("MM", @"\d{1,2}")
+                    .Replace("M", @"\d{1,2}")
+                    .Replace("dd", @"\d{1,2}")
+                    .Replace("d", @"\d{1,2}")
+                    .Replace("yyyy", @"\d{4}")
+                    .Replace("yy", @"\d{2}");
+
+                // Allow flexible whitespace
+                regexPattern = regexPattern.Replace(@"\ ", @"\s+");
+
+                patterns.Add(@"\b" + regexPattern + @"\b");
+            }
+
+            return patterns.Distinct();
+        }
 
         #region Public Properties
-
-
 
         public static DateTime Tomorrow => DateTime.Now.AddDays(1);
 
@@ -32,11 +167,10 @@ namespace Extensions
 
         #region Public Methods
 
-
         public static TimeSpan ParseDuration(this string input, string mask = "HH:mm:ss")
         {
             if (input.IsBlank()) return TimeSpan.Zero;
-            if (mask.IsBlank()) mask = "HH:mm:ss"; 
+            if (mask.IsBlank()) mask = "HH:mm:ss";
             // Faz o parse como DateTime
             DateTime dt = DateTime.ParseExact(
                 input,
@@ -51,8 +185,6 @@ namespace Extensions
             // Retorna o TimeSpan com dias + parte de tempo
             return new TimeSpan(days, dt.Hour, dt.Minute, dt.Second, dt.Millisecond);
         }
-
-
 
         /// <summary>
         /// Adds the given number of business days to the <see cref="DateTime"/>.
@@ -293,30 +425,6 @@ namespace Extensions
         public static DateTime BeginningOfYear(this DateTime date, int timezoneOffset) => date.FirstDayOfYear().BeginningOfDay(timezoneOffset);
 
         /// <summary>
-        /// Calcula a porcentagem de diferenca entre duas datas de acordo com a data inicial especificada
-        /// </summary>
-        /// <param name="MidDate">Data do meio a ser verificada (normalmente Now)</param>
-        /// <param name="StartDate">Data Inicial</param>
-        /// <param name="EndDate">Data Final</param>
-        /// <returns></returns>
-        public static decimal CalculateTimelinePercent(this DateTime MidDate, DateTime StartDate, DateTime EndDate)
-        {
-            (StartDate, EndDate) = Util.FixOrder(StartDate, EndDate);
-            if (MidDate < StartDate)
-            {
-                return 0m;
-            }
-
-            if (MidDate > EndDate)
-            {
-                return 100m;
-            }
-
-            return (decimal)((MidDate - StartDate).Ticks * 100L / (double)(EndDate - StartDate).Ticks);
-        }
-
-
-        /// <summary>
         /// Clear Milliseconds from <see cref="DateTime"/>
         /// </summary>
         /// <param name="Date"></param>
@@ -498,6 +606,7 @@ namespace Extensions
         /// 2011-12-24T06:40:20.005 =&gt; 2011-12-25T23:59:59.999
         /// </summary>
         public static DateTime EndOfWeek(this DateTime date) => date.LastDayOfWeek().EndOfDay();
+
         public static DateTime EndOfWeek(this DateTime date, CultureInfo culture) => date.LastDayOfWeek(culture).EndOfDay();
 
         public static DateTime EndOfWeek(this DateTime date, DayOfWeek FirstDayOfWeek) => date.LastDayOfWeek(FirstDayOfWeek).EndOfDay();
@@ -907,9 +1016,7 @@ namespace Extensions
         /// <returns></returns>
         public static string GetShortMonthName(this DateTime Date, CultureInfo Culture = null) => Date.ToString("MMM", Culture ?? CultureInfo.CurrentCulture);
 
-
         public static string GetWeekDay(this DateTime DateTime, CalendarFormat Type = CalendarFormat.LongName, CultureInfo Culture = default) => GetWeekDay(DateTime.DayOfWeek.ToInt(), Type, Culture);
-
 
         public static string GetWeekDay(this int WeekDay, CalendarFormat Type = CalendarFormat.LongName, CultureInfo Culture = default)
         {
@@ -1795,7 +1902,7 @@ namespace Extensions
         /// <summary>
         /// Transforma um DateTime em uma saudação (Bom dia, Boa tarde, Boa noite)
         /// </summary>
-        /// <param name="Time">Horario</param> 
+        /// <param name="Time">Horario</param>
         /// <returns>Uma string com a saudação</returns>
         public static string ToGreeting(this DateTime Time, string Morning, string Afternoon, string EveningOrNight)
         {
@@ -1825,14 +1932,13 @@ namespace Extensions
         /// Converte uma string de data para outra string de data com formato diferente
         /// </summary>
         /// <param name="DateString">String original</param>
-        /// <param name="InputFormat"></param>     
-        /// <returns></returns>     
+        /// <param name="InputFormat"></param>
+        /// <returns></returns>
         public static string ChangeDateFormat(this string Date, string FromFormat, string ToFormat)
         {
             try
             {
                 return DateTime.ParseExact(Date, FromFormat, CultureInfo.InvariantCulture).ToString(ToFormat, CultureInfo.InvariantCulture);
-
             }
             catch
             {
@@ -1841,7 +1947,6 @@ namespace Extensions
         }
 
         public static string ChangeDateFormat(this string Date, string ToFormat) => ChangeDateFormat(Date, "yyyy-MM-dd HH:mm:ss", ToFormat);
-
 
         /// <summary>
         /// COnverte um datetime para o formato de string do SQL server ou Mysql
@@ -1856,6 +1961,7 @@ namespace Extensions
         /// <param name="[Date]">Data</param>
         /// <returns></returns>
         public static string ToSQLDateString(this string Date, string FromCulture = "pt-BR") => Date.ToSQLDateString(new CultureInfo(FromCulture, false));
+
         /// <summary>
         /// Converte uma string dd/mm/aaaa hh:mm:ss.llll para o formato de string do SQL server ou Mysql
         /// </summary>
@@ -1931,10 +2037,6 @@ namespace Extensions
 
         #endregion DateStrings
     }
-
-
-
-
 
     public class PeriodFormat
     {
@@ -2137,5 +2239,4 @@ namespace Extensions
 
         #endregion Public Methods
     }
-
 }

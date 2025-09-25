@@ -837,30 +837,65 @@ namespace Extensions.Locations
 
             try
             {
-                var url = new Uri($"http://viacep.com.br/ws/{d.PostalCode.RemoveAny("-")}/json/");
-                var x = url.DownloadJson() as Dictionary<string, object>;
+                var url = new Uri($"http://viacep.com.br/ws/{d.PostalCode.RemoveAny("-")}/xml/");
                 d["search_url"] = url.ToString();
                 d.Country = "Brasil";
                 d.CountryCode = "BR";
-                if (x.ContainsKey("erro") && (x["erro"]?.ToString() == "true" || x["erro"]?.ToString() == "1"))
+                
+                using (var c = new WebClient())
                 {
-                    throw new Exception("CEP não encontrado");
-                }
-                else
-                {
-
-                    d.Neighborhood = x.GetValueOr("bairro") as string;
-                    d.City = x.GetValueOr("localidade") as string;
-                    d.Street = x.GetValueOr("logradouro") as string;
-                    d.Complement = Complement.IfBlank(x.GetValueOr("complemento", d.Complement)) as string;
-                    d.StateCode = x.GetValueOr("uf") as string;
-
+                    var xmlContent = c.DownloadString(url);
+                    var xml = new XmlDocument();
+                    xml.LoadXml(xmlContent);
+                    
+                    var xmlcep = xml["xmlcep"];
+                    
+                    // Verifica se tem erro no XML
+                    var erroNode = xmlcep["erro"];
+                    if (erroNode != null && erroNode.InnerText == "true")
+                    {
+                        throw new Exception("CEP não encontrado");
+                    }
+                    
+                    // Extrai as informações do XML
+                    d.Neighborhood = xmlcep["bairro"]?.InnerText;
+                    d.City = xmlcep["localidade"]?.InnerText;
+                    d.Street = xmlcep["logradouro"]?.InnerText;
+                    d.Complement = Complement.IfBlank(xmlcep["complemento"]?.InnerText ?? d.Complement);
+                    d.StateCode = xmlcep["uf"]?.InnerText;
+                    
+                    // Extrai informações adicionais
                     foreach (var item in new[] { "ddd", "ibge", "gia", "siafi" })
                     {
-                        Util.TryExecute(() => d[item.ToUpperInvariant()] = x.GetValueOr(item) as string);
+                        Util.TryExecute(() => 
+                        {
+                            var nodeValue = xmlcep[item]?.InnerText;
+                            if (!string.IsNullOrEmpty(nodeValue))
+                            {
+                                d[item.ToUpperInvariant()] = nodeValue;
+                            }
+                        });
                     }
+                    
+                    // Extrai informações adicionais do XML
+                    Util.TryExecute(() => 
+                    {
+                        var estadoNode = xmlcep["estado"]?.InnerText;
+                        if (!string.IsNullOrEmpty(estadoNode))
+                        {
+                            d.State = estadoNode;
+                        }
+                    });
+                    
+                    Util.TryExecute(() => 
+                    {
+                        var regiaoNode = xmlcep["regiao"]?.InnerText;
+                        if (!string.IsNullOrEmpty(regiaoNode))
+                        {
+                            d.Region = regiaoNode;
+                        }
+                    });
                 }
-
             }
             catch (Exception ex)
             {
@@ -869,7 +904,6 @@ namespace Extensions.Locations
 
             try
             {
-
                 if (PostalCode.CEPValido())
                 {
                     d.PostalCode = PostalCode.FormatarCEP();
@@ -1198,7 +1232,7 @@ namespace Extensions.Locations
                 retorno = retorno.AppendIf($" - {CountryCode}", CountryCode.IsValid() && p.HasFlag(AddressPart.CountryCode));
             }
 
-            retorno = retorno.FixText().TrimAny(".", " ", ",", " ", "-"); //fix antes de processar latlong
+            retorno = retorno.FixText().TrimAny(".", " ", ",", " ", "-"); //arruma texto antes de processar latlong
 
             if (p.HasFlag(AddressPart.GeoLocation))
             {

@@ -22,6 +22,7 @@ using System.Net.Sockets;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.JavaScript;
 using System.Runtime.Serialization;
 using System.Security.Cryptography;
 using System.Text;
@@ -69,16 +70,16 @@ namespace Extensions
 
         private static readonly Random init_rnd = new Random();
 
-        private static readonly Expression<Func<string, bool>>[] passwordValidations = new Expression<Func<string, bool>>[]
+        private static readonly Expression<Func<string, string>>[] passwordValidations = new Expression<Func<string, string>>[]
                 {
-                    x => x.ToUpperInvariant().ToArray().Distinct().Count() >= 4,
-                    x => x.ToUpperInvariant().ToArray().Distinct().Count() >= 6,
-                    x => x.Length >= 8,
-                    x => x.ContainsAny(StringComparison.InvariantCulture, PredefinedArrays.PasswordSpecialChars.ToArray()),
-                    x => x.ContainsAny(StringComparison.InvariantCulture, PredefinedArrays.NumberChars.ToArray()),
-                    x => x.ContainsAny(StringComparison.InvariantCulture, PredefinedArrays.AlphaUpperChars.ToArray()),
-                    x => x.ContainsAny(StringComparison.InvariantCulture, PredefinedArrays.AlphaLowerChars.ToArray()),
-                    x => x.CountSequentialCharacters() <=3
+                    x => x.ToUpperInvariant().ToArray().Distinct().Count() >= 4 ? "Mínimo de 4 caracteres diferentes" : null,
+                    x => x.ToUpperInvariant().ToArray().Distinct().Count() >= 6 ? "Mínimo de 6 caracteres diferentes" : null,
+                    x => x.Length >= 8 ? "Mínimo de 8 caracteres" : null,
+                    x => x.ContainsAny(StringComparison.InvariantCulture, PredefinedArrays.PasswordSpecialChars.ToArray()) ? "Deve conter caracteres especiais" : null,
+                    x => x.ContainsAny(StringComparison.InvariantCulture, PredefinedArrays.NumberChars.ToArray()) ? "Deve conter números" : null,
+                    x => x.ContainsAny(StringComparison.InvariantCulture, PredefinedArrays.AlphaUpperChars.ToArray()) ? "Deve conter letras maiúsculas" : null,
+                    x => x.ContainsAny(StringComparison.InvariantCulture, PredefinedArrays.AlphaLowerChars.ToArray()) ? "Deve conter letras minúsculas" : null,
+                    x => x.CountSequentialCharacters() <=3 ? "Não deve conter mais de 3 caracteres sequenciais" : null
                 };
 
         private static readonly MethodInfo startsWithMethod = typeof(string).GetMethod("StartsWith", new[] { typeof(string) });
@@ -398,14 +399,14 @@ namespace Extensions
         /// <param name="formatString"></param>
         /// <param name="attributes"></param>  
         /// <returns></returns>
-        private static string InjectBase(string formatString, Hashtable attributes)
+        private static string InjectBase(string formatString, Hashtable attributes, CultureInfo cultureInfo, bool CaseSensitive)
         {
             string result = formatString;
             if (attributes != null && formatString != null)
             {
                 foreach (string attributeKey in attributes.Keys)
                 {
-                    result = result.InjectSingleValue(attributeKey, attributes[attributeKey]);
+                    result = result.InjectSingleValue(attributeKey, attributes[attributeKey], cultureInfo, CaseSensitive);
                 }
             }
 
@@ -419,10 +420,15 @@ namespace Extensions
         /// <param name="key"></param>
         /// <param name="replacementValue"></param>
         /// <returns></returns>
-        public static string InjectSingleValue(this string formatString, string key, object replacementValue, CultureInfo cultureInfo = null)
+        public static string InjectSingleValue(this string formatString, string key, object replacementValue, CultureInfo cultureInfo = null, bool CaseSensitive = true)
         {
             string result = formatString ?? "";
-            var attributeRegex = new Regex("{(" + key + ")(?:}|(?::(.[^}]*)}))");
+            RegexOptions option = RegexOptions.None;
+            if (CaseSensitive == false)
+            {
+                option = RegexOptions.IgnoreCase;
+            }
+            var attributeRegex = new Regex("{(" + key + ")(?:}|(?::(.[^}]*)}))", option);
             foreach (Match m in attributeRegex.Matches(formatString))
             {
                 string replacement = m.ToString();
@@ -1498,6 +1504,7 @@ namespace Extensions
             return newv ?? default;
         }
 
+        public static T ChangeType<T>(this object Value) => ChangeType<T>(Value, null);
 
         /// <summary>
         /// Converte um ToType para outro. Retorna Nothing (NULL) se a conversão falhar
@@ -1505,12 +1512,12 @@ namespace Extensions
         /// <typeparam name="T">Tipo</typeparam>
         /// <param name="Value">Variavel com valor</param>
         /// <returns>Valor convertido em novo ToType ou null se a conversão falhar</returns>
-        public static T ChangeType<T>(this object Value)
+        public static T ChangeType<T>(this object Value, IFormatProvider? formatProvider)
         {
             try
             {
 
-                var v = Util.ChangeType(Value, typeof(T));
+                var v = Util.ChangeType(Value, typeof(T), formatProvider);
                 if (v == null && typeof(T).IsSimpleType()) return default;
                 return (T)v;
 
@@ -1527,7 +1534,7 @@ namespace Extensions
         /// <typeparam name="TFrom">Tipo de origem</typeparam>
         /// <param name="Value">Variavel com valor</param>
         /// <returns>Valor convertido em novo ToType ou null (ou default) se a conversão falhar</returns>
-        public static object ChangeType<TFrom>(this TFrom Value, Type ToType)
+        public static object ChangeType<TFrom>(this TFrom Value, Type ToType, IFormatProvider? formatProvider = null)
         {
             if (ToType == null)
             {
@@ -1608,9 +1615,7 @@ namespace Extensions
                         }
                         WriteDebug($"{ToType.Name} value ({Name}) not found");
                     }
-                    else
-
-                    if (Value.IsNumber())
+                    else if (Value.IsNumber())
                     {
                         int newv = 0;
                         if (Value is decimal dec)
@@ -1636,7 +1641,7 @@ namespace Extensions
                         }
                         else
                         {
-                            newv = Convert.ToInt32(Value);
+                            newv = Convert.ToInt32(Value, formatProvider);
                         }
 
                         WriteDebug($"Parsing Enum from number {newv}");
@@ -1645,30 +1650,38 @@ namespace Extensions
                     }
                     return default;
                 }
-
-                if (ToType.IsSimpleType())
+                else if (ToType.IsSimpleType())
                 {
                     WriteDebug($"{ToType.Name} is value type");
+
+
+                    if (Value is string sss && sss.CountCharacter('%') == 1)
+                    {
+                        return ParsePercent(sss, ToType, formatProvider);
+                    }
+
+
                     var Converter = TypeDescriptor.GetConverter(ToType);
                     if (Converter.CanConvertFrom(typeof(TFrom)))
                     {
                         try
                         {
                             return Converter.ConvertTo(Value, ToType);
+
                         }
                         catch
                         {
-                            return Convert.ChangeType(Value, ToType);
+                            return Convert.ChangeType(Value, ToType, formatProvider);
                         }
                     }
                     else
                     {
-                        return Convert.ChangeType(Value, ToType);
+                        return Convert.ChangeType(Value, ToType, formatProvider);
                     }
                 }
                 else
                 {
-                    return Convert.ChangeType(Value, ToType);
+                    return Convert.ChangeType(Value, ToType, formatProvider);
                 }
             }
             catch (Exception ex)
@@ -1679,6 +1692,80 @@ namespace Extensions
             }
         }
 
+        /// <inheritdoc cref="ParsePercent(string, Type, IFormatProvider?)"/>
+        public static T ParsePercent<T>(this string Percent, IFormatProvider? formatProvider = null) where T : struct => ParsePercent(Percent, typeof(T), formatProvider).ChangeType<T>(formatProvider);
+
+        public static V ParsePercent<V>(this V Percent,  IFormatProvider? formatProvider = null) where V : struct
+        {           
+                return Percent.ChangeType<V>(formatProvider);  
+        }
+
+        /// <summary>
+        /// Parse a percent string like "10% of 200" or "10%" into a number of the specified type. If only "10%" is provided, it assumes the total is 1 (one) and returns 0.1 (10 percent of 1).
+        /// </summary>
+        /// <param name="Percent"></param>
+        /// <param name="type"></param>
+        /// <param name="formatProvider"></param>
+        /// <returns></returns>
+        public static object ParsePercent(this string Percent, Type type, IFormatProvider? formatProvider = null)
+        {
+            if (type == null) type = typeof(string);
+
+            if (Percent.IsNotBlank() && type.IsSimpleType())
+            {
+
+                //verifica se o numero tem %
+                if (Percent.CountCharacter('%') == 1)
+                {
+                    var parts = Percent.Split('%').Where(x => x.IsNumber()).ToList();
+                    if (parts.Count <= 2)
+                    {
+
+                        if (type.GetTypeOf().IsIn(PredefinedArrays.NumericTypes) || type.GetTypeOf() == typeof(string))
+                        {
+
+                            if (parts.Count == 1)
+                            {
+                                parts.Add("1");
+                                WriteDebug("Parsing percent only");
+                            }
+
+                            var percent = parts.First().ChangeType<decimal>(formatProvider);
+                            var total = parts.Last().ChangeType<decimal>(formatProvider);
+
+                            WriteDebug($"Parsing {percent}% of {total}");
+                            return percent.CalculatePercent(total).ChangeType(type, formatProvider);
+
+                        }
+
+                    }
+                    WriteDebug($"Invalid percent format: {Percent}", "Percent Format");
+                }
+
+                if(Percent.IsNumber())
+                {
+                    return Percent.ChangeType(type, formatProvider);
+                }
+
+            }
+
+            return GetDefault(type);
+        }
+
+        /// <summary>
+        /// Returns the default value (null, 0 etc) for a type. If it's a value type, it creates an instance of it,
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static object GetDefault(this object type)
+        {
+            if (type.GetTypeOf().IsValueType)
+            {
+                return Activator.CreateInstance(type.GetTypeOf());
+            }
+            return null;
+        }
+
         /// <summary>
         /// Check the strength of given password
         /// </summary>
@@ -1686,7 +1773,10 @@ namespace Extensions
         /// <returns></returns>
         public static PasswordLevel CheckPassword(this string Password)
         {
-            var points = Password.ValidateCount(passwordValidations);
+            var x = Password.Validate(passwordValidations).Errors;
+
+            var points = x.Count();
+
             if (points < PasswordLevel.VeryWeak.ToInt())
             {
                 return PasswordLevel.VeryWeak;
@@ -2901,13 +2991,6 @@ namespace Extensions
 
         public static Image DownloadImage(this Uri URL, NameValueCollection Headers = null, Encoding Encoding = null) => DownloadImage($"{URL}", Headers, Encoding);
 
-        public static T DownloadJson<T>(string URL, NameValueCollection Headers = null, Encoding Encoding = null) => DownloadString(URL, Headers, Encoding).FromJson<T>();
-
-        public static object DownloadJson(string URL, NameValueCollection Headers = null, Encoding Encoding = null) => DownloadString(URL, Headers, Encoding).FromJson();
-
-        public static T DownloadJson<T>(this Uri URL, NameValueCollection Headers = null, Encoding Encoding = null) => DownloadJson<T>($"{URL}", Headers, Encoding);
-
-        public static object DownloadJson(this Uri URL, NameValueCollection Headers = null, Encoding Encoding = null) => DownloadJson($"{URL}", Headers, Encoding);
 
         public static string DownloadString(string URL, NameValueCollection Headers = null, Encoding Encoding = null)
         {
@@ -3297,7 +3380,7 @@ namespace Extensions
             return (item == null) ? Alternate : item;
         }
 
-        public static T FirstOr<T>(this IEnumerable<T> source, params T[] Alternate) => source?.Any() ?? false ? source.First() : (Alternate ?? Array.Empty<T>()).AsEnumerable().NullCoalesce();
+        public static T FirstOr<T>(this IEnumerable<T> source, params T[] Alternate) => FirstOr(source, x => true, Alternate);
 
         /// <summary>
         /// Retorna o primeiro objeto de uma lista ou um objeto especifico se a lista estiver vazia
@@ -3306,7 +3389,23 @@ namespace Extensions
         /// <param name="source"></param>
         /// <param name="Alternate"></param>
         /// <returns></returns>
-        public static T FirstOr<T>(this IEnumerable<T> source, Func<T, bool> predicade, params T[] Alternate) => source?.Any(predicade) ?? false ? source.First(predicade) : (Alternate ?? Array.Empty<T>()).AsEnumerable().NullCoalesce();
+        public static T FirstOr<T>(this IEnumerable<T> source, Func<T, bool> predicade, params T[] Alternate)
+        {
+            predicade = predicade ?? (x => true);
+            Alternate = Alternate ?? Array.Empty<T>();
+            T? first;
+            if (source != null)
+            {
+                first = source.FirstOrDefault(predicade);
+                if (first != null)
+                {
+                    return first;
+                }
+            }
+            return Util.NullCoalesce(Alternate.AsEnumerable()) ?? default;
+        }
+
+
 
         /// <summary>
         /// Busca em um <see cref="IQueryable{T}"/> usando uma expressao lambda a partir do nome de
@@ -4067,7 +4166,7 @@ namespace Extensions
             {
                 if (ValueSelector == null)
                 {
-                    ValueSelector = x => x.ToString().ChangeType<TValue>();
+                    ValueSelector = ((x) => x.ToString().ChangeType<TValue>());
                 }
                 try
                 {
@@ -4281,11 +4380,11 @@ namespace Extensions
 
         public static string GetDisplayString(this object Value, Type enumType, bool friendlyName = true)
         {
-            if(enumType == null)
+            if (enumType == null)
             {
                 throw new ArgumentNullException(nameof(enumType));
             }
-         
+
 
             if (!enumType.IsEnum) throw new ArgumentException($"{enumType.Name} must be an Enumeration type.", enumType.Name);
 
@@ -4316,13 +4415,47 @@ namespace Extensions
             {
                 name = enumType
                    .GetMember(name)
-                   .FirstOrDefault()?.GetCustomAttribute<DisplayAttribute>()?.Name ?? name.ToNormalCase();
+                   .FirstOrDefault()?.GetDisplayString(name.ToNormalCase()) ?? name.ToNormalCase();
             }
 
             return name;
 
         }
 
+        /// <summary>
+        /// Return the display name of a property
+        /// </summary>
+        /// <typeparam name="C"></typeparam>
+        /// <typeparam name="P"></typeparam>
+        /// <param name="PropertyLambda"></param>
+        /// <param name="DefaultName"></param>
+        /// <returns></returns>
+        public static string GetDisplayString<C, P>(this Expression<Func<C, P>> PropertyLambda, string DefaultName = "")
+        {
+            if (GetMemberInfo(PropertyLambda) is MemberInfo mi)
+            {
+                return mi.GetDisplayString(DefaultName);
+            }
+            return DefaultName;
+        }
+
+        /// <summary>
+        /// Retrieves the display name of the specified <see cref="MemberInfo"/>.
+        /// </summary>
+        /// <param name="Info">The <see cref="MemberInfo"/> instance to retrieve the display name for. Cannot be <see langword="null"/>.</param>
+        /// <param name="DefaultName">The default name to return if no display name is found or <paramref name="Info"/> is <see langword="null"/>.
+        /// Defaults to an empty string.</param>
+        /// <returns>The display name specified by the <see cref="DisplayAttribute"/> applied to the member,  the member's name
+        /// converted to normal case if no display name is found, or <paramref name="DefaultName"/> if <paramref
+        /// name="Info"/> is <see langword="null"/>.</returns>
+        public static string GetDisplayString(this MemberInfo Info, string DefaultName = "")
+        {
+            if (Info != null)
+            {
+                return Info.GetCustomAttribute<DisplayAttribute>()?.Name ?? DefaultName.IfBlank(Info.Name.ToNormalCase());
+            }
+            return DefaultName;
+        }
 
 
         /// <summary>
@@ -4395,7 +4528,14 @@ namespace Extensions
             return propInfo;
         }
 
-        public static IEnumerable<FieldInfo> GetFields<T>(this T MyObject, BindingFlags BindAttr) => MyObject.GetTypeOf().GetFields(BindAttr).ToList();
+        /// <summary>
+        /// Return all fields of an object
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="MyObject"></param>
+        /// <param name="BindAttr"></param>
+        /// <returns></returns>
+        public static IEnumerable<FieldInfo> GetFields<T>(this T MyObject, BindingFlags BindAttr) => Util.GetTypeOf(MyObject).GetFields(BindAttr).ToList();
 
         /// <summary>
         /// Traz uma Lista com todas as propriedades de um objeto
@@ -4418,7 +4558,12 @@ namespace Extensions
         /// <returns>string mime type</returns>
         public static IEnumerable<string> GetMimeType(this FileInfo File) => File.Extension.GetFileType().MimeTypes;
 
-
+        /// <summary>
+        /// Return the first N chars of a string
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <param name="Number"></param>
+        /// <returns></returns>
         public static string GetFirstChars(this string Text, int Number = 1)
         {
             while (Number < 0)
@@ -4429,12 +4574,12 @@ namespace Extensions
             return Text.IsValid() ? Text.Length < Number || Number < 0 ? Text : Text.Substring(0, Number) : EmptyString;
         }
 
-        public static DataRow GetFirstRow(this DataSet Data) => Data?.GetFirstTable()?.GetFirstRow();
 
-        public static DataRow GetFirstRow(this DataTable Table) => Table != null && Table.Rows.Count > 0 ? Table.Rows[0] : null;
-
-        public static DataTable GetFirstTable(this DataSet Data) => Data != null && Data.Tables.Count > 0 ? Data.Tables[0] : null;
-
+        /// <summary>
+        /// Return a FontAwesome icon class that best represents a gender
+        /// </summary>
+        /// <param name="gender"></param>
+        /// <returns></returns>
         public static string GetFontAwesomeIconByGender(this string gender)
         {
             gender = (gender ?? "").RemoveAny(" ", "-", "_");
@@ -4481,6 +4626,11 @@ namespace Extensions
         /// <returns></returns>
         public static string GetFontAwesomeIconByFileExtension(this string Extension) => GetFontAwesomeIconByFileExtension(new[] { Extension ?? "" });
 
+        /// <summary>
+        /// Return a FontAwesome icon class that best represents a file type based on its extensions
+        /// </summary>
+        /// <param name="Extensions"></param>
+        /// <returns></returns>
         public static string GetFontAwesomeIconByFileExtension(this string[] Extensions)
         {
             foreach (var Extension in Extensions ?? Array.Empty<string>())
@@ -4757,6 +4907,17 @@ namespace Extensions
             }
         }
 
+        /// <summary>
+        /// Returns the zero-based index of the first occurrence of the specified item in the sequence.
+        /// </summary>
+        /// <remarks>This method attempts to optimize the search by checking if the sequence implements
+        /// <see cref="IList{T}"/>  or <see cref="IList"/> for direct indexing. If the sequence does not implement these
+        /// interfaces,  it performs a linear search.</remarks>
+        /// <typeparam name="T">The type of elements in the sequence.</typeparam>
+        /// <param name="Arr">The sequence to search. Cannot be <see langword="null"/>.</param>
+        /// <param name="item">The item to locate in the sequence.</param>
+        /// <returns>The zero-based index of the first occurrence of <paramref name="item"/> in <paramref name="Arr"/>,  or -1 if
+        /// the item is not found.</returns>
         public static int GetIndexOf<T>(this IEnumerable<T> Arr, T item)
         {
             try
@@ -4764,7 +4925,13 @@ namespace Extensions
                 if (Arr != null)
                 {
                     if (Arr is IList<T> lista) return lista.IndexOf(item);
-                    else if (Arr is IList lista2) return lista2.IndexOf(item);
+                    else if (Arr is IList lista2) return lista2.IndexOf(item);          
+                
+                    else if(Arr is Array array && array.GetType().GetElementType() == typeof(T))
+                    {
+                        int index = Array.IndexOf(array, item);
+                        return index;
+                    }
                     else
                     {
                         int index = 0;
@@ -4793,10 +4960,19 @@ namespace Extensions
 
         public static IEnumerable<Type> GetInheritedClasses<T>() where T : class => GetInheritedClasses(typeof(T));
 
+        /// <summary>
+        /// Returns all classes that inherit from a given type within the same assembly.
+        /// </summary>
+        /// <param name="MyType"></param>
+        /// <returns></returns>
         public static IEnumerable<Type> GetInheritedClasses(this Type MyType) =>
-            //if you want the abstract classes drop the !TheType.IsAbstract but it is probably to instance so its a good idea to keep it.
+        
             Assembly.GetAssembly(MyType).GetTypes().Where(TheType => TheType.IsClass && !TheType.IsAbstract && TheType.IsSubclassOf(MyType));
 
+        /// <summary>
+        /// Returns all local and public IPs of this machine
+        /// </summary>
+        /// <returns></returns>
         public static IEnumerable<string> GetIPs() => GetLocalIP().Union(new[] { GetPublicIP() });
 
         public static string GetLastChars(this string Text, int Number = 1)
@@ -6637,9 +6813,6 @@ namespace Extensions
         /// <returns></returns>
         public static IEnumerable<T> IfNullOrEmpty<T>(this IEnumerable<object[]> Value, IEnumerable<T> ValueIfBlank) => Value != null && Value.Any() ? Value.ChangeIEnumerableType<T, object[]>() : ValueIfBlank;
 
-        public static int Increment(this int Num, int Inc = 1) => Num + Inc.SetMinValue(0);
-
-        public static long Increment(this long Num, long Inc = 1) => Num + Inc.SetMinValue(0L);
 
         /// <summary>
         /// Inject the property values of <typeparamref name="T"/> into <see cref="String"/>
@@ -6648,28 +6821,20 @@ namespace Extensions
         /// <param name="formatString"></param>
         /// <param name="injectionObject"></param>
         /// <returns></returns>
-        public static string Inject<T>(this string formatString, T injectionObject)
+        public static string Inject<T>(this string formatString, T injectionObject, CultureInfo culture = null, bool CaseSensitive = true)
         {
             if (injectionObject != null)
             {
                 return injectionObject.IsDictionary()
-                    ? formatString.Inject(new Hashtable((IDictionary)injectionObject))
-                    : formatString.Inject(GetPropertyHash(injectionObject));
+                    ? formatString.Inject(new Hashtable((IDictionary)injectionObject), culture, CaseSensitive)
+                    : formatString.Inject(GetPropertyHash(injectionObject), culture, CaseSensitive);
             }
 
             return formatString;
         }
 
-        public static string Inject(this string formatString, Hashtable attributes) => InjectBase(formatString, attributes);
+        public static string Inject(this string formatString, Hashtable attributes, CultureInfo culture = null, bool CaseSensitive = true) => InjectBase(formatString, attributes, culture, CaseSensitive);
 
-        /// <summary>
-        /// Inject the property values of <typeparamref name="T"/> into <paramref name="TemplatedString"/>
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="formatString"></param>
-        /// <param name="injectionObject"></param>
-        /// <returns></returns>
-        public static string InjectInto<T>(this T Obj, string TemplatedString) => TemplatedString.IfBlank(EmptyString).Inject(Obj);
 
 
 
@@ -7588,10 +7753,23 @@ namespace Extensions
         {
             try
             {
-                if ($"{Value}".IsValid() && $"{Value}".Trim().ToCharArray().All(x => char.IsNumber(x)))
+                if (Value.GetTypeOf().IsIn(PredefinedArrays.NumericTypes.ToArray())) return true;
+                else if (Value is string s)
                 {
-                    return true;
+                    if (s.IsNotBlank() && s.Trim().ToCharArray().All(x => char.IsNumber(x)))
+                    {
+                        return true;
+                    }
                 }
+                else if (Value is char c)
+                {
+                    if (char.IsNumber(c))
+                    {
+                        return true;
+                    }
+                }
+
+
                 Convert.ToDecimal(Value, CultureInfo.InvariantCulture);
                 return Value != null && $"{Value}".IsIP() == false && ((Value.GetType() == typeof(DateTime)) == false);
             }
@@ -7983,7 +8161,7 @@ namespace Extensions
         public static bool Like(this string source, string Pattern) => new Like(Pattern).Matches(source);
 
         public static int LimitIndex<T>(this int ii, List<T> Collection) => ii.LimitRange<int>(0, Collection.Count - 1);
- 
+
 
         public static int LimitIndex<T>(this int ii, IEnumerable<T> Collection) => ii.LimitRange<int>(0, Collection.Count() - 1);
 
@@ -9220,17 +9398,7 @@ namespace Extensions
             return s;
         }
 
-        public static HtmlNode ParseTag(this string HtmlString) => HtmlNode.ParseNode(HtmlString);
 
-        public static HtmlNode ParseTag(this FileInfo File) => HtmlNode.ParseNode(File);
-
-        public static HtmlNode ParseTag(this Uri URL) => HtmlNode.ParseNode(URL);
-
-        public static IEnumerable<HtmlNode> ParseTags(this string HtmlString) => HtmlNode.Parse(HtmlString);
-
-        public static IEnumerable<HtmlNode> ParseTags(this FileInfo File) => HtmlNode.Parse(File);
-
-        public static IEnumerable<HtmlNode> ParseTags(this Uri URL) => HtmlNode.Parse(URL);
 
         public static string CamelCaseAdjust(this string Text) => PascalCaseAdjust(Text);
 
@@ -10080,6 +10248,78 @@ namespace Extensions
         }
 
         /// <summary>
+        /// Gera uma string aleatória única dentro de uma lista, verificando se o valor gerado já existe
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list"></param>
+        /// <param name="hashField"></param>
+        /// <param name="minChars"></param>
+        /// <param name="maxChars"></param>
+        /// <param name="maxTries"></param>
+        /// <returns></returns>
+        public static string RandomUniqueWord<T>(this IEnumerable<T> list, Expression<Func<T, string>> hashField, int minChars = 4, int maxChars = 20, int maxTries = 100)
+        {
+
+            var hash = "";
+            int tries = 0;
+            var c = minChars;
+
+            if (hashField == null) throw new ArgumentNullException(nameof(hashField), "Hash field cannot be null");
+
+            (minChars, maxChars) = Util.FixOrder(minChars, maxChars);
+
+            minChars = minChars.SetMinValue(1);
+            maxChars = maxChars.SetMinValue(1);
+
+            while (hash.IsBlank() && tries <= maxTries)
+            {
+                tries++;
+
+                /// pega o numero maximo de tentativas e divide em bocos iguais de tentativas, cada bloco tenta com um numero maior de caracteres (total anterior +1 até chegar em MaxChars)
+
+                if (tries % (maxTries / (maxChars - minChars + 1).SetMinValue(1)) == 0)
+                {
+                    c++;
+                }
+
+
+                hash = Util.RandomWord(minChars, c);
+
+                if (list == null || list.Any() == false)
+                {
+                    return hash;
+                }
+
+                if (list is IQueryable<T> q)
+                {
+                    if (q.Select(hashField).Any(x => x == hash))
+                    {
+                        hash = string.Empty;
+                    }
+                }
+                else
+                {
+                    if (list.Any(x => hashField.Compile().Invoke(x) == hash))
+                    {
+                        hash = string.Empty;
+                    }
+                }
+
+            }
+
+            return hash;
+
+        }
+
+        /// <inheritdoc cref="RandomUnique(IEnumerable{string}, int, int, int)"/>>
+        public static string RandomUniqueWord(this IEnumerable<string> list, int minChars = 4, int maxChars = 20, int maxTries = 100)
+        {
+            return RandomUniqueWord(list, x => x, minChars, maxChars, maxTries);
+        }
+
+
+
+        /// <summary>
         /// Gera uma palavra aleatória com o numero de caracteres entre <paramref name="MinLength"/>
         /// e <paramref name="MaxLenght"/>
         /// </summary>
@@ -10358,7 +10598,9 @@ namespace Extensions
         {
             if (Text.IsValid())
             {
-                return Regex.Replace(Text.ReplaceMany(Environment.NewLine, "<br/>", "<br>", "<br />"), "<.*?>", EmptyString).HtmlDecode();
+                //Regex replace <br> e <br /> por quebras de linha
+                Text = Regex.Replace(Text, @"<br\s*/?>", Environment.NewLine, RegexOptions.IgnoreCase);
+                return Regex.Replace(Text, "<.*?>", EmptyString).HtmlDecode();
             }
 
             return Text;
@@ -10456,6 +10698,11 @@ namespace Extensions
             return Text;
         }
 
+
+
+        public static string RemoveMask(this string MaskedText, CultureInfo culture) => RemoveMask(MaskedText, PredefinedArrays.MaskedNumberChars(culture).ToArray());
+
+
         /// <summary>
         /// Remove a máscara de um texto, mantendo apenas números e os caracteres permitidos
         /// </summary>
@@ -10486,7 +10733,7 @@ namespace Extensions
         /// <param name="MaskedText"></param>
         /// <param name="AllowCharacters"></param>
         /// <returns></returns>
-        public static int RemoveMaskInt(this string MaskedText, params char[] AllowCharacters) => RemoveMask(MaskedText, AllowCharacters).ToInt();
+        public static int RemoveMaskInt(this string MaskedText, CultureInfo culture = null) => RemoveMask(MaskedText).ToInt();
 
         /// <summary>
         /// Remove a máscara de um texto, mantendo apenas números e os caracteres permitidos
@@ -10495,7 +10742,7 @@ namespace Extensions
         /// <param name="MaskedText"></param>
         /// <param name="AllowCharacters"></param>
         /// <returns></returns>
-        public static long RemoveMaskLong(this string MaskedText, params char[] AllowCharacters) => RemoveMask(MaskedText, AllowCharacters).ToLong();
+        public static long RemoveMaskLong(this string MaskedText, CultureInfo culture = null) => RemoveMask(MaskedText, PredefinedArrays.MaskedNumberChars(culture).ToArray()).ToLong();
 
         /// <summary>
         /// Remove caracteres não prantáveis de uma string
@@ -13185,6 +13432,7 @@ namespace Extensions
         /// <returns>Valor convertido em novo ToType</returns>
         public static int ToInt<FromType>(this FromType Value) => Value.ChangeType<int>();
 
+
         public static T[][] ToJaggedArray<T>(this T[,] inputArray)
         {
             if (inputArray == null || inputArray.Length == 0)
@@ -15382,93 +15630,6 @@ namespace Extensions
         /// <returns></returns>
         public static string UrlEncode(this string Text) => Text.IsNotBlank() ? WebUtility.UrlEncode(Text) : EmptyString;
 
-        /// <summary>
-        /// Returns true if all logical operations return true
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="Value"></param>
-        /// <param name="Tests"></param>
-        /// <returns></returns>
-        public static bool Validate<T>(this T Value, params Expression<Func<T, bool>>[] Tests) => Validate(Value, 0, Tests);
-
-        /// <summary>
-        /// Returns true if a certain minimum number of logical operations return true
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="Value"></param>
-        /// <param name="Tests"></param>
-        /// <returns></returns>
-        public static bool Validate<T>(this T Value, int MinPoints, params Expression<Func<T, bool>>[] Tests)
-        {
-            Tests = Tests ?? Array.Empty<Expression<Func<T, bool>>>();
-            if (MinPoints < 1)
-            {
-                MinPoints = Tests.Length;
-            }
-            return ValidateCount(Value, Tests) >= MinPoints.LimitRange(1, Tests.Length);
-        }
-
-        /// <summary>
-        /// Returns the count of true logical operations on a given value
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="Value"></param>
-        /// <param name="Tests"></param>
-        /// <returns></returns>
-        public static int ValidateCount<T>(this T Value, params Expression<Func<T, bool>>[] Tests)
-        {
-            var count = 0;
-            Tests = Tests ?? Array.Empty<Expression<Func<T, bool>>>();
-            foreach (var item in Tests)
-            {
-                if (item.Compile().Invoke(Value))
-                {
-                    count++;
-                }
-            }
-            return count;
-        }
-
-        /// <summary>
-        /// Lança uma <see cref="Exception"/> do tipo <typeparamref name="TE"/> se um teste falhar
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <typeparam name="TE"></typeparam>
-        /// <param name="Value"></param>
-        /// <param name="Test"></param>
-        /// <param name="Message"></param>
-        /// <returns></returns>
-        public static T ValidateOr<T, TE>(this T Value, Expression<Func<T, bool>> Test, TE Exception) where TE : Exception
-        {
-            if (Test != null)
-            {
-                if (Test.Compile().Invoke(Value) == false)
-                {
-                    Value = default;
-                    if (Exception != null)
-                    {
-                        throw Exception;
-                    }
-                }
-            }
-            return Value;
-        }
-
-        public static T ValidateOr<T>(this T Value, Expression<Func<T, bool>> Test) => ValidateOr(Value, Test, default);
-
-        public static T ValidateOr<T>(this T Value, Expression<Func<T, bool>> Test, T defaultValue)
-        {
-            try
-            {
-                return ValidateOr(Value, Test, new Exception("Validation fail"));
-            }
-            catch
-            {
-                return defaultValue;
-            }
-        }
-
-        public static bool ValidatePassword(this string Password, PasswordLevel PasswordLevel = PasswordLevel.Strong) => PasswordLevel == PasswordLevel.None || Password.CheckPassword().ToInt() >= PasswordLevel.ToInt();
 
         /// <summary>
         /// Bloqueia a Thread atual enquanto um arquivo estiver em uso
@@ -15511,6 +15672,8 @@ namespace Extensions
                 }
 
                 OnAttemptFail?.Invoke(MaxFailCount ?? -1);
+
+
             }
             return true;
         }
@@ -15694,11 +15857,27 @@ namespace Extensions
         /// <returns></returns>
         public static string Wrap(this string Text, string OpenWrapText, string CloseWrapText) => $"{OpenWrapText}{Text}{CloseWrapText.IfBlank(OpenWrapText)}";
 
-        public static HtmlElementNode WrapInTag(this IEnumerable<HtmlElementNode> Tags, string TagName) => new HtmlElementNode(TagName).Add(Tags);
 
-        public static HtmlElementNode WrapInTag(this HtmlElementNode Tag, string TagName) => new HtmlElementNode(TagName).Add(Tag);
 
-        public static HtmlElementNode WrapInTag(this string Text, string TagName) => new HtmlElementNode(TagName, InnerHtml: Text);
+        public static string CreateAnchor(this string Text, string Url, object Attributes = default)
+        {
+            Text = Text.BlankCoalesce(Url, "");
+            var attr = Attributes?.CreateDictionary() ?? new Dictionary<string, object>();
+            attr["href"] = Url;
+            return Text.WrapInTag("a", attr);
+        }
+        public static string WrapInTag(this string Text, string TagName, object Attributes = default)
+        {
+            TagName = TagName.IfBlank("div");
+            Text = Text ?? "";
+            string attr = Attributes?.CreateDictionary()?.SelectJoinString(x => $"{x.Key}={x.Value.ChangeType<string>().Quote()}", " ");
+            if (attr.IsNotBlank())
+            {
+                attr = attr.Wrap(" ");
+            }
+            return $"<{TagName}{attr}>{Text}</{TagName}>";
+
+        }
 
 
 

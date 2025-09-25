@@ -250,6 +250,32 @@ namespace Extensions.Dates
         public DateRange(IEnumerable<DateTime> Dates) : this(Dates.Min(), Dates.Max())
         { }
 
+        /// <summary>
+        /// Extracts all date values from the specified text based on the provided culture and optional settings and return a DateRange from Mix and Max dates
+        /// </summary>
+        /// <remarks>This method uses regular expressions to identify potential date patterns in the input
+        /// text. It attempts to parse each match into a <see cref="DateTime"/> object using the specified
+        /// culture.</remarks>
+        /// <param name="Text">The input text to search for date values.</param>
+        /// <param name="culture">The culture used to interpret date formats. If <see langword="null"/>, the current culture is used.</param>
+        /// <param name="includeNames">A value indicating whether to include month names in
+        /// addition to standard date formats.</param>
+        /// <returns>An <see cref="DateRange"/> object representing the range between dates found in the text. If no
+        /// dates are found, a default DateRange is returned (today)</returns>
+        public static DateRange FromString(string DateRangeExpression, CultureInfo cultureInfo, bool includeNames = false)
+        {
+            cultureInfo = cultureInfo ?? CultureInfo.CurrentCulture;
+            var dates = DateRangeExpression.ExtractDates(cultureInfo, includeNames).ToList();
+
+            if (dates.Count == 0) return new DateRange();
+
+            if (dates.Count == 1) return new DateRange(dates.First());
+
+            return new DateRange(dates.Min(), dates.Max());
+
+        }
+
+
         #endregion Public Constructors
 
         #region Public Properties

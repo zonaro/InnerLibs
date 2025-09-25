@@ -1,14 +1,12 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.Linq.Expressions;
 using Extensions;
 using Extensions.BR;
-
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Extensions
 {
-
-
-
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Property, AllowMultiple = true)]
     public class CssClassAttribute : Attribute
     {
@@ -18,7 +16,6 @@ namespace Extensions
             ClassNames = classNames;
         }
     }
-
 
     [AttributeUsage(AttributeTargets.Property)]
     public class IdadeAttribute : ValidationAttribute
@@ -39,10 +36,75 @@ namespace Extensions
                 n = Minima,
                 name
             });
-
         }
     }
 
+    [AttributeUsage(AttributeTargets.Property)]
+    public class MultipleValidationsAttribute<T> : ValidationAttribute
+    {
+        public List<Expression<Func<T, string>>> Validations { get; } = new List<Expression<Func<T, string>>>();
+
+        public bool AllowNull { get; set; } = false;
+        public int MinimalValid { get; set; } = 1;
+
+        public string ErrorSeparator { get; set; } = ", ";
+
+
+        public bool AllMustBeValid
+        {
+            get => MinimalValid == Validations.Count;
+            set
+            {
+                if (value) MinimalValid = Validations.Count;
+                if (MinimalValid < 1) MinimalValid = 1;
+            }
+        }
+
+        internal (bool IsValid, IEnumerable<string> Errors) GetValidationErrors(object value) => Util.Validate(value.ChangeType<T>(), AllowNull, Validations.ToArray());
+
+        private IEnumerable<string> Errors = Enumerable.Empty<string>();
+
+        public override bool IsValid(object value)
+        {
+            bool isValid = false;
+            (isValid, Errors) = GetValidationErrors(value);
+            return isValid;
+        }
+
+        public override string FormatErrorMessage(string name)
+        {
+            return ErrorMessage.IfBlank("{name} needs {MinimalValid} of {Validations} but got {ErrorCount}:{newLine}{Errors}")
+            .Inject(new
+            {
+                name,
+                MinimalValid,
+                n = MinimalValid,
+                Validations = Validations.Count,
+                ErrorSeparator,
+                ErrorCount = Errors.Count(),
+                Errors = this.Errors.JoinString(ErrorSeparator.IfBlank(", ")),
+                NewLine = Environment.NewLine,
+            },
+            CaseSensitive: false);
+        }
+
+    }
+
+    [AttributeUsage(AttributeTargets.Property)]
+    public class PasswordAttribute : ValidationAttribute
+    {
+        public PasswordLevel Level { get; set; } = PasswordLevel.Strong;
+
+        public override bool IsValid(object value) => Util.ValidatePassword(value?.ToString(), Level);
+
+        public override string FormatErrorMessage(string name)
+        {
+            return ErrorMessage.IfBlank("{name} não é uma senha válida").Inject(new
+            {
+                name
+            });
+        }
+    }
 
     [AttributeUsage(AttributeTargets.Property)]
     public class CPFAttribute : ValidationAttribute
@@ -55,7 +117,6 @@ namespace Extensions
             {
                 name
             });
-
         }
     }
 
@@ -162,6 +223,7 @@ namespace Extensions
     public class EstadoIbgeAttribute : ValidationAttribute
     {
         public override bool IsValid(object value) => value == null || Brasil.EstadoIBGEValido(value?.ToString() ?? string.Empty);
+
         public override string FormatErrorMessage(string name)
         {
             return ErrorMessage.IfBlank("{name} não é um código de estado válido").Inject(new
@@ -170,6 +232,6 @@ namespace Extensions
             });
         }
     }
-
+ 
 
 }

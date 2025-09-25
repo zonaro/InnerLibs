@@ -3,8 +3,6 @@ using System.Collections.Generic;
 
 namespace Extensions.DataBases
 {
-
-
     /// <summary>
     /// Constantes utilizadas na funçao <see cref="Util.CreateSQLQuickResponse(DbConnection, System.FormattableString, string)"/>
     /// e <see  cref="Util.CreateSQLQuickResponse(DbCommand, string)"/>
@@ -26,8 +24,6 @@ namespace Extensions.DataBases
         /// pode tambem ser representada pelas strings "PAIRS", "DICTIONARY", "ASSOCIATIVE",
         ///</remarks>
         public const string Pair = "PAIR";
-
-
 
         /// <summary>
         /// Coloca a primeira coluna do primeiro dataset no <see cref="SQLResponse{T}.Data"/>
@@ -61,23 +57,10 @@ namespace Extensions.DataBases
         #endregion Public Methods
     }
 
-
-
-
-
-
-
     public class SQLResponse<T> : ApiResponse<T>
     {
-
-
-
         public string DataSetType { get => this.GetValueOr("dataSetType").ChangeType<string>(); set => this["dataSetType"] = value; }
         public string SQL { get => this.GetValueOr("sql").ChangeType<string>(); set => this["sql"] = value; }
-
-
-
-
     }
 
     public class ApiResponse : Dictionary<string, object>
@@ -93,7 +76,6 @@ namespace Extensions.DataBases
         }
 
         public void SetError(Exception ex) => SetError(ex.ToFullExceptionString());
-
     }
 
     public class ApiResponse<T> : ApiResponse
@@ -120,9 +102,6 @@ namespace Extensions.DataBases
         }
 
         public bool HasData => Data != null && Data.IsValid();
-
-
-
 
         #endregion Public Properties
     }

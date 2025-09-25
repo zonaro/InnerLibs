@@ -805,6 +805,8 @@ namespace Extensions.Pagination
             }
         }
 
+        public bool Any() => this.GetPage().Any();
+
         public PropertyFilter<TClass, TRemap> Or<T>(string PropertyName, bool Enabled = true) => SetMember(PropertyName, FilterConditional.Or, Enabled);
 
         public PropertyFilter<TClass, TRemap> Or<T>(Expression<Func<TClass, T>> PropertyName, bool Enabled = true) => SetMember(PropertyName, FilterConditional.Or, Enabled);
@@ -990,7 +992,7 @@ namespace Extensions.Pagination
         }
 
         /// <summary>
-        /// Configura um novo membro para este filtro
+        /// Configura um novo integrante para este filtro
         /// </summary>
         /// <param name="PropertyName"></param>
         /// <returns></returns>
@@ -1003,7 +1005,7 @@ namespace Extensions.Pagination
         }
 
         /// <summary>
-        /// Configura um novo membro para este filtro
+        /// Configura um novo integrante para este filtro
         /// </summary>
         /// <param name="PropertyName"></param>
         /// <returns></returns>
@@ -1125,8 +1127,8 @@ namespace Extensions.Pagination
         }
 
         /// <summary>
-        /// Extrai os parametros de um <see cref="NameValueCollection"/> e seta os membros usando as
-        /// Keys como membros
+        /// Extrai os parametros de um <see cref="NameValueCollection"/> e seta os integrantes usando as
+        /// Keys como integrantes
         /// </summary>
         /// <param name="Collection"></param>
         /// <param name="DefaultOperator"></param>
@@ -1170,7 +1172,7 @@ namespace Extensions.Pagination
         }
 
         /// <summary> Configura este Filtro para utilizar uma querystring com operadores
-        /// (&membro=operador:valor) </summary> <param name="QueryExpression"></param> <param
+        /// (&integrante=operador:valor) </summary> <param name="QueryExpression"></param> <param
         /// name="Separator"></param> <param name="Conditional"></param> <returns></returns>
         public PaginationFilter<TClass, TRemap> UseQueryStringExpression(string QueryExpression, string Separator = ":", FilterConditional Conditional = FilterConditional.And)
         {
@@ -1288,7 +1290,7 @@ namespace Extensions.Pagination
         public bool Is { get; set; } = true;
 
         /// <summary>
-        /// Expressão do membro utilizado no filtro
+        /// Expressão do integrante utilizado no filtro
         /// </summary>
         /// <returns></returns>
         public Expression Member { get; set; }
@@ -1656,7 +1658,7 @@ namespace Extensions.Pagination
         }
 
         /// <summary>
-        /// Sete um membro para ser utilizado neste filtro. É ignorado quando seus Values estão
+        /// Sete um integrante para ser utilizado neste filtro. É ignorado quando seus Values estão
         /// nulos ou vazios
         /// </summary>
         /// <param name="PropertySelector"></param>
@@ -1664,7 +1666,7 @@ namespace Extensions.Pagination
         public PropertyFilter<TClassFrom, TClassTo> SetMember<T>(Expression<Func<TClassFrom, T>> PropertySelector, FilterConditional Conditional = FilterConditional.Or) => SetMember(Util.JoinString(PropertySelector.Body.ToString().Split(".").Skip(1), "."), Conditional);
 
         /// <summary>
-        /// Sete um membro para ser utilizado neste filtro. É ignorado quando seus Values estão
+        /// Sete um integrante para ser utilizado neste filtro. É ignorado quando seus Values estão
         /// nulos ou vazios
         /// </summary>
         /// <param name="PropertyName"></param>

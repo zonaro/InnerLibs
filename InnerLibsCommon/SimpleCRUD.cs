@@ -42,7 +42,11 @@ namespace Extensions.DataBases
     public static partial class SimpleCRUD
     {
 
+        public static DataRow GetFirstRow(this DataSet Data) => Data?.GetFirstTable()?.GetFirstRow();
 
+        public static DataRow GetFirstRow(this DataTable Table) => Table != null && Table.Rows.Count > 0 ? Table.Rows[0] : null;
+
+        public static DataTable GetFirstTable(this DataSet Data) => Data != null && Data.Tables.Count > 0 ? Data.Tables[0] : null;
         public static DataSet ToDataSet(this IDataReader reader) => ToDataSet(reader, null);
 
         public static DataSet ToDataSet(this IDataReader reader, string DataSetName, params string[] TableNames)
@@ -4135,7 +4139,9 @@ namespace Extensions.DataBases
                     {
                         if (System.IO.File.Exists(File))
                         {
-                            return System.IO.File.ReadAllText(File).ValidateOr(x => x.IsValid(), new ArgumentException("No file content"));
+                            var fileSql = System.IO.File.ReadAllText(File);
+                            if (fileSql.IsNotBlank()) return fileSql;
+                            throw new ArgumentException("No file content");
                         }
                         else
                         {
@@ -4147,8 +4153,11 @@ namespace Extensions.DataBases
                         throw new ArgumentException("File is not a file path");
                     }
                 }
-
-                return $"SELECT * FROM {TableName.ValidateOr(x => x.IsValid(), new ArgumentException("No table name defined"))}";
+                if (TableName.IsNotBlank())
+                {
+                    return $"SELECT * FROM {TableName}";
+                }
+                throw new ArgumentException("No table name defined");
             }
 
             set
