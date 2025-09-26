@@ -1628,18 +1628,116 @@ namespace Extensions
         public static TimeSpan Quarters(this int quarters, DateTime? fromDateTime = null) => fromDateTime.OrNow().Date.AddMonths(quarters * 3) - fromDateTime.OrNow().Date;
 
         /// <summary>
+        /// Ceil <paramref name="dateTime"/> to the next <see cref="RoundTo"/>.
+        /// </summary>
+        /// <param name="dateTime"></param>
+        /// <param name="round"></param>
+        /// <returns></returns>
+        public static DateTime Ceil(this DateTime dateTime, RoundTo round = RoundTo.Second)
+        {
+            DateTime ceiled;
+            switch (round)
+            {
+                case RoundTo.Second:
+                    {
+                        ceiled = new DateTime(dateTime.Year, dateTime.Month, dateTime.Day, dateTime.Hour, dateTime.Minute, dateTime.Second, dateTime.Kind);
+                        if (dateTime.Millisecond > 0)
+                        {
+                            ceiled = ceiled.AddSeconds(1);
+                        }
+                        break;
+                    }
+                case RoundTo.Minute:
+                    {
+                        ceiled = new DateTime(dateTime.Year, dateTime.Month, dateTime.Day, dateTime.Hour, dateTime.Minute, 0, dateTime.Kind);
+                        if (dateTime.Second > 0 || dateTime.Millisecond > 0)
+                        {
+                            ceiled = ceiled.AddMinutes(1);
+                        }
+                        break;
+                    }
+                case RoundTo.Hour:
+                    {
+                        ceiled = new DateTime(dateTime.Year, dateTime.Month, dateTime.Day, dateTime.Hour, 0, 0, dateTime.Kind);
+                        if (dateTime.Minute > 0 || dateTime.Second > 0 || dateTime.Millisecond > 0)
+                        {
+                            ceiled = ceiled.AddHours(1);
+                        }
+                        break;
+                    }
+                case RoundTo.Day:
+                    {
+                        ceiled = new DateTime(dateTime.Year, dateTime.Month, dateTime.Day, 0, 0, 0, dateTime.Kind);
+                        if (dateTime.Hour > 0 || dateTime.Minute > 0 || dateTime.Second > 0 || dateTime.Millisecond > 0)
+                        {
+                            ceiled = ceiled.AddDays(1);
+                        }
+                        break;
+                    }
+                default:
+                    {
+                        ceiled = dateTime;
+                        break;
+                    }
+            }
+            return ceiled;
+        }
+
+
+        /// <summary>
+        /// Floors <paramref name="dateTime"/> to the previous <see cref="RoundTo"/>.
+        /// </summary>
+        /// <param name="dateTime"></param>
+        /// <param name="round"></param>
+        /// <returns></returns>
+        public static DateTime Floor(this DateTime dateTime, RoundTo round = RoundTo.Second)
+        {
+            DateTime floored;
+            switch (round)
+            {
+                case RoundTo.Second:
+                    {
+                        floored = new DateTime(dateTime.Year, dateTime.Month, dateTime.Day, dateTime.Hour, dateTime.Minute, dateTime.Second, dateTime.Kind);
+                        break;
+                    }
+                case RoundTo.Minute:
+                    {
+                        floored = new DateTime(dateTime.Year, dateTime.Month, dateTime.Day, dateTime.Hour, dateTime.Minute, 0, dateTime.Kind);
+                        break;
+                    }
+                case RoundTo.Hour:
+                    {
+                        floored = new DateTime(dateTime.Year, dateTime.Month, dateTime.Day, dateTime.Hour, 0, 0, dateTime.Kind);
+                        break;
+                    }
+                case RoundTo.Day:
+                    {
+                        floored = new DateTime(dateTime.Year, dateTime.Month, dateTime.Day, 0, 0, 0, dateTime.Kind);
+                        break;
+                    }
+                default:
+                    {
+                        floored = dateTime;
+                        break;
+                    }
+            }
+            return floored;
+        }
+
+
+
+        /// <summary>
         /// Rounds <paramref name="dateTime"/> to the nearest <see cref="RoundTo"/>.
         /// </summary>
         /// <returns>The rounded <see cref="DateTime"/>.</returns>
         public static DateTime Round(this DateTime dateTime, RoundTo round = RoundTo.Second)
         {
-            DateTime rounded;
+            DateTime rounded = dateTime.Floor(round);
 
             switch (round)
             {
                 case RoundTo.Second:
                     {
-                        rounded = new DateTime(dateTime.Year, dateTime.Month, dateTime.Day, dateTime.Hour, dateTime.Minute, dateTime.Second, dateTime.Kind);
                         if (dateTime.Millisecond >= 500)
                         {
                             rounded = rounded.AddSeconds(1);
@@ -1648,7 +1746,6 @@ namespace Extensions
                     }
                 case RoundTo.Minute:
                     {
-                        rounded = new DateTime(dateTime.Year, dateTime.Month, dateTime.Day, dateTime.Hour, dateTime.Minute, 0, dateTime.Kind);
                         if (dateTime.Second >= 30)
                         {
                             rounded = rounded.AddMinutes(1);
@@ -1657,7 +1754,6 @@ namespace Extensions
                     }
                 case RoundTo.Hour:
                     {
-                        rounded = new DateTime(dateTime.Year, dateTime.Month, dateTime.Day, dateTime.Hour, 0, 0, dateTime.Kind);
                         if (dateTime.Minute >= 30)
                         {
                             rounded = rounded.AddHours(1);
@@ -1666,7 +1762,6 @@ namespace Extensions
                     }
                 case RoundTo.Day:
                     {
-                        rounded = new DateTime(dateTime.Year, dateTime.Month, dateTime.Day, 0, 0, 0, dateTime.Kind);
                         if (dateTime.Hour >= 12)
                         {
                             rounded = rounded.AddDays(1);

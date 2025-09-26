@@ -4552,7 +4552,7 @@ namespace Extensions
         public static string GetFileNameWithoutExtension(this FileInfo Info) => Info != null ? Path.GetFileNameWithoutExtension(Info.Name) : EmptyString;
 
         /// <summary>
-        /// Retorna o Mime TEntity a partir de um arquivo
+        /// Retorna o Mime Type a partir de um arquivo
         /// </summary>
         /// <param name="File">Arquivo</param>
         /// <returns>string mime type</returns>

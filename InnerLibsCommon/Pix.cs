@@ -77,23 +77,23 @@ namespace Extensions.BR
         {
             // ======== Validações e formatações ========
 
-            if (!Brasil.ChavePIXValida(chavePix)) 
+            if (!Brasil.ChavePIXValida(chavePix))
                 throw new ArgumentException("A chave PIX é inválida");
 
             // Somente CPF ou CNPJ devem ser sem máscara
-            if (Brasil.CPFouCNPJValido(chavePix)) 
+            if (Brasil.CPFouCNPJValido(chavePix))
                 chavePix = chavePix.RemoveMask();
 
-            if (chavePix.Length > 77) 
+            if (chavePix.Length > 77)
                 throw new ArgumentException("A chave PIX não pode ter mais que 77 caracteres.");
 
-            if (nomeRecebedor.IsBlank()) 
+            if (nomeRecebedor.IsBlank())
                 throw new ArgumentException("O nome do recebedor é obrigatório");
 
             // Nome do recebedor: máximo 25 caracteres, sem acentos, maiúsculo
             nomeRecebedor = nomeRecebedor.TrimBetween().RemoveAccents().GetFirstChars(25).ToUpperInvariant();
 
-            if (cidadeRecebedor.IsBlank()) 
+            if (cidadeRecebedor.IsBlank())
                 throw new ArgumentException("A cidade do recebedor é obrigatória");
 
             // Cidade: máximo 15 caracteres conforme padrão do BC
@@ -136,7 +136,7 @@ namespace Extensions.BR
             // 26 - Merchant Account Information (obrigatório)
             string gui = MontarCampo("00", "br.gov.bcb.pix");
             string chave = MontarCampo("01", chavePix);
-            
+
             // Campo 02 para descrição dentro do MAI (opcional)
             string descricaoMAI = string.Empty;
             if (descricao.IsNotBlank())
@@ -200,6 +200,56 @@ namespace Extensions.BR
                 }
             }
             return crc.ToString("X4");
+        }
+
+        /// <summary>
+        /// Decodifica um payload PIX 
+        /// </summary>
+        /// <param name="payload"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        public static Dictionary<string, object> LerPayloadPIX(string payload)
+        {
+            if (payload.IsBlank() || !payload.StartsWith("000201"))
+                throw new ArgumentException("Payload inválido");
+            var result = new Dictionary<string, object>();
+            int index = 0;
+
+            while (index < payload.Length)
+            {
+                if (index + 4 > payload.Length)
+                    break;
+                string id = payload.Substring(index, 2);
+                int length = int.Parse(payload.Substring(index + 2, 2));
+                if (index + 4 + length > payload.Length)
+                    break;
+                string value = payload.Substring(index + 4, length);
+                index += 4 + length;
+                // Verifica se o ID é um campo composto
+                if (id == "26" || id == "62")
+                {
+                    var subFields = new Dictionary<string, string>();
+                    int subIndex = 0;
+                    while (subIndex < value.Length)
+                    {
+                        if (subIndex + 4 > value.Length)
+                            break;
+                        string subId = value.Substring(subIndex, 2);
+                        int subLength = int.Parse(value.Substring(subIndex + 2, 2));
+                        if (subIndex + 4 + subLength > value.Length)
+                            break;
+                        string subValue = value.Substring(subIndex + 4, subLength);
+                        subFields[subId] = subValue;
+                        subIndex += 4 + subLength;
+                    }
+                    result[id] = subFields;
+                }
+                else
+                {
+                    result[id] = value;
+                }
+            }
+            return result;
         }
     }
 }

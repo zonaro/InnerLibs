@@ -26,7 +26,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)DateTime\DateTimeExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DateTime\Fortnight.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DateTime\FortnightGroup.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)DateTime\RoundTo.cs" />
+    <Compile Include="..\..\InnerLibs\InnerLibsCommon\DateTime\DatePart.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DateTime\TimeDemand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DebugTextWriter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DevUtil.cs" />

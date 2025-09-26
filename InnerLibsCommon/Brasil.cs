@@ -17,6 +17,8 @@ using Extensions.vCards;
 using System;
 using System.Text;
 using System.Security.Cryptography;
+using Microsoft.EntityFrameworkCore;
+using Extensions.Dates;
 
 namespace Extensions.BR
 {
@@ -213,9 +215,12 @@ namespace Extensions.BR
         /// </summary>
         /// <param name="dateTime"></param>
         /// <returns></returns>
-        public static string FormatarDataBrasileira(this DateTime dateTime)
+        public static string FormatarDataBrasileira(this DateTime dateTime, RoundTo? precision = null)
         {
-            if (dateTime == DateTime.MinValue) return string.Empty;
+            if (precision != null)
+            {
+                dateTime = dateTime.Round(precision.Value);
+            }
 
             if (dateTime.Millisecond > 0)
                 return dateTime.ToString("dd/MM/yyyy HH:mm:ss:FFFFFFF");
@@ -223,14 +228,15 @@ namespace Extensions.BR
                 return dateTime.ToString("dd/MM/yyyy HH:mm:ss");
             else if (dateTime.Minute > 0 || dateTime.Hour > 0)
                 return dateTime.ToString("dd/MM/yyyy HH:mm");
+            else if (precision == RoundTo.Day)
+                return dateTime.ToString("dd/MM");
             else
-
                 return dateTime.ToString("dd/MM/yyyy");
         }
 
-        public static string FormatarDataBrasileira(this DateTime? dateTime) => (dateTime ?? DateTime.MinValue).FormatarDataBrasileira();
+        public static string FormatarDataBrasileira(this DateTime? dateTime, RoundTo? precision = null) => dateTime?.FormatarDataBrasileira(precision) ?? string.Empty;
 
-        public static string FormatarDataBrasileira(this string dateTime) => dateTime.ToDateTime().FormatarDataBrasileira();
+        public static string FormatarDataBrasileira(this string dateTime, RoundTo? precision = null) => dateTime.ToDateTime().FormatarDataBrasileira(precision);
 
         /// <inheritdoc cref = "TelefoneValido(string)" />
         public static bool TelefoneValido(int telefone)

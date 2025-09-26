@@ -660,7 +660,7 @@ namespace Extensions.Mail
         /// <returns></returns>
         public FluentMailMessage<T> WithMessage(string Message) => WithMessage("{Message}", new { Message });
 
-        
+
 
         /// <summary>
         /// Utiliza um template para o corpo da mensagem
@@ -669,7 +669,7 @@ namespace Extensions.Mail
         /// <returns></returns>
         public FluentMailMessage<T> WithMessage(string TemplateOrFilePathOrUrl, string Message) => WithMessage(TemplateOrFilePathOrUrl, new { Message, PreviewMessage = Message.GetTextPreview(100) });
 
-       
+
         /// <summary>
         /// Utiliza um template para o corpo da mensagem
         /// </summary>
@@ -868,6 +868,45 @@ namespace Extensions.Mail
         {
             Subject = Text;
             return this;
+        }
+
+        /// <summary>
+        /// Ajusta o timeout do SMTP em milisegundos. O valor mínimo aceito é 1000ms
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public FluentMailMessage<T> WithTimeout(int value)
+        {
+            value = value.SetMinValue(1000);
+            return WithTimeout(TimeSpan.FromMilliseconds(value));
+        }
+
+        /// <summary>
+        /// Ajusta o timeout do SMTP
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public FluentMailMessage<T> WithTimeout(TimeSpan value)
+        {
+            this.Timeout = value;
+            return this;
+        }
+
+        public TimeSpan Timeout
+        {
+            get => TimeSpan.FromMilliseconds(Smtp?.Timeout ?? 100000);
+            set
+            {
+                if (Smtp != null)
+                {
+                    Smtp.Timeout = (int)value.TotalMilliseconds;
+
+                }
+                else
+                {
+                    throw new ArgumentException("Smtp is null", nameof(Smtp));
+                }
+            }
         }
 
         #endregion Public Methods
