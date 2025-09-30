@@ -27,22 +27,121 @@ namespace Extensions
         /// addition to standard date formats.</param>
         /// <returns>An enumerable collection of <see cref="DateTime"/> objects representing the dates found in the text. If no
         /// dates are found, the collection will be empty.</returns>
-        public static IEnumerable<DateTime> ExtractDates(this string Text, CultureInfo culture = null, bool includeNames = false)
+        public static IEnumerable<DateTime> ExtractDates(this string Text, CultureInfo culture, string[] Formats = null)
         {
             culture = culture ?? CultureInfo.CurrentCulture;
+            Formats = Formats ?? Array.Empty<string>();
 
-            foreach (var regex in culture.GetDateRegexPatterns(includeNames))
+            if (Formats.IsNullOrEmpty())
             {
-                var matches = Regex.Matches(Text, regex);
-                foreach (Match match in matches)
-                {
-                    if (DateTime.TryParse(match.Value, culture, DateTimeStyles.None, out DateTime parsedDate))
-                    {
-                        yield return parsedDate;
-                    }
-                }
+                Formats = new[] { culture.DateTimeFormat.ShortDatePattern, culture.DateTimeFormat.LongDatePattern, culture.DateTimeFormat.ShortTimePattern, culture.DateTimeFormat.LongTimePattern };
             }
+
+            var regexFormats = Formats
+              .Select(RegexFromDateFormat);
+
+            return regexFormats
+              .SelectMany(regex => Regex.Matches(Text, regex).Cast<Match>())
+              .Select(m => DateTime.TryParse(m.Value, culture, DateTimeStyles.None, out var dt) ? dt : (DateTime?)null)
+              .Where(dt => dt.HasValue)
+              .Select(dt => dt.Value)
+              .Distinct();
         }
+
+        public static IEnumerable<DateTime> ExtractDates(this string Text, string[] Formats) => ExtractDates(Text, CultureInfo.CurrentCulture, Formats);
+
+
+        public static string RegexFromDateFormat(string format)
+        {
+            var sb = new System.Text.StringBuilder();
+
+            int i = 0;
+            while (i < format.Length)
+            {
+                char c = format[i];
+
+                // tokens repetidos (y, M, d, H, h, m, s, f, t, z, K)
+                if ("yMdHhmsftzK".IndexOf(c) >= 0)
+                {
+                    int j = i;
+                    while (j < format.Length && format[j] == c) j++;
+                    int len = j - i;
+
+                    switch (c)
+                    {
+                        case 'y':
+                            // yyyy -> \d{4}, yy -> \d{2}
+                            sb.Append(len >= 4 ? @"\d{4}" : @"\d{2}");
+                            break;
+                        case 'M':
+                            // MM -> \d{2}, M -> \d{1,2}
+                            sb.Append(len >= 2 ? @"\d{2}" : @"\d{1,2}");
+                            break;
+                        case 'd':
+                            // dd -> \d{2}, d -> \d{1,2}
+                            sb.Append(len >= 2 ? @"\d{2}" : @"\d{1,2}");
+                            break;
+                        case 'H':
+                        case 'h':
+                            // HH/hh -> \d{2}, H/h -> \d{1,2}
+                            sb.Append(len >= 2 ? @"\d{2}" : @"\d{1,2}");
+                            break;
+                        case 'm':
+                        case 's':
+                            // mm/ss -> \d{2}, m/s -> \d{1,2}
+                            sb.Append(len >= 2 ? @"\d{2}" : @"\d{1,2}");
+                            break;
+                        case 'f':
+                            // frações de segundo: f, ff, fff...
+                            sb.Append(@"\d{" + len + "}");
+                            break;
+                        case 't':
+                            // AM/PM (pt-BR geralmente não usa, mas suportamos)
+                            if (len >= 2) sb.Append(@"(?i:am|pm)");
+                            else sb.Append(@"(?i:[ap])");
+                            break;
+                        case 'z':
+                            // offset: z -> ±d, zz -> ±dd, zzz -> ±dd:dd
+                            if (len == 1) sb.Append(@"[+\-]\d");
+                            else if (len == 2) sb.Append(@"[+\-]\d{2}");
+                            else sb.Append(@"[+\-]\d{2}:\d{2}");
+                            break;
+                        case 'K':
+                            // info de fuso (padrão ISO) – opção simples
+                            sb.Append(@".*?");
+                            break;
+                    }
+
+                    i = j;
+                    continue;
+                }
+
+                // literais entre aspas simples: 'texto'
+                if (c == '\'')
+                {
+                    int j = i + 1;
+                    var lit = new System.Text.StringBuilder();
+                    while (j < format.Length && format[j] != '\'')
+                    {
+                        lit.Append(format[j]);
+                        j++;
+                    }
+                    sb.Append(System.Text.RegularExpressions.Regex.Escape(lit.ToString()));
+                    i = (j < format.Length) ? j + 1 : j;
+                    continue;
+                }
+
+                // separadores e caracteres literais
+                sb.Append(System.Text.RegularExpressions.Regex.Escape(c.ToString()));
+                i++;
+            }
+
+            return $"{sb}";
+        }
+
+
+
+
 
         public static decimal CalculateTimelinePercent(this string TimeLine, CultureInfo culture = null)
         {
@@ -90,72 +189,7 @@ namespace Extensions
             return CalculatePercent(part, total);
         }
 
-        /// <summary>
-        /// Returns a list of regex patterns for matching date strings based on the specified culture.
-        /// </summary>
-        /// <param name="culture">The culture to use for date formatting.</param>
-        /// <param name="includeNames">Whether to include month and day names in date patterns.</param>
-        /// <returns>A list of regex patterns for matching date strings.</returns>
-        public static IEnumerable<string> GetDateRegexPatterns(this CultureInfo culture, bool includeNames = false)
-        {
-            culture = culture ?? CultureInfo.InvariantCulture;
 
-            var patterns = new List<string>();
-            var dtfi = culture.DateTimeFormat;
-
-            // Get all date patterns for the culture
-            var datePatterns = dtfi.GetAllDateTimePatterns();
-
-            // Prepare localized month/day names if requested
-            string monthNamesPattern = null;
-            string dayNamesPattern = null;
-
-            if (includeNames)
-            {
-                var monthNames = dtfi.MonthNames
-                    .Where(m => !string.IsNullOrEmpty(m))
-                    .Select(Regex.Escape);
-                var abbrevMonths = dtfi.AbbreviatedMonthNames
-                    .Where(m => !string.IsNullOrEmpty(m))
-                    .Select(Regex.Escape);
-
-                monthNamesPattern = "(" + string.Join("|", monthNames.Concat(abbrevMonths)) + ")";
-
-                var dayNames = dtfi.DayNames
-                    .Where(d => !string.IsNullOrEmpty(d))
-                    .Select(Regex.Escape);
-                var abbrevDays = dtfi.AbbreviatedDayNames
-                    .Where(d => !string.IsNullOrEmpty(d))
-                    .Select(Regex.Escape);
-
-                dayNamesPattern = "(" + string.Join("|", dayNames.Concat(abbrevDays)) + ")";
-            }
-
-            foreach (var pattern in datePatterns)
-            {
-                string regexPattern = Regex.Escape(pattern);
-
-                // Replace tokens with regex equivalents
-                regexPattern = regexPattern
-                    .Replace("dddd", includeNames ? dayNamesPattern : @"\w+")
-                    .Replace("ddd", includeNames ? dayNamesPattern : @"\w+")
-                    .Replace("MMMM", includeNames ? monthNamesPattern : @"\w+")
-                    .Replace("MMM", includeNames ? monthNamesPattern : @"\w+")
-                    .Replace("MM", @"\d{1,2}")
-                    .Replace("M", @"\d{1,2}")
-                    .Replace("dd", @"\d{1,2}")
-                    .Replace("d", @"\d{1,2}")
-                    .Replace("yyyy", @"\d{4}")
-                    .Replace("yy", @"\d{2}");
-
-                // Allow flexible whitespace
-                regexPattern = regexPattern.Replace(@"\ ", @"\s+");
-
-                patterns.Add(@"\b" + regexPattern + @"\b");
-            }
-
-            return patterns.Distinct();
-        }
 
         #region Public Properties
 

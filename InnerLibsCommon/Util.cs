@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -53,14 +54,9 @@ namespace Extensions
 {
     public static partial class Util
     {
-
-
-
         private const int ERROR_LOCK_VIOLATION = 33;
 
         private const int ERROR_SHARING_VIOLATION = 32;
-
-
 
         private static readonly MethodInfo containsMethod = typeof(string).GetMethod("Contains", new[] { typeof(string) });
 
@@ -85,7 +81,6 @@ namespace Extensions
         private static readonly MethodInfo startsWithMethod = typeof(string).GetMethod("StartsWith", new[] { typeof(string) });
 
         public static bool IsEmpty<T>(this IEnumerable<T> Enumerable) => Enumerable.Any() == false;
-
 
         /// <summary>
         /// Gets all constants defined in the specified type.
@@ -141,7 +136,6 @@ namespace Extensions
             List<string> partes = new List<string>();
             string[] linhas = text.Split(PredefinedArrays.BreakLineChars.ToArray());
 
-
             int limitIndex = 0;
 
             foreach (string linha in linhas)
@@ -157,8 +151,6 @@ namespace Extensions
 
                     string fraseComDelim = fraseTrim + delimitador + (delimitador == '\n' ? "" : " ");
                     int limit = limits[limitIndex % limits.Length]; // Cicla o array de limites
-
-
 
                     if (parteAtual.Length + fraseComDelim.Length <= limit)
                     {
@@ -185,7 +177,6 @@ namespace Extensions
 
             return partes;
         }
-
 
         /// <summary>
         /// Splits the given text into parts based on a character limit. Ensures sentences are not split,
@@ -235,9 +226,7 @@ namespace Extensions
             somaSequencias += sequenciaAtual;
 
             return somaSequencias;
-
         }
-
 
         public static Image GenerateAvatarByName(this string Name, Size Size, int maxLenght = 3, bool circle = true)
         {
@@ -288,7 +277,6 @@ namespace Extensions
                     }
                     else
                     {
-
                         Name = $"{parts.Detach(0)}{parts.TakeLast(maxLenght - 1).JoinString()}";
                     }
                 }
@@ -307,9 +295,6 @@ namespace Extensions
                         {
                             Name = Name.GetFirstChars(-1).Remove(Name.Length - 1);
                         }
-
-
-
                     }
                     Name = Name.GetFirstChars(maxLenght).ToTitle();
                 }
@@ -324,7 +309,6 @@ namespace Extensions
             }
 
             return img;
-
         }
 
         /// <summary>
@@ -340,7 +324,6 @@ namespace Extensions
         /// <param name="Text">The text to get initials from.</param>
         /// <returns>An string of initials from the text.</returns>
         public static string GetInitialsString(this string Text) => Text.GetInitials().JoinString();
-
 
         public static string GetFileHash(this FileInfo file, HashAlgorithm hashAlgorithm = null)
         {
@@ -359,14 +342,13 @@ namespace Extensions
         /// <param name="file1"></param>
         /// <param name="file2"></param>
         /// <returns></returns>
-        public static bool IsCopyOf(FileInfo file1, FileInfo file2, HashAlgorithm hashAlgorithm = null)
+        public static bool IsCopyOf(this FileInfo file1, FileInfo file2, HashAlgorithm hashAlgorithm = null)
         {
             // verifica se os arquivos existem, se possuem o mesmo tamanho e se não são o mesmo arquivo (o mesmo arquivo não pode ser copia dele mesmo)
             if (!file1.Exists || !file2.Exists || file1.Length != file2.Length || file1.FullName == file2.FullName)
                 return false;
 
             return GetFileHash(file1, hashAlgorithm) == GetFileHash(file2, hashAlgorithm);
-
         }
 
         /// <summary>
@@ -397,7 +379,7 @@ namespace Extensions
         /// Inject a <see cref="Hashtable"/> into <see cref="String"/>
         /// </summary>
         /// <param name="formatString"></param>
-        /// <param name="attributes"></param>  
+        /// <param name="attributes"></param>
         /// <returns></returns>
         private static string InjectBase(string formatString, Hashtable attributes, CultureInfo cultureInfo, bool CaseSensitive)
         {
@@ -442,8 +424,6 @@ namespace Extensions
                     replacement = (replacementValue ?? default).ToString();
                 }
 
-
-
                 result = result.Replace(m.ToString(), replacement);
             }
 
@@ -468,13 +448,10 @@ namespace Extensions
 
         public const string WhitespaceChar = " ";
 
-
-
         /// <summary>
         /// Set this flag to true to show InnerLibs Debug messages (<see cref="WriteDebug"/>)
         /// </summary>
         public static bool EnableDebugMessages { get; set; }
-
 
         /// <summary>
         /// Lista com todos os formatos de imagem
@@ -505,6 +482,7 @@ namespace Extensions
         /// Retorna o ano atual
         /// </summary>
         public static int ThisYear => DateTime.Now.Year;
+
         /// <summary>
         /// Gets the current month as an integer, where January is 1 and December is 12.
         /// </summary>
@@ -602,7 +580,7 @@ namespace Extensions
         /// Thrown when <paramref name="startText"/> or <paramref name="endText"/> is <c>null</c>, empty, or whitespace.
         /// </exception>
         /// <remarks>
-        /// This method constructs a URL with the format: 
+        /// This method constructs a URL with the format:
         /// <c>#~:text=startText,endText</c>
         /// which is supported in Chrome and Chromium-based browsers.
         /// </remarks>
@@ -629,7 +607,6 @@ namespace Extensions
                 finalText = string.Empty;
             }
 
-
             if (text.IsNotBlank())
             {
                 // Codifica o texto para uso seguro em URL
@@ -642,10 +619,8 @@ namespace Extensions
                     b.Fragment = $"#:~:text={Uri.EscapeDataString(text)}";
             }
 
-
             return b.Uri;
         }
-
 
         /// <summary>
         /// Retorna TRUE se a todos os testes em uma lista retornarem FALSE
@@ -923,6 +898,7 @@ namespace Extensions
         /// <param name="FalseValue">valor se falso</param>
         /// <returns></returns>
         public static TR AsIf<T, TR>(this T obj, Expression<Func<T, bool>> BoolExp, TR TrueValue, TR FalseValue = default) => obj == null || BoolExp == null ? FalseValue : BoolExp.Compile().Invoke(obj).AsIf(TrueValue, FalseValue);
+
         public static TR AsIf<TR>(this string obj, TR TrueValue, TR FalseValue = default) => AsIf<string, TR>(obj, x => x.AsBool(true), TrueValue, FalseValue);
 
         /// <summary>
@@ -953,8 +929,6 @@ namespace Extensions
             else
                 return NullValue;
         }
-
-
 
         /// <summary>
         /// Decoda uma string em Base64
@@ -1049,8 +1023,6 @@ namespace Extensions
             }
         }
 
-
-
         /// <summary>
         /// Verifica se dois ou mais string estão nulas ou em branco e retorna o primeiro elemento
         /// que possuir um valor
@@ -1067,7 +1039,6 @@ namespace Extensions
         /// <param name="N">Itens</param>
         /// <returns></returns>
         public static string ValidCoalesce<T>(params T[] N) => (N ?? Array.Empty<T>()).FirstOrDefault(x => Util.IsValid(x))?.ChangeType<string>() ?? EmptyString;
-
 
         /// <summary>
         /// Encapsula um texto em uma caixa. Funciona somente com fonte monoespaçadas
@@ -1468,8 +1439,6 @@ namespace Extensions
         /// <returns>Array convertido em novo ToType</returns>
         public static IEnumerable<object> ChangeIEnumerableType<TFrom>(this IEnumerable<TFrom> Value, Type ToType) => (Value ?? Array.Empty<TFrom>()).Select(el => el.ChangeType(ToType)).ToList().AsEnumerable();
 
-
-
         public static T ChangeTypeStringFallback<T>(this object Value)
         {
             try
@@ -1482,7 +1451,6 @@ namespace Extensions
             {
                 return default;
             }
-
         }
 
         public static object ChangeTypeStringFallback<TFrom>(this TFrom Value, Type ToType)
@@ -1516,11 +1484,9 @@ namespace Extensions
         {
             try
             {
-
                 var v = Util.ChangeType(Value, typeof(T), formatProvider);
                 if (v == null && typeof(T).IsSimpleType()) return default;
                 return (T)v;
-
             }
             catch (Exception ex)
             {
@@ -1552,7 +1518,6 @@ namespace Extensions
                 return Value;
             }
 
-
             if ((Value == null || (ToType.IsSimpleType() && Value is string ss && ss.IsBlank()))) return default;
 
             WriteDebug($"Try changing from {typeof(TFrom).Name} to {ToType.Name}");
@@ -1569,8 +1534,6 @@ namespace Extensions
             catch
             {
             }
-
-
 
             try
             {
@@ -1598,7 +1561,6 @@ namespace Extensions
                 {
                     if (Value is string Name && Name.IsNotBlank() && Name.IsNotNumber())
                     {
-
                         foreach (var x in Enum.GetValues(ToType))
                         {
                             var entryName1 = Util.GetDisplayString(x, ToType, false);
@@ -1610,8 +1572,6 @@ namespace Extensions
                                 WriteDebug($"{ToType.Name} value ({Name}) found ({entryName1})");
                                 return Enum.ToObject(ToType, x);
                             }
-
-
                         }
                         WriteDebug($"{ToType.Name} value ({Name}) not found");
                     }
@@ -1622,7 +1582,6 @@ namespace Extensions
                         {
                             newv = dec.RoundInt();
                         }
-
                         else if (Value is long l)
                         {
                             newv = l.ToInt();
@@ -1646,7 +1605,6 @@ namespace Extensions
 
                         WriteDebug($"Parsing Enum from number {newv}");
                         return Enum.ToObject(ToType, newv);
-
                     }
                     return default;
                 }
@@ -1654,12 +1612,10 @@ namespace Extensions
                 {
                     WriteDebug($"{ToType.Name} is value type");
 
-
                     if (Value is string sss && sss.CountCharacter('%') == 1)
                     {
                         return ParsePercent(sss, ToType, formatProvider);
                     }
-
 
                     var Converter = TypeDescriptor.GetConverter(ToType);
                     if (Converter.CanConvertFrom(typeof(TFrom)))
@@ -1667,7 +1623,6 @@ namespace Extensions
                         try
                         {
                             return Converter.ConvertTo(Value, ToType);
-
                         }
                         catch
                         {
@@ -1695,9 +1650,9 @@ namespace Extensions
         /// <inheritdoc cref="ParsePercent(string, Type, IFormatProvider?)"/>
         public static T ParsePercent<T>(this string Percent, IFormatProvider? formatProvider = null) where T : struct => ParsePercent(Percent, typeof(T), formatProvider).ChangeType<T>(formatProvider);
 
-        public static V ParsePercent<V>(this V Percent,  IFormatProvider? formatProvider = null) where V : struct
-        {           
-                return Percent.ChangeType<V>(formatProvider);  
+        public static V ParsePercent<V>(this V Percent, IFormatProvider? formatProvider = null) where V : struct
+        {
+            return Percent.ChangeType<V>(formatProvider);
         }
 
         /// <summary>
@@ -1713,17 +1668,14 @@ namespace Extensions
 
             if (Percent.IsNotBlank() && type.IsSimpleType())
             {
-
                 //verifica se o numero tem %
                 if (Percent.CountCharacter('%') == 1)
                 {
                     var parts = Percent.Split('%').Where(x => x.IsNumber()).ToList();
                     if (parts.Count <= 2)
                     {
-
                         if (type.GetTypeOf().IsIn(PredefinedArrays.NumericTypes) || type.GetTypeOf() == typeof(string))
                         {
-
                             if (parts.Count == 1)
                             {
                                 parts.Add("1");
@@ -1735,18 +1687,15 @@ namespace Extensions
 
                             WriteDebug($"Parsing {percent}% of {total}");
                             return percent.CalculatePercent(total).ChangeType(type, formatProvider);
-
                         }
-
                     }
                     WriteDebug($"Invalid percent format: {Percent}", "Percent Format");
                 }
 
-                if(Percent.IsNumber())
+                if (Percent.IsNumber())
                 {
                     return Percent.ChangeType(type, formatProvider);
                 }
-
             }
 
             return GetDefault(type);
@@ -1959,7 +1908,9 @@ namespace Extensions
         /// <param name="Values">Lista de valores</param>
         /// <returns>True se conter algum valor, false se não</returns>
         public static bool ContainsAny(this string Text, params string[] Values) => Text.ContainsAny(StringComparison.InvariantCultureIgnoreCase, Values);
+
         public static bool ContainsAny(this string Text, params char[] Values) => Text.ContainsAny(StringComparison.InvariantCultureIgnoreCase, Values.Select(x => x.ToString()).ToArray());
+
         public static bool ContainsAny(this string Text, StringComparison comparison, params char[] Values) => Text.ContainsAny(comparison, Values.Select(x => x.ToString()).ToArray());
 
         /// <summary>
@@ -2137,7 +2088,6 @@ namespace Extensions
             return dic;
         }
 
-
         /// <summary>
         /// Cria uma constante a partir de um valor para ser usada em expressões lambda
         /// </summary>
@@ -2198,7 +2148,6 @@ namespace Extensions
                     var l = new List<KeyValuePair<string, object>>();
                     foreach (DictionaryEntry kv in po)
                     {
-
                         l.Add(new KeyValuePair<string, object>($"{kv.Key}", (object)kv.Value));
                     }
                     return l.ToDictionary(Keys);
@@ -2222,7 +2171,6 @@ namespace Extensions
         /// <param name="Obj">Object</param>
         /// <returns></returns>
         public static IEnumerable<Dictionary<string, object>> CreateDictionaryEnumerable<T>(this IEnumerable<T> Obj, params string[] Keys) => (Obj ?? Array.Empty<T>()).Select(x => x.CreateDictionary(Keys));
-
 
         /// <summary>
         /// Cria um diretório se ele não existir e retorna um <see cref="DirectoryInfo"/> correspondente.
@@ -2275,7 +2223,6 @@ namespace Extensions
         /// <returns>Um objeto <see cref="DirectoryInfo"/> representando o diretório criado ou existente.</returns>
         public static DirectoryInfo CreateDirectoryIfNotExists(this FileInfo FileName, DateTime? DateAndTime = null) => FileName?.FullName.CreateDirectoryIfNotExists(DateAndTime);
 
-
         /// <summary>
         /// Cria um diretório a partir de múltiplas partes de caminho (string, DateTime, FileInfo ou DirectoryInfo) e retorna o <see cref="DirectoryInfo"/> correspondente.
         /// </summary>
@@ -2288,7 +2235,6 @@ namespace Extensions
                   if (x is DateTime dt)
                   {
                       return new string[] { dt.ToString("yyyy"), dt.ToString("MM"), dt.ToString("dd") };
-
                   }
                   else if (x is FileInfo fi)
                   {
@@ -2297,7 +2243,6 @@ namespace Extensions
                   else if (x is DirectoryInfo di)
                   {
                       return di.FullName.SplitAny($"{Path.DirectorySeparatorChar}", $"{Path.AltDirectorySeparatorChar}").Skip(i);
-
                   }
                   else
                   {
@@ -2991,7 +2936,6 @@ namespace Extensions
 
         public static Image DownloadImage(this Uri URL, NameValueCollection Headers = null, Encoding Encoding = null) => DownloadImage($"{URL}", Headers, Encoding);
 
-
         public static string DownloadString(string URL, NameValueCollection Headers = null, Encoding Encoding = null)
         {
             string s = EmptyString;
@@ -3160,10 +3104,7 @@ namespace Extensions
         /// <returns></returns>
         public static bool FlatEqual(this string Text, params object[] CompareText) => CompareText?.Any(x => InsensitiveEqual(Text.RemoveAccents(), x.ChangeType<string>().RemoveAccents())) ?? false;
 
-
         public static bool FlatContains(this string Text, params object[] CompareText) => Text.RemoveAccents().ContainsAny(StringComparison.OrdinalIgnoreCase, CompareText.Select(y => y.ChangeType<string>().RemoveAccents()).ToArray());
-
-
 
         /// <summary>
         /// Prepara uma string com aspas simples para uma string TransactSQL
@@ -3178,7 +3119,6 @@ namespace Extensions
         /// <param name="Text"></param>
         /// <returns></returns>
         public static IEnumerable<string> ExtractEmails(this string Text) => Text.IfBlank(string.Empty).SplitAny(PredefinedArrays.InvisibleChars, PredefinedArrays.BreakLineChars, new[] { ':', ';' }).Where(x => x.IsEmail()).Select(x => x.ToLowerInvariant()).Distinct().ToArray();
-
 
         public static double[] ExtractNumbers(this string input)
         {
@@ -3197,7 +3137,6 @@ namespace Extensions
 
             return numbers.ToArray();
         }
-
 
         /// <summary>
         /// Calcula o fatorial de um numero
@@ -3338,7 +3277,6 @@ namespace Extensions
                 var lst = type.GetProperties().Where(x => x.GetCustomAttributes<ColumnAttribute>().Select(n => n.Name).Contains(x.Name) || x.Name.IsIn(propnames, StringComparer.InvariantCultureIgnoreCase));
                 // order lst to match the order of Names
                 return lst.OrderBy(x => propnames.IndexOf(x.Name)).ToList();
-
             }
             return Array.Empty<PropertyInfo>();
         }
@@ -3404,8 +3342,6 @@ namespace Extensions
             }
             return Util.NullCoalesce(Alternate.AsEnumerable()) ?? default;
         }
-
-
 
         /// <summary>
         /// Busca em um <see cref="IQueryable{T}"/> usando uma expressao lambda a partir do nome de
@@ -3513,7 +3449,6 @@ namespace Extensions
         /// <b>null</b>, nada acontece
         /// </remarks>
 
-
         public static (T FirstValue, T SecondValue) FixOrder<T>(T FirstValue, T SecondValue) where T : IComparable
         {
             if (FirstValue != null && SecondValue != null)
@@ -3533,8 +3468,6 @@ namespace Extensions
             return FixOrder(value.Item1, value.Item2);
         }
 #endif
-
-
 
         /// <summary>
         /// Troca valor de <paramref name="FirstValue"/> pelo de <paramref name="SecondValue"/> se
@@ -3581,7 +3514,6 @@ namespace Extensions
             return Texts.Select(x => x.MostCommonPathChar()).DistinctCount().OrderByDescending(x => x.Value).First().Key;
         }
 
-
         public static IEnumerable<string> SplitPath(this string Text)
         {
             var PathParts = Text?.Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }).Where(x => x.IsNotBlank())?.ToArray() ?? Array.Empty<string>();
@@ -3623,7 +3555,6 @@ namespace Extensions
         /// <inheritdoc cref="GetLeftPathPart(string, string, bool?)"/>
         public static string GetLeftPathPart(this FileSystemInfo fullPath, string basePath, bool? AlternativeChar = null) => fullPath?.FullName.GetLeftPathPart(basePath, AlternativeChar) ?? string.Empty;
 
-
         /// <summary>
         /// Ajusta um caminho colocando as barras corretamente e substituindo caracteres inválidos
         /// </summary>
@@ -3642,6 +3573,7 @@ namespace Extensions
             }
             return NewPath;
         }
+
         public static string FixPath(params string[] PathParts) => FixPath(PathParts, AlternativeChar: null);
 
         /// <summary>
@@ -3865,12 +3797,12 @@ namespace Extensions
         public static double Similarity(this string Text1, string Text2) => (1.0 - ((double)Text1.LevenshteinDistance(Text2) / (double)Math.Max(Text1.Length, Text2.Length)));
 
         public static double SimilarityCaseInsensitive(this string Text1, string Text2) => (1.0 - ((double)Text1.LevenshteinDistanceCaseInsensitive(Text2) / (double)Math.Max(Text1.Length, Text2.Length)));
+
         public static double SimilarityFlat(this string Text1, string Text2) => SimilarityCaseInsensitive(Text1.RemoveAccents(), Text2.RemoveAccents());
 
         public static int LevenshteinDistanceCaseInsensitive(this string Text1, string Text2) => Text1.ToLower().LevenshteinDistance(Text2.ToLower());
+
         public static int LevenshteinDistanceFlat(this string Text1, string Text2) => Text1.ToLower().RemoveAccents().LevenshteinDistance(Text2.ToLower().RemoveAccents());
-
-
 
         /// <summary>
         /// Extension Method para <see cref="string.Format(string,object)"/>
@@ -3879,8 +3811,6 @@ namespace Extensions
         /// <param name="Args">Objetos de substituição</param>
         /// <returns></returns>
         public static string FormatString(this string Text, params string[] Args) => string.Format(Text, Args);
-
-
 
         /// <inheritdoc cref="GenerateBarcodeCheckSum(string)"/>
         public static string GenerateBarcodeCheckSum(long Code) => GenerateBarcodeCheckSum(Code.ToString(CultureInfo.InvariantCulture));
@@ -3931,7 +3861,6 @@ namespace Extensions
             }
             return T.ToString(CultureInfo.InvariantCulture);
         }
-
 
         /// <summary>
         /// Gera um numero de EAN válido a aprtir da combinação de vários numeros
@@ -4265,7 +4194,6 @@ namespace Extensions
             return TheColor.MergeWith(Color.FromArgb(d, d, d), Percent);
         }
 
-
         public static int GetDecimalLength(this decimal number) => BitConverter.GetBytes(decimal.GetBits(number)[3])[2];
 
         public static int GetDecimalLength(this double number) => number.ToDecimal().GetDecimalLength();
@@ -4344,7 +4272,6 @@ namespace Extensions
         /// <returns>nome do dominio</returns>
         public static string GetDomainAndProtocol(this string URL) => $"{new Uri(URL.PrependIf("http://", x => x.IsURL() == false)).GetLeftPart(UriPartial.Authority)}";
 
-
         /// <summary> Traz o valor de uma <see cref="Enum"> do tipo <typeparamref name="T"/> a
         /// partir de uma string </summary> <typeparam name="T"></typeparam> <returns></returns>
         public static T GetEnumValue<T>(this string Name) where T : Enum => (T)GetEnumValue(Name, typeof(T));
@@ -4369,7 +4296,7 @@ namespace Extensions
         /// <summary>
         /// Traz a string correspondente ao <paramref name="Value"/> de uma <see cref="Enum"/> do
         /// tipo <typeparamref name="T"/>
-        /// 
+        ///
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
@@ -4385,14 +4312,12 @@ namespace Extensions
                 throw new ArgumentNullException(nameof(enumType));
             }
 
-
             if (!enumType.IsEnum) throw new ArgumentException($"{enumType.Name} must be an Enumeration type.", enumType.Name);
 
             string name = null;
             if (Value is string s)
             {
                 name = Enum.GetNames(enumType).Cast<object>().FirstOrDefault(x => s.FlatEqual(x))?.ToString();
-
             }
             else if (Value.IsNumber())
             {
@@ -4419,7 +4344,6 @@ namespace Extensions
             }
 
             return name;
-
         }
 
         /// <summary>
@@ -4457,7 +4381,6 @@ namespace Extensions
             return DefaultName;
         }
 
-
         /// <summary>
         /// Traz todos os Valores de uma enumeração como string
         /// </summary>
@@ -4470,7 +4393,6 @@ namespace Extensions
             if (!typeof(T).IsEnum) throw new ArgumentException("T must be an Enumeration type.", nameof(T));
             return Enum.GetValues(typeof(T)).Cast<T>().Select(x => x.GetDisplayString(friendlyName));
         }
-
 
         /// <summary>
         /// Traz a string correspondente ao <paramref name="Value"/> de uma <see cref="Enum"/> do
@@ -4574,7 +4496,6 @@ namespace Extensions
             return Text.IsValid() ? Text.Length < Number || Number < 0 ? Text : Text.Substring(0, Number) : EmptyString;
         }
 
-
         /// <summary>
         /// Return a FontAwesome icon class that best represents a gender
         /// </summary>
@@ -4616,7 +4537,6 @@ namespace Extensions
             {
                 return "fa-genderless"; // Ícone sem genero
             }
-
         }
 
         /// <summary>
@@ -4862,8 +4782,6 @@ namespace Extensions
             return "fa-file";
         }
 
-
-
         /// <summary>
         /// Retorna a classe do icone do FontAwesome que representa melhor o arquivo ou diretório
         /// </summary>
@@ -4908,50 +4826,71 @@ namespace Extensions
         }
 
         /// <summary>
-        /// Returns the zero-based index of the first occurrence of the specified item in the sequence.
+        /// Return the index of an item in a collection or -1 if not found
         /// </summary>
-        /// <remarks>This method attempts to optimize the search by checking if the sequence implements
-        /// <see cref="IList{T}"/>  or <see cref="IList"/> for direct indexing. If the sequence does not implement these
-        /// interfaces,  it performs a linear search.</remarks>
-        /// <typeparam name="T">The type of elements in the sequence.</typeparam>
-        /// <param name="Arr">The sequence to search. Cannot be <see langword="null"/>.</param>
-        /// <param name="item">The item to locate in the sequence.</param>
-        /// <returns>The zero-based index of the first occurrence of <paramref name="item"/> in <paramref name="Arr"/>,  or -1 if
-        /// the item is not found.</returns>
-        public static int GetIndexOf<T>(this IEnumerable<T> Arr, T item)
+        /// <param name="source"></param>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static int GetIndexOf(this object source, object item)
         {
-            try
+            if (source == null) throw new ArgumentNullException(nameof(source));
+
+            // 🔤 string
+            if (source is string s && item is char c)
+                return s.IndexOf(c);
+
+            if (source is string s2 && item is string sub)
+                return s2.IndexOf(sub, StringComparison.Ordinal);
+
+            // 📋 IList<T>
+            if (source is IList list)
+                return list.IndexOf(item);
+
+            // 📚 Array
+            if (source is Array array)
+                return Array.IndexOf(array, item);
+
+            // 🔒 ImmutableArray<T>
+            if (source is IImmutableList<object> immListObj)
+                return immListObj.IndexOf(item);
+
+            // 🔒 ImmutableArray<T> genérico
+            var type = source.GetType();
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(ImmutableArray<>))
             {
-                if (Arr != null)
-                {
-                    if (Arr is IList<T> lista) return lista.IndexOf(item);
-                    else if (Arr is IList lista2) return lista2.IndexOf(item);          
-                
-                    else if(Arr is Array array && array.GetType().GetElementType() == typeof(T))
-                    {
-                        int index = Array.IndexOf(array, item);
-                        return index;
-                    }
-                    else
-                    {
-                        int index = 0;
-                        foreach (var element in Arr)
-                        {
-                            if (element.Equals(item))
-                                return index;
-                            index++;
-                        }
-                    }
-                }
+                var method = type.GetMethod("IndexOf", new[] { type.GetGenericArguments()[0] });
+                if (method != null)
+                    return (int)method.Invoke(source, new[] { item });
             }
-            catch
+
+            // 🪞 Reflection fallback
+            var indexOfMethod = type.GetMethods(BindingFlags.Public | BindingFlags.Instance)
+                                    .FirstOrDefault(m => m.Name == "IndexOf" &&
+                                                         m.GetParameters().Length == 1);
+
+            if (indexOfMethod != null)
             {
                 try
                 {
-                    return Arr.ToList().IndexOf(item);
+                    var result = indexOfMethod.Invoke(source, new[] { item });
+                    if (result is int idx) return idx;
                 }
                 catch
                 {
+                    // Ignora falhas de invocação
+                }
+            }
+
+            // 🧩 Fallback final: IEnumerable linear
+            if (source is IEnumerable enumerable)
+            {
+                int index = 0;
+                foreach (var element in enumerable)
+                {
+                    if (Equals(element, item))
+                        return index;
+                    index++;
                 }
             }
 
@@ -4966,7 +4905,7 @@ namespace Extensions
         /// <param name="MyType"></param>
         /// <returns></returns>
         public static IEnumerable<Type> GetInheritedClasses(this Type MyType) =>
-        
+
             Assembly.GetAssembly(MyType).GetTypes().Where(TheType => TheType.IsClass && !TheType.IsAbstract && TheType.IsSubclassOf(MyType));
 
         /// <summary>
@@ -5008,6 +4947,7 @@ namespace Extensions
         {
             return GetMemberInfo<TSource, TProperty>(propertyLambda) as TType;
         }
+
         public static MemberInfo GetMemberInfo<TSource, TProperty>(this Expression<Func<TSource, TProperty>> propertyLambda)
         {
             MemberExpression member;
@@ -5056,7 +4996,7 @@ namespace Extensions
             Text = Text.IfBlank(EmptyString);
             if (Text.Length >= Length)
             {
-                if (Text.Length % 2 != 0)
+                if (Text.Length.IsOdd())
                 {
                     try
                     {
@@ -5075,7 +5015,6 @@ namespace Extensions
 
             return Text;
         }
-
 
         /// <summary>
         /// Retorna a cor negativa de uma cor
@@ -6145,7 +6084,6 @@ namespace Extensions
                 {
                     username = segments[2];
                 }
-
             }
 
             return username.TrimStart('@').TrimEnd('/');
@@ -6175,7 +6113,6 @@ namespace Extensions
                 return $"{Text.GetFirstChars(TextLength)}{Ellipsis ?? ""}";
             }
         }
-
 
         /// <summary>
         /// Retorna o <see cref="Type"/> do objeto mesmo se ele for nulo
@@ -6413,9 +6350,6 @@ namespace Extensions
         /// <param name="URL">Url do Youtube</param>
         /// <returns></returns>
         public static Image GetYoutubeThumbnail(this Uri URL) => GetYoutubeThumbnail(URL?.AbsoluteUri);
-
-
-
 
         /// <summary>
         /// Constroi uma expressão Maior que
@@ -6682,7 +6616,6 @@ namespace Extensions
                             return false;
                         }
                     }
-
                 }
             }
             return true;
@@ -6710,7 +6643,6 @@ namespace Extensions
         {
             return dir != null && dir.Exists && dir.Attributes.HasFlag(FileAttributes.Hidden);
         }
-
 
         /// <summary>
         /// Retorna um texto com entidades HTML convertidas para caracteres e tags BR em breaklines
@@ -6813,7 +6745,6 @@ namespace Extensions
         /// <returns></returns>
         public static IEnumerable<T> IfNullOrEmpty<T>(this IEnumerable<object[]> Value, IEnumerable<T> ValueIfBlank) => Value != null && Value.Any() ? Value.ChangeIEnumerableType<T, object[]>() : ValueIfBlank;
 
-
         /// <summary>
         /// Inject the property values of <typeparamref name="T"/> into <see cref="String"/>
         /// </summary>
@@ -6835,9 +6766,6 @@ namespace Extensions
 
         public static string Inject(this string formatString, Hashtable attributes, CultureInfo culture = null, bool CaseSensitive = true) => InjectBase(formatString, attributes, culture, CaseSensitive);
 
-
-
-
         /// <summary>
         /// Inject the property values of <typeparamref name="T"/> into <see cref="String"/>
         /// </summary>
@@ -6856,11 +6784,6 @@ namespace Extensions
 
             return formatString;
         }
-
-
-
-
-
 
         public static string Interpolate(this string Text, params string[] Texts)
         {
@@ -7117,95 +7040,14 @@ namespace Extensions
             return Value.IsGreaterThanOrEqual(MinValue) && Value.IsLessThanOrEqual(MaxValue);
         }
 
-
         public static bool IsBlankOrZero(this string text) => text.IsBlank() || (text.IsNumber() && text.ToInt() == 0);
+
         public static bool IsBlank(this string text) => text.IsNotValid();
+
         public static bool IsNotBlank(this string text) => text.IsValid();
 
-        /// <summary>
-        /// Verifica se o valor não é válido.
-        /// </summary>
-        /// <param name="Value">O valor a ser verificado.</param>
-        /// <returns>True se o valor não for válido, caso contrário, False.</returns>
-        public static bool IsNotValid(this object Value)
-        {
-            try
-            {
-                if (Value != null)
-                {
-                    var tipo = Value.GetNullableTypeOf();
 
-                    if (tipo.IsNumericType())
-                    {
-                        return Value.ChangeType<decimal>() == 0;
-                    }
-                    else if (Value is FormattableString fs)
-                    {
-                        return IsNotValid($"{fs}".ToUpperInvariant());
-                    }
-                    else if (Value is bool b)
-                    {
-                        return !b;
-                    }
-                    else if (Value is string s)
-                    {
-                        return string.IsNullOrWhiteSpace($"{s}".RemoveAny(PredefinedArrays.BreakLineChars.ToArray()));
-                    }
-                    else if (Value is char c)
-                    {
-                        return string.IsNullOrWhiteSpace($"{c}".RemoveAny(PredefinedArrays.BreakLineChars.ToArray()));
-                    }
-                    else if (Value is DateTime time)
-                    {
-                        return time.Equals(DateTime.MinValue);
-                    }
-                    else if (Value is TimeSpan span)
-                    {
-                        return span.Equals(TimeSpan.MinValue);
-                    }
-                    else if (Value is DateTimeOffset off)
-                    {
-                        return off.Equals(DateTimeOffset.MinValue);
-                    }
-                    else if (Value is Guid guid)
-                    {
-                        return guid == Guid.Empty;
-                    }
-                    else if (Value is IDictionary dic)
-                    {
-                        foreach (DictionaryEntry item in dic)
-                        {
-                            if (item.Value.IsValid())
-                            {
-                                return false;
-                            }
-                        }
-                    }
-                    else if (Value.IsEnumerableNotString() && Value is IEnumerable enumerable)
-                    {
-                        foreach (object item in enumerable)
-                        {
-                            if (item.IsValid())
-                            {
-                                return false;
-                            }
-                        }
-                    }
-                    else if (tipo.IsClass && !tipo.IsSimpleType())
-                    {
-                        var context = new ValidationContext(Value);
-                        var results = new List<ValidationResult>();
-                        bool isValid = Validator.TryValidateObject(Value, context, results, validateAllProperties: true);
-                        return !isValid;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                WriteDebug(ex);
-            }
-            return true;
-        }
+
 
         /// <summary>
         /// Verifica se uma String está em branco
@@ -7215,8 +7057,6 @@ namespace Extensions
         public static bool IsBlank(this FormattableString Text) => Text == null || $"{Text}".IsNotValid();
 
         public static bool IsBool<T>(this T Obj) => GetNullableTypeOf(Obj) == typeof(bool) || $"{Obj}".ToLowerInvariant().IsIn("true", "false");
-
-
 
         public static bool IsCloseWrapChar(this string Text) => Text.GetFirstChars().IsIn(PredefinedArrays.CloseWrappers);
 
@@ -7243,7 +7083,6 @@ namespace Extensions
                 return false;
             }
         }
-
 
         public static bool IsCrossLikeAny(this string Text, IEnumerable<string> Patterns) => (Patterns ?? Array.Empty<string>()).Any(x => Like(Text.IfBlank(EmptyString), x) || Like(x, Text));
 
@@ -7278,10 +7117,7 @@ namespace Extensions
 
         public static bool IsDate<T>(this T Obj) => GetNullableTypeOf(Obj) == typeof(DateTime) || $"{Obj}".IsDate();
 
-        public static bool IsNameValueCollection(this object obj)
-        {
-            return obj is NameValueCollection;
-        }
+
 
         /// <summary>
         /// Verifica se o objeto é um iDictionary
@@ -7347,7 +7183,6 @@ namespace Extensions
         /// <param name="Text"></param>
         /// <returns></returns>
         public static bool IsMultiEmail(this string Text) => Text.SplitAny(" ", ",", ";").All(x => x.IsEmail());
-
 
         /// <summary>
         /// Verifica se um determinado texto é um email
@@ -7436,7 +7271,6 @@ namespace Extensions
         /// <param name="Value">Valor</param>
         /// <returns></returns>
         public static bool IsEven(this double Value) => Value % 2d == 0d;
-
 
         /// <summary>
         /// Verifica se uma string é um caminho de arquivo válido
@@ -7662,12 +7496,7 @@ namespace Extensions
         /// <returns>TRUE se alguma das strings for igual a principal</returns>
         public static bool IsNotAny(this string Text, StringComparison Comparison, params string[] Texts) => !Text.IsAny(Comparison, Texts);
 
-        /// <summary>
-        /// Verifica se uma String não está em branco
-        /// </summary>
-        /// <param name="Text">Uma string</param>
-        /// <returns>FALSE se estiver nula, vazia ou em branco, caso contrario TRUE</returns>
-        public static bool IsValid(this object Value) => !IsNotValid(Value);
+
 
         /// <summary>
         /// Verifica se uma String não está em branco
@@ -7769,7 +7598,6 @@ namespace Extensions
                     }
                 }
 
-
                 Convert.ToDecimal(Value, CultureInfo.InvariantCulture);
                 return Value != null && $"{Value}".IsIP() == false && ((Value.GetType() == typeof(DateTime)) == false);
             }
@@ -7826,7 +7654,6 @@ namespace Extensions
         /// <param name="Value">Valor</param>
         /// <returns></returns>
         public static bool IsOdd(this float Value) => !Value.IsEven();
-
 
         /// <summary>
         /// Retorna o caractere de encapsulamento oposto ao caractere indicado
@@ -7959,10 +7786,6 @@ namespace Extensions
         }
 
         public static bool IsValidEAN(this int Code) => Code.ToString(CultureInfo.InvariantCulture).PadLeft(12, '0').ToString().IsValidEAN();
-
-
-
-
 
         public static bool IsVisible<T>(this T info) where T : FileSystemInfo => info != null && info.Exists && info.Attributes.HasFlag(FileAttributes.Hidden) == false;
 
@@ -8162,7 +7985,6 @@ namespace Extensions
 
         public static int LimitIndex<T>(this int ii, List<T> Collection) => ii.LimitRange<int>(0, Collection.Count - 1);
 
-
         public static int LimitIndex<T>(this int ii, IEnumerable<T> Collection) => ii.LimitRange<int>(0, Collection.Count() - 1);
 
         public static long LimitIndex<T>(this long Lng, IEnumerable<T> Collection) => Lng.LimitRange<long>(0, Collection.LongCount() - 1L);
@@ -8261,8 +8083,6 @@ namespace Extensions
         /// <returns></returns>
         public static DateTime LimitRange(this DateTime Number, IComparable MinValue = null, IComparable MaxValue = null) => Number.LimitRange<DateTime>(MinValue, MaxValue);
 
-
-
         public static StructuredText LoremIpsum(int ParagraphCount = 5, int SentenceCount = 3, int MinWordCount = 10, int MaxWordCount = 50, int IdentSize = 0, int BreakLinesBetweenParagraph = 0, string[] Words = null)
         {
             var sb = new StringBuilder();
@@ -8308,7 +8128,6 @@ namespace Extensions
         /// <returns></returns>
         public static Color MakeLighter(this Color TheColor, float Percent = 50f) => TheColor.MergeWith(Color.White, Percent);
 
-
         /// <summary>
         /// Mescla varios dicionarios em um unico dicionario. Quando uma key existir em mais de um
         /// dicionario ela será substituida
@@ -8333,7 +8152,6 @@ namespace Extensions
             }
             return result;
         }
-
 
         /// <summary>
         /// Mescla varios dicionarios em um unico dicionario. Quando uma key existir em mais de um
@@ -8402,7 +8220,6 @@ namespace Extensions
                                 }
                             }
                         }
-
                         else
                         {
                             result[key] = dic[key];
@@ -8572,7 +8389,6 @@ namespace Extensions
         /// <returns></returns>
         public static bool MostTrue(params bool[] Tests) => (Tests ?? Array.Empty<bool>()).Most(true);
 
-
         public static DirectoryInfo MoveDirectory(DirectoryInfo sourcePath, DirectoryInfo targetPath)
         {
             if (sourcePath.Exists)
@@ -8625,7 +8441,6 @@ namespace Extensions
             }
             return ToList;
         }
-
 
         /// <summary>
         /// Constroi uma expressão diferente de
@@ -8825,8 +8640,6 @@ namespace Extensions
         /// <param name="predicate"></param>
         /// <returns></returns>
         public static bool OnlyOneOf<T>(this IEnumerable<T> List, Func<T, bool> predicate) => List?.Count(predicate) == 1;
-
-
 
         /// <summary>
         /// Concatena uma expressão com outra usando o operador OR (||)
@@ -9398,8 +9211,6 @@ namespace Extensions
             return s;
         }
 
-
-
         public static string CamelCaseAdjust(this string Text) => PascalCaseAdjust(Text);
 
         /// <summary>
@@ -9461,8 +9272,6 @@ namespace Extensions
         /// <param name="take"></param>
         /// <returns></returns>
         public static string Peek(this Queue<char> queue, int take) => new String(queue.Take(take).ToArray());
-
-
 
         /// <summary>
         /// Retorna uma string em sua forma poop
@@ -9663,9 +9472,6 @@ namespace Extensions
             return $"{PluralText}";
         }
 
-
-
-
         /// <summary>
         /// Retorna o texto a na sua forma singular ou plural de acordo com uma quantidade
         /// determinada em uma lista ou um valor numérico.
@@ -9746,7 +9552,6 @@ namespace Extensions
         public static string QuantifyText(this double Quantity, string PluralText, string SingularText = "")
        => Quantity.ToDecimal().QuantifyText(PluralText, SingularText);
 
-
         /// <summary>
         /// Retorna o texto a na sua forma singular ou plural de acordo com um numero determinado.
         /// </summary>
@@ -9799,10 +9604,13 @@ namespace Extensions
         /// Encapsula um texto entre 2 caracteres (normalmente parentesis, chaves, aspas ou colchetes)
         /// </summary>
         /// <param name="Text">Texto</param>
-        /// <param name="OpenQuoteChar">Caractere de encapsulamento</param>
+        /// <param name="OpenQuoteChar">Caractere de encapsulamento</param>     
+        /// <param name="WrapOnlyIfNotBlank">Quando TRUE, encapsula apenas se o texto não for vazio ou nulo</param>
         /// <returns></returns>
         public static string Quote(this string Text, char OpenQuoteChar = '"')
         {
+
+
             if (OpenQuoteChar.ToString().IsCloseWrapChar())
             {
                 OpenQuoteChar = OpenQuoteChar.GetOppositeWrapChar();
@@ -9819,7 +9627,6 @@ namespace Extensions
         /// <returns></returns>
         public static string Quote(this string Text, bool SingleQuoteChar) => Text.Quote(SingleQuoteChar ? Util.SingleQuoteChar.First() : Util.DoubleQuoteChar.First());
 
-
         /// <summary>
         /// Encapsula um tento entre 2 textos (normalmente parentesis, chaves, aspas ou colchetes)
         /// se uma condição for cumprida
@@ -9830,6 +9637,12 @@ namespace Extensions
         public static string QuoteIf(this string Text, bool Condition, char QuoteChar = '"') => Condition ? Text.Quote(QuoteChar) : Text;
 
 
+        /// <inheritdoc cref="QuoteIf(string, bool, char)"/>
+        public static string QuoteIf(this string Text, Expression<Func<string, bool>> Condition=null, char QuoteChar = '"')
+        {
+            Condition = Condition ?? (x => x.IsNotBlank());
+            return QuoteIf(Text, Condition.Compile().Invoke(Text), QuoteChar);
+        }
 
         /// <summary>
         /// Gera um valor boolean aleatorio considerando uma porcentagem de chance
@@ -9949,7 +9762,6 @@ namespace Extensions
 
             return new DateTime(l);
         }
-
 
         /// <summary>
         /// Gera um EAN aleatório com digito verificador válido
@@ -10129,6 +9941,7 @@ namespace Extensions
         /// </summary>
         /// <returns></returns>
         public static string RandomUserName() => RandomUserName(5, 1111);
+
         /// <summary>
         /// Gera um nome de usuário aleatório com o tamanho de palavra definido por <paramref name="WordLength"/>
         /// e um número entre <paramref name="MinNumber"/> e 9999
@@ -10137,7 +9950,6 @@ namespace Extensions
         /// <param name="MinNumber"></param>
         /// <returns></returns>
         public static string RandomUserName(int WordLength, int MinNumber) => $"{Util.RandomWord(WordLength)}{Util.RandomInt(MinNumber, 9999)}";
-
 
         /// <summary>
         /// Gera uma lista de nomes de usuário a partir de um nome completo, data de nascimento e sufixos adicionais
@@ -10175,7 +9987,6 @@ namespace Extensions
             sobrenomes = new[] { sobrenomes.FirstOrDefault(), sobrenomes.LastOrDefault() }.Distinct();
 
             Addons = (Addons ?? Array.Empty<string>()).Where(x => x.IsNotBlank()).Union(new[] { (BirthDate ?? DateTime.Now).Year.ToString() }).ToArray();
-
 
             foreach (var s in sobrenomes)
             {
@@ -10216,21 +10027,19 @@ namespace Extensions
                             .Distinct()
                             .ToList();
                         final.AddRange(list);
-
                     }
                 }
             }
 
             return final.Distinct();
-
         }
 
-
         public static string GetBeforeAny(this string Text, params char[] Chars) => GetBeforeAny(Text, false, Chars);
+
         public static string GetAfterAny(this string Text, params char[] Chars) => GetAfterAny(Text, false, Chars);
+
         public static string GetBeforeAny(this string Text, bool IncludeChar, params char[] Chars)
         {
-
             if (Text.IsBlank()) return EmptyString;
 
             var pos = Chars.Select(c => Text.IndexOf(c)).Where(p => p != -1).Min();
@@ -10259,7 +10068,6 @@ namespace Extensions
         /// <returns></returns>
         public static string RandomUniqueWord<T>(this IEnumerable<T> list, Expression<Func<T, string>> hashField, int minChars = 4, int maxChars = 20, int maxTries = 100)
         {
-
             var hash = "";
             int tries = 0;
             var c = minChars;
@@ -10282,7 +10090,6 @@ namespace Extensions
                     c++;
                 }
 
-
                 hash = Util.RandomWord(minChars, c);
 
                 if (list == null || list.Any() == false)
@@ -10304,11 +10111,9 @@ namespace Extensions
                         hash = string.Empty;
                     }
                 }
-
             }
 
             return hash;
-
         }
 
         /// <inheritdoc cref="RandomUnique(IEnumerable{string}, int, int, int)"/>>
@@ -10316,8 +10121,6 @@ namespace Extensions
         {
             return RandomUniqueWord(list, x => x, minChars, maxChars, maxTries);
         }
-
-
 
         /// <summary>
         /// Gera uma palavra aleatória com o numero de caracteres entre <paramref name="MinLength"/>
@@ -10678,7 +10481,6 @@ namespace Extensions
                 }
             }
             return Text;
-
         }
 
         /// <summary>
@@ -10698,10 +10500,7 @@ namespace Extensions
             return Text;
         }
 
-
-
         public static string RemoveMask(this string MaskedText, CultureInfo culture) => RemoveMask(MaskedText, PredefinedArrays.MaskedNumberChars(culture).ToArray());
-
 
         /// <summary>
         /// Remove a máscara de um texto, mantendo apenas números e os caracteres permitidos
@@ -10849,7 +10648,6 @@ namespace Extensions
             if (info == null)
                 throw new ArgumentNullException(nameof(info), "info cannot be null");
             return Path.GetDirectoryName(info.FullName).ToFileSystemInfo() as DirectoryInfo ?? throw new ArgumentException("info must be a FileInfo or DirectoryInfo", nameof(info));
-
         }
 
         /// <summary>
@@ -10881,7 +10679,6 @@ namespace Extensions
 
             return info as T ?? throw new ArgumentException("info must be a FileInfo or DirectoryInfo", nameof(info));
         }
-
 
         /// <summary>
         /// Repete uma string um numero determinado de vezes
@@ -11160,15 +10957,13 @@ namespace Extensions
 
         public static string ReplaceUrlParameters<T>(Uri URL, T obj) => ReplaceUrlParameters(URL?.ToString(), obj);
 
-
-
-
         /// <summary>
         /// Arredonda um numero para um numero especifico de digitos fracionários
         /// </summary>
         /// <param name="Number">Numero</param>
         /// <returns></returns>
         public static decimal RoundDecimal(this decimal Number, int? Decimals = default) => Decimals.HasValue ? Math.Round(Number, Decimals.Value.ForcePositive()) : Math.Round(Number);
+
         /// <summary>
         /// Arredonda um numero para um numero especifico de digitos fracionários
         /// </summary>
@@ -11182,6 +10977,7 @@ namespace Extensions
         /// <param name="Number">Numero</param>
         /// <returns></returns>
         public static double RoundDouble(this double Number, int? Decimals = default) => Decimals.HasValue ? Math.Round(Number, Decimals.Value.ForcePositive()) : Math.Round(Number);
+
         /// <summary>
         /// Arredonda um numero para um numero especifico de digitos fracionários
         /// </summary>
@@ -11195,6 +10991,7 @@ namespace Extensions
         /// <param name="Number">Numero</param>
         /// <returns></returns>
         public static int RoundInt(this decimal Number) => Math.Round(Number).ToInt();
+
         /// <summary>
         /// Arredonda um numero para o valor inteiro mais próximo
         /// </summary>
@@ -11215,7 +11012,6 @@ namespace Extensions
         /// <param name="Number">Numero</param>
         /// <returns></returns>
         public static long RoundLong(this decimal Number) => Math.Round(Number).ToLong();
-
 
         /// <summary>
         /// Arredonda um numero para o valor inteiro mais próximo
@@ -11271,19 +11067,14 @@ namespace Extensions
                     try
                     {
                         FilteredList.AddRange(Directory.EnumerateFileSystemInfos(pattern.Trim(), SearchOption));
-
                     }
                     catch
                     {
-
                     }
             }
 
             return FilteredList;
         }
-
-
-
 
         /// <summary>
         /// Retorna um <see cref="IEnumerable{T}"/> procurando em varios campos diferentes de uma entidade
@@ -11322,8 +11113,8 @@ namespace Extensions
             return Table.Where(expression);
         }
 
-
         public static IEnumerable<T> Search<T>(this IEnumerable<T> List, string SearchTerm, params Expression<Func<T, string>>[] Properties) where T : class => Search(List, new[] { SearchTerm }, Properties);
+
         public static IQueryable<T> SearchQueryable<T>(this IQueryable<T> Table, string SearchTerm, params Expression<Func<T, string>>[] Properties) where T : class => SearchQueryable(Table, new[] { SearchTerm }, Properties);
 
         /// <summary>
@@ -11504,6 +11295,7 @@ namespace Extensions
         /// <param name="Separator"></param>
         /// <returns></returns>
         public static string JoinString<TSource>(this IEnumerable<TSource> Source, string Separator = EmptyString) => Source.SelectJoinString((x, i) => $"{x.ChangeType<string>()}", Separator);
+
         public static string JoinString<TSource>(this IEnumerable<TSource> Source, char Separator) => Source.SelectJoinString((x, i) => $"{x.ChangeType<string>()}", $"{Separator}");
 
         /// <summary>
@@ -11526,13 +11318,10 @@ namespace Extensions
             return SelectJoinString(Source, Selector, $"{Separator}");
         }
 
-
         public static string SelectJoinString<TSource>(this IEnumerable<TSource> Source, Func<TSource, string> Selector, string Separator = EmptyString)
         {
             return SelectJoinString(Source, (x, i) => Selector(x), Separator);
         }
-
-
 
         public static string SelectJoinString<TSource>(this IEnumerable<TSource> Source, Func<TSource, string> Selector, char Separator) => SelectJoinString(Source, Selector, $"{Separator}");
 
@@ -11933,6 +11722,7 @@ namespace Extensions
         /// <param name="SplitText"></param>
         /// <returns></returns>
         public static string[] SplitAny(this string Text, params string[] SplitText) => Text?.SplitAny(StringSplitOptions.RemoveEmptyEntries, SplitText);
+
         public static string[] SplitAny(this string Text, params char[] SplitChars)
         {
             return Text?.Split(SplitChars);
@@ -11980,7 +11770,6 @@ namespace Extensions
                 {
                     var size = chunkSizes.IfNoIndex(0, input.Length);
                     if (size < 0) size = (input.Length - size).LimitRange(0, input.Length);
-
 
                     var chunk = input.GetFirstChars(size);
                     //if (chunk.Length == 0)
@@ -12172,8 +11961,6 @@ namespace Extensions
             }
             return newlist.AsEnumerable();
         }
-
-
 
         /// <summary>
         /// Ordena um <see cref="IQueryable{T}"/> a partir da aproximação de uma ou mais <see
@@ -12651,9 +12438,7 @@ namespace Extensions
             return null;
         }
 
-
         public static string ToBase64(this FileInfo file) => file?.ToBytes().ToBase64() ?? EmptyString;
-
 
         /// <summary>
         /// Converte um Array de Bytes em uma string Util
@@ -12662,18 +12447,12 @@ namespace Extensions
         /// <returns></returns>
         public static string ToBase64(this byte[] Bytes) => Convert.ToBase64String(Bytes);
 
-
-
         /// <summary>
         /// Converte uma Imagem da WEB para Base64
         /// </summary>
         /// <param name="ImageURL">Caminho da imagem</param>
         /// <returns>Uma string em formato Util</returns>
         public static string ToBase64(this Uri ImageURL, ImageFormat OriginalImageFormat, NameValueCollection Headers = null, Encoding Encoding = null) => ImageURL?.DownloadImage(Headers, Encoding)?.ToBase64(OriginalImageFormat);
-
-
-
-
 
         /// <summary>
         /// Converte um ToType para Boolean. Retorna Nothing (NULL) se a conversão falhar
@@ -12682,8 +12461,6 @@ namespace Extensions
         /// <param name="Value">Variavel com valor</param>
         /// <returns>Valor convertido em novo ToType</returns>
         public static bool ToBool<T>(this T Value) => Value.ChangeType<bool>();
-
-
 
         /// <summary>
         /// Salva um anexo para Byte()
@@ -12744,6 +12521,7 @@ namespace Extensions
         /// <param name="Text"></param>
         /// <returns></returns>
         public static string ToCamelCase(this string Text) => Text.PascalCaseSplit().Select((x, i) => i == 0 ? x.ToLowerInvariant() : x.ToTitle(true)).JoinString("");
+
         public static string ToPascalCase(this string Text) => Text.PascalCaseSplit().Select(x => x.ToTitle(true)).JoinString("");
 
         /// <summary>
@@ -12883,7 +12661,6 @@ namespace Extensions
         /// <param name="File">Arquivo</param>
         /// <returns></returns>
         public static string ToDataURL(this FileInfo File) => File.ToBytes().ToDataURL(new FileType(File.Extension));
-
 
         /// <summary>
         /// Converte um ToType para DateTime. Retorna Nothing (NULL) se a conversão falhar
@@ -13122,8 +12899,8 @@ namespace Extensions
             // check if info has a property called size of type int or long
             var sizeProperties = info.GetType().FindProperties("Size", "FileSize", "DirectorySize", "Length");
             return sizeProperties.FirstOrDefault()?.GetValue(info).ChangeType<long>() ?? 0;
-
         }
+
         /// <summary>
         /// Retorna uma string contendo a descrição do tipo arquivo ou diretório
         /// </summary>
@@ -13176,15 +12953,16 @@ namespace Extensions
         public static FileSystemInfo ToFileSystemInfo(this string PathPart, bool? AlternativeChar = null) => ToFileSystemInfo(new[] { PathPart }, AlternativeChar);
 
         public static FileTree ToFileTree(this string PathPart) => ToFileTree(new[] { PathPart });
+
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="PathParts"></param>
         /// <returns></returns>
         public static FileTree ToFileTree(this string[] PathParts) => new FileTree(PathParts.FixPath());
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="PathParts"></param>
         /// <param name="AlternativeChar"></param>
@@ -13198,7 +12976,6 @@ namespace Extensions
             else throw new ArgumentException("Can't create path from array", nameof(PathParts));
         }
 
-
         /// <summary>
         /// Computes the MD5 checksum of the specified file.
         /// </summary>
@@ -13209,8 +12986,6 @@ namespace Extensions
         /// <returns>A <see cref="string"/> containing the MD5 checksum of the file in hexadecimal format.  Returns an empty
         /// string if <paramref name="file"/> is <see langword="null"/>.</returns>
         public static string GetMD5Checksum(this FileInfo file) => file?.ToBytes().GetMD5Checksum() ?? string.Empty;
-
-
 
         /// <summary>
         /// Computes the SHA-256 checksum of the specified byte array.
@@ -13232,7 +13007,7 @@ namespace Extensions
         /// <summary>
         /// Computes the SHA-256 checksum of the specified text using the provided encoding.
         /// </summary>
-        /// <remarks>This method provides a convenient way to compute the SHA-256 checksum of a string. 
+        /// <remarks>This method provides a convenient way to compute the SHA-256 checksum of a string.
         /// If no encoding is specified, UTF-8 is used as the default encoding.</remarks>
         /// <param name="text">The input text for which the SHA-256 checksum will be calculated. Cannot be <see langword="null"/> or empty.</param>
         /// <param name="encoding">The character encoding to use when converting the text to bytes. If <see langword="null"/>, UTF-8 encoding
@@ -13249,7 +13024,7 @@ namespace Extensions
         /// <summary>
         /// Computes the SHA-256 checksum of all files within the specified directory and its subdirectories.
         /// </summary>
-        /// <remarks>The method processes all files in the directory and its subdirectories recursively. 
+        /// <remarks>The method processes all files in the directory and its subdirectories recursively.
         /// Files are read in a sorted order based on their full path (case-insensitive) to ensure  consistent results
         /// regardless of file system ordering. The SHA-256 checksum is computed  by combining the hashes of all
         /// files.</remarks>
@@ -13260,7 +13035,6 @@ namespace Extensions
         /// <exception cref="DirectoryNotFoundException">Thrown if the specified <paramref name="dir"/> does not exist.</exception>
         public static string GetSHA256Checksum(this FileSystemInfo info)
         {
-
             if (info is FileTree tree)
             {
                 if (tree.IsDirectory)
@@ -13308,7 +13082,6 @@ namespace Extensions
             }
 
             throw new ArgumentException("O objeto FileSystemInfo deve ser um arquivo ou diretório válido.", nameof(info));
-
         }
 
         // 🔧 Conversão para string hexadecimal
@@ -13319,7 +13092,6 @@ namespace Extensions
                 sb.Append(b.ToString("x2"));
             return sb.ToString();
         }
-
 
         public static string GetMD5Checksum(this byte[] inputData)
         {
@@ -13407,6 +13179,7 @@ namespace Extensions
         public static IEnumerable<HSVColor> ToHSVColorList(this IEnumerable<Color> ColorList) => ColorList?.Select(x => new HSVColor(x));
 
         public static HSVColor ToHSVColor(this Color color) => new HSVColor(color);
+
         public static HSVColor ToHSVColor(this string color) => new HSVColor(color);
 
         /// <summary>
@@ -13431,7 +13204,6 @@ namespace Extensions
         /// <param name="Value">Variavel com valor</param>
         /// <returns>Valor convertido em novo ToType</returns>
         public static int ToInt<FromType>(this FromType Value) => Value.ChangeType<int>();
-
 
         public static T[][] ToJaggedArray<T>(this T[,] inputArray)
         {
@@ -14923,8 +14695,6 @@ namespace Extensions
         ///<inheritdoc cref="ToPhrase{TSource}(IEnumerable{TSource}, string, string, string, char)"/>
         public static string ToPhrase(string And, params string[] Texts) => (Texts ?? Array.Empty<string>()).ToPhrase(EmptyString, And);
 
-
-
         /// <summary>
         /// Monta um Comando SQL para executar uma procedure especifica e trata os valores
         /// específicos de um <see cref="Dictionary{TKey, TValue}"/> como parametros da procedure
@@ -14965,7 +14735,6 @@ namespace Extensions
             {
                 ForceCase = Text.Where(char.IsLetter).All(char.IsUpper);
             }
-
 
             if (ForceCase == true)
             {
@@ -15179,8 +14948,6 @@ namespace Extensions
             return stream;
         }
 
-
-
         /// <summary>
         /// Projeta um unico array os valores sub-agrupados e unifica todos num unico array de arrays
         /// </summary>
@@ -15273,7 +15040,6 @@ namespace Extensions
                 return stringWriter.GetStringBuilder().ToString();
             }
         }
-
 
         /// <summary>
         /// Percorre uma Lista de objetos que possuem como propriedade objetos do mesmo tipo e as
@@ -15379,8 +15145,6 @@ namespace Extensions
         public static IEnumerable<P> Traverse<T, P>(this T Item, Func<T, IEnumerable<T>> ChildSelector, Func<T, IQueryable<P>> PropertySelector, bool IncludeMe = false) => Item.Traverse(ChildSelector, IncludeMe).SelectMany(PropertySelector);
 
         public static IEnumerable<T> TraverseAll<T>(this IEnumerable<T> items, Func<T, IEnumerable<T>> ChildSelector, Expression<Func<T, bool>> Filter = null) => items.SelectMany(x => Traverse(x, ChildSelector, true)).Where(Filter?.Compile() ?? (x => true));
-
-
 
         /// <summary>
         /// Remove do começo e do final de uma string qualquer valor que estiver no conjunto
@@ -15504,7 +15268,6 @@ namespace Extensions
         /// <param name="EndStringTest">Conjunto de textos que serão comparados</param>
         /// <returns></returns>
         public static string TrimEndAny(this string Text, StringComparison comparison, params string[] EndStringTest) => Text.TrimEndAny(true, comparison, EndStringTest);
-
 
         /// <summary>
         /// Remove o final de uma string se ela for igual a qualquer um dos valores correspondentes
@@ -15630,7 +15393,6 @@ namespace Extensions
         /// <returns></returns>
         public static string UrlEncode(this string Text) => Text.IsNotBlank() ? WebUtility.UrlEncode(Text) : EmptyString;
 
-
         /// <summary>
         /// Bloqueia a Thread atual enquanto um arquivo estiver em uso
         /// </summary>
@@ -15672,13 +15434,9 @@ namespace Extensions
                 }
 
                 OnAttemptFail?.Invoke(MaxFailCount ?? -1);
-
-
             }
             return true;
         }
-
-
 
         /// <summary>
         /// Retorna uma lista de arquivos ou diretórios baseado em uma busca usando predicate
@@ -15841,7 +15599,6 @@ namespace Extensions
             return false;
         }
 
-
         /// <summary>
         /// Encapsula um tento entre 2 textos
         /// </summary>
@@ -15857,8 +15614,6 @@ namespace Extensions
         /// <returns></returns>
         public static string Wrap(this string Text, string OpenWrapText, string CloseWrapText) => $"{OpenWrapText}{Text}{CloseWrapText.IfBlank(OpenWrapText)}";
 
-
-
         public static string CreateAnchor(this string Text, string Url, object Attributes = default)
         {
             Text = Text.BlankCoalesce(Url, "");
@@ -15866,6 +15621,7 @@ namespace Extensions
             attr["href"] = Url;
             return Text.WrapInTag("a", attr);
         }
+
         public static string WrapInTag(this string Text, string TagName, object Attributes = default)
         {
             TagName = TagName.IfBlank("div");
@@ -15876,12 +15632,7 @@ namespace Extensions
                 attr = attr.Wrap(" ");
             }
             return $"<{TagName}{attr}>{Text}</{TagName}>";
-
         }
-
-
-
-
 
         /// <summary>
         /// Write a message using <see cref="Debug.WriteLine(value,category)"/> when <see

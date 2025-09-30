@@ -55,6 +55,22 @@ namespace Extensions.BR
                 return $"{Label} :{Chave.FormatarChavePIX()}";
         }
 
+        public static string GerarPayloadPIX(
+             string chavePix,
+             string nomeRecebedor,
+             int cidadeRecebedor,
+             decimal? valor = null,       // opcional
+             string txId = null,           // opcional
+             string descricao = null       // opcional
+         ) => GerarPayloadPIX(
+             chavePix,
+             nomeRecebedor,
+             cidadeRecebedor.ToString(),
+             valor,
+             txId,
+             descricao
+         );
+
         /// <summary>
         /// Gera um payload para um QR Code de pagamento via Pix, conforme o padrão EMV e regulamentação do Banco Central.
         /// </summary>
@@ -96,13 +112,13 @@ namespace Extensions.BR
             if (cidadeRecebedor.IsBlank())
                 throw new ArgumentException("A cidade do recebedor é obrigatória");
 
-            // Cidade: máximo 15 caracteres conforme padrão do BC
-            cidadeRecebedor = cidadeRecebedor?.Trim().RemoveAccents().GetFirstChars(15).ToUpperInvariant();
-
             if (Brasil.CidadeIBGEValido(cidadeRecebedor))
             {
-                cidadeRecebedor = Brasil.PegarCidade(cidadeRecebedor).Nome.GetFirstChars(15).ToUpperInvariant();
+                cidadeRecebedor = Brasil.PegarCidade(cidadeRecebedor).Nome;
             }
+
+            // Cidade: máximo 15 caracteres conforme padrão do BC
+            cidadeRecebedor = cidadeRecebedor?.Trim().RemoveAccents().GetFirstChars(15).ToUpperInvariant();
 
             if (txId.IsNotBlank() && txId?.Length > 25)
                 throw new ArgumentException("O TXID não pode ter mais que 25 caracteres.");

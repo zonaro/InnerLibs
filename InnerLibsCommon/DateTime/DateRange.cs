@@ -258,14 +258,15 @@ namespace Extensions.Dates
         /// culture.</remarks>
         /// <param name="Text">The input text to search for date values.</param>
         /// <param name="culture">The culture used to interpret date formats. If <see langword="null"/>, the current culture is used.</param>
-        /// <param name="includeNames">A value indicating whether to include month names in
-        /// addition to standard date formats.</param>
+        /// <param name="format">
+        /// An array of date formats to use when parsing the date range. when <see langword="null"/>, default formats for the specified culture are used.
+        /// </param>
         /// <returns>An <see cref="DateRange"/> object representing the range between dates found in the text. If no
         /// dates are found, a default DateRange is returned (today)</returns>
-        public static DateRange FromString(string DateRangeExpression, CultureInfo cultureInfo, bool includeNames = false)
+        public static DateRange FromString(string DateRangeExpression, CultureInfo cultureInfo, params string[] format)
         {
             cultureInfo = cultureInfo ?? CultureInfo.CurrentCulture;
-            var dates = DateRangeExpression.ExtractDates(cultureInfo, includeNames).ToList();
+            var dates = DateRangeExpression.ExtractDates(cultureInfo, format).ToList();
 
             if (dates.Count == 0) return new DateRange();
 
@@ -274,6 +275,10 @@ namespace Extensions.Dates
             return new DateRange(dates.Min(), dates.Max());
 
         }
+
+        /// <inheritdoc cref="FromString(string, CultureInfo, string[])"/>
+        public static DateRange FromString(string DateRangeExpression, params string[] format) => FromString(DateRangeExpression, CultureInfo.CurrentCulture, format);
+
 
 
         #endregion Public Constructors

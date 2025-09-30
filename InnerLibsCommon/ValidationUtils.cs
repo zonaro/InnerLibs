@@ -1,4 +1,7 @@
+using System.Collections;
+using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using Extensions;
 
@@ -7,6 +10,181 @@ namespace Extensions
     public partial class Util
     {
 
+        /// <summary>
+        /// Check if object is not a valid value by performing the following checks:
+        /// <list type="bullet">
+        ///     <item>
+        ///         <term>null</term> - for reference or nullable types;
+        ///     </item>
+        ///     <item>
+        ///         <term>zero</term> - for any numeric type;
+        ///     </item>
+        ///     <item>
+        ///         <term>false</term> - for boolean type;
+        ///     </item>
+        ///     <item>
+        ///         <term>empty or whitespace</term> - for string or char types;
+        ///     </item>
+        ///     <item>
+        ///         <term>MinValue</term> - for DateTime, TimeSpan, or DateTimeOffset types;
+        ///     </item>
+        ///     <item>
+        ///         <term>Empty</term> - for Guid type;
+        ///     </item>
+        ///     <item>
+        ///         <term>all items invalid</term> - for collections and dictionaries;
+        ///     </item>
+        ///     <item>
+        ///         <term>validation failure</term> - for complex objects using data annotations.
+        ///     </item>
+        /// </list>
+        /// </summary>
+        /// <param name="Value">The object to validate</param>
+        /// <returns>
+        /// <c>true</c> if the object is considered invalid according to the validation rules;
+        /// otherwise, <c>false</c> if the object has a valid value
+        /// </returns>
+        /// <remarks>
+        /// This method is the inverse of <see cref="IsValid(object)"/>. For collections and dictionaries,
+        /// the method returns <c>true</c> only if all contained items are invalid. For complex objects,
+        /// it uses data annotation validation attributes to determine validity.
+        /// </remarks>
+        /// <example>
+        /// <code>
+        /// string emptyString = "";
+        /// int zero = 0;
+        /// bool falseBool = false;
+        /// DateTime minDate = DateTime.MinValue;
+        /// List&lt;int&gt; emptyList = new List&lt;int&gt;();
+        ///
+        /// bool result1 = emptyString.IsNotValid(); // returns true
+        /// bool result2 = zero.IsNotValid(); // returns true
+        /// bool result3 = falseBool.IsNotValid(); // returns true
+        /// bool result4 = minDate.IsNotValid(); // returns true
+        /// bool result5 = emptyList.IsNotValid(); // returns true
+        /// </code>
+        /// </example>
+        public static bool IsNotValid(this object Value)
+        {
+            try
+            {
+                if (Value != null)
+                {
+                    var tipo = Value.GetNullableTypeOf();
+                    if (tipo.IsNumericType())
+                    {
+                        return Value.ChangeType<decimal>() == 0;
+                    }
+                    else if (Value is FormattableString fs)
+                    {
+                        return IsNotValid($"{fs}".ToUpperInvariant());
+                    }
+                    else if (Value is bool b)
+                    {
+                        return !b;
+                    }
+                    else if (Value is string s)
+                    {
+                        return string.IsNullOrWhiteSpace($"{s}".RemoveAny(PredefinedArrays.BreakLineChars.ToArray()));
+                    }
+                    else if (Value is char c)
+                    {
+                        return string.IsNullOrWhiteSpace($"{c}".RemoveAny(PredefinedArrays.BreakLineChars.ToArray()));
+                    }
+                    else if (Value is DateTime time)
+                    {
+                        return time.Equals(DateTime.MinValue);
+                    }
+                    else if (Value is TimeSpan span)
+                    {
+                        return span.Equals(TimeSpan.MinValue);
+                    }
+                    else if (Value is DateTimeOffset off)
+                    {
+                        return off.Equals(DateTimeOffset.MinValue);
+                    }
+                    else if (Value is Guid guid)
+                    {
+                        return guid == Guid.Empty;
+                    }
+                    else if (Value is IDictionary dic)
+                    {
+                        foreach (DictionaryEntry item in dic)
+                        {
+                            if (item.Value.IsValid())
+                            {
+                                return false;
+                            }
+                        }
+                    }
+                    else if (Value.IsEnumerableNotString() && Value is IEnumerable enumerable)
+                    {
+                        foreach (object item in enumerable)
+                        {
+                            if (item.IsValid())
+                            {
+                                return false;
+                            }
+                        }
+                    }
+                    else if (tipo.IsClass && !tipo.IsSimpleType())
+                    {
+                        /// check if object has any validation attributes and validate them                    
+                        var props = tipo.GetMembers();
+                        if (props.Any())
+                        {
+                            /// check if properties or fields have validation attributes, if true apply validation
+                            if (props.Any(x => x.GetCustomAttributes(typeof(ValidationAttribute), true).Any()))
+                            {
+                                var context = new ValidationContext(Value);
+                                var results = new List<ValidationResult>();
+                                bool isValid = Validator.TryValidateObject(Value, context, results, validateAllProperties: true);
+                                return !isValid;
+                            }
+                            /// check if object has properties
+                            if (props.Any(x => x is PropertyInfo))
+                            {
+                                // check all properties recursively
+                                foreach (var prop in tipo.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+                                {
+                                    var val = prop.GetValue(Value);
+                                    if (val.IsValid())
+                                    {
+                                        return false;
+                                    }
+                                }
+                                return true;
+                            }
+                            else if (props.Any(x => x is FieldInfo))
+                            {
+                                // check all fields recursively
+                                foreach (var field in tipo.GetFields(BindingFlags.Public | BindingFlags.Instance))
+                                {
+                                    var val = field.GetValue(Value);
+                                    if (val.IsValid())
+                                    {
+                                        return false;
+                                    }
+                                }
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                WriteDebug(ex);
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Checks if the <paramref name="Value"/> is valid.
+        /// </summary>
+        /// <param name="Value"></param>
+        /// <returns></returns>
+        public static bool IsValid(this object Value) => !IsNotValid(Value);
 
         /// <summary>
         /// Change a string expression that returns an error message into a boolean expression

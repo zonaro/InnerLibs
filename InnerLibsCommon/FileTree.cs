@@ -163,7 +163,8 @@ namespace Extensions.Files
             {
                 if (this.IsFile)
                     this.FullPath = new FileInfo(Path).Rename(Name, KeepOriginalExtension).FullName;
-                else this.FullPath = new DirectoryInfo(Path).Rename(Name).FullName;
+                else
+                    this.FullPath = new DirectoryInfo(Path).Rename(Name).FullName;
             }
             return this;
         }
@@ -281,5 +282,27 @@ namespace Extensions.Files
         public IEnumerator<FileTree> GetEnumerator() => Children.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => Children.GetEnumerator() as IEnumerator;
+
+        public override string FullName => this.Path;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public override bool Equals(object? obj)
+        {
+
+            if (obj == null) return false;
+
+            if (ReferenceEquals(this, obj)) return true;
+
+            if(this.IsFile && obj is FileTree fto && fto.IsFile)
+                return GetCheckSum() == fto.GetCheckSum();
+
+        
+            return false;
+        }
+
     }
 }
