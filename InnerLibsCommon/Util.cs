@@ -6126,7 +6126,7 @@ namespace Extensions
             {
                 return istype;
             }
-            else
+            else if( Obj != null)  
             {
                 try
                 {
