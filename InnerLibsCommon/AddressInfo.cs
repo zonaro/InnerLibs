@@ -13,79 +13,6 @@ namespace Extensions.Locations
 {
 
 
-    public class BrasilAddressInfo : AddressInfo
-    {
-        public BrasilAddressInfo() : base()
-        {
-            Country = "Brasil";
-            CountryCode = "BR";
-        }
-
-        public string TimeZone
-        {
-            get => this[nameof(TimeZone)];
-            set => this[nameof(TimeZone)] = value;
-        }
-
-        public int? IBGE
-        {
-            get => this[nameof(IBGE)]?.ToInt();
-            set
-            {
-                var cid = Brasil.PegarCidade($"{value}");
-                this[nameof(IBGE)] = cid?.IBGE.ToString();
-                City = cid?.Nome;
-                State = cid?.Estado?.Nome;
-                StateCode = cid?.Estado?.UF;
-                Region = cid?.Estado?.Regiao;
-                Country = "Brasil";
-                CountryCode = "BR";
-
-            }
-        }
-
-        public int StateIBGE
-        {
-            get => this[nameof(StateIBGE)]?.ToInt() ?? 0;
-            set
-            {
-                var est = Brasil.PegarEstado($"{value}");
-                this[nameof(StateIBGE)] = est?.IBGE.ToString();
-                State = est?.Nome;
-                StateCode = est?.UF;
-                Region = est?.Regiao;
-                Country = "Brasil";
-                CountryCode = "BR";
-            }
-        }
-
-        public string UF => this.StateCode;
-
-
-
-        public string DDD
-        {
-            get => this[nameof(DDD)];
-            set => this[nameof(DDD)] = value;
-        }
-
-        public string SIAFI
-        {
-            get => this[nameof(SIAFI)];
-            set => this[nameof(SIAFI)] = value;
-        }
-
-        public string CEP
-        {
-            get => PostalCode.FormatarCEP();
-            set => PostalCode = value.FormatarCEP();
-        }
-
-
-
-    }
-
-
     public static class AddressTypes
     {
         #region Public Properties
@@ -204,6 +131,14 @@ namespace Extensions.Locations
         {
         }
 
+        public AddressInfo(double Latitude, double Longitude) : this("", Latitude, Longitude)
+        {
+        }
+
+        public AddressInfo(string Label, double Latitude, double Longitude) : this(Label, Latitude.ToString(CultureInfo.InvariantCulture), Longitude.ToString(CultureInfo.InvariantCulture))
+        {
+        }
+
         public AddressInfo(string Label, string Latitude, string Longitude) : this()
         {
             this.Latitude = Latitude;
@@ -230,6 +165,12 @@ namespace Extensions.Locations
                 if (ct != null)
                 {
                     this.City = ct.Nome;
+
+                    foreach (var k in ct.ToAddressInfo().ToDictionary())
+                    {
+                        this[k.Key] = Util.BlankCoalesce(this[k.Key], k.Value);
+                    }
+
                     if (st == null)
                     {
                         st = ct.Estado;
@@ -597,47 +538,15 @@ namespace Extensions.Locations
 
         #region Public Methods
 
-        public Dictionary<string, string> ToDictionary()
+        public Dictionary<string, string> ToDictionary() => _details.ToDictionary(x => x.Key, x => x.Value);
+
+        public string ToJson()
         {
-            return _details.ToDictionary(x => x.Key, x => x.Value);
+            return ToDictionary().SelectJoinString(kv => $"\"{kv.Key}\": \"{kv.Value}\"", ",").Quote('{');
         }
 
-        /// <summary>
-        /// Cria uma localização a partir de partes de endereço
-        /// </summary>
-        /// <param name="Address"></param>
-        /// <param name="Number"></param>
-        /// <param name="Complement"></param>
-        /// <param name="Neighborhood"></param>
-        /// <param name="City"></param>
-        /// <param name="State"></param>
-        /// <param name="Country"></param>
-        /// <param name="PostalCode"></param>
-        /// <returns></returns>
-        public static AddressInfo CreateLocation(string Address, string Number = Util.EmptyString, string Complement = Util.EmptyString, string Neighborhood = Util.EmptyString, string City = Util.EmptyString, string State = Util.EmptyString, string Country = Util.EmptyString, string PostalCode = Util.EmptyString) => CreateLocation<AddressInfo>(Address, Number, Complement, Neighborhood, City, State, Country, PostalCode);
 
-        /// <summary>
-        /// Cria uma localização a partir de partes de endereço
-        /// </summary>
-        /// <param name="Address"></param>
-        /// <param name="Number"></param>
-        /// <param name="Complement"></param>
-        /// <param name="Neighborhood"></param>
-        /// <param name="City"></param>
-        /// <param name="State"></param>
-        /// <param name="Country"></param>
-        /// <param name="PostalCode"></param>
-        /// <returns></returns>
-        public static T CreateLocation<T>(string Address, string Number = Util.EmptyString, string Complement = Util.EmptyString, string Neighborhood = Util.EmptyString, string City = Util.EmptyString, string State = Util.EmptyString, string Country = Util.EmptyString, string PostalCode = Util.EmptyString) where T : AddressInfo
-        {
-            T r = Activator.CreateInstance<T>();
-            var temp = new AddressInfo(Address, Number, Complement, Neighborhood, City, State, Country, PostalCode);
-            foreach (var x in temp.GetDetails())
-            {
-                r.Add(x.Key, x.Value);
-            }
-            return r;
-        }
+
 
         /// <summary>
         /// Retorna uma string de endereço a partir de varias partes de endereco
@@ -651,7 +560,7 @@ namespace Extensions.Locations
         /// <param name="Country"></param>
         /// <param name="PostalCode"></param>
         /// <returns></returns>
-        public static string FormatAddress(string Address = null, string Number = Util.EmptyString, string Complement = Util.EmptyString, string Neighborhood = Util.EmptyString, string City = Util.EmptyString, string State = Util.EmptyString, string Country = Util.EmptyString, string PostalCode = Util.EmptyString, params AddressPart[] Parts) => CreateLocation(Address, Number, Complement, Neighborhood, City, State, Country, PostalCode).ToString(Parts);
+        public static string FormatAddress(string Address = null, string Number = Util.EmptyString, string Complement = Util.EmptyString, string Neighborhood = Util.EmptyString, string City = Util.EmptyString, string State = Util.EmptyString, string Country = Util.EmptyString, string PostalCode = Util.EmptyString, params AddressPart[] Parts) => new AddressInfo(Address, Number, Complement, Neighborhood, City, State, Country, PostalCode).ToString(Parts);
 
         public static string FormatPostalCode(string CEP)
         {
@@ -664,14 +573,6 @@ namespace Extensions.Locations
             return CEP;
         }
 
-        /// <summary>
-        /// Retorna um <see cref="AddressInfo"/> usando a api de geocode do Google Maps para
-        /// completar as informações
-        /// </summary>
-        /// <param name="Address">Endereço para Busca</param>
-        /// <param name="Key">Chave de acesso da API</param>
-        /// <returns></returns>
-        public static AddressInfo FromGoogleMaps(string Address, string Key, NameValueCollection NVC = null) => FromGoogleMaps<AddressInfo>(Address, Key, NVC);
 
         /// <summary>
         /// Retorna um <see cref="AddressInfo"/> usando a api de geocode do Google Maps para
@@ -680,9 +581,9 @@ namespace Extensions.Locations
         /// <param name="Address">Endereço para Busca</param>
         /// <param name="Key">Chave de acesso da API</param>
         /// <returns></returns>
-        public static T FromGoogleMaps<T>(string Address, string Key, NameValueCollection NVC = null) where T : AddressInfo
+        public static AddressInfo FromGoogleMaps(string Address, string Key, NameValueCollection NVC = null)
         {
-            var d = Activator.CreateInstance<T>();
+            var d = new AddressInfo();
             NVC = NVC ?? new NameValueCollection();
             NVC["key"] = Key;
             NVC["address"] = Address;
@@ -789,13 +690,6 @@ namespace Extensions.Locations
             return d;
         }
 
-        /// <summary>
-        /// Cria um objeto de localização e imadiatamente pesquisa as informações de um local
-        /// através do CEP usando as APIs ViaCEP
-        /// </summary>
-        /// <param name="PostalCode"></param>
-        /// <param name="Number">Numero da casa</param>
-        public static BrasilAddressInfo FromViaCEP(int PostalCode, string Number = null, string Complement = null) => FromViaCEP<BrasilAddressInfo>($"{PostalCode}", Number, Complement);
 
         /// <summary>
         /// Cria um objeto de localização e imadiatamente pesquisa as informações de um local
@@ -803,7 +697,10 @@ namespace Extensions.Locations
         /// </summary>
         /// <param name="PostalCode"></param>
         /// <param name="Number">Numero da casa</param>
-        public static BrasilAddressInfo FromViaCEP(string PostalCode, string Number = null, string Complement = null) => FromViaCEP<BrasilAddressInfo>(PostalCode, Number, Complement);
+        public static AddressInfo FromViaCEP(long PostalCode, string Number = null, string Complement = null) => FromViaCEP($"{PostalCode}", Number, Complement);
+
+        /// <inheritdoc cref="FromViaCEP(string, string, string)"/>
+        public static AddressInfo FromViaCEP(int PostalCode, string Number = null, string Complement = null) => FromViaCEP($"{PostalCode}", Number, Complement);
 
         /// <summary>
         /// Cria um objeto de localização e imadiatamente pesquisa as informações de um local
@@ -811,18 +708,10 @@ namespace Extensions.Locations
         /// </summary>
         /// <param name="PostalCode"></param>
         /// <param name="Number">Numero da casa</param>
-        public static T FromViaCEP<T>(int PostalCode, string Number = null, string Complement = null) where T : AddressInfo => FromViaCEP<T>($"{PostalCode}", Number, Complement);
-
-        /// <summary>
-        /// Cria um objeto de localização e imadiatamente pesquisa as informações de um local
-        /// através do CEP usando as APIs ViaCEP
-        /// </summary>
-        /// <param name="PostalCode"></param>
-        /// <param name="Number">Numero da casa</param>
-        public static T FromViaCEP<T>(string PostalCode, string Number = null, string Complement = null) where T : AddressInfo
+        public static AddressInfo FromViaCEP(string PostalCode, string Number = null, string Complement = null)
         {
             PostalCode = $"{PostalCode}".PadLeft(8, '0');
-            var d = Activator.CreateInstance<T>();
+            var d = new AddressInfo();
             d["original_string"] = PostalCode;
             d.PostalCode = PostalCode;
             if (Number.IsValid())
@@ -841,33 +730,33 @@ namespace Extensions.Locations
                 d["search_url"] = url.ToString();
                 d.Country = "Brasil";
                 d.CountryCode = "BR";
-                
+
                 using (var c = new WebClient())
                 {
                     var xmlContent = c.DownloadString(url);
                     var xml = new XmlDocument();
                     xml.LoadXml(xmlContent);
-                    
+
                     var xmlcep = xml["xmlcep"];
-                    
+
                     // Verifica se tem erro no XML
                     var erroNode = xmlcep["erro"];
                     if (erroNode != null && erroNode.InnerText == "true")
                     {
                         throw new Exception("CEP não encontrado");
                     }
-                    
+
                     // Extrai as informações do XML
                     d.Neighborhood = xmlcep["bairro"]?.InnerText;
                     d.City = xmlcep["localidade"]?.InnerText;
                     d.Street = xmlcep["logradouro"]?.InnerText;
                     d.Complement = Complement.IfBlank(xmlcep["complemento"]?.InnerText ?? d.Complement);
                     d.StateCode = xmlcep["uf"]?.InnerText;
-                    
+
                     // Extrai informações adicionais
                     foreach (var item in new[] { "ddd", "ibge", "gia", "siafi" })
                     {
-                        Util.TryExecute(() => 
+                        Util.TryExecute(() =>
                         {
                             var nodeValue = xmlcep[item]?.InnerText;
                             if (!string.IsNullOrEmpty(nodeValue))
@@ -876,9 +765,9 @@ namespace Extensions.Locations
                             }
                         });
                     }
-                    
+
                     // Extrai informações adicionais do XML
-                    Util.TryExecute(() => 
+                    Util.TryExecute(() =>
                     {
                         var estadoNode = xmlcep["estado"]?.InnerText;
                         if (!string.IsNullOrEmpty(estadoNode))
@@ -886,8 +775,8 @@ namespace Extensions.Locations
                             d.State = estadoNode;
                         }
                     });
-                    
-                    Util.TryExecute(() => 
+
+                    Util.TryExecute(() =>
                     {
                         var regiaoNode = xmlcep["regiao"]?.InnerText;
                         if (!string.IsNullOrEmpty(regiaoNode))
@@ -971,25 +860,17 @@ namespace Extensions.Locations
             return p;
         }
 
-        public static implicit operator AddressInfo(Point Point) => ToAddressInfo(Point);
+        public static implicit operator AddressInfo(Point Point) => Util.ToAddressInfo(Point, null);
 
         public static implicit operator Point(AddressInfo AddressInfo) => AddressInfo?.ToPoint() ?? new Point();
 
-        public static AddressInfo ToAddressInfo(Point Point) => new AddressInfo().SetLatitudeLongitudeFromPoint(Point);
 
         /// <summary>
         /// Tenta extrair as partes de um endereço de uma string
         /// </summary>
         /// <param name="Address"></param>
         /// <returns></returns>
-        public static AddressInfo TryParse(string Address) => TryParse<AddressInfo>(Address);
-
-        /// <summary>
-        /// Tenta extrair as partes de um endereço de uma string
-        /// </summary>
-        /// <param name="Address"></param>
-        /// <returns></returns>
-        public static T TryParse<T>(string Address) where T : AddressInfo
+        public static AddressInfo TryParse(string Address)
         {
             string original = Address;
             string PostalCode = Util.EmptyString;
@@ -1101,7 +982,7 @@ namespace Extensions.Locations
 
             Number = Number.TrimBetween().TrimAny(" ", ",", "-");
             Complement = Complement.TrimBetween().TrimAny(" ", ",", "-");
-            var d = CreateLocation<T>(Address, Number, Complement, Neighborhood, City, State, Country, PostalCode);
+            var d = new AddressInfo(Address, Number, Complement, Neighborhood, City, State, Country, PostalCode);
             d["original_string"] = original;
             return d;
         }
@@ -1149,6 +1030,28 @@ namespace Extensions.Locations
             return this;
         }
 
+        public static AddressInfo ParseLatitudeLongitude(string input, CultureInfo culture = null)
+        {
+            var cultura = culture ?? CultureInfo.InvariantCulture;
+            // split considering , ; and space as separators, avoid decimal separator from culture
+            var decimalSeparator = cultura.NumberFormat.NumberDecimalSeparator;
+            var thousandSeparator = cultura.NumberFormat.NumberGroupSeparator;
+
+            var cleanedInput = input.Replace(thousandSeparator, string.Empty).Replace(decimalSeparator, ".");
+
+            var parts = cleanedInput.SplitAny(",", " ", ";").Select(x => x.Trim()).ToArray();
+            if (parts.Length == 2 && parts.First().IsNumber() && parts.Last().IsNumber())
+            {
+                return new AddressInfo
+                {
+                    Latitude = parts.First(),
+                    Longitude = parts.Last()
+                };
+            }
+
+            return null;
+        }
+
         public AddressInfo SetLatitudeLongitudeFromPoint(Point Point, CultureInfo culture = null)
         {
             culture = culture ?? CultureInfo.InvariantCulture;
@@ -1158,6 +1061,10 @@ namespace Extensions.Locations
         }
 
         public Point ToPoint(CultureInfo culture = null) => Latitude.CanBeNumber() && Longitude.CanBeNumber() ? new Point((Convert.ToDecimal(Longitude, culture ?? CultureInfo.InvariantCulture) * 1000000).ToInt(), (Convert.ToDecimal(Latitude, culture ?? CultureInfo.InvariantCulture) * 1000000).ToInt()) : new Point();
+
+
+
+
 
         /// <summary>
         /// Retorna uma String contendo as informações do Local
@@ -1245,6 +1152,19 @@ namespace Extensions.Locations
             }
 
             return retorno.TrimAny(".", " ", ",", " ", "-");
+        }
+
+
+        public AddressInfo Clone()
+        {
+            var a = new AddressInfo();
+            foreach (var item in _details)
+            {
+                a._details[item.Key] = item.Value;
+            }
+
+            a.Format = Format;
+            return a;
         }
 
         #endregion Public Methods

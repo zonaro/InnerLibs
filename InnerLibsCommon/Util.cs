@@ -1164,6 +1164,16 @@ namespace Extensions
             }
             return distance;
         }
+        public static double CalculateDistance(this AddressInfo FirstLocation, string SecondLatitude, string SecondLongitude)
+        {
+            return FirstLocation.CalculateDistance(new AddressInfo("LatLng", SecondLatitude, SecondLongitude));
+        }
+
+        public static double CalculateDistance(this AddressInfo FirstLocation, double SecondLatitude, double SecondLongitude)
+        {
+            return FirstLocation.CalculateDistance(SecondLatitude.ToString(), SecondLongitude.ToString());
+        }
+
 
         /// <summary>
         /// Calcula a porcentagem de cada valor em um dicionario em relação a sua totalidade
@@ -1291,6 +1301,9 @@ namespace Extensions
                 return false;
             }
         }
+
+        public static AddressInfo ToAddressInfo(this Point Point, string Label = null) => new AddressInfo() { Label = Label }.SetLatitudeLongitudeFromPoint(Point);
+
 
         /// <summary>
         /// Retorna todas as possiveis combinações de Arrays do mesmo tipo (Produto Cartesiano)
@@ -6126,7 +6139,7 @@ namespace Extensions
             {
                 return istype;
             }
-            else if( Obj != null)  
+            else if (Obj != null)
             {
                 try
                 {
@@ -9638,7 +9651,7 @@ namespace Extensions
 
 
         /// <inheritdoc cref="QuoteIf(string, bool, char)"/>
-        public static string QuoteIf(this string Text, Expression<Func<string, bool>> Condition=null, char QuoteChar = '"')
+        public static string QuoteIf(this string Text, Expression<Func<string, bool>> Condition = null, char QuoteChar = '"')
         {
             Condition = Condition ?? (x => x.IsNotBlank());
             return QuoteIf(Text, Condition.Compile().Invoke(Text), QuoteChar);

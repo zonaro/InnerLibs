@@ -1,4 +1,5 @@
 ﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
@@ -6,19 +7,17 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.Serialization;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
 using Extensions;
+using Extensions.Dates;
 using Extensions.Locations;
 using Extensions.NumberWriters;
 using Extensions.vCards;
-
-using System;
-using System.Text;
-using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
-using Extensions.Dates;
 
 namespace Extensions.BR
 {
@@ -383,9 +382,6 @@ namespace Extensions.BR
 
         public static Image GerarAvatarAleatorio(bool SobrenomeUnico = false) => GerarNomeCompletoAleatorio(SobrenomeUnico).GenerateAvatarByName();
 
-        /// <inheritdoc cref= "GerarEnderecoFake{T}" />
-        public static BrasilAddressInfo GerarEnderecoFake(string Label = "Residêncial", bool BuscarEnderecoReal = true) => GerarEnderecoFake<BrasilAddressInfo>(BuscarEnderecoReal: BuscarEnderecoReal);
-
         /// <summary>
         /// Retorna um endereço falso, mas com dados reais de cidade e estado. Tenta buscar um endereço real a partir do CEP gerado, mas caso não consiga, gera um endereço fictício
         /// </summary>
@@ -393,15 +389,15 @@ namespace Extensions.BR
         /// <param name="Label"></param>
         /// <param name="BuscarEnderecoReal"></param>
         /// <returns></returns>
-        public static T GerarEnderecoFake<T>(string Label = "Residêncial", bool BuscarEnderecoReal = true) where T : AddressInfo
+        public static AddressInfo GerarEnderecoFake(string Label = "Residêncial", bool BuscarEnderecoReal = true)
         {
             var cid = Cidades.RandomItem();
-            T ad = CriarAddressInfo<T>(cid.UF, cid.Nome);
+            AddressInfo ad = CriarAddressInfo(cid.UF, cid.Nome);
             ad["endereco_fake"] = "true";
             try
             {
                 if (!BuscarEnderecoReal) throw new Exception("Endereço FAKE");
-                ad = PegarEndereco<T>(Util.RandomLong(cid.CepInicial, cid.CepFinal));
+                ad = PegarEndereco(Util.RandomLong(cid.CepInicial, cid.CepFinal));
                 ad["Origem"] = "ViaCep";
             }
             catch
@@ -530,14 +526,14 @@ namespace Extensions.BR
         }
 
         /// <summary>
-        /// Retorna um <see cref="BrasilAddressInfo"/> da cidade e estado correspondentes
+        /// Retorna um <see cref="AddressInfo"/> da cidade e estado correspondentes
         /// </summary>
         /// <param name="NomeOuUFouIBGE"></param>
         /// <param name="Cidade"></param>
         /// <returns></returns>
-        public static BrasilAddressInfo CriarAddressInfo(string NomeOuUFouIBGE, string Cidade) => CriarAddressInfo<BrasilAddressInfo>(NomeOuUFouIBGE, Cidade);
+        public static AddressInfo CriarAddressInfo(string NomeOuUFouIBGE, string Cidade) => CriarAddressInfo<AddressInfo>(NomeOuUFouIBGE, Cidade);
 
-        public static BrasilAddressInfo CriarAddressInfo(string CidadeOuIBGE) => CriarAddressInfo<BrasilAddressInfo>(CidadeOuIBGE);
+
 
         /// <summary>
         /// Retorna um <see cref="AddressInfo"/> da cidade e estado correspondentes
@@ -545,13 +541,13 @@ namespace Extensions.BR
         /// <param name="NomeOuUFouIBGE"></param>
         /// <param name="Cidade"></param>
         /// <returns></returns>
-        public static T CriarAddressInfo<T>(string EstadoOuIBGE) where T : AddressInfo
+        public static AddressInfo CriarAddressInfo(string EstadoOuIBGE)
         {
-            var cid = PegarCidade(EstadoOuIBGE, EstadoOuIBGE);
-            return CriarAddressInfo<T>(cid.Estado.UF, cid.Nome);
+            var cid = PegarCidade(EstadoOuIBGE, EstadoOuIBGE)?.ToAddressInfo();
+            return cid;
         }
 
-        public static T CriarAddressInfo<T>(string NomeOuUFouIBGE, string Cidade) where T : AddressInfo
+        public static AddressInfo CriarAddressInfo<T>(string NomeOuUFouIBGE, string Cidade)
         {
             if (NomeOuUFouIBGE.IsNotValid() && Cidade.IsValid())
             {
@@ -562,30 +558,26 @@ namespace Extensions.BR
             if (s != null)
             {
                 var c = PegarCidade(Cidade, s.UF);
-                var ends = Activator.CreateInstance<T>();
+                var ends = c.ToAddressInfo();
                 ends.City = c?.Nome ?? Cidade;
-                ends.State = s.Nome;
-                ends.StateCode = s.UF;
-                ends.Region = s.Regiao;
-                ends.Country = "Brasil";
-                ends.CountryCode = "BR";
-                ends[nameof(BrasilAddressInfo.StateIBGE)] = s.IBGE.ToString();
-                ends[nameof(BrasilAddressInfo.IBGE)] = c?.IBGE.ToString();
-                ends[nameof(BrasilAddressInfo.DDD)] = c?.DDD.ToString();
-                ends[nameof(BrasilAddressInfo.SIAFI)] = c?.SIAFI.ToString();
-                ends[nameof(BrasilAddressInfo.TimeZone)] = c?.TimeZone.ToString();
-                ends.Capital = c?.Capital ?? false;
-                ends.Latitude = c?.Latitude;
-                ends.Longitude = c?.Longitude;
                 return ends;
             }
 
             return null;
         }
 
-        public static T PegarEndereco<T>(long CEP, string Numero = null, string Complemento = null) where T : AddressInfo => AddressInfo.FromViaCEP<T>(CEP.ToString(), Numero, Complemento);
+        /// <summary>
+        /// Retorna um endereço a partir do CEP informado
+        /// </summary>
+        /// <param name="CEP"></param>
+        /// <param name="Numero"></param>
+        /// <param name="Complemento"></param>
+        /// <returns></returns>
+        public static AddressInfo PegarEndereco(long CEP, string Numero = null, string Complemento = null)
+        {
+            return AddressInfo.FromViaCEP(CEP, Numero, Complemento);
 
-        public static BrasilAddressInfo PegarEndereco(long CEP, string Numero = null, string Complemento = null) => PegarEndereco<BrasilAddressInfo>(CEP, Numero, Complemento);
+        }
 
         /// <summary>
         /// Retorna uma cidade a partir de seu nome ou codigo IBGEouCEP. Caso a cidade não seja encontrada mas o estado seja identificado, a capital desse estado é retornada no lugar
@@ -666,6 +658,13 @@ namespace Extensions.BR
                 return cids.Where(x => x.ContemCep(NomeDaCidadeOuIBGE));
             }
 
+            // Check if NomeDaCidadeOuIBGE is a valid latitude longitude pair
+            var latLong = AddressInfo.ParseLatitudeLongitude(NomeDaCidadeOuIBGE);
+            if (latLong != null)
+            {
+                cids = cids.OrderBy(x => latLong.CalculateDistance(x.ToAddressInfo())).Take(10).ToList();
+
+            }
             var est = PegarEstado(NomeOuUFOuIBGE) ?? PegarEstado(NomeDaCidadeOuIBGE);
             cids = est?.Cidades.ToList() ?? cids;
 
@@ -1534,6 +1533,73 @@ namespace Extensions.BR
             string cnhStr = string.Concat(cnh);
             return cnhStr;
         }
+
+        /// <summary>
+        /// Encontra a cidade brasileira mais próxima a partir das coordenadas geográficas fornecidas
+        /// </summary>
+        /// <param name="latitude">Latitude do ponto de referência</param>
+        /// <param name="longitude">Longitude do ponto de referência</param>
+        /// <returns>A cidade mais próxima ou null se não houver cidades com coordenadas válidas</returns>
+        public static Cidade CidadeMaisProxima(string latitude, string longitude, IEnumerable<Cidade> cidades = null)
+        {
+            cidades = cidades ?? Cidades;
+            Cidade cidadeMaisProxima = null;
+            double menorDistancia = double.MaxValue;
+
+            foreach (var cidade in cidades)
+            {
+                if (cidade.Latitude.IsNumber() && cidade.Longitude.IsNumber())
+                {
+                    var distancia = cidade.ToAddressInfo().CalculateDistance(latitude, longitude);
+
+                    if (distancia < menorDistancia)
+                    {
+                        menorDistancia = distancia;
+                        cidadeMaisProxima = cidade;
+                    }
+                }
+            }
+
+            return cidadeMaisProxima;
+        }
+        public static Cidade CidadeMaisProxima(double latitude, double longitude, IEnumerable<Cidade> cidades = null)
+        {
+            if (latitude.IsNumber() && longitude.IsNumber())
+            {
+                return CidadeMaisProxima(new AddressInfo(latitude, longitude), cidades);
+            }
+            return null;
+        }
+
+
+        public static Cidade CidadeMaisProxima(AddressInfo location, IEnumerable<Cidade> cidades = null)
+        {
+            if (location == null) return null;
+            return CidadeMaisProxima(location.Latitude, location.Longitude, cidades);
+
+        }
+
+        public static Cidade CidadeMaisProxima(Cidade location, IEnumerable<Cidade> cidades = null)
+        {
+            if (location == null) return null;
+            cidades = cidades ?? Cidades;
+            return CidadeMaisProxima(location.ToAddressInfo(), cidades.Where(c => c != location));
+        }
+
+        /// <summary>
+        /// Encontra a cidade brasileira mais próxima a partir das coordenadas geográficas fornecidas em formato string
+        /// </summary>
+        /// <param name="latitude">Latitude do ponto de referência em formato string</param>
+        /// <param name="longitude">Longitude do ponto de referência em formato string</param>
+        /// <returns>A cidade mais próxima ou null se as coordenadas não forem válidas ou não houver cidades com coordenadas válidas</returns>
+        public static Cidade CidadeMaisProxima(string latitude, string longitude)
+        {
+            if (latitude.CanBeNumber() && longitude.CanBeNumber())
+            {
+                return CidadeMaisProxima(latitude.ToDouble(), longitude.ToDouble());
+            }
+            return null;
+        }
     }
 
     public class ChaveNFe
@@ -1856,6 +1922,42 @@ namespace Extensions.BR
         public bool ContemCep(string Cep) => Brasil.CEPValido(Cep) && ContemCep(Cep.OnlyNumbersLong());
 
         public override string ToString() => CidadeEstado;
+
+        public AddressInfo ToAddressInfo(string Label = null)
+        {
+            var c = new AddressInfo
+            {
+                Country = Pais,
+                CountryCode = CodigoPais,
+                State = Estado?.Nome,
+                StateCode = UF,
+                City = Nome,
+                Latitude = Latitude,
+                Longitude = Longitude,
+                ZipCode = CepInicial.ToString(),
+                Label = Label,
+                Region = this.Regiao,
+                Format = AddressPart.CityStateCode
+            };
+
+            c[nameof(CepInicial)] = this.CepInicial.ToString();
+            c[nameof(CepFinal)] = this.CepFinal.ToString();
+            c[nameof(ExclusivaSedeUrbana)] = this.ExclusivaSedeUrbana.ToString();
+            c[nameof(TotalMunicipio)] = this.TotalMunicipio.ToString();
+            c[nameof(CodigoGeograficoSubdivisao)] = this.CodigoGeograficoSubdivisao;
+            c[nameof(CodigoGeograficoDistrito)] = this.CodigoGeograficoDistrito;
+            c[nameof(MicroRegiao)] = this.MicroRegiao;
+            c[nameof(MacroRegiao)] = this.MacroRegiao;
+            c[nameof(Altitude)] = this.Altitude;
+            c[nameof(TimeZone)] = this.TimeZone;
+            c[nameof(DDD)] = this.DDD.ToString();
+            c[nameof(IBGE)] = this.IBGE.ToString();
+            c["StateIBGE"] = this.IBGEEstado.ToString();
+            c[nameof(Capital)] = this.Capital.ToString().ToLowerInvariant();
+            c[nameof(SIAFI)] = this.SIAFI;
+
+            return c;
+        }
     }
 
     /// <summary>

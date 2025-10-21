@@ -21,21 +21,89 @@ namespace Extensions
     public class IdadeAttribute : ValidationAttribute
     {
         public int Minima { get; }
+        public int Maxima { get; }
 
-        public IdadeAttribute(int minima)
+        public IdadeAttribute(int? minima, int? maxima = null)
         {
-            Minima = minima;
+
+            (minima, maxima) = Util.FixOrder(minima ?? 0, maxima ?? int.MaxValue);
+
+            if (minima == null && maxima == null)
+                throw new ArgumentException("Deve ser informado o valor mínimo ou máximo");
+
+            if (minima < 0)
+                throw new ArgumentOutOfRangeException(nameof(minima), "A idade mínima não pode ser negativa");
+
+            if (maxima < 0)
+                throw new ArgumentOutOfRangeException(nameof(maxima), "A idade máxima não pode ser negativa");
+
+
+
+            Minima = minima.Value;
+            Maxima = maxima.Value;
+        }
+
+        public override bool IsValid(object value)
+        {
+            if (value == null || value.ToString().IsBlank())
+                return true;
+
+            var age = 0;
+
+            if (value is string str && DateTime.TryParse(str, out var dt))
+            {
+                age = Util.GetAge(dt);
+            }
+            else if (value.IsNumber())
+            {
+                age = value.ToDecimal().RoundInt();
+            }
+            else if (value is DateTime dt2)
+            {
+                age = Util.GetAge(dt2);
+            }
+            else
+            {
+                age = value.ChangeType<decimal>().RoundInt();
+            }
+
+            return age.IsBetweenOrEqual(Minima, Maxima);
         }
 
         public override string FormatErrorMessage(string name)
         {
-            return ErrorMessage.IfBlank("Idade Minima: {Idade}").Inject(new
-            {
-                Minima,
-                Idade = Minima,
-                n = Minima,
-                name
-            });
+
+            if (Minima != 0 && Maxima != int.MaxValue)
+                return ErrorMessage.IfBlank("Idade entre {Minima} e {Maxima}").Inject(new
+                {
+                    Minima,
+                    IdadeMin = Minima,
+                    nMin = Minima,
+                    Maxima,
+                    IdadeMax = Maxima,
+                    nMax = Maxima,
+                    name
+                });
+
+            if (Maxima != int.MaxValue)
+                return ErrorMessage.IfBlank("Idade máxima: {Idade}").Inject(new
+                {
+                    Maxima,
+                    Idade = Maxima,
+                    n = Maxima,
+                    name
+                });
+
+            if (Minima != 0)
+                return ErrorMessage.IfBlank("Idade mínima: {Idade}").Inject(new
+                {
+                    Minima,
+                    Idade = Minima,
+                    n = Minima,
+                    name
+                });
+
+            return base.FormatErrorMessage(name);
         }
     }
 
@@ -232,6 +300,7 @@ namespace Extensions
             });
         }
     }
- 
+
+
 
 }
