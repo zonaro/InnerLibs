@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Linq.Expressions;
-using Extensions;
 using Extensions.BR;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+
 
 namespace Extensions
 {
@@ -106,17 +107,15 @@ namespace Extensions
             return base.FormatErrorMessage(name);
         }
     }
-
     [AttributeUsage(AttributeTargets.Property)]
-    public class MultipleValidationsAttribute<T> : ValidationAttribute
+    public class MultipleValidationsAttribute : ValidationAttribute
     {
-        public List<Expression<Func<T, string>>> Validations { get; } = new List<Expression<Func<T, string>>>();
+        public List<Expression<Func<object, string>>> Validations { get; } = new List<Expression<Func<object, string>>>();
 
         public bool AllowNull { get; set; } = false;
         public int MinimalValid { get; set; } = 1;
 
         public string ErrorSeparator { get; set; } = ", ";
-
 
         public bool AllMustBeValid
         {
@@ -128,7 +127,7 @@ namespace Extensions
             }
         }
 
-        internal (bool IsValid, IEnumerable<string> Errors) GetValidationErrors(object value) => Util.Validate(value.ChangeType<T>(), AllowNull, Validations.ToArray());
+        internal (bool IsValid, IEnumerable<string> Errors) GetValidationErrors(object value) => Util.Validate(value, AllowNull, Validations.ToArray());
 
         private IEnumerable<string> Errors = Enumerable.Empty<string>();
 
@@ -155,7 +154,6 @@ namespace Extensions
             },
             CaseSensitive: false);
         }
-
     }
 
     [AttributeUsage(AttributeTargets.Property)]

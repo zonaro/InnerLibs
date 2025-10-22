@@ -1,12 +1,6 @@
 using System;
-using System.Security.Cryptography;
+using System.Collections.Generic;
 using System.Text;
-using Extensions;
-using System;
-using System.Globalization;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Web;
 
 namespace Extensions.BR
 {

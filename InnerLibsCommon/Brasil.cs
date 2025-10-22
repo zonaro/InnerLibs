@@ -1,15 +1,12 @@
 ﻿using System;
-using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.Serialization;
-using System.Security.Cryptography;
 using System.Text;
-using System.Text;
+
 using System.Text.RegularExpressions;
 using System.Xml;
 using Extensions;
@@ -17,7 +14,7 @@ using Extensions.Dates;
 using Extensions.Locations;
 using Extensions.NumberWriters;
 using Extensions.vCards;
-using Microsoft.EntityFrameworkCore;
+
 
 namespace Extensions.BR
 {

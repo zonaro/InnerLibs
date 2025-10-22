@@ -1,17 +1,14 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Immutable;
+
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
-using System.Data.Common;
-using System.Data.SqlTypes;
 using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
@@ -23,7 +20,6 @@ using System.Net.Sockets;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.JavaScript;
 using System.Runtime.Serialization;
 using System.Security.Cryptography;
 using System.Text;
@@ -41,12 +37,9 @@ using Extensions.Converters;
 using Extensions.DataBases;
 using Extensions.Dates;
 using Extensions.DebugWriter;
-using Extensions.Equations;
 using Extensions.Files;
 using Extensions.Locations;
 using Extensions.Pagination;
-using Extensions.Select2;
-using Extensions.Web;
 
 using Expression = System.Linq.Expressions.Expression;
 
@@ -1493,7 +1486,7 @@ namespace Extensions
         /// <typeparam name="T">Tipo</typeparam>
         /// <param name="Value">Variavel com valor</param>
         /// <returns>Valor convertido em novo ToType ou null se a conversão falhar</returns>
-        public static T ChangeType<T>(this object Value, IFormatProvider? formatProvider)
+        public static T ChangeType<T>(this object Value, IFormatProvider formatProvider)
         {
             try
             {
@@ -1513,7 +1506,7 @@ namespace Extensions
         /// <typeparam name="TFrom">Tipo de origem</typeparam>
         /// <param name="Value">Variavel com valor</param>
         /// <returns>Valor convertido em novo ToType ou null (ou default) se a conversão falhar</returns>
-        public static object ChangeType<TFrom>(this TFrom Value, Type ToType, IFormatProvider? formatProvider = null)
+        public static object ChangeType<TFrom>(this TFrom Value, Type ToType, IFormatProvider formatProvider = null)
         {
             if (ToType == null)
             {
@@ -1661,9 +1654,9 @@ namespace Extensions
         }
 
         /// <inheritdoc cref="ParsePercent(string, Type, IFormatProvider?)"/>
-        public static T ParsePercent<T>(this string Percent, IFormatProvider? formatProvider = null) where T : struct => ParsePercent(Percent, typeof(T), formatProvider).ChangeType<T>(formatProvider);
+        public static T ParsePercent<T>(this string Percent, IFormatProvider formatProvider = null) where T : struct => ParsePercent(Percent, typeof(T), formatProvider).ChangeType<T>(formatProvider);
 
-        public static V ParsePercent<V>(this V Percent, IFormatProvider? formatProvider = null) where V : struct
+        public static V ParsePercent<V>(this V Percent, IFormatProvider formatProvider = null) where V : struct
         {
             return Percent.ChangeType<V>(formatProvider);
         }
@@ -1675,7 +1668,7 @@ namespace Extensions
         /// <param name="type"></param>
         /// <param name="formatProvider"></param>
         /// <returns></returns>
-        public static object ParsePercent(this string Percent, Type type, IFormatProvider? formatProvider = null)
+        public static object ParsePercent(this string Percent, Type type, IFormatProvider formatProvider = null)
         {
             if (type == null) type = typeof(string);
 
@@ -3344,7 +3337,7 @@ namespace Extensions
         {
             predicade = predicade ?? (x => true);
             Alternate = Alternate ?? Array.Empty<T>();
-            T? first;
+            T first;
             if (source != null)
             {
                 first = source.FirstOrDefault(predicade);
@@ -3353,7 +3346,7 @@ namespace Extensions
                     return first;
                 }
             }
-            return Util.NullCoalesce(Alternate.AsEnumerable()) ?? default;
+            return Util.NullCoalesce<T>(Alternate.AsEnumerable());
         }
 
         /// <summary>
@@ -4864,19 +4857,23 @@ namespace Extensions
             if (source is Array array)
                 return Array.IndexOf(array, item);
 
+            var type = source.GetType();
+
+            // immutable list only in newewr C# versins
+#if NETCOREAPP3_0_OR_GREATER || NET5_0_OR_GREATER
+
             // 🔒 ImmutableArray<T>
             if (source is IImmutableList<object> immListObj)
                 return immListObj.IndexOf(item);
 
             // 🔒 ImmutableArray<T> genérico
-            var type = source.GetType();
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(ImmutableArray<>))
             {
                 var method = type.GetMethod("IndexOf", new[] { type.GetGenericArguments()[0] });
                 if (method != null)
                     return (int)method.Invoke(source, new[] { item });
             }
-
+#endif
             // 🪞 Reflection fallback
             var indexOfMethod = type.GetMethods(BindingFlags.Public | BindingFlags.Instance)
                                     .FirstOrDefault(m => m.Name == "IndexOf" &&

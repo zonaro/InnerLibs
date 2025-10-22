@@ -77,7 +77,7 @@ namespace Extensions.Files
         {
             get
             {
-                if (Path.IsDirectoryPath())
+                if (this.Path.IsDirectoryPath())
                 {
                     if (System.IO.Directory.Exists(Path))
                     {
@@ -247,7 +247,7 @@ namespace Extensions.Files
                 var item = Children.FirstOrDefault(x => x.Index == index);
                 if (item != null)
                 {
-                    if (item.Exists) item.Delete();                  
+                    if (item.Exists) item.Delete();
                 }
 
             }
@@ -290,17 +290,17 @@ namespace Extensions.Files
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public override bool Equals(object? obj)
+        public override bool Equals(object obj)
         {
 
             if (obj == null) return false;
 
             if (ReferenceEquals(this, obj)) return true;
 
-            if(this.IsFile && obj is FileTree fto && fto.IsFile)
+            if (this.IsFile && obj is FileTree fto && fto.IsFile)
                 return GetCheckSum() == fto.GetCheckSum();
 
-        
+
             return false;
         }
 
