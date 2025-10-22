@@ -4859,21 +4859,7 @@ namespace Extensions
 
             var type = source.GetType();
 
-            // immutable list only in newewr C# versins
-#if NETCOREAPP3_0_OR_GREATER || NET5_0_OR_GREATER
 
-            // 🔒 ImmutableArray<T>
-            if (source is IImmutableList<object> immListObj)
-                return immListObj.IndexOf(item);
-
-            // 🔒 ImmutableArray<T> genérico
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(ImmutableArray<>))
-            {
-                var method = type.GetMethod("IndexOf", new[] { type.GetGenericArguments()[0] });
-                if (method != null)
-                    return (int)method.Invoke(source, new[] { item });
-            }
-#endif
             // 🪞 Reflection fallback
             var indexOfMethod = type.GetMethods(BindingFlags.Public | BindingFlags.Instance)
                                     .FirstOrDefault(m => m.Name == "IndexOf" &&
