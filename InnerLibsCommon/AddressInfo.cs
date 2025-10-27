@@ -173,7 +173,7 @@ namespace Extensions.Locations
 
                     if (st == null)
                     {
-                        st = ct.Estado;
+                        st = Brasil.PegarEstado(ct.Estado);
                     }
                 }
             }
@@ -800,12 +800,12 @@ namespace Extensions.Locations
                     if (cidade != null)
                     {
                         d.City = cidade.Nome;
-                        d.State = cidade.Estado.Nome;
-                        d.StateCode = cidade.Estado.UF;
-                        d.Region = cidade.Estado.Regiao;
+                        d.State = cidade.Estado;
+                        d.StateCode = cidade.UF;
+                        d.Region = cidade.Regiao;
                         d["IBGE"] = cidade.IBGE.ToString();
-                        d["StateIBGE"] = cidade.Estado.IBGE.ToString();
-                        d.Capital = cidade.IBGE == cidade.Estado.Capital.IBGE;
+                        d["StateIBGE"] = cidade.EstadoIBGE.ToString();
+                        d.Capital = cidade.Capital;
                         d["TimeZone"] = cidade.TimeZone;
                     }
                 }

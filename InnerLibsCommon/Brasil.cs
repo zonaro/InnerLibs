@@ -10,6 +10,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
 using Extensions;
+using Extensions.BR;
 using Extensions.Dates;
 using Extensions.Locations;
 using Extensions.NumberWriters;
@@ -285,8 +286,6 @@ namespace Extensions.BR
             }
         }
 
-        internal static List<Estado> states = new List<Estado>();
-        internal static List<Cidade> cities = new List<Cidade>();
 
         /// <summary>
         /// Array contendo os nomes mais comuns no Brasil
@@ -419,108 +418,20 @@ namespace Extensions.BR
             return ad;
         }
 
-        public static IEnumerable<Cidade> Cidades
-        {
-            get
-            {
-                LoadXML();
-                return cities.OrderBy(x => x.Nome).ThenByDescending(x => x.TotalMunicipio).DistinctBy(x => x.IBGE);
-            }
-        }
+
 
         /// <summary>
         /// Retorna as Regiões dos estados brasileiros
         /// </summary>
         /// <returns></returns>
-        public static IEnumerable<string> Regioes => Estados.Select(x => x.Regiao).Distinct();
+        public static IEnumerable<string> Regioes => Cidades.Select(x => x.Regiao).Distinct();
 
         /// <summary>
-        /// Retorna uma lista com todos os estados do Brasil e seus respectivos detalhes
+        /// Retorna uma lista com todos os estados do Brasil
         /// </summary>
         /// <returns></returns>
-        public static IEnumerable<Estado> Estados
-        {
-            get
-            {
-                LoadXML();
-                return states;
-            }
-        }
+        public static IEnumerable<string> Estados => Cidades.Select(x => x.Estado).Distinct();
 
-        private static bool cached = false;
-
-        private static void LoadXML()
-        {
-            states = states ?? new List<Estado>();
-            cities = cities ?? new List<Cidade>();
-            if (!cached)
-            {
-                cached = true;
-                states.Clear();
-                cities.Clear();
-                string s = Assembly.GetExecutingAssembly().GetResourceFileText("brasil.xml");
-                var doc = new XmlDocument();
-                doc.LoadXml(s);
-
-                foreach (XmlNode estado in doc.SelectNodes("brasil/Estados"))
-                {
-                    var e = new Estado();
-                    e.UF = estado["UF"].InnerText;
-                    e.Nome = estado["Nome"].InnerText;
-                    e.Regiao = estado["Regiao"].InnerText;
-                    e.IBGE = estado["IBGE"].InnerText.ToInt();
-                    e.Pais = "Brasil";
-                    e.CodigoPais = "BR";
-                    e.Longitude = estado["Longitude"].InnerText;
-                    e.Latitude = estado["Latitude"].InnerText;
-
-                    states.Add(e);
-                }
-
-                foreach (XmlNode node in doc.SelectNodes($"brasil/Cidades"))
-                {
-                    var cid = new Cidade();
-
-                    cid.Id = node["id"].InnerText.ToInt();
-                    cid.IBGE = node["IBGE"].InnerText.ToInt();
-                    cid.Nome = node["Nome"].InnerText.ToTitle();
-                    cid.DDD = node["DDD"].InnerText.ToInt();
-                    cid.SIAFI = node["SIAFI"].InnerText;
-                    cid.TimeZone = node["TimeZone"].InnerText;
-                    cid.Latitude = node["Latitude"].InnerText;
-                    cid.Longitude = node["Longitude"].InnerText;
-                    cid.Capital = node["Capital"].InnerText.AsBool();
-                    cid.Altitude = node["Altitude"].InnerText;
-                    cid.CepFinal = node["CepFinal"].InnerText.ToLong();
-                    cid.CepInicial = node["CepInicial"].InnerText.ToLong();
-                    cid.CodigoGeograficoDistrito = node["CodigoGeograficoDistrito"].InnerText;
-                    cid.CodigoGeograficoSubdivisao = node["CodigoGeograficoSubdivisao"].InnerText;
-                    cid.MacroRegiao = node["MacroRegiao"].InnerText.ToTitle();
-                    cid.MicroRegiao = node["MicroRegiao"].InnerText.ToTitle();
-                    cid.ExclusivaSedeUrbana = node["TipoDeFaixa"].InnerText.FlatEqual("Exclusiva da sede urbana");
-                    cid.TotalMunicipio = node["TipoDeFaixa"].InnerText.FlatEqual("Total do Município");
-
-                    cid.Estado = states.FirstOrDefault(x => cid.IBGE.ToString().GetFirstChars(2).FlatEqual(x.IBGE));
-
-                    var tags = new List<string>
-                    {
-                        cid.Nome,
-                        cid.Estado?.UF,
-                        cid.Estado?.Nome,
-                        cid.Estado?.Regiao,
-                    }.WhereNotBlank().SelectMany(x => new List<string> {
-                       x.ToUpperInvariant().Split(Util.WhitespaceChar).JoinString(),
-                       x.ToUpperInvariant().Split(Util.WhitespaceChar).RemoveAny("DO", "DOS", "DE", "DA","D","D'","DAS").JoinString(),
-                       x.ToUpperInvariant().Split(Util.WhitespaceChar).SelectJoinString(c => c.GetFirstChars()),
-                       x.ToUpperInvariant().Split(Util.WhitespaceChar).RemoveAny("DO", "DOS", "DE", "DA","D","D'","DAS").SelectJoinString(c => c.GetFirstChars()),
-                    });
-
-                    cid.Keywords = tags.Where(x => x.Length >= 2).Distinct();
-
-                    cities.Add(cid);
-                }
-            }
-        }
 
         /// <summary>
         /// Retorna um <see cref="AddressInfo"/> da cidade e estado correspondentes
@@ -548,7 +459,7 @@ namespace Extensions.BR
         {
             if (NomeOuUFouIBGE.IsNotValid() && Cidade.IsValid())
             {
-                NomeOuUFouIBGE = PegarEstadoPeloNomeDaCidade(Cidade).FirstOrDefault().IfBlank(NomeOuUFouIBGE);
+                NomeOuUFouIBGE = PesquisarCidade(Cidade).FirstOrDefault().IfBlank(NomeOuUFouIBGE);
             }
 
             var s = PegarEstado(NomeOuUFouIBGE);
@@ -646,7 +557,7 @@ namespace Extensions.BR
                 }
                 else
                 {
-                    return Estados.FirstOrDefault(x => x.IBGE == NomeDaCidadeOuIBGE.RemoveMaskInt())?.Cidades;
+                    return cids.Where(x => x.EstadoIBGE == NomeDaCidadeOuIBGE.RemoveMaskInt());
                 }
             }
 
@@ -698,14 +609,7 @@ namespace Extensions.BR
 
         public static Cidade PegarCidade(long IBGEouCEP) => PegarCidade(IBGEouCEP.ToString());
 
-        /// <summary>
-        /// Retorna o estado de uma cidade especifa. Pode trazer mais de um estado caso o nome da
-        /// cidade seja igual em 2 ou mais estados
-        /// </summary>
-        /// <param name="NomeDaCidade"></param>
-        /// <returns></returns>
-        public static IEnumerable<Estado> PegarEstadoPeloNomeDaCidade(string NomeDaCidade) => Estados.Where(x => x.Cidades.Any(c => (Util.ToSlugCase(c.Nome) ?? Util.EmptyString) == (Util.ToSlugCase(NomeDaCidade) ?? Util.EmptyString) || (x.IBGE.ToString() ?? Util.EmptyString) == (Util.ToSlugCase(NomeDaCidade).GetFirstChars(2) ?? Util.EmptyString)));
-
+   
         /// <summary>
         /// Procura numeros de telefone em um Texto
         /// </summary>
@@ -1115,24 +1019,27 @@ namespace Extensions.BR
         public static Estado PegarEstado(string NomeOuUFOuIBGE)
         {
             NomeOuUFOuIBGE = NomeOuUFOuIBGE.TrimBetween().ToSlugCase();
+            Cidade c = null;
             if (NomeOuUFOuIBGE.CEPValido())
             {
-                return Cidades.FirstOrDefault(x => x.ContemCep(NomeOuUFOuIBGE))?.Estado;
+                c = Cidades.FirstOrDefault(x => x.ContemCep(NomeOuUFOuIBGE));
+
             }
 
             if (NomeOuUFOuIBGE.FormatoCodigoIBGEValido())
             {
                 if (NomeOuUFOuIBGE.Length == 7)
                 {
-                    return Cidades.FirstOrDefault(x => x.IBGE == NomeOuUFOuIBGE.ToInt())?.Estado;
+                    c = Cidades.FirstOrDefault(x => x.IBGE == NomeOuUFOuIBGE.ToInt());
                 }
                 else
                 {
-                    return Estados.FirstOrDefault(x => x.IBGE == NomeOuUFOuIBGE.ToInt());
+                    c = Cidades.FirstOrDefault(x => x.EstadoIBGE == NomeOuUFOuIBGE.ToInt());
                 }
             }
 
-            return Estados.FirstOrDefault(x => (x.Nome.ToSlugCase() ?? Util.EmptyString) == (NomeOuUFOuIBGE ?? Util.EmptyString) || (x.UF.ToSlugCase() ?? Util.EmptyString) == (NomeOuUFOuIBGE ?? Util.EmptyString));
+            c = Cidades.FirstOrDefault(x => x.Estado.ToSlugCase().FlatEqual(NomeOuUFOuIBGE) || x.UF.ToSlugCase().FlatEqual(NomeOuUFOuIBGE));
+            return c?.GetEstado();
         }
 
         public static bool FormatoCodigoIBGEValido(this string IBGE) => IBGE.IsNumber() && IBGE.ToInt() > 0 && (IBGE.Length == 7 || IBGE.Length == 2);
@@ -1154,7 +1061,7 @@ namespace Extensions.BR
         {
             if (IBGE.IsNumber() && IBGE.Length == 2 && IBGE.ToInt() > 0)
             {
-                return Estados.Any(x => x.IBGE == IBGE.ToInt());
+                return Cidades.Any(x => x.EstadoIBGE == IBGE.ToInt());
             }
             return false;
         }
@@ -1175,7 +1082,7 @@ namespace Extensions.BR
         /// </summary>
         /// <param name="Regiao"></param>
         /// <returns></returns>
-        public static IEnumerable<Estado> PegarEstadosDaRegiao(string Regiao) => Estados.Where(x => (Util.ToSlugCase(x.Regiao) ?? Util.EmptyString) == (Util.TrimBetween(Util.ToSlugCase(Regiao)) ?? Util.EmptyString) || Regiao.IsNotValid());
+        public static IEnumerable<Estado> PegarEstadosDaRegiao(string Regiao) => Cidades.Where(x => (Util.ToSlugCase(x.Regiao) ?? Util.EmptyString) == (Util.TrimBetween(Util.ToSlugCase(Regiao)) ?? Util.EmptyString) || Regiao.IsNotValid()).Select(x=> x.GetEstado());
 
         /// <summary>
         /// Verifica se uma string é um cep válido
@@ -1384,17 +1291,12 @@ namespace Extensions.BR
             return false;
         }
 
-        public static void Reload()
-        {
-            states = new List<Estado>();
-            cities = new List<Cidade>();
-            cached = false;
-        }
+
 
         public static bool ValidarInscricaoEstadual(string estado, string inscricao)
         {
             if (inscricao.FlatEqual("ISENTO")) return true;
-            return Brasil.PegarCidade(estado)?.Estado?.ValidarInscricaoEstadual(inscricao) ?? false;
+            return Brasil.PegarCidade(estado)?.GetEstado()?.ValidarInscricaoEstadual(inscricao) ?? false;
         }
 
         public static string GerarCPFouCNPJFake() => Util.RandomBool() ? GerarCPFFake() : GerarCNPJFake();
@@ -1868,39 +1770,64 @@ namespace Extensions.BR
 
         public int GetHashCode(Cidade obj) => obj.IBGE.GetHashCode();
 
-        public int Id { get; internal set; }
 
         public string Nome { get; internal set; }
 
-        public IEnumerable<string> Keywords { get; set; }
+        public Estado GetEstado() => new Estado()
+        {
+            Nome = Estado,
+            IBGE = EstadoIBGE,
+            Regiao = Regiao,
+            UF = UF
+        };
+
+        public IEnumerable<string> Keywords
+        {
+            get
+            {
+                return new List<string>
+                    {
+                         Nome,
+                         Estado,
+                         Regiao,
+                         UF,
+                    }.WhereNotBlank().SelectMany(x => new List<string> {
+                       x.ToUpperInvariant().Split(Util.WhitespaceChar).JoinString(),
+                       x.ToUpperInvariant().Split(Util.WhitespaceChar).RemoveAny("DO", "DOS", "DE", "DA","D","D'","DAS").JoinString(),
+                       x.ToUpperInvariant().Split(Util.WhitespaceChar).SelectJoinString(c => c.GetFirstChars()),
+                       x.ToUpperInvariant().Split(Util.WhitespaceChar).RemoveAny("DO", "DOS", "DE", "DA","D","D'","DAS").SelectJoinString(c => c.GetFirstChars()),
+                    }).Where(x => x.Length >= 2).Distinct();
+            }
+        }
 
         public long CepInicial { get; internal set; }
 
         public long CepFinal { get; internal set; }
 
         public bool ExclusivaSedeUrbana { get; internal set; }
-        public bool TotalMunicipio { get; internal set; }
 
-        public string Latitude { get; internal set; }
-        public string Longitude { get; internal set; }
+        public double Latitude { get; internal set; }
+        public double Longitude { get; internal set; }
         public string CodigoGeograficoSubdivisao { get; internal set; }
         public string CodigoGeograficoDistrito { get; internal set; }
         public string MicroRegiao { get; internal set; }
         public string MacroRegiao { get; internal set; }
-        public string Altitude { get; internal set; }
+        public double Altitude { get; internal set; }
         public int DDD { get; internal set; }
         public bool Capital { get; internal set; }
         public string TimeZone { get; internal set; }
-        public string UF => Estado?.UF;
-        public string Pais => Estado?.Pais;
+        public string UF { get; internal set; }
 
-        public string CodigoPais => Estado?.CodigoPais;
+        public string Pais => "Brasil";
+        public string CodigoPais => "BR";
 
-        public string Regiao => Estado?.Regiao;
+        public string Regiao { get; internal set; }
 
-        public string CidadeEstado => $"{Nome} - {Estado?.UF}".TrimAny("-", " ");
+        public string CidadeEstado => $"{Nome} - {UF}".TrimAny("-", " ");
 
-        public int IBGEEstado => Estado?.IBGE ?? 0;
+
+        public int EstadoIBGE { get; internal set; }
+        public string Estado { get; internal set; }
 
         [IgnoreDataMember]
         public TimeZoneInfo TimeZoneInfo => TimeZoneInfo.FindSystemTimeZoneById(TimeZone);
@@ -1911,8 +1838,7 @@ namespace Extensions.BR
         [DataMember(Name = "siafi_id")]
         public string SIAFI { get; internal set; }
 
-        [IgnoreDataMember]
-        public Estado Estado { get; internal set; }
+
 
         public bool ContemCep(long Cep) => Cep.IsBetweenOrEqual(CepInicial, CepFinal);
 
@@ -1926,30 +1852,29 @@ namespace Extensions.BR
             {
                 Country = Pais,
                 CountryCode = CodigoPais,
-                State = Estado?.Nome,
+                State = Estado,
                 StateCode = UF,
                 City = Nome,
-                Latitude = Latitude,
-                Longitude = Longitude,
+                Latitude = Latitude.ToString(CultureInfo.InvariantCulture),
+                Longitude = Longitude.ToString(CultureInfo.InvariantCulture),
                 ZipCode = CepInicial.ToString(),
                 Label = Label,
                 Region = this.Regiao,
                 Format = AddressPart.CityStateCode
             };
 
-            c[nameof(CepInicial)] = this.CepInicial.ToString();
-            c[nameof(CepFinal)] = this.CepFinal.ToString();
+            c[nameof(CepInicial)] = this.CepInicial.FormatarCEP();
+            c[nameof(CepFinal)] = this.CepFinal.FormatarCEP();
             c[nameof(ExclusivaSedeUrbana)] = this.ExclusivaSedeUrbana.ToString();
-            c[nameof(TotalMunicipio)] = this.TotalMunicipio.ToString();
             c[nameof(CodigoGeograficoSubdivisao)] = this.CodigoGeograficoSubdivisao;
             c[nameof(CodigoGeograficoDistrito)] = this.CodigoGeograficoDistrito;
             c[nameof(MicroRegiao)] = this.MicroRegiao;
             c[nameof(MacroRegiao)] = this.MacroRegiao;
-            c[nameof(Altitude)] = this.Altitude;
+            c[nameof(Altitude)] = this.Altitude.ToString(CultureInfo.InvariantCulture);
             c[nameof(TimeZone)] = this.TimeZone;
             c[nameof(DDD)] = this.DDD.ToString();
             c[nameof(IBGE)] = this.IBGE.ToString();
-            c["StateIBGE"] = this.IBGEEstado.ToString();
+            c["StateIBGE"] = this.EstadoIBGE.ToString();
             c[nameof(Capital)] = this.Capital.ToString().ToLowerInvariant();
             c[nameof(SIAFI)] = this.SIAFI;
 
@@ -1962,30 +1887,32 @@ namespace Extensions.BR
     /// </summary>
     public class Estado : IEqualityComparer<Estado>
     {
+
+
+
         /// <summary>
         /// Lista de cidades do estado
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<Cidade> Cidades => Brasil.Cidades.Where(x => x.IBGE.ToString(CultureInfo.InvariantCulture).GetFirstChars(2).FlatEqual(IBGE));
+        public IEnumerable<Cidade> Cidades => Brasil.Cidades.Where(x => x.EstadoIBGE == IBGE);
 
-        public Cidade Capital => Cidades?.FirstOrDefault(x => x.Capital);
+        /// <summary>
+        /// 
+        /// </summary>
+        public Cidade Capital => Cidades.FirstOrDefault(x => x.Capital);
 
-        public string Pais { get; internal set; }
+        public string Pais => "Brasil";
 
-        public string CodigoPais { get; internal set; }
+        public string CodigoPais => "BR";
 
         public int IBGE { get; internal set; }
 
-        public string Latitude { get; internal set; }
-
-        public string Longitude { get; internal set; }
 
         /// <summary>
         /// Nome do estado
         /// </summary>
         /// <returns></returns>
         public string Nome { get; internal set; }
-
         public string Regiao { get; internal set; }
         public string UF { get; internal set; }
 
@@ -1995,33 +1922,33 @@ namespace Extensions.BR
         /// <returns></returns>
         public override string ToString() => UF;
 
-        public static Estado AC => Brasil.PegarEstado("AC");
-        public static Estado AL => Brasil.PegarEstado("AL");
-        public static Estado AP => Brasil.PegarEstado("AP");
-        public static Estado AM => Brasil.PegarEstado("AM");
-        public static Estado BA => Brasil.PegarEstado("BA");
-        public static Estado CE => Brasil.PegarEstado("CE");
-        public static Estado DF => Brasil.PegarEstado("DF");
-        public static Estado ES => Brasil.PegarEstado("ES");
-        public static Estado GO => Brasil.PegarEstado("GO");
-        public static Estado MA => Brasil.PegarEstado("MA");
-        public static Estado MT => Brasil.PegarEstado("MT");
-        public static Estado MS => Brasil.PegarEstado("MS");
-        public static Estado MG => Brasil.PegarEstado("MG");
-        public static Estado PA => Brasil.PegarEstado("PA");
-        public static Estado PB => Brasil.PegarEstado("PB");
-        public static Estado PR => Brasil.PegarEstado("PR");
-        public static Estado PE => Brasil.PegarEstado("PE");
-        public static Estado PI => Brasil.PegarEstado("PI");
-        public static Estado RJ => Brasil.PegarEstado("RJ");
-        public static Estado RN => Brasil.PegarEstado("RN");
-        public static Estado RS => Brasil.PegarEstado("RS");
-        public static Estado RO => Brasil.PegarEstado("RO");
-        public static Estado RR => Brasil.PegarEstado("RR");
-        public static Estado SC => Brasil.PegarEstado("SC");
-        public static Estado SP => Brasil.PegarEstado("SP");
-        public static Estado SE => Brasil.PegarEstado("SE");
-        public static Estado TO => Brasil.PegarEstado("TO");
+        public static Estado AC => Brasil.PegarEstado(nameof(AC));
+        public static Estado AL => Brasil.PegarEstado(nameof(AL));
+        public static Estado AP => Brasil.PegarEstado(nameof(AP));
+        public static Estado AM => Brasil.PegarEstado(nameof(AM));
+        public static Estado BA => Brasil.PegarEstado(nameof(BA));
+        public static Estado CE => Brasil.PegarEstado(nameof(CE));
+        public static Estado DF => Brasil.PegarEstado(nameof(DF));
+        public static Estado ES => Brasil.PegarEstado(nameof(ES));
+        public static Estado GO => Brasil.PegarEstado(nameof(GO));
+        public static Estado MA => Brasil.PegarEstado(nameof(MA));
+        public static Estado MT => Brasil.PegarEstado(nameof(MT));
+        public static Estado MS => Brasil.PegarEstado(nameof(MS));
+        public static Estado MG => Brasil.PegarEstado(nameof(MG));
+        public static Estado PA => Brasil.PegarEstado(nameof(PA));
+        public static Estado PB => Brasil.PegarEstado(nameof(PB));
+        public static Estado PR => Brasil.PegarEstado(nameof(PR));
+        public static Estado PE => Brasil.PegarEstado(nameof(PE));
+        public static Estado PI => Brasil.PegarEstado(nameof(PI));
+        public static Estado RJ => Brasil.PegarEstado(nameof(RJ));
+        public static Estado RN => Brasil.PegarEstado(nameof(RN));
+        public static Estado RS => Brasil.PegarEstado(nameof(RS));
+        public static Estado RO => Brasil.PegarEstado(nameof(RO));
+        public static Estado RR => Brasil.PegarEstado(nameof(RR));
+        public static Estado SC => Brasil.PegarEstado(nameof(SC));
+        public static Estado SP => Brasil.PegarEstado(nameof(SP));
+        public static Estado SE => Brasil.PegarEstado(nameof(SE));
+        public static Estado TO => Brasil.PegarEstado(nameof(TO));
 
         /// <summary>
         /// Verifica se uma string é uma Inscricao Estadual Válida
@@ -3050,7 +2977,7 @@ namespace Extensions.BR
                     break;
 
                 default:
-                    return Brasil.Estados.Any(x => x.ValidarInscricaoEstadual(inscricao));
+                    return Brasil.Cidades.Any(x => x.GetEstado().ValidarInscricaoEstadual(inscricao));
             }
 
             return retorno;

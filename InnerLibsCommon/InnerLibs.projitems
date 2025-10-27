@@ -12,6 +12,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)AddressInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Annotations.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Brasil.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)BrasilBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Cnsl.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ConnectionStringParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ConsoleTable.cs" />

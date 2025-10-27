@@ -4,6 +4,8 @@ VisualStudioVersion = 17.5.2.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InnerLibsDLL", "InnerLibs\InnerLibsDLL.csproj", "{4B7E4725-AA6D-ED9E-1EE6-7803FAF016B7}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "InnerLibs", "InnerLibsCommon\InnerLibs.shproj", "{4A6BE46F-380F-4565-A9F3-72E1FF4DA2D3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,5 +22,9 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5F2C9243-DBD8-4AA6-AC8A-63573E5F57D4}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		InnerLibsCommon\InnerLibs.projitems*{4a6be46f-380f-4565-a9f3-72e1ff4da2d3}*SharedItemsImports = 13
+		InnerLibsCommon\InnerLibs.projitems*{4b7e4725-aa6d-ed9e-1ee6-7803faf016b7}*SharedItemsImports = 5
 	EndGlobalSection
 EndGlobal
