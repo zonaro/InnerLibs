@@ -54,15 +54,15 @@ namespace Extensions.BR
              string nomeRecebedor,
              int cidadeRecebedor,
              decimal? valor = null,       // opcional
-             string txId = null,           // opcional
-             string descricao = null       // opcional
+             string txId = null        // opcional
+
          ) => GerarPayloadPIX(
              chavePix,
              nomeRecebedor,
              cidadeRecebedor.ToString(),
              valor,
-             txId,
-             descricao
+             txId
+            
          );
 
         /// <summary>
@@ -81,8 +81,8 @@ namespace Extensions.BR
                string nomeRecebedor,
                string cidadeRecebedor,
                decimal? valor = null,       // opcional
-               string txId = null,           // opcional
-               string descricao = null       // opcional
+               string txId = null          // opcional
+        
            )
         {
             // ======== Validações e formatações ========
@@ -115,13 +115,7 @@ namespace Extensions.BR
             cidadeRecebedor = cidadeRecebedor?.Trim().RemoveAccents().GetFirstChars(15).ToUpperInvariant();
 
             if (txId.IsNotBlank() && txId?.Length > 25)
-                throw new ArgumentException("O TXID não pode ter mais que 25 caracteres.");
-
-            // Descrição: máximo 72 caracteres conforme padrão
-            if (descricao.IsNotBlank() && descricao?.Length > 72)
-                throw new ArgumentException("A descrição não pode ter mais que 72 caracteres.");
-
-            descricao = descricao?.TrimBetween().GetFirstChars(72);
+                throw new ArgumentException("O TXID não pode ter mais que 25 caracteres."); 
 
             // Função auxiliar para montar campos EMV
             string MontarCampo(string id, string valorCampo)
@@ -146,13 +140,9 @@ namespace Extensions.BR
             // 26 - Merchant Account Information (obrigatório)
             string gui = MontarCampo("00", "br.gov.bcb.pix");
             string chave = MontarCampo("01", chavePix);
+       
 
-            // Campo 02 para descrição dentro do MAI (opcional)
-            string descricaoMAI = string.Empty;
-            if (descricao.IsNotBlank())
-                descricaoMAI = MontarCampo("02", descricao);
-
-            string merchantAccountInfo = MontarCampo("26", gui + chave + descricaoMAI);
+            string merchantAccountInfo = MontarCampo("26", gui + chave );
             payload += merchantAccountInfo;
 
             // 52 - Merchant Category Code (obrigatório)

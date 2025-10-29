@@ -1791,6 +1791,8 @@ namespace Extensions.BR
                          Estado,
                          Regiao,
                          UF,
+MicroRegiao,
+MacroRegiao
                     }.WhereNotBlank().SelectMany(x => new List<string> {
                        x.ToUpperInvariant().Split(Util.WhitespaceChar).JoinString(),
                        x.ToUpperInvariant().Split(Util.WhitespaceChar).RemoveAny("DO", "DOS", "DE", "DA","D","D'","DAS").JoinString(),

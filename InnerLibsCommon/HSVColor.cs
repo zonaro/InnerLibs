@@ -15,11 +15,11 @@ namespace Extensions.Colors
     /// <summary>
     /// Representa uma cor no formato HSV e RGBA com metodos para manipulação de valores
     /// </summary>
-    public class HSVColor : IComparable<int>, IComparable<HSVColor>, IComparable<Color>, IComparable, ICloneable
+    public partial class HSVColor : IComparable<int>, IComparable<HSVColor>, IComparable<Color>, IComparable, ICloneable
     {
         #region Private Fields
 
-        private static readonly List<HSVColor> staticNamedColors = new List<HSVColor>();
+      
         private double _h, _s, _v;
         private string _name;
         private Color _scolor;
@@ -209,27 +209,7 @@ namespace Extensions.Colors
 
 
 
-        /// <summary>
-        /// Lista com todas as <see cref="HSVColor"/> com nomes oficiais
-        /// </summary>
-        /// <returns></returns>
-        public static IEnumerable<HSVColor> NamedColors
-        {
-            get
-            {
-                if (!staticNamedColors.Any())
-                {
-                    string s = Assembly.GetExecutingAssembly().GetResourceFileText("Colors.xml");
-                    var doc = new XmlDocument();
-                    doc.LoadXml(s);
-                    foreach (XmlNode node in doc["colors"].ChildNodes)
-                    {
-                        staticNamedColors.Add(new HSVColor(ColorTranslator.FromHtml(node["hexadecimal"].InnerText), node["name"].InnerText));
-                    }
-                }
-                return staticNamedColors.AsEnumerable();
-            }
-        }
+      
 
         /// <summary>
         /// Alpha (Transparencia)
