@@ -1,4 +1,6 @@
-﻿namespace Extensions.Colors
+﻿using System.Collections.Generic;
+
+namespace Extensions.Colors
 {
 
 	public partial class HSVColor

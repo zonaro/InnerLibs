@@ -1966,6 +1966,7 @@ MacroRegiao
         /// <returns></returns>
         public static bool ValidarInscricaoEstadual(string inscricao, string estado)
         {
+            if (inscricao.IsBlank()) return false;
             bool retorno = false;
             string strBase;
             string strBase2;
@@ -1982,7 +1983,7 @@ MacroRegiao
             strBase2 = "";
             strOrigem = "";
 
-            if ((inscricao.Trim().ToUpper() == "ISENTO"))
+            if ((inscricao?.Trim().ToUpper() == "ISENTO"))
                 return true;
 
             for (intPos = 1; intPos <= inscricao.Trim().Length; intPos++)

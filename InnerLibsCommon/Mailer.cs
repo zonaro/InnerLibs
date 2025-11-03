@@ -864,11 +864,21 @@ namespace Extensions.Mail
         /// Configura o assunto do email
         /// </summary>
         /// <returns></returns>
-        public FluentMailMessage<T> WithSubject(string Text)
+        public FluentMailMessage<T> WithSubject(string Text, object DataToInject)
         {
             Subject = Text;
+            if (DataToInject != null)
+            {
+                Subject = Subject.Inject(DataToInject, Culture, CaseSensitive);
+            }
             return this;
         }
+
+        /// <summary>
+        /// Configura a mensagem a ser enviada. O texto da mensagem será injetado na variável {Message}
+        /// </summary>
+        /// <returns></returns>
+        public FluentMailMessage<T> WithSubject(string Text) => WithSubject("{Text}", new { Text });
 
         /// <summary>
         /// Ajusta o timeout do SMTP em milisegundos. O valor mínimo aceito é 1000ms

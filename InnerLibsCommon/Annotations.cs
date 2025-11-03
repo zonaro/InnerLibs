@@ -19,6 +19,97 @@ namespace Extensions
     }
 
     [AttributeUsage(AttributeTargets.Property)]
+    public class MultiEmailAttribute : ValidationAttribute
+    {
+        public override bool IsValid(object value)
+        {
+            if (value == null || value.ToString().IsBlank())
+            {
+                return true;
+            }
+            
+            return value.ToString().IsMultiEmail();
+        }
+
+
+    }
+
+    [AttributeUsage(AttributeTargets.Property)]
+    public class ValidPathAttribute : ValidationAttribute
+    {
+
+
+        public bool AllowFilePath { get; set; }
+        public bool AllowDirectoryPath { get; set; }
+
+        public bool ValidateIfExists { get; set; }
+
+
+
+        public override string FormatErrorMessage(string name)
+        {
+
+            if (AllowFilePath && AllowDirectoryPath)
+            {
+                if (ValidateIfExists)
+                    return ErrorMessage.IfBlank("{name} deve ser um caminho de arquivo ou diretório existente").Inject(new { name });
+                else
+                    return ErrorMessage.IfBlank("{name} deve ser um caminho de arquivo ou diretório válido").Inject(new { name });
+            }
+            else if (AllowFilePath)
+            {
+                if (ValidateIfExists)
+                    return ErrorMessage.IfBlank("{name} deve ser um caminho de arquivo existente").Inject(new { name });
+                else
+                    return ErrorMessage.IfBlank("{name} deve ser um caminho de arquivo válido").Inject(new { name });
+            }
+            else if (AllowDirectoryPath)
+            {
+                if (ValidateIfExists)
+                    return ErrorMessage.IfBlank("{name} deve ser um caminho de diretório existente").Inject(new { name });
+                else
+                    return ErrorMessage.IfBlank("{name} deve ser um caminho de diretório válido").Inject(new { name });
+            }
+            else
+            {
+                return base.FormatErrorMessage(name);
+            }
+        }
+
+
+        public override bool IsValid(object value)
+        {
+            if (value == null || value.ToString().IsBlank())
+                return true;
+
+            var s = value.ChangeType<string>();
+
+
+            if (AllowFilePath && s.IsFilePath())
+            {
+                if (ValidateIfExists)
+                {
+                    return System.IO.File.Exists(s);
+                }
+                return true;
+            }
+
+            if (AllowDirectoryPath && s.IsDirectoryPath())
+            {
+                if (ValidateIfExists)
+                {
+                    return System.IO.Directory.Exists(s);
+                }
+                return true;
+            }
+
+            return false;
+        }
+
+
+    }
+
+    [AttributeUsage(AttributeTargets.Property)]
     public class IdadeAttribute : ValidationAttribute
     {
         public int Minima { get; }
