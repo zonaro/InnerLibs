@@ -13,9 +13,9 @@ namespace Extensions.Files
     /// <summary>
     /// Classe que representa um MIME NodeType
     /// </summary>
-    public class FileType : IComparable<FileType>, IEquatable<FileType>
+    public partial class FileType : IComparable<FileType>, IEquatable<FileType>
     {
-        private static FileTypeList BaseList = new FileTypeList();
+    
 
         /// <summary>
         /// Compara este FileType com outro FileType
@@ -62,6 +62,10 @@ namespace Extensions.Files
         internal void Build(string Extension, FileTypeList FileTypeList = null)
         {
             var item = GetFileType(Extension, FileTypeList);
+            if(item == null)
+            {
+                item = new FileType();
+            }
             Extensions = item.Extensions;
             MimeTypes = item.MimeTypes;
             Description = item.Description.ToProperCase();
@@ -69,15 +73,17 @@ namespace Extensions.Files
             Categories = item.Categories;
         }
 
+        public bool IsUnknow() => this.Extensions.IsNullOrEmpty() && this.MimeTypes.IsNullOrEmpty();
+
         /// <summary>
         /// Constroi um MIME TEntity Default
         /// </summary>
         public FileType()
         {
             this.Description = "Unknown File";
-            this.Extensions = new List<string>();
-            this.MimeTypes = new List<string> { "application/octet-stream" };
-            this.Categories = new List<string>();
+            this.Extensions = Array.Empty<string>();
+            this.MimeTypes =new string[] { "application/octet-stream" };
+            this.Categories = Array.Empty<string>();
             this.Color = new HSVColor("bbbbbb");
         }
 
@@ -103,19 +109,19 @@ namespace Extensions.Files
         /// Extensão do arquivo
         /// </summary>
         /// <returns></returns>
-        public List<string> Extensions { get; internal set; } = new List<string>();
+        public IEnumerable<string> Extensions { get; internal set; } = Array.Empty<string>();
 
         /// <summary>
         /// Tipo do arquivo (MIME TEntity String)
         /// </summary>
         /// <returns></returns>
-        public List<string> MimeTypes { get; internal set; } = new List<string>();
+        public IEnumerable<string> MimeTypes { get; internal set; } = Array.Empty<string>();
 
         /// <summary>
         /// Categorias do tipo de arquivo
         /// </summary>
         /// <returns></returns>
-        public List<string> Categories { get; internal set; } = new List<string>();
+        public IEnumerable<string> Categories { get; internal set; } = Array.Empty<string>();
 
         /// <summary>
         /// Retorna uma lista de URLs do site fileinfo.com para este tipo de arquivo
@@ -153,7 +159,7 @@ namespace Extensions.Files
         /// <returns></returns>
         public static IEnumerable<string> GetExtensions(string MIME, FileTypeList FileTypeList = null)
         {
-            foreach (FileType item in FileTypeList ?? GetFileTypeList())
+            foreach (FileType item in FileTypeList ?? AllTypes)
             {
                 if (item.GetMimeTypesOrDefault().Contains(MIME))
                 {
@@ -240,7 +246,7 @@ namespace Extensions.Files
             }
             catch
             {
-            }         
+            }
 
 
             try
@@ -261,99 +267,48 @@ namespace Extensions.Files
                 MimeTypeOrExtensionOrPathOrDataURI = "." + MimeTypeOrExtensionOrPathOrDataURI.TrimAny(true, " ", ".");
             }
 
-            FileTypeList = FileTypeList ?? GetFileTypeList();
+            FileTypeList = FileTypeList ?? AllTypes;
 
             return FileTypeList.FirstOrDefault(x => x.Extensions.Contains(MimeTypeOrExtensionOrPathOrDataURI, StringComparer.InvariantCultureIgnoreCase) || x.GetMimeTypesOrDefault().Contains(MimeTypeOrExtensionOrPathOrDataURI, StringComparer.InvariantCultureIgnoreCase)) ?? new FileType();
 
         }
 
         /// <summary>
-        /// Retorna uma Lista com todos os MIME Types suportados
-        /// </summary>
-        /// <returns></returns>
-        public static FileTypeList GetFileTypeList(bool Reset = false)
-        {
-            if (Reset || BaseList == null || BaseList.Any() == false)
-            {
-                string r = Util.GetResourceFileText(Assembly.GetExecutingAssembly(), "mimes.xml");
-                if (r.IsValid())
-                {
-                    var doc = new XmlDocument();
-                    doc.LoadXml(r);
-                    BaseList = new FileTypeList();
-                    foreach (XmlNode node in doc["mimes"].ChildNodes)
-                    {
-                        var ft = BaseList.FirstOr(x => (x.Description ?? Util.EmptyString) == (node["Description"].InnerText.TrimBetween() ?? Util.EmptyString), new FileType());
-                        ft.Description = node["Description"].InnerText.TrimBetween().ToTitle();
-
-                        foreach (XmlNode item in node["MimeTypes"].ChildNodes)
-                        {
-                            ft.MimeTypes.Add(item.InnerText.TrimBetween().ToLower());
-                        }
-
-                        foreach (XmlNode item in node["Extensions"].ChildNodes)
-                        {
-                            ft.Extensions.Add(item.InnerText.TrimBetween().ToLower());
-                        }
-
-                        foreach (XmlNode item in node["Categories"].ChildNodes)
-                        {
-                            ft.Categories.Add(item.InnerText.TrimBetween().ToTitle());
-                        }
-
-                        ft.Color = new HSVColor(Util.BlankCoalesce(node["Color"]?.InnerText ?? Util.EmptyString, ft.Description, "#808080"));
-
-                        ft.MimeTypes = ft.MimeTypes.Distinct().ToList();
-                        ft.Extensions = ft.Extensions.Distinct().ToList();
-                        ft.Categories = ft.Categories.Distinct().ToList();
-
-                        if (!BaseList.Contains(ft))
-                        {
-                            BaseList.Add(ft);
-                        }
-                    }
-                }
-            }
-
-            return BaseList;
-        }
-
-        /// <summary>
         /// Retorna uma lista de strings contendo todos os MIME Types
         /// </summary>
         /// <returns></returns>
-        public static IEnumerable<string> GetFileTypeStringList(FileTypeList FileTypeList = null) => (FileTypeList ?? GetFileTypeList()).SelectMany(x => x.GetMimeTypesOrDefault()).Distinct();
+        public static IEnumerable<string> GetFileTypeStringList(FileTypeList FileTypeList = null) => (FileTypeList ?? AllTypes).SelectMany(x => x.GetMimeTypesOrDefault()).Distinct();
 
         public IEnumerable<string> GetMimeTypesOrDefault() => (MimeTypes ?? new List<string>()).DefaultIfEmpty("application/octet-stream");
 
 
-        public static IEnumerable<FileType> GetByCategory(string category) => GetFileTypeList().Where(x => x.Categories.Contains(category, StringComparer.InvariantCultureIgnoreCase));
+        public static IEnumerable<FileType> GetByCategory(string category) => AllTypes.Where(x => x.Categories.Contains(category, StringComparer.InvariantCultureIgnoreCase));
 
-        public static IEnumerable<string> GetCategories() => GetFileTypeList().SelectMany(x => x.Categories).Distinct();
+        public static IEnumerable<string> GetCategories() => AllTypes.SelectMany(x => x.Categories).Distinct();
 
 
-        public static Dictionary<string, IEnumerable<FileType>> GroupByCategories() => GetFileTypeList().SelectMany(x => x.Categories, (x, category) => new { x, category })
+        public static Dictionary<string, IEnumerable<FileType>> GroupByCategories() => AllTypes.SelectMany(x => x.Categories, (x, category) => new { x, category })
             .GroupBy(x => x.category, x => x.x)
             .ToDictionary();
 
-        public static IEnumerable<FileType> GetImageTypes() => GetFileTypeList().Where(x => x.IsImage());
+        public static IEnumerable<FileType> GetImageTypes() => AllTypes.Where(x => x.IsImage());
 
 
-        public static IEnumerable<FileType> GetTextTypes() => GetFileTypeList().Where(x => x.IsText());
+        public static IEnumerable<FileType> GetTextTypes() => AllTypes.Where(x => x.IsText());
 
-        public static IEnumerable<FileType> GetVideoTypes() => GetFileTypeList().Where(x => x.IsVideo());
+        public static IEnumerable<FileType> GetVideoTypes() => AllTypes.Where(x => x.IsVideo());
 
-        public static IEnumerable<FileType> GetAudioTypes() => GetFileTypeList().Where(x => x.IsAudio());
+        public static IEnumerable<FileType> GetAudioTypes() => AllTypes.Where(x => x.IsAudio());
 
-        public static IEnumerable<FileType> GetApplicationTypes() => GetFileTypeList().Where(x => x.IsApplication());
+        public static IEnumerable<FileType> GetApplicationTypes() => AllTypes.Where(x => x.IsApplication());
 
-        public static IEnumerable<FileType> GetFontTypes() => GetFileTypeList().Where(x => x.IsFont());
+        public static IEnumerable<FileType> GetFontTypes() => AllTypes.Where(x => x.IsFont());
 
-        public static IEnumerable<FileType> GetMessageTypes() => GetFileTypeList().Where(x => x.IsMessage());
+        public static IEnumerable<FileType> GetMessageTypes() => AllTypes.Where(x => x.IsMessage());
 
-        public static IEnumerable<FileType> GetMarkdownTypes() => GetFileTypeList().Where(x => x.IsMarkdown());
+        public static IEnumerable<FileType> GetMarkdownTypes() => AllTypes.Where(x => x.IsMarkdown());
 
-        public static IEnumerable<FileType> GetHtmlTypes() => GetFileTypeList().Where(x => x.IsHtml());
+        public static IEnumerable<FileType> GetHtmlTypes() => AllTypes.Where(x => x.IsHtml());
 
         public bool IsCategory(params string[] categories) => Categories.ContainsAll(categories, StringComparer.InvariantCultureIgnoreCase);
         public bool IsAnyCategory(params string[] categories) => categories.Any(category => Categories.Contains(category, StringComparer.InvariantCultureIgnoreCase));
@@ -577,7 +532,7 @@ namespace Extensions.Files
             var defaultType = new FileType();
             foreach (var item in FileTypes ?? Array.Empty<FileType>())
             {
-                if (item == null || item.Extensions == null || item.Extensions.Count == 0 || item.MimeTypes == null || item.MimeTypes.Count == 0)
+                if (item == null || item.Extensions == null || item.Extensions.Any() == false || item.MimeTypes == null || item.MimeTypes.Any()==false)
                 {
                     continue;
                 }
@@ -640,7 +595,7 @@ namespace Extensions.Files
         /// Cria uma nova lista a partir de um critério de filtro
         /// </summary>
         /// <param name="predicate">Criterio de busca</param>
-        public FileTypeList(FileTypeList FileTypeList, Func<FileType, bool> predicate) : this((FileTypeList ?? FileType.GetFileTypeList()).Where(predicate).ToArray())
+        public FileTypeList(FileTypeList FileTypeList, Func<FileType, bool> predicate) : this((FileTypeList ?? FileType.AllTypes).Where(predicate).ToArray())
         {
         }
 

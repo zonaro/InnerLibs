@@ -282,6 +282,7 @@ namespace Extensions.Mail
 
         #endregion Public Properties
 
+        
         #region Public Methods
 
         /// <summary>
@@ -417,6 +418,14 @@ namespace Extensions.Mail
             return this;
         }
 
+        public FluentMailMessage<T> AddRecipient(Expression<Func<T, string>> EmailSelector, params T[] Data)
+        {
+            foreach (var x in Data ?? Array.Empty<T>())
+                AddRecipient(new TemplateMailAddress<T>(x, EmailSelector));
+            return this;
+        }
+
+
         /// <summary>
         /// Adiciona um destinatário a lista de destinatários desta mensagem
         /// </summary>
@@ -432,11 +441,7 @@ namespace Extensions.Mail
             return this;
         }
 
-        public FluentMailMessage<T> AddRecipient(Expression<Func<T, string>> EmailSelector, params T[] Data)
-        {
-            foreach (var x in Data ?? Array.Empty<T>()) AddRecipient(new TemplateMailAddress<T>(x, EmailSelector));
-            return this;
-        }
+     
 
         /// <summary>
         /// Configura o remetente da mensagem
@@ -490,6 +495,7 @@ namespace Extensions.Mail
                             {
                                 msg = msg.Inject(templateMail.TemplateData, Culture, CaseSensitive);
                                 subj = subj.Inject(templateMail.TemplateData, Culture, CaseSensitive);
+                                 
                             }
                             foreach (var att in templateMail.Attachments) msgIndiv.Attachments.Add(att);
                         }

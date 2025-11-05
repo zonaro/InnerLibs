@@ -39,6 +39,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)ExpressionReplacer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IconUtils.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ImageExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)mimes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MxLookup.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Numbers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Pix.cs" />
@@ -81,7 +82,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Colors.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="$(MSBuildThisFileDirectory)mimes.xml" />
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Printer\Printer.css" />
   </ItemGroup>
 </Project>
