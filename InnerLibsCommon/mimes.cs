@@ -1,9 +1,16 @@
 
 using System.Collections.Generic;
+using System.IO;
 using Extensions.Colors;
 
 namespace Extensions.Files
 {
+    public static class FileTypeExt
+    {
+        public static FileType GetFileType(this FileInfo info) => FileType.GetFileType(info);
+        public static FileType GetFileType(this string MimeTypeOrExtensionOrPathOrDataURI) => FileType.GetFileType(MimeTypeOrExtensionOrPathOrDataURI);
+
+    }
     public partial class FileType
     {
 

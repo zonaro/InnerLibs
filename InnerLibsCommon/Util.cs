@@ -4697,6 +4697,7 @@ namespace Extensions
                                 return "fa-file-text";
                             }
 
+                        case "tsv":
                         case "csv":
                             {
                                 return "fa-file-csv";
