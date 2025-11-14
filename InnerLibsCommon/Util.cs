@@ -3566,9 +3566,9 @@ namespace Extensions
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static string FixPath(this string Text, bool? AlternativeChar = null)
+        public static string FixPath(this string Text, bool? AlternativeChar = null )
         {
-            Text = Text ?? "";
+            Text = Text ?? "";       
             var c = AlternativeChar == null ? Text.MostCommonPathChar().ToString() : AlternativeChar.AsIf(Path.AltDirectorySeparatorChar.ToString(), Path.DirectorySeparatorChar.ToString());
             var PathParts = Text?.UrlDecode()?.SplitPath()?.ToArray() ?? Array.Empty<string>();
             var NewPath = PathParts.JoinString(c)
@@ -3781,20 +3781,40 @@ namespace Extensions
         /// <param name="DateAndTime"></param>
         /// <param name="FilePath"></param>
         /// <returns></returns>
-        public static string FormatPath(this DateTime? DateAndTime, string FilePath, bool AlternativeChar = false)
+        public static string FormatPath(this DateTime DateAndTime, string FilePath, bool AlternativeChar = false)
         {
-            DateAndTime = DateAndTime ?? DateTime.Now;
-            FilePath = FilePath.Replace($"#timestamp#", DateAndTime.Value.Ticks.ToString());
-            FilePath = FilePath.Replace($"#datedir#", $@"{DateAndTime.Value.Year}\{DateAndTime.Value.Month}\{DateAndTime.Value.Day}");
-            FilePath = FilePath.Replace($"#datetimedir#", $@"{DateAndTime.Value.Year}\{DateAndTime.Value.Month}\{DateAndTime.Value.Day}\{DateAndTime.Value.Hour}-{DateAndTime.Value.Minute}-{DateAndTime.Value.Second}\");
+            FilePath = FilePath.Replace($"#timestamp#", DateAndTime.Ticks.ToString());
+            FilePath = FilePath.Replace($"#datedir#", $@"{DateAndTime.Year}\{DateAndTime.Month}\{DateAndTime.Day}");
+            FilePath = FilePath.Replace($"#datetimedir#", $@"{DateAndTime.Year}\{DateAndTime.Month}\{DateAndTime.Day}\{DateAndTime.Hour}-{DateAndTime.Minute}-{DateAndTime.Second}\");
 
             foreach (string item in new[] { "d", "dd", "ddd", "dddd", "hh", "HH", "m", "mm", "M", "MM", "MMM", "MMMM", "s", "ss", "t", "tt", "Y", "YY", "YYY", "YYYY", "f", "ff", "fff", "ffff", "fffff", "ffffff", "fffffff" })
             {
-                FilePath = FilePath.SensitiveReplace($"#{item}#", DateAndTime.Value.ToString(item));
+                FilePath = FilePath.SensitiveReplace($"#{item}#", DateAndTime.ToString(item));
             }
 
             return FilePath.FixPath(AlternativeChar);
         }
+        public static string FormatPath(this DateTime? DateAndTime, string FilePath, bool AlternativeChar = false)
+        {
+            DateAndTime = DateAndTime ?? DateTime.Now;
+            return FormatPath(DateAndTime.Value, FilePath, AlternativeChar);
+        }
+
+        public static string FormatPath(this DateTime DateAndTime, bool AlternativeChar , params string[] PathParts)
+        {
+            PathParts = PathParts ?? Array.Empty<string>();
+            return FormatPath(DateAndTime, PathParts.JoinString(Path.DirectorySeparatorChar.ToString()), AlternativeChar);
+        }
+
+        public static string FormatPath(this DateTime? DateAndTime, bool AlternativeChar, params string[] PathParts)
+        {
+            PathParts = PathParts ?? Array.Empty<string>();
+            DateAndTime = DateAndTime ?? DateTime.Now;
+            return FormatPath(DateAndTime.Value, AlternativeChar,PathParts);
+        }
+
+
+
 
         public static string SimilarityPercentCaseInsensitive(this string Text1, string Text2, int Decimals = -1) => SimilarityCaseInsensitive(Text1, Text2).ToPercentString(Decimals, true);
 
@@ -5835,6 +5855,16 @@ namespace Extensions
             return values;
         }
 
+        /// <summary>
+        /// Retrieves the <see cref="PropertyInfo"/> object for the property referenced by the specified lambda
+        /// expression.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the object containing the property.</typeparam>
+        /// <typeparam name="TProperty">The type of the property.</typeparam>
+        /// <param name="propertyLambda">An expression that specifies the property to retrieve.  The expression must be in the form of a lambda
+        /// expression, such as <c>x => x.PropertyName</c>.</param>
+        /// <returns>The <see cref="PropertyInfo"/> object representing the specified property.</returns>
+        /// <exception cref="ArgumentException">Thrown if the expression does not refer to a property or refers to a field instead.</exception>
         public static PropertyInfo GetPropertyInfo<TSource, TProperty>(this Expression<Func<TSource, TProperty>> propertyLambda)
         {
             if (!(GetMemberInfo(propertyLambda) is PropertyInfo propInfo))
@@ -8930,6 +8960,19 @@ namespace Extensions
 
             return Source.Skip((PageNumber - 1).SetMinValue(0) * PageSize).Take(PageSize);
         }
+
+        public static int PageCount<TSource>(this IEnumerable<TSource> Source, int PageNumber, int PageSize)
+        {
+            return (Source.Count().ToDouble() / PageSize.ToDouble()).CeilInt();
+        }
+
+
+        public static (IEnumerable<TSource> Items, int TotalPages, int TotalItems) PageAndTotal<TSource>(this IEnumerable<TSource> Source, int PageNumber, int PageSize)
+        {
+            var totalItems = Source.Count();          
+            return (Source.Page(PageNumber, PageSize), Source.PageCount(PageNumber,PageSize),totalItems);
+        }
+
 
         /// <summary>
         /// Divide uma lista em pares

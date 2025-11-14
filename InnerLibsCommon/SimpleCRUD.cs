@@ -20,12 +20,7 @@ using Extensions.DebugWriter;
 using static Extensions.Util;
 
 
-/*
-* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-* This file add overloads for each Dapper.SQLMapper method, allowing the use of FormattableString     *
-* for building parametrized queries. Each parameter of string will be converted into a SQL parameter. *
-* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-*/
+ 
 
 namespace Extensions.DataBases
 {

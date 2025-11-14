@@ -28,7 +28,7 @@ namespace Extensions.BR
         public int? DDD { get; set; }
 
         /// <summary>
-        /// Prefixo do n�mero de telefone.
+        /// Prefixo do numero de telefone.
         /// </summary>
         public int Prefixo { get; private set; }
 
@@ -39,30 +39,30 @@ namespace Extensions.BR
 
 
         /// <summary>
-        /// Inicializa uma nova inst�ncia da classe <see cref="Telefone"/> com um n�mero longo.
+        /// Inicializa uma nova instancia da classe <see cref="Telefone"/> com um numero longo.
         /// </summary>
-        /// <param name="numero">N�mero de telefone.</param>
+        /// <param name="numero">Numero de telefone.</param>
         public Telefone(long numero) : this(numero.ToString())
         { }
 
         /// <summary>
-        /// Inicializa uma nova inst�ncia da classe <see cref="Telefone"/> com DDD e n�mero.
+        /// Inicializa uma nova instancia da classe <see cref="Telefone"/> com DDD e numero.
         /// </summary>
-        /// <param name="ddd">C�digo de Discagem Direta � Dist�ncia (DDD).</param>
-        /// <param name="numero">N�mero de telefone.</param>
+        /// <param name="ddd">Código de Discagem Direta à Distância (DDD).</param>
+        /// <param name="numero">Número de telefone.</param>
         public Telefone(int numero, int? ddd = null) : this(numero.ToString(), ddd?.ToString())
         { }
 
 
 
         /// <summary>
-        /// Inicializa uma nova inst�ncia da classe <see cref="Telefone"/> com um n�mero de telefone.
+        /// Inicializa uma nova instancia da classe <see cref="Telefone"/> com um numero de telefone.
         /// </summary>
-        /// <param name="ddd">C�digo de Discagem Direta � Dist�ncia (DDD).</param>
-        /// <param name="numero">N�mero de telefone.</param>
-        /// <remarks>O numero de telefone pode possuir um DDD. neste caso, o par�metro <paramref name="ddd"/> ser� ignorado.</remarks>
+        /// <param name="ddd">Código de Discagem Direta à Distância (DDD).</param>
+        /// <param name="numero">Número de telefone.</param>
+        /// <remarks>O numero de telefone pode possuir um DDD. neste caso, o parâmetro <paramref name="ddd"/> será ignorado.</remarks>
         /// </remarks>
-        /// <exception cref="System.ArgumentException">Lan�ada quando o n�mero de telefone � inv�lido.</exception>
+        /// <exception cref="System.ArgumentException">Lançada quando o número de telefone é inválido.</exception>
         public Telefone(string numero, string ddd = null)
         {
             if (Brasil.TelefoneValido(numero))
@@ -104,7 +104,7 @@ namespace Extensions.BR
             }
             else
             {
-                throw new System.ArgumentException("N�mero de telefone inv�lido.", nameof(numero));
+                throw new System.ArgumentException("Número de telefone inválido.", nameof(numero));
             }
         }
 
@@ -114,7 +114,7 @@ namespace Extensions.BR
         public bool NonoDigito { get => Prefixo.Length(5); set => Prefixo = ((value ? "9" : "") + Prefixo.ToStringInvariant().GetLastChars(4)).ToInt(); }
 
         /// <summary>
-        /// Verifica se o n�mero de telefone � v�lido.
+        /// Verifica se o número de telefone é válido.
         /// </summary>
         public bool Valido => Brasil.TelefoneValido(Completo);
 
