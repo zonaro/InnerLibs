@@ -24,7 +24,8 @@ namespace Extensions.Console
             bool? v = null;
             do
             {
-                var response = ConsoleWriteLine(Question.IfBlank("[Y]es, [N]o").Trim() + Util.WhitespaceChar);
+                 ConsoleWriteLine(Question.IfBlank("[Y]es, [N]o").Trim() + Util.WhitespaceChar);
+                var response = System.Console.ReadLine();
                 v = response.AsNullableBool();
                 if (v == null && InvalidResponseMessage.IsValid())
                 {
@@ -34,20 +35,7 @@ namespace Extensions.Console
             } while (v == null);
             return v.Value;
         }
-
-        public static bool? AskYesNoCancel(string Question, bool? defaultIfBlank = true)
-        {
-            bool? v = null;
-            do
-            {
-                var response = ConsoleWriteLine(Question.IfBlank($"[Y]es {(defaultIfBlank == true ? "(Default)" : "")}, [N]o {(defaultIfBlank == false ? "(Default)" : "")}, [C]ancel {(defaultIfBlank.HasValue == false ? "(Default)" : "")}").Trim() + Util.WhitespaceChar);
-                v = response.AsNullableBool();
-
-            } while (v == null);
-            return v.Value;
-
-
-        }
+ 
 
         /// <summary>
         /// Toca um Beep
