@@ -221,6 +221,15 @@ namespace Extensions
             return somaSequencias;
         }
 
+        /// <summary>
+        /// Gera uma palavra-chave a partir do texto fornecido.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
+        public static string GenerateKeyword(this string text) => text.RemoveDiacritics().OnlyAlphaNumeric().PascalCaseSplit().SelectManyJoinString(x => x.SplitAny(" ", "-", "_"), "_").ToLowerInvariant();
+
+
+
         public static Image GenerateAvatarByName(this string Name, Size Size, int maxLenght = 3, bool circle = true)
         {
             if (Size == default)
@@ -3566,9 +3575,9 @@ namespace Extensions
         /// </summary>
         /// <param name="Text"></param>
         /// <returns></returns>
-        public static string FixPath(this string Text, bool? AlternativeChar = null )
+        public static string FixPath(this string Text, bool? AlternativeChar = null)
         {
-            Text = Text ?? "";       
+            Text = Text ?? "";
             var c = AlternativeChar == null ? Text.MostCommonPathChar().ToString() : AlternativeChar.AsIf(Path.AltDirectorySeparatorChar.ToString(), Path.DirectorySeparatorChar.ToString());
             var PathParts = Text?.UrlDecode()?.SplitPath()?.ToArray() ?? Array.Empty<string>();
             var NewPath = PathParts.JoinString(c)
@@ -3800,7 +3809,7 @@ namespace Extensions
             return FormatPath(DateAndTime.Value, FilePath, AlternativeChar);
         }
 
-        public static string FormatPath(this DateTime DateAndTime, bool AlternativeChar , params string[] PathParts)
+        public static string FormatPath(this DateTime DateAndTime, bool AlternativeChar, params string[] PathParts)
         {
             PathParts = PathParts ?? Array.Empty<string>();
             return FormatPath(DateAndTime, PathParts.JoinString(Path.DirectorySeparatorChar.ToString()), AlternativeChar);
@@ -3810,7 +3819,7 @@ namespace Extensions
         {
             PathParts = PathParts ?? Array.Empty<string>();
             DateAndTime = DateAndTime ?? DateTime.Now;
-            return FormatPath(DateAndTime.Value, AlternativeChar,PathParts);
+            return FormatPath(DateAndTime.Value, AlternativeChar, PathParts);
         }
 
 
@@ -8969,8 +8978,8 @@ namespace Extensions
 
         public static (IEnumerable<TSource> Items, int TotalPages, int TotalItems) PageAndTotal<TSource>(this IEnumerable<TSource> Source, int PageNumber, int PageSize)
         {
-            var totalItems = Source.Count();          
-            return (Source.Page(PageNumber, PageSize), Source.PageCount(PageNumber,PageSize),totalItems);
+            var totalItems = Source.Count();
+            return (Source.Page(PageNumber, PageSize), Source.PageCount(PageNumber, PageSize), totalItems);
         }
 
 
