@@ -1,6 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Globalization;
+using System.Security.Cryptography;
 using System.Text;
+
 
 namespace Extensions.BR
 {
@@ -14,7 +18,19 @@ namespace Extensions.BR
                 (chave.IsGuid());
         }
 
-        public static string FormatarChavePIX(this string Chave)
+        public static string LimparChavePIX(this string Chave)
+        {
+            if (Chave.ChavePIXValida())
+            {
+                if (Chave.CPFValido()) return Chave.FormatarCPF().RemoveMask();
+                else if (Chave.CNPJValido()) return Chave.FormatarCNPJ().RemoveMask();
+                else if (Chave.TelefoneValido()) return Chave.FormatarTelefone().RemoveMask();
+                else return Chave.ToLower();
+            }
+            return "";
+        }
+
+           public static string FormatarChavePIX(this string Chave)
         {
             if (Chave.ChavePIXValida())
             {
@@ -49,146 +65,104 @@ namespace Extensions.BR
                 return $"{Label} :{Chave.FormatarChavePIX()}";
         }
 
-        public static string GerarPayloadPIX(
-             string chavePix,
-             string nomeRecebedor,
-             int cidadeRecebedor,
-             decimal? valor = null,       // opcional
-             string txId = null        // opcional
-
-         ) => GerarPayloadPIX(
-             chavePix,
-             nomeRecebedor,
-             cidadeRecebedor.ToString(),
-             valor,
-             txId
-            
-         );
 
         /// <summary>
-        /// Gera um payload para um QR Code de pagamento via Pix, conforme o padrão EMV e regulamentação do Banco Central.
+        /// Gera o payload do Pix (BR Code) seguindo a mesma lógica do script.js (EMVCo/BR Code).
         /// </summary>
-        /// <param name="chavePix">Chave PIX do recebedor (CPF, CNPJ, email, telefone ou chave aleatória)</param>
-        /// <param name="nomeRecebedor">Nome do recebedor (máximo 25 caracteres)</param>
-        /// <param name="cidadeRecebedor">Cidade do recebedor (máximo 15 caracteres)</param>
-        /// <param name="valor">Valor da transação (opcional)</param>
-        /// <param name="txId">Identificador da transação (máximo 25 caracteres, opcional)</param>
-        /// <param name="descricao">Descrição adicional (máximo 72 caracteres, opcional)</param>
-        /// <returns>String do payload PIX para QR Code</returns>
-        /// <exception cref="ArgumentException">Quando os parâmetros são inválidos</exception>
-        public static string GerarPayloadPIX(
-               string chavePix,
-               string nomeRecebedor,
-               string cidadeRecebedor,
-               decimal? valor = null,       // opcional
-               string txId = null          // opcional
-        
-           )
+        /// <param name="chave">Chave PIX (email, CPF/CNPJ, telefone ou chave aleatória)</param>
+        /// <param name="nome">Nome do recebedor (até 25 caracteres). Será normalizado (remoção de acentos e maiúsculas).</param>
+        /// <param name="cidade">Cidade do recebedor (até 15 caracteres). Será normalizada (remoção de acentos e maiúsculas).</param>
+        /// <param name="txid">Identificador da transação (opcional). Se em branco será gerado automaticamente (22 chars) e incluído no payload (compatível com Itaú).</param>
+        /// <param name="valor">Valor opcional (decimal) - ex: 12.34 (será formatado com 2 casas decimais)</param>
+        /// <param name="descricao">Descrição opcional que vai no Merchant Account Information</param>
+        /// <param name="mcc">Merchant Category Code (MCC). Use a enumeração <see cref="PixMcc"/> (padrão: PersonalUse / 0000).</param>
+        /// <returns>Payload pronto para geração de QR code (inclui CRC)</returns>
+        public static string GerarPayloadPIX(string chave, string nome, string cidade, string? txid = null, decimal? valor = null, string? descricao = null, PixMcc mcc = PixMcc.PersonalUse)
         {
-            // ======== Validações e formatações ========
+            const string gui = "BR.GOV.BCB.PIX";  
 
-            if (!Brasil.ChavePIXValida(chavePix))
-                throw new ArgumentException("A chave PIX é inválida");
+            if (chave.IsBlank()) throw new ArgumentNullException(nameof(chave));
 
-            // Somente CPF ou CNPJ devem ser sem máscara
-            if (Brasil.CPFouCNPJValido(chavePix))
-                chavePix = chavePix.RemoveMask();
+           
+            var cleanedKey = LimparChavePIX(chave);
+            if (cleanedKey.Length == 0) throw new ArgumentException("Chave PIX inválida", nameof(chave));
 
-            if (chavePix.Length > 77)
-                throw new ArgumentException("A chave PIX não pode ter mais que 77 caracteres.");
+            nome = Util.NormalizeText(nome ?? string.Empty);
 
-            if (nomeRecebedor.IsBlank())
-                throw new ArgumentException("O nome do recebedor é obrigatório");
+            cidade = Brasil.PegarCidade(cidade)?.Nome ?? string.Empty;
 
-            // Nome do recebedor: máximo 25 caracteres, sem acentos, maiúsculo
-            nomeRecebedor = nomeRecebedor.TrimBetween().RemoveAccents().GetFirstChars(25).ToUpperInvariant();
+            cidade = Util.NormalizeText(cidade);
 
-            if (cidadeRecebedor.IsBlank())
-                throw new ArgumentException("A cidade do recebedor é obrigatória");
+            if (nome.Length > 25) nome = nome.GetFirstChars(25);
+            if (cidade.Length > 15) cidade = cidade.GetFirstChars(15);
 
-            if (Brasil.CidadeIBGEValido(cidadeRecebedor))
-            {
-                cidadeRecebedor = Brasil.PegarCidade(cidadeRecebedor).Nome;
-            }
+            if (descricao.IsNotBlank()) descricao = Util.NormalizeText(descricao).GetFirstChars(72);
 
-            // Cidade: máximo 15 caracteres conforme padrão do BC
-            cidadeRecebedor = cidadeRecebedor?.Trim().RemoveAccents().GetFirstChars(15).ToUpperInvariant();
+            if (txid.IsNotBlank()) txid = Util.NormalizeText(txid).GetFirstChars(25);
+            else txid = GenerateTxId();
 
-            if (txId.IsNotBlank() && txId?.Length > 25)
-                throw new ArgumentException("O TXID não pode ter mais que 25 caracteres."); 
+            var payload = new StringBuilder();
 
-            // Função auxiliar para montar campos EMV
-            string MontarCampo(string id, string valorCampo)
-            {
-                if (valorCampo.IsBlank()) return string.Empty;
-                return id + valorCampo.Length.ToString("00") + valorCampo;
-            }
+            // Payload Format Indicator (00)
+            payload.Append(MakeTLV("00", "01"));
 
-            // ======== Construção do Payload EMV ========
+            // Merchant Account Information (ID 26) with subfields (00=GUI, 01=Chave, 02=Descrição)
+            var mai = new StringBuilder();
+            mai.Append(MakeTLV("00", gui));
+            mai.Append(MakeTLV("01", cleanedKey));
+            if (descricao.IsNotBlank()) mai.Append(MakeTLV("02", descricao));
 
-            string payload = string.Empty;
+            payload.Append(MakeTLV("26", mai.ToString()));
 
-            // 00 - Payload Format Indicator (obrigatório)
-            payload += MontarCampo("00", "01");
+            // Merchant Category Code (MCC)
+            payload.Append(MakeTLV("52", ((int)mcc).ToString("D4")));
 
-            // 01 - Point of Initiation Method (opcional - para QR reutilizável)
-            if (!valor.HasValue || valor.Value <= 0)
-            {
-                payload += MontarCampo("01", "12"); // QR Code reutilizável
-            }
+            // Transaction Currency (986 = BRL)
+            payload.Append(MakeTLV("53", "986"));
 
-            // 26 - Merchant Account Information (obrigatório)
-            string gui = MontarCampo("00", "br.gov.bcb.pix");
-            string chave = MontarCampo("01", chavePix);
-       
+            // Transaction Amount - opcional (apenas se > 0, para casar com script.js)
+            if (valor.HasValue && valor.Value > 0m)
+                payload.Append(MakeTLV("54", valor.Value.ToString("0.00", CultureInfo.InvariantCulture)));
 
-            string merchantAccountInfo = MontarCampo("26", gui + chave );
-            payload += merchantAccountInfo;
+            // Country
+            payload.Append(MakeTLV("58", "BR"));
 
-            // 52 - Merchant Category Code (obrigatório)
-            payload += MontarCampo("52", "0000");
+            // Merchant name and city
+            payload.Append(MakeTLV("59", nome));
+            payload.Append(MakeTLV("60", cidade));
 
-            // 53 - Transaction Currency (obrigatório - 986 = BRL)
-            payload += MontarCampo("53", "986");
+            // Additional Data Field Template (62) - sempre incluir subfield 05 = txid (script.js exige)
+            var add = MakeTLV("05", txid);
+            payload.Append(MakeTLV("62", add));
 
-            // 54 - Transaction Amount (opcional)
-            if (valor.HasValue && valor.Value > 0)
-            {
-                string valorFormatado = valor.Value.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture);
-                payload += MontarCampo("54", valorFormatado);
-            }
+            // CRC - calcular sobre todo o payload até o campo 63 (inclusive Tag e Length)
+            var crcInput = payload.ToString() + "6304";
+            var crc = ComputeCRC16(crcInput);
+            payload.Append(MakeTLV("63", crc));
 
-            // 58 - Country Code (obrigatório)
-            payload += MontarCampo("58", "BR");
-
-            // 59 - Merchant Name (obrigatório)
-            payload += MontarCampo("59", nomeRecebedor);
-
-            // 60 - Merchant City (obrigatório)
-            payload += MontarCampo("60", cidadeRecebedor);
-
-            // 62 - Additional Data Field Template (opcional)
-            if (txId.IsNotBlank())
-            {
-                string txidField = MontarCampo("05", txId);
-                payload += MontarCampo("62", txidField);
-            }
-
-            // 63 - CRC16 (obrigatório)
-            payload += "6304";
-            string crc = CalcularCRC16(payload);
-            payload += crc;
-
-            return payload;
+            return payload.ToString();
         }
 
-        private static string CalcularCRC16(string input)
+        /// <summary>
+        /// Constrói TLV (Tag + Length 2 dígitos + Value)
+        /// </summary>
+        private static string MakeTLV(string tag, string value)
         {
-            ushort polynomial = 0x1021;
+            if (value == null) value = string.Empty;
+            return $"{tag}{value.Length:D2}{value}";
+        }
+
+
+        /// <summary>
+        /// Calcula CRC16-CCITT (0x1021) conforme especificação (valor em hex 4 caracteres maiúsculos)
+        /// </summary>
+        private static string ComputeCRC16(string input)
+        {
+            var bytes = Encoding.ASCII.GetBytes(input);
+            const ushort polynomial = 0x1021;
             ushort crc = 0xFFFF;
 
-            byte[] bytes = Encoding.ASCII.GetBytes(input);
-            foreach (byte b in bytes)
+            foreach (var b in bytes)
             {
                 crc ^= (ushort)(b << 8);
                 for (int i = 0; i < 8; i++)
@@ -199,57 +173,54 @@ namespace Extensions.BR
                         crc <<= 1;
                 }
             }
+
             return crc.ToString("X4");
         }
 
-        /// <summary>
-        /// Decodifica um payload PIX 
-        /// </summary>
-        /// <param name="payload"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentException"></exception>
-        public static Dictionary<string, object> LerPayloadPIX(string payload)
-        {
-            if (payload.IsBlank() || !payload.StartsWith("000201"))
-                throw new ArgumentException("Payload inválido");
-            var result = new Dictionary<string, object>();
-            int index = 0;
+         
 
-            while (index < payload.Length)
-            {
-                if (index + 4 > payload.Length)
-                    break;
-                string id = payload.Substring(index, 2);
-                int length = int.Parse(payload.Substring(index + 2, 2));
-                if (index + 4 + length > payload.Length)
-                    break;
-                string value = payload.Substring(index + 4, length);
-                index += 4 + length;
-                // Verifica se o ID é um campo composto
-                if (id == "26" || id == "62")
-                {
-                    var subFields = new Dictionary<string, string>();
-                    int subIndex = 0;
-                    while (subIndex < value.Length)
-                    {
-                        if (subIndex + 4 > value.Length)
-                            break;
-                        string subId = value.Substring(subIndex, 2);
-                        int subLength = int.Parse(value.Substring(subIndex + 2, 2));
-                        if (subIndex + 4 + subLength > value.Length)
-                            break;
-                        string subValue = value.Substring(subIndex + 4, subLength);
-                        subFields[subId] = subValue;
-                        subIndex += 4 + subLength;
-                    }
-                    result[id] = subFields;
-                }
-                else
-                {
-                    result[id] = value;
-                }
-            }
-            return result;
+        /// <summary>
+        /// Gera um txid no estilo do script.js: timestamp em base36 + random base36, em maiúsculas, 22 chars, preenchido com '0' se menor
+        /// </summary>
+        private static string GenerateTxId()
+        {
+            var timestamp = Util.ToBase36(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
+            var random = Util.RandomBase36(13);
+            var tx = (timestamp + random).ToUpperInvariant();
+            if (tx.Length > 22) tx = tx.Substring(0, 22);
+            else tx = tx.PadRight(22, '0');
+            return tx;
         }
+
+
     }
+
+    public enum PixMcc
+    {
+        /// <summary>
+        /// Uso pessoal / transação sem categoria comercial.
+        /// </summary>
+        PersonalUse = 0000,
+
+        /// <summary>
+        /// Categoria genérica — alta compatibilidade entre bancos.
+        /// </summary>
+        Generic = 9999,
+
+        /// <summary>
+        /// Serviços financeiros, bancos, fintechs.
+        /// </summary>
+        FinancialServices = 6012,
+
+        /// <summary>
+        /// Transporte e serviços relacionados.
+        /// </summary>
+        Transportation = 4111,
+
+        /// <summary>
+        /// Serviços diversos — categoria ampla e aceita.
+        /// </summary>
+        MiscellaneousServices = 7399
+    }
+
 }

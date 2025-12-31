@@ -7820,6 +7820,79 @@ namespace Extensions
 
             return Code.IsValidEAN();
         }
+ public static string RandomBase36(int length)
+        {
+            const string chars = "0123456789abcdefghijklmnopqrstuvwxyz";
+            var sb = new StringBuilder(length);
+            var buffer = new byte[4];
+            for (int i = 0; i < length; i++)
+            {
+                RandomNumberGenerator.Fill(buffer);
+                uint num = BitConverter.ToUInt32(buffer, 0);
+                sb.Append(chars[(int)(num % (uint)chars.Length)]);
+            }
+            return sb.ToString();
+        }
+
+        public static string ToBase36(long value)
+        {
+            const string chars = "0123456789abcdefghijklmnopqrstuvwxyz";
+            if (value == 0) return "0";
+            var sb = new StringBuilder();
+            var v = value;
+            while (v > 0)
+            {
+                var rem = (int)(v % 36);
+                sb.Insert(0, chars[rem]);
+                v /= 36;
+            }
+            return sb.ToString();
+        }
+        /// <summary>
+        /// Normaliza texto removendo acentos (Marcação de diacríticos) e convertendo para maiúsculas,
+        /// seguindo a mesma normalização aplicada no script.js (normalize + remoção de acentos + upper).
+        /// </summary>
+        public static string NormalizeText(this string input)
+        {
+            if (string.IsNullOrWhiteSpace(input)) return string.Empty;
+            var normalized = input.Trim().Normalize(NormalizationForm.FormD);
+            var sb = new StringBuilder();
+            foreach (var ch in normalized)
+            {
+                if (CharUnicodeInfo.GetUnicodeCategory(ch) != UnicodeCategory.NonSpacingMark)
+                    sb.Append(ch);
+            }
+            return sb.ToString().Normalize(NormalizationForm.FormC).ToUpperInvariant();
+        }
+
+        public static T EnsureNotNull<T>(this T value)
+        {
+            // Caso seja string
+            if (typeof(T) == typeof(string))
+            {
+                return (T)(object)(value as string ?? string.Empty);
+            }
+
+            // Caso seja Nullable<T>
+            var underlying = Nullable.GetUnderlyingType(typeof(T));
+            if (underlying != null)
+            {
+                // Por:
+                if (value != null)
+                    return value;
+                return (T)Activator.CreateInstance(underlying);
+            }
+
+            // Tipos de valor (int, bool, DateTime, etc.)
+            if (typeof(T).IsValueType)
+            {
+                return value; // nunca é null
+            }
+
+            // Tipos referência (classes)
+            if (value != null) return value;
+            return Activator.CreateInstance<T>();
+        }
 
         public static bool IsValidEAN(this int Code) => Code.ToString(CultureInfo.InvariantCulture).PadLeft(12, '0').ToString().IsValidEAN();
 
