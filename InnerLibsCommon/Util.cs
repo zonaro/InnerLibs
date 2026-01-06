@@ -7373,8 +7373,11 @@ namespace Extensions
         public static bool IsHexaDecimalColor(this string Text)
         {
             Text = Text.RemoveFirstEqual("#");
+            if (!Text.IsValid()) return false;
             var myRegex = new Regex("^[a-fA-F0-9]+$");
-            return Text.IsValid() && myRegex.IsMatch(Text);
+            if (!myRegex.IsMatch(Text)) return false;
+            // Accept only common CSS lengths: 3 (#RGB), 6 (#RRGGBB) or 8 (#AARRGGBB)
+            return Text.Length == 3 || Text.Length == 6 || Text.Length == 8;
         }
 
         /// <summary>
@@ -7820,7 +7823,7 @@ namespace Extensions
 
             return Code.IsValidEAN();
         }
- public static string RandomBase36(int length)
+        public static string RandomBase36(int length)
         {
             const string chars = "0123456789abcdefghijklmnopqrstuvwxyz";
             var sb = new StringBuilder(length);
@@ -12671,7 +12674,17 @@ namespace Extensions
 
             if (Text.IsNumber()) return Color.FromArgb(Text.ToInt());
 
-            if (Text.IsHexaDecimalColor()) return ColorTranslator.FromHtml($"#{Text.RemoveFirstEqual("#")}");
+            if (Text.IsHexaDecimalColor())
+            {
+                try
+                {
+                    return ColorTranslator.FromHtml($"#{Text.RemoveFirstEqual("#")}");
+                }
+                catch (Exception)
+                {
+                    return Color.Transparent;
+                }
+            }
 
             var maybecolor = FindColor(Text);
             if (maybecolor != null)
