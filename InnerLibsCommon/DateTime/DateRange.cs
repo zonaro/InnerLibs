@@ -821,6 +821,17 @@ namespace Extensions.Dates
         /// <returns></returns>
         public IEnumerable<DateTime> GetDates(DateRangeInterval DateRangeInterval = DateRangeInterval.LessAccurate) => GetDates(FilterBehavior, DateRangeInterval);
 
+
+        public int Count(DateRangeFilterBehavior FilterBehavior, DateRangeInterval DateRangeInterval = DateRangeInterval.LessAccurate) => GetDates(FilterBehavior, DateRangeInterval).Count();
+        public int Count(DateRangeInterval DateRangeInterval) => Count(FilterBehavior, DateRangeInterval);
+        public int Count() => Count(FilterBehavior, DateRangeInterval.LessAccurate);
+
+        public long LongCount(DateRangeFilterBehavior FilterBehavior, DateRangeInterval DateRangeInterval = DateRangeInterval.LessAccurate) => GetDates(FilterBehavior, DateRangeInterval).LongCount();
+        public long LongCount(DateRangeInterval DateRangeInterval) => Count(FilterBehavior, DateRangeInterval);
+        public long LongCount() => Count(FilterBehavior, DateRangeInterval.LessAccurate);
+
+
+
         /// <summary>
         /// Return a <see cref="IEnumerable{T}"/> of <see cref="DateTime"/> between <see
         /// cref="StartDate"/> and <see cref="EndDate"/> using a <see cref="DateRangeInterval"/>

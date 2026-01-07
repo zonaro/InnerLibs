@@ -1128,18 +1128,6 @@ namespace Extensions
         }
 
         /// <summary>
-        /// Calcula Juros compostos
-        /// </summary>
-        /// <param name="Capital">Capital</param>
-        /// <param name="Rate">Taxa</param>
-        /// <param name="Time">Tempo</param>
-        /// <returns></returns>
-        public static double CalculateCompoundInterest(this double Capital, double Rate, double Time) => Capital * Math.Pow(1 + Rate, Time);
-
-        /// <inheritdoc cref="CalculateCompoundInterest(double,double,double)"/>
-        public static decimal CalculateCompoundInterest(this decimal Capital, decimal Rate, decimal Time) => CalculateCompoundInterest((double)Capital, (double)Rate, (double)Time).ToDecimal();
-
-        /// <summary>
         /// Calcula a distancia entre 2 locais
         /// </summary>
         /// <param name="FirstLocation">Primeiro Local</param>
@@ -1255,14 +1243,7 @@ namespace Extensions
         /// <returns></returns>
         public static decimal CalculatePercentVariation(this long StartValue, long EndValue) => StartValue.ToDecimal().CalculatePercentVariation(EndValue.ToDecimal());
 
-        /// <summary>
-        /// Calcula os Juros simples
-        /// </summary>
-        /// <param name="Capital">Capital</param>
-        /// <param name="Rate">Taxa</param>
-        /// <param name="Time">Tempo</param>
-        /// <returns></returns>
-        public static decimal CalculateSimpleInterest(this decimal Capital, decimal Rate, decimal Time) => Capital * Rate * Time;
+        
 
         public static decimal CalculateValueFromPercent(this string Percent, decimal Total)
         {
@@ -1664,11 +1645,11 @@ namespace Extensions
 
         /// <inheritdoc cref="ParsePercent(string, Type, IFormatProvider?)"/>
         public static T ParsePercent<T>(this string Percent, IFormatProvider formatProvider = null) where T : struct => ParsePercent(Percent, typeof(T), formatProvider).ChangeType<T>(formatProvider);
+         
 
-        public static V ParsePercent<V>(this V Percent, IFormatProvider formatProvider = null) where V : struct
-        {
-            return Percent.ChangeType<V>(formatProvider);
-        }
+        public static decimal ParsePercent(this string Percent, IFormatProvider formatProvider = null) => ParsePercent<decimal>(Percent, formatProvider);
+
+
 
         /// <summary>
         /// Parse a percent string like "10% of 200" or "10%" into a number of the specified type. If only "10%" is provided, it assumes the total is 1 (one) and returns 0.1 (10 percent of 1).
@@ -1686,7 +1667,13 @@ namespace Extensions
                 //verifica se o numero tem %
                 if (Percent.CountCharacter('%') == 1)
                 {
-                    var parts = Percent.Split('%').Where(x => x.IsNumber()).ToList();
+                    var parts = Percent.Split('%').ToList();
+                    parts = parts.SelectMany(x=> x.SplitAny(" ")).Where(x => x.IsNumber()).Take(2).ToList();
+                    if(parts.Count == 0)
+                    {
+                        parts = new List<string> { "0" };
+                    }
+
                     if (parts.Count <= 2)
                     {
                         if (type.GetTypeOf().IsIn(PredefinedArrays.NumericTypes) || type.GetTypeOf() == typeof(string))
@@ -1701,9 +1688,11 @@ namespace Extensions
                             var total = parts.Last().ChangeType<decimal>(formatProvider);
 
                             WriteDebug($"Parsing {percent}% of {total}");
-                            return percent.CalculatePercent(total).ChangeType(type, formatProvider);
+
+                            return percent.CalculateValueFromPercent(total).ChangeType(type,formatProvider);
                         }
                     }
+
                     WriteDebug($"Invalid percent format: {Percent}", "Percent Format");
                 }
 
@@ -7830,7 +7819,12 @@ namespace Extensions
             var buffer = new byte[4];
             for (int i = 0; i < length; i++)
             {
-                RandomNumberGenerator.Fill(buffer);
+                // Por este bloco:
+                using (var rng = RandomNumberGenerator.Create())
+                {
+                    rng.GetBytes(buffer);
+                }
+
                 uint num = BitConverter.ToUInt32(buffer, 0);
                 sb.Append(chars[(int)(num % (uint)chars.Length)]);
             }

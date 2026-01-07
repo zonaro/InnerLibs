@@ -77,7 +77,7 @@ namespace Extensions.BR
         /// <param name="descricao">Descrição opcional que vai no Merchant Account Information</param>
         /// <param name="mcc">Merchant Category Code (MCC). Use a enumeração <see cref="PixMcc"/> (padrão: PersonalUse / 0000).</param>
         /// <returns>Payload pronto para geração de QR code (inclui CRC)</returns>
-        public static string GerarPayloadPIX(string chave, string nome, string cidade, string? txid = null, decimal? valor = null, string? descricao = null, PixMcc mcc = PixMcc.PersonalUse)
+        public static string GerarPayloadPIX(string chave, string nome, string cidade, string txid = null, decimal? valor = null, string descricao = null, PixMcc mcc = PixMcc.PersonalUse)
         {
             const string gui = "BR.GOV.BCB.PIX";  
 

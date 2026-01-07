@@ -80,6 +80,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)vCard\vPhotoType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)WeekInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Colors.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interest.cs" />
+
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Printer\Printer.css" />

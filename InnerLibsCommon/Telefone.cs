@@ -23,17 +23,17 @@ namespace Extensions.BR
 
 
         /// <summary>
-        /// C�digo de Discagem Direta � Dist�ncia (DDD).
+        /// Código de Discagem Direta à Distância (DDD).
         /// </summary>
         public int? DDD { get; set; }
 
         /// <summary>
-        /// Prefixo do numero de telefone.
+        /// Prefixo do número de telefone.
         /// </summary>
         public int Prefixo { get; private set; }
 
         /// <summary>
-        /// Sufixo do n�mero de telefone.
+        /// Sufixo do número de telefone.
         /// </summary>
         public int Sufixo { get; private set; }
 
@@ -141,10 +141,10 @@ namespace Extensions.BR
         public string NumeroMascara => $"{Prefixo}-{Sufixo}";
 
         /// <summary>
-        /// Compara se dois n�meros de telefone s�o iguais.
+        /// Compara se dois números de telefone são iguais.
         /// </summary>
         /// <param name="obj">Objeto a ser comparado.</param>
-        /// <returns>Retorna <c>true</c> se os n�meros de telefone forem iguais; caso contr�rio, <c>false</c>.</returns>
+        /// <returns>Retorna <c>true</c> se os números de telefone forem iguais; caso contrário, <c>false</c>.</returns>
         public override bool Equals(object obj)
         {
             if (obj is Telefone telefone)
@@ -164,9 +164,9 @@ namespace Extensions.BR
         }
 
         /// <summary>
-        /// Retorna uma representa��o em string do n�mero de telefone.
+        /// Retorna uma representação em string do número de telefone.
         /// </summary>
-        /// <returns>Representa��o em string do n�mero de telefone.</returns>
+        /// <returns>Representação em string do número de telefone.</returns>
         public override string ToString() => CompletoMascara;
 
         /// <summary>
@@ -188,21 +188,21 @@ namespace Extensions.BR
         public static implicit operator int(Telefone telefone) => telefone.Completo.OnlyNumbersInt();
 
         /// <summary>
-        /// Convers�o impl�cita de <see cref="string"/> para <see cref="Telefone"/>.
+        /// Conversão implícita de <see cref="string"/> para <see cref="Telefone"/>.
         /// </summary>
-        /// <param name="telefone">N�mero de telefone em formato de string.</param>
+        /// <param name="telefone">Número de telefone em formato de string.</param>
         public static implicit operator Telefone(string telefone) => new Telefone(telefone);
 
         /// <summary>
-        /// Convers�o impl�cita de <see cref="int"/> para <see cref="Telefone"/>.
+        /// Conversão implícita de <see cref="int"/> para <see cref="Telefone"/>.
         /// </summary>
-        /// <param name="telefone">N�mero de telefone em formato de inteiro.</param>
+        /// <param name="telefone">Número de telefone em formato de inteiro.</param>
         public static implicit operator Telefone(int telefone) => new Telefone(telefone);
 
         /// <summary>
-        /// Convers�o impl�cita de <see cref="long"/> para <see cref="Telefone"/>.
+        /// Conversão implícita de <see cref="long"/> para <see cref="Telefone"/>.
         /// </summary>
-        /// <param name="telefone">N�mero de telefone em formato de longo.</param>
+        /// <param name="telefone">Número de telefone em formato de longo.</param>
         public static implicit operator Telefone(long telefone) => new Telefone(telefone);
     }
 }
