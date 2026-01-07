@@ -940,7 +940,7 @@ namespace Extensions.Dates
         }
 
         /// <summary>
-        /// Agrupa itens de uma lista de acordo com uma propriedade e uma express�o de agrupamento
+        /// Agrupa itens de uma lista de acordo com uma propriedade e uma expressão de agrupamento
         /// de datas
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -959,7 +959,8 @@ namespace Extensions.Dates
                 if (!dic.ContainsKey(k))
                 {
                     dic[k] = new List<T>();
-                } ((List<T>)dic[k]).AddRange(gp.ElementAtOrDefault(k.ToInt()).AsEnumerable());
+                }
+                ((List<T>)dic[k]).AddRange(gp.ElementAtOrDefault(k.ToInt()).AsEnumerable());
             }
 
             return dic;
@@ -990,7 +991,7 @@ namespace Extensions.Dates
         }
 
         /// <summary>
-        /// Verifica se este periodo est� dentro de outro periodo
+        /// Verifica se este periodo está dentro de outro periodo
         /// </summary>
         /// <param name="Period"></param>
         /// <returns></returns>

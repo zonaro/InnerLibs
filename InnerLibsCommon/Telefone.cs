@@ -4,7 +4,7 @@ using System.Linq;
 namespace Extensions.BR
 {
     /// <summary>
-    /// Classe que representa um n�mero de telefone.
+    /// Classe que representa um número de telefone.
     /// </summary>
     public struct Telefone
     {
@@ -121,22 +121,22 @@ namespace Extensions.BR
         public bool DDDValido => DDD.HasValue && DDDs.Contains(DDD.Value);
 
         /// <summary>
-        /// Retorna o n�mero de telefone completo, incluindo o DDD.
+        /// Retorna o número de telefone completo, incluindo o DDD.
         /// </summary>
         public string Completo => DDDValido ? $"{DDD}{Numero}" : Numero;
 
         /// <summary>
-        /// Retorna o n�mero de telefone completo, incluindo o DDD, formatado com m�scara.
+        /// Retorna o número de telefone completo, incluindo o DDD, formatado com máscara.
         /// </summary>
         public string CompletoMascara => DDDValido ? $"({DDD}) {NumeroMascara}" : NumeroMascara;
 
         /// <summary>
-        /// Retorna o n�mero de telefone.
+        /// Retorna o número de telefone.
         /// </summary>
         public string Numero => $"{Prefixo}{Sufixo.FixedLength(4)}";
 
         /// <summary>
-        /// Retorna o n�mero de telefone formatado com m�scara.
+        /// Retorna o número de telefone formatado com máscara.
         /// </summary>
         public string NumeroMascara => $"{Prefixo}-{Sufixo}";
 
@@ -170,21 +170,21 @@ namespace Extensions.BR
         public override string ToString() => CompletoMascara;
 
         /// <summary>
-        /// Convers�o impl�cita de <see cref="Telefone"/> para <see cref="string"/>.
+        /// Conversão implícita de <see cref="Telefone"/> para <see cref="string"/>.
         /// </summary>
-        /// <param name="telefone">Inst�ncia de <see cref="Telefone"/>.</param>
+        /// <param name="telefone">Instância de <see cref="Telefone"/>.</param>
         public static implicit operator string(Telefone telefone) => telefone.ToString();
 
         /// <summary>
-        /// Convers�o impl�cita de <see cref="Telefone"/> para <see cref="long"/>.
+        /// Conversão implícita de <see cref="Telefone"/> para <see cref="long"/>.
         /// </summary>
-        /// <param name="telefone">Inst�ncia de <see cref="Telefone"/>.</param>
+        /// <param name="telefone">Instância de <see cref="Telefone"/>.</param>
         public static implicit operator long(Telefone telefone) => telefone.Completo.OnlyNumbersLong();
 
         /// <summary>
-        /// Convers�o impl�cita de <see cref="Telefone"/> para <see cref="int"/>.
+        /// Conversão implícita de <see cref="Telefone"/> para <see cref="int"/>.
         /// </summary>
-        /// <param name="telefone">Inst�ncia de <see cref="Telefone"/>.</param>
+        /// <param name="telefone">Instância de <see cref="Telefone"/>.</param>
         public static implicit operator int(Telefone telefone) => telefone.Completo.OnlyNumbersInt();
 
         /// <summary>

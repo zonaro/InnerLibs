@@ -23,8 +23,8 @@ namespace Extensions
         /// interest type (simple or compound).
         /// </summary>
         /// <remarks>The method parses the rate parameter as a percentage. For compound interest, the
-        /// calculation uses the formula: Capital � (1 + rate)^Time. For simple interest, the calculation uses: Capital
-        /// � rate � Time. If difference is true, the returned value is the interest earned; otherwise, it is the total
+        /// calculation uses the formula: Capital * (1 + rate)^Time. For simple interest, the calculation uses: Capital
+        /// * rate * Time. If difference is true, the returned value is the interest earned; otherwise, it is the total
         /// amount.</remarks>
         /// <param name="Capital">The initial principal amount on which interest is calculated.</param>
         /// <param name="Compound">true to calculate compound interest; false to calculate simple interest.</param>
