@@ -18,92 +18,7 @@ namespace Extensions
     public static partial class Util
     {
 
-
-
-        /// <summary>
-        /// Aplica um borrão a imagem
-        /// </summary>
-        /// <param name="Img"></param>
-        /// <param name="BlurSize"></param>
-        /// <returns></returns>
-        public static Image Blur(this Image Img, int BlurSize = 5) => Blur(Img, BlurSize, new System.Drawing.Rectangle(0, 0, Img.Width, Img.Height));
-
-        /// <summary>
-        /// Aplica um borrão a uma determinada parte da imagem
-        /// </summary>
-        /// <param name="Img"></param>
-        /// <param name="BlurSize"></param>
-        /// <param name="rectangle"></param>
-        /// <returns></returns>
-        public static unsafe Image Blur(this Image Img, int BlurSize, System.Drawing.Rectangle rectangle)
-        {
-            Bitmap blurred = new Bitmap(Img.Width, Img.Height);
-
-            // make an exact copy of the bitmap provided
-            using (Graphics graphics = Graphics.FromImage(blurred))
-                graphics.DrawImage(Img, new System.Drawing.Rectangle(0, 0, Img.Width, Img.Height),
-                    new System.Drawing.Rectangle(0, 0, Img.Width, Img.Height), GraphicsUnit.Pixel);
-
-            // Lock the bitmap's bits
-            BitmapData blurredData = blurred.LockBits(new System.Drawing.Rectangle(0, 0, Img.Width, Img.Height), ImageLockMode.ReadWrite, blurred.PixelFormat);
-
-            // GetCliente bits per pixel for current PixelFormat
-            int bitsPerPixel = Image.GetPixelFormatSize(blurred.PixelFormat);
-
-            // GetCliente pointer to first line
-            byte* scan0 = (byte*)blurredData.Scan0.ToPointer();
-
-            // look at every pixel in the blur rectangle
-            for (int xx = rectangle.X; xx < rectangle.X + rectangle.Width; xx++)
-            {
-                for (int yy = rectangle.Y; yy < rectangle.Y + rectangle.Height; yy++)
-                {
-                    int avgR = 0, avgG = 0, avgB = 0;
-                    int blurPixelCount = 0;
-
-                    // average the color of the red, green and blue for each pixel in the blur size
-                    // while making sure you don't go outside the image bounds
-                    for (int x = xx; (x < xx + BlurSize && x < Img.Width); x++)
-                    {
-                        for (int y = yy; (y < yy + BlurSize && y < Img.Height); y++)
-                        {
-                            // GetCliente pointer to RGB
-                            byte* data = scan0 + y * blurredData.Stride + x * bitsPerPixel / 8;
-
-                            avgB += data[0]; // Blue
-                            avgG += data[1]; // Green
-                            avgR += data[2]; // Red
-
-                            blurPixelCount++;
-                        }
-                    }
-
-                    avgR /= blurPixelCount;
-                    avgG /= blurPixelCount;
-                    avgB /= blurPixelCount;
-
-                    // now that we know the average for the blur size, set each pixel to that color
-                    for (int x = xx; x < xx + BlurSize && x < Img.Width && x < rectangle.Width; x++)
-                    {
-                        for (int y = yy; y < yy + BlurSize && y < Img.Height && y < rectangle.Height; y++)
-                        {
-                            // GetCliente pointer to RGB
-                            byte* data = scan0 + y * blurredData.Stride + x * bitsPerPixel / 8;
-
-                            // Change values
-                            data[0] = (byte)avgB;
-                            data[1] = (byte)avgG;
-                            data[2] = (byte)avgR;
-                        }
-                    }
-                }
-            }
-
-            // Unlock the bits
-            blurred.UnlockBits(blurredData);
-
-            return blurred;
-        }
+ 
 
         /// <summary>
         /// Remove the background of an image.
@@ -812,8 +727,66 @@ namespace Extensions
             return Original.Resize(size, OnlyResizeIfWider);
         }
 
+        /// <summary>
+        /// Resizes the image by the specified percentage, optionally only if the image is wider than the target size.
+        /// </summary>
+        /// <param name="Original">The source image to be resized.</param>
+        /// <param name="Percent">The percentage by which to resize the image. Must be greater than 0.</param>
+        /// <param name="OnlyResizeIfWider">If <see langword="true"/>, resizing occurs only if the image is wider than the target size; otherwise, the
+        /// image is always resized.</param>
+        /// <returns>A new <see cref="Image"/> instance representing the resized image.</returns>
         public static Image ResizePercent(this Image Original, decimal Percent, bool OnlyResizeIfWider = true) => Original.ResizePercent(Percent.ToPercentString(), OnlyResizeIfWider);
 
+        /// <summary>
+        /// Resizes the image to fit within the specified aspect ratio, preserving the original proportions and cropping
+        /// as necessary.
+        /// </summary>
+        /// <remarks>This method maintains the original image's aspect ratio and crops the image if needed
+        /// to fit the target aspect ratio. The resulting image will not be stretched or distorted.</remarks>
+        /// <param name="Original">The source image to be resized. Cannot be null.</param>
+        /// <param name="AspectRatio">The target aspect ratio, specified as a <see cref="Size"/> where the width and height define the desired
+        /// proportions.</param>
+        /// <returns>A new <see cref="Image"/> instance resized to fit within the specified aspect ratio. The returned image may
+        /// be cropped to maintain the original proportions.</returns>
+        public static Image ResizeAspect(this Image Original, Size AspectRatio)
+        {
+            var aspectRatio = Original.Width / (double)Original.Height;
+            var targetAspectRatio = AspectRatio.Width / (double)AspectRatio.Height;
+            int newWidth;
+            int newHeight;
+            if (aspectRatio > targetAspectRatio)
+            {
+                newWidth = AspectRatio.Width;
+                newHeight = (int)(AspectRatio.Width / aspectRatio);
+            }
+            else
+            {
+                newHeight = AspectRatio.Height;
+                newWidth = (int)(AspectRatio.Height * aspectRatio);
+            }
+            return Original.ResizeCrop(newWidth, newHeight);
+        }
+        /// <summary>
+        /// Resizes the image to fit within the specified aspect ratio, preserving the original proportions.
+        /// </summary>
+        /// <remarks>The resized image will be scaled so that it fits entirely within the target aspect
+        /// ratio, without cropping or distorting the original image. If the aspect ratio is invalid or cannot be
+        /// parsed, an exception may be thrown.</remarks>
+        /// <param name="Original">The source image to be resized.</param>
+        /// <param name="AspectRatio">A string representing the desired aspect ratio, in the format "width:height" (for example, "16:9").</param>
+        /// <returns>An image resized to fit within the specified aspect ratio while maintaining its original proportions.</returns>
+        public static Image ResizeAspect(this Image Original, string AspectRatio)   => Original.ResizeAspect(AspectRatio.ParseSize());
+       
+        /// <summary>
+        /// Converts the specified image to a Base64-encoded string representation using the provided image format.
+        /// </summary>
+        /// <remarks>The returned string can be used for embedding images in text-based formats such as
+        /// JSON or HTML. The image format affects the output; ensure the format is compatible with the intended
+        /// use.</remarks>
+        /// <param name="OriginalImage">The image to convert to a Base64 string. If null, the method returns null.</param>
+        /// <param name="OriginalImageFormat">The format to use when encoding the image. If null, the method uses the image's format if available;
+        /// otherwise, it defaults to PNG.</param>
+        /// <returns>A Base64-encoded string representing the image data, or null if the input image is null.</returns>
         public static string ToBase64(this Image OriginalImage, ImageFormat OriginalImageFormat = null)
         {
             if (OriginalImage != null)

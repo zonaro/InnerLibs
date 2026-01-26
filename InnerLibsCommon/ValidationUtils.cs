@@ -108,6 +108,7 @@ namespace Extensions
                     {
                         return guid == Guid.Empty;
                     }
+                  
                     else if (Value is IDictionary dic)
                     {
                         foreach (DictionaryEntry item in dic)

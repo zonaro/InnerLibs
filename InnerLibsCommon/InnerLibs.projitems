@@ -9,6 +9,9 @@
   <PropertyGroup Label="Configuration">
     <Import_RootNamespace>SharedResources</Import_RootNamespace>
   </PropertyGroup>
+  <ItemGroup Condition="'$(DefineConstants)' == 'USE_UNSAFE'">
+    <Compile Include="$(MSBuildThisFileDirectory)Unsafe.cs" />
+  </ItemGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)AddressInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Annotations.cs" />
@@ -81,7 +84,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)WeekInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Colors.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interest.cs" />
-
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Printer\Printer.css" />

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -282,7 +283,7 @@ namespace Extensions.Mail
 
         #endregion Public Properties
 
-        
+
         #region Public Methods
 
         /// <summary>
@@ -441,7 +442,7 @@ namespace Extensions.Mail
             return this;
         }
 
-     
+
 
         /// <summary>
         /// Configura o remetente da mensagem
@@ -495,7 +496,7 @@ namespace Extensions.Mail
                             {
                                 msg = msg.Inject(templateMail.TemplateData, Culture, CaseSensitive);
                                 subj = subj.Inject(templateMail.TemplateData, Culture, CaseSensitive);
-                                 
+
                             }
                             foreach (var att in templateMail.Attachments) msgIndiv.Attachments.Add(att);
                         }
@@ -1178,11 +1179,16 @@ namespace Extensions.Mail
     }
 
     [Flags]
+ 
     public enum SentStatus
     {
+        [Display(Name = "None")]
         None = 0,
+        [Display(Name = "Success")]
         Success = 1,
+        [Display(Name = "Error")]
         Error = 2,
+        [Display(Name = "Partial Success")]
         PartialSuccess = Error + Success,
     }
 }

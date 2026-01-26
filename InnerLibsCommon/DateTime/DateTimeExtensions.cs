@@ -883,6 +883,7 @@ namespace Extensions
 
         public static DateRange GetDayRange(this DateTime Date) => DateRange.Day(Date);
 
+        
         /// <summary>
         /// Retorna as datas entre um periodo
         /// </summary>
