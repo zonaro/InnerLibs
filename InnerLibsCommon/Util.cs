@@ -14,7 +14,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Net;  
+using System.Net;
 using System.Net.Mail;
 using System.Net.Sockets;
 using System.Reflection;
@@ -1243,7 +1243,7 @@ namespace Extensions
         /// <returns></returns>
         public static decimal CalculatePercentVariation(this long StartValue, long EndValue) => StartValue.ToDecimal().CalculatePercentVariation(EndValue.ToDecimal());
 
-        
+
 
         public static decimal CalculateValueFromPercent(this string Percent, decimal Total)
         {
@@ -1645,7 +1645,7 @@ namespace Extensions
 
         /// <inheritdoc cref="ParsePercent(string, Type, IFormatProvider?)"/>
         public static T ParsePercent<T>(this string Percent, IFormatProvider formatProvider = null) where T : struct => ParsePercent(Percent, typeof(T), formatProvider).ChangeType<T>(formatProvider);
-         
+
 
         public static decimal ParsePercent(this string Percent, IFormatProvider formatProvider = null) => ParsePercent<decimal>(Percent, formatProvider);
 
@@ -1668,8 +1668,8 @@ namespace Extensions
                 if (Percent.CountCharacter('%') == 1)
                 {
                     var parts = Percent.Split('%').ToList();
-                    parts = parts.SelectMany(x=> x.SplitAny(" ")).Where(x => x.IsNumber()).Take(2).ToList();
-                    if(parts.Count == 0)
+                    parts = parts.SelectMany(x => x.SplitAny(" ")).Where(x => x.IsNumber()).Take(2).ToList();
+                    if (parts.Count == 0)
                     {
                         parts = new List<string> { "0" };
                     }
@@ -1689,7 +1689,7 @@ namespace Extensions
 
                             WriteDebug($"Parsing {percent}% of {total}");
 
-                            return percent.CalculateValueFromPercent(total).ChangeType(type,formatProvider);
+                            return percent.CalculateValueFromPercent(total).ChangeType(type, formatProvider);
                         }
                     }
 
@@ -2115,6 +2115,26 @@ namespace Extensions
         /// <param name="ValueExpression"></param>
         /// <returns></returns>
         public static ConstantExpression CreateConstant<Type>(IComparable Value) => CreateConstant(typeof(Type), Value);
+
+        /// <summary>
+        /// Converte uma coleção de objetos para uma lista de <see cref="Dictionary{TKey, TValue}"/>
+        /// </summary>
+        /// <param name="Obj"></param>
+        /// <param name="Keys"></param>
+        /// <returns></returns>
+        public static List<Dictionary<string, object>> CreateDictionaryList(this IEnumerable<object> Obj, params string[] Keys)
+        {
+                        var result = new List<Dictionary<string, object>>();
+
+            foreach (var item in Obj ?? Array.Empty<object>())
+            {
+                var dict = item.CreateDictionary(Keys);
+                result.Add(dict);
+            }
+
+            return result;
+        }
+
 
         /// <summary>
         /// Converte um objeto para um <see cref="Dictionary"/>
@@ -4336,7 +4356,7 @@ namespace Extensions
                 throw new ArgumentNullException(nameof(enumType));
             }
 
-            if (!enumType.IsEnum) throw new ArgumentException($"{enumType.Name} must be an Enumeration type.", enumType.Name);
+            if (!enumType.IsEnum) return Value.ChangeType<string>();
 
             string name = null;
             if (Value is string s)
@@ -6278,15 +6298,73 @@ namespace Extensions
         /// </summary>
         /// <typeparam name="TKey"></typeparam>
         /// <typeparam name="TValue"></typeparam>
-        /// <param name="Dic"></param>
-        /// <param name="Key"></param>
-        /// <param name="ReplaceValue"></param>
+        /// <param name="Dic"> The dictionary to search</param>
+        /// <param name="Key">The key to search</param>
+        /// <param name="ReplaceValue">Value to return if the key is not found</param>
+        /// <param name="ReplaceIfNull">Return the <paramref name="ReplaceValue"/> if the value is null</param>
+        /// <param name="CaseInsensitiveKeys"></param>
         /// <remarks>
         /// if <paramref name="ReplaceValue"/> is not provided. the default value for type
         /// <typeparamref name="TValue"/> is returned
         /// </remarks>
         /// <returns></returns>
-        public static TValue GetValueOr<TKey, TValue>(this IDictionary<TKey, TValue> Dic, TKey Key, TValue ReplaceValue = default) => Dic != null && Dic.ContainsKey(Key) ? Dic[Key] : ReplaceValue;
+        public static TValue GetValueOr<TKey, TValue>(this IDictionary<TKey, TValue> Dic, TKey Key, TValue ReplaceValue = default, bool ReplaceIfNull = false, bool CaseInsensitiveKeys = false) => GetValueOr(Dic, new TKey[] { Key }, ReplaceValue);
+
+        /// <summary>
+        /// Tries to get a value from <see cref="Dictionary{TKey, TValue}"/>. if fails, return
+        /// <paramref name="ReplaceValue"/>
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="Dic"> The dictionary to search</param>
+        /// <param name="Keys">The keys to search</param>
+        /// <param name="ReplaceValue">Value to return if the key is not found</param>
+        /// <param name="ReplaceIfNull">Return the <paramref name="ReplaceValue"/> if the value is null</param>
+        /// <param name="CaseInsensitiveKeys"></param>
+        /// <remarks>
+        /// if <paramref name="ReplaceValue"/> is not provided. the default value for type
+        /// <typeparamref name="TValue"/> is returned
+        /// </remarks>
+        /// <returns></returns>
+        public static TValue GetValueOr<TKey, TValue>(this IDictionary<TKey, TValue> Dic, IEnumerable<TKey> Keys, TValue ReplaceValue = default, bool ReplaceIfNull = false, bool CaseInsensitiveKeys = false)
+        {
+            if (Dic == null || Keys == null) return ReplaceValue;
+
+            foreach (var key in Keys)
+            {
+                if (CaseInsensitiveKeys && key is string skey)
+                {
+                    var foundKey = Dic.Keys.FirstOrDefault(k => k is string ks && ks.Equals(skey, StringComparison.InvariantCultureIgnoreCase));
+                    if (foundKey != null)
+                    {
+                        if (ReplaceIfNull)
+                        {
+                            var val = Dic[foundKey];
+                            if (val == null || val.Equals(default(TValue)))
+                            {
+                               return ReplaceValue;
+                            }
+                        }
+                        return Dic[foundKey];
+                    }
+                }
+                else if (Dic.ContainsKey(key))
+                {
+                    if(ReplaceIfNull)
+                    {
+                        var val = Dic[key];
+                        if (val == null || val.Equals(default(TValue)))
+                        {
+                            return ReplaceValue;
+                        }
+                    }
+                    return Dic[key];
+                }
+            }
+
+            return ReplaceValue;
+        }
+
 
         /// <summary>
         /// Captura o Id de um video do YOUTUBE ou VIMEO em uma URL

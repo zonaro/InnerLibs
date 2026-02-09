@@ -8,11 +8,13 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Net;
 using System.Net.Mail;
+using System.Net.Sockets;
 using System.Text;
 using Extensions;
 using Extensions.ComplexText;
 using Extensions.Web;
 using static System.Net.Mime.MediaTypeNames;
+using static QRCoder.PayloadGenerator;
 
 namespace Extensions.Mail
 {
@@ -20,7 +22,7 @@ namespace Extensions.Mail
     /// Wrapper for <see cref="System.Net.Mail"/> in FluentAPI with Template configurations and helper methods.
     /// Uses objects of type <see cref="Dictionary{string,object}"/> for template objects.
     /// </summary>
-    public class FluentMailMessage : FluentMailMessage<Dictionary<string, object>>
+    public class FluentMailMessage : FluentMailMessage<IDictionary<string, object>>
     {
         #region Public Methods
 
@@ -163,6 +165,7 @@ namespace Extensions.Mail
             Culture = new CultureInfo(culture);
             return this;
         }
+
         public FluentMailMessage<T> WithCulture(CultureInfo culture)
         {
             this.Culture = culture ?? CultureInfo.InvariantCulture;
@@ -283,7 +286,6 @@ namespace Extensions.Mail
 
         #endregion Public Properties
 
-
         #region Public Methods
 
         /// <summary>
@@ -394,6 +396,50 @@ namespace Extensions.Mail
         }
 
         /// <summary>
+        /// Adiciona um destinatário a lista de destinatários desta mensagem
+        /// </summary>
+        /// <param name="recipient"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        public FluentMailMessage<T> AddRecipient(params T[] recipients)
+        {
+            var possibleMails = new string[] { "email", "e-mail", "mail", "mailaddress", "mail-address" };
+
+            foreach (var recipient in (recipients ?? Array.Empty<T>()).Where(x => x != null))
+            {
+                string email = "";
+
+                var dic = recipient.CreateDictionary();
+
+                if (dic == null || dic.Count == 0)
+                {
+                    continue;
+                }
+
+                email = dic.GetValueOr(possibleMails, null, true, true).ChangeType<string>();
+
+                if (email.IsEmail() == false)
+                {
+                    // find first email value in dictionary
+                    email = dic.Values.FirstOrDefault(v => v is MailAddress mailAddress && mailAddress.Address.IsEmail()).ChangeType<string>().ExtractEmails().FirstOrDefault();
+                }
+                if (email.IsEmail() == false)
+                {
+                    // find first email value in dictionary
+                    email = dic.Values.FirstOrDefault(v => v is string e && e.IsEmail())?.ToString();
+                }
+
+                if (email.IsEmail())
+                {
+                    AddRecipient(new TemplateMailAddress<T>(email, recipient));
+                }
+
+            }
+
+            return this;
+        }
+
+        /// <summary>
         /// Adiciona um destinatário a lista de destinatários deta mensagem
         /// </summary>
         /// <returns></returns>
@@ -426,7 +472,6 @@ namespace Extensions.Mail
             return this;
         }
 
-
         /// <summary>
         /// Adiciona um destinatário a lista de destinatários desta mensagem
         /// </summary>
@@ -441,8 +486,6 @@ namespace Extensions.Mail
             foreach (var email in Emails ?? Array.Empty<TemplateMailAddress<T>>()) To.Add(email);
             return this;
         }
-
-
 
         /// <summary>
         /// Configura o remetente da mensagem
@@ -496,7 +539,6 @@ namespace Extensions.Mail
                             {
                                 msg = msg.Inject(templateMail.TemplateData, Culture, CaseSensitive);
                                 subj = subj.Inject(templateMail.TemplateData, Culture, CaseSensitive);
-
                             }
                             foreach (var att in templateMail.Attachments) msgIndiv.Attachments.Add(att);
                         }
@@ -667,15 +709,12 @@ namespace Extensions.Mail
         /// <returns></returns>
         public FluentMailMessage<T> WithMessage(string Message) => WithMessage("{Message}", new { Message });
 
-
-
         /// <summary>
         /// Utiliza um template para o corpo da mensagem
         /// </summary>
         /// <param name="TemplateOrFilePathOrUrl"></param>
         /// <returns></returns>
         public FluentMailMessage<T> WithMessage(string TemplateOrFilePathOrUrl, string Message) => WithMessage(TemplateOrFilePathOrUrl, new { Message, PreviewMessage = Message.GetTextPreview(100) });
-
 
         /// <summary>
         /// Utiliza um template para o corpo da mensagem
@@ -793,6 +832,237 @@ namespace Extensions.Mail
             return this;
         }
 
+        /// <summary>
+        /// Obtém os registros MX de um domínio através de consulta DNS
+        /// </summary>
+        /// <param name="domain">Domínio para consultar</param>
+        /// <returns>Lista de registros MX ordenados por prioridade</returns>
+        private static List<(int Priority, string Exchange)> GetMxRecords(string domain)
+        {
+            var mxRecords = new List<(int Priority, string Exchange)>();
+
+            try
+            {
+                // Cria a query DNS para registros MX (tipo 15)
+                var query = CreateDnsQuery(domain, 15);
+
+                // Envia a query para o servidor DNS do Google (8.8.8.8)
+                using (var udpClient = new UdpClient())
+                {
+                    udpClient.Connect("8.8.8.8", 53);
+                    udpClient.Send(query, query.Length);
+                    udpClient.Client.ReceiveTimeout = 5000;
+
+                    var remoteEp = new IPEndPoint(IPAddress.Any, 0);
+                    var response = udpClient.Receive(ref remoteEp);
+
+                    // Parse da resposta DNS
+                    mxRecords = ParseDnsMxResponse(response);
+                }
+            }
+            catch (Exception ex)
+            {
+                Util.WriteDebug($"Erro ao consultar registros MX para {domain}: {ex.Message}");
+            }
+
+            return mxRecords.OrderBy(x => x.Priority).ToList();
+        }
+
+        /// <summary>
+        /// Cria uma query DNS para registros MX
+        /// </summary>
+        private static byte[] CreateDnsQuery(string domain, ushort queryType)
+        {
+            var query = new List<byte>();
+
+            // Header DNS
+            query.AddRange(new byte[] { 0x12, 0x34 }); // Transaction ID
+            query.AddRange(new byte[] { 0x01, 0x00 }); // Flags: standard query
+            query.AddRange(new byte[] { 0x00, 0x01 }); // Questions: 1
+            query.AddRange(new byte[] { 0x00, 0x00 }); // Answer RRs: 0
+            query.AddRange(new byte[] { 0x00, 0x00 }); // Authority RRs: 0
+            query.AddRange(new byte[] { 0x00, 0x00 }); // Additional RRs: 0
+
+            // Question section
+            foreach (var part in domain.Split('.'))
+            {
+                query.Add((byte)part.Length);
+                query.AddRange(Encoding.ASCII.GetBytes(part));
+            }
+            query.Add(0); // Fim do nome
+
+            query.AddRange(BitConverter.GetBytes((ushort)IPAddress.HostToNetworkOrder((short)queryType))); // Type (MX = 15)
+            query.AddRange(new byte[] { 0x00, 0x01 }); // Class: IN
+
+            return query.ToArray();
+        }
+
+        /// <summary>
+        /// Faz o parse da resposta DNS para extrair registros MX
+        /// </summary>
+        private static List<(int Priority, string Exchange)> ParseDnsMxResponse(byte[] response)
+        {
+            var mxRecords = new List<(int Priority, string Exchange)>();
+
+            try
+            {
+                var answerCount = (response[6] << 8) | response[7];
+                var offset = 12;
+
+                // Pula a seção de perguntas
+                while (offset < response.Length && response[offset] != 0)
+                {
+                    if ((response[offset] & 0xC0) == 0xC0)
+                    {
+                        offset += 2;
+                        break;
+                    }
+                    offset += response[offset] + 1;
+                }
+                offset += 5; // Pula o null byte e o tipo/classe
+
+                // Lê as respostas
+                for (int i = 0; i < answerCount && offset < response.Length; i++)
+                {
+                    // Pula o nome (pode ser um ponteiro)
+                    if ((response[offset] & 0xC0) == 0xC0)
+                    {
+                        offset += 2;
+                    }
+                    else
+                    {
+                        while (offset < response.Length && response[offset] != 0)
+                        {
+                            offset += response[offset] + 1;
+                        }
+                        offset++;
+                    }
+
+                    if (offset + 10 > response.Length) break;
+
+                    var type = (response[offset] << 8) | response[offset + 1];
+                    offset += 8; // Pula type, class, TTL
+
+                    var dataLength = (response[offset] << 8) | response[offset + 1];
+                    offset += 2;
+
+                    if (type == 15 && offset + dataLength <= response.Length) // MX record
+                    {
+                        var priority = (response[offset] << 8) | response[offset + 1];
+                        offset += 2;
+
+                        var exchange = ReadDnsName(response, offset);
+                        mxRecords.Add((priority, exchange));
+                        offset += dataLength - 2;
+                    }
+                    else
+                    {
+                        offset += dataLength;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Util.WriteDebug($"Erro ao fazer parse da resposta DNS: {ex.Message}");
+            }
+
+            return mxRecords;
+        }
+
+        /// <summary>
+        /// Lê um nome DNS da resposta
+        /// </summary>
+        private static string ReadDnsName(byte[] response, int offset)
+        {
+            var parts = new List<string>();
+            var currentOffset = offset;
+            var jumped = false;
+            var maxJumps = 5;
+            var jumps = 0;
+
+            while (currentOffset < response.Length && response[currentOffset] != 0 && jumps < maxJumps)
+            {
+                if ((response[currentOffset] & 0xC0) == 0xC0)
+                {
+                    if (!jumped)
+                    {
+                        jumped = true;
+                    }
+
+                    currentOffset = ((response[currentOffset] & 0x3F) << 8) | response[currentOffset + 1];
+                    jumps++;
+                }
+                else
+                {
+                    var length = response[currentOffset];
+                    currentOffset++;
+
+                    if (currentOffset + length <= response.Length)
+                    {
+                        parts.Add(Encoding.ASCII.GetString(response, currentOffset, length));
+                        currentOffset += length;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+
+            return string.Join(".", parts);
+        }
+
+        /// <summary>
+        /// Tenta derivar o servidor SMTP a partir de um registro MX
+        /// </summary>
+        private static string GetSmtpFromMx(string mxRecord)
+        {
+            // Remove pontos do final
+            mxRecord = mxRecord.TrimEnd('.');
+
+            // Tenta transformar o MX record em servidor SMTP
+            // Exemplos:
+            // mx.google.com -> smtp.gmail.com
+            // mail.protection.outlook.com -> smtp.office365.com
+            // aspmx.l.google.com -> smtp.gmail.com
+
+            if (mxRecord.Contains("google") || mxRecord.Contains("gmail"))
+            {
+                return "smtp.gmail.com";
+            }
+
+            if (mxRecord.Contains("outlook") || mxRecord.Contains("protection.outlook"))
+            {
+                return "smtp.office365.com";
+            }
+
+            if (mxRecord.Contains("hotmail"))
+            {
+                return "smtp-mail.outlook.com";
+            }
+
+            // Substitui prefixos comuns de MX por smtp
+            if (mxRecord.StartsWith("mx."))
+            {
+                return mxRecord.Replace("mx.", "smtp.");
+            }
+
+            if (mxRecord.StartsWith("mail."))
+            {
+                return mxRecord.Replace("mail.", "smtp.");
+            }
+
+            // Tenta adicionar smtp. antes do domínio principal
+            var parts = mxRecord.Split('.');
+            if (parts.Length >= 2)
+            {
+                var domain = string.Join(".", parts.Skip(parts.Length - 2));
+                return $"smtp.{domain}";
+            }
+
+            return mxRecord;
+        }
+
         public static SmtpClient FindSmtp(string Email)
         {
             if (Email.IsEmail() == false)
@@ -815,6 +1085,18 @@ namespace Extensions.Mail
                     return FluentMailMessage.GmailSmtp();
 
                 default:
+                    // Tenta descobrir SMTP através de registros MX
+                    var mxRecords = GetMxRecords(domain);
+
+                    if (mxRecords.Any())
+                    {
+                        var primaryMx = mxRecords.First().Exchange;
+                        var smtpHost = GetSmtpFromMx(primaryMx);
+                        Util.WriteDebug($"SMTP descoberto via MX para {domain}: {smtpHost}");
+                        return new SmtpClient(smtpHost, 587) { EnableSsl = true };
+                    }
+
+                    // Fallback para o padrão smtp.domain
                     return new SmtpClient($"smtp.{domain}", 587) { EnableSsl = true };
             }
         }
@@ -917,7 +1199,6 @@ namespace Extensions.Mail
                 if (Smtp != null)
                 {
                     Smtp.Timeout = (int)value.TotalMilliseconds;
-
                 }
                 else
                 {
@@ -1179,15 +1460,17 @@ namespace Extensions.Mail
     }
 
     [Flags]
- 
     public enum SentStatus
     {
         [Display(Name = "None")]
         None = 0,
+
         [Display(Name = "Success")]
         Success = 1,
+
         [Display(Name = "Error")]
         Error = 2,
+
         [Display(Name = "Partial Success")]
         PartialSuccess = Error + Success,
     }

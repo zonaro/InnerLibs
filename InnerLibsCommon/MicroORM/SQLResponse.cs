@@ -66,7 +66,7 @@ namespace Extensions.DataBases
     public class ApiResponse : Dictionary<string, object>
     {
         public string Message { get => this.GetValueOr("message").ChangeType<string>(); set => this["message"] = value; }
-        public bool HasError => this.ContainsKey("error") || Status.FlatEqual("error");
+        public bool HasError => (this.ContainsKey("error") && this["error"] != null && this["error"]?.AsBool() ==true) || Status.FlatEqual("error");
         public string Status { get => this.GetValueOr("status").ChangeType<string>(); set => this["status"] = value; }
 
         public void SetError(string message)
@@ -76,6 +76,16 @@ namespace Extensions.DataBases
         }
 
         public void SetError(Exception ex) => SetError(ex.ToFullExceptionString());
+
+        public string GetError()
+        {
+            if (HasError)
+            {
+                return this.GetValueOr("error", "Error")?.ChangeType<string>();
+            }
+
+            return null;
+        }
     }
 
     public class ApiResponse<T> : ApiResponse
